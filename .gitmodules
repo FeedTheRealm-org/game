@@ -1,0 +1,3 @@
+[submodule "Packages/1_FeedTheRealm_Shared"]
+	path = Packages/1_FeedTheRealm_Shared
+	url = git@github.com:FeedTheRealm-org/shared-unity-package.git
