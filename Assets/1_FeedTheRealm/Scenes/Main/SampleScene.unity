@@ -224,8 +224,8 @@ Transform:
   m_GameObject: {fileID: 329775186}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.13, y: -1.58, z: -0.03}
-  m_LocalScale: {x: 117.09468, y: 1, z: 90.112465}
+  m_LocalPosition: {x: -0.13, y: -3.37, z: -0.03}
+  m_LocalScale: {x: 117.09468, y: 4.5592, z: 90.112465}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -648,8 +648,8 @@ Transform:
   m_GameObject: {fileID: 973469921}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.11, y: 0.55, z: 0.73}
-  m_LocalScale: {x: 2.4458, y: 3.3674, z: 11.99}
+  m_LocalPosition: {x: -6.11, y: 0.55, z: 3.6}
+  m_LocalScale: {x: 2.4458, y: 3.3674, z: 21.873358}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -712,6 +712,7 @@ GameObject:
   - component: {fileID: 1554288638}
   - component: {fileID: 1554288637}
   - component: {fileID: 1554288636}
+  - component: {fileID: 1554288640}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -814,6 +815,33 @@ Transform:
   - {fileID: 1710352249}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &1554288640
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554288634}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 1
+  m_Constraints: 112
+  m_CollisionDetection: 1
 --- !u!1 &1652596412
 GameObject:
   m_ObjectHideFlags: 0
@@ -969,7 +997,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5607ea28d9110be3b6ffac2dd61ee7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
-  playerTransform: {fileID: 1554288639}
+  rb: {fileID: 1554288640}
   moveSpeed: 5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
