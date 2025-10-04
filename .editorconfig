@@ -1,0 +1,15 @@
+# .editorconfig file
+
+root = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+csharp_new_line_before_open_brace = never
+csharp_brace_style = inline
+
+csharp_indent_block_elements = true
+csharp_indent_case_labels = false
+
+csharp_new_line_after_else = false
