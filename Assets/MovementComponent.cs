@@ -51,14 +51,14 @@ public class MovementComponent : MonoBehaviour {
     }
 
     private void FixedUpdate() {
+        Vector3 targetPosition = rb.position;
         if (!isDashing) {
-            Vector3 targetPosition = rb.position + currentDirection * moveSpeed * Time.fixedDeltaTime;
-            rb.MovePosition(targetPosition);
+            targetPosition = rb.position + currentDirection * moveSpeed * Time.fixedDeltaTime;
         }
 
+        Quaternion targetRotation = rb.rotation;
         if (currentDirection.sqrMagnitude > 0.001f) {
-            Quaternion targetRotation = Quaternion.LookRotation(currentDirection, Vector3.up);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, 0.15f));
+            targetRotation = Quaternion.LookRotation(currentDirection, Vector3.up);
         }
 
         Bounds bounds = col.bounds;
@@ -67,10 +67,15 @@ public class MovementComponent : MonoBehaviour {
             Debug.Log($"Grounded ({hit.collider.name})");
             isGrounded = true;
             lastHit = hit;
+            // stick to ground
+            targetPosition.y = hit.point.y + col.bounds.extents.y;
         } else {
             Debug.Log("Not Grounded");
             isGrounded = false;
         }
+
+        rb.MovePosition(targetPosition);
+        rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, 0.15f));
     }
 
     private void OnDrawGizmos() {
