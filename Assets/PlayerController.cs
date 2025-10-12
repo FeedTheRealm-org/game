@@ -6,11 +6,11 @@ public class PlayerController : MonoBehaviour {
 
     private void OnEnable() {
         inputReader.MoveEvent += movementComponent.OnMove;
-        // inputReader.DashEvent += OnDash;
+        inputReader.DashEvent += movementComponent.OnDash;
     }
 
     private void OnDisable() {
         inputReader.MoveEvent -= movementComponent.OnMove;
-        // inputReader.DashEvent -= OnDash;
+        inputReader.DashEvent -= movementComponent.OnDash;
     }
 }
