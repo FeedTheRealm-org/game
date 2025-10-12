@@ -1000,13 +1000,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
   rb: {fileID: 1554288640}
   col: {fileID: 1554288636}
-  groundCheckDistance: 0.2
+  groundCheckDistance: 1
+  groundCheckSphereRadius: 0.4
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   moveSpeed: 5
-  dashSpeed: 20
-  dashDuration: 0.2
+  dashSpeed: 50
+  dashDuration: 0.1
 --- !u!1 &1997765890
 GameObject:
   m_ObjectHideFlags: 0

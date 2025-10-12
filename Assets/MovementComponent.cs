@@ -4,7 +4,8 @@ using System.Collections;
 public class MovementComponent : MonoBehaviour {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Collider col;
-    [SerializeField] private float groundCheckDistance = 0.2f;
+    [SerializeField] private float groundCheckDistance = 1f;
+    [SerializeField] private float groundCheckSphereRadius = 0.4f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float dashSpeed = 50f;
@@ -12,7 +13,7 @@ public class MovementComponent : MonoBehaviour {
 
     private Vector3 currentDirection;
     private bool isGrounded;
-    private Vector3 rayOrigin;
+    private Vector3 groundCheckSphereOrigin;
     private RaycastHit lastHit;
     private bool isDashing;
 
@@ -22,12 +23,11 @@ public class MovementComponent : MonoBehaviour {
     }
 
     public void OnMove(Vector2 direction) {
-        Debug.Log($"OnMove: {direction}");
         currentDirection = new Vector3(direction.x, 0f, direction.y);
     }
 
     public void OnDash() {
-        if (isDashing) return;
+        if (isDashing || !isGrounded) return;
 
         Vector3 dashDirection = currentDirection.normalized;
         if (dashDirection == Vector3.zero)
@@ -61,15 +61,14 @@ public class MovementComponent : MonoBehaviour {
             rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, 0.15f));
         }
 
-        rayOrigin = new Vector3(col.bounds.center.x, col.bounds.min.y, col.bounds.center.z);
-        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundCheckDistance, groundLayer)) {
+        Bounds bounds = col.bounds;
+        groundCheckSphereOrigin = new Vector3(bounds.center.x, bounds.center.y, bounds.center.z);
+        if (Physics.SphereCast(groundCheckSphereOrigin, groundCheckSphereRadius, Vector3.down, out RaycastHit hit, groundCheckDistance, groundLayer)) {
             Debug.Log($"Grounded ({hit.collider.name})");
-            Debug.DrawRay(rayOrigin, Vector3.down * groundCheckDistance, Color.red);
             isGrounded = true;
             lastHit = hit;
         } else {
             Debug.Log("Not Grounded");
-            Debug.DrawRay(rayOrigin, Vector3.down * groundCheckDistance, Color.green);
             isGrounded = false;
         }
     }
@@ -77,10 +76,15 @@ public class MovementComponent : MonoBehaviour {
     private void OnDrawGizmos() {
         if (!Application.isPlaying) return;
 
-        Gizmos.color = isGrounded ? Color.red : Color.green;
-        Gizmos.DrawLine(rayOrigin, rayOrigin + Vector3.down * groundCheckDistance);
+        Gizmos.color = isGrounded ? Color.green : Color.red;
 
-        // optional: show a small sphere at hit point
+        // Draw the sphere cast visualization
+        Vector3 endPoint = groundCheckSphereOrigin + Vector3.down * groundCheckDistance;
+
+        Gizmos.DrawWireSphere(groundCheckSphereOrigin, groundCheckSphereRadius);
+        Gizmos.DrawLine(groundCheckSphereOrigin, endPoint);
+        Gizmos.DrawWireSphere(endPoint, groundCheckSphereRadius);
+
         if (isGrounded)
             Gizmos.DrawSphere(lastHit.point, 0.05f);
     }
