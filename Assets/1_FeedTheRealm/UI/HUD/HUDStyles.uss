@@ -1,0 +1,28 @@
+VisualElement {
+}
+
+.character-icon {
+    width: 30%;
+    height: auto;
+    align-self: auto;
+}
+
+#HealthBar .unity-progress-bar__progress {
+    background-color: rgb(145, 255, 165);
+}
+
+#StaminaBar .unity-progress-bar__progress {
+    background-color: rgb(255, 133, 120);
+}
+
+.progress-bar {
+    font-size: 50%;
+}
+
+.currency-container {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.fast-use-slot {
+}
