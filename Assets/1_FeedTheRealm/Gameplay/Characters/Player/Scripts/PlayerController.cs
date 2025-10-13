@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Connects player input to the movement component.
+/// </summary>
 public class PlayerController : MonoBehaviour {
     [SerializeField] public PlayerInputReader inputReader;
     [SerializeField] private GameObject playerPrefab;

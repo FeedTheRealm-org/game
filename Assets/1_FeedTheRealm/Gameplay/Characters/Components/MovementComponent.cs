@@ -25,10 +25,16 @@ public class MovementComponent : MonoBehaviour {
         if (col == null) col = GetComponent<Collider>();
     }
 
+    /// <summary>
+    /// Called by the input system to set movement direction.
+    /// </summary>
     public void OnMove(Vector2 direction) {
         currentDirection = new Vector3(direction.x, 0f, direction.y);
     }
 
+    /// <summary>
+    /// Called by the input system to initiate a dash.
+    /// </summary>
     public void OnDash() {
         if (isDashing || !isGrounded) return;
 
@@ -39,6 +45,9 @@ public class MovementComponent : MonoBehaviour {
         StartCoroutine(DashRoutine(dashDirection));
     }
 
+    /// <summary>
+    /// Coroutine to handle the dash force aplication for the defined duration.
+    /// </summary>
     private IEnumerator DashRoutine(Vector3 direction) {
         isDashing = true;
 
