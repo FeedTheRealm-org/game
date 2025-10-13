@@ -27,8 +27,8 @@ public class HUDController : MonoBehaviour {
     /// </summary>
     private void registerButtonCallbacks() {
         // Character Icon Button
-        _charcterIconButton = _characterData.Q<Button>("CharacterIcon");
-        _charcterIconButton?.RegisterCallback<ClickEvent>(ev => {
+        var _characterIconButton = _characterData.Q<Button>("CharacterIcon");
+        _characterIconButton?.RegisterCallback<ClickEvent>(ev => {
             Debug.Log("Character Icon Clicked");
         });
 
