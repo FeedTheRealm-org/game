@@ -683,7 +683,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2c025b5871ae5ee0a77f0506d92a74a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  inputReader: {fileID: 11400000, guid: 4a06db493fa21af0582d1fbdcd4ae3a6, type: 2}
+  inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
   playerPrefab: {fileID: 1554288634}
 --- !u!4 &1353866476
 Transform:
