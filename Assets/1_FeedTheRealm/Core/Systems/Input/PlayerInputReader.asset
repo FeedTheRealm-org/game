@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc8068c6f7652addca0a37e21934207c, type: 3}
-  m_Name: InputReader
-  m_EditorClassIdentifier: Assembly-CSharp::InputReader
+  m_Name: PlayerInputReader
+  m_EditorClassIdentifier: FeedTheRealm_Shared::PlayerInputReader

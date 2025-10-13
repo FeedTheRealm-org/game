@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Handles player movement including walking and dashing.
+/// </summary>
 public class MovementComponent : MonoBehaviour {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Collider col;
@@ -64,13 +67,11 @@ public class MovementComponent : MonoBehaviour {
         Bounds bounds = col.bounds;
         groundCheckSphereOrigin = new Vector3(bounds.center.x, bounds.center.y, bounds.center.z);
         if (Physics.SphereCast(groundCheckSphereOrigin, groundCheckSphereRadius, Vector3.down, out RaycastHit hit, groundCheckDistance, groundLayer)) {
-            Debug.Log($"Grounded ({hit.collider.name})");
             isGrounded = true;
             lastHit = hit;
             // stick to ground
             targetPosition.y = hit.point.y + col.bounds.extents.y;
         } else {
-            Debug.Log("Not Grounded");
             isGrounded = false;
         }
 
