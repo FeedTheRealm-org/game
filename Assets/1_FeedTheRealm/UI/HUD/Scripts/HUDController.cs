@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Manages the HUD elements and their interactions.
+/// </summary>
 public class HUDController : MonoBehaviour {
+    // Containers
     private VisualElement _characterData;
     private VisualElement _fastUseSlotsContainer;
-
-    private Button _charcterIconButton;
-
 
     void Start() {
         var root = GetComponent<UIDocument>().rootVisualElement;
@@ -21,6 +22,9 @@ public class HUDController : MonoBehaviour {
         registerButtonCallbacks();
     }
 
+    /// <summary>
+    /// Registers click event callbacks for buttons in the HUD.
+    /// </summary>
     private void registerButtonCallbacks() {
         // Character Icon Button
         _charcterIconButton = _characterData.Q<Button>("CharacterIcon");
