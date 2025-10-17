@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private GameObject playerPrefab;
 
     private MovementComponent movementComponent;
+    private DashComponent dashComponent;
 
     private void Awake() {
         if (playerPrefab != null) {
@@ -18,12 +19,21 @@ public class PlayerController : MonoBehaviour {
         } else {
             Debug.LogError("Player prefab is not assigned in the inspector.");
         }
+
+        if (playerPrefab != null) {
+            dashComponent = playerPrefab.GetComponentInChildren<DashComponent>();
+            if (dashComponent == null) {
+                Debug.LogError("DashComponent not found on the instantiated player prefab.");
+            }
+        } else {
+            Debug.LogError("Player prefab is not assigned in the inspector.");
+        }
     }
 
     private void OnEnable() {
         if (inputReader != null && movementComponent != null) {
             inputReader.MoveEvent += movementComponent.OnMove;
-            inputReader.DashEvent += movementComponent.OnDash;
+            inputReader.DashEvent += dashComponent.OnDash;
 
         }
     }
@@ -31,7 +41,7 @@ public class PlayerController : MonoBehaviour {
     private void OnDisable() {
         if (inputReader != null && movementComponent != null) {
             inputReader.MoveEvent -= movementComponent.OnMove;
-            inputReader.DashEvent -= movementComponent.OnDash;
+            inputReader.DashEvent -= dashComponent.OnDash;
 
         }
     }
