@@ -47,8 +47,10 @@ MonoBehaviour:
   rb: {fileID: 3095535743837438187}
   groundCheck: {fileID: 7363032869278509141}
   movement: {fileID: 6635281394657522069}
+  stamina: {fileID: 2438133850326919669}
   dashSpeed: 50
   dashDuration: 0.1
+  staminaConsumption: 20
 --- !u!1 &1338230871044949917
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,6 +135,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4270318855245512371}
   - {fileID: 1519632585074130702}
   - {fileID: 4748078725734835070}
   - {fileID: 4265093331562953355}
@@ -382,3 +385,51 @@ MonoBehaviour:
   col: {fileID: 4885086532300312383}
   groundCheck: {fileID: 7363032869278509141}
   moveSpeed: 5
+  verticalLerpFactor: 10
+--- !u!1 &7880192633554750530
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4270318855245512371}
+  - component: {fileID: 2438133850326919669}
+  m_Layer: 0
+  m_Name: StaminaComponent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4270318855245512371
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7880192633554750530}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.22287, y: 0, z: 1.13197}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5951985247975804607}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2438133850326919669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7880192633554750530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e31cc92a0afd21bebb5b679ca1c8c13d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StaminaComponent
+  maxStamina: 100
+  recoverAmount: 5
+  recoverRate: 1
