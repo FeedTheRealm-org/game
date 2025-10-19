@@ -11,27 +11,23 @@ public class PlayerController : MonoBehaviour {
     private DashComponent dashComponent;
 
     private void Awake() {
-        if (playerPrefab != null) {
-            movementComponent = playerPrefab.GetComponentInChildren<MovementComponent>();
-            if (movementComponent == null) {
-                Debug.LogError("MovementComponent not found on the instantiated player prefab.");
-            }
-        } else {
+        if (playerPrefab == null) {
             Debug.LogError("Player prefab is not assigned in the inspector.");
         }
 
-        if (playerPrefab != null) {
-            dashComponent = playerPrefab.GetComponentInChildren<DashComponent>();
-            if (dashComponent == null) {
-                Debug.LogError("DashComponent not found on the instantiated player prefab.");
-            }
-        } else {
-            Debug.LogError("Player prefab is not assigned in the inspector.");
+        movementComponent = playerPrefab.GetComponentInChildren<MovementComponent>();
+        if (movementComponent == null) {
+            Debug.LogError("MovementComponent not found on the instantiated player prefab.");
+        }
+
+        dashComponent = playerPrefab.GetComponentInChildren<DashComponent>();
+        if (dashComponent == null) {
+            Debug.LogError("DashComponent not found on the instantiated player prefab.");
         }
     }
 
     private void OnEnable() {
-        if (inputReader != null && movementComponent != null) {
+        if (inputReader != null && movementComponent != null && dashComponent != null) {
             inputReader.MoveEvent += movementComponent.OnMove;
             inputReader.DashEvent += dashComponent.OnDash;
 
@@ -39,7 +35,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void OnDisable() {
-        if (inputReader != null && movementComponent != null) {
+        if (inputReader != null && movementComponent != null && dashComponent != null) {
             inputReader.MoveEvent -= movementComponent.OnMove;
             inputReader.DashEvent -= dashComponent.OnDash;
 

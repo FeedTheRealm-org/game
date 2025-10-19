@@ -17,13 +17,17 @@ public class HUDController : MonoBehaviour {
 
     void Start() {
         var root = GetComponent<UIDocument>().rootVisualElement;
+
         _characterData = root.Q<VisualElement>("CharacterData");
         _fastUseSlotsContainer = root.Q<VisualElement>("FastUseSlotsContainer");
+        if (_characterData == null || _fastUseSlotsContainer == null) {
+            Debug.LogError("CharacterData or FastUseSlotsContainer not found in the UI Document.");
+            return;
+        }
 
         _staminaBar = _characterData.Q<ProgressBar>("StaminaBar");
-
-        if (_characterData == null || _fastUseSlotsContainer == null || _staminaBar == null) {
-            Debug.LogError("CharacterData or FastUseSlotsContainer not found in the UI Document.");
+        if (_staminaBar == null) {
+            Debug.LogError("StaminaBar not found in CharacterData.");
             return;
         }
 

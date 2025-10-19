@@ -7,7 +7,7 @@ public class StaminaComponent : MonoBehaviour {
 
     private Coroutine recoveryCoroutine;
 
-    private void Start() {
+    private void OnEnable() {
         recoveryCoroutine = StartCoroutine(staminaRecoveryRoutine());
     }
 
