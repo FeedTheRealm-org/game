@@ -430,6 +430,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e31cc92a0afd21bebb5b679ca1c8c13d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StaminaComponent
-  maxStamina: 100
-  recoverAmount: 5
-  recoverRate: 1
+  staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}

@@ -5,19 +5,30 @@ using UnityEngine.UIElements;
 /// Manages the HUD elements and their interactions.
 /// </summary>
 public class HUDController : MonoBehaviour {
+    [SerializeField]
+    private Stamina staminaData;
+
     // Containers
     private VisualElement _characterData;
     private VisualElement _fastUseSlotsContainer;
+
+    // Progress Bars
+    private ProgressBar _staminaBar;
 
     void Start() {
         var root = GetComponent<UIDocument>().rootVisualElement;
         _characterData = root.Q<VisualElement>("CharacterData");
         _fastUseSlotsContainer = root.Q<VisualElement>("FastUseSlotsContainer");
 
-        if (_characterData == null || _fastUseSlotsContainer == null) {
+        _staminaBar = _characterData.Q<ProgressBar>("StaminaBar");
+
+        if (_characterData == null || _fastUseSlotsContainer == null || _staminaBar == null) {
             Debug.LogError("CharacterData or FastUseSlotsContainer not found in the UI Document.");
             return;
         }
+
+        // Initialize values
+        _staminaBar.value = _staminaBar.highValue;
 
         registerButtonCallbacks();
     }
@@ -39,6 +50,28 @@ public class HUDController : MonoBehaviour {
             button.RegisterCallback<ClickEvent>(ev => {
                 Debug.Log(button.name + " clicked");
             });
+        }
+    }
+
+    private void OnEnable() {
+        if (staminaData != null) {
+            staminaData.OnStaminaChanged += handleStaminaChange;
+        }
+    }
+
+    private void OnDisable() {
+        if (staminaData != null) {
+            staminaData.OnStaminaChanged -= handleStaminaChange;
+        }
+    }
+
+    /// <summary>
+    /// Handles changes in stamina and updates the HUD accordingly.
+    /// </summary>
+    private void handleStaminaChange(float value) {
+        if (_staminaBar != null) {
+            // Adjust for a stamina greater or lower than progress bar max (100).
+            _staminaBar.value = value * _staminaBar.highValue / staminaData.MaxStamina;
         }
     }
 }
