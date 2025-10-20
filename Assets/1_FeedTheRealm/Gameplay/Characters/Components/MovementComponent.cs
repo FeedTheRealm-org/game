@@ -9,9 +9,9 @@ public class MovementComponent : MonoBehaviour {
     [SerializeField] private GroundCheckComponent groundCheck;
 
     [SerializeField] private float moveSpeed = 5f;
-    // verticalLerpFactor is the interpolation factor for how smooth the stick to ground is
-    [SerializeField] private float verticalLerpFactor = 10f;
 
+    private Transform cameraTransform;
+    private Vector2 playerDirection;
     private float movingMagnitudeThreash = 0.001f;
     private bool isMoving;
 
@@ -21,34 +21,40 @@ public class MovementComponent : MonoBehaviour {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (col == null) col = GetComponent<Collider>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
+        cameraTransform = Camera.main.transform;
     }
 
     /// <summary>
     /// Called by the input system to set movement direction.
     /// </summary>
     public void OnMove(Vector2 direction) {
-        CurrentDirection = new Vector3(direction.x, 0f, direction.y);
-        isMoving = false;
-        if (CurrentDirection.sqrMagnitude > movingMagnitudeThreash) {
-            isMoving = true; // if movement is noticeable
-        }
+        playerDirection = direction;
+        isMoving = playerDirection.sqrMagnitude > movingMagnitudeThreash;
     }
 
     private void FixedUpdate() {
+        updateCurrentDirectionWithCamera();
+
+        // Calculate next position
         Vector3 targetPosition = rb.position;
         targetPosition = rb.position + CurrentDirection * moveSpeed * Time.fixedDeltaTime;
 
-        Quaternion targetRotation = rb.rotation;
-        if (isMoving) {
-            targetRotation = Quaternion.LookRotation(CurrentDirection, Vector3.up);
-        }
-
+        // Stick to ground logic
         if (groundCheck.IsGrounded && isMoving) {
-            float targetY = groundCheck.LastHit.point.y + col.bounds.extents.y;
-            targetPosition.y = Mathf.Lerp(targetPosition.y, targetY, Time.fixedDeltaTime * verticalLerpFactor);
+            Vector3 normal = groundCheck.LastHit.normal;
+            rb.linearVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, normal);
+            rb.AddForce(-normal * 50f, ForceMode.Acceleration); // Small force to contact ground
         }
 
         rb.MovePosition(targetPosition);
-        rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, 0.15f));
+    }
+
+    /// <summary>
+    /// Updates the current movement direction based on camera orientation.
+    /// </summary>
+    private void updateCurrentDirectionWithCamera() {
+        Vector3 camForward = new Vector3(cameraTransform.forward.x, 0f, cameraTransform.forward.z).normalized;
+        Vector3 camRight = new Vector3(cameraTransform.right.x, 0f, cameraTransform.right.z).normalized;
+        CurrentDirection = (camRight * playerDirection.x + camForward * playerDirection.y).normalized;
     }
 }
