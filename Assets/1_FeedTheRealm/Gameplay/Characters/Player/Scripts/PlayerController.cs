@@ -1,9 +1,10 @@
 using UnityEngine;
+using Unity.Netcode;
 
 /// <summary>
 /// Connects player input to the movement component.
 /// </summary>
-public class PlayerController : MonoBehaviour {
+public class PlayerController : NetworkBehaviour {
     [SerializeField] public PlayerInputReader inputReader;
     [SerializeField] private GameObject playerPrefab;
 
