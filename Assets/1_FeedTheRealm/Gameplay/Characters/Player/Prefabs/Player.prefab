@@ -400,7 +400,6 @@ MonoBehaviour:
   col: {fileID: 4885086532300312383}
   groundCheck: {fileID: 7363032869278509141}
   moveSpeed: 5
-  verticalLerpFactor: 10
 --- !u!1 &7880192633554750530
 GameObject:
   m_ObjectHideFlags: 0
@@ -508,7 +507,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.101
+      value: -0.509
       objectReference: {fileID: 0}
     - target: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -528,7 +527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.038
+      value: -0.049
       objectReference: {fileID: 0}
     - target: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: m_AnchoredPosition.y
