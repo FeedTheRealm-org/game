@@ -1,8 +1,8 @@
-// Script: SimpleMultiplayerMenu.cs
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class SimpleMultiplayerMenu : MonoBehaviour
 {
@@ -11,71 +11,176 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     public Button clientButton;
     public TextMeshProUGUI statusText;
     public GameObject menuPanel;
+    public GameObject loadingPanel;
 
-    [Header("Multiplayer Settings")]
-    public string ipAddress = "127.0.0.1";
-    public ushort port = 7777;
+    [Header("Scene Settings")]
+    public string gameSceneName = "MultiplayerScene";
 
     private void Start()
     {
         hostButton.onClick.AddListener(StartHost);
         clientButton.onClick.AddListener(StartClient);
         
+        // Ocultar panel de loading al inicio
+        if (loadingPanel != null) loadingPanel.SetActive(false);
+        
         UpdateStatus("Menú listo - Elige una opción");
+        
+        // Suscribirse a eventos de conexión
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
     }
 
     public void StartHost()
     {
         UpdateStatus("Iniciando como Host...");
-        Debug.Log("Iniciando servidor en puerto: " + port);
+        ShowLoadingPanel();
         
-        NetworkManager.Singleton.StartHost();
-    
-        // Ocultar menú cuando se conecte
-        NetworkManager.Singleton.OnClientConnectedCallback += (clientId) =>
-            {
-            if (clientId == NetworkManager.Singleton.LocalClientId)
-            {
-                menuPanel.SetActive(false);
-                UpdateStatus("Host ejecutándose");
-            }
-        };
+        if (NetworkManager.Singleton.StartHost())
+        {
+            Debug.Log("Host iniciado - Cambiando a escena del juego");
+            // Cambiar a escena del juego
+            LoadGameScene();
+        }
+        else
+        {
+            UpdateStatus("❌ Error al iniciar Host");
+            HideLoadingPanel();
+        }
     }
 
     public void StartClient()
     {
         UpdateStatus("Conectando como Cliente...");
-        Debug.Log("Conectando a: " + ipAddress + ":" + port);
+        ShowLoadingPanel();
         
-        NetworkManager.Singleton.StartClient();
-    
-        // Ocultar menú cuando se conecte
-        NetworkManager.Singleton.OnClientConnectedCallback += (clientId) =>
+        if (NetworkManager.Singleton.StartClient())
         {
-            if (clientId == NetworkManager.Singleton.LocalClientId)
+            Debug.Log("Cliente conectado - Esperando escena del host...");
+            // El cliente esperará a que el host cargue la escena
+        }
+        else
+        {
+            UpdateStatus("❌ Error al conectar");
+            HideLoadingPanel();
+        }
+    }
+
+    private void LoadGameScene()
+    {
+        if (NetworkManager.Singleton.SceneManager != null)
+        {
+            // Usar NetworkSceneManager para cambiar escena
+            var status = NetworkManager.Singleton.SceneManager.LoadScene(
+                gameSceneName,
+                LoadSceneMode.Single
+            );
+            Debug.Log("Estado carga de escena: " + status);
+            
+            if (status != SceneEventProgressStatus.Started)
             {
-                menuPanel.SetActive(false);
-                UpdateStatus("Conectado al servidor");
+                Debug.LogError("Error al cargar la escena: " + status);
+                UpdateStatus("❌ Error al cargar escena del juego");
+                HideLoadingPanel();
             }
-        };
+        }
+        else
+        {
+            Debug.LogError("NetworkSceneManager no encontrado");
+            // Fallback: cargar escena normalmente
+            UnityEngine.SceneManagement.SceneManager.LoadScene(gameSceneName);
+        }
     }
 
-    private void OnHostStarted()
+    private void OnClientConnected(ulong clientId)
     {
-        UpdateStatus("Host ejecutándose en puerto: " + port);
-        menuPanel.SetActive(false); // Ocultar menú cuando esté conectado
+        Debug.Log($"Cliente conectado: {clientId}");
+        
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            if (NetworkManager.Singleton.IsHost)
+            {
+                UpdateStatus("✅ Host ejecutándose - Cargando juego...");
+            }
+            else
+            {
+                UpdateStatus("✅ Conectado al servidor - Esperando juego...");
+            }
+        }
     }
 
-    private void OnClientConnected()
+    private void OnClientDisconnected(ulong clientId)
     {
-        UpdateStatus("Conectado al servidor");
-        menuPanel.SetActive(false); // Ocultar menú cuando esté conectado
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            UpdateStatus("❌ Desconectado del servidor");
+            HideLoadingPanel();
+            ShowMenuPanel();
+        }
     }
 
-    public void ShowMenu()
+    // Manejar evento cuando la escena se carga via Network
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoaded;
+        }
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnNetworkSceneLoaded;
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+        }
+    }
+
+    private void OnNetworkSceneLoaded(string sceneName, LoadSceneMode loadSceneMode, System.Collections.Generic.List<ulong> clientsCompleted, System.Collections.Generic.List<ulong> clientsTimedOut)
+    {
+        Debug.Log($"Escena cargada via network: {sceneName}");
+        if (sceneName == gameSceneName)
+        {
+            // Escena del juego cargada - ocultar UI completamente
+            HideAllUI();
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"Escena cargada: {scene.name}");
+        if (scene.name == gameSceneName)
+        {
+            HideAllUI();
+        }
+    }
+
+    private void ShowLoadingPanel()
+    {
+        menuPanel.SetActive(false);
+        if (loadingPanel != null) loadingPanel.SetActive(true);
+    }
+
+    private void HideLoadingPanel()
+    {
+        if (loadingPanel != null) loadingPanel.SetActive(false);
+    }
+
+    private void ShowMenuPanel()
     {
         menuPanel.SetActive(true);
-        UpdateStatus("Menú disponible");
+        HideLoadingPanel();
+    }
+
+    private void HideAllUI()
+    {
+        menuPanel.SetActive(false);
+        HideLoadingPanel();
+        UpdateStatus("Juego en progreso...");
     }
 
     private void UpdateStatus(string message)
