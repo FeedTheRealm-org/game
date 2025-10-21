@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3095535743837438187}
   - component: {fileID: -7489883105297108210}
   - component: {fileID: -6395081664408834364}
+  - component: {fileID: 8182736384309613213}
   m_Layer: 0
   m_Name: PlayerMP
   m_TagString: Untagged
@@ -35,7 +36,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4748078725734835070}
   - {fileID: 3056454093255550284}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2857319748
+  GlobalObjectIdHash: 384103145
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -183,8 +183,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   ShowTopMostFoldoutHeaderGroup: 1
-  inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
-  playerPrefab: {fileID: 1418397613159891299}
+--- !u!114 &8182736384309613213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5607ea28d9110be3b6ffac2dd61ee7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
+  ShowTopMostFoldoutHeaderGroup: 1
+  rb: {fileID: 0}
+  col: {fileID: 0}
+  groundCheckDistance: 1
+  groundCheckSphereRadius: 0.4
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  moveSpeed: 5
+  dashSpeed: 50
+  dashDuration: 0.1
 --- !u!1 &1500702353333148001
 GameObject:
   m_ObjectHideFlags: 0
@@ -274,57 +295,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &2964502687220843152
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4748078725734835070}
-  - component: {fileID: 6635281394657522069}
-  m_Layer: 0
-  m_Name: MovementComponent
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4748078725734835070
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2964502687220843152}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5951985247975804607}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6635281394657522069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2964502687220843152}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5607ea28d9110be3b6ffac2dd61ee7a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
-  rb: {fileID: 3095535743837438187}
-  col: {fileID: 4885086532300312383}
-  groundCheckDistance: 1
-  groundCheckSphereRadius: 0.4
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  moveSpeed: 5
-  dashSpeed: 50
-  dashDuration: 0.1

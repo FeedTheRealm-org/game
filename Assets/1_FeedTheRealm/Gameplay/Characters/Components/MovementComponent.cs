@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections;
+using Unity.Netcode;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Handles player movement including walking and dashing.
 /// </summary>
-public class MovementComponent : MonoBehaviour {
+public class MovementComponent : NetworkBehaviour {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Collider col;
     [SerializeField] private float groundCheckDistance = 1f;
@@ -28,25 +30,35 @@ public class MovementComponent : MonoBehaviour {
     /// <summary>
     /// Called by the input system to set movement direction.
     /// </summary>
-    public void OnMove(Vector2 direction) {
-        currentDirection = new Vector3(direction.x, 0f, direction.y);
+    public void OnMove(InputAction.CallbackContext context) {
+        if (!IsOwner) return;
+        
+        if (context.performed) {
+            Vector2 direction = context.ReadValue<Vector2>();
+            currentDirection = new Vector3(direction.x, 0f, direction.y);
+        }
+        else if (context.canceled) {
+            currentDirection = Vector3.zero;
+        }
     }
 
     /// <summary>
     /// Called by the input system to initiate a dash.
     /// </summary>
-    public void OnDash() {
-        if (isDashing || !isGrounded) return;
+    public void OnDash(InputAction.CallbackContext context) {
+        if (!IsOwner) return;
+        
+        if (context.performed && !isDashing && isGrounded) {
+            Vector3 dashDirection = currentDirection.normalized;
+            if (dashDirection == Vector3.zero)
+                dashDirection = transform.forward;
 
-        Vector3 dashDirection = currentDirection.normalized;
-        if (dashDirection == Vector3.zero)
-            dashDirection = transform.forward;
-
-        StartCoroutine(DashRoutine(dashDirection));
+            StartCoroutine(DashRoutine(dashDirection));
+        }
     }
 
     /// <summary>
-    /// Coroutine to handle the dash force aplication for the defined duration.
+    /// Coroutine to handle the dash force application for the defined duration.
     /// </summary>
     private IEnumerator DashRoutine(Vector3 direction) {
         isDashing = true;
@@ -63,6 +75,8 @@ public class MovementComponent : MonoBehaviour {
     }
 
     private void FixedUpdate() {
+        if (!IsOwner) return;
+
         Vector3 targetPosition = rb.position;
         if (!isDashing) {
             targetPosition = rb.position + currentDirection * moveSpeed * Time.fixedDeltaTime;
@@ -102,5 +116,61 @@ public class MovementComponent : MonoBehaviour {
 
         if (isGrounded)
             Gizmos.DrawSphere(lastHit.point, 0.05f);
+    }
+
+    // Métodos legacy para compatibilidad (puedes eliminarlos después si no los usas)
+    public void OnMove(Vector2 direction) {
+        if (IsOwner) {
+            currentDirection = new Vector3(direction.x, 0f, direction.y);
+        }
+    }
+
+    public void OnDash() {
+        if (IsOwner && !isDashing && isGrounded) {
+            Vector3 dashDirection = currentDirection.normalized;
+            if (dashDirection == Vector3.zero)
+                dashDirection = transform.forward;
+
+            StartCoroutine(DashRoutine(dashDirection));
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            Debug.Log($"=== DEBUG Player Structure {OwnerClientId} ===");
+            Debug.Log($"Player GameObject: {gameObject.name}");
+            Debug.Log($"Transform position: {transform.position}");
+            
+            // Buscar componentes
+            var playerController = GetComponent<PlayerController>();
+            Debug.Log($"PlayerController: {playerController != null}");
+            
+            var movement = GetComponent<MovementComponent>();
+            Debug.Log($"MovementComponent en padre: {movement != null}");
+            
+            if (movement == null)
+            {
+                movement = GetComponentInChildren<MovementComponent>();
+                Debug.Log($"MovementComponent en hijos: {movement != null}");
+                
+                if (movement != null)
+                {
+                    Debug.Log($"Encontrado en: {movement.gameObject.name}");
+                }
+            }
+            
+            // Listar todos los hijos
+            Debug.Log($"Hijos del player:");
+            foreach (Transform child in transform)
+            {
+                Debug.Log($" - {child.name}");
+                foreach (Transform grandchild in child)
+                {
+                    Debug.Log($"   - {grandchild.name}");
+                }
+            }
+        }
     }
 }

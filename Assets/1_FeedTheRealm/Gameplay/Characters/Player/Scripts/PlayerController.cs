@@ -1,39 +1,72 @@
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.InputSystem;
 
-/// <summary>
-/// Connects player input to the movement component.
-/// </summary>
-public class PlayerController : NetworkBehaviour {
-    [SerializeField] public PlayerInputReader inputReader;
-    [SerializeField] private GameObject playerPrefab;
-
+public class PlayerController : NetworkBehaviour 
+{
+    [Header("Input")]
+    private PlayerControls playerControls;
     private MovementComponent movementComponent;
 
-    private void Awake() {
-        if (playerPrefab != null) {
-            movementComponent = playerPrefab.GetComponentInChildren<MovementComponent>();
-            if (movementComponent == null) {
-                Debug.LogError("MovementComponent not found on the instantiated player prefab.");
-            }
-        } else {
-            Debug.LogError("Player prefab is not assigned in the inspector.");
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            Debug.Log($"PlayerController inicializado para jugador {OwnerClientId}");
+            InitializeInput();
         }
     }
 
-    private void OnEnable() {
-        if (inputReader != null && movementComponent != null) {
-            inputReader.MoveEvent += movementComponent.OnMove;
-            inputReader.DashEvent += movementComponent.OnDash;
+    private void InitializeInput()
+    {
+        if (!IsOwner) return;
 
+        // Buscar MovementComponent en hijos también
+        movementComponent = GetComponentInChildren<MovementComponent>();
+        if (movementComponent == null)
+        {
+            Debug.LogError($"MovementComponent no encontrado para jugador {OwnerClientId}");
+            Debug.Log($"Buscando en: {gameObject.name}, hijos: {transform.childCount}");
+            return;
         }
+
+        // Crear controles específicos para este jugador
+        playerControls = new PlayerControls();
+        playerControls.Player.Enable();
+
+        // Configurar callbacks de input - SIN lambda para evitar problemas de desuscripción
+        playerControls.Player.Move.performed += OnMovePerformed;
+        playerControls.Player.Move.canceled += OnMoveCanceled;
+        playerControls.Player.Dash.performed += OnDashPerformed;
+
+        Debug.Log($"Input configurado para jugador {OwnerClientId}");
     }
 
-    private void OnDisable() {
-        if (inputReader != null && movementComponent != null) {
-            inputReader.MoveEvent -= movementComponent.OnMove;
-            inputReader.DashEvent -= movementComponent.OnDash;
+    // Métodos separados para evitar problemas con lambdas
+    private void OnMovePerformed(InputAction.CallbackContext context)
+    {
+        movementComponent?.OnMove(context);
+    }
 
+    private void OnMoveCanceled(InputAction.CallbackContext context)
+    {
+        movementComponent?.OnMove(context);
+    }
+
+    private void OnDashPerformed(InputAction.CallbackContext context)
+    {
+        movementComponent?.OnDash(context);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (playerControls != null)
+        {
+            playerControls.Player.Disable();
+            playerControls.Player.Move.performed -= OnMovePerformed;
+            playerControls.Player.Move.canceled -= OnMoveCanceled;
+            playerControls.Player.Dash.performed -= OnDashPerformed;
+            playerControls.Dispose();
         }
     }
 }
