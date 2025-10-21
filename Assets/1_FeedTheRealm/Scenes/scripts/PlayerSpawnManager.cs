@@ -6,70 +6,73 @@ public class PlayerSpawnManager : NetworkBehaviour
     [Header("Spawn Settings")]
     public Transform[] spawnPoints;
     
-    [Header("Debug")]
-    [SerializeField] private bool showSpawnGizmos = true;
+    [Header("Network Settings")] 
+    [SerializeField] private int maxPlayers = 100;
 
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
-            Debug.Log($"Spawn Manager activado. {spawnPoints.Length} puntos de spawn configurados.");
+            Debug.Log($"Spawn Manager activado. Máx jugadores: {maxPlayers}");
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedSpawn;
+            
+            // Configurar límites para MMO
+            NetworkManager.Singleton.ConnectionApprovalCallback += ConnectionApprovalCallback;
+        }
+    }
+
+    private void ConnectionApprovalCallback(
+        NetworkManager.ConnectionApprovalRequest request, 
+        NetworkManager.ConnectionApprovalResponse response)
+    {
+        // Aprobar conexión si no excedemos el máximo
+        if (NetworkManager.Singleton.ConnectedClients.Count < maxPlayers)
+        {
+            response.Approved = true;
+            response.CreatePlayerObject = true;
+            response.Position = GetSpawnPosition();
+            response.Rotation = Quaternion.identity;
+        }
+        else
+        {
+            response.Approved = false;
+            response.Reason = "Servidor lleno";
         }
     }
 
     private void OnClientConnectedSpawn(ulong clientId)
     {
-        if (spawnPoints.Length == 0)
-        {
-            Debug.LogError("No hay spawn points configurados!");
-            return;
-        }
-
-        try
+        if (spawnPoints.Length > 0)
         {
             int spawnIndex = (int)(clientId % (ulong)spawnPoints.Length);
             GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
             
-            // Resetear rotación también
-            player.transform.SetPositionAndRotation(
-                spawnPoints[spawnIndex].position,
-                spawnPoints[spawnIndex].rotation
-            );
-            
-            Debug.Log($"Jugador {clientId} spawn en posición {spawnIndex}: {spawnPoints[spawnIndex].position}");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error en spawn del jugador {clientId}: {e.Message}");
-        }
-    }
-
-    // Para visualizar los spawn points en el Editor
-    private void OnDrawGizmos()
-    {
-        if (!showSpawnGizmos || spawnPoints == null) return;
-
-        for (int i = 0; i < spawnPoints.Length; i++)
-        {
-            if (spawnPoints[i] != null)
+            var movement = player.GetComponent<MovementComponent>();
+            if (movement != null)
             {
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireCube(spawnPoints[i].position + Vector3.up * 0.5f, new Vector3(0.5f, 1f, 0.5f));
-                Gizmos.DrawRay(spawnPoints[i].position, spawnPoints[i].forward * 1f);
-                
-                #if UNITY_EDITOR
-                UnityEditor.Handles.Label(spawnPoints[i].position + Vector3.up * 1.5f, $"Spawn {i}");
-                #endif
+                movement.Teleport(spawnPoints[spawnIndex].position);
             }
+            else
+            {
+                player.transform.SetPositionAndRotation(
+                    spawnPoints[spawnIndex].position,
+                    spawnPoints[spawnIndex].rotation
+                );
+            }
+            
+            Debug.Log($"Jugador {clientId} spawn en posición {spawnIndex}");
         }
     }
 
-    public override void OnNetworkDespawn()
+    private Vector3 GetSpawnPosition()
     {
-        if (IsServer && NetworkManager.Singleton != null)
+        if (spawnPoints.Length > 0)
         {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedSpawn;
+            int spawnIndex = NetworkManager.Singleton.ConnectedClients.Count % spawnPoints.Length;
+            return spawnPoints[spawnIndex].position;
         }
+        return Vector3.zero;
     }
+
+    // Resto del código igual...
 }
