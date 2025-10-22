@@ -253,7 +253,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e429c8ff9e485574b8aa09ee44b4da19, type: 2}
+  - {fileID: 2100000, guid: 9045ae2864070341b9356e7b2f507353, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -885,23 +885,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &845666948 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7468862814608809854, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
-  m_PrefabInstance: {fileID: 53230203124416423}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &845666951
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 845666948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 272e875558cb42072880c2873a12ba22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteShadowComponent
 --- !u!1 &973469921
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,7 +950,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0744bcab18e19e444b1498ebfd1b47b1, type: 2}
+  - {fileID: 2100000, guid: a78e451992e8626448a929839d3ddced, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1134,7 +1117,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0744bcab18e19e444b1498ebfd1b47b1, type: 2}
+  - {fileID: 2100000, guid: a78e451992e8626448a929839d3ddced, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1435,10 +1418,7 @@ PrefabInstance:
     - {fileID: 3287116737722646862, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
     - {fileID: 1159827531496372840, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7468862814608809854, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 845666951}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
