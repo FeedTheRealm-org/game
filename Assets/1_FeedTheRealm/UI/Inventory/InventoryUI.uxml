@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Inventory/Inventory.uss?fileID=7433441132597879392&amp;guid=e1f477f809821c4f886803912d7f395c&amp;type=3#Inventory" />
+    <ui:VisualElement name="Panel" class="panel" style="flex-grow: 1; width: 397px; background-size: 100% 100%; transform-origin: center; justify-content: center; align-items: center; align-self: center; align-content: auto; padding-bottom: 33px; padding-top: 33px; padding-left: 23px; padding-right: 23px;">
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+        <ui:Button style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&amp;guid=4b3d2095baccc2041b973b66b786b9d0&amp;type=3#button2_ready_off&quot;); width: 75px; height: 75px;" />
+    </ui:VisualElement>
+</ui:UXML>
