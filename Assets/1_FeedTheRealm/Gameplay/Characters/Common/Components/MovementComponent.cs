@@ -21,7 +21,7 @@ public class MovementComponent : MonoBehaviour {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (col == null) col = GetComponent<Collider>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
-        cameraTransform = Camera.main.transform;
+        cameraTransform = Camera.main.transform; // TODO: add camera manager to handle changes in scenes, etc
     }
 
     /// <summary>
