@@ -4,25 +4,31 @@ using UnityEngine;
 /// Connects player input to the movement component.
 /// </summary>
 public class PlayerController : MonoBehaviour {
-    [SerializeField] public PlayerInputReader inputReader;
-    [SerializeField] private GameObject playerPrefab;
+    [SerializeField]
+    public PlayerInputReader inputReader;
+
+    [SerializeField]
+    private GameObject playerPrefab;
+
+    [SerializeField]
+    private Logging.Logger logger;
 
     private MovementComponent movementComponent;
     private DashComponent dashComponent;
 
     private void Awake() {
         if (playerPrefab == null) {
-            Debug.LogError("Player prefab is not assigned in the inspector.");
+            logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
         }
 
         movementComponent = playerPrefab.GetComponentInChildren<MovementComponent>();
         if (movementComponent == null) {
-            Debug.LogError("MovementComponent not found on the instantiated player prefab.");
+            logger.Log("MovementComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
 
         dashComponent = playerPrefab.GetComponentInChildren<DashComponent>();
         if (dashComponent == null) {
-            Debug.LogError("DashComponent not found on the instantiated player prefab.");
+            logger.Log("DashComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
     }
 
