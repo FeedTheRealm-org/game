@@ -21,7 +21,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         hostButton.onClick.AddListener(StartHost);
         clientButton.onClick.AddListener(StartClient);
         
-        // Ocultar panel de loading al inicio
+        // Hide loading panel at start
         if (loadingPanel != null) loadingPanel.SetActive(false);
         
         UpdateStatus("Menú listo - Elige una opción");
