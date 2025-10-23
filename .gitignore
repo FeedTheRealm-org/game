@@ -100,3 +100,4 @@ InitTestScene*.unity*
 
 # Editor
 .vscode/
+.vsconfig
