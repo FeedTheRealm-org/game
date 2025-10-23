@@ -21,7 +21,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // Buscar MovementComponent en hijos también
+        // Search for MovementComponent in children as well
         movementComponent = GetComponentInChildren<MovementComponent>();
         if (movementComponent == null)
         {
