@@ -5,6 +5,9 @@ public class StaminaComponent : MonoBehaviour {
     [SerializeField]
     private Stamina staminaData;
 
+    [SerializeField]
+    private Logging.Logger logger;
+
     private Coroutine recoveryCoroutine;
 
     private void OnEnable() {
@@ -24,7 +27,7 @@ public class StaminaComponent : MonoBehaviour {
     }
 
     public bool TryConsumeStamina(float amount) {
-        Debug.Log("Current stamina: " + staminaData.CurrentStamina + ", Consuming: " + amount);
+        logger.Log("Current stamina: " + staminaData.CurrentStamina + ", Consuming: " + amount, this);
         if (amount > staminaData.CurrentStamina) {
             return false;
         }

@@ -57,4 +57,13 @@ public class MovementComponent : MonoBehaviour {
         Vector3 camRight = new Vector3(cameraTransform.right.x, 0f, cameraTransform.right.z).normalized;
         CurrentDirection = (camRight * playerDirection.x + camForward * playerDirection.y).normalized;
     }
+
+    /// <summary>
+    /// Updates the current movement direction based on camera orientation.
+    /// </summary>
+    private void updateCurrentDirectionWithCamera() {
+        Vector3 camForward = new Vector3(cameraTransform.forward.x, 0f, cameraTransform.forward.z).normalized;
+        Vector3 camRight = new Vector3(cameraTransform.right.x, 0f, cameraTransform.right.z).normalized;
+        CurrentDirection = (camRight * playerDirection.x + camForward * playerDirection.y).normalized;
+    }
 }

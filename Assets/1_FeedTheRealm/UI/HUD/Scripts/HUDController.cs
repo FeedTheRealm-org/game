@@ -8,6 +8,9 @@ public class HUDController : MonoBehaviour {
     [SerializeField]
     private Stamina staminaData;
 
+    [SerializeField]
+    private Logging.Logger logger;
+
     // Containers
     private VisualElement _characterData;
     private VisualElement _fastUseSlotsContainer;
@@ -21,13 +24,13 @@ public class HUDController : MonoBehaviour {
         _characterData = root.Q<VisualElement>("CharacterData");
         _fastUseSlotsContainer = root.Q<VisualElement>("FastUseSlotsContainer");
         if (_characterData == null || _fastUseSlotsContainer == null) {
-            Debug.LogError("CharacterData or FastUseSlotsContainer not found in the UI Document.");
+            logger.Log("CharacterData or FastUseSlotsContainer not found in the UI Document.", this, Logging.LogType.Error);
             return;
         }
 
         _staminaBar = _characterData.Q<ProgressBar>("StaminaBar");
         if (_staminaBar == null) {
-            Debug.LogError("StaminaBar not found in CharacterData.");
+            logger.Log("StaminaBar not found in CharacterData.", this, Logging.LogType.Error);
             return;
         }
 
@@ -44,7 +47,7 @@ public class HUDController : MonoBehaviour {
         // Character Icon Button
         var _characterIconButton = _characterData.Q<Button>("CharacterIcon");
         _characterIconButton?.RegisterCallback<ClickEvent>(ev => {
-            Debug.Log("Character Icon Clicked");
+            logger.Log("Character Icon Clicked", this);
         });
 
         // Fast Use Slot Buttons
@@ -52,7 +55,7 @@ public class HUDController : MonoBehaviour {
 
         foreach (var button in buttons) {
             button.RegisterCallback<ClickEvent>(ev => {
-                Debug.Log(button.name + " clicked");
+                logger.Log(button.name + " clicked", this);
             });
         }
     }
