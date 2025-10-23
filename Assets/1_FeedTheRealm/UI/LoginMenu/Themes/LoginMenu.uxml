@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="LoginContainer" style="flex-grow: 1; display: flex; visibility: visible; overflow: visible; background-size: 100% 100%; width: 100%; position: absolute; height: 100%; top: 0%; left: 0%; background-color: rgba(255, 255, 255, 0); right: 912px; bottom: 389px; transform-origin: center; align-items: center; justify-content: center; align-self: auto; background-image: url(&quot;project://database/Assets/1_FeedTheRealm/VisualAssets/mockImg.jpg?fileID=2800000&amp;guid=953106569fba9b4bdb565889f122c1f7&amp;type=3#mockImg&quot;);">
+        <ui:VisualElement name="FormLogin" style="flex-grow: 1; background-color: rgb(255, 255, 255); width: 27.66%; height: 57.78%; flex-direction: column-reverse; justify-content: center; position: absolute; border-top-left-radius: 7.5%; border-top-right-radius: 7.5%; border-bottom-right-radius: 7.5%; border-bottom-left-radius: 7.5%;">
+            <ui:Label text="Login" name="FormTitle" style="-unity-text-align: middle-center; position: absolute; top: 15%; align-items: auto; align-content: auto; flex-basis: auto; align-self: center; font-size: 32px;" />
+            <ui:Button text="Login" name="LoginButton" style="position: absolute; top: auto; align-items: center; align-self: center; width: 80%; bottom: 10%;" />
+            <ui:TextField label="Password" placeholder-text="Ingress your password" name="PasswordField" style="-unity-text-align: middle-center; flex-direction: column; position: relative; justify-content: flex-start; align-items: center; align-self: stretch; align-content: stretch; top: 0%; width: auto; min-width: auto; max-width: none; flex-wrap: nowrap;" />
+            <ui:TextField label="Email" placeholder-text="Ingress your email" name="EmailField" style="-unity-text-align: middle-center; flex-direction: column; position: relative; justify-content: flex-start; align-items: center; align-self: stretch; align-content: stretch; top: 0%; width: auto; min-width: auto; max-width: none; flex-wrap: nowrap;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
