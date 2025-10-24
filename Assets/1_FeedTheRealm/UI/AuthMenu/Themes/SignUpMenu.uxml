@@ -6,7 +6,7 @@
             <ui:TextField label="Repeat Password" placeholder-text="filler text" name="RepeatPasswordField" class="AuthPasswordField" />
             <ui:TextField label="Password" placeholder-text="filler text" name="PasswordField" class="AuthPasswordField" />
             <ui:TextField label="Email" placeholder-text="filler text" name="EmailField" class="AuthEmailInput" />
-            <ui:Button text="Sign Up" name="SignUp" class="AuthFormButton" />
+            <ui:Button text="Sign Up" name="SignUpButton" class="AuthFormButton" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
