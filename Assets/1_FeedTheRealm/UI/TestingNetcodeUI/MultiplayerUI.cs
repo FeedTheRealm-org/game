@@ -123,7 +123,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        if (NetworkManager.Singleton != null)
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoaded;
         }
@@ -132,7 +132,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        if (NetworkManager.Singleton != null)
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnNetworkSceneLoaded;
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;

@@ -47,10 +47,10 @@ public class PlayerSpawnManager : NetworkBehaviour
             int spawnIndex = (int)(clientId % (ulong)spawnPoints.Length);
             GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
             
-            var movement = player.GetComponent<MovementComponent>();
-            if (movement != null)
+            var synchronizer = player.GetComponent<NetworkMovementSynchronizer>();
+            if (synchronizer != null)
             {
-                movement.Teleport(spawnPoints[spawnIndex].position);
+                synchronizer.Teleport(spawnPoints[spawnIndex].position);
             }
             else
             {

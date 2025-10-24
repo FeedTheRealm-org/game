@@ -1,0 +1,115 @@
+using UnityEngine;
+using Unity.Cinemachine;
+using Unity.Netcode;
+
+public class CameraSetup : MonoBehaviour
+{
+    [Header("Camera Target")]
+    [Tooltip("Optional: Specify a tag to find the player. Default is 'Player'.")]
+    public string playerTag = "Player";
+
+    [Tooltip("Optional: Manually set a specific child transform of the player (like a spine/chest bone).")]
+    public string targetChildName = "";
+
+    void Awake()
+    {
+        Camera cam = GetComponentInChildren<Camera>();
+        if (cam != null && Camera.main == null)
+        {
+            cam.tag = "MainCamera";
+        }
+    }
+
+    void Start()
+    {
+        // Wait a frame for the player to spawn
+        StartCoroutine(WaitForPlayerAndSetupCamera());
+    }
+
+    private System.Collections.IEnumerator WaitForPlayerAndSetupCamera()
+    {
+        // Wait a few frames for NetworkManager to spawn the player
+        yield return new WaitForSeconds(0.5f);
+
+        SetupCinemachineCamera();
+    }
+
+    private void SetupCinemachineCamera()
+    {
+        // Find the local player (the one owned by this client)
+        Transform playerTransform = FindLocalPlayer();
+
+        if (playerTransform == null)
+        {
+            Debug.LogError("CameraSetup: Local player not found! Make sure the player prefab has a NetworkObject and the player tag is set.");
+            return;
+        }
+
+        // If a specific child is specified, try to find it
+        Transform targetTransform = playerTransform;
+        if (!string.IsNullOrEmpty(targetChildName))
+        {
+            Transform child = playerTransform.Find(targetChildName);
+            if (child != null)
+            {
+                targetTransform = child;
+                Debug.Log($"Using child '{targetChildName}' as camera target");
+            }
+            else
+            {
+                Debug.LogWarning($"Child '{targetChildName}' not found, using player root instead");
+            }
+        }
+
+        // Find FreeLook Camera in the scene
+        var cinemachineCameras = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);
+        
+        foreach (var vcam in cinemachineCameras)
+        {
+            // Configure the camera to follow this player
+            vcam.Target.TrackingTarget = targetTransform;
+            Debug.Log($"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}");
+        }
+
+        // Alternative: Find by name if you have a specific camera
+        GameObject freeLookObj = GameObject.Find("FreeLook Camera");
+        if (freeLookObj != null)
+        {
+            var freeLookCam = freeLookObj.GetComponent<CinemachineCamera>();
+            if (freeLookCam != null)
+            {
+                freeLookCam.Target.TrackingTarget = targetTransform;
+                Debug.Log($"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}");
+            }
+        }
+    }
+
+    private Transform FindLocalPlayer()
+    {
+        // First try to find by tag
+        GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+        if (playerObj != null)
+        {
+            var netObj = playerObj.GetComponent<NetworkObject>();
+            if (netObj != null && netObj.IsOwner)
+            {
+                Debug.Log($"Found local player by tag '{playerTag}': {playerObj.name}");
+                return playerObj.transform;
+            }
+        }
+
+        // If tag search fails, find all NetworkObjects and get the local player
+        var allNetworkObjects = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
+        foreach (var netObj in allNetworkObjects)
+        {
+            if (netObj.IsOwner && netObj.IsPlayerObject)
+            {
+                Debug.Log($"Found local player by NetworkObject scan: {netObj.gameObject.name}");
+                return netObj.transform;
+            }
+        }
+
+        Debug.LogWarning("Local player not found!");
+        return null;
+    }
+}

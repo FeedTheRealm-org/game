@@ -17,6 +17,8 @@ public class MovementComponent : MonoBehaviour {
 
     public Vector3 CurrentDirection { get; private set; }
 
+    //private Logging.Logger logger;
+
     private void Awake() {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (col == null) col = GetComponent<Collider>();
@@ -33,6 +35,10 @@ public class MovementComponent : MonoBehaviour {
     }
 
     private void FixedUpdate() {
+        if (cameraTransform == null) {
+            cameraTransform = Camera.main?.transform;
+            //logger.Log("Camera.main was null in FixedUpdate, reassigned cameraTransform.", this, Logging.LogType.Warning);
+        }
         updateCurrentDirectionWithCamera();
 
         // Calculate next position
@@ -47,15 +53,6 @@ public class MovementComponent : MonoBehaviour {
         }
 
         rb.MovePosition(targetPosition);
-    }
-
-    /// <summary>
-    /// Updates the current movement direction based on camera orientation.
-    /// </summary>
-    private void updateCurrentDirectionWithCamera() {
-        Vector3 camForward = new Vector3(cameraTransform.forward.x, 0f, cameraTransform.forward.z).normalized;
-        Vector3 camRight = new Vector3(cameraTransform.right.x, 0f, cameraTransform.right.z).normalized;
-        CurrentDirection = (camRight * playerDirection.x + camForward * playerDirection.y).normalized;
     }
 
     /// <summary>

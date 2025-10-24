@@ -6,6 +6,8 @@ public class NetworkSceneManager : NetworkBehaviour
 {
     public static NetworkSceneManager Instance;
 
+    //private Logging.Logger logger;
+
     private void Awake()
     {
         if (Instance == null)
@@ -23,13 +25,13 @@ public class NetworkSceneManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsServer)
         {
-            Debug.Log("Cargando escena del juego...");
+            //logger.Log("Cargando escena del juego...", this, Logging.LogType.Info);
             // Asegúrate que este nombre coincida EXACTAMENTE con tu escena
             NetworkManager.SceneManager.LoadScene("MultiplayerScene", LoadSceneMode.Single);
         }
         else
         {
-            Debug.LogError("Solo el servidor puede cargar escenas!");
+            //logger.Log("Solo el servidor puede cargar escenas!", this, Logging.LogType.Error);
         }
     }
 
@@ -39,10 +41,12 @@ public class NetworkSceneManager : NetworkBehaviour
         NetworkManager.SceneManager.LoadScene("MultiplayerScene", LoadSceneMode.Single);
     }
 
-    public void DisconnectAndReturnToMenu() {
-        Debug.Log("Desconectando y volviendo al menú...");
+    public void DisconnectAndReturnToMenu()
+    {
+        //logger.Log("Desconectando y volviendo al menú...", this, Logging.LogType.Info);
 
-        if (NetworkManager.Singleton != null) {
+        if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.Shutdown();
         }
 
@@ -67,11 +71,11 @@ public class NetworkSceneManager : NetworkBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        Debug.Log($"Cliente {clientId} conectado. ¿Es servidor?: {NetworkManager.Singleton.IsServer}");
+        //logger.Log($"Cliente {clientId} conectado. ¿Es servidor?: {NetworkManager.Singleton.IsServer}", this, Logging.LogType.Info);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"Escena cargada: {scene.name}. ¿Es servidor?: {NetworkManager.Singleton.IsServer}");
+        //logger.Log($"Escena cargada: {scene.name}. ¿Es servidor?: {NetworkManager.Singleton.IsServer}", this, Logging.LogType.Info);
     } 
 }
