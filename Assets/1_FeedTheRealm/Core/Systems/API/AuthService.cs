@@ -25,7 +25,7 @@ namespace API {
         [System.Serializable]
         class ErrorResponse { public string error; }
 
-        public IEnumerator Login(string email, string password, System.Action<string> handler) {
+        public IEnumerator Login(string email, string password, System.Action<string, string> handler) {
             var url = $"http://{Hostname}:{Port}/auth/login";
             var payload = new LoginPayload { email = email, password = password };
             var json = JsonUtility.ToJson(payload);
@@ -43,12 +43,12 @@ namespace API {
             if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
                 var res = string.IsNullOrEmpty(responseText) ? null : JsonUtility.FromJson<ErrorResponse>(responseText);
                 logger.Log($"Login error: {(res != null ? res.error : responseText)} - {responseText}", this, Logging.LogType.Error);
-                handler?.Invoke("");
+                handler?.Invoke("", "");
             } else {
                 var res = JsonUtility.FromJson<LoginResponse>(responseText);
                 logger.Log($"Login response: {responseText}", this);
                 logger.Log($"Login successful: {res.token}", this);
-                handler?.Invoke(!string.IsNullOrEmpty(res.token) ? res.token : "");
+                handler?.Invoke(!string.IsNullOrEmpty(res.token) ? res.token : "", email);
             }
         }
 
