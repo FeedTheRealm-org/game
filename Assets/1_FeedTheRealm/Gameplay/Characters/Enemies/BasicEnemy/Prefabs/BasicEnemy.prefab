@@ -179,6 +179,7 @@ MonoBehaviour:
   col: {fileID: 4885086532300312383}
   groundCheck: {fileID: 0}
   moveSpeed: 5
+  visualRoot: {fileID: 0}
 --- !u!1 &6880780016325336480
 GameObject:
   m_ObjectHideFlags: 0
