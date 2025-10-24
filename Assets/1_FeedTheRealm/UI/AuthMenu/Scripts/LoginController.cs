@@ -14,6 +14,9 @@ public class LoginController : MonoBehaviour {
   private SceneAsset targetScene;
 
   [SerializeField]
+  private SceneAsset otherFormScene;
+
+  [SerializeField]
   private Logging.Logger logger;
 
   private VisualElement ui;
@@ -21,6 +24,7 @@ public class LoginController : MonoBehaviour {
   private Button _loginButton;
   private TextField _emailField;
   private TextField _passwordField;
+  private Label _changeButton;
 
   private AsyncOperation preloadOperation;
 
@@ -33,6 +37,12 @@ public class LoginController : MonoBehaviour {
 
     _loginButton = ui.Q<Button>("LoginButton");
     _loginButton.clicked += OnLoginClicked;
+
+    _changeButton = ui.Q<Label>("SignUpChangeButton");
+    _changeButton.RegisterCallback<ClickEvent>(evt => {
+      logger.Log("Navigating to " + otherFormScene.name + ".", this);
+      SceneManager.LoadScene(otherFormScene.name);
+    });
 
     _emailField = ui.Q<TextField>("EmailField");
     _passwordField = ui.Q<TextField>("PasswordField");

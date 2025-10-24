@@ -14,14 +14,18 @@ public class SignUpController : MonoBehaviour {
     private SceneAsset targetScene;
 
     [SerializeField]
+    private SceneAsset otherFormScene;
+
+    [SerializeField]
     private Logging.Logger logger;
 
     private VisualElement ui;
 
-    private Button _loginButton;
+    private Button _signUpButton;
     private TextField _emailField;
     private TextField _passwordField;
     private TextField _repeatedPasswordField;
+    private Label _changeButton;
 
     private AsyncOperation preloadOperation;
 
@@ -32,8 +36,14 @@ public class SignUpController : MonoBehaviour {
     private void OnEnable() {
         logger.Log("SignUpController enabled.", this);
 
-        _loginButton = ui.Q<Button>("SignUpButton");
-        _loginButton.clicked += OnLoginClicked;
+        _signUpButton = ui.Q<Button>("SignUpButton");
+        _signUpButton.clicked += OnLoginClicked;
+
+        _changeButton = ui.Q<Label>("LoginChangeButton");
+        _changeButton.RegisterCallback<ClickEvent>(evt => {
+            logger.Log("Navigating to " + otherFormScene.name + ".", this);
+            SceneManager.LoadScene(otherFormScene.name);
+        });
 
         _emailField = ui.Q<TextField>("EmailField");
         _passwordField = ui.Q<TextField>("PasswordField");
@@ -41,8 +51,8 @@ public class SignUpController : MonoBehaviour {
     }
 
     private void OnDisable() {
-        if (_loginButton != null)
-            _loginButton.clicked -= OnLoginClicked;
+        if (_signUpButton != null)
+            _signUpButton.clicked -= OnLoginClicked;
     }
 
     private void OnLoginClicked() {

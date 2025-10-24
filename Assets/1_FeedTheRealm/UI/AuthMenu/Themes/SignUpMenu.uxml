@@ -3,10 +3,11 @@
     <ui:VisualElement name="SignUpContainer" class="AuthContainer" style="flex-grow: 1;">
         <ui:VisualElement name="SignUpForm" class="formBox" style="flex-grow: 1;">
             <ui:Label text="Sign Up" name="TitleForm" class="AuthFormTitle" style="top: 7%; left: auto;" />
+            <ui:Label text="Already have account? Login here" name="LoginChangeButton" class="AuthChangeButton" style="top: 1%;" />
             <ui:TextField label="Repeat Password" placeholder-text="filler text" name="RepeatPasswordField" class="AuthPasswordField" />
             <ui:TextField label="Password" placeholder-text="filler text" name="PasswordField" class="AuthPasswordField" />
             <ui:TextField label="Email" placeholder-text="filler text" name="EmailField" class="AuthEmailInput" />
-            <ui:Button text="Sign Up" name="SignUpButton" class="AuthFormButton" />
+            <ui:Button text="Sign Up" name="SignUpButton" class="AuthFormButton" style="bottom: 8%;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

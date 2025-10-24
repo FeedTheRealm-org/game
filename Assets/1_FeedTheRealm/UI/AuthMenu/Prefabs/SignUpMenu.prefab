@@ -71,4 +71,5 @@ MonoBehaviour:
   authService: {fileID: 11400000, guid: 6af1c691ab174e24ba00c1dfe0fda281, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   targetScene: {fileID: 102900000, guid: abd87fe87e8b55f40820f171267a39bc, type: 3}
+  otherFormScene: {fileID: 102900000, guid: abd87fe87e8b55f40820f171267a39bc, type: 3}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
