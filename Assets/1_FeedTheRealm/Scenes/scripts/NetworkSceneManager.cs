@@ -6,7 +6,8 @@ public class NetworkSceneManager : NetworkBehaviour
 {
     public static NetworkSceneManager Instance;
 
-    //private Logging.Logger logger;
+    //[SerializeField] private Logging.Logger logger;
+
 
     private void Awake()
     {

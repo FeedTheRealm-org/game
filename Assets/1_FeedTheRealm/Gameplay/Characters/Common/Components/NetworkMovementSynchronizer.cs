@@ -25,8 +25,6 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
     private Vector3 lastSentPosition;
     private Quaternion lastSentRotation;
 
-    //private Logging.Logger logger;
-
     private void Awake()
     {
         if (movementComponent == null) movementComponent = GetComponent<MovementComponent>();

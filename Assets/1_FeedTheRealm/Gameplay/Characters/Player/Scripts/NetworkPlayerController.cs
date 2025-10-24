@@ -13,13 +13,13 @@ public class NetworkPlayerController : NetworkBehaviour
     private MovementComponent movementComponent;
     private DashComponent dashComponent;
 
-    //private Logging.Logger logger;
+    [SerializeField] private Logging.Logger logger;
 
     public override void OnNetworkSpawn()
     {
         if (IsOwner)
         {
-            //logger.Log($"NetworkPlayerController initialized for player {OwnerClientId}", this, Logging.LogType.Info);
+            logger.Log($"NetworkPlayerController initialized for player {OwnerClientId}", this, Logging.LogType.Info);
             InitializeInput();
         }
     }
@@ -32,14 +32,14 @@ public class NetworkPlayerController : NetworkBehaviour
         movementComponent = GetComponentInChildren<MovementComponent>();
         if (movementComponent == null)
         {
-            //logger.Log($"MovementComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"MovementComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
             return;
         }
 
         dashComponent = GetComponentInChildren<DashComponent>();
         if (dashComponent == null)
         {
-            //logger.Log($"DashComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"DashComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
         }
 
         // Create player-specific controls
@@ -51,7 +51,7 @@ public class NetworkPlayerController : NetworkBehaviour
         playerControls.Player.Move.canceled += OnMoveCanceled;
         playerControls.Player.Dash.performed += OnDashPerformed;
 
-        //logger.Log($"Input configured for player {OwnerClientId}", this, Logging.LogType.Info);
+        logger.Log($"Input configured for player {OwnerClientId}", this, Logging.LogType.Info);
     }
 
     // Separate methods to avoid lambda issues

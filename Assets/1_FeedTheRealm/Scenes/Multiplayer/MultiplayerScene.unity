@@ -592,7 +592,7 @@ GameObject:
   - component: {fileID: 497294215}
   m_Layer: 6
   m_Name: Spawn1
-  m_TagString: Respawn
+  m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -606,7 +606,7 @@ Transform:
   m_GameObject: {fileID: 497294214}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.17, y: 2.16, z: 1.3}
+  m_LocalPosition: {x: 24, y: 4.87, z: -6.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -797,7 +797,7 @@ Transform:
   m_GameObject: {fileID: 612637179}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.58, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -846,7 +846,13 @@ MonoBehaviour:
   spawnPoints:
   - {fileID: 497294215}
   - {fileID: 1604503870}
+  autoDetectSpawnPoints: 1
+  spawnPointTag: SpawnPoint
+  groundReference: {fileID: 1482854318}
+  adjustToGroundHeight: 1
+  heightOffset: 5
   maxPlayers: 100
+  logger: {fileID: 11400000, guid: aee7d7782f2f76eaf8981e23d2e7d39c, type: 2}
 --- !u!1 &654996329
 GameObject:
   m_ObjectHideFlags: 0
@@ -872,7 +878,7 @@ Transform:
   m_GameObject: {fileID: 654996329}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.52, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1171,7 +1177,7 @@ GameObject:
   - component: {fileID: 1604503870}
   m_Layer: 0
   m_Name: Spawn2
-  m_TagString: Untagged
+  m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1185,7 +1191,7 @@ Transform:
   m_GameObject: {fileID: 1604503869}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.21, y: 2.18, z: 2.88}
+  m_LocalPosition: {x: -24.86, y: -2.55, z: 9.14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1222,6 +1228,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
   disconnectButton: {fileID: 0}
   returnToMenuPanel: {fileID: 0}
+  logger: {fileID: 11400000, guid: 89a40de6843109e618e33501724bb512, type: 2}
 --- !u!4 &1626990562
 Transform:
   m_ObjectHideFlags: 0
@@ -1283,7 +1290,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bc947f37d4a78ebea8448e118d23c91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraSetup
-  targetOverride: {fileID: 0}
+  playerTag: Player
+  targetChildName: 
+  logger: {fileID: 11400000, guid: 7c8d84d8d4cd0cd72af353ba9d79b0e7, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

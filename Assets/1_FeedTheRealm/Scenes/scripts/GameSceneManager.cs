@@ -9,12 +9,14 @@ public class GameSceneManager : MonoBehaviour
     public Button disconnectButton;
     public GameObject returnToMenuPanel;
 
+    [SerializeField] private Logging.Logger logger;
+
     // Agregar controles para el Input System
     private PlayerControls uiControls;
 
     private void Start()
     {
-        Debug.Log("Escena del juego cargada correctamente");
+        logger.Log("Escena del juego cargada correctamente", this, Logging.LogType.Info);
 
         if (disconnectButton != null)
         {

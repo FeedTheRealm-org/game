@@ -11,6 +11,8 @@ public class CameraSetup : MonoBehaviour
     [Tooltip("Optional: Manually set a specific child transform of the player (like a spine/chest bone).")]
     public string targetChildName = "";
 
+    [SerializeField] private Logging.Logger logger;
+
     void Awake()
     {
         Camera cam = GetComponentInChildren<Camera>();
@@ -41,7 +43,7 @@ public class CameraSetup : MonoBehaviour
 
         if (playerTransform == null)
         {
-            Debug.LogError("CameraSetup: Local player not found! Make sure the player prefab has a NetworkObject and the player tag is set.");
+            logger.Log("CameraSetup: Local player not found! Make sure the player prefab has a NetworkObject and the player tag is set.", this, Logging.LogType.Error);
             return;
         }
 
@@ -53,11 +55,11 @@ public class CameraSetup : MonoBehaviour
             if (child != null)
             {
                 targetTransform = child;
-                Debug.Log($"Using child '{targetChildName}' as camera target");
+                logger.Log($"Using child '{targetChildName}' as camera target", this, Logging.LogType.Info);
             }
             else
             {
-                Debug.LogWarning($"Child '{targetChildName}' not found, using player root instead");
+                logger.Log($"Child '{targetChildName}' not found, using player root instead", this, Logging.LogType.Warning);
             }
         }
 
@@ -68,7 +70,7 @@ public class CameraSetup : MonoBehaviour
         {
             // Configure the camera to follow this player
             vcam.Target.TrackingTarget = targetTransform;
-            Debug.Log($"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}");
+            logger.Log($"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this, Logging.LogType.Info);
         }
 
         // Alternative: Find by name if you have a specific camera
@@ -79,7 +81,7 @@ public class CameraSetup : MonoBehaviour
             if (freeLookCam != null)
             {
                 freeLookCam.Target.TrackingTarget = targetTransform;
-                Debug.Log($"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}");
+                logger.Log($"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this, Logging.LogType.Info);
             }
         }
     }
@@ -93,7 +95,7 @@ public class CameraSetup : MonoBehaviour
             var netObj = playerObj.GetComponent<NetworkObject>();
             if (netObj != null && netObj.IsOwner)
             {
-                Debug.Log($"Found local player by tag '{playerTag}': {playerObj.name}");
+                logger.Log($"Found local player by tag '{playerTag}': {playerObj.name}", this, Logging.LogType.Info);
                 return playerObj.transform;
             }
         }
@@ -104,12 +106,12 @@ public class CameraSetup : MonoBehaviour
         {
             if (netObj.IsOwner && netObj.IsPlayerObject)
             {
-                Debug.Log($"Found local player by NetworkObject scan: {netObj.gameObject.name}");
+                logger.Log($"Found local player by NetworkObject scan: {netObj.gameObject.name}", this, Logging.LogType.Info);
                 return netObj.transform;
             }
         }
 
-        Debug.LogWarning("Local player not found!");
+        logger.Log("Local player not found!", this, Logging.LogType.Warning);
         return null;
     }
 }
