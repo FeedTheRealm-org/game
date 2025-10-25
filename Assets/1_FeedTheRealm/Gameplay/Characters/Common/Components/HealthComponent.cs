@@ -1,8 +1,9 @@
 using UnityEngine;
+using System;
 
 public class HealthComponent : MonoBehaviour {
     [SerializeField]
-    private int maxHealth = 100;
+    public int MaxHealth = 100;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -11,9 +12,12 @@ public class HealthComponent : MonoBehaviour {
 
     private Animator _animator;
 
+    public event Action<float> OnHealthChanged;
+
     private void Start() {
         _animator = GetComponentInChildren<Animator>();
-        currentHealth = maxHealth;
+        currentHealth = MaxHealth;
+        OnHealthChanged?.Invoke(currentHealth);
     }
 
     public void TakeDamage(int damage) {
@@ -23,6 +27,7 @@ public class HealthComponent : MonoBehaviour {
         } else {
             _animator.SetTrigger("3_Damaged");
         }
+        OnHealthChanged?.Invoke(currentHealth);
         logger.Log($"Took {damage} damage, current health: {currentHealth}", this);
     }
 
