@@ -1,29 +1,133 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using UnityEngine.UIElements;
 
 public class MenuSceneManager : MonoBehaviour
 {
+    [Header("Loading Screen")]
+    [SerializeField] private LoadingScreenController loadingScreenController;
+    
     private Coroutine loadSceneCoroutine;
+    
+    private void Awake()
+    {
+        // Si no está asignado, intentar encontrarlo
+        if (loadingScreenController == null)
+        {
+            loadingScreenController = FindFirstObjectByType<LoadingScreenController>();
+            Debug.Log($"[MenuSceneManager] LoadingScreenController autodetectado: {loadingScreenController != null}");
+        }
+        else
+        {
+            Debug.Log($"[MenuSceneManager] LoadingScreenController ya asignado: {loadingScreenController != null}");
+        }
+    }
     
     public void StartHost()
     {
-        NetworkManager.Singleton.StartHost();
-        // Esperar un frame para que el host esté listo antes de cambiar escena
-        loadSceneCoroutine = StartCoroutine(LoadGameSceneAfterHost());
+        Debug.Log("[MenuSceneManager] StartHost() llamado");
+        loadSceneCoroutine = StartCoroutine(StartHostCoroutine());
     }
-
-    private System.Collections.IEnumerator LoadGameSceneAfterHost()
+    
+    private System.Collections.IEnumerator StartHostCoroutine()
     {
-        yield return new WaitForSeconds(0.5f); // Pequeño delay
+        Debug.Log("[MenuSceneManager] StartHostCoroutine iniciado");
+        
+        // Mostrar loading screen primero
+        if (loadingScreenController != null)
+        {
+            Debug.Log("[MenuSceneManager] Llamando a loadingScreenController.Show()");
+            loadingScreenController.Show();
+        }
+        else
+        {
+            Debug.LogError("[MenuSceneManager] loadingScreenController es NULL!");
+        }
+        
+        // Esperar un frame para que el UI se renderice
+        yield return null;
+        
+        // Iniciar host
+        NetworkManager.Singleton.StartHost();
+        
+        // Esperar a que el host esté listo
+        yield return new WaitForSeconds(0.5f);
+        
+        // Cargar la escena del juego
         NetworkSceneManager.Instance.LoadGameScene();
+        
+        // Esperar displayDuration y luego hacer fade out
+        yield return new WaitForSeconds(2f);
+        
+        // Iniciar fade out
+        if (loadingScreenController != null)
+        {
+            yield return StartCoroutine(FadeOutLoadingScreen());
+        }
+        
         loadSceneCoroutine = null;
+    }
+    
+    private System.Collections.IEnumerator FadeOutLoadingScreen()
+    {
+        float fadeOutDuration = 1f;
+        var uiDocument = loadingScreenController.GetComponent<UIDocument>();
+        
+        if (uiDocument != null && uiDocument.rootVisualElement != null)
+        {
+            var rootElement = uiDocument.rootVisualElement;
+            float elapsedTime = 0f;
+            
+            while (elapsedTime < fadeOutDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeOutDuration);
+                rootElement.style.opacity = alpha;
+                yield return null;
+            }
+            
+            rootElement.style.display = DisplayStyle.None;
+        }
     }
 
     public void StartClient()
     {
+        Debug.Log("[MenuSceneManager] StartClient() llamado");
+        loadSceneCoroutine = StartCoroutine(StartClientCoroutine());
+    }
+    
+    private System.Collections.IEnumerator StartClientCoroutine()
+    {
+        Debug.Log("[MenuSceneManager] StartClientCoroutine iniciado");
+        
+        // Mostrar loading screen primero
+        if (loadingScreenController != null)
+        {
+            Debug.Log("[MenuSceneManager] Llamando a loadingScreenController.Show() para cliente");
+            loadingScreenController.Show();
+        }
+        else
+        {
+            Debug.LogError("[MenuSceneManager] loadingScreenController es NULL en StartClient!");
+        }
+        
+        // Esperar un frame para que el UI se renderice
+        yield return null;
+        
+        // Iniciar cliente
         NetworkManager.Singleton.StartClient();
-        // Los clientes se unen automáticamente a la escena del host
+        
+        // Esperar displayDuration
+        yield return new WaitForSeconds(2f);
+        
+        // Iniciar fade out
+        if (loadingScreenController != null)
+        {
+            yield return StartCoroutine(FadeOutLoadingScreen());
+        }
+        
+        loadSceneCoroutine = null;
     }
 
     public void QuitGame() => Application.Quit();

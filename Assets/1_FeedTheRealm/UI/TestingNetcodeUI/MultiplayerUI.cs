@@ -17,6 +17,9 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     [Header("Scene Settings")]
     public string gameSceneName = "MultiplayerScene";
     
+    [Header("Loading Screen")]
+    [SerializeField] private LoadingScreenController loadingScreenController;
+    
     [Header("Preload")]
     public ScenePreloader scenePreloader; // Referencia al preloader
 
@@ -27,6 +30,13 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     {
         hostButton.onClick.AddListener(StartHost);
         clientButton.onClick.AddListener(StartClient);
+        
+        // Buscar LoadingScreenController si no está asignado
+        if (loadingScreenController == null)
+        {
+            loadingScreenController = FindFirstObjectByType<LoadingScreenController>();
+            logger?.Log($"LoadingScreenController autodetectado: {loadingScreenController != null}", this, Logging.LogType.Info);
+        }
         
         // Ocultar panel de loading al inicio
         if (loadingPanel != null) loadingPanel.SetActive(false);
@@ -62,16 +72,53 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         UpdateStatus("Iniciando como Host...");
         ShowLoadingPanel();
         
+        // Mostrar loading screen
+        if (loadingScreenController != null)
+        {
+            logger?.Log("[MultiplayerUI] Mostrando loading screen para Host", this, Logging.LogType.Info);
+            loadingScreenController.Show();
+        }
+        else
+        {
+            logger?.Log("[MultiplayerUI] LoadingScreenController no encontrado!", this, Logging.LogType.Warning);
+        }
+        
+        StartCoroutine(StartHostCoroutine());
+    }
+    
+    private System.Collections.IEnumerator StartHostCoroutine()
+    {
+        // Esperar un frame para que el loading screen se renderice
+        yield return null;
+        
         if (NetworkManager.Singleton.StartHost())
         {
             logger.Log("Host iniciado - Cambiando a escena del juego", this, Logging.LogType.Info);
+            
+            // Esperar un poco antes de cambiar escena
+            yield return new WaitForSeconds(0.5f);
+            
             // Cambiar a escena del juego
             LoadGameScene();
+            
+            // Iniciar el ocultamiento automático del loading screen después del delay
+            // (que tiene DontDestroyOnLoad y sobrevivirá al cambio de escena)
+            if (loadingScreenController != null)
+            {
+                logger?.Log("[MultiplayerUI] Iniciando auto-hide del loading screen con delay", this, Logging.LogType.Info);
+                loadingScreenController.HideWithDelay();
+            }
         }
         else
         {
             UpdateStatus("❌ Error al iniciar Host");
             HideLoadingPanel();
+            
+            // Ocultar loading screen si hay error
+            if (loadingScreenController != null)
+            {
+                loadingScreenController.Hide();
+            }
         }
     }
 
@@ -80,15 +127,43 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         UpdateStatus("Conectando como Cliente...");
         ShowLoadingPanel();
         
+        // Mostrar loading screen
+        if (loadingScreenController != null)
+        {
+            logger?.Log("[MultiplayerUI] Mostrando loading screen para Client", this, Logging.LogType.Info);
+            loadingScreenController.Show();
+        }
+        
+        StartCoroutine(StartClientCoroutine());
+    }
+    
+    private System.Collections.IEnumerator StartClientCoroutine()
+    {
+        // Esperar un frame para que el loading screen se renderice
+        yield return null;
+        
         if (NetworkManager.Singleton.StartClient())
         {
             logger.Log("Cliente conectado - Esperando escena del host...", this, Logging.LogType.Info);
             // El cliente esperará a que el host cargue la escena
+            
+            // Iniciar el ocultamiento automático del loading screen después del delay
+            if (loadingScreenController != null)
+            {
+                logger?.Log("[MultiplayerUI] Iniciando auto-hide del loading screen con delay para cliente", this, Logging.LogType.Info);
+                loadingScreenController.HideWithDelay();
+            }
         }
         else
         {
             UpdateStatus("❌ Error al conectar");
             HideLoadingPanel();
+            
+            // Ocultar loading screen si hay error
+            if (loadingScreenController != null)
+            {
+                loadingScreenController.Hide();
+            }
         }
     }
 
