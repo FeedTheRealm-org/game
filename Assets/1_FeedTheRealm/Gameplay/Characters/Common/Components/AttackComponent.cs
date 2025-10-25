@@ -12,6 +12,9 @@ public class AttackComponent : MonoBehaviour {
     private float attackCooldown = 0.4f;
 
     [SerializeField]
+    private int attackDamage = 40;
+
+    [SerializeField]
     private Transform hitPoint;
 
     [SerializeField]
@@ -31,7 +34,7 @@ public class AttackComponent : MonoBehaviour {
         Collider[] hitTargets = Physics.OverlapSphere(hitPoint.position, hitRadius, targetLayer);
         foreach (Collider target in hitTargets) {
             logger.Log($"Hit target: {target.name}", this);
-            // Here you can add logic to apply damage to the target
+            target.GetComponent<HealthComponent>()?.TakeDamage(attackDamage);
         }
 
         if (hitTargets.Length == 0) {
