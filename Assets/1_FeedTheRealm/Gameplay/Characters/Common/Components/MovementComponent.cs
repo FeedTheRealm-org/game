@@ -17,6 +17,8 @@ public class MovementComponent : MonoBehaviour {
 
     public Vector3 CurrentDirection { get; private set; }
 
+    //private Logging.Logger logger;
+
     private void Awake() {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (col == null) col = GetComponent<Collider>();
@@ -33,6 +35,10 @@ public class MovementComponent : MonoBehaviour {
     }
 
     private void FixedUpdate() {
+        if (cameraTransform == null) {
+            cameraTransform = Camera.main?.transform;
+            //logger.Log("Camera.main was null in FixedUpdate, reassigned cameraTransform.", this, Logging.LogType.Warning);
+        }
         updateCurrentDirectionWithCamera();
 
         // Calculate next position
