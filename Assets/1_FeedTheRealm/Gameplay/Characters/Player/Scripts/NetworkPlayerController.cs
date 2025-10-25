@@ -19,7 +19,7 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (IsOwner)
         {
-            logger.Log($"NetworkPlayerController initialized for player {OwnerClientId}", this, Logging.LogType.Info);
+            logger.Log($"NetworkPlayerController initialized for player {OwnerClientId}", this);
             InitializeInput();
         }
     }
@@ -51,7 +51,7 @@ public class NetworkPlayerController : NetworkBehaviour
         playerControls.Player.Move.canceled += OnMoveCanceled;
         playerControls.Player.Dash.performed += OnDashPerformed;
 
-        logger.Log($"Input configured for player {OwnerClientId}", this, Logging.LogType.Info);
+        logger.Log($"Input configured for player {OwnerClientId}", this);
     }
 
     // Separate methods to avoid lambda issues

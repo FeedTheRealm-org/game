@@ -16,33 +16,33 @@ public class MenuSceneManager : MonoBehaviour
         if (loadingScreenController == null)
         {
             loadingScreenController = FindFirstObjectByType<LoadingScreenController>();
-            Debug.Log($"[MenuSceneManager] LoadingScreenController autodetectado: {loadingScreenController != null}");
+            Debug.Log($"[MenuSceneManager] LoadingScreenController auto-detected: {loadingScreenController != null}");
         }
         else
         {
-            Debug.Log($"[MenuSceneManager] LoadingScreenController ya asignado: {loadingScreenController != null}");
+            Debug.Log($"[MenuSceneManager] LoadingScreenController already assigned: {loadingScreenController != null}");
         }
     }
     
     public void StartHost()
     {
-        Debug.Log("[MenuSceneManager] StartHost() llamado");
+        Debug.Log("[MenuSceneManager] StartHost() called");
         loadSceneCoroutine = StartCoroutine(StartHostCoroutine());
     }
     
     private System.Collections.IEnumerator StartHostCoroutine()
     {
-        Debug.Log("[MenuSceneManager] StartHostCoroutine iniciado");
+        Debug.Log("[MenuSceneManager] StartHostCoroutine started");
         
         // Mostrar loading screen primero
         if (loadingScreenController != null)
         {
-            Debug.Log("[MenuSceneManager] Llamando a loadingScreenController.Show()");
+            Debug.Log("[MenuSceneManager] Calling loadingScreenController.Show()");
             loadingScreenController.Show();
         }
         else
         {
-            Debug.LogError("[MenuSceneManager] loadingScreenController es NULL!");
+            Debug.LogError("[MenuSceneManager] loadingScreenController is NULL!");
         }
         
         // Esperar un frame para que el UI se renderice
@@ -93,23 +93,23 @@ public class MenuSceneManager : MonoBehaviour
 
     public void StartClient()
     {
-        Debug.Log("[MenuSceneManager] StartClient() llamado");
+        Debug.Log("[MenuSceneManager] StartClient() called");
         loadSceneCoroutine = StartCoroutine(StartClientCoroutine());
     }
     
     private System.Collections.IEnumerator StartClientCoroutine()
     {
-        Debug.Log("[MenuSceneManager] StartClientCoroutine iniciado");
+        Debug.Log("[MenuSceneManager] StartClientCoroutine started");
         
         // Mostrar loading screen primero
         if (loadingScreenController != null)
         {
-            Debug.Log("[MenuSceneManager] Llamando a loadingScreenController.Show() para cliente");
+            Debug.Log("[MenuSceneManager] Calling loadingScreenController.Show() for client");
             loadingScreenController.Show();
         }
         else
         {
-            Debug.LogError("[MenuSceneManager] loadingScreenController es NULL en StartClient!");
+            Debug.LogError("[MenuSceneManager] loadingScreenController is NULL in StartClient!");
         }
         
         // Esperar un frame para que el UI se renderice

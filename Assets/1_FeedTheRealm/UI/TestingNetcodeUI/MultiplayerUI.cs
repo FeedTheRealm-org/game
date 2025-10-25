@@ -35,13 +35,13 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         if (loadingScreenController == null)
         {
             loadingScreenController = FindFirstObjectByType<LoadingScreenController>();
-            logger?.Log($"LoadingScreenController autodetectado: {loadingScreenController != null}", this, Logging.LogType.Info);
+            logger?.Log($"LoadingScreenController auto-detected: {loadingScreenController != null}", this);
         }
         
         // Ocultar panel de loading al inicio
         if (loadingPanel != null) loadingPanel.SetActive(false);
         
-        UpdateStatus("Menú listo - Elige una opción");
+        UpdateStatus("Menu ready - Choose an option");
         
         // Suscribirse a eventos de conexión
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
@@ -50,7 +50,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         // Iniciar precarga si el preloader está asignado
         if (scenePreloader != null && !scenePreloader.IsPreloadComplete())
         {
-            UpdateStatus("Precargando escena del juego...");
+            UpdateStatus("Preloading game scene...");
             scenePreloader.StartPreload();
             StartCoroutine(WaitForPreloadAndUpdateStatus());
         }
@@ -64,23 +64,23 @@ public class SimpleMultiplayerMenu : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
         
-        UpdateStatus("✅ Listo para jugar - Elige una opción");
+        UpdateStatus("✅ Ready to play - Choose an option");
     }
 
     public void StartHost()
     {
-        UpdateStatus("Iniciando como Host...");
+        UpdateStatus("Starting as Host...");
         ShowLoadingPanel();
         
         // Mostrar loading screen
         if (loadingScreenController != null)
         {
-            logger?.Log("[MultiplayerUI] Mostrando loading screen para Host", this, Logging.LogType.Info);
+            logger?.Log("[MultiplayerUI] Showing loading screen for Host", this);
             loadingScreenController.Show();
         }
         else
         {
-            logger?.Log("[MultiplayerUI] LoadingScreenController no encontrado!", this, Logging.LogType.Warning);
+            logger?.Log("[MultiplayerUI] LoadingScreenController not found!", this, Logging.LogType.Warning);
         }
         
         StartCoroutine(StartHostCoroutine());
@@ -93,7 +93,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         
         if (NetworkManager.Singleton.StartHost())
         {
-            logger.Log("Host iniciado - Cambiando a escena del juego", this, Logging.LogType.Info);
+            logger.Log("Host started - Switching to game scene", this);
             
             // Esperar un poco antes de cambiar escena
             yield return new WaitForSeconds(0.5f);
@@ -105,13 +105,13 @@ public class SimpleMultiplayerMenu : MonoBehaviour
             // (que tiene DontDestroyOnLoad y sobrevivirá al cambio de escena)
             if (loadingScreenController != null)
             {
-                logger?.Log("[MultiplayerUI] Iniciando auto-hide del loading screen con delay", this, Logging.LogType.Info);
+                logger?.Log("[MultiplayerUI] Starting auto-hide of loading screen with delay", this);
                 loadingScreenController.HideWithDelay();
             }
         }
         else
         {
-            UpdateStatus("❌ Error al iniciar Host");
+            UpdateStatus("❌ Error starting Host");
             HideLoadingPanel();
             
             // Ocultar loading screen si hay error
@@ -124,13 +124,13 @@ public class SimpleMultiplayerMenu : MonoBehaviour
 
     public void StartClient()
     {
-        UpdateStatus("Conectando como Cliente...");
+        UpdateStatus("Connecting as Client...");
         ShowLoadingPanel();
         
         // Mostrar loading screen
         if (loadingScreenController != null)
         {
-            logger?.Log("[MultiplayerUI] Mostrando loading screen para Client", this, Logging.LogType.Info);
+            logger?.Log("[MultiplayerUI] Showing loading screen for Client", this);
             loadingScreenController.Show();
         }
         
@@ -144,19 +144,19 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         
         if (NetworkManager.Singleton.StartClient())
         {
-            logger.Log("Cliente conectado - Esperando escena del host...", this, Logging.LogType.Info);
+            logger.Log("Client connected - Waiting for host scene...", this);
             // El cliente esperará a que el host cargue la escena
             
             // Iniciar el ocultamiento automático del loading screen después del delay
             if (loadingScreenController != null)
             {
-                logger?.Log("[MultiplayerUI] Iniciando auto-hide del loading screen con delay para cliente", this, Logging.LogType.Info);
+                logger?.Log("[MultiplayerUI] Starting auto-hide of loading screen with delay for client", this);
                 loadingScreenController.HideWithDelay();
             }
         }
         else
         {
-            UpdateStatus("❌ Error al conectar");
+            UpdateStatus("❌ Error connecting");
             HideLoadingPanel();
             
             // Ocultar loading screen si hay error
@@ -171,13 +171,13 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     {
         if (NetworkManager.Singleton.SceneManager != null)
         {
-            logger.Log($"[MultiplayerUI] Loading game scene '{gameSceneName}'...", this, Logging.LogType.Info);
+            logger.Log($"[MultiplayerUI] Loading game scene '{gameSceneName}'...", this);
             
             // Si la escena está precargada, descargarla primero y luego cargarla con NetworkSceneManager
             Scene preloadedScene = SceneManager.GetSceneByName(gameSceneName);
             if (preloadedScene.isLoaded)
             {
-                logger.Log($"[MultiplayerUI] Scene was preloaded, unloading it first...", this, Logging.LogType.Info);
+                logger.Log($"[MultiplayerUI] Scene was preloaded, unloading it first...", this);
                 StartCoroutine(UnloadPreloadedThenLoadNetwork());
             }
             else
@@ -199,7 +199,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         // Descargar la escena precargada
         yield return SceneManager.UnloadSceneAsync(gameSceneName);
         
-        logger.Log($"[MultiplayerUI] Preloaded scene unloaded, now loading via NetworkSceneManager...", this, Logging.LogType.Info);
+        logger.Log($"[MultiplayerUI] Preloaded scene unloaded, now loading via NetworkSceneManager...", this);
         
         // Ahora cargar con NetworkSceneManager
         LoadNetworkScene();
@@ -212,29 +212,29 @@ public class SimpleMultiplayerMenu : MonoBehaviour
             gameSceneName,
             LoadSceneMode.Single
         );
-        logger.Log("Estado carga de escena: " + status, this, Logging.LogType.Info);
+        logger.Log("Scene load status: " + status, this);
         
         if (status != SceneEventProgressStatus.Started)
         {
-            logger.Log("Error al cargar la escena: " + status, this, Logging.LogType.Error);
-            UpdateStatus("❌ Error al cargar escena del juego");
+            logger.Log("Error loading scene: " + status, this, Logging.LogType.Error);
+            UpdateStatus("❌ Error loading game scene");
             HideLoadingPanel();
         }
     }
 
     private void OnClientConnected(ulong clientId)
     {
-        logger.Log($"Cliente conectado: {clientId}", this, Logging.LogType.Info);
+        logger.Log($"Client connected: {clientId}", this);
         
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
             if (NetworkManager.Singleton.IsHost)
             {
-                UpdateStatus("✅ Host ejecutándose - Cargando juego...");
+                UpdateStatus("✅ Host running - Loading game...");
             }
             else
             {
-                UpdateStatus("✅ Conectado al servidor - Esperando juego...");
+                UpdateStatus("✅ Connected to server - Waiting for game...");
             }
         }
     }
@@ -243,7 +243,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     {
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
-            UpdateStatus("❌ Desconectado del servidor");
+            UpdateStatus("❌ Disconnected from server");
             HideLoadingPanel();
             ShowMenuPanel();
         }
@@ -272,7 +272,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
 
     private void OnNetworkSceneLoaded(string sceneName, LoadSceneMode loadSceneMode, System.Collections.Generic.List<ulong> clientsCompleted, System.Collections.Generic.List<ulong> clientsTimedOut)
     {
-        logger.Log($"Escena cargada via network: {sceneName}", this, Logging.LogType.Info);
+        logger.Log($"Scene loaded via network: {sceneName}", this);
         if (sceneName == gameSceneName)
         {
             // Escena del juego cargada - ocultar UI completamente
@@ -282,7 +282,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        logger.Log($"Escena cargada: {scene.name}", this, Logging.LogType.Info);
+        logger.Log($"Scene loaded: {scene.name}", this);
         if (scene.name == gameSceneName)
         {
             HideAllUI();
@@ -310,7 +310,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     {
         menuPanel.SetActive(false);
         HideLoadingPanel();
-        UpdateStatus("Juego en progreso...");
+                    UpdateStatus("Game in progress...");
     }
 
     private void UpdateStatus(string message)
@@ -319,6 +319,6 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         {
             statusText.text = message;
         }
-        logger.Log("Multiplayer Status: " + message, this, Logging.LogType.Info);
+        logger.Log("Multiplayer Status: " + message, this);
     }
 }

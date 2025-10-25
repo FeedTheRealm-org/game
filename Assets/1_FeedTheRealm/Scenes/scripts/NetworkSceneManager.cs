@@ -91,7 +91,7 @@ public class NetworkSceneManager : NetworkBehaviour
             return;
         }
         
-        //logger.Log($"Desconectando y volviendo al menú: {menuScene.SceneName}...", this, Logging.LogType.Info);
+        //logger.Log($"Desconectando y volviendo al menú: {menuScene.SceneName}...", this);
 
         if (NetworkManager.Singleton != null)
         {

@@ -31,11 +31,11 @@ public class LoadingScreenController : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            logger?.Log("LoadingScreenController: Singleton creado", this, Logging.LogType.Info);
+            logger?.Log("LoadingScreenController: Singleton created", this);
         }
         else
         {
-            logger?.Log("LoadingScreenController: Instancia duplicada, destruyendo", this, Logging.LogType.Warning);
+            logger?.Log("LoadingScreenController: Duplicate instance, destroying", this, Logging.LogType.Warning);
             Destroy(gameObject);
             return;
         }
@@ -44,13 +44,13 @@ public class LoadingScreenController : MonoBehaviour
         if (loadingScreenDocument == null)
         {
             loadingScreenDocument = GetComponent<UIDocument>();
-            logger?.Log($"UIDocument autodetectado: {loadingScreenDocument != null}", this, Logging.LogType.Info);
+            logger?.Log($"UIDocument auto-detected: {loadingScreenDocument != null}", this);
         }
         
         if (loadingScreenDocument != null)
         {
             rootElement = loadingScreenDocument.rootVisualElement;
-            logger?.Log($"rootVisualElement obtenido - es null: {rootElement == null}", this, Logging.LogType.Info);
+            logger?.Log($"rootVisualElement obtained - is null: {rootElement == null}", this);
             
             // Solo ocultar si hideOnStart está activado
             if (hideOnStart)
@@ -59,12 +59,12 @@ public class LoadingScreenController : MonoBehaviour
             }
             else
             {
-                logger?.Log("hideOnStart está desactivado, NO se oculta el loading screen", this, Logging.LogType.Info);
+                logger?.Log("hideOnStart is disabled, NOT hiding the loading screen", this);
             }
         }
         else
         {
-            logger?.Log("UIDocument no encontrado en LoadingScreenController", this, Logging.LogType.Error);
+            logger?.Log("UIDocument not found in LoadingScreenController", this, Logging.LogType.Error);
         }
     }
     
@@ -73,29 +73,27 @@ public class LoadingScreenController : MonoBehaviour
     /// </summary>
     public void Show()
     {
-        logger?.Log($"Show() llamado - rootElement is null: {rootElement == null}", this, Logging.LogType.Info);
+        logger?.Log($"Show() called - rootElement is null: {rootElement == null}", this);
         
         if (rootElement != null)
         {
             rootElement.style.display = DisplayStyle.Flex;
             rootElement.style.opacity = 1f;
-            logger?.Log("Loading screen mostrado exitosamente", this, Logging.LogType.Info);
+            logger?.Log("Loading screen shown successfully", this);
         }
         else
         {
-            logger?.Log("ERROR: rootElement es null, no se puede mostrar loading screen", this, Logging.LogType.Error);
+            logger?.Log("ERROR: rootElement is null, cannot show loading screen", this, Logging.LogType.Error);
             
             // Intentar reinicializar
             if (loadingScreenDocument != null)
             {
                 rootElement = loadingScreenDocument.rootVisualElement;
-                logger?.Log($"Reintento de inicialización - rootElement ahora es null: {rootElement == null}", this, Logging.LogType.Info);
-                
-                if (rootElement != null)
+                    logger?.Log($"Retry initialization - rootElement is now null: {rootElement == null}", this);                if (rootElement != null)
                 {
                     rootElement.style.display = DisplayStyle.Flex;
                     rootElement.style.opacity = 1f;
-                    logger?.Log("Loading screen mostrado después de reinicialización", this, Logging.LogType.Info);
+                    logger?.Log("Loading screen shown after reinitialization", this);
                 }
             }
         }
@@ -110,7 +108,7 @@ public class LoadingScreenController : MonoBehaviour
         {
             rootElement.style.display = DisplayStyle.None;
             rootElement.style.opacity = 0f;
-            logger?.Log("Loading screen ocultado", this, Logging.LogType.Info);
+            logger?.Log("Loading screen hidden", this);
         }
     }
     
@@ -159,12 +157,12 @@ public class LoadingScreenController : MonoBehaviour
     
     private IEnumerator HideWithDelayCoroutine()
     {
-        logger?.Log($"HideWithDelay iniciado - esperando {displayDuration}s", this, Logging.LogType.Info);
+        logger?.Log($"HideWithDelay started - waiting {displayDuration}s", this);
         
         // Esperar la duración especificada
         yield return new WaitForSeconds(displayDuration);
         
-        logger?.Log("Iniciando fade out", this, Logging.LogType.Info);
+        logger?.Log("Starting fade out", this);
         
         // Fade out
         yield return StartCoroutine(FadeOut());

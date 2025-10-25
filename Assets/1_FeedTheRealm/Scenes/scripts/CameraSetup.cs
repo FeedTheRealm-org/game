@@ -66,7 +66,7 @@ public class CameraSetup : MonoBehaviour
             if (child != null)
             {
                 targetTransform = child;
-                logger.Log($"Using child '{targetChildName}' as camera target", this, Logging.LogType.Info);
+                logger.Log($"Using child '{targetChildName}' as camera target", this);
             }
             else
             {
@@ -81,7 +81,7 @@ public class CameraSetup : MonoBehaviour
         {
             // Configure the camera to follow this player
             vcam.Target.TrackingTarget = targetTransform;
-            logger.Log($"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this, Logging.LogType.Info);
+            logger.Log($"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this);
         }
 
         // Alternative: Find by name if you have a specific camera
@@ -92,7 +92,7 @@ public class CameraSetup : MonoBehaviour
             if (freeLookCam != null)
             {
                 freeLookCam.Target.TrackingTarget = targetTransform;
-                logger.Log($"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this, Logging.LogType.Info);
+                logger.Log($"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this);
             }
         }
     }
@@ -106,7 +106,7 @@ public class CameraSetup : MonoBehaviour
             var netObj = playerObj.GetComponent<NetworkObject>();
             if (netObj != null && netObj.IsOwner)
             {
-                logger.Log($"Found local player by tag '{playerTag}': {playerObj.name}", this, Logging.LogType.Info);
+                logger.Log($"Found local player by tag '{playerTag}': {playerObj.name}", this);
                 return playerObj.transform;
             }
         }
@@ -117,7 +117,7 @@ public class CameraSetup : MonoBehaviour
         {
             if (netObj.IsOwner && netObj.IsPlayerObject)
             {
-                logger.Log($"Found local player by NetworkObject scan: {netObj.gameObject.name}", this, Logging.LogType.Info);
+                logger.Log($"Found local player by NetworkObject scan: {netObj.gameObject.name}", this);
                 return netObj.transform;
             }
         }

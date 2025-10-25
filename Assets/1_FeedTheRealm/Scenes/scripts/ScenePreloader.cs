@@ -71,7 +71,7 @@ public class ScenePreloader : MonoBehaviour
         }
         
         isPreloading = true;
-        logger.Log($"[ScenePreloader] Starting to preload {scenesToPreload.Length} scene(s)...", this, Logging.LogType.Info);
+        logger.Log($"[ScenePreloader] Starting to preload {scenesToPreload.Length} scene(s)...", this);
         
         foreach (SceneReference sceneRef in scenesToPreload)
         {
@@ -87,11 +87,11 @@ public class ScenePreloader : MonoBehaviour
             Scene scene = SceneManager.GetSceneByName(sceneName);
             if (scene.isLoaded)
             {
-                logger.Log($"[ScenePreloader] Scene '{sceneName}' is already loaded, skipping", this, Logging.LogType.Info);
+                logger.Log($"[ScenePreloader] Scene '{sceneName}' is already loaded, skipping", this);
                 continue;
             }
             
-            logger.Log($"[ScenePreloader] Preloading scene '{sceneName}'...", this, Logging.LogType.Info);
+            logger.Log($"[ScenePreloader] Preloading scene '{sceneName}'...", this);
             
             // Cargar la escena de forma aditiva en segundo plano
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
@@ -110,12 +110,12 @@ public class ScenePreloader : MonoBehaviour
             {
                 if (showDebugLogs)
                 {
-                    logger.Log($"[ScenePreloader] Loading '{sceneName}': {asyncLoad.progress * 100f:F1}%", this, Logging.LogType.Info);
+                    logger.Log($"[ScenePreloader] Loading '{sceneName}': {asyncLoad.progress * 100f:F1}%", this);
                 }
                 yield return null;
             }
             
-            logger.Log($"[ScenePreloader] Scene '{sceneName}' preloaded (ready to activate)", this, Logging.LogType.Info);
+            logger.Log($"[ScenePreloader] Scene '{sceneName}' preloaded (ready to activate)", this);
             
             // Mantener la referencia a la AsyncOperation para activar más tarde si es necesario
             // Por ahora, la dejamos lista pero no activada
@@ -123,7 +123,7 @@ public class ScenePreloader : MonoBehaviour
         
         isPreloading = false;
         preloadComplete = true;
-        logger.Log("[ScenePreloader] All scenes preloaded successfully!", this, Logging.LogType.Info);
+        logger.Log("[ScenePreloader] All scenes preloaded successfully!", this);
     }
     
     /// <summary>
@@ -166,12 +166,12 @@ public class ScenePreloader : MonoBehaviour
             Scene scene = SceneManager.GetSceneByName(sceneName);
             if (scene.isLoaded)
             {
-                logger.Log($"[ScenePreloader] Unloading scene '{sceneName}'...", this, Logging.LogType.Info);
+                logger.Log($"[ScenePreloader] Unloading scene '{sceneName}'...", this);
                 yield return SceneManager.UnloadSceneAsync(sceneName);
             }
         }
         
         preloadComplete = false;
-        logger.Log("[ScenePreloader] Preloaded scenes unloaded", this, Logging.LogType.Info);
+        logger.Log("[ScenePreloader] Preloaded scenes unloaded", this);
     }
 }

@@ -57,7 +57,7 @@ public class PlayerSpawnManager : NetworkBehaviour
         if (detectedSpawnPoints.Count > 0)
         {
             spawnPoints = detectedSpawnPoints.ToArray();
-            logger.Log($"[PlayerSpawnManager] Detected {spawnPoints.Length} spawn points automatically", this, Logging.LogType.Info);
+            logger.Log($"[PlayerSpawnManager] Detected {spawnPoints.Length} spawn points automatically", this);
         }
         else
         {
@@ -75,11 +75,11 @@ public class PlayerSpawnManager : NetworkBehaviour
             }
             else
             {
-                logger.Log($"[PlayerSpawnManager] Spawn Manager activated. Max players: {maxPlayers}, Spawn points: {spawnPoints.Length}", this, Logging.LogType.Info);
+                logger.Log($"[PlayerSpawnManager] Spawn Manager activated. Max players: {maxPlayers}, Spawn points: {spawnPoints.Length}", this);
                 
                 for (int i = 0; i < spawnPoints.Length; i++)
                 {
-                    logger.Log($"[PlayerSpawnManager] Spawn Point {i}: Position = {spawnPoints[i].position}, Rotation = {spawnPoints[i].rotation.eulerAngles}", this, Logging.LogType.Info);
+                    logger.Log($"[PlayerSpawnManager] Spawn Point {i}: Position = {spawnPoints[i].position}, Rotation = {spawnPoints[i].rotation.eulerAngles}", this);
                 }
             }
             
@@ -105,14 +105,14 @@ public class PlayerSpawnManager : NetworkBehaviour
     
     private void RepositionExistingPlayers()
     {
-        logger.Log($"[PlayerSpawnManager] Repositioning existing players in scene... Connected clients: {NetworkManager.Singleton.ConnectedClients.Count}", this, Logging.LogType.Info);
+        logger.Log($"[PlayerSpawnManager] Repositioning existing players in scene... Connected clients: {NetworkManager.Singleton.ConnectedClients.Count}", this);
         
         int playerIndex = 0;
         foreach (var client in NetworkManager.Singleton.ConnectedClients)
         {
             if (client.Value.PlayerObject != null)
             {
-                logger.Log($"[PlayerSpawnManager] Found player {client.Key} with PlayerObject", this, Logging.LogType.Info);
+                logger.Log($"[PlayerSpawnManager] Found player {client.Key} with PlayerObject", this);
                 Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(client.Value.PlayerObject, playerIndex));
                 activeCoroutines.Add(coroutine);
                 playerIndex++;
@@ -123,12 +123,12 @@ public class PlayerSpawnManager : NetworkBehaviour
             }
         }
         
-        logger.Log($"[PlayerSpawnManager] Initiated repositioning for {playerIndex} player(s)", this, Logging.LogType.Info);
+        logger.Log($"[PlayerSpawnManager] Initiated repositioning for {playerIndex} player(s)", this);
     }
     
     private System.Collections.IEnumerator RepositionPlayerWithDelay(NetworkObject playerObject, int index)
     {
-        logger.Log($"[PlayerSpawnManager] Starting delayed reposition for player {playerObject.OwnerClientId}, waiting for NetworkObject to be ready...", this, Logging.LogType.Info);
+        logger.Log($"[PlayerSpawnManager] Starting delayed reposition for player {playerObject.OwnerClientId}, waiting for NetworkObject to be ready...", this);
         
         yield return new WaitForFixedUpdate();
         
@@ -150,21 +150,21 @@ public class PlayerSpawnManager : NetworkBehaviour
         Vector3 newPosition = GetSpawnPositionByIndex(index);
         Quaternion newRotation = GetSpawnRotationByIndex(index);
         
-        logger.Log($"[PlayerSpawnManager] Repositioning player {playerObject.OwnerClientId} to spawn {spawnIndex} at {newPosition}, current position: {playerObject.transform.position}", this, Logging.LogType.Info);
+        logger.Log($"[PlayerSpawnManager] Repositioning player {playerObject.OwnerClientId} to spawn {spawnIndex} at {newPosition}, current position: {playerObject.transform.position}", this);
         
         var synchronizer = playerObject.GetComponent<NetworkMovementSynchronizer>();
         if (synchronizer != null)
         {
             synchronizer.Teleport(newPosition);
-            logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} teleported to spawn {spawnIndex} at {newPosition} via NetworkMovementSynchronizer", this, Logging.LogType.Info);
+            logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} teleported to spawn {spawnIndex} at {newPosition} via NetworkMovementSynchronizer", this);
         }
         else
         {
             playerObject.transform.SetPositionAndRotation(newPosition, newRotation);
-            logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} repositioned to spawn {spawnIndex} at {newPosition} (no NetworkMovementSynchronizer found, using transform)", this, Logging.LogType.Info);
+            logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} repositioned to spawn {spawnIndex} at {newPosition} (no NetworkMovementSynchronizer found, using transform)", this);
         }
         
-        logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} position after reposition: {playerObject.transform.position}", this, Logging.LogType.Info);
+        logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} position after reposition: {playerObject.transform.position}", this);
     }
 
     private void ConnectionApprovalCallback(
@@ -184,7 +184,7 @@ public class PlayerSpawnManager : NetworkBehaviour
             response.Position = spawnPos;
             response.Rotation = spawnRot;
 
-            logger.Log($"[PlayerSpawnManager] Client approved. Index: {nextClientIndex}, Spawn index: {nextClientIndex % (spawnPoints?.Length ?? 1)}, Assigned position: {spawnPos}, Rotation: {spawnRot.eulerAngles}", this, Logging.LogType.Info);
+            logger.Log($"[PlayerSpawnManager] Client approved. Index: {nextClientIndex}, Spawn index: {nextClientIndex % (spawnPoints?.Length ?? 1)}, Assigned position: {spawnPos}, Rotation: {spawnRot.eulerAngles}", this);
         }
         else
         {
@@ -215,10 +215,10 @@ public class PlayerSpawnManager : NetworkBehaviour
         }
 
         GameObject player = client.PlayerObject.gameObject;
-        logger.Log($"[PlayerSpawnManager] Client {clientId} connected. Player current position: {player.transform.position}, Rotation: {player.transform.rotation.eulerAngles}", this, Logging.LogType.Info);
+        logger.Log($"[PlayerSpawnManager] Client {clientId} connected. Player current position: {player.transform.position}, Rotation: {player.transform.rotation.eulerAngles}", this);
         
         int playerIndex = (int)clientId;
-        logger.Log($"[PlayerSpawnManager] New client {clientId} connected, repositioning to spawn point...", this, Logging.LogType.Info);
+        logger.Log($"[PlayerSpawnManager] New client {clientId} connected, repositioning to spawn point...", this);
         Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(client.PlayerObject, playerIndex));
         activeCoroutines.Add(coroutine);
     }
@@ -233,7 +233,7 @@ public class PlayerSpawnManager : NetworkBehaviour
             if (adjustToGroundHeight && groundReference != null)
             {
                 position.y = groundReference.position.y + heightOffset;
-                logger.Log($"[PlayerSpawnManager] Height adjusted to ground. Original Y: {spawnPoints[spawnIndex].position.y}, Adjusted Y: {position.y}", this, Logging.LogType.Info);
+                logger.Log($"[PlayerSpawnManager] Height adjusted to ground. Original Y: {spawnPoints[spawnIndex].position.y}, Adjusted Y: {position.y}", this);
             }
             
             return position;
