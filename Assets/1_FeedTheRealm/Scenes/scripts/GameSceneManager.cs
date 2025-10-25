@@ -16,7 +16,7 @@ public class GameSceneManager : MonoBehaviour
 
     private void Start()
     {
-        logger.Log("Escena del juego cargada correctamente", this, Logging.LogType.Info);
+        logger.Log("Game scene loaded successfully", this, Logging.LogType.Info);
 
         if (disconnectButton != null)
         {

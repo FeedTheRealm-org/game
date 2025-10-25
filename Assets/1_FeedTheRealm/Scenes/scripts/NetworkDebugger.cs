@@ -135,11 +135,14 @@ public class NetworkDebugger : MonoBehaviour
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
             
+            // Safe unsubscribe from NetworkManager events
             if (NetworkManager.Singleton != null)
             {
                 NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
                 NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
             }
+            
+            Instance = null;
         }
     }
 

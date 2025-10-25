@@ -73,6 +73,18 @@ public class NetworkPlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        CleanupInput();
+    }
+    
+    public override void OnDestroy()
+    {
+        // Cleanup in case OnNetworkDespawn wasn't called
+        CleanupInput();
+        base.OnDestroy();
+    }
+    
+    private void CleanupInput()
+    {
         if (playerControls != null)
         {
             playerControls.Player.Disable();
@@ -80,6 +92,7 @@ public class NetworkPlayerController : NetworkBehaviour
             playerControls.Player.Move.canceled -= OnMoveCanceled;
             playerControls.Player.Dash.performed -= OnDashPerformed;
             playerControls.Dispose();
+            playerControls = null;
         }
     }
 }

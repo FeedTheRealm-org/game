@@ -12,6 +12,8 @@ public class CameraSetup : MonoBehaviour
     public string targetChildName = "";
 
     [SerializeField] private Logging.Logger logger;
+    
+    private Coroutine setupCoroutine;
 
     void Awake()
     {
@@ -25,7 +27,16 @@ public class CameraSetup : MonoBehaviour
     void Start()
     {
         // Wait a frame for the player to spawn
-        StartCoroutine(WaitForPlayerAndSetupCamera());
+        setupCoroutine = StartCoroutine(WaitForPlayerAndSetupCamera());
+    }
+    
+    private void OnDestroy()
+    {
+        if (setupCoroutine != null)
+        {
+            StopCoroutine(setupCoroutine);
+            setupCoroutine = null;
+        }
     }
 
     private System.Collections.IEnumerator WaitForPlayerAndSetupCamera()

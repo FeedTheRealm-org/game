@@ -20,6 +20,10 @@ public class PlayerSpawnManager : NetworkBehaviour
     [SerializeField] private int maxPlayers = 100;
     
     [SerializeField] private Logging.Logger logger;
+    
+    // Store coroutine references for cleanup
+    private Coroutine repositionCoroutine;
+    private List<Coroutine> activeCoroutines = new List<Coroutine>();
 
     private void Awake()
     {
@@ -86,7 +90,7 @@ public class PlayerSpawnManager : NetworkBehaviour
             
             // Reposicionar jugadores existentes cuando se carga una nueva escena
             // Usar delay más grande para asegurar que todo esté inicializado
-            StartCoroutine(DelayedRepositionPlayers());
+            repositionCoroutine = StartCoroutine(DelayedRepositionPlayers());
         }
     }
     
@@ -96,6 +100,7 @@ public class PlayerSpawnManager : NetworkBehaviour
         yield return new WaitForSeconds(0.2f);
         
         RepositionExistingPlayers();
+        repositionCoroutine = null;
     }
     
     private void RepositionExistingPlayers()
@@ -108,7 +113,8 @@ public class PlayerSpawnManager : NetworkBehaviour
             if (client.Value.PlayerObject != null)
             {
                 logger.Log($"[PlayerSpawnManager] Found player {client.Key} with PlayerObject", this, Logging.LogType.Info);
-                StartCoroutine(RepositionPlayerWithDelay(client.Value.PlayerObject, playerIndex));
+                Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(client.Value.PlayerObject, playerIndex));
+                activeCoroutines.Add(coroutine);
                 playerIndex++;
             }
             else
@@ -127,6 +133,9 @@ public class PlayerSpawnManager : NetworkBehaviour
         yield return new WaitForFixedUpdate();
         
         RepositionPlayer(playerObject, index);
+        
+        // Remove from active coroutines list when complete
+        // Note: Can't reference 'this' coroutine directly, cleanup happens in OnNetworkDespawn/OnDestroy
     }
     
     private void RepositionPlayer(NetworkObject playerObject, int index)
@@ -210,7 +219,8 @@ public class PlayerSpawnManager : NetworkBehaviour
         
         int playerIndex = (int)clientId;
         logger.Log($"[PlayerSpawnManager] New client {clientId} connected, repositioning to spawn point...", this, Logging.LogType.Info);
-        StartCoroutine(RepositionPlayerWithDelay(client.PlayerObject, playerIndex));
+        Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(client.PlayerObject, playerIndex));
+        activeCoroutines.Add(coroutine);
     }
 
     private Vector3 GetSpawnPositionByIndex(int index)
@@ -251,5 +261,33 @@ public class PlayerSpawnManager : NetworkBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedSpawn;
             NetworkManager.Singleton.ConnectionApprovalCallback -= ConnectionApprovalCallback;
         }
+        
+        // Stop all active coroutines
+        StopAllActiveCoroutines();
+    }
+    
+    public override void OnDestroy()
+    {
+        // Cleanup coroutines in case OnNetworkDespawn wasn't called
+        StopAllActiveCoroutines();
+        base.OnDestroy();
+    }
+    
+    private void StopAllActiveCoroutines()
+    {
+        if (repositionCoroutine != null)
+        {
+            StopCoroutine(repositionCoroutine);
+            repositionCoroutine = null;
+        }
+        
+        foreach (var coroutine in activeCoroutines)
+        {
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+        }
+        activeCoroutines.Clear();
     }
 }
