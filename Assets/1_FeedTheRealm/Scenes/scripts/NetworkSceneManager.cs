@@ -26,7 +26,7 @@ public class NetworkSceneManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsServer)
         {
-            //logger.Log("Cargando escena del juego...", this, Logging.LogType.Info);
+            //logger.Log("Cargando escena del juego...", this);
             // Asegúrate que este nombre coincida EXACTAMENTE con tu escena
             NetworkManager.SceneManager.LoadScene("MultiplayerScene", LoadSceneMode.Single);
         }
@@ -72,11 +72,11 @@ public class NetworkSceneManager : NetworkBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        //logger.Log($"Cliente {clientId} conectado. ¿Es servidor?: {NetworkManager.Singleton.IsServer}", this, Logging.LogType.Info);
+        //logger.Log($"Cliente {clientId} conectado. ¿Es servidor?: {NetworkManager.Singleton.IsServer}", this);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        //logger.Log($"Escena cargada: {scene.name}. ¿Es servidor?: {NetworkManager.Singleton.IsServer}", this, Logging.LogType.Info);
+        //logger.Log($"Escena cargada: {scene.name}. ¿Es servidor?: {NetworkManager.Singleton.IsServer}", this);
     } 
 }

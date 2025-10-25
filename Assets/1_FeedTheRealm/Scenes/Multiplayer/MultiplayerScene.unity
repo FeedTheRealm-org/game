@@ -1175,7 +1175,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1604503870}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Spawn2
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}

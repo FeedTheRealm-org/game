@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
   m_Name: SceneLogger
   m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  _showLogs: 0
+  _showLogs: 1
   _loggerPrefix: '[Scene]'
-  _loggerColor: {r: 0.09724738, g: 0.3301887, b: 0, a: 0}
+  _loggerColor: {r: 0.023584902, g: 0.024494434, b: 1, a: 0}

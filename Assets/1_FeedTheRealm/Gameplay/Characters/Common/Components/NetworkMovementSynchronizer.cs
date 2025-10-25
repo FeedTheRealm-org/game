@@ -126,7 +126,7 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
 
     private void OnVelocityChanged(Vector3 oldValue, Vector3 newValue)
     {
-        if (!IsOwner && rb != null)
+        if (!IsOwner && rb != null && !rb.isKinematic)
         {
             rb.linearVelocity = newValue;
         }
@@ -137,17 +137,50 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
     /// </summary>
     public void Teleport(Vector3 position)
     {
-        if (IsOwner)
+        transform.position = position;
+        
+        // Reset velocity
+        if (rb != null && !rb.isKinematic)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+        
+        // Server has authority to teleport any player
+        if (IsServer)
+        {
+            networkPosition.Value = position;
+            networkVelocity.Value = Vector3.zero;
+            
+            // Force sync to owner client via ClientRpc
+            if (!IsOwner)
+            {
+                TeleportClientRpc(position);
+            }
+        }
+        // Owner client can teleport themselves
+        else if (IsOwner)
+        {
+            SendTransformToServerRpc(position, transform.rotation, Vector3.zero);
+        }
+    }
+    
+    [ClientRpc]
+    private void TeleportClientRpc(Vector3 position)
+    {
+        // Only apply if this is the owner client (not server, not other clients)
+        if (IsOwner && !IsServer)
         {
             transform.position = position;
-            if (IsServer)
+            
+            // Reset velocity on client
+            if (rb != null && !rb.isKinematic)
             {
-                networkPosition.Value = position;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
             }
-            else
-            {
-                SendTransformToServerRpc(position, transform.rotation, Vector3.zero);
-            }
+            
+            Debug.Log($"[NetworkMovementSynchronizer] Client {OwnerClientId} teleported to {position} via ClientRpc");
         }
     }
 }

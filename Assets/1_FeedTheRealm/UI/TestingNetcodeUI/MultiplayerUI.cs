@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
+using Logging;
 
 public class SimpleMultiplayerMenu : MonoBehaviour
 {
@@ -15,6 +16,12 @@ public class SimpleMultiplayerMenu : MonoBehaviour
 
     [Header("Scene Settings")]
     public string gameSceneName = "MultiplayerScene";
+    
+    [Header("Preload")]
+    public ScenePreloader scenePreloader; // Referencia al preloader
+
+    [Header("Debug")]
+    [SerializeField] private Logging.Logger logger;
 
     private void Start()
     {
@@ -29,6 +36,25 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         // Suscribirse a eventos de conexión
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        
+        // Iniciar precarga si el preloader está asignado
+        if (scenePreloader != null && !scenePreloader.IsPreloadComplete())
+        {
+            UpdateStatus("Precargando escena del juego...");
+            scenePreloader.StartPreload();
+            StartCoroutine(WaitForPreloadAndUpdateStatus());
+        }
+    }
+    
+    private System.Collections.IEnumerator WaitForPreloadAndUpdateStatus()
+    {
+        // Esperar a que termine la precarga
+        while (!scenePreloader.IsPreloadComplete())
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+        
+        UpdateStatus("✅ Listo para jugar - Elige una opción");
     }
 
     public void StartHost()
@@ -38,7 +64,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         
         if (NetworkManager.Singleton.StartHost())
         {
-            Debug.Log("Host iniciado - Cambiando a escena del juego");
+            logger.Log("Host iniciado - Cambiando a escena del juego", this, Logging.LogType.Info);
             // Cambiar a escena del juego
             LoadGameScene();
         }
@@ -56,7 +82,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         
         if (NetworkManager.Singleton.StartClient())
         {
-            Debug.Log("Cliente conectado - Esperando escena del host...");
+            logger.Log("Cliente conectado - Esperando escena del host...", this, Logging.LogType.Info);
             // El cliente esperará a que el host cargue la escena
         }
         else
@@ -70,31 +96,60 @@ public class SimpleMultiplayerMenu : MonoBehaviour
     {
         if (NetworkManager.Singleton.SceneManager != null)
         {
-            // Usar NetworkSceneManager para cambiar escena
-            var status = NetworkManager.Singleton.SceneManager.LoadScene(
-                gameSceneName,
-                LoadSceneMode.Single
-            );
-            Debug.Log("Estado carga de escena: " + status);
+            logger.Log($"[MultiplayerUI] Loading game scene '{gameSceneName}'...", this, Logging.LogType.Info);
             
-            if (status != SceneEventProgressStatus.Started)
+            // Si la escena está precargada, descargarla primero y luego cargarla con NetworkSceneManager
+            Scene preloadedScene = SceneManager.GetSceneByName(gameSceneName);
+            if (preloadedScene.isLoaded)
             {
-                Debug.LogError("Error al cargar la escena: " + status);
-                UpdateStatus("❌ Error al cargar escena del juego");
-                HideLoadingPanel();
+                logger.Log($"[MultiplayerUI] Scene was preloaded, unloading it first...", this, Logging.LogType.Info);
+                StartCoroutine(UnloadPreloadedThenLoadNetwork());
+            }
+            else
+            {
+                // Cargar directamente con NetworkSceneManager
+                LoadNetworkScene();
             }
         }
         else
         {
-            Debug.LogError("NetworkSceneManager no encontrado");
+            logger.Log("NetworkSceneManager no encontrado", this, Logging.LogType.Error);
             // Fallback: cargar escena normalmente
             UnityEngine.SceneManagement.SceneManager.LoadScene(gameSceneName);
+        }
+    }
+    
+    private System.Collections.IEnumerator UnloadPreloadedThenLoadNetwork()
+    {
+        // Descargar la escena precargada
+        yield return SceneManager.UnloadSceneAsync(gameSceneName);
+        
+        logger.Log($"[MultiplayerUI] Preloaded scene unloaded, now loading via NetworkSceneManager...", this, Logging.LogType.Info);
+        
+        // Ahora cargar con NetworkSceneManager
+        LoadNetworkScene();
+    }
+    
+    private void LoadNetworkScene()
+    {
+        // Usar NetworkSceneManager para cambiar escena
+        var status = NetworkManager.Singleton.SceneManager.LoadScene(
+            gameSceneName,
+            LoadSceneMode.Single
+        );
+        logger.Log("Estado carga de escena: " + status, this, Logging.LogType.Info);
+        
+        if (status != SceneEventProgressStatus.Started)
+        {
+            logger.Log("Error al cargar la escena: " + status, this, Logging.LogType.Error);
+            UpdateStatus("❌ Error al cargar escena del juego");
+            HideLoadingPanel();
         }
     }
 
     private void OnClientConnected(ulong clientId)
     {
-        Debug.Log($"Cliente conectado: {clientId}");
+        logger.Log($"Cliente conectado: {clientId}", this, Logging.LogType.Info);
         
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
@@ -142,7 +197,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
 
     private void OnNetworkSceneLoaded(string sceneName, LoadSceneMode loadSceneMode, System.Collections.Generic.List<ulong> clientsCompleted, System.Collections.Generic.List<ulong> clientsTimedOut)
     {
-        Debug.Log($"Escena cargada via network: {sceneName}");
+        logger.Log($"Escena cargada via network: {sceneName}", this, Logging.LogType.Info);
         if (sceneName == gameSceneName)
         {
             // Escena del juego cargada - ocultar UI completamente
@@ -152,7 +207,7 @@ public class SimpleMultiplayerMenu : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"Escena cargada: {scene.name}");
+        logger.Log($"Escena cargada: {scene.name}", this, Logging.LogType.Info);
         if (scene.name == gameSceneName)
         {
             HideAllUI();
@@ -189,6 +244,6 @@ public class SimpleMultiplayerMenu : MonoBehaviour
         {
             statusText.text = message;
         }
-        Debug.Log("Multiplayer Status: " + message);
+        logger.Log("Multiplayer Status: " + message, this, Logging.LogType.Info);
     }
 }
