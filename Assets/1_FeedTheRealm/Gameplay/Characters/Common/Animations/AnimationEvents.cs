@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AnimationAttackEvent : MonoBehaviour {
+public class AnimationEvents : MonoBehaviour {
 
     [SerializeField]
     private Logging.Logger logger;
@@ -11,7 +11,7 @@ public class AnimationAttackEvent : MonoBehaviour {
     [SerializeField]
     private HealthComponent healthComponent;
 
-    void Attack() {
+    private void Attack() {
         if (attackComponent == null) {
             logger.Log("AttackComponent reference is missing!", this, Logging.LogType.Error);
             return;
@@ -19,7 +19,7 @@ public class AnimationAttackEvent : MonoBehaviour {
         attackComponent.DetectAttackHit();
     }
 
-    void Die() {
+    private void Die() {
         if (healthComponent == null) {
             logger.Log("HealthComponent reference is missing!", this);
             return;

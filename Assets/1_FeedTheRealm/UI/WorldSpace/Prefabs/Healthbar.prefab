@@ -69,6 +69,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
+  centeredBillboard: 1
+  centerTransform: {fileID: 0}
+  offset: {x: 0, y: 2, z: 0}
 --- !u!114 &925298929608913867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,3 +85,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIHealthbar
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  healthComponent: {fileID: 0}

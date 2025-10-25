@@ -9,16 +9,15 @@ public class UIHealthbar : MonoBehaviour {
     private HealthComponent healthComponent;
 
     // Containers
-    private VisualElement _characterData;
-    private VisualElement _fastUseSlotsContainer;
+    private VisualElement _root;
 
     // Progress Bars
     private ProgressBar _healthBar;
 
     void Start() {
-        var root = GetComponent<UIDocument>().rootVisualElement;
+        _root = GetComponent<UIDocument>().rootVisualElement;
 
-        _healthBar = root.Q<ProgressBar>("WorldHealthBar");
+        _healthBar = _root.Q<ProgressBar>("WorldHealthBar");
         if (_healthBar == null) {
             logger.Log("WorldHealthBar not found in CharacterData.", this, Logging.LogType.Error);
             return;
@@ -26,6 +25,7 @@ public class UIHealthbar : MonoBehaviour {
 
         // Initialize values
         _healthBar.value = _healthBar.highValue;
+        _root.style.display = DisplayStyle.None;
     }
 
     private void OnEnable() {
@@ -50,6 +50,19 @@ public class UIHealthbar : MonoBehaviour {
             if (value < 0) {
                 _healthBar.value = 0;
             }
+            toggleUIVisibility();
+        }
+    }
+
+    /// <summary>
+    /// Toggles the visibility of the health bar UI based on current health.
+    /// Off if full health, On otherwise.
+    /// </summary>
+    private void toggleUIVisibility() {
+        if (_root.style.display == DisplayStyle.None && _healthBar.value < _healthBar.highValue) {
+            _root.style.display = DisplayStyle.Flex;
+        } else if (_root.style.display == DisplayStyle.Flex && _healthBar.value == _healthBar.highValue) {
+            _root.style.display = DisplayStyle.None;
         }
     }
 }
