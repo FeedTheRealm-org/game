@@ -3,7 +3,9 @@ using UnityEngine.Networking;
 using System.Collections;
 
 namespace API {
-    public class AuthService : MonoBehaviour {
+    
+    [CreateAssetMenu(fileName = "AuthService", menuName = "Scriptable Objects/API/AuthService")]
+    public class AuthService : ScriptableObject {
         [SerializeField]
         private Logging.Logger logger;
 

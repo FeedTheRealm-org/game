@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 353b544dc9385d3488757f18c0e0e278, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LoginController
-  authService: {fileID: 11400000, guid: 6af1c691ab174e24ba00c1dfe0fda281, type: 2}
+  authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   targetScene: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
   otherFormScene: {fileID: 102900000, guid: 3389029b3c1ee7f40bec33f792a7f184, type: 3}

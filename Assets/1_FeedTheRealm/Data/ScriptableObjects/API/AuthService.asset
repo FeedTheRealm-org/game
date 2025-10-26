@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 440baedae784ae84488ef1d20bd55476, type: 3}
-  m_Name: APIAuthService
-  m_EditorClassIdentifier: Assembly-CSharp::APIAuthService
-  logger: {fileID: 11400000, guid: c98d647d46d67a84598b908dfd3deb26, type: 2}
-  Hostname: localhost
-  Port: 8000
+  m_Name: AuthService
+  m_EditorClassIdentifier: Assembly-CSharp::API.AuthService
+  logger: {fileID: 0}
+  Hostname: 
+  Port: 0
