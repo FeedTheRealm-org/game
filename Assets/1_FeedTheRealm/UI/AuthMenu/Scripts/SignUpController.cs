@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
+using UnityEditor.PackageManager;
 
 public class SignUpController : MonoBehaviour {
     [SerializeField]
@@ -25,6 +26,7 @@ public class SignUpController : MonoBehaviour {
     private TextField _emailField;
     private TextField _passwordField;
     private TextField _repeatedPasswordField;
+    private Label _messageError;
     private Label _changeButton;
 
     private AsyncOperation preloadOperation;
@@ -48,6 +50,7 @@ public class SignUpController : MonoBehaviour {
         _emailField = ui.Q<TextField>("EmailField");
         _passwordField = ui.Q<TextField>("PasswordField");
         _repeatedPasswordField = ui.Q<TextField>("RepeatPasswordField");
+        _messageError = ui.Q<Label>("MessageError");
     }
 
     private void OnDisable() {
@@ -62,10 +65,11 @@ public class SignUpController : MonoBehaviour {
 
         if (_passwordField.value != _repeatedPasswordField.value) {
             logger.Log("Passwords do not match", this, Logging.LogType.Error);
+            _messageError.text = "Passwords do not match.";
             return;
         }
 
-        StartCoroutine(authService.SignUp(_emailField.value, _passwordField.value, (success) => {
+        StartCoroutine(authService.SignUp(_emailField.value, _passwordField.value, (success, err) => {
             if (success) {
                 logger.Log("SignUp successful, email: " + _emailField.value, this);
                 if (preloadOperation != null) {
@@ -76,6 +80,7 @@ public class SignUpController : MonoBehaviour {
                 }
             } else {
                 logger.Log("Login failed", this, Logging.LogType.Error);
+                _messageError.text = err;
             }
         }));
     }

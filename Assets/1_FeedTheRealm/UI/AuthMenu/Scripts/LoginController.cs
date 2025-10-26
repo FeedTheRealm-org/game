@@ -25,6 +25,7 @@ public class LoginController : MonoBehaviour {
   private TextField _emailField;
   private TextField _passwordField;
   private Label _changeButton;
+  private Label _messageError;
 
   private AsyncOperation preloadOperation;
 
@@ -46,6 +47,7 @@ public class LoginController : MonoBehaviour {
 
     _emailField = ui.Q<TextField>("EmailField");
     _passwordField = ui.Q<TextField>("PasswordField");
+    _messageError = ui.Q<Label>("MessageError");
   }
 
   private void OnDisable() {
@@ -58,7 +60,7 @@ public class LoginController : MonoBehaviour {
     logger.Log("Email: " + _emailField.value, this);
     logger.Log("Password: " + _passwordField.value, this);
 
-    StartCoroutine(authService.Login(_emailField.value, _passwordField.value, (token, email) => {
+    StartCoroutine(authService.Login(_emailField.value, _passwordField.value, (token, email, err) => {
       if (!string.IsNullOrEmpty(token)) {
         logger.Log("Login successful, token: " + token, this);
         session.SetAPIToken(token);
@@ -72,6 +74,7 @@ public class LoginController : MonoBehaviour {
         }
       } else {
         logger.Log("Login failed", this, Logging.LogType.Error);
+        _messageError.text = err;
       }
     }));
   }

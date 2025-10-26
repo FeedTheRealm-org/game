@@ -90,3 +90,7 @@
     top: 14px;
     -unity-text-align: upper-center;
 }
+
+.AuthMessageError {
+    color: rgb(255, 0, 0);
+}
