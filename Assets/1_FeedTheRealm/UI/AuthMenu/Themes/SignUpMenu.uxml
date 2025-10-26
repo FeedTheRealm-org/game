@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/AuthMenu/Themes/AuthForm.uss?fileID=7433441132597879392&amp;guid=c25ac5f0ef9fbfd46bdd96a557e53334&amp;type=3#AuthForm" />
+    <ui:VisualElement name="SignUpContainer" class="AuthContainer" style="flex-grow: 1;">
+        <ui:VisualElement name="SignUpForm" class="formBox" style="flex-grow: 1; flex-direction: column;">
+            <ui:Label text="Sign Up" name="TitleForm" class="AuthFormTitle" style="top: 3%; left: auto;" />
+            <ui:TextField label="Email" placeholder-text="filler text" name="EmailField" class="AuthEmailInput" />
+            <ui:TextField label="Password" placeholder-text="filler text" name="PasswordField" class="AuthPasswordField" />
+            <ui:TextField label="Repeat Password" placeholder-text="filler text" name="RepeatPasswordField" class="AuthPasswordField" />
+            <ui:Label text="Already have account? Login here" name="LoginChangeButton" class="AuthChangeButton" style="top: 1%;" />
+            <ui:Label name="MessageError" class="AuthChangeButton AuthMessageError" style="top: 1%;" />
+            <ui:Button text="Sign Up" name="SignUpButton" class="AuthFormButton" style="bottom: 3%;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

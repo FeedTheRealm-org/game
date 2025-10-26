@@ -11,9 +11,13 @@ public class HUDController : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
 
+    [SerializeField]
+    private Session.Session session;
+
     // Containers
     private VisualElement _characterData;
     private VisualElement _fastUseSlotsContainer;
+    private Label _nameLabel;
 
     // Progress Bars
     private ProgressBar _staminaBar;
@@ -36,6 +40,11 @@ public class HUDController : MonoBehaviour {
 
         // Initialize values
         _staminaBar.value = _staminaBar.highValue;
+
+        _nameLabel = _characterData.Q<Label>("Username");
+        if (_nameLabel != null && session != null) {
+            _nameLabel.text = session.Email; // TODO: Change to character name when available
+        }
 
         registerButtonCallbacks();
     }
