@@ -19,9 +19,14 @@ public class SpriteBillboardComponent : MonoBehaviour {
     }
 
     private void LateUpdate() {
-        transform.rotation = _mainCamera.transform.rotation;
+        if (_mainCamera == null) {
+            _mainCamera = Camera.main;
+        } else {
+            transform.rotation = _mainCamera.transform.rotation;
+        }
+      
         if (centeredBillboard && centerTransform != null) {
-            transform.position = centerTransform.position + offset;
+              transform.position = centerTransform.position + offset;
         }
     }
 }
