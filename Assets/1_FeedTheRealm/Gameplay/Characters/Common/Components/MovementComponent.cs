@@ -21,7 +21,7 @@ public class MovementComponent : MonoBehaviour {
 
     private Transform cameraTransform;
     private Vector2 playerDirection;
-    private float movingMagnitudeThreash = 0.001f;
+    private float movingMagnitudeThreshold = 0.001f;
     private bool isMoving;
     private bool facingRight = false;
 
@@ -41,7 +41,7 @@ public class MovementComponent : MonoBehaviour {
     /// </summary>
     public void OnMove(Vector2 direction) {
         playerDirection = direction;
-        isMoving = playerDirection.sqrMagnitude > movingMagnitudeThreash;
+        isMoving = playerDirection.sqrMagnitude > movingMagnitudeThreshold;
         if (isMoving && (facingRight && playerDirection.x < 0f || !facingRight && playerDirection.x > 0f)) {
             flip();
         }
