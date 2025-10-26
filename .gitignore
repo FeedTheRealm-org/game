@@ -101,3 +101,10 @@ InitTestScene*.unity*
 # Editor
 .vscode/
 .vsconfig
+
+# Client
+client.slnx
+
+# Local package lock and editor settings
+Packages/packages-lock.json
+ProjectSettings/EditorBuildSettings.asset

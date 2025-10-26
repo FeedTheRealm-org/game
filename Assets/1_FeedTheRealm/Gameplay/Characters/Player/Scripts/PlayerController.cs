@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour {
 
     private MovementComponent movementComponent;
     private DashComponent dashComponent;
+    private AttackComponent attackComponent;
 
     private void Awake() {
         if (playerPrefab == null) {
@@ -30,13 +31,21 @@ public class PlayerController : MonoBehaviour {
         if (dashComponent == null) {
             logger.Log("DashComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
+
+        attackComponent = playerPrefab.GetComponentInChildren<AttackComponent>();
+        if (attackComponent == null) {
+            logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
+        }
+
+        cursorToggle();
     }
 
     private void OnEnable() {
         if (inputReader != null && movementComponent != null && dashComponent != null) {
             inputReader.MoveEvent += movementComponent.OnMove;
             inputReader.DashEvent += dashComponent.OnDash;
-
+            inputReader.AttackEvent += attackComponent.OnAttack;
+            inputReader.CursorToggleEvent += cursorToggle;
         }
     }
 
@@ -44,7 +53,20 @@ public class PlayerController : MonoBehaviour {
         if (inputReader != null && movementComponent != null && dashComponent != null) {
             inputReader.MoveEvent -= movementComponent.OnMove;
             inputReader.DashEvent -= dashComponent.OnDash;
+            inputReader.AttackEvent -= attackComponent.OnAttack;
+            inputReader.CursorToggleEvent -= cursorToggle;
+        }
+    }
 
+    private void cursorToggle() {
+        if (Cursor.visible) {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            logger.Log("Cursor toggled OFF", this);
+        } else {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            logger.Log("Cursor toggled ON", this);
         }
     }
 }
