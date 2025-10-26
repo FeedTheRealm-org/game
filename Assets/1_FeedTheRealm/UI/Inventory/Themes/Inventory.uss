@@ -11,3 +11,8 @@
     border-width: 1px;
     border-color: rgba(255, 255, 255, 0.5);
 }
+
+.inventory-item {
+    background-size: contain;
+    -unity-background-scale-mode: scale-to-fit;
+}
