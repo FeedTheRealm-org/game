@@ -13,6 +13,7 @@ public class HealthComponent : MonoBehaviour {
     private Animator _animator;
 
     public event Action<float> OnHealthChanged;
+    public event Action OnDeath;
 
     private void Start() {
         _animator = GetComponentInChildren<Animator>();
@@ -33,6 +34,7 @@ public class HealthComponent : MonoBehaviour {
 
     public void Die() {
         logger.Log("Character has died.", this);
+        OnDeath?.Invoke();
         Destroy(gameObject);
     }
 }
