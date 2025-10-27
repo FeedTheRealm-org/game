@@ -356,6 +356,7 @@ MonoBehaviour:
   col: {fileID: 4885086532300312383}
   groundCheck: {fileID: 7363032869278509141}
   moveSpeed: 5
+  visualRoot: {fileID: 5951985247975804607}
 --- !u!1 &5383950206081924826
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,6 +689,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
+  centeredBillboard: 0
+  centerTransform: {fileID: 0}
+  offset: {x: 0, y: 1, z: 0}
 --- !u!224 &6236615049324811774 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
