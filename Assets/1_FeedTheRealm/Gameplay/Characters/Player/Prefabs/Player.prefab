@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 4957554400110704478}
   - component: {fileID: 1534545483887044268}
   - component: {fileID: 370332728856482138}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -230,6 +230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AttackComponent
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackCooldown: 0.4
+  attackDamage: 40
   hitPoint: {fileID: 8852404259046765762}
   hitRadius: 1.5
   targetLayer:
@@ -514,6 +515,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
+  centeredBillboard: 0
+  centerTransform: {fileID: 0}
+  offset: {x: 0, y: 1, z: 0}
 --- !u!1001 &7224919293863522130
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -848,6 +852,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AnimationAttackEvent
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackComponent: {fileID: 370332728856482138}
+  healthComponent: {fileID: 0}
 --- !u!224 &6236615049324811774 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
