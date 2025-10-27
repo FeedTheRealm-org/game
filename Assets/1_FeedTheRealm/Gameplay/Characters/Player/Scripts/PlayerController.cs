@@ -1,72 +1,72 @@
 using UnityEngine;
-using Unity.Netcode;
-using UnityEngine.InputSystem;
 
-public class PlayerController : NetworkBehaviour 
-{
-    [Header("Input")]
-    private PlayerControls playerControls;
+/// <summary>
+/// Connects player input to the movement component.
+/// </summary>
+public class PlayerController : MonoBehaviour {
+    [SerializeField]
+    public PlayerInputReader inputReader;
+
+    [SerializeField]
+    private GameObject playerPrefab;
+
+    [SerializeField]
+    private Logging.Logger logger;
+
     private MovementComponent movementComponent;
+    private DashComponent dashComponent;
+    private AttackComponent attackComponent;
 
-    public override void OnNetworkSpawn()
-    {
-        if (IsOwner)
-        {
-            Debug.Log($"PlayerController inicializado para jugador {OwnerClientId}");
-            InitializeInput();
+    private void Awake() {
+        if (playerPrefab == null) {
+            logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
+        }
+
+        movementComponent = playerPrefab.GetComponentInChildren<MovementComponent>();
+        if (movementComponent == null) {
+            logger.Log("MovementComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
+        }
+
+        dashComponent = playerPrefab.GetComponentInChildren<DashComponent>();
+        if (dashComponent == null) {
+            logger.Log("DashComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
+        }
+
+        attackComponent = playerPrefab.GetComponentInChildren<AttackComponent>();
+        if (attackComponent == null) {
+            logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
+        }
+
+        cursorToggle();
+    }
+
+    private void OnEnable() {
+        if (inputReader != null && movementComponent != null && dashComponent != null) {
+            inputReader.MoveEvent += movementComponent.OnMove;
+            inputReader.DashEvent += dashComponent.OnDash;
+            inputReader.AttackEvent += attackComponent.OnAttack;
+            inputReader.CursorToggleEvent += cursorToggle;
         }
     }
 
-    private void InitializeInput()
-    {
-        if (!IsOwner) return;
-
-        // Buscar MovementComponent en hijos también
-        movementComponent = GetComponentInChildren<MovementComponent>();
-        if (movementComponent == null)
-        {
-            Debug.LogError($"MovementComponent no encontrado para jugador {OwnerClientId}");
-            Debug.Log($"Buscando en: {gameObject.name}, hijos: {transform.childCount}");
-            return;
+    private void OnDisable() {
+        if (inputReader != null && movementComponent != null && dashComponent != null) {
+            inputReader.MoveEvent -= movementComponent.OnMove;
+            inputReader.DashEvent -= dashComponent.OnDash;
+            inputReader.AttackEvent -= attackComponent.OnAttack;
+            inputReader.CursorToggleEvent -= cursorToggle;
         }
-
-        // Crear controles específicos para este jugador
-        playerControls = new PlayerControls();
-        playerControls.Player.Enable();
-
-        // Configurar callbacks de input - SIN lambda para evitar problemas de desuscripción
-        playerControls.Player.Move.performed += OnMovePerformed;
-        playerControls.Player.Move.canceled += OnMoveCanceled;
-        playerControls.Player.Dash.performed += OnDashPerformed;
-
-        Debug.Log($"Input configurado para jugador {OwnerClientId}");
     }
 
-    // Métodos separados para evitar problemas con lambdas
-    private void OnMovePerformed(InputAction.CallbackContext context)
-    {
-        movementComponent?.OnMove(context);
-    }
-
-    private void OnMoveCanceled(InputAction.CallbackContext context)
-    {
-        movementComponent?.OnMove(context);
-    }
-
-    private void OnDashPerformed(InputAction.CallbackContext context)
-    {
-        movementComponent?.OnDash(context);
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        if (playerControls != null)
-        {
-            playerControls.Player.Disable();
-            playerControls.Player.Move.performed -= OnMovePerformed;
-            playerControls.Player.Move.canceled -= OnMoveCanceled;
-            playerControls.Player.Dash.performed -= OnDashPerformed;
-            playerControls.Dispose();
+    private void cursorToggle() {
+        if (Cursor.visible) {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            logger.Log("Cursor toggled OFF", this);
+        } else {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            logger.Log("Cursor toggled ON", this);
         }
     }
 }

@@ -1,0 +1,4 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/WorldSpace/WorldSpace.uss?fileID=7433441132597879392&amp;guid=5e1e72bf703f4135fae92ceda1c66b72&amp;type=3#WorldSpace" />
+    <ui:ProgressBar value="22" name="WorldHealthBar" class="progress-bar" style="align-items: stretch;" />
+</ui:UXML>
