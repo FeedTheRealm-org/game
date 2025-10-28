@@ -70,6 +70,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LoginController
   authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  targetScene: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
-  otherFormScene: {fileID: 102900000, guid: 3389029b3c1ee7f40bec33f792a7f184, type: 3}
+  targetScene:
+    sceneName: SampleScene
+    sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
+  otherFormScene:
+    sceneName: SignUpScene
+    sceneAsset: {fileID: 102900000, guid: 3389029b3c1ee7f40bec33f792a7f184, type: 3}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
