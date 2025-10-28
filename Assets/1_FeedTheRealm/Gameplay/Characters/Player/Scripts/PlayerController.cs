@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour {
     private MovementComponent movementComponent;
     private DashComponent dashComponent;
     private AttackComponent attackComponent;
+    private InventoryController inventoryController;
 
     private void Awake() {
         if (playerPrefab == null) {
@@ -37,6 +38,12 @@ public class PlayerController : MonoBehaviour {
             logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
 
+        // Buscar el InventoryController en la escena
+        inventoryController = FindFirstObjectByType<InventoryController>();
+        if (inventoryController == null) {
+            logger.Log("InventoryController not found in the scene.", this, Logging.LogType.Warning);
+        }
+
         cursorToggle();
     }
 
@@ -44,7 +51,7 @@ public class PlayerController : MonoBehaviour {
         if (inputReader != null && movementComponent != null && dashComponent != null) {
             inputReader.MoveEvent += movementComponent.OnMove;
             inputReader.DashEvent += dashComponent.OnDash;
-            inputReader.AttackEvent += attackComponent.OnAttack;
+            inputReader.AttackEvent += OnAttackInput;
             inputReader.CursorToggleEvent += cursorToggle;
         }
     }
@@ -53,8 +60,20 @@ public class PlayerController : MonoBehaviour {
         if (inputReader != null && movementComponent != null && dashComponent != null) {
             inputReader.MoveEvent -= movementComponent.OnMove;
             inputReader.DashEvent -= dashComponent.OnDash;
-            inputReader.AttackEvent -= attackComponent.OnAttack;
+            inputReader.AttackEvent -= OnAttackInput;
             inputReader.CursorToggleEvent -= cursorToggle;
+        }
+    }
+
+    private void OnAttackInput() {
+        // No permitir ataque si el inventario está abierto
+        if (inventoryController != null && inventoryController.IsInventoryOpen()) {
+            logger.Log("Attack blocked - Inventory is open", this);
+            return;
+        }
+
+        if (attackComponent != null) {
+            attackComponent.OnAttack();
         }
     }
 
