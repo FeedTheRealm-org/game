@@ -32,3 +32,26 @@
     background-position-y: center;
     -unity-slice-type: sliced;
 }
+
+#Body > #CharacterEditContainer > #Cosmetics > #Categories > #Cancel > .unity-button__image {
+    width: 50px;
+    height: 50px;
+    min-width: auto;
+    min-height: auto;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Categories > #unity-content-and-vertical-scroll-container > #unity-content-viewport > #unity-content-container {
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Items > #unity-content-and-vertical-scroll-container > #unity-content-viewport > #unity-content-container {
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Items > #Mock > .unity-button__image {
+    width: 100%;
+    height: 100%;
+}
+
