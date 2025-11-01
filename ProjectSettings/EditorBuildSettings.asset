@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MultiplayerScene.unity
     guid: f6ac62a72a7875ffab304152e68e376a
+  - enabled: 0
+    path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
+    guid: 62080a43b5e5879e2a936a5a9cbbdf90
   - enabled: 1
     path: Assets/1_FeedTheRealm/Scenes/Menus/LoginScene.unity
     guid: abd87fe87e8b55f40820f171267a39bc
