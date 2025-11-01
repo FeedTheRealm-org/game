@@ -1,0 +1,34 @@
+:root {
+}
+
+#Body > #CharacterEditContainer > #Character > .unity-text-field > #unity-text-input {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-image: none;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(117, 113, 90);
+    color: rgb(255, 255, 255);
+    opacity: 1;
+    -unity-text-align: upper-left;
+    white-space: normal;
+    text-overflow: ellipsis;
+    justify-content: flex-start;
+    align-self: flex-start;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.menu-text-input {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    overflow: visible;
+    background-color: rgba(255, 255, 255, 0);
+    -unity-background-scale-mode: stretch-to-fill;
+    background-position-x: center;
+    background-position-y: center;
+    -unity-slice-type: sliced;
+}
