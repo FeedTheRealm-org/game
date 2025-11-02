@@ -350,6 +350,10 @@ PrefabInstance:
       propertyPath: m_PanelSettings
       value: 
       objectReference: {fileID: 11400000, guid: 4cd3e0b6e0a0edbfbb89b82289f0088e, type: 2}
+    - target: {fileID: 4357481390069937912, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
+      propertyPath: playerService
+      value: 
+      objectReference: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
     - target: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
       propertyPath: m_Name
       value: CharacterEdit

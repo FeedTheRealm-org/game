@@ -5,12 +5,16 @@ using UnityEngine.UIElements;
 /// Manages the character editing interface and interactions.
 /// </summary>
 public class CharacterEditController : MonoBehaviour {
-    [SerializeField]
-    private Logging.Logger logger;
-
     [Header("Session settings")]
     [SerializeField]
+    private API.PlayerService playerService;
+
+    [SerializeField]
     private Session.Session session;
+
+    [Header("General settings")]
+    [SerializeField]
+    private Logging.Logger logger;
 
     // Containers
     private VisualElement _characterContainer;
@@ -109,6 +113,22 @@ public class CharacterEditController : MonoBehaviour {
     private void onSaveClicked() {
         logger.Log("Save Button Clicked", this);
         logger.Log($"Name: {_nameInput.value}, Bio {_bioInput.value}", this);
-        session.IsFirstLogin = false;
+
+        _errorMessage.text = "";
+        if (_nameInput.value == "") {
+            _errorMessage.text = "Name cannot be empty.";
+            return;
+        }
+
+        StartCoroutine(playerService.UpdateCharacterInfo(_nameInput.value, _bioInput.value, (name, bio, err) => {
+            if (string.IsNullOrEmpty(err)) {
+                logger.Log("Character info successfully updated", this);
+                session.IsFirstLogin = false;
+                session.CharacterName = name;
+            } else {
+                logger.Log("Login failed", this, Logging.LogType.Error);
+                _errorMessage.text = err;
+            }
+        }));
     }
 }

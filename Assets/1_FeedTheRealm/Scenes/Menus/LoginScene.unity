@@ -127,6 +127,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1764402931915185544, guid: d9b2052c8826857dd93b0476accb713f, type: 3}
+      propertyPath: targetScene.sceneName
+      value: Homepage
+      objectReference: {fileID: 0}
+    - target: {fileID: 1764402931915185544, guid: d9b2052c8826857dd93b0476accb713f, type: 3}
+      propertyPath: targetScene.sceneAsset
+      value: 
+      objectReference: {fileID: 102900000, guid: 62080a43b5e5879e2a936a5a9cbbdf90, type: 3}
     - target: {fileID: 5469282581521250782, guid: d9b2052c8826857dd93b0476accb713f, type: 3}
       propertyPath: m_Name
       value: LoginMenu
