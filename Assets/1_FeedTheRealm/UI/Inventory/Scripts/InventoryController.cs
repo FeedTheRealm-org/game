@@ -12,7 +12,6 @@ public class InventoryController : MonoBehaviour
     private VisualElement draggedItem;
     private VisualElement draggedItemOriginalSlot;
     private Vector2 dragOffset;
-    private PlayerControls playerControls;
     public PlayerInputReader playerInputReader;
 
     [Header("Loot Settings")]
@@ -38,15 +37,15 @@ public class InventoryController : MonoBehaviour
         // Ocultar el inventario inicialmente
         root.style.display = DisplayStyle.None;
 
-        // Inicializar controles de input
-        playerControls = new PlayerControls();
-        playerControls.Player.Inventory.performed += ctx => ToggleInventory();
-        playerControls.Player.Enable();
-
-        // Suscribirse al evento del PlayerInputReader si está asignado
+        // Suscribirse al evento del PlayerInputReader para el toggle de inventario
         if (playerInputReader != null)
         {
             playerInputReader.InventoryEvent += ToggleInventory;
+            logger.Log("InventoryController suscrito a InventoryEvent del PlayerInputReader", this);
+        }
+        else
+        {
+            logger.Log("PlayerInputReader NO asignado en InventoryController!", this, Logging.LogType.Error);
         }
 
         // Encontrar todos los slots
@@ -244,9 +243,6 @@ public class InventoryController : MonoBehaviour
 
     void OnDestroy()
     {
-        playerControls.Player.Disable();
-        playerControls.Dispose();
-
         if (playerInputReader != null)
         {
             playerInputReader.InventoryEvent -= ToggleInventory;
@@ -424,11 +420,25 @@ public class InventoryController : MonoBehaviour
     {
         isInventoryOpen = !isInventoryOpen;
         
+        logger.Log($"ToggleInventory called - New state: {(isInventoryOpen ? "OPEN" : "CLOSED")}", this);
+        
         if (isInventoryOpen)
         {
             // Abrir inventario
             root.style.display = DisplayStyle.Flex;
             ShowCursor();
+            
+            // Publicar evento para notificar a otros sistemas
+            if (playerInputReader != null)
+            {
+                logger.Log("Publishing InventoryOpenedEvent", this);
+                playerInputReader.NotifyInventoryOpened();
+            }
+            else
+            {
+                logger.Log("PlayerInputReader is NULL - Cannot publish event!", this, Logging.LogType.Error);
+            }
+            
             logger.Log("Inventario abierto - Cursor visible", this);
         }
         else
@@ -436,6 +446,14 @@ public class InventoryController : MonoBehaviour
             // Cerrar inventario
             root.style.display = DisplayStyle.None;
             HideCursor();
+            
+            // Publicar evento para notificar a otros sistemas
+            if (playerInputReader != null)
+            {
+                logger.Log("Publishing InventoryClosedEvent", this);
+                playerInputReader.NotifyInventoryClosed();
+            }
+            
             logger.Log("Inventario cerrado - Cursor oculto", this);
         }
     }
@@ -450,10 +468,5 @@ public class InventoryController : MonoBehaviour
     {
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
         UnityEngine.Cursor.visible = false;
-    }
-
-    public bool IsInventoryOpen()
-    {
-        return isInventoryOpen;
     }
 }
