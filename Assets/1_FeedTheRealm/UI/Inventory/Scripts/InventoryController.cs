@@ -12,7 +12,6 @@ public class InventoryController : MonoBehaviour
     private VisualElement draggedItem;
     private VisualElement draggedItemOriginalSlot;
     private Vector2 dragOffset;
-    private PlayerControls playerControls;
     public PlayerInputReader playerInputReader;
 
     [Header("Loot Settings")]
@@ -22,9 +21,13 @@ public class InventoryController : MonoBehaviour
     [Header("Slot Sprites")]
     [SerializeField] private Sprite slotNormalSprite;
     [SerializeField] private Sprite slotHoverSprite;
+
+    [Header("Logging")]
+    [SerializeField] private Logging.Logger logger;
     
     private Button lootButton;
     private VisualElement dropZone;
+    private bool isInventoryOpen = false;
 
     void Start()
     {
@@ -34,15 +37,15 @@ public class InventoryController : MonoBehaviour
         // Ocultar el inventario inicialmente
         root.style.display = DisplayStyle.None;
 
-        // Inicializar controles de input
-        playerControls = new PlayerControls();
-        playerControls.Player.Inventory.performed += ctx => ToggleInventory();
-        playerControls.Player.Enable();
-
-        // Suscribirse al evento del PlayerInputReader si está asignado
+        // Suscribirse al evento del PlayerInputReader para el toggle de inventario
         if (playerInputReader != null)
         {
             playerInputReader.InventoryEvent += ToggleInventory;
+            logger.Log("InventoryController suscrito a InventoryEvent del PlayerInputReader", this);
+        }
+        else
+        {
+            logger.Log("PlayerInputReader NO asignado en InventoryController!", this, Logging.LogType.Error);
         }
 
         // Encontrar todos los slots
@@ -97,14 +100,14 @@ public class InventoryController : MonoBehaviour
 
     private void OnSlotPointerDown(PointerDownEvent evt)
     {
-        Debug.Log($"OnSlotPointerDown - Target: {evt.target}, CurrentTarget: {evt.currentTarget}");
+        logger.Log($"OnSlotPointerDown - Target: {evt.target}, CurrentTarget: {evt.currentTarget}", this);
         
         // Intentar obtener el slot desde currentTarget (el elemento que registró el callback)
         var slot = evt.currentTarget as VisualElement;
         
         if (slot != null && slot.childCount > 0)
         {
-            Debug.Log($"Slot encontrado con {slot.childCount} hijo(s)");
+            logger.Log($"Slot encontrado con {slot.childCount} hijo(s)", this);
             draggedItem = slot[0]; // Asumir que el primer hijo es el item
             draggedItemOriginalSlot = slot; // Guardar el slot original
             
@@ -126,13 +129,13 @@ public class InventoryController : MonoBehaviour
             draggedItem.style.position = Position.Absolute;
             draggedItem.style.left = pointerInRoot.x - dragOffset.x;
             draggedItem.style.top = pointerInRoot.y - dragOffset.y;
-            
-            Debug.Log($"Iniciando drag - Item: {draggedItem.name}, Offset: {dragOffset}, ItemWorldPos: ({itemWorldBound.x}, {itemWorldBound.y})");
+
+            logger.Log($"Iniciando drag - Item: {draggedItem.name}, Offset: {dragOffset}, ItemWorldPos: ({itemWorldBound.x}, {itemWorldBound.y})", this);
             evt.StopPropagation();
         }
         else
         {
-            Debug.Log($"No se pudo iniciar drag - Slot null: {slot == null}, ChildCount: {slot?.childCount ?? 0}");
+            logger.Log($"No se pudo iniciar drag - Slot null: {slot == null}, ChildCount: {slot?.childCount ?? 0}", this, Logging.LogType.Warning);
         }
     }
 
@@ -156,17 +159,17 @@ public class InventoryController : MonoBehaviour
 
     private void OnSlotPointerUp(PointerUpEvent evt)
     {
-        Debug.Log($"OnSlotPointerUp - Target: {evt.target}, DraggedItem: {draggedItem != null}");
+        logger.Log($"OnSlotPointerUp - Target: {evt.target}, DraggedItem: {draggedItem != null}", this);
         
         if (draggedItem != null)
         {
             var targetSlot = evt.currentTarget as VisualElement;
-            Debug.Log($"Target slot: {targetSlot?.name}, Is in slots list: {slots.Contains(targetSlot)}");
+            logger.Log($"Target slot: {targetSlot?.name}, Is in slots list: {slots.Contains(targetSlot)}", this);
             
             if (targetSlot != null && slots.Contains(targetSlot))
             {
                 // Mover/intercambiar el item al slot destino
-                Debug.Log($"Moviendo/intercambiando item a slot: {targetSlot.name}");
+                logger.Log($"Moviendo/intercambiando item a slot: {targetSlot.name}", this);
                 MoveItemToSlot(draggedItem, targetSlot);
                 
                 // Limpiar referencias DESPUÉS de mover
@@ -181,7 +184,7 @@ public class InventoryController : MonoBehaviour
 
     private void OnGlobalPointerUp(PointerUpEvent evt)
     {
-        Debug.Log($"OnGlobalPointerUp - DraggedItem: {draggedItem != null}, Position: {evt.position}");
+        logger.Log($"OnGlobalPointerUp - DraggedItem: {draggedItem != null}, Position: {evt.position}", this);
         
         // Solo procesar si todavía hay un item siendo arrastrado
         // (si OnSlotPointerUp lo manejó, draggedItem será null)
@@ -189,18 +192,18 @@ public class InventoryController : MonoBehaviour
         {
             // Verificar si se soltó sobre la zona de drop
             bool isOverDrop = IsPointerOverElement(evt.position, dropZone);
-            Debug.Log($"Is over drop zone: {isOverDrop}, DropZone null: {dropZone == null}");
+            logger.Log($"Is over drop zone: {isOverDrop}, DropZone null: {dropZone == null}", this);
             
             if (isOverDrop)
             {
                 // Eliminar el item
                 draggedItem.RemoveFromHierarchy();
-                Debug.Log("Item eliminado en zona de Drop (Global)");
+                logger.Log("Item eliminado en zona de Drop (Global)", this);
             }
             else
             {
                 // Si se suelta fuera de un slot, devolver
-                Debug.Log("Devolviendo item (desde global)");
+                logger.Log("Devolviendo item (desde global)", this);
                 ReturnItemToOriginalSlot();
             }
             
@@ -215,7 +218,7 @@ public class InventoryController : MonoBehaviour
         {
             // Eliminar el item arrastrado
             draggedItem.RemoveFromHierarchy();
-            Debug.Log("Item eliminado en zona de Drop");
+            logger.Log("Item eliminado en zona de Drop", this);
             draggedItem = null;
             draggedItemOriginalSlot = null;
             evt.StopPropagation();
@@ -240,9 +243,6 @@ public class InventoryController : MonoBehaviour
 
     void OnDestroy()
     {
-        playerControls.Player.Disable();
-        playerControls.Dispose();
-
         if (playerInputReader != null)
         {
             playerInputReader.InventoryEvent -= ToggleInventory;
@@ -254,7 +254,7 @@ public class InventoryController : MonoBehaviour
         // Si el slot destino tiene un item Y no es el slot original, intercambiar
         if (targetSlot.childCount > 0 && targetSlot != draggedItemOriginalSlot)
         {
-            Debug.Log("Slot ocupado, intercambiando items");
+            logger.Log("Slot ocupado, intercambiando items", this);
             var targetItem = targetSlot[0];
             
             // Remover ambos items
@@ -337,7 +337,7 @@ public class InventoryController : MonoBehaviour
     {
         if (lootSprites == null || lootSprites.Count == 0)
         {
-            Debug.LogWarning("No hay sprites asignados en la lista de loot");
+            logger.Log("No hay sprites asignados en la lista de loot", this, Logging.LogType.Warning);
             return;
         }
 
@@ -348,7 +348,7 @@ public class InventoryController : MonoBehaviour
         currentLootIndex = (currentLootIndex + 1) % lootSprites.Count;
         
         AddItem(spriteToAdd);
-        Debug.Log($"Looteado sprite {currentLootIndex}/{lootSprites.Count}");
+        logger.Log($"Looteado sprite {currentLootIndex}/{lootSprites.Count}", this);
     }
 
     // Método para añadir un item al inventario
@@ -356,7 +356,7 @@ public class InventoryController : MonoBehaviour
     {
         if (itemSprite == null)
         {
-            Debug.LogWarning("No se puede añadir un item sin sprite");
+            logger.Log("No se puede añadir un item sin sprite", this, Logging.LogType.Warning);
             return;
         }
 
@@ -366,12 +366,12 @@ public class InventoryController : MonoBehaviour
             if (slot.childCount == 0)
             {
                 CreateItemElement(itemSprite, slot);
-                Debug.Log($"Item añadido al inventario");
+                logger.Log($"Item añadido al inventario", this);
                 return;
             }
         }
 
-        Debug.LogWarning("Inventario lleno, no se puede añadir más items");
+        logger.Log("Inventario lleno, no se puede añadir más items", this);
     }
 
     private void CreateItemElement(Sprite itemSprite, VisualElement parentSlot)
@@ -388,7 +388,7 @@ public class InventoryController : MonoBehaviour
         itemElement.pickingMode = PickingMode.Ignore;
         
         parentSlot.Add(itemElement);
-        Debug.Log($"Item creado en slot: {parentSlot.name}");
+        logger.Log($"Item creado en slot: {parentSlot.name}", this);
     }
 
     public bool IsInventoryFull()
@@ -418,13 +418,55 @@ public class InventoryController : MonoBehaviour
 
     private void ToggleInventory()
     {
-        if (root.style.display == DisplayStyle.Flex)
+        isInventoryOpen = !isInventoryOpen;
+        
+        logger.Log($"ToggleInventory called - New state: {(isInventoryOpen ? "OPEN" : "CLOSED")}", this);
+        
+        if (isInventoryOpen)
         {
-            root.style.display = DisplayStyle.None;
+            // Abrir inventario
+            root.style.display = DisplayStyle.Flex;
+            ShowCursor();
+            
+            // Publicar evento para notificar a otros sistemas
+            if (playerInputReader != null)
+            {
+                logger.Log("Publishing InventoryOpenedEvent", this);
+                playerInputReader.NotifyInventoryOpened();
+            }
+            else
+            {
+                logger.Log("PlayerInputReader is NULL - Cannot publish event!", this, Logging.LogType.Error);
+            }
+            
+            logger.Log("Inventario abierto - Cursor visible", this);
         }
         else
         {
-            root.style.display = DisplayStyle.Flex;
+            // Cerrar inventario
+            root.style.display = DisplayStyle.None;
+            HideCursor();
+            
+            // Publicar evento para notificar a otros sistemas
+            if (playerInputReader != null)
+            {
+                logger.Log("Publishing InventoryClosedEvent", this);
+                playerInputReader.NotifyInventoryClosed();
+            }
+            
+            logger.Log("Inventario cerrado - Cursor oculto", this);
         }
+    }
+
+    private void ShowCursor()
+    {
+        UnityEngine.Cursor.lockState = CursorLockMode.None;
+        UnityEngine.Cursor.visible = true;
+    }
+
+    private void HideCursor()
+    {
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = false;
     }
 }
