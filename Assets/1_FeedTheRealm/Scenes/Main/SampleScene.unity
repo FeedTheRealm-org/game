@@ -1046,6 +1046,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
+      propertyPath: playerInputReader
+      value: 
+      objectReference: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
     - target: {fileID: 6228110454024648622, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
       propertyPath: m_Name
       value: InventoryUI
