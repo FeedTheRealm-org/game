@@ -1,0 +1,27 @@
+:root {
+    opacity: 1;
+    width: auto;
+    height: auto;
+}
+
+VisualElement > #Port > .unity-text-field__label {
+}
+
+.serverinput {
+    width: 20%;
+    justify-content: space-around;
+    align-items: center;
+    align-content: auto;
+    align-self: auto;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    flex-basis: auto;
+    -unity-text-align: upper-left;
+    white-space: nowrap;
+    text-overflow: clip;
+    color: rgb(255, 255, 255);
+    -unity-background-scale-mode: stretch-to-fill;
+    padding-left: 0;
+    margin-right: 4px;
+    flex-grow: 0;
+}

@@ -2,37 +2,28 @@ using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 /// <summary>
 /// Maneja el ciclo de vida de la conexión de red y coordina el loading screen.
 /// Este componente persiste entre cambios de escena usando DontDestroyOnLoad.
-/// También maneja la configuración de IP y puerto para conectar al servidor.
+/// Los valores de IP y puerto son pasados desde el UI (MultiplayerMenuController).
 /// </summary>
 public class NetworkConnectionHandler : MonoBehaviour
 {
     private static NetworkConnectionHandler instance;
     public static NetworkConnectionHandler Instance => instance;
     
-    [Header("Connection Settings")]
-    [SerializeField] private string defaultIP = "127.0.0.1";
-    [SerializeField] private ushort defaultPort = 7777;
-    
-    [Header("UI References (Optional)")]
-    [Tooltip("Input field para la IP del servidor. Si está vacío, usa defaultIP")]
-    [SerializeField] private TMP_InputField ipInputField;
-    
-    [Tooltip("Input field para el puerto del servidor. Si está vacío, usa defaultPort")]
-    [SerializeField] private TMP_InputField portInputField;
-    
     [Header("Debug")]
-    [SerializeField] private bool verboseLogging = true;
-    
+    [SerializeField] private Logging.Logger logger;
+    [SerializeField] private bool enableLogging = true;
+
     private bool isConnecting = false;
+    
+    private bool isSubscribedToEvents = false;
+    private bool isSubscribedToSceneEvents = false;
     
     private void Awake()
     {
-        // Singleton pattern con DontDestroyOnLoad
         if (instance != null && instance != this)
         {
             LogInfo($"⚠️ DUPLICATE INSTANCE DETECTED! Destroying this instance. Scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
@@ -44,22 +35,6 @@ public class NetworkConnectionHandler : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         
         LogInfo($"NetworkConnectionHandler initialized with DontDestroyOnLoad in scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
-        
-        // Inicializar campos de input con valores por defecto
-        if (ipInputField != null)
-        {
-            ipInputField.text = defaultIP;
-            LogInfo($"IP Input field initialized with: {defaultIP}");
-        }
-        
-        if (portInputField != null)
-        {
-            portInputField.text = defaultPort.ToString();
-            LogInfo($"Port Input field initialized with: {defaultPort}");
-        }
-        
-        // Suscribirse a eventos de Netcode
-        SubscribeToNetworkEvents();
     }
     
     private void OnDestroy()
@@ -73,11 +48,15 @@ public class NetworkConnectionHandler : MonoBehaviour
     
     private void SubscribeToNetworkEvents()
     {
-        // Esperar a que NetworkManager esté listo
         if (NetworkManager.Singleton == null)
         {
-            LogInfo("⚠️ NetworkManager.Singleton is null, deferring subscription");
-            StartCoroutine(WaitForNetworkManagerAndSubscribe());
+            LogError("Cannot subscribe to network events: NetworkManager.Singleton is null!");
+            return;
+        }
+        
+        if (isSubscribedToEvents)
+        {
+            LogInfo("Already subscribed to network events, skipping...");
             return;
         }
         
@@ -86,108 +65,86 @@ public class NetworkConnectionHandler : MonoBehaviour
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
         
-        if (NetworkManager.Singleton.SceneManager != null)
-        {
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoadCompleted;
-            NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
-            LogInfo("✅ Subscribed to SceneManager events");
-        }
-        else
-        {
-            LogInfo("⚠️ SceneManager is null, will retry subscription");
-            StartCoroutine(WaitForSceneManagerAndSubscribe());
-        }
+        TrySubscribeToSceneEvents();
+        
+        isSubscribedToEvents = true;
     }
     
-    private System.Collections.IEnumerator WaitForNetworkManagerAndSubscribe()
+    private void TrySubscribeToSceneEvents()
     {
-        LogInfo("Waiting for NetworkManager.Singleton...");
-        while (NetworkManager.Singleton == null)
+        if (isSubscribedToSceneEvents)
         {
-            yield return new WaitForSeconds(0.1f);
-        }
-        LogInfo("NetworkManager.Singleton found, subscribing...");
-        SubscribeToNetworkEvents();
-    }
-    
-    private System.Collections.IEnumerator WaitForSceneManagerAndSubscribe()
-    {
-        LogInfo("Waiting for NetworkManager.SceneManager...");
-        int attempts = 0;
-        while (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager == null && attempts < 50)
-        {
-            attempts++;
-            yield return new WaitForSeconds(0.1f);
+            return;
         }
         
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+        if (NetworkManager.Singleton == null || NetworkManager.Singleton.SceneManager == null)
         {
-            LogInfo("SceneManager found, subscribing to scene events...");
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoadCompleted;
-            NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
-            LogInfo("✅ Subscribed to SceneManager events");
+            LogInfo("SceneManager not ready yet, will subscribe after client starts");
+            return;
         }
-        else
-        {
-            Debug.LogError("[NetworkConnectionHandler] Failed to subscribe to SceneManager events after 5 seconds");
-        }
+        
+        LogInfo("Subscribing to SceneManager events...");
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoadCompleted;
+        NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
+        isSubscribedToSceneEvents = true;
+        LogInfo("✅ Subscribed to SceneManager events successfully");
     }
     
+
     private void UnsubscribeFromNetworkEvents()
     {
+        if (!isSubscribedToEvents)
+        {
+            return;
+        }
+        
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
             
-            if (NetworkManager.Singleton.SceneManager != null)
+            if (isSubscribedToSceneEvents && NetworkManager.Singleton.SceneManager != null)
             {
                 NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnNetworkSceneLoadCompleted;
                 NetworkManager.Singleton.SceneManager.OnSceneEvent -= OnSceneEvent;
+                isSubscribedToSceneEvents = false;
             }
         }
+        
+        isSubscribedToEvents = false;
+        LogInfo("Unsubscribed from network events");
     }
     
     #region Public Methods
     
     /// <summary>
-    /// Conecta al servidor usando los valores de los input fields o valores por defecto
-    /// </summary>
-    public void ConnectToServer()
-    {
-        string ip = GetIPAddress();
-        ushort port = GetPort();
-        
-        ConnectToServer(ip, port);
-    }
-    
-    /// <summary>
-    /// Conecta al servidor con IP y puerto específicos
+    /// Conecta al servidor con IP y puerto específicos.
+    /// Este método debe ser llamado desde el UI (ej: MultiplayerMenuController).
     /// </summary>
     public void ConnectToServer(string ipAddress, ushort port)
     {
         if (NetworkManager.Singleton == null)
         {
-            Debug.LogError("[NetworkConnectionHandler] NetworkManager.Singleton is null!");
+            LogError("NetworkManager.Singleton is null!");
             return;
         }
 
-        // Verificar que no estamos ya conectados
         if (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsHost)
         {
-            Debug.LogWarning("[NetworkConnectionHandler] Already connected or connecting!");
+            LogWarning("Already connected or connecting!");
             return;
         }
 
         LogInfo($"Attempting to connect to server at {ipAddress}:{port}");
 
+        // Suscribirse a eventos de red justo antes de conectar
+        SubscribeToNetworkEvents();
+
         // Mostrar loading screen
         BeginConnection();
 
-        // Configurar el transporte con la IP y puerto del servidor
         if (ConfigureTransport(ipAddress, port))
         {
-            // Iniciar el cliente
             bool success = NetworkManager.Singleton.StartClient();
             
             if (success)
@@ -196,7 +153,7 @@ public class NetworkConnectionHandler : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[NetworkConnectionHandler] ❌ Failed to start client!");
+                LogError("❌ Failed to start client!");
                 HideLoadingScreen();
             }
         }
@@ -215,11 +172,10 @@ public class NetworkConnectionHandler : MonoBehaviour
         
         if (transport == null)
         {
-            Debug.LogError("[NetworkConnectionHandler] UnityTransport component not found on NetworkManager!");
+            LogError("UnityTransport component not found on NetworkManager!");
             return false;
         }
 
-        // Configurar los datos de conexión
         transport.ConnectionData.Address = ipAddress;
         transport.ConnectionData.Port = port;
         
@@ -246,7 +202,6 @@ public class NetworkConnectionHandler : MonoBehaviour
     {
         LogInfo("HideLoadingScreen() called - using events");
         
-        // Usar el sistema de eventos
         LoadingScreenEvents.Hide();
         
         isConnecting = false;
@@ -258,10 +213,11 @@ public class NetworkConnectionHandler : MonoBehaviour
     
     private void OnClientConnected(ulong clientId)
     {
-        // Solo procesar para el cliente local
         if (NetworkManager.Singleton.LocalClientId == clientId)
         {
             LogInfo($"Local client {clientId} connected to server");
+            
+            TrySubscribeToSceneEvents();
         }
     }
     
@@ -269,13 +225,10 @@ public class NetworkConnectionHandler : MonoBehaviour
     {
         LogInfo($"🔌 OnClientDisconnected called: clientId={clientId}, LocalClientId={NetworkManager.Singleton?.LocalClientId}");
         
-        // Solo procesar para el cliente local
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == clientId)
         {
-            LogInfo($"❌ Local client {clientId} disconnected from server - Stack trace:");
-            Debug.LogWarning($"[NetworkConnectionHandler] Disconnect stack trace:\n{System.Environment.StackTrace}");
+            LogWarning($"❌ Local client {clientId} disconnected from server");
             
-            // Ocultar loading screen si está visible usando eventos
             LoadingScreenEvents.Hide();
             
             isConnecting = false;
@@ -292,7 +245,6 @@ public class NetworkConnectionHandler : MonoBehaviour
         {
             LogInfo($"Network scene '{sceneName}' load completed. Hiding loading screen with delay via events...");
             
-            // Usar el sistema de eventos para ocultar el loading screen
             LoadingScreenEvents.HideWithDelay();
             
             isConnecting = false;
@@ -305,22 +257,28 @@ public class NetworkConnectionHandler : MonoBehaviour
     
     private void OnSceneEvent(SceneEvent sceneEvent)
     {
-        // Logging de eventos de escena para debugging
-        if (verboseLogging && NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
+        if (NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
         {
             LogInfo($"Scene Event: {sceneEvent.SceneEventType} - Scene: {sceneEvent.SceneName}");
             
-            // Cuando empieza la carga de escena, asegurar que el loading screen está visible
             if (sceneEvent.SceneEventType == SceneEventType.Load && isConnecting)
             {
                 LogInfo("Scene loading started - ensuring loading screen is visible via events");
                 LoadingScreenEvents.Show();
             }
             
-            // ✅ Ocultar loading screen cuando la carga está completa
             if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && isConnecting)
             {
                 LogInfo($"✅ Scene '{sceneEvent.SceneName}' load complete detected! Hiding loading screen with delay via events...");
+                
+                LoadingScreenEvents.HideWithDelay();
+                
+                isConnecting = false;
+            }
+            
+            if (sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete && isConnecting)
+            {
+                LogInfo($"✅ Scene synchronization complete! Hiding loading screen with delay via events...");
                 
                 // Usar el sistema de eventos para ocultar el loading screen
                 LoadingScreenEvents.HideWithDelay();
@@ -334,44 +292,27 @@ public class NetworkConnectionHandler : MonoBehaviour
     
     #region Helper Methods
     
-    /// <summary>
-    /// Obtiene la dirección IP del input field o usa el valor por defecto
-    /// </summary>
-    private string GetIPAddress()
-    {
-        if (ipInputField != null && !string.IsNullOrWhiteSpace(ipInputField.text))
-        {
-            return ipInputField.text.Trim();
-        }
-        
-        return defaultIP;
-    }
-
-    /// <summary>
-    /// Obtiene el puerto del input field o usa el valor por defecto
-    /// </summary>
-    private ushort GetPort()
-    {
-        if (portInputField != null && !string.IsNullOrWhiteSpace(portInputField.text))
-        {
-            if (ushort.TryParse(portInputField.text, out ushort port))
-            {
-                return port;
-            }
-            else
-            {
-                Debug.LogWarning($"[NetworkConnectionHandler] Invalid port in input field: {portInputField.text}. Using default: {defaultPort}");
-            }
-        }
-        
-        return defaultPort;
-    }
-    
     private void LogInfo(string message)
     {
-        if (verboseLogging)
+        if (enableLogging)
         {
-            Debug.Log($"[NetworkConnectionHandler] {message}");
+            logger?.Log($"[NetworkConnectionHandler] {message}", this);
+        }
+    }
+    
+    private void LogWarning(string message)
+    {
+        if (enableLogging)
+        {
+            logger?.Log($"[NetworkConnectionHandler] {message}", this, Logging.LogType.Warning);
+        }
+    }
+    
+    private void LogError(string message)
+    {
+        if (enableLogging)
+        {
+            logger?.Log($"[NetworkConnectionHandler] {message}", this, Logging.LogType.Error);
         }
     }
     
