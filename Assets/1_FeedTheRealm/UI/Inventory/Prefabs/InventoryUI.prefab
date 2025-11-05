@@ -76,3 +76,4 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b1c6b014ee8384bde8873e80c5b3784c, type: 3}
   slotNormalSprite: {fileID: 21300000, guid: 4b3d2095baccc2041b973b66b786b9d0, type: 3}
   slotHoverSprite: {fileID: 21300000, guid: 6b8728d20b5d4c540b335c3789517218, type: 3}
+  logger: {fileID: 11400000, guid: 370a1d378e969c1d69728babe5e18233, type: 2}
