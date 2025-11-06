@@ -43,7 +43,7 @@ public class HUDController : MonoBehaviour {
 
         _nameLabel = _characterData.Q<Label>("Username");
         if (_nameLabel != null && session != null) {
-            _nameLabel.text = session.Email; // TODO: Change to character name when available
+            _nameLabel.text = session.CharacterName;
         }
 
         registerButtonCallbacks();
