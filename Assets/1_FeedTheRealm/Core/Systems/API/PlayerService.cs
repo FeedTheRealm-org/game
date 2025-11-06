@@ -15,6 +15,10 @@ namespace API {
         [SerializeField]
         public int Port;
 
+        [Header("Session settings")]
+        [SerializeField]
+        private Session.Session session;
+
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
@@ -24,14 +28,16 @@ namespace API {
         /// </summary>
         public IEnumerator UpdateCharacterInfo(string name, string bio, System.Action<string, string, string> handler) {
             var url = $"http://{Hostname}:{Port}/player/character";
-            var payload = new UpdateCharacterInfoRequest { characterName = name, characterBio = bio };
+            var payload = new UpdateCharacterInfoRequest { character_name = name, character_bio = bio };
             var json = JsonUtility.ToJson(payload);
 
             var uwr = new UnityWebRequest(url, "PUT");
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
             uwr.uploadHandler = new UploadHandlerRaw(bodyRaw);
             uwr.downloadHandler = new DownloadHandlerBuffer();
+
             uwr.SetRequestHeader("Content-Type", "application/json");
+            uwr.SetRequestHeader("Authorization", $"Bearer {session.APIToken}");
 
             yield return uwr.SendWebRequest();
 
@@ -44,7 +50,7 @@ namespace API {
             } else {
                 var res = JsonUtility.FromJson<DataEnvelope<CharacterInfoResponse>>(responseText);
                 logger.Log($"CharacterInfo response: {responseText}", this);
-                handler?.Invoke(res.data.characterName, res.data.characterBio, "");
+                handler?.Invoke(res.data.character_bame, res.data.character_bio, "");
             }
         }
 
@@ -56,6 +62,8 @@ namespace API {
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
+            uwr.SetRequestHeader("Authorization", $"Bearer {session.APIToken}");
+
             yield return uwr.SendWebRequest();
 
             var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
@@ -67,7 +75,7 @@ namespace API {
             } else {
                 var res = JsonUtility.FromJson<DataEnvelope<CharacterInfoResponse>>(responseText);
                 logger.Log($"CharacterInfo response: {responseText}", this);
-                handler?.Invoke(res.data.characterName, res.data.characterBio, "");
+                handler?.Invoke(res.data.character_bame, res.data.character_bio, "");
             }
         }
     }
