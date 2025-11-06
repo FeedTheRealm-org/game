@@ -188,7 +188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkMovementSynchronizer
   ShowTopMostFoldoutHeaderGroup: 1
-  movementComponent: {fileID: 0}
+  movementComponent: {fileID: 448067336067517275}
   rb: {fileID: 3095535743837438187}
   networkSendRate: 10
   positionThreshold: 0.1
@@ -207,6 +207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerController
   ShowTopMostFoldoutHeaderGroup: 1
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  playerInputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
 --- !u!114 &5877262516690015562
 MonoBehaviour:
   m_ObjectHideFlags: 0
