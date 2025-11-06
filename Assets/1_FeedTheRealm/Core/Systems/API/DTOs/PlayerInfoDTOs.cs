@@ -11,7 +11,7 @@ namespace API {
     /* --- Responses --- */
     [System.Serializable]
     public class CharacterInfoResponse {
-        public string character_bame;
+        public string character_name;
 
         public string character_bio;
     }

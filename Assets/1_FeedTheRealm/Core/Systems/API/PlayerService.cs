@@ -50,7 +50,7 @@ namespace API {
             } else {
                 var res = JsonUtility.FromJson<DataEnvelope<CharacterInfoResponse>>(responseText);
                 logger.Log($"CharacterInfo response: {responseText}", this);
-                handler?.Invoke(res.data.character_bame, res.data.character_bio, "");
+                handler?.Invoke(res.data.character_name, res.data.character_bio, "");
             }
         }
 
@@ -75,7 +75,7 @@ namespace API {
             } else {
                 var res = JsonUtility.FromJson<DataEnvelope<CharacterInfoResponse>>(responseText);
                 logger.Log($"CharacterInfo response: {responseText}", this);
-                handler?.Invoke(res.data.character_bame, res.data.character_bio, "");
+                handler?.Invoke(res.data.character_name, res.data.character_bio, "");
             }
         }
     }

@@ -91,6 +91,7 @@ public class CharacterEditController : MonoBehaviour {
         }
 
         registerCallbacks();
+        fetchCharacterInfo();
     }
 
     /// <summary>
@@ -131,4 +132,21 @@ public class CharacterEditController : MonoBehaviour {
             }
         }));
     }
+
+    /// <summary>
+    /// Fetches the current character information from the server.
+    /// </summary>
+    private void fetchCharacterInfo() {
+        StartCoroutine(playerService.GetCharacterInfo((name, bio, err) => {
+            if (string.IsNullOrEmpty(err)) {
+                logger.Log("Character info successfully retrieved", this);
+                _nameInput.value = name;
+                _bioInput.value = bio;
+            } else {
+                logger.Log("Failed to retrieve character info", this, Logging.LogType.Error);
+                _errorMessage.text = err;
+            }
+        }));
+    }
+
 }
