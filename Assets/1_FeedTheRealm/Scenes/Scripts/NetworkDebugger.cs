@@ -12,7 +12,7 @@ public class NetworkDebugger : MonoBehaviour
 
     [Header("Debug Settings")]
     [SerializeField] private bool enablePeriodicLogs = true;
-    [SerializeField] private float logIntervalSeconds = 5f;
+    [SerializeField] private float logIntervalSeconds = 10f;
     [SerializeField] private bool logSceneChanges = true;
     [SerializeField] private bool logNetworkEvents = true;
     [SerializeField] private bool logBuildScenes = true;

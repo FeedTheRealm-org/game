@@ -1,0 +1,9 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/MultiplayerMenu/menu.uss?fileID=7433441132597879392&amp;guid=f82401955c4ea6781ba322939207a733&amp;type=3#menu" />
+    <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/big_background.png?fileID=2800000&amp;guid=4edbc5539b441f049966c07e2ba12186&amp;type=3#big_background&quot;); width: auto; align-items: center; justify-content: center; background-size: 100% 100%; background-position-x: center; -unity-slice-scale: 1px; left: auto;">
+        <ui:Label text="Connect to server:" style="color: rgb(255, 255, 255); top: auto; align-self: center; font-size: 25px; bottom: 30px;" />
+        <ui:TextField placeholder-text="Enter Server IP" name="IPInput" auto-correction="false" password="false" class="serverinput" style="color: rgb(0, 0, 0);" />
+        <ui:TextField placeholder-text="Enter Port:" name="PortInput" password="false" class="serverinput" style="width: 20%; justify-content: space-around; align-items: auto; align-content: auto; align-self: center; flex-wrap: nowrap; flex-direction: row; flex-basis: auto; -unity-text-align: upper-left; white-space: nowrap; text-overflow: clip; color: rgb(0, 0, 0); left: auto; right: auto;" />
+        <ui:Button text="Join" name="JoinButton" style="top: 20px;" />
+    </ui:VisualElement>
+</ui:UXML>
