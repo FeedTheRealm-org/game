@@ -38,8 +38,6 @@ public class PlayerController : MonoBehaviour {
         if (attackComponent == null) {
             logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
-
-        cursorToggle();
     }
 
     private void OnEnable() {
@@ -52,7 +50,7 @@ public class PlayerController : MonoBehaviour {
             // Suscribirse a eventos de inventario
             inputReader.InventoryOpenedEvent += OnInventoryOpened;
             inputReader.InventoryClosedEvent += OnInventoryClosed;
-            
+
             logger.Log($"PlayerController subscribed to events. InputReader: {inputReader.name}", this);
         }
         else
@@ -98,14 +96,16 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void cursorToggle() {
-        if (Cursor.visible) {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            logger.Log("Cursor toggled OFF", this);
-        } else {
+        bool shouldShowCursor = !Cursor.visible;
+        
+        if (shouldShowCursor) {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            logger.Log("Cursor toggled ON", this);
+            logger.Log("Cursor mostrado (toggle)", this);
+        } else {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            logger.Log("Cursor oculto (toggle)", this);
         }
     }
 }
