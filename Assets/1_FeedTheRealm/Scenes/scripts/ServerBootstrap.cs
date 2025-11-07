@@ -10,7 +10,7 @@ public class ServerBootstrap : MonoBehaviour
 {
     [Header("Server Configuration")]
     [SerializeField] private ushort defaultPort = 7777;
-    [SerializeField] private string defaultAddress = "0.0.0.0"; // Escucha en todas las interfaces
+    [SerializeField] private string defaultAddress = "0.0.0.0";
     [SerializeField] private int maxPlayers = 10;
     
     [Header("Scene Configuration")]
@@ -51,6 +51,12 @@ public class ServerBootstrap : MonoBehaviour
         // Configurar el transporte (Unity Transport)
         ConfigureTransport(address, port);
         
+        // Suscribirse a eventos de conexión ANTES de iniciar el servidor
+        NetworkManager.Singleton.OnClientConnectedCallback += OnServerClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnServerClientDisconnected;
+        
+        LogServerInfo("📡 Subscribed to connection events");
+        
         // Iniciar el servidor
         bool success = NetworkManager.Singleton.StartServer();
         
@@ -61,6 +67,7 @@ public class ServerBootstrap : MonoBehaviour
             LogServerInfo($"   Port: {port}");
             LogServerInfo($"   Max Players: {maxConnections}");
             LogServerInfo($"   Scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
+            LogServerInfo($"   🔊 Server is now LISTENING for connections...");
             
             // Cargar escena del juego si está configurado y no estamos ya en ella
             if (autoLoadGameScene && !string.IsNullOrEmpty(gameSceneName))
@@ -78,6 +85,24 @@ public class ServerBootstrap : MonoBehaviour
             Debug.LogError("[ServerBootstrap] ❌ Failed to start dedicated server!");
         }
     }
+    
+    /// <summary>
+    /// Callback cuando un cliente se conecta al servidor
+    /// </summary>
+    private void OnServerClientConnected(ulong clientId)
+    {
+        LogServerInfo($"🎉 CLIENT CONNECTED! ClientId: {clientId}");
+        LogServerInfo($"   Total clients connected: {NetworkManager.Singleton.ConnectedClientsList.Count}");
+    }
+    
+    /// <summary>
+    /// Callback cuando un cliente se desconecta del servidor
+    /// </summary>
+    private void OnServerClientDisconnected(ulong clientId)
+    {
+        LogServerInfo($"👋 CLIENT DISCONNECTED! ClientId: {clientId}");
+        LogServerInfo($"   Remaining clients: {NetworkManager.Singleton.ConnectedClientsList.Count}");
+    }
 
     /// <summary>
     /// Configura el NetworkManager con los parámetros del servidor
@@ -90,9 +115,6 @@ public class ServerBootstrap : MonoBehaviour
             return;
         }
 
-        var connectionApproval = NetworkManager.Singleton.NetworkConfig.ConnectionApproval;
-        NetworkManager.Singleton.NetworkConfig.ConnectionApproval = connectionApproval;
-        
         LogServerInfo($"NetworkManager configured with max {maxConnections} connections");
     }
 
@@ -109,12 +131,22 @@ public class ServerBootstrap : MonoBehaviour
             return;
         }
 
-        // Configurar el transporte para escuchar en la dirección y puerto especificados
-        transport.ConnectionData.Address = address;
-        transport.ConnectionData.Port = port;
-        transport.ConnectionData.ServerListenAddress = address;
+        // - ServerListenAddress: La interfaz donde el servidor ESCUCHA (0.0.0.0 = todas)
+        // - Port: El puerto donde escuchar
+        // - Address: NO se usa en el servidor (solo para clientes)
         
-        LogServerInfo($"UnityTransport configured: {address}:{port}");
+        transport.ConnectionData.ServerListenAddress = address;  // 0.0.0.0 para escuchar en todas las interfaces
+        transport.ConnectionData.Port = port;                     // Puerto 7777
+        transport.ConnectionData.Address = string.Empty;         // Vacío en el servidor (no se usa)
+        
+        LogServerInfo($"🔧 UnityTransport configured for SERVER:");
+        LogServerInfo($"   → ServerListenAddress: {transport.ConnectionData.ServerListenAddress} (listening on all interfaces)");
+        LogServerInfo($"   → Port: {transport.ConnectionData.Port}");
+        LogServerInfo($"   → Address: '{transport.ConnectionData.Address}' (not used by server)");
+        
+        // La configuración con ServerListenAddress="0.0.0.0" permite conexiones externas
+        // Asegúrate de que "Allow Remote Connections" esté habilitado en Unity Transport Inspector
+        LogServerInfo($"   → 🌐 ATENTION: Verify that 'Allow Remote Connections' is enabled in Unity Transport!");
     }
 
     #region Command Line Arguments Parsing
@@ -205,6 +237,10 @@ public class ServerBootstrap : MonoBehaviour
     {
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
         {
+            // Desuscribirse de eventos
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnServerClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnServerClientDisconnected;
+            
             LogServerInfo("Shutting down server...");
         }
     }
@@ -213,6 +249,10 @@ public class ServerBootstrap : MonoBehaviour
     {
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
         {
+            // Desuscribirse de eventos
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnServerClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnServerClientDisconnected;
+            
             LogServerInfo("Application quitting - shutting down server...");
             NetworkManager.Singleton.Shutdown();
         }

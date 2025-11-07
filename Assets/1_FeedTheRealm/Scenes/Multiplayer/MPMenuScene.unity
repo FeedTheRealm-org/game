@@ -218,9 +218,9 @@ MonoBehaviour:
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 127.0.0.1
+    Address: 
     Port: 7777
-    ServerListenAddress: 127.0.0.1
+    ServerListenAddress: 0.0.0.0
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
@@ -238,7 +238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ServerBootstrap
   defaultPort: 7777
-  defaultAddress: 127.0.0.1
+  defaultAddress: 0.0.0.0
   maxPlayers: 10
   gameSceneName: MultiplayerScene
   autoLoadGameScene: 1

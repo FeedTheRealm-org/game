@@ -123,6 +123,12 @@ public class NetworkConnectionHandler : MonoBehaviour
     /// </summary>
     public void ConnectToServer(string ipAddress, ushort port)
     {
+        LogInfo("==============================================");
+        LogInfo($"🔌 ConnectToServer() called with:");
+        LogInfo($"   IP Address: {ipAddress}");
+        LogInfo($"   Port: {port}");
+        LogInfo("==============================================");
+        
         if (NetworkManager.Singleton == null)
         {
             LogError("NetworkManager.Singleton is null!");
@@ -135,6 +141,12 @@ public class NetworkConnectionHandler : MonoBehaviour
             return;
         }
 
+        // Verificar que la IP no sea localhost si estamos intentando conectar a un servidor remoto
+        if (ipAddress == "127.0.0.1" || ipAddress == "localhost")
+        {
+            LogWarning("⚠️ Connecting to localhost - this will only work if server is on the same machine!");
+        }
+
         LogInfo($"Attempting to connect to server at {ipAddress}:{port}");
 
         // Suscribirse a eventos de red justo antes de conectar
@@ -145,6 +157,12 @@ public class NetworkConnectionHandler : MonoBehaviour
 
         if (ConfigureTransport(ipAddress, port))
         {
+            // Obtener el transport para verificación final
+            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            LogInfo($"📡 Final transport configuration before StartClient:");
+            LogInfo($"   → Address: {transport.ConnectionData.Address}");
+            LogInfo($"   → Port: {transport.ConnectionData.Port}");
+            
             bool success = NetworkManager.Singleton.StartClient();
             
             if (success)
@@ -159,6 +177,7 @@ public class NetworkConnectionHandler : MonoBehaviour
         }
         else
         {
+            LogError("❌ Failed to configure transport!");
             HideLoadingScreen();
         }
     }
@@ -179,7 +198,28 @@ public class NetworkConnectionHandler : MonoBehaviour
         transport.ConnectionData.Address = ipAddress;
         transport.ConnectionData.Port = port;
         
-        LogInfo($"UnityTransport configured: {ipAddress}:{port}");
+        // Este campo es SOLO para el servidor. Si está configurado, Unity Transport
+        // lo usa en lugar de Address, causando que el cliente intente conectarse a localhost
+        transport.ConnectionData.ServerListenAddress = string.Empty;
+        
+        // Logging detallado para debugging
+        LogInfo($"✅ UnityTransport configured:");
+        LogInfo($"   → Address: {transport.ConnectionData.Address}");
+        LogInfo($"   → Port: {transport.ConnectionData.Port}");
+        LogInfo($"   → ServerListenAddress: '{transport.ConnectionData.ServerListenAddress}' (should be empty for client)");
+        
+        // Verificar que la configuración se aplicó correctamente
+        if (transport.ConnectionData.Address != ipAddress)
+        {
+            LogError($"❌ Transport Address not set correctly! Expected: {ipAddress}, Got: {transport.ConnectionData.Address}");
+            return false;
+        }
+        
+        if (!string.IsNullOrEmpty(transport.ConnectionData.ServerListenAddress))
+        {
+            LogWarning($"⚠️ ServerListenAddress is not empty: '{transport.ConnectionData.ServerListenAddress}' - This may cause connection issues!");
+        }
+        
         return true;
     }
     
@@ -215,7 +255,10 @@ public class NetworkConnectionHandler : MonoBehaviour
     {
         if (NetworkManager.Singleton.LocalClientId == clientId)
         {
-            LogInfo($"Local client {clientId} connected to server");
+            LogInfo($"🎉 Local client {clientId} connected to server!");
+            LogInfo($"   IsClient: {NetworkManager.Singleton.IsClient}");
+            LogInfo($"   IsServer: {NetworkManager.Singleton.IsServer}");
+            LogInfo($"   IsHost: {NetworkManager.Singleton.IsHost}");
             
             TrySubscribeToSceneEvents();
         }

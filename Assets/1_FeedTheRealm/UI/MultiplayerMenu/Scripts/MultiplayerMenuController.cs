@@ -49,14 +49,25 @@ public class MultiplayerMenuController : MonoBehaviour
         string ip = ipInput?.value ?? "127.0.0.1";
         string portStr = portInput?.value ?? "7777";
 
+        // Validar que no sean valores vacíos
+        if (string.IsNullOrWhiteSpace(ip))
+        {
+            Debug.LogWarning("[MultiplayerMenuController] ⚠️ IP is empty, using default 127.0.0.1");
+            ip = "127.0.0.1";
+        }
+        
+        if (string.IsNullOrWhiteSpace(portStr))
+        {
+            Debug.LogWarning("[MultiplayerMenuController] ⚠️ Port is empty, using default 7777");
+            portStr = "7777";
+        }
+
         // Validar y parsear el puerto
         if (!ushort.TryParse(portStr, out ushort port))
         {
             Debug.LogWarning($"[MultiplayerMenuController] Invalid port: {portStr}. Using default 7777");
             port = 7777;
         }
-
-        Debug.Log($"[MultiplayerMenuController] Join clicked - IP: {ip}, Port: {port}");
 
         // Delegar la conexión al NetworkConnectionHandler
         if (NetworkConnectionHandler.Instance != null)
