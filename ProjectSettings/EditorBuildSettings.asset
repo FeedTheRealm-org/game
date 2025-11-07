@@ -5,19 +5,19 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Menus/LoginScene.unity
     guid: abd87fe87e8b55f40820f171267a39bc
-  - enabled: 1
+  - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Menus/SignUpScene.unity
     guid: 3389029b3c1ee7f40bec33f792a7f184
-  - enabled: 1
+  - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Menus/VerifyCodeScene.unity
     guid: 6807976b6f5dfcb4382c558daa37b219
-  - enabled: 1
+  - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
     guid: 62080a43b5e5879e2a936a5a9cbbdf90
-  - enabled: 1
+  - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Main/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
