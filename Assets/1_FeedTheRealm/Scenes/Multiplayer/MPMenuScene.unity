@@ -240,7 +240,9 @@ MonoBehaviour:
   defaultPort: 7777
   defaultAddress: 0.0.0.0
   maxPlayers: 10
-  gameSceneName: MultiplayerScene
+  gameScene:
+    sceneName: MultiplayerScene
+    sceneAsset: {fileID: 102900000, guid: f6ac62a72a7875ffab304152e68e376a, type: 3}
   autoLoadGameScene: 1
   verboseLogging: 1
 --- !u!1 &115973601
@@ -887,79 +889,63 @@ Transform:
   - {fileID: 115973603}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1458442084
-GameObject:
+--- !u!1001 &2303173142850363025
+PrefabInstance:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1458442086}
-  - component: {fileID: 1458442085}
-  - component: {fileID: 1458442087}
-  m_Layer: 0
-  m_Name: LoadingScreen
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1458442085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1458442084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: 20a3da990b8069edf9c060fb35b0e1de, type: 2}
-  m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 928e0064ff04a0049ad58a784fa77d6a, type: 3}
-  m_SortingOrder: 100
-  m_Position: 0
-  m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
-  m_PivotReferenceSize: 0
-  m_Pivot: 0
-  m_WorldSpaceCollider: {fileID: 0}
---- !u!4 &1458442086
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1458442084}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 286.87872, y: 142.60576, z: -135.05896}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1458442087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1458442084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1774a1de6421ca54ca7e7c4353fe342e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LoadingScreenController
-  loadingScreenDocument: {fileID: 1458442085}
-  displayDuration: 2
-  fadeOutDuration: 1
-  hideOnStart: 1
-  logger: {fileID: 11400000, guid: 89a40de6843109e618e33501724bb512, type: 2}
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_Name
+      value: LoadingScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 286.87872
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 142.60576
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -135.05896
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f22507bcddabcdcb3b33671656222084, type: 3}
 --- !u!1001 &5670880599720692595
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1028,6 +1014,6 @@ SceneRoots:
   - {fileID: 1333036954}
   - {fileID: 138349355}
   - {fileID: 1420089339}
-  - {fileID: 1458442086}
   - {fileID: 423181915}
+  - {fileID: 2303173142850363025}
   - {fileID: 5670880599720692595}
