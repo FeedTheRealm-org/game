@@ -309,7 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcbe05ff05a46875d821015d6638e450, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterEditController
-  playerService: {fileID: 0}
+  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
 --- !u!1 &8984891845346889083
@@ -452,9 +452,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1418397613159891299, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3095535743837438187, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
       propertyPath: m_Constraints
       value: 126
+      objectReference: {fileID: 0}
+    - target: {fileID: 3523876544824524927, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5314653326580582067, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
       propertyPath: m_Sprite

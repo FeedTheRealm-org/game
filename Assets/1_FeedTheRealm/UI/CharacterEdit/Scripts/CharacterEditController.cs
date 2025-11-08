@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
 
 /// <summary>
 /// Manages the character editing interface and interactions.
@@ -20,6 +21,8 @@ public class CharacterEditController : MonoBehaviour {
     private VisualElement _characterContainer;
     private VisualElement _characterPreview;
     private VisualElement _cosmeticsContainer;
+    private ScrollView _itemsList;
+    private ScrollView _categoriesList;
 
     private Label _errorMessage;
 
@@ -79,6 +82,8 @@ public class CharacterEditController : MonoBehaviour {
         _backButton = body.Q<Button>("BackButton");
 
         _errorMessage = _cosmeticsContainer.Q<Label>("ErrorMessage");
+        _itemsList = _cosmeticsContainer.Q<ScrollView>("Items");
+        _categoriesList = _cosmeticsContainer.Q<ScrollView>("Categories");
 
         if (_nameInput == null || _bioInput == null || _backButton == null || _cancelButton == null || _saveButton == null || _errorMessage == null) {
             logger.Log("Buttons or Inputs not found in UI Document.", this, Logging.LogType.Error);
@@ -90,17 +95,31 @@ public class CharacterEditController : MonoBehaviour {
             _backButton.style.display = DisplayStyle.None;
         }
 
-        registerCallbacks();
+        registerCallbacks(true);
         fetchCharacterInfo();
+    }
+
+    private void OnDisable() {
+        registerCallbacks(false);
     }
 
     /// <summary>
     /// Registers button click callbacks.
     /// </summary>
-    private void registerCallbacks() {
-        _backButton.clicked += onBackClicked;
-        _cancelButton.clicked += onCancelClicked;
-        _saveButton.clicked += onSaveClicked;
+    private void registerCallbacks(bool shouldRegister) {
+        if (shouldRegister) {
+            logger.Log("Registering button callbacks", this);
+            _backButton.clicked += onBackClicked;
+            _cancelButton.clicked += onCancelClicked;
+            _saveButton.clicked += onSaveClicked;
+        } else {
+            logger.Log("Unregistering button callbacks", this);
+            _backButton.clicked -= onBackClicked;
+            _cancelButton.clicked -= onCancelClicked;
+            _saveButton.clicked -= onSaveClicked;
+        }
+        registerListButtonsCallbacks(_itemsList, shouldRegister, onItemClicked);
+        registerListButtonsCallbacks(_categoriesList, shouldRegister, onCategoryClicked);
     }
 
     private void onBackClicked() {
@@ -121,6 +140,43 @@ public class CharacterEditController : MonoBehaviour {
             return;
         }
 
+        updateCharacterInfo();
+    }
+
+    /// <summary>
+    /// Registers callbacks for item buttons in the items list.
+    /// </summary>
+    private void registerListButtonsCallbacks(ScrollView container, bool shouldRegister, Action<Button> handler) {
+        foreach (var child in container.contentContainer.Children()) {
+            logger.Log($"Registering callback for item: {child.name}", this);
+            if (child is Button btn) {
+                if (shouldRegister) {
+                    btn.clicked += () => handler(btn);
+                } else {
+                    btn.clicked -= () => handler(btn);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles category click events.
+    /// </summary>
+    private void onCategoryClicked(Button btn) {
+        logger.Log($"Category clicked: {btn.name}", this);
+    }
+
+    /// <summary>
+    /// Handles item click events.
+    /// </summary>
+    private void onItemClicked(Button btn) {
+        logger.Log($"Item clicked: {btn.name}", this);
+    }
+
+    /// <summary>
+    /// Updates the current character information to server.
+    /// </summary>
+    private void updateCharacterInfo() {
         StartCoroutine(playerService.UpdateCharacterInfo(_nameInput.value, _bioInput.value, (name, bio, err) => {
             if (string.IsNullOrEmpty(err)) {
                 logger.Log("Character info successfully updated", this);
@@ -143,10 +199,8 @@ public class CharacterEditController : MonoBehaviour {
                 _nameInput.value = name;
                 _bioInput.value = bio;
             } else {
-                logger.Log("Failed to retrieve character info", this, Logging.LogType.Error);
-                _errorMessage.text = err;
+                logger.Log("Failed to retrieve character info", this, Logging.LogType.Warning);
             }
         }));
     }
-
 }
