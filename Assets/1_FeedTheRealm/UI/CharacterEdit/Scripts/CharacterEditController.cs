@@ -13,6 +13,9 @@ public class CharacterEditController : MonoBehaviour {
     [SerializeField]
     private Session.Session session;
 
+    [SerializeField]
+    private SpriteManager spriteManager;
+
     [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
@@ -163,6 +166,7 @@ public class CharacterEditController : MonoBehaviour {
     /// Handles category click events.
     /// </summary>
     private void onCategoryClicked(Button btn) {
+        spriteManager.ChangeSprite(SpritePart.Hair, "Hair_2");
         logger.Log($"Category clicked: {btn.name}", this);
     }
 
@@ -170,6 +174,7 @@ public class CharacterEditController : MonoBehaviour {
     /// Handles item click events.
     /// </summary>
     private void onItemClicked(Button btn) {
+        spriteManager.ChangeSprite(SpritePart.Hair, "Hair_1");
         logger.Log($"Item clicked: {btn.name}", this);
     }
 
