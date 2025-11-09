@@ -17,7 +17,7 @@ public class SpriteLoader : MonoBehaviour {
     }
 
     private IEnumerator loadTextureFromServer(string textureName) {
-        string url = "http://localhost:8080/" + textureName;
+        string url = "http://localhost:8000/assets/sprites/" + textureName;
 
         using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url)) {
             yield return uwr.SendWebRequest();

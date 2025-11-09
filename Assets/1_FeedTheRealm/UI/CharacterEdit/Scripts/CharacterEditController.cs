@@ -166,7 +166,7 @@ public class CharacterEditController : MonoBehaviour {
     /// Handles category click events.
     /// </summary>
     private void onCategoryClicked(Button btn) {
-        spriteManager.ChangeSprite(SpritePart.Hair, "Hair_2");
+        spriteManager.ChangeSprite(SpritePart.Hair, "75624cb9-526c-462f-9d1b-acbf5797b1cb");
         logger.Log($"Category clicked: {btn.name}", this);
     }
 
@@ -174,7 +174,7 @@ public class CharacterEditController : MonoBehaviour {
     /// Handles item click events.
     /// </summary>
     private void onItemClicked(Button btn) {
-        spriteManager.ChangeSprite(SpritePart.Hair, "Hair_1");
+        spriteManager.ChangeSprite(SpritePart.Hair, "492c228c-ff41-4ad4-a9ed-5225a1a0ea09");
         logger.Log($"Item clicked: {btn.name}", this);
     }
 
