@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using System;
 
 /// <summary>
 /// Manages the character editing interface and interactions.
@@ -9,6 +8,9 @@ public class CharacterEditController : MonoBehaviour {
     [Header("Session settings")]
     [SerializeField]
     private API.PlayerService playerService;
+
+    [SerializeField]
+    private API.AssetsService assetsService;
 
     [SerializeField]
     private Session.Session session;
@@ -37,6 +39,8 @@ public class CharacterEditController : MonoBehaviour {
     private Button _backButton;
     private Button _cancelButton;
     private Button _saveButton;
+
+    private string _selectedCategoryId;
 
     private void OnEnable() {
         if (session == null) {
@@ -100,6 +104,8 @@ public class CharacterEditController : MonoBehaviour {
 
         registerCallbacks(true);
         fetchCharacterInfo();
+        fetchCategories();
+        onCategoryClicked(_selectedCategoryId);
     }
 
     private void OnDisable() {
@@ -121,8 +127,6 @@ public class CharacterEditController : MonoBehaviour {
             _cancelButton.clicked -= onCancelClicked;
             _saveButton.clicked -= onSaveClicked;
         }
-        registerListButtonsCallbacks(_itemsList, shouldRegister, onItemClicked);
-        registerListButtonsCallbacks(_categoriesList, shouldRegister, onCategoryClicked);
     }
 
     private void onBackClicked() {
@@ -147,36 +151,38 @@ public class CharacterEditController : MonoBehaviour {
     }
 
     /// <summary>
-    /// Registers callbacks for item buttons in the items list.
+    /// Handles category click events and fetches sprites for that category.
     /// </summary>
-    private void registerListButtonsCallbacks(ScrollView container, bool shouldRegister, Action<Button> handler) {
-        foreach (var child in container.contentContainer.Children()) {
-            logger.Log($"Registering callback for item: {child.name}", this);
-            if (child is Button btn) {
-                if (shouldRegister) {
-                    btn.clicked += () => handler(btn);
-                } else {
-                    btn.clicked -= () => handler(btn);
-                }
+    private void onCategoryClicked(string categoryId) {
+        logger.Log($"Category clicked: {categoryId}", this);
+        _selectedCategoryId = categoryId;
+
+        StartCoroutine(assetsService.GetSpritesByCategory(categoryId, (response, err) => {
+            if (!string.IsNullOrEmpty(err)) {
+                logger.Log($"Failed to fetch sprites: {err}", this, Logging.LogType.Error);
+                _errorMessage.text = "Failed to load sprites.";
+                return;
             }
-        }
+
+            if (response == null || response.sprites_list == null) {
+                logger.Log("No sprites found for this category.", this, Logging.LogType.Warning);
+                _itemsList.contentContainer.Clear();
+                return;
+            }
+
+            populateItems(response.sprites_list);
+        }));
     }
 
     /// <summary>
-    /// Handles category click events.
+    /// Handles item click events and changes the sprite.
     /// </summary>
-    private void onCategoryClicked(Button btn) {
-        spriteManager.ChangeSprite(SpritePart.Hair, "75624cb9-526c-462f-9d1b-acbf5797b1cb");
-        logger.Log($"Category clicked: {btn.name}", this);
+    private void onItemClicked(string spriteId) {
+        logger.Log($"Item clicked: {spriteId}", this);
+        spriteManager.ChangeSprite(SpritePart.Hair, spriteId);
     }
 
-    /// <summary>
-    /// Handles item click events.
-    /// </summary>
-    private void onItemClicked(Button btn) {
-        spriteManager.ChangeSprite(SpritePart.Hair, "492c228c-ff41-4ad4-a9ed-5225a1a0ea09");
-        logger.Log($"Item clicked: {btn.name}", this);
-    }
+    /* --- CHARACTER INFO HANDLING --- */
 
     /// <summary>
     /// Updates the current character information to server.
@@ -207,5 +213,60 @@ public class CharacterEditController : MonoBehaviour {
                 logger.Log("Failed to retrieve character info", this, Logging.LogType.Warning);
             }
         }));
+    }
+
+    /* --- CATEGORIES & ITEMS HANDLING --- */
+
+    /// <summary>
+    /// Fetches categories from the server and populates the categories list.
+    /// </summary>
+    private void fetchCategories() {
+        StartCoroutine(assetsService.GetCategories((response, err) => {
+            if (!string.IsNullOrEmpty(err)) {
+                logger.Log($"Failed to fetch categories: {err}", this, Logging.LogType.Error);
+                _errorMessage.text = "Failed to load categories.";
+                return;
+            }
+
+            if (response == null || response.category_list == null) {
+                logger.Log("No categories found.", this, Logging.LogType.Warning);
+                return;
+            }
+
+            populateCategories(response.category_list);
+        }));
+    }
+
+    /// <summary>
+    /// Populates the categories list with buttons.
+    /// </summary>
+    private void populateCategories(API.SpriteCategoryResponse[] categories) {
+        _categoriesList.contentContainer.Clear();
+
+        foreach (var category in categories) {
+            var btn = new Button();
+            btn.text = category.category_name;
+            btn.name = category.category_id;
+            btn.clicked += () => onCategoryClicked(category.category_id);
+            _categoriesList.contentContainer.Add(btn);
+        }
+        if (_selectedCategoryId == null) {
+            _selectedCategoryId = categories[0].category_id;
+        }
+    }
+
+    /// <summary>
+    /// Populates the items list with sprite buttons.
+    /// </summary>
+    private void populateItems(API.SpriteResponse[] sprites) {
+        _itemsList.contentContainer.Clear();
+
+        foreach (var sprite in sprites) {
+            var btn = new Button();
+            btn.text = sprite.sprite_id;
+            btn.name = sprite.sprite_id;
+            btn.clicked += () => onItemClicked(sprite.sprite_id);
+            _itemsList.contentContainer.Add(btn);
+        }
     }
 }
