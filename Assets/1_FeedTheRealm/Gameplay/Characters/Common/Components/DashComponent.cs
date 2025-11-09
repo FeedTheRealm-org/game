@@ -9,11 +9,13 @@ public class DashComponent : MonoBehaviour {
     [SerializeField] private GroundCheckComponent groundCheck;
     [SerializeField] private MovementComponent movement;
     [SerializeField] private StaminaComponent stamina;
+    [SerializeField] private SpriteLoader spriteLoader;
 
     [SerializeField] private float dashSpeed = 50f;
     [SerializeField] private float dashDuration = 0.1f;
     [SerializeField] private float staminaConsumption = 20f;
 
+    private string hairTextureName = "Hair_1";
     private bool isDashing;
 
     private void Awake() {
@@ -26,6 +28,13 @@ public class DashComponent : MonoBehaviour {
     /// Called by the input system to initiate a dash.
     /// </summary>
     public void OnDash() {
+        if (hairTextureName == "Hair_1") {
+            hairTextureName = "Hair_2";
+            spriteLoader.ChangeHair(hairTextureName);
+        } else {
+            hairTextureName = "Hair_1";
+            spriteLoader.ChangeHair(hairTextureName);
+        }
         if (isDashing || !groundCheck.IsGrounded || !consumeStamina()) return;
 
         Vector3 dashDirection = movement.CurrentDirection.normalized;
