@@ -40,7 +40,7 @@ public class CharacterEditController : MonoBehaviour {
     private Button _cancelButton;
     private Button _saveButton;
 
-    private string _selectedCategoryId;
+    private string _selectedCategoryId = "";
 
     private void OnEnable() {
         if (session == null) {
@@ -245,12 +245,13 @@ public class CharacterEditController : MonoBehaviour {
 
         foreach (var category in categories) {
             var btn = new Button();
+            btn.AddToClassList("category_button");
             btn.text = category.category_name;
             btn.name = category.category_id;
             btn.clicked += () => onCategoryClicked(category.category_id);
             _categoriesList.contentContainer.Add(btn);
         }
-        if (_selectedCategoryId == null) {
+        if (string.IsNullOrEmpty(_selectedCategoryId)) {
             _selectedCategoryId = categories[0].category_id;
         }
     }
@@ -263,6 +264,7 @@ public class CharacterEditController : MonoBehaviour {
 
         foreach (var sprite in sprites) {
             var btn = new Button();
+            btn.AddToClassList("item_button");
             btn.text = sprite.sprite_id;
             btn.name = sprite.sprite_id;
             btn.clicked += () => onItemClicked(sprite.sprite_id);
