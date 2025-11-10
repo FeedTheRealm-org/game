@@ -234,6 +234,8 @@ public class CharacterEditController : MonoBehaviour {
             }
 
             populateCategories(response.category_list);
+            _selectedCategoryId = response.category_list[0].category_id;
+            onCategoryClicked(_selectedCategoryId);
         }));
     }
 
@@ -250,9 +252,6 @@ public class CharacterEditController : MonoBehaviour {
             btn.name = category.category_id;
             btn.clicked += () => onCategoryClicked(category.category_id);
             _categoriesList.contentContainer.Add(btn);
-        }
-        if (string.IsNullOrEmpty(_selectedCategoryId)) {
-            _selectedCategoryId = categories[0].category_id;
         }
     }
 
