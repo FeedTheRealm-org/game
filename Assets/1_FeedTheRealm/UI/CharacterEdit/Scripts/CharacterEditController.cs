@@ -110,6 +110,19 @@ public class CharacterEditController : MonoBehaviour {
 
     private void OnDisable() {
         registerCallbacks(false);
+
+        for (int i = 0; i < _categoriesList.contentContainer.childCount; i++) {
+            var btn = _categoriesList.contentContainer[i] as Button;
+            if (btn != null) {
+                btn.clicked -= () => onCategoryClicked(btn.name);
+            }
+        }
+        for (int i = 0; i < _itemsList.contentContainer.childCount; i++) {
+            var btn = _itemsList.contentContainer[i] as Button;
+            if (btn != null) {
+                btn.clicked -= () => onItemClicked(btn.name);
+            }
+        }
     }
 
     /// <summary>
@@ -264,10 +277,19 @@ public class CharacterEditController : MonoBehaviour {
         foreach (var sprite in sprites) {
             var btn = new Button();
             btn.AddToClassList("item_button");
-            btn.text = sprite.sprite_id;
             btn.name = sprite.sprite_id;
             btn.clicked += () => onItemClicked(sprite.sprite_id);
+
             _itemsList.contentContainer.Add(btn);
+            StartCoroutine(assetsService.DownloadSprite(sprite.sprite_id, (texture) => {
+                if (texture != null) {
+                    btn.style.backgroundImage = new StyleBackground(texture);
+                    btn.text = "";
+                } else {
+                    btn.text = sprite.sprite_id;
+                    logger.Log($"Failed to load texture for sprite: {sprite.sprite_id}", this, Logging.LogType.Warning);
+                }
+            }));
         }
     }
 }
