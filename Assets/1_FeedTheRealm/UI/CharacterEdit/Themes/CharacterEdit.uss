@@ -56,7 +56,7 @@
     min-width: 90px;
     max-width: 90px;
     min-height: 90px;
-    max-height: 100px;
+    max-height: 90px;
 }
 
 #Body > #CharacterEditContainer > #Cosmetics > #Categories > .category_button > .unity-button__image {
