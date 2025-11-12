@@ -71,4 +71,28 @@ public class AttackComponent : MonoBehaviour {
         Gizmos.DrawWireSphere(hitPoint.position, hitRadius);
     }
 
+    #region Public Getters for NetworkAttackSynchronizer
+
+    /// <summary>
+    /// Gets the attack hit point transform (for network synchronization)
+    /// </summary>
+    public Transform GetHitPoint() => hitPoint;
+
+    /// <summary>
+    /// Gets the attack hit radius (for network synchronization)
+    /// </summary>
+    public float GetHitRadius() => hitRadius;
+
+    /// <summary>
+    /// Gets the attack damage amount (for network synchronization)
+    /// </summary>
+    public int GetAttackDamage() => attackDamage;
+
+    /// <summary>
+    /// Gets the target layer mask (for network synchronization)
+    /// </summary>
+    public LayerMask GetTargetLayer() => targetLayer;
+
+    #endregion
+
 }

@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour {
         if (attackComponent == null) {
             logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
+        cursorToggle();
     }
 
     private void OnEnable() {

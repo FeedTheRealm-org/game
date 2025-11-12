@@ -1,0 +1,140 @@
+using UnityEngine;
+using Unity.Netcode;
+
+/// <summary>
+/// Synchronizes attack actions for networked characters.
+/// This component wraps AttackComponent to handle network synchronization,
+/// keeping AttackComponent as a pure MonoBehaviour.
+/// 
+/// When a player attacks:
+/// - Client: Sends attack request to server via ServerRpc
+/// - Server: Validates and executes attack, applies damage to targets
+/// - Clients: Receive attack animation/effects via ClientRpc (optional)
+/// </summary>
+public class NetworkAttackSynchronizer : NetworkBehaviour
+{
+    [SerializeField] private AttackComponent attackComponent;
+    [SerializeField] private Logging.Logger logger;
+
+    [Header("Attack Settings")]
+    [SerializeField] private LayerMask targetLayers; // Layers that can be hit (e.g., Enemy)
+    [SerializeField] private float hitRadius = 1f;
+    [SerializeField] private int attackDamage = 40;
+
+    private Transform hitPoint;
+    private bool isLocalPlayerOwned = false;
+
+    private void Awake()
+    {
+        if (attackComponent == null)
+        {
+            attackComponent = GetComponent<AttackComponent>();
+        }
+
+        // Auto-configure from AttackComponent if available
+        if (attackComponent != null)
+        {
+            hitPoint = attackComponent.GetHitPoint();
+            hitRadius = attackComponent.GetHitRadius();
+            attackDamage = attackComponent.GetAttackDamage();
+            targetLayers = attackComponent.GetTargetLayer();
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        // Check if this is the local player
+        isLocalPlayerOwned = IsOwner;
+
+        if (isLocalPlayerOwned)
+        {
+            // Local player: Subscribe to local attack component
+            // We'll intercept the attack and send it to server
+            logger?.Log($"[NetworkAttackSynchronizer] Local player {OwnerClientId} initialized (Damage: {attackDamage}, Radius: {hitRadius})", this);
+        }
+        else
+        {
+            logger?.Log($"[NetworkAttackSynchronizer] Remote player {OwnerClientId} initialized", this);
+        }
+    }
+
+    /// <summary>
+    /// Called by AnimationEvents when attack animation hits
+    /// This replaces the local AttackComponent.DetectAttackHit() in multiplayer
+    /// </summary>
+    public void DetectAttackHit()
+    {
+        if (!IsOwner)
+        {
+            logger?.Log("[NetworkAttackSynchronizer] Only owner can trigger attacks!", this, Logging.LogType.Warning);
+            return;
+        }
+
+        if (hitPoint == null)
+        {
+            logger?.Log("[NetworkAttackSynchronizer] HitPoint not configured!", this, Logging.LogType.Error);
+            return;
+        }
+
+        // Send attack to server
+        DetectAttackHitServerRpc(hitPoint.position);
+    }
+
+    /// <summary>
+    /// Server receives attack request from client
+    /// </summary>
+    [ServerRpc]
+    private void DetectAttackHitServerRpc(Vector3 attackPosition)
+    {
+        if (!IsServer) return;
+
+        logger?.Log($"[NetworkAttackSynchronizer] Server processing attack at {attackPosition}", this);
+
+
+        // Detect all colliders in hit radius
+        Collider[] hitColliders = Physics.OverlapSphere(attackPosition, hitRadius, targetLayers);
+
+        int hitCount = 0;
+        foreach (Collider hit in hitColliders)
+        {
+            // Check if target has HealthComponent
+            HealthComponent targetHealth = hit.GetComponent<HealthComponent>();
+            if (targetHealth != null)
+            {
+                // Apply damage on server
+                targetHealth.TakeDamage(attackDamage);
+                hitCount++;
+                
+                logger?.Log($"[NetworkAttackSynchronizer] Server applied {attackDamage} damage to {hit.gameObject.name}", this);
+            }
+        }
+
+        if (hitCount == 0)
+        {
+            logger?.Log($"[NetworkAttackSynchronizer] Server detected no targets hit", this);
+        }
+    }
+
+    /// <summary>
+    /// Public method to set hit point and attack parameters from AttackComponent
+    /// Call this from AttackComponent.Awake() or in Inspector
+    /// </summary>
+    public void ConfigureFromAttackComponent(Transform hitPointTransform, float radius, int damage, LayerMask layers)
+    {
+        hitPoint = hitPointTransform;
+        hitRadius = radius;
+        attackDamage = damage;
+        targetLayers = layers;
+        
+        logger?.Log($"[NetworkAttackSynchronizer] Configured: Radius={radius}, Damage={damage}, Layers={layers.value}", this);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (hitPoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(hitPoint.position, hitRadius);
+        }
+    }
+}
