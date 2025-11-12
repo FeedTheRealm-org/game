@@ -105,7 +105,6 @@ public class CharacterEditController : MonoBehaviour {
         registerCallbacks(true);
         fetchCharacterInfo();
         fetchCategories();
-        onCategoryClicked(_selectedCategoryId);
     }
 
     private void OnDisable() {
@@ -142,14 +141,25 @@ public class CharacterEditController : MonoBehaviour {
         }
     }
 
+    /* --- BUTTON HANDLERS --- */
+
+    /// <summary>
+    /// Handles back button click event to go back to homepage.
+    /// </summary>
     private void onBackClicked() {
         logger.Log("Back Button Clicked", this);
     }
 
+    /// <summary>
+    /// Handles cancel button click event.
+    /// </summary>
     private void onCancelClicked() {
         logger.Log("Cancel Button Clicked", this);
     }
 
+    /// <summary>
+    /// Handles save button click event to save character info.
+    /// </summary>
     private void onSaveClicked() {
         logger.Log("Save Button Clicked", this);
         logger.Log($"Name: {_nameInput.value}, Bio {_bioInput.value}", this);
@@ -167,24 +177,13 @@ public class CharacterEditController : MonoBehaviour {
     /// Handles category click events and fetches sprites for that category.
     /// </summary>
     private void onCategoryClicked(string categoryId) {
+        if (categoryId == _selectedCategoryId) {
+            return;
+        }
         logger.Log($"Category clicked: {categoryId}", this);
         _selectedCategoryId = categoryId;
 
-        StartCoroutine(assetsService.GetSpritesByCategory(categoryId, (response, err) => {
-            if (!string.IsNullOrEmpty(err)) {
-                logger.Log($"Failed to fetch sprites: {err}", this, Logging.LogType.Error);
-                _errorMessage.text = "Failed to load sprites.";
-                return;
-            }
-
-            if (response == null || response.sprites_list == null) {
-                logger.Log("No sprites found for this category.", this, Logging.LogType.Warning);
-                _itemsList.contentContainer.Clear();
-                return;
-            }
-
-            populateItems(response.sprites_list);
-        }));
+        fetchSpritesByCategory(categoryId);
     }
 
     /// <summary>
@@ -247,8 +246,28 @@ public class CharacterEditController : MonoBehaviour {
             }
 
             populateCategories(response.category_list);
-            _selectedCategoryId = response.category_list[0].category_id;
-            onCategoryClicked(_selectedCategoryId);
+            onCategoryClicked(response.category_list[0].category_id);
+        }));
+    }
+
+    /// <summary>
+    /// Fetches sprites for a given category from the server and populates the items list.
+    /// </summary>
+    private void fetchSpritesByCategory(string categoryId) {
+        StartCoroutine(assetsService.GetSpritesByCategory(categoryId, (response, err) => {
+            if (!string.IsNullOrEmpty(err)) {
+                logger.Log($"Failed to fetch sprites: {err}", this, Logging.LogType.Error);
+                _errorMessage.text = "Failed to load sprites.";
+                return;
+            }
+
+            if (response == null || response.sprites_list == null) {
+                logger.Log("No sprites found for this category.", this, Logging.LogType.Warning);
+                _itemsList.contentContainer.Clear();
+                return;
+            }
+
+            populateItems(response.sprites_list);
         }));
     }
 
@@ -265,6 +284,8 @@ public class CharacterEditController : MonoBehaviour {
             btn.name = category.category_id;
             btn.clicked += () => onCategoryClicked(category.category_id);
             _categoriesList.contentContainer.Add(btn);
+
+            loadCategoryIcon(category.category_id, btn); // Load icon else use text
         }
     }
 
@@ -291,5 +312,28 @@ public class CharacterEditController : MonoBehaviour {
                 }
             }));
         }
+    }
+
+    /// <summary>
+    /// Loads the first sprite of a category as the category button icon.
+    /// </summary>
+    private void loadCategoryIcon(string categoryId, Button categoryButton) {
+        StartCoroutine(assetsService.GetSpritesByCategory(categoryId, (response, err) => {
+            if (!string.IsNullOrEmpty(err) || response == null || response.sprites_list == null || response.sprites_list.Length == 0) {
+                logger.Log($"No sprites available for category icon: {categoryId}", this, Logging.LogType.Warning);
+                return;
+            }
+
+            // Get the first sprite as the category icon
+            var firstSprite = response.sprites_list[0];
+            StartCoroutine(assetsService.DownloadSprite(firstSprite.sprite_id, (texture) => {
+                if (texture != null) {
+                    categoryButton.style.backgroundImage = new StyleBackground(texture);
+                    categoryButton.text = "";
+                } else {
+                    logger.Log($"Failed to load icon texture for category: {categoryId}", this, Logging.LogType.Warning);
+                }
+            }));
+        }));
     }
 }

@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f285b203daade98adbb9849cc9c638, type: 3}
   m_Name: SpriteManager
   m_EditorClassIdentifier: Assembly-CSharp::SpriteManager
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
