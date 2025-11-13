@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5235632088287666841}
   - component: {fileID: 167866136409368639}
   - component: {fileID: 137788444241368618}
+  - component: {fileID: 1253728121772926957}
   m_Layer: 7
   m_Name: BasicEnemy
   m_TagString: Untagged
@@ -196,6 +197,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
   MaxHealth: 100
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+--- !u!114 &1253728121772926957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c307c76f66660c896aa4617a8aadc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootDropper
+  lootPrefab: {fileID: 3221426771183678723, guid: 2252faf00cafd6d438bf4e2e0fed7ed4, type: 3}
+  alwaysDrop: 1
+  spawnOffset: {x: 0, y: 0, z: 0}
+  randomOffset: 0.1
+  logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!1 &6880780016325336480
 GameObject:
   m_ObjectHideFlags: 0
@@ -628,6 +646,7 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackComponent: {fileID: 0}
   healthComponent: {fileID: 137788444241368618}
+  networkAttackSynchronizer: {fileID: 0}
 --- !u!224 &9032614020885259526 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5375047960093657315, guid: 64359be8b124840d0bb4846426882691, type: 3}

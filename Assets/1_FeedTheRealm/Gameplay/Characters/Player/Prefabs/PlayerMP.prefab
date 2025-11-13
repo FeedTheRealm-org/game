@@ -313,6 +313,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   attackComponent: {fileID: 7856473034520349750}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+  enableLogs: 1
   targetLayers:
     serializedVersion: 2
     m_Bits: 128

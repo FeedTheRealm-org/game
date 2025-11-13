@@ -853,6 +853,7 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackComponent: {fileID: 370332728856482138}
   healthComponent: {fileID: 0}
+  networkAttackSynchronizer: {fileID: 0}
 --- !u!224 &6236615049324811774 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
