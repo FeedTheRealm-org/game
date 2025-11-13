@@ -16,6 +16,12 @@ public class CharacterEditController : MonoBehaviour {
     private Session.Session session;
 
     [SerializeField]
+    private RectTransform canvasCharacterPreview;
+
+    [SerializeField]
+    private Vector2 characterInContainerOffset = new Vector2(-12, 0);
+
+    [SerializeField]
     private SpriteManager spriteManager;
 
     [Header("General settings")]
@@ -23,6 +29,7 @@ public class CharacterEditController : MonoBehaviour {
     private Logging.Logger logger;
 
     // Containers
+    private VisualElement _root;
     private VisualElement _characterContainer;
     private VisualElement _characterPreview;
     private VisualElement _cosmeticsContainer;
@@ -49,8 +56,8 @@ public class CharacterEditController : MonoBehaviour {
             return;
         }
 
-        var root = GetComponent<UIDocument>().rootVisualElement;
-        var body = root.Q<VisualElement>("Body");
+        _root = GetComponent<UIDocument>().rootVisualElement;
+        var body = _root.Q<VisualElement>("Body");
         if (body == null) {
             logger.Log("Body not found in the UI Document.", this, Logging.LogType.Error);
             return;
@@ -74,6 +81,8 @@ public class CharacterEditController : MonoBehaviour {
             logger.Log("CharacterPreview not found in Character container.", this, Logging.LogType.Error);
             return;
         }
+        // Center canvasCharacterPreview in _characterPreview
+        canvasCharacterPreview.anchoredPosition = new Vector2(100, 50);
 
         var buttonsContainer = _cosmeticsContainer.Q<VisualElement>("Buttons");
         if (buttonsContainer == null) {
@@ -134,11 +143,13 @@ public class CharacterEditController : MonoBehaviour {
             _backButton.clicked += onBackClicked;
             _cancelButton.clicked += onCancelClicked;
             _saveButton.clicked += onSaveClicked;
+            _root.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         } else {
             logger.Log("Unregistering button callbacks", this);
             _backButton.clicked -= onBackClicked;
             _cancelButton.clicked -= onCancelClicked;
             _saveButton.clicked -= onSaveClicked;
+            _root.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
     }
 
@@ -195,6 +206,11 @@ public class CharacterEditController : MonoBehaviour {
         logger.Log($"Item clicked: {spriteId}", this);
         SpritePart category = spriteManager.GetSpritePartFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, spriteId);
+    }
+
+    private void OnGeometryChanged(GeometryChangedEvent evt) {
+        logger.Log("Geometry changed.", this);
+        CenterCharacterPreview();
     }
 
     /* --- CHARACTER INFO HANDLING --- */
@@ -339,4 +355,28 @@ public class CharacterEditController : MonoBehaviour {
             }));
         }));
     }
+
+    private void CenterCharacterPreview() {
+        if (_characterPreview == null || canvasCharacterPreview == null)
+            return;
+
+        var rect = _characterPreview.worldBound;
+
+        // Get screen center of the UI Toolkit element (Toolkit origin = top-left)
+        Vector2 screenCenter = new Vector2(rect.xMin + rect.width / 2f, rect.yMin + rect.height / 2f);
+
+        // Convert Y from top-left to bottom-left origin
+        screenCenter.y = Screen.height - screenCenter.y;
+
+        // Convert screen point to local position within the canvas
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasCharacterPreview.parent as RectTransform,
+            screenCenter,
+            null, // camera if Canvas = Screen Space - Overlay
+            out Vector2 localPoint
+        );
+
+        canvasCharacterPreview.anchoredPosition = localPoint + characterInContainerOffset;
+    }
+
 }
