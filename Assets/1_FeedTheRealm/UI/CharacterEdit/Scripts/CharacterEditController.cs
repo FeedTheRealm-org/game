@@ -41,6 +41,7 @@ public class CharacterEditController : MonoBehaviour {
     private Button _saveButton;
 
     private string _selectedCategoryId = "";
+    private string _selectedCategoryName = "";
 
     private void OnEnable() {
         if (session == null) {
@@ -113,7 +114,7 @@ public class CharacterEditController : MonoBehaviour {
         for (int i = 0; i < _categoriesList.contentContainer.childCount; i++) {
             var btn = _categoriesList.contentContainer[i] as Button;
             if (btn != null) {
-                btn.clicked -= () => onCategoryClicked(btn.name);
+                btn.clicked -= () => onCategoryClicked(btn.name, btn.text);
             }
         }
         for (int i = 0; i < _itemsList.contentContainer.childCount; i++) {
@@ -176,12 +177,13 @@ public class CharacterEditController : MonoBehaviour {
     /// <summary>
     /// Handles category click events and fetches sprites for that category.
     /// </summary>
-    private void onCategoryClicked(string categoryId) {
+    private void onCategoryClicked(string categoryId, string categoryName) {
         if (categoryId == _selectedCategoryId) {
             return;
         }
         logger.Log($"Category clicked: {categoryId}", this);
         _selectedCategoryId = categoryId;
+        _selectedCategoryName = categoryName;
 
         fetchSpritesByCategory(categoryId);
     }
@@ -191,7 +193,8 @@ public class CharacterEditController : MonoBehaviour {
     /// </summary>
     private void onItemClicked(string spriteId) {
         logger.Log($"Item clicked: {spriteId}", this);
-        spriteManager.ChangeSprite(SpritePart.Hair, spriteId);
+        SpritePart category = spriteManager.GetSpritePartFromCategoryName(_selectedCategoryName);
+        spriteManager.ChangeSprite(category, spriteId);
     }
 
     /* --- CHARACTER INFO HANDLING --- */
@@ -246,7 +249,7 @@ public class CharacterEditController : MonoBehaviour {
             }
 
             populateCategories(response.category_list);
-            onCategoryClicked(response.category_list[0].category_id);
+            onCategoryClicked(response.category_list[0].category_id, response.category_list[0].category_name);
         }));
     }
 
@@ -282,7 +285,7 @@ public class CharacterEditController : MonoBehaviour {
             btn.AddToClassList("category_button");
             btn.text = category.category_name;
             btn.name = category.category_id;
-            btn.clicked += () => onCategoryClicked(category.category_id);
+            btn.clicked += () => onCategoryClicked(category.category_id, category.category_name);
             _categoriesList.contentContainer.Add(btn);
 
             loadCategoryIcon(category.category_id, btn); // Load icon else use text
