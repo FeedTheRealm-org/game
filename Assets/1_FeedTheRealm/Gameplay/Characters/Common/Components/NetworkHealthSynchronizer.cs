@@ -21,6 +21,9 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
     );
 
     private bool hasProcessedDeath = false;
+    
+    // Cache animator reference to avoid expensive GetComponentInChildren calls
+    private Animator cachedAnimator;
 
     private void Awake()
     {
@@ -28,6 +31,9 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
         {
             healthComponent = GetComponent<HealthComponent>();
         }
+        
+        // Cache animator reference
+        cachedAnimator = GetComponentInChildren<Animator>();
     }
 
     public override void OnNetworkSpawn()
@@ -118,19 +124,17 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
         // Trigger damage animation if health decreased
         if (newValue < oldValue && newValue > 0)
         {
-            var animator = GetComponentInChildren<Animator>();
-            if (animator != null)
+            if (cachedAnimator != null)
             {
-                animator.SetTrigger("3_Damaged");
+                cachedAnimator.SetTrigger("3_Damaged");
             }
         }
         // Trigger death animation if health reached 0
         else if (newValue <= 0)
         {
-            var animator = GetComponentInChildren<Animator>();
-            if (animator != null)
+            if (cachedAnimator != null)
             {
-                animator.SetTrigger("4_Death");
+                cachedAnimator.SetTrigger("4_Death");
             }
         }
         
@@ -187,10 +191,9 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
             {
                 // Clients: Just play death animation without destroying
                 // The NetworkObject despawn will handle cleanup automatically
-                var animator = GetComponentInChildren<Animator>();
-                if (animator != null)
+                if (cachedAnimator != null)
                 {
-                    animator.SetTrigger("4_Death");
+                    cachedAnimator.SetTrigger("4_Death");
                 }
             }
         }

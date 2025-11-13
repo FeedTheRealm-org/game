@@ -16,6 +16,9 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
     [SerializeField] private AttackComponent attackComponent;
     [SerializeField] private Logging.Logger logger;
 
+    [Header("Debug")]
+    [SerializeField] private bool enableLogs = true;
+
     [Header("Attack Settings")]
     [SerializeField] private LayerMask targetLayers; // Layers that can be hit (e.g., Enemy)
     [SerializeField] private float hitRadius = 1f;
@@ -23,6 +26,9 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
 
     private Transform hitPoint;
     private bool isLocalPlayerOwned = false;
+    
+    // Cache animator reference to avoid GetComponentInChildren calls
+    private Animator cachedAnimator;
 
     private void Awake()
     {
@@ -39,6 +45,9 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
             attackDamage = attackComponent.GetAttackDamage();
             targetLayers = attackComponent.GetTargetLayer();
         }
+        
+        // Cache animator reference to avoid expensive GetComponentInChildren calls
+        cachedAnimator = GetComponentInChildren<Animator>();
     }
 
     public override void OnNetworkSpawn()
@@ -50,11 +59,13 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
         {
             // Local player: Subscribe to local attack component
             // We'll intercept the attack and send it to server
-            logger?.Log($"[NetworkAttackSynchronizer] Local player {OwnerClientId} initialized (Damage: {attackDamage}, Radius: {hitRadius})", this);
+            if (enableLogs)
+                logger?.Log($"[NetworkAttackSynchronizer] Local player {OwnerClientId} initialized (Damage: {attackDamage}, Radius: {hitRadius})", this);
         }
         else
         {
-            logger?.Log($"[NetworkAttackSynchronizer] Remote player {OwnerClientId} initialized", this);
+            if (enableLogs)
+                logger?.Log($"[NetworkAttackSynchronizer] Remote player {OwnerClientId} initialized", this);
         }
     }
 
@@ -66,13 +77,14 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
     {
         if (!IsOwner)
         {
-            logger?.Log("[NetworkAttackSynchronizer] Only owner can trigger attacks!", this, Logging.LogType.Warning);
+            //logger?.Log("[NetworkAttackSynchronizer] Only owner can trigger attacks!", this, Logging.LogType.Warning);
             return;
         }
 
         if (hitPoint == null)
         {
-            logger?.Log("[NetworkAttackSynchronizer] HitPoint not configured!", this, Logging.LogType.Error);
+            if (enableLogs)
+                logger?.Log("[NetworkAttackSynchronizer] HitPoint not configured!", this, Logging.LogType.Error);
             return;
         }
 
@@ -88,8 +100,11 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        logger?.Log($"[NetworkAttackSynchronizer] Server processing attack at {attackPosition}", this);
+        if (enableLogs)
+            logger?.Log($"[NetworkAttackSynchronizer] Server processing attack at {attackPosition}", this);
 
+        // Broadcast attack animation to all clients (except owner who already played it locally)
+        PlayAttackAnimationClientRpc();
 
         // Detect all colliders in hit radius
         Collider[] hitColliders = Physics.OverlapSphere(attackPosition, hitRadius, targetLayers);
@@ -105,13 +120,32 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
                 targetHealth.TakeDamage(attackDamage);
                 hitCount++;
                 
-                logger?.Log($"[NetworkAttackSynchronizer] Server applied {attackDamage} damage to {hit.gameObject.name}", this);
+                if (enableLogs)
+                    logger?.Log($"[NetworkAttackSynchronizer] Server applied {attackDamage} damage to {hit.gameObject.name}", this);
             }
         }
 
-        if (hitCount == 0)
+        if (hitCount == 0 && enableLogs)
         {
             logger?.Log($"[NetworkAttackSynchronizer] Server detected no targets hit", this);
+        }
+    }
+
+    /// <summary>
+    /// Broadcast attack animation to all clients
+    /// </summary>
+    [ClientRpc]
+    private void PlayAttackAnimationClientRpc()
+    {
+        // Skip if this is the owner (they already played the animation locally via AttackComponent)
+        if (IsOwner) return;
+
+        // Play attack animation on remote clients using cached animator
+        if (cachedAnimator != null)
+        {
+            cachedAnimator.SetTrigger("2_Attack");
+            if (enableLogs)
+                logger?.Log($"[NetworkAttackSynchronizer] Remote client playing attack animation for player {OwnerClientId}", this);
         }
     }
 
@@ -126,7 +160,8 @@ public class NetworkAttackSynchronizer : NetworkBehaviour
         attackDamage = damage;
         targetLayers = layers;
         
-        logger?.Log($"[NetworkAttackSynchronizer] Configured: Radius={radius}, Damage={damage}, Layers={layers.value}", this);
+        if (enableLogs)
+            logger?.Log($"[NetworkAttackSynchronizer] Configured: Radius={radius}, Damage={damage}, Layers={layers.value}", this);
     }
 
     private void OnDrawGizmosSelected()
