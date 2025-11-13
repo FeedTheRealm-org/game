@@ -80,6 +80,13 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
+        // Lock cursor when attacking (return to gameplay)
+        if (Cursor.visible) {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            logger.Log("Cursor locked (attack)", this);
+        }
+
         if (attackComponent != null) {
             attackComponent.OnAttack();
             logger.Log("Attack executed", this);
