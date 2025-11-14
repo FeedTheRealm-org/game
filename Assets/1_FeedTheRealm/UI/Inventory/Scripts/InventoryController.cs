@@ -405,6 +405,8 @@ public class InventoryController : MonoBehaviour
 
     public int GetEmptySlotCount()
     {
+        logger?.Log($"[InventoryController] Contando slots vacíos. Total slots en lista: {slots.Count}", this);
+        
         int count = 0;
         foreach (var slot in slots)
         {
@@ -413,6 +415,8 @@ public class InventoryController : MonoBehaviour
                 count++;
             }
         }
+        
+        logger?.Log($"[InventoryController] Slots vacíos encontrados: {count}/{slots.Count}", this);
         return count;
     }
 

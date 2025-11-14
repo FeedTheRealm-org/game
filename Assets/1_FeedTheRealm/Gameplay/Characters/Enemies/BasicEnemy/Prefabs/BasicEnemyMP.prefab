@@ -274,7 +274,8 @@ MonoBehaviour:
   lootPrefab: {fileID: 3221426771183678723, guid: 2252faf00cafd6d438bf4e2e0fed7ed4, type: 3}
   alwaysDrop: 1
   spawnOffset: {x: 0, y: 0, z: 0}
-  randomOffset: 0.5
+  randomOffset: 0.1
+  lootItems: []
   logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!1 &6880780016325336480
 GameObject:

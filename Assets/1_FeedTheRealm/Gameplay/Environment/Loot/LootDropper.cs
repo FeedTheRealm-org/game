@@ -1,28 +1,36 @@
 using UnityEngine;
+using Unity.Netcode;
+using System.Collections.Generic;
 
 /// <summary>
 /// Componente que se agrega a los enemigos para que suelten loot al morir.
 /// Se suscribe al evento OnDeath del HealthComponent.
+/// Compatible con single-player y multiplayer (Netcode).
 /// </summary>
 [RequireComponent(typeof(HealthComponent))]
 public class LootDropper : MonoBehaviour {
     
-    [Header("Configuración de Loot")]
+    [Header("Loot configuration")]
     [SerializeField]
-    [Tooltip("Prefab del LootItem que se va a instanciar")]
+    [Tooltip("Prefab of the LootItem to instantiate")]
     private GameObject lootPrefab;
     
     [SerializeField]
-    [Tooltip("Si está activado, siempre dropeará loot. Si no, se puede usar probabilidad más adelante.")]
+    [Tooltip("If enabled, loot will always drop. Otherwise, probability can be used later.")]
     private bool alwaysDrop = true;
     
     [SerializeField]
-    [Tooltip("Offset de spawn del loot respecto a la posición del enemigo")]
+    [Tooltip("Spawn offset of the loot relative to the enemy's position")]
     private Vector3 spawnOffset = Vector3.zero;
     
     [SerializeField]
-    [Tooltip("Añade una variación aleatoria a la posición del spawn")]
+    [Tooltip("Adds a random variation to the spawn position")]
     private float randomOffset = 0.5f;
+    
+    [Header("Loot Contents")]
+    [SerializeField]
+    [Tooltip("Items that will be added to the loot bag when it drops")]
+    private List<Sprite> lootItems = new List<Sprite>();
     
     [SerializeField]
     private Logging.Logger logger;
@@ -55,6 +63,14 @@ public class LootDropper : MonoBehaviour {
     /// Se ejecuta cuando el enemigo muere
     /// </summary>
     private void HandleDeath() {
+        // En multiplayer, solo el servidor debe spawnear loot
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
+            if (!NetworkManager.Singleton.IsServer) {
+                logger?.Log("[LootDropper] Cliente ignorando HandleDeath - solo el servidor spawea loot", this);
+                return;
+            }
+        }
+
         if (alwaysDrop && lootPrefab != null) {
             DropLoot();
         } else if (lootPrefab == null) {
@@ -77,13 +93,37 @@ public class LootDropper : MonoBehaviour {
         // Instanciar el loot
         GameObject lootInstance = Instantiate(lootPrefab, spawnPosition, Quaternion.identity);
         
+        // Si estamos en multiplayer, spawnear como NetworkObject
+        bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        if (isMultiplayer) {
+            NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
+            if (networkObject != null) {
+                networkObject.Spawn();
+                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition}", this);
+            } else {
+                logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene NetworkObject! El loot no será visible en multiplayer.", this, Logging.LogType.Error);
+                logger?.Log($"[LootDropper] Agrega un componente NetworkObject al prefab de loot para multiplayer.", this, Logging.LogType.Error);
+                // Destruir el loot local ya que no sirve en multiplayer
+                Destroy(lootInstance);
+                return;
+            }
+        }
+        
         // Inicializar el LootItem si tiene el componente
         LootItem lootItem = lootInstance.GetComponent<LootItem>();
         if (lootItem != null) {
             lootItem.Initialize(spawnPosition);
+            
+            // Añadir los items configurados a la bolsa
+            if (lootItems != null && lootItems.Count > 0) {
+                lootItem.AddItems(lootItems);
+                logger?.Log($"[LootDropper] Loot bag spawned with {lootItems.Count} items at {spawnPosition}", this);
+            } else {
+                logger?.Log($"[LootDropper] Loot bag spawned empty at {spawnPosition}", this, Logging.LogType.Warning);
+            }
+        } else {
+            logger?.Log($"[LootDropper] Warning: Loot prefab doesn't have LootItem component!", this, Logging.LogType.Warning);
         }
-        
-        logger?.Log($"[LootDropper] Loot dropeado en {spawnPosition}", this);
     }
 
 #if UNITY_EDITOR

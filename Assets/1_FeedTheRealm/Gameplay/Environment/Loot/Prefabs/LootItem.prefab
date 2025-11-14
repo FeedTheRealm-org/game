@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6301960170539827402}
   - component: {fileID: 939860814795634181}
   - component: {fileID: 7234926229242790679}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,7 +118,8 @@ GameObject:
   - component: {fileID: 4926782902878775639}
   - component: {fileID: 7758021345032191184}
   - component: {fileID: 4416602767729884748}
-  m_Layer: 0
+  - component: {fileID: -6966874531259869487}
+  m_Layer: 9
   m_Name: LootItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,6 +158,14 @@ MonoBehaviour:
   itemVisual: {fileID: 601660624254150770}
   itemName: Loot Item
   heightOffset: 0.1
+  containedItems:
+  - {fileID: 21300000, guid: 7af5ad218eb4047749e482ba17094655, type: 3}
+  pickupRadius: 1
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  pickupSound: {fileID: 0}
+  pickupVFX: {fileID: 0}
   logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!135 &7758021345032191184
 SphereCollider:
@@ -206,6 +215,31 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 90
   m_CollisionDetection: 0
+--- !u!114 &-6966874531259869487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3221426771183678723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &3452075988942437621
 GameObject:
   m_ObjectHideFlags: 0
@@ -218,7 +252,7 @@ GameObject:
   - component: {fileID: 7545881860819203172}
   - component: {fileID: 1618750192962942465}
   - component: {fileID: 9036494285597608561}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
