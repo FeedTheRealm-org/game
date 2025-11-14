@@ -62,6 +62,7 @@ public class NetworkPlayerController : NetworkBehaviour
         playerControls.Player.Move.canceled += OnMoveCanceled;
         playerControls.Player.Dash.performed += OnDashPerformed;
         playerControls.Player.Attack.performed += OnAttackPerformed;
+        playerControls.Player.CursorToggle.performed += OnCursorTogglePerformed;
 
         logger.Log($"Input configured for player {OwnerClientId}", this);
     }
@@ -105,7 +106,33 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
         }
 
+        // Lock cursor when attacking (return to gameplay)
+        if (Cursor.visible)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            logger.Log($"NetworkPlayer {OwnerClientId} - Cursor locked (attack)", this);
+        }
+
         attackComponent?.OnAttack();
+    }
+
+    private void OnCursorTogglePerformed(InputAction.CallbackContext context)
+    {
+        bool shouldShowCursor = !Cursor.visible;
+        
+        if (shouldShowCursor)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            logger.Log($"NetworkPlayer {OwnerClientId} - Cursor mostrado (toggle)", this);
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            logger.Log($"NetworkPlayer {OwnerClientId} - Cursor oculto (toggle)", this);
+        }
     }
 
     private void OnInventoryOpened()
@@ -143,6 +170,7 @@ public class NetworkPlayerController : NetworkBehaviour
             playerControls.Player.Move.canceled -= OnMoveCanceled;
             playerControls.Player.Dash.performed -= OnDashPerformed;
             playerControls.Player.Attack.performed -= OnAttackPerformed;
+            playerControls.Player.CursorToggle.performed -= OnCursorTogglePerformed;
             playerControls.Dispose();
             playerControls = null;
         }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 using System.Collections;
 
 public class EnemySpawn : MonoBehaviour {
@@ -49,19 +50,39 @@ public class EnemySpawn : MonoBehaviour {
     }
 
     private void OnTriggerEnter(Collider other) {
-        logger.Log($"{other.name} entered the area!", this);
+        // In multiplayer, only server processes spawn triggers
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
+            if (!NetworkManager.Singleton.IsServer) {
+                return; // Clients ignore spawn triggers
+            }
+        }
+
+        logger.Log($"[EnemySpawn] {other.name} (Layer: {LayerMask.LayerToName(other.gameObject.layer)}) entered the area!", this);
+        
+        // Verify this is a player or relevant entity
+        // You can add layer checks here if needed: if (other.gameObject.layer != LayerMask.NameToLayer("Player")) return;
+        
         playersInside++;
         if (!spawnerActive && playersInside > 0) {
             spawnerActive = true;
             spawnRoutine = StartCoroutine(spawnEnemies());
+            logger.Log($"[EnemySpawn] Spawner activated! Players inside: {playersInside}", this);
         }
     }
 
     private void OnTriggerExit(Collider other) {
-        logger.Log($"{other.name} exited the area!", this);
+        // In multiplayer, only server processes spawn triggers
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
+            if (!NetworkManager.Singleton.IsServer) {
+                return; // Clients ignore spawn triggers
+            }
+        }
+
+        logger.Log($"[EnemySpawn] {other.name} exited the area!", this);
         playersInside--;
         if (playersInside == 0) {
             spawnerActive = false;
+            logger.Log($"[EnemySpawn] Spawner deactivated! No players inside.", this);
             if (spawnRoutine != null) {
                 StopCoroutine(spawnRoutine);
                 spawnRoutine = null;
@@ -73,23 +94,37 @@ public class EnemySpawn : MonoBehaviour {
     /// spawns enemies at defined intervals while the spawner is active.
     /// </summary>
     private IEnumerator spawnEnemies() {
+        logger.Log($"[EnemySpawn] Spawn routine started. Max enemies: {maxEnemies}, Spawn rate: {spawnRate}s, Reset after kills: {resetAfterKills}", this);
         while (spawnerActive) {
+            // Check if spawner is resetting (kill threshold reached)
+            if (spawnerResetting) {
+                logger.Log($"[EnemySpawn] Spawner is resetting, pausing spawns...", this);
+                yield return new WaitForSeconds(spawnRate);
+                continue;
+            }
+
             if (currentEnemies < maxEnemies) {
                 spawnEnemy();
+            } else {
+                // Only log occasionally to avoid spam
+                if (Time.frameCount % 100 == 0) {
+                    logger.Log($"[EnemySpawn] Max enemies reached ({currentEnemies}/{maxEnemies}). Waiting...", this);
+                }
             }
             yield return new WaitForSeconds(spawnRate);
         }
+        logger.Log("[EnemySpawn] Spawn routine stopped.", this);
     }
 
     /// <summary>
     /// resets the spawner after a delay when the kill threshold is reached.
     /// </summary>
     private IEnumerator spawnReset() {
-        logger.Log("Spawner resetting...", this);
+        logger.Log($"[EnemySpawn] Spawner resetting... (waiting {resetDelay}s)", this);
         yield return new WaitForSeconds(resetDelay);
         spawnerResetting = false;
         totalKills = 0;
-        logger.Log("Spawner reset complete.", this);
+        logger.Log("[EnemySpawn] Spawner reset complete. Ready to spawn again!", this);
     }
 
     /// <summary>
@@ -103,27 +138,62 @@ public class EnemySpawn : MonoBehaviour {
             return;
         }
 
+        // In multiplayer, only the server should spawn enemies
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
+            if (!NetworkManager.Singleton.IsServer) {
+                logger.Log("Client attempted to spawn enemy - only server can spawn!", this, Logging.LogType.Warning);
+                return;
+            }
+        }
+
         Transform point = spawnPoints[spawnIndex];
         spawnIndex = (spawnIndex + 1) % spawnPoints.Length;
 
         GameObject enemy = Instantiate(enemyPrefab, point.position, point.rotation);
-        enemy.GetComponent<HealthComponent>().OnDeath += onEnemyDeath;
+        
+        // Increment counter BEFORE spawning to get correct count in logs
         currentEnemies++;
+        
+        // Spawn as NetworkObject if in multiplayer
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
+            NetworkObject networkObject = enemy.GetComponent<NetworkObject>();
+            if (networkObject != null) {
+                networkObject.Spawn();
+                logger.Log($"[EnemySpawn] Spawned networked enemy #{currentEnemies}/{maxEnemies} at {point.name}", this);
+            } else {
+                logger.Log("Enemy prefab missing NetworkObject component for multiplayer!", this, Logging.LogType.Error);
+                Destroy(enemy);
+                currentEnemies--; // Rollback counter
+                return;
+            }
+        } else {
+            logger.Log($"[EnemySpawn] Spawned local enemy #{currentEnemies}/{maxEnemies} at {point.name}", this);
+        }
 
-        logger.Log($"Spawned enemy #{currentEnemies} at {point.name}", this);
+        // Subscribe to death event to track kills
+        enemy.GetComponent<HealthComponent>().OnDeath += onEnemyDeath;
     }
 
     /// <summary>
     /// Callback for enemy death event to decrement current enemy count.
     /// </summary>
     private void onEnemyDeath() {
+        // In multiplayer, only server should track enemy deaths for spawning logic
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
+            if (!NetworkManager.Singleton.IsServer) {
+                return; // Clients don't manage spawn counts
+            }
+        }
+
         currentEnemies = Mathf.Max(0, currentEnemies - 1);
         totalKills++;
+        logger.Log($"[EnemySpawn] Enemy died. Current enemies: {currentEnemies}, Total kills: {totalKills}", this);
+        
         if (!spawnerResetting && totalKills >= resetAfterKills) {
             spawnerResetting = true;
+            logger.Log($"[EnemySpawn] Kill threshold reached ({resetAfterKills}). Resetting spawner in {resetDelay}s...", this);
             StartCoroutine(spawnReset());
         }
-        logger.Log($"An enemy has died. Current enemies: {currentEnemies}, Total kills: {totalKills}", this);
     }
 
     private void OnDrawGizmos() {
