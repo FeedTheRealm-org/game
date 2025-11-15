@@ -35,7 +35,7 @@ public class NavbarController : MonoBehaviour {
             return;
         }
 
-        _profileButton = body.Q<Button>("ProfileButton");
+        _playButton = body.Q<Button>("ProfileButton");
         if (_profileButton == null) {
             logger.Log("ProfileButton not found in Body.", this, Logging.LogType.Error);
             return;
