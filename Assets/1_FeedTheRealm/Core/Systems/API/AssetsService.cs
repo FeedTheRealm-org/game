@@ -39,11 +39,10 @@ namespace API {
 
             if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
                 var res = string.IsNullOrEmpty(responseText) ? null : JsonUtility.FromJson<ErrorResponse>(responseText);
-                logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
+                logger.Log($"GetCategories error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
                 handler?.Invoke(null, res.detail);
             } else {
                 var res = JsonUtility.FromJson<DataEnvelope<SpriteCategoryListResponse>>(responseText);
-                logger.Log($"CharacterInfo response: {responseText}", this);
                 handler?.Invoke(res.data, "");
             }
         }
@@ -64,11 +63,10 @@ namespace API {
 
             if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
                 var res = string.IsNullOrEmpty(responseText) ? null : JsonUtility.FromJson<ErrorResponse>(responseText);
-                logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
+                logger.Log($"GetSpritesByCategory error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
                 handler?.Invoke(null, res.detail);
             } else {
                 var res = JsonUtility.FromJson<DataEnvelope<SpritesListResponse>>(responseText);
-                logger.Log($"CharacterInfo response: {responseText}", this);
                 handler?.Invoke(res.data, "");
             }
         }

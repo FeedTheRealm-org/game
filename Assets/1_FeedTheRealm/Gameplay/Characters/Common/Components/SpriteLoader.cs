@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class SpriteLoader : MonoBehaviour {
     [SerializeField]
@@ -7,6 +9,9 @@ public class SpriteLoader : MonoBehaviour {
     [Header("Services settings")]
     [SerializeField]
     private API.AssetsService assetsService;
+
+    [SerializeField]
+    private API.PlayerService playerService;
 
     [Header("General settings")]
     [SerializeField]
@@ -23,6 +28,8 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.onFootBootChange += changeFootBoot;
             spriteManager.onCapeChange += changeCape;
         }
+
+        StartCoroutine(initCharacterSpritesCoroutine());
     }
 
     private void OnDestroy() {
@@ -187,5 +194,58 @@ public class SpriteLoader : MonoBehaviour {
         downloadSpriteFullSize(spriteId, new Vector2(0.47826087f, 0.90909094f), 32f, (newCape) => {
             replacePartSprite(newCape, "P_Back");
         });
+    }
+
+    /* --- INITIALIZATION UTILS --- */
+    private IEnumerator initCharacterSpritesCoroutine() {
+        // Fetch categories
+        API.SpriteCategoryListResponse categoriesResponse = null;
+        string categoriesError = null;
+        yield return assetsService.GetCategories((response, err) => {
+            categoriesResponse = response;
+            categoriesError = err;
+        });
+
+        if (!string.IsNullOrEmpty(categoriesError)) {
+            logger.Log($"Failed to fetch categories: {categoriesError}", this, Logging.LogType.Error);
+            yield break;
+        }
+
+        // Fetch character info
+        API.CharacterInfoResponse characterInfo = null;
+        string characterError = null;
+        yield return playerService.GetCharacterInfo((info, err) => {
+            characterInfo = info;
+            characterError = err;
+        });
+
+        if (!string.IsNullOrEmpty(characterError)) {
+            logger.Log($"Failed to fetch character info: {characterError}", this, Logging.LogType.Warning);
+            yield break;
+        }
+
+        // All data fetched, apply sprites
+        if (categoriesResponse?.category_list == null) {
+            logger.Log("No categories found in response.", this, Logging.LogType.Error);
+            yield break;
+        }
+
+        Dictionary<string, string> existingCategories = new Dictionary<string, string>();
+        foreach (var category in categoriesResponse.category_list) {
+            existingCategories[category.category_id] = category.category_name;
+        }
+
+        if (characterInfo?.category_sprites == null) {
+            logger.Log("No character sprites found in response.", this, Logging.LogType.Warning);
+            yield break;
+        }
+
+        foreach (var entry in characterInfo.category_sprites) {
+            string categoryName = existingCategories.TryGetValue(entry.Key, out var name) ? name : "";
+            SpritePart category = spriteManager.GetSpritePartFromCategoryName(categoryName);
+            if (category != SpritePart.None) {
+                spriteManager.ChangeSprite(category, entry.Value);
+            }
+        }
     }
 }

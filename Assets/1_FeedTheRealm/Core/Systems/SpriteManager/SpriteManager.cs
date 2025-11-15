@@ -16,6 +16,12 @@ public enum SpritePart {
 
 [CreateAssetMenu(fileName = "SpriteManager", menuName = "Scriptable Objects/SpriteManager")]
 public class SpriteManager : ScriptableObject {
+    [SerializeField]
+    private API.AssetsService assetsService;
+
+    [SerializeField]
+    private API.PlayerService playerService;
+
     [Header("General Settings")]
     [SerializeField]
     private Logging.Logger logger;

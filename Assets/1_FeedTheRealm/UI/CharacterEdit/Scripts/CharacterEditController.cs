@@ -52,7 +52,6 @@ public class CharacterEditController : MonoBehaviour {
     private string _selectedCategoryId = "";
     private string _selectedCategoryName = "";
     private API.PatchCharacterInfoRequest characterInfoRequest = new API.PatchCharacterInfoRequest();
-    private Dictionary<string, string> existingCategories = new Dictionary<string, string>();
 
     private void OnEnable() {
         if (session == null) {
@@ -274,7 +273,6 @@ public class CharacterEditController : MonoBehaviour {
 
             populateCategories(response.category_list);
             onCategoryClicked(response.category_list[0].category_id, response.category_list[0].category_name);
-            initCharacterPreviewSprites();
         }));
     }
 
@@ -306,8 +304,6 @@ public class CharacterEditController : MonoBehaviour {
         _categoriesList.contentContainer.Clear();
 
         foreach (var category in categories) {
-            existingCategories[category.category_id] = category.category_name;
-
             var btn = new Button();
             btn.AddToClassList("category_button");
             btn.text = category.category_name;
@@ -388,15 +384,5 @@ public class CharacterEditController : MonoBehaviour {
         );
 
         canvasCharacterPreview.anchoredPosition = localPoint + characterInContainerOffset;
-    }
-
-    private void initCharacterPreviewSprites() {
-        foreach (var entry in characterInfoRequest.category_sprites) {
-            string categoryName = existingCategories.TryGetValue(entry.Key, out var name) ? name : "";
-            SpritePart category = spriteManager.GetSpritePartFromCategoryName(categoryName);
-            if (category != SpritePart.None) {
-                spriteManager.ChangeSprite(category, entry.Value);
-            }
-        }
     }
 }
