@@ -162,6 +162,7 @@ public class CharacterEditController : MonoBehaviour {
     /// </summary>
     private void onBackClicked() {
         logger.Log("Back Button Clicked", this);
+        transform.parent.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -212,6 +213,7 @@ public class CharacterEditController : MonoBehaviour {
         SpritePart category = spriteManager.GetSpritePartFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, spriteId);
         characterInfoRequest.category_sprites[_selectedCategoryId] = spriteId;
+        _saveButton.text = "Save";
     }
 
     private void OnGeometryChanged(GeometryChangedEvent evt) {
@@ -230,6 +232,7 @@ public class CharacterEditController : MonoBehaviour {
                 logger.Log("Character info successfully updated", this);
                 session.IsFirstLogin = false;
                 session.CharacterName = characterInfo.character_name;
+                _saveButton.text = "Saved";
             } else {
                 logger.Log("Login failed", this, Logging.LogType.Error);
                 _errorMessage.text = err;

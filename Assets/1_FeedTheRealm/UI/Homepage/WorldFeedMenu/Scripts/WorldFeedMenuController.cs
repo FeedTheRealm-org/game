@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,14 +21,12 @@ public class WorldFeedMenuController : MonoBehaviour {
         searchField = ui.Q<TextField>("SearchField");
         if (searchField != null) {
             searchField.RegisterValueChangedCallback(evt => RenderCategories(evt.newValue));
-            logger.Log("SearchField registered successfully", this);
         } else {
             logger.Log("SearchField not found in UI", this, Logging.LogType.Warning);
         }
     }
 
     private void OnEnable() {
-        logger.Log("WorldFeedMenuController enabled, creating categories...", this);
         CreateCategories();
     }
 
@@ -78,8 +74,6 @@ public class WorldFeedMenuController : MonoBehaviour {
         int totalMatchedCategories = 0;
         int totalMatchedWorlds = 0;
 
-        logger.Log($"Rendering with filter: '{trimmedFilter}'", this);
-
         foreach (var category in allCategories) {
             if (category == null) continue;
 
@@ -89,11 +83,7 @@ public class WorldFeedMenuController : MonoBehaviour {
             totalMatchedCategories++;
             totalMatchedWorlds += matchedWorlds.Count;
             rootContainer.Add(CreateCategoryContainer(category, matchedWorlds));
-
-            logger.Log($"  Category '{category.name}': {matchedWorlds.Count} worlds matched", this);
         }
-
-        logger.Log($"Rendered {totalMatchedCategories} categories with {totalMatchedWorlds} worlds", this);
 
         if (totalMatchedCategories == 0 && !string.IsNullOrEmpty(trimmedFilter)) {
             rootContainer.Add(CreateNoResultsMessage(trimmedFilter));
@@ -133,7 +123,6 @@ public class WorldFeedMenuController : MonoBehaviour {
         foreach (var world in worlds) {
             var worldElement = CreateWorldElement(world);
             if (worldElement != null) {
-                logger.Log($"    Adding world element: {world}", this);
                 categoryContainer.Add(worldElement);
             }
         }
