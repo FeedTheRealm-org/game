@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
 
 /// <summary>
 /// Manages the character editing interface and interactions.
@@ -47,8 +48,11 @@ public class CharacterEditController : MonoBehaviour {
     private Button _cancelButton;
     private Button _saveButton;
 
+    // Data
     private string _selectedCategoryId = "";
     private string _selectedCategoryName = "";
+    private API.PatchCharacterInfoRequest characterInfoRequest = new API.PatchCharacterInfoRequest();
+    private Dictionary<string, string> existingCategories = new Dictionary<string, string>();
 
     private void OnEnable() {
         if (session == null) {
@@ -81,8 +85,6 @@ public class CharacterEditController : MonoBehaviour {
             logger.Log("CharacterPreview not found in Character container.", this, Logging.LogType.Error);
             return;
         }
-        // Center canvasCharacterPreview in _characterPreview
-        canvasCharacterPreview.anchoredPosition = new Vector2(100, 50);
 
         var buttonsContainer = _cosmeticsContainer.Q<VisualElement>("Buttons");
         if (buttonsContainer == null) {
@@ -112,6 +114,7 @@ public class CharacterEditController : MonoBehaviour {
             _backButton.style.display = DisplayStyle.None;
         }
 
+        characterInfoRequest.category_sprites = new Dictionary<string, string>();
         registerCallbacks(true);
         fetchCharacterInfo();
         fetchCategories();
@@ -182,6 +185,9 @@ public class CharacterEditController : MonoBehaviour {
             return;
         }
 
+        characterInfoRequest.character_name = _nameInput.value;
+        characterInfoRequest.character_bio = _bioInput.value;
+
         updateCharacterInfo();
     }
 
@@ -206,11 +212,12 @@ public class CharacterEditController : MonoBehaviour {
         logger.Log($"Item clicked: {spriteId}", this);
         SpritePart category = spriteManager.GetSpritePartFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, spriteId);
+        characterInfoRequest.category_sprites[_selectedCategoryId] = spriteId;
     }
 
     private void OnGeometryChanged(GeometryChangedEvent evt) {
         logger.Log("Geometry changed.", this);
-        CenterCharacterPreview();
+        centerCharacterPreview();
     }
 
     /* --- CHARACTER INFO HANDLING --- */
@@ -219,11 +226,11 @@ public class CharacterEditController : MonoBehaviour {
     /// Updates the current character information to server.
     /// </summary>
     private void updateCharacterInfo() {
-        StartCoroutine(playerService.UpdateCharacterInfo(_nameInput.value, _bioInput.value, (name, bio, err) => {
+        StartCoroutine(playerService.PatchCharacterInfo(characterInfoRequest, (characterInfo, err) => {
             if (string.IsNullOrEmpty(err)) {
                 logger.Log("Character info successfully updated", this);
                 session.IsFirstLogin = false;
-                session.CharacterName = name;
+                session.CharacterName = characterInfo.character_name;
             } else {
                 logger.Log("Login failed", this, Logging.LogType.Error);
                 _errorMessage.text = err;
@@ -235,11 +242,12 @@ public class CharacterEditController : MonoBehaviour {
     /// Fetches the current character information from the server.
     /// </summary>
     private void fetchCharacterInfo() {
-        StartCoroutine(playerService.GetCharacterInfo((name, bio, err) => {
+        StartCoroutine(playerService.GetCharacterInfo((characterInfo, err) => {
             if (string.IsNullOrEmpty(err)) {
                 logger.Log("Character info successfully retrieved", this);
-                _nameInput.value = name;
-                _bioInput.value = bio;
+                _nameInput.value = characterInfo.character_name;
+                _bioInput.value = characterInfo.character_bio;
+                characterInfoRequest.category_sprites = characterInfo.category_sprites;
             } else {
                 logger.Log("Failed to retrieve character info", this, Logging.LogType.Warning);
             }
@@ -266,6 +274,7 @@ public class CharacterEditController : MonoBehaviour {
 
             populateCategories(response.category_list);
             onCategoryClicked(response.category_list[0].category_id, response.category_list[0].category_name);
+            initCharacterPreviewSprites();
         }));
     }
 
@@ -297,6 +306,8 @@ public class CharacterEditController : MonoBehaviour {
         _categoriesList.contentContainer.Clear();
 
         foreach (var category in categories) {
+            existingCategories[category.category_id] = category.category_name;
+
             var btn = new Button();
             btn.AddToClassList("category_button");
             btn.text = category.category_name;
@@ -356,7 +367,7 @@ public class CharacterEditController : MonoBehaviour {
         }));
     }
 
-    private void CenterCharacterPreview() {
+    private void centerCharacterPreview() {
         if (_characterPreview == null || canvasCharacterPreview == null)
             return;
 
@@ -379,4 +390,13 @@ public class CharacterEditController : MonoBehaviour {
         canvasCharacterPreview.anchoredPosition = localPoint + characterInContainerOffset;
     }
 
+    private void initCharacterPreviewSprites() {
+        foreach (var entry in characterInfoRequest.category_sprites) {
+            string categoryName = existingCategories.TryGetValue(entry.Key, out var name) ? name : "";
+            SpritePart category = spriteManager.GetSpritePartFromCategoryName(categoryName);
+            if (category != SpritePart.None) {
+                spriteManager.ChangeSprite(category, entry.Value);
+            }
+        }
+    }
 }

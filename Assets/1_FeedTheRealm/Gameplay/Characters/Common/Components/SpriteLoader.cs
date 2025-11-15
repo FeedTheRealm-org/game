@@ -120,12 +120,20 @@ public class SpriteLoader : MonoBehaviour {
     /* --- PART CHANGE HANDLERS --- */
 
     private void changeHair(string spriteId) {
+        if (string.IsNullOrEmpty(spriteId)) {
+            replacePartSprite(null, "P_Hair"); // Remove sprite
+            return;
+        }
         downloadSpriteFullSize(spriteId, new Vector2(0.5f, 0.5f), 32f, (newHair) => {
             replacePartSprite(newHair, "P_Hair");
         });
     }
 
     private void changeFaceHair(string spriteId) {
+        if (string.IsNullOrEmpty(spriteId)) {
+            replacePartSprite(null, "P_Mustache"); // Remove sprite
+            return;
+        }
         downloadSpriteFullSize(spriteId, new Vector2(0.5f, 0.5f), 32f, (newFaceHair) => {
             replacePartSprite(newFaceHair, "P_Mustache");
         });
@@ -145,12 +153,20 @@ public class SpriteLoader : MonoBehaviour {
     }
 
     private void changeArmor(string spriteId) {
+        if (string.IsNullOrEmpty(spriteId)) {
+            replacePartSprite(null, "P_ArmorBody"); // Remove sprite
+            return;
+        }
         downloadSpriteCustom(spriteId, 10f, 12f, 12f, 9f, new Vector2(0.5f, 0.5f), 32f, (newArmor) => {
             replacePartSprite(newArmor, "P_ArmorBody");
         });
     }
 
     private void changeHelmet(string spriteId) {
+        if (string.IsNullOrEmpty(spriteId)) {
+            replacePartSprite(null, "P_Helmet"); // Remove sprite
+            return;
+        }
         downloadSpriteFullSize(spriteId, new Vector2(0.5f, 0.5f), 32f, (newHelmet) => {
             replacePartSprite(newHelmet, "P_Helmet");
         });
@@ -164,6 +180,10 @@ public class SpriteLoader : MonoBehaviour {
     }
 
     private void changeCape(string spriteId) {
+        if (string.IsNullOrEmpty(spriteId)) {
+            replacePartSprite(null, "P_Back"); // Remove sprite
+            return;
+        }
         downloadSpriteFullSize(spriteId, new Vector2(0.47826087f, 0.90909094f), 32f, (newCape) => {
             replacePartSprite(newCape, "P_Back");
         });
