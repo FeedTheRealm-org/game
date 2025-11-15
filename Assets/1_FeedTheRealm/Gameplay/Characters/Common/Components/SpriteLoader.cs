@@ -88,9 +88,6 @@ public class SpriteLoader : MonoBehaviour {
                 return;
             }
             logger.Log($"Successfully downloaded sprite with ID: {spriteId}", this, Logging.LogType.Info);
-            if (rect.width == 0f) {
-                rect.width = texture.width;
-            }
             rect.width = rect.width > 0f ? rect.width : texture.width;
             rect.height = rect.height > 0f ? rect.height : texture.height;
 
