@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
-  m_Name: UILogger
-  m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  _showLogs: 1
-  _loggerPrefix: '[UI]'
-  _loggerColor: {r: 1, g: 0.4315393, b: 0.9856721, a: 0}
+  m_Name: WorldsLogger
+  m_EditorClassIdentifier: FeedTheRealm_Shared::Logging.Logger
+  _showLogs: 0
+  _loggerPrefix: 
+  _loggerColor: {r: 0.27211744, g: 0.09878961, b: 0.5660378, a: 0}
