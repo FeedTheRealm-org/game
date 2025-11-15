@@ -35,7 +35,7 @@ public class SpriteManager : ScriptableObject {
     public Action<string> onFootBootChange;
     public Action<string> onCapeChange;
 
-    private Dictionary<SpritePart, Action<string>> partChangeActions = new Dictionary<SpritePart, Action<string>>();
+    private readonly Dictionary<SpritePart, Action<string>> partChangeActions = new Dictionary<SpritePart, Action<string>>();
 
     public void OnEnable() {
         partChangeActions[SpritePart.Hair] = (id) => onHairChange?.Invoke(id);

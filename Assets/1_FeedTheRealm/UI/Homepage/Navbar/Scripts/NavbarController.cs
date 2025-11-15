@@ -35,13 +35,13 @@ public class NavbarController : MonoBehaviour {
             return;
         }
 
-        _playButton = body.Q<Button>("ProfileButton");
+        _profileButton = body.Q<Button>("ProfileButton");
         if (_profileButton == null) {
             logger.Log("ProfileButton not found in Body.", this, Logging.LogType.Error);
             return;
         }
         _playButton = body.Q<Button>("PlayButton");
-        if (_profileButton == null) {
+        if (_playButton == null) {
             logger.Log("PlayButton not found in Body.", this, Logging.LogType.Error);
             return;
         }
