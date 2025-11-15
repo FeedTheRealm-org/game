@@ -1,6 +1,6 @@
 
 namespace API {
-    /* Reponses */
+    /* Responses */
 
     [System.Serializable]
     public class SpriteCategoryResponse {
