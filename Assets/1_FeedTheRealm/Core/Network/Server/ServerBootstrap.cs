@@ -14,7 +14,7 @@ public class ServerBootstrap : MonoBehaviour
     [SerializeField] private int maxPlayers = 10;
     
     [Header("Scene Configuration")]
-    [SerializeField] private string gameSceneName = "MultiplayerScene";
+    [SerializeField] private SceneReference gameScene;
     [SerializeField] private bool autoLoadGameScene = true;
     
     [Header("Debug")]
@@ -70,13 +70,13 @@ public class ServerBootstrap : MonoBehaviour
             LogServerInfo($"   🔊 Server is now LISTENING for connections...");
             
             // Cargar escena del juego si está configurado y no estamos ya en ella
-            if (autoLoadGameScene && !string.IsNullOrEmpty(gameSceneName))
+            if (autoLoadGameScene && gameScene != null && !string.IsNullOrEmpty(gameScene.SceneName))
             {
                 string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-                if (currentScene != gameSceneName)
+                if (currentScene != gameScene.SceneName)
                 {
-                    LogServerInfo($"Loading game scene: {gameSceneName}");
-                    NetworkManager.Singleton.SceneManager.LoadScene(gameSceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+                    LogServerInfo($"Loading game scene: {gameScene.SceneName}");
+                    NetworkManager.Singleton.SceneManager.LoadScene(gameScene.SceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
                 }
             }
         }
