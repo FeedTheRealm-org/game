@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using Newtonsoft.Json;
 
 namespace API {
     /// <summary>
@@ -26,12 +27,11 @@ namespace API {
         /// <summary>
         /// Update the character information such as name and bio.
         /// </summary>
-        public IEnumerator UpdateCharacterInfo(string name, string bio, System.Action<string, string, string> handler) {
+        public IEnumerator PatchCharacterInfo(PatchCharacterInfoRequest payload, System.Action<CharacterInfoResponse, string> handler) {
             var url = $"http://{Hostname}:{Port}/player/character";
-            var payload = new UpdateCharacterInfoRequest { character_name = name, character_bio = bio };
-            var json = JsonUtility.ToJson(payload);
+            var json = JsonConvert.SerializeObject(payload);
 
-            var uwr = new UnityWebRequest(url, "PUT");
+            var uwr = new UnityWebRequest(url, "PATCH");
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
             uwr.uploadHandler = new UploadHandlerRaw(bodyRaw);
             uwr.downloadHandler = new DownloadHandlerBuffer();
@@ -44,20 +44,20 @@ namespace API {
             var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
 
             if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
-                var res = string.IsNullOrEmpty(responseText) ? null : JsonUtility.FromJson<ErrorResponse>(responseText);
+                var res = string.IsNullOrEmpty(responseText) ? null : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
                 logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
-                handler?.Invoke("", "", res.detail);
+                handler?.Invoke(null, res.detail);
             } else {
-                var res = JsonUtility.FromJson<DataEnvelope<CharacterInfoResponse>>(responseText);
+                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(responseText);
                 logger.Log($"CharacterInfo response: {responseText}", this);
-                handler?.Invoke(res.data.character_name, res.data.character_bio, "");
+                handler?.Invoke(res.data, "");
             }
         }
 
         /// <summary>
         /// Retrieve the current character information such as name and bio.
         /// </summary>
-        public IEnumerator GetCharacterInfo(System.Action<string, string, string> handler) {
+        public IEnumerator GetCharacterInfo(System.Action<CharacterInfoResponse, string> handler) {
             var url = $"http://{Hostname}:{Port}/player/character";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
@@ -69,13 +69,13 @@ namespace API {
             var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
 
             if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
-                var res = string.IsNullOrEmpty(responseText) ? null : JsonUtility.FromJson<ErrorResponse>(responseText);
+                var res = string.IsNullOrEmpty(responseText) ? null : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
                 logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
-                handler?.Invoke("", "", res.detail);
+                handler?.Invoke(null, res.detail);
             } else {
-                var res = JsonUtility.FromJson<DataEnvelope<CharacterInfoResponse>>(responseText);
+                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(responseText);
                 logger.Log($"CharacterInfo response: {responseText}", this);
-                handler?.Invoke(res.data.character_name, res.data.character_bio, "");
+                handler?.Invoke(res.data, "");
             }
         }
     }
