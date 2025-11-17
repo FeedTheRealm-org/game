@@ -29,8 +29,12 @@ public class LootDropper : MonoBehaviour {
     
     [Header("Loot Contents")]
     [SerializeField]
-    [Tooltip("Items que se agregarán a la bolsa de loot (ItemData de la base de datos)")]
-    private List<ItemData> lootItems = new List<ItemData>();
+    [Tooltip("Tabla de loot que define qué items pueden dropear y sus probabilidades")]
+    private LootTable lootTable;
+    
+    [SerializeField]
+    [Tooltip("(LEGACY - Usar LootTable en su lugar) Items que se agregarán directamente sin tabla")]
+    private List<ItemData> legacyLootItems = new List<ItemData>();
     
     [SerializeField]
     private Logging.Logger logger;
@@ -93,17 +97,34 @@ public class LootDropper : MonoBehaviour {
         // Instanciar el loot
         GameObject lootInstance = Instantiate(lootPrefab, spawnPosition, Quaternion.identity);
         
+        // Determinar qué items van a dropear (declarar fuera del scope para poder usar después)
+        List<ItemData> itemsToDrop = new List<ItemData>();
+        
         // CRÍTICO: Configurar el LootItem ANTES de spawnearlo en red
         LootItem lootItem = lootInstance.GetComponent<LootItem>();
         if (lootItem != null) {
             lootItem.Initialize(spawnPosition);
             
-            // Añadir los items configurados a la bolsa ANTES del Spawn
-            if (lootItems != null && lootItems.Count > 0) {
-                lootItem.AddItems(lootItems);
-                logger?.Log($"[LootDropper] Items añadidos al loot: {lootItems.Count}", this);
+            // Priorizar LootTable si está configurado
+            if (lootTable != null) {
+                itemsToDrop = lootTable.RollLoot();
+                logger?.Log($"[LootDropper] LootTable {lootTable.tableName} rolled: {itemsToDrop.Count} items", this);
+            } 
+            // Fallback a legacy items si no hay tabla
+            else if (legacyLootItems != null && legacyLootItems.Count > 0) {
+                itemsToDrop = legacyLootItems;
+                logger?.Log($"[LootDropper] Using legacy items: {itemsToDrop.Count}", this);
+            } 
+            else {
+                logger?.Log($"[LootDropper] Warning: No LootTable ni legacy items configurados", this, Logging.LogType.Warning);
+            }
+            
+            // Añadir los items a la bolsa ANTES del Spawn
+            if (itemsToDrop.Count > 0) {
+                lootItem.AddItems(itemsToDrop);
+                logger?.Log($"[LootDropper] Items añadidos al loot: {itemsToDrop.Count}", this);
             } else {
-                logger?.Log($"[LootDropper] Warning: No hay items configurados para el loot", this, Logging.LogType.Warning);
+                logger?.Log($"[LootDropper] Warning: No hay items para dropear (roll falló o tabla vacía)", this, Logging.LogType.Warning);
             }
         } else {
             logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene LootItem component!", this, Logging.LogType.Error);
@@ -117,7 +138,7 @@ public class LootDropper : MonoBehaviour {
             NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
             if (networkObject != null) {
                 networkObject.Spawn();
-                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition} with {lootItems.Count} items", this);
+                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition} with {itemsToDrop.Count} items", this);
             } else {
                 logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene NetworkObject! El loot no será visible en multiplayer.", this, Logging.LogType.Error);
                 logger?.Log($"[LootDropper] Agrega un componente NetworkObject al prefab de loot para multiplayer.", this, Logging.LogType.Error);
