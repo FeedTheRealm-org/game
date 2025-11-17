@@ -29,8 +29,8 @@ public class LootDropper : MonoBehaviour {
     
     [Header("Loot Contents")]
     [SerializeField]
-    [Tooltip("Items that will be added to the loot bag when it drops")]
-    private List<Sprite> lootItems = new List<Sprite>();
+    [Tooltip("Items que se agregarán a la bolsa de loot (ItemData de la base de datos)")]
+    private List<ItemData> lootItems = new List<ItemData>();
     
     [SerializeField]
     private Logging.Logger logger;
@@ -93,13 +93,31 @@ public class LootDropper : MonoBehaviour {
         // Instanciar el loot
         GameObject lootInstance = Instantiate(lootPrefab, spawnPosition, Quaternion.identity);
         
-        // Si estamos en multiplayer, spawnear como NetworkObject
+        // CRÍTICO: Configurar el LootItem ANTES de spawnearlo en red
+        LootItem lootItem = lootInstance.GetComponent<LootItem>();
+        if (lootItem != null) {
+            lootItem.Initialize(spawnPosition);
+            
+            // Añadir los items configurados a la bolsa ANTES del Spawn
+            if (lootItems != null && lootItems.Count > 0) {
+                lootItem.AddItems(lootItems);
+                logger?.Log($"[LootDropper] Items añadidos al loot: {lootItems.Count}", this);
+            } else {
+                logger?.Log($"[LootDropper] Warning: No hay items configurados para el loot", this, Logging.LogType.Warning);
+            }
+        } else {
+            logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene LootItem component!", this, Logging.LogType.Error);
+            Destroy(lootInstance);
+            return;
+        }
+        
+        // DESPUÉS de configurar, spawnear en la red (si es multiplayer)
         bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
         if (isMultiplayer) {
             NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
             if (networkObject != null) {
                 networkObject.Spawn();
-                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition}", this);
+                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition} with {lootItems.Count} items", this);
             } else {
                 logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene NetworkObject! El loot no será visible en multiplayer.", this, Logging.LogType.Error);
                 logger?.Log($"[LootDropper] Agrega un componente NetworkObject al prefab de loot para multiplayer.", this, Logging.LogType.Error);
@@ -107,22 +125,6 @@ public class LootDropper : MonoBehaviour {
                 Destroy(lootInstance);
                 return;
             }
-        }
-        
-        // Inicializar el LootItem si tiene el componente
-        LootItem lootItem = lootInstance.GetComponent<LootItem>();
-        if (lootItem != null) {
-            lootItem.Initialize(spawnPosition);
-            
-            // Añadir los items configurados a la bolsa
-            if (lootItems != null && lootItems.Count > 0) {
-                lootItem.AddItems(lootItems);
-                logger?.Log($"[LootDropper] Loot bag spawned with {lootItems.Count} items at {spawnPosition}", this);
-            } else {
-                logger?.Log($"[LootDropper] Loot bag spawned empty at {spawnPosition}", this, Logging.LogType.Warning);
-            }
-        } else {
-            logger?.Log($"[LootDropper] Warning: Loot prefab doesn't have LootItem component!", this, Logging.LogType.Warning);
         }
     }
 

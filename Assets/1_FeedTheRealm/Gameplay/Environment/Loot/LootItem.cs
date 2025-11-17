@@ -1,13 +1,14 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Representa un ítem de loot (bolsa) que aparece en el mundo cuando un enemigo muere.
 /// Al acercarse, automáticamente transfiere los items al inventario del jugador.
 /// Compatible con single-player y multiplayer (Netcode).
 /// </summary>
-public class LootItem : MonoBehaviour {
+public class LootItem : NetworkBehaviour {
     
     [Header("Loot Configuration")]
     [SerializeField]
@@ -23,9 +24,19 @@ public class LootItem : MonoBehaviour {
     private float heightOffset = 0.1f;
     
     [Header("Loot Contents")]
+    // Lista local de items (no sincronizada directamente)
+    private List<ItemData> containedItems = new List<ItemData>();
+    
+    // Lista temporal para items agregados ANTES del spawn
+    private List<ItemData> pendingItems = new List<ItemData>();
+    
+    // NetworkList para sincronizar IDs de items entre servidor y clientes
+    private NetworkList<Unity.Collections.FixedString64Bytes> itemIds;
+    
+    [Header("Item Database")]
     [SerializeField]
-    [Tooltip("List of item sprites that this loot bag contains")]
-    private List<Sprite> containedItems = new List<Sprite>();
+    [Tooltip("Referencia al ItemDatabase para resolver IDs a ItemData")]
+    private ItemDatabase itemDatabase;
     
     [Header("Pickup Settings")]
     [SerializeField]
@@ -52,7 +63,81 @@ public class LootItem : MonoBehaviour {
     private bool hasAttemptedPickup = false;
     private HashSet<Collider> playersInRange = new HashSet<Collider>();
 
+    private void Awake() {
+        // Inicializar NetworkList
+        itemIds = new NetworkList<Unity.Collections.FixedString64Bytes>();
+    }
+
+    public override void OnNetworkSpawn() {
+        // SI SOMOS SERVIDOR: transferir items pendientes a NetworkList
+        if (IsServer && pendingItems.Count > 0) {
+            logger?.Log($"[LootItem] OnNetworkSpawn: Transfiriendo {pendingItems.Count} items pendientes a NetworkList", this);
+            foreach (var item in pendingItems) {
+                if (item != null && !string.IsNullOrEmpty(item.itemId)) {
+                    itemIds.Add(new Unity.Collections.FixedString64Bytes(item.itemId));
+                }
+            }
+            pendingItems.Clear(); // Limpiar la lista temporal
+        }
+        
+        // SI SOMOS CLIENTE: suscribirse a cambios y sincronizar
+        if (IsClient && !IsServer) {
+            itemIds.OnListChanged += OnItemListChanged;
+            // Poblar containedItems desde itemIds si ya hay datos
+            SyncItemsFromNetwork();
+        }
+    }
+
+    public override void OnNetworkDespawn() {
+        if (itemIds != null) {
+            itemIds.OnListChanged -= OnItemListChanged;
+        }
+    }
+
+    private void OnItemListChanged(NetworkListEvent<Unity.Collections.FixedString64Bytes> changeEvent) {
+        // Re-sincronizar items cuando la lista cambia
+        SyncItemsFromNetwork();
+    }
+
+    private void SyncItemsFromNetwork() {
+        if (itemDatabase == null) {
+            Debug.LogError("[LootItem] ItemDatabase no asignado! No se pueden resolver los items.", this);
+            return;
+        }
+
+        containedItems.Clear();
+        foreach (var itemId in itemIds) {
+            ItemData item = itemDatabase.GetItem(itemId.ToString());
+            if (item != null) {
+                containedItems.Add(item);
+            } else {
+                Debug.LogWarning($"[LootItem] Item con ID '{itemId}' no encontrado en ItemDatabase", this);
+            }
+        }
+
+        logger?.Log($"[LootItem] Sincronizados {containedItems.Count} items desde red", this);
+    }
+
     private void Start() {
+        // Inicializar ItemDatabase si no está asignado
+        if (itemDatabase == null) {
+            // Intentar cargar desde Resources (funciona en builds)
+            itemDatabase = Resources.Load<ItemDatabase>("MainItemDatabase");
+            
+            if (itemDatabase != null) {
+                logger?.Log($"[LootItem] ItemDatabase cargado desde Resources: {itemDatabase.name}", this);
+                itemDatabase.Initialize();
+            } else {
+                Debug.LogError("[LootItem] ❌ NO SE ENCONTRÓ ItemDatabase! Asegúrate de:" +
+                    "\n1. El archivo se llama EXACTAMENTE 'MainItemDatabase.asset'" +
+                    "\n2. Está en la carpeta: Assets/.../Items/Resources/" +
+                    "\n3. O asígnalo manualmente al prefab LootItem en el Inspector", this);
+            }
+        } else {
+            // Si ya está asignado, inicializarlo
+            itemDatabase.Initialize();
+        }
+        
         // Ajustar la posición vertical si es necesario
         if (heightOffset != 0) {
             transform.position += Vector3.up * heightOffset;
@@ -62,7 +147,19 @@ public class LootItem : MonoBehaviour {
         if (itemVisual == null) {
             logger?.Log($"[LootItem] Warning: No visual assigned for loot '{itemName}'", this, Logging.LogType.Warning);
         } else {
-            logger?.Log($"[LootItem] Loot '{itemName}' spawned at {transform.position} with {containedItems.Count} items", this);
+            // Mostrar qué items contiene la bolsa (filtrando nulls)
+            var validItems = new System.Collections.Generic.List<string>();
+            foreach (var item in containedItems) {
+                if (item != null) {
+                    validItems.Add(item.displayName);
+                }
+            }
+            
+            string itemNames = validItems.Count > 0 
+                ? string.Join(", ", validItems)
+                : "ningún item válido";
+            
+            logger?.Log($"[LootItem] Loot '{itemName}' spawned at {transform.position} con {containedItems.Count} items: [{itemNames}]", this);
         }
         
         // Crear el trigger collider para detección de jugador
@@ -196,22 +293,28 @@ public class LootItem : MonoBehaviour {
 
         // Transferir items uno por uno hasta llenar el inventario o vaciar la bolsa
         int itemsTransferred = 0;
-        List<Sprite> itemsToRemove = new List<Sprite>();
+        List<ItemData> itemsToRemove = new List<ItemData>();
 
-        foreach (Sprite item in containedItems) {
+        foreach (ItemData item in containedItems) {
             if (inventory.IsInventoryFull()) {
                 logger?.Log($"[LootItem] Inventario se llenó durante la transferencia. Items transferidos: {itemsTransferred}/{containedItems.Count}", this);
                 hasAttemptedPickup = true;
                 break;
             }
 
-            inventory.AddItem(item);
-            itemsToRemove.Add(item);
-            itemsTransferred++;
+            // TEMPORAL: Convertir ItemData a Sprite hasta que se actualice InventoryController
+            // TODO: Actualizar InventoryController para aceptar ItemData directamente
+            if (item != null && item.icon != null) {
+                inventory.AddItem(item.icon);
+                itemsToRemove.Add(item);
+                itemsTransferred++;
+            } else {
+                Debug.LogWarning($"[LootItem] Item sin sprite válido: {item?.itemId ?? "null"}", this);
+            }
         }
 
         // Remover los items transferidos de la lista
-        foreach (Sprite item in itemsToRemove) {
+        foreach (ItemData item in itemsToRemove) {
             containedItems.Remove(item);
         }
 
@@ -296,23 +399,65 @@ public class LootItem : MonoBehaviour {
     
     /// <summary>
     /// Añade items a la bolsa de loot (útil para configurar desde LootDropper)
+    /// IMPORTANTE: Llamar ANTES de networkObject.Spawn() en multiplayer
     /// </summary>
-    /// <param name="items">Lista de sprites a añadir</param>
-    public void AddItems(List<Sprite> items) {
-        if (items != null && items.Count > 0) {
-            containedItems.AddRange(items);
-            logger?.Log($"[LootItem] {items.Count} items añadidos a la bolsa. Total: {containedItems.Count}", this);
+    /// <param name="items">Lista de ItemData a añadir</param>
+    public void AddItems(List<ItemData> items) {
+        if (items == null || items.Count == 0) {
+            logger?.Log($"[LootItem] AddItems llamado con lista vacía o null", this, Logging.LogType.Warning);
+            return;
         }
+        
+        bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        int validItemsCount = 0;
+        int invalidItemsCount = 0;
+        
+        foreach (var item in items) {
+            if (item != null) {
+                // Validar que el item tenga sprite
+                if (item.icon != null && !string.IsNullOrEmpty(item.itemId)) {
+                    containedItems.Add(item);
+                    
+                    // Si es multiplayer, agregar a PENDING (no a NetworkList todavía)
+                    // Se transferirá en OnNetworkSpawn cuando sea seguro
+                    if (isMultiplayer) {
+                        pendingItems.Add(item);
+                    }
+                    
+                    validItemsCount++;
+                } else {
+                    Debug.LogWarning($"[LootItem] ItemData '{item.itemId}' no tiene sprite/ID válido. No se agregará.", this);
+                    invalidItemsCount++;
+                }
+            } else {
+                Debug.LogWarning($"[LootItem] Item null encontrado en la lista de loot. Verifica la configuración del LootDropper.", this);
+                invalidItemsCount++;
+            }
+        }
+        
+        logger?.Log($"[LootItem] {validItemsCount} items válidos añadidos. {invalidItemsCount} items inválidos ignorados. Total en bolsa: {containedItems.Count}", this);
     }
 
     /// <summary>
     /// Añade un item individual a la bolsa
     /// </summary>
-    /// <param name="item">Sprite del item a añadir</param>
-    public void AddItem(Sprite item) {
+    /// <param name="item">ItemData del item a añadir</param>
+    public void AddItem(ItemData item) {
         if (item != null) {
-            containedItems.Add(item);
-            logger?.Log($"[LootItem] Item añadido a la bolsa. Total: {containedItems.Count}", this);
+            if (item.icon != null && !string.IsNullOrEmpty(item.itemId)) {
+                containedItems.Add(item);
+                
+                bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+                if (isMultiplayer) {
+                    pendingItems.Add(item);
+                }
+                
+                logger?.Log($"[LootItem] Item '{item.displayName}' añadido a la bolsa. Total: {containedItems.Count}", this);
+            } else {
+                Debug.LogWarning($"[LootItem] ItemData '{item.itemId}' no tiene sprite/ID válido. No se agregará.", this);
+            }
+        } else {
+            Debug.LogWarning($"[LootItem] Intento de añadir item null", this);
         }
     }
     

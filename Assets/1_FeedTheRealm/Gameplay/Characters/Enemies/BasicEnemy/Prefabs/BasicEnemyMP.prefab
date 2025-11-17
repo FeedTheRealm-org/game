@@ -275,7 +275,8 @@ MonoBehaviour:
   alwaysDrop: 1
   spawnOffset: {x: 0, y: 0, z: 0}
   randomOffset: 0.1
-  lootItems: []
+  lootItems:
+  - {fileID: 11400000, guid: d0ff52678f7b2116d8fff1604077b5cc, type: 2}
   logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!1 &6880780016325336480
 GameObject:
