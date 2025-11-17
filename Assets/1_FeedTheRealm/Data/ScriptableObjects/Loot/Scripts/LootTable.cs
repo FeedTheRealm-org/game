@@ -5,7 +5,7 @@ using UnityEngine;
 /// ScriptableObject que define una tabla de loot para un enemigo o cofre.
 /// Contiene múltiples LootEntry con sus probabilidades y cantidades.
 /// </summary>
-[CreateAssetMenu(fileName = "New LootTable", menuName = "FeedTheRealm/Loot/Loot Table")]
+[CreateAssetMenu(fileName = "New LootTable", menuName = "Feed the realm/Loot/Loot Table")]
 public class LootTable : ScriptableObject
 {
     [Header("═══ Información ═══")]

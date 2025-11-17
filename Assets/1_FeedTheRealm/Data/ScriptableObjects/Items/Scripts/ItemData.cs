@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 /// <summary>
 /// ScriptableObject que define las propiedades de un item en el juego.
-/// Crea instancias usando: Right-click → Create → FeedTheRealm → Items → Item Data
+/// Crea instancias usando: Right-click → Create → Feed the realm → Items → Item Data
 /// </summary>
-[CreateAssetMenu(fileName = "New Item", menuName = "FeedTheRealm/Items/Item Data", order = 0)]
+[CreateAssetMenu(fileName = "New Item", menuName = "Feed the realm/Items/Item Data", order = 0)]
 public class ItemData : ScriptableObject
 {
     [Header("═══ Identity ═══")]

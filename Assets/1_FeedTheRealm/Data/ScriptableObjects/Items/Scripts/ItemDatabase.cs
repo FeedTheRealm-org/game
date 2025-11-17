@@ -5,9 +5,9 @@ using System.Linq;
 /// <summary>
 /// Base de datos central de todos los items del juego.
 /// Permite búsqueda rápida por ID y filtrado por tipo/rareza.
-/// Crea una instancia usando: Right-click → Create → FeedTheRealm → Items → Database
+/// Crea una instancia usando: Right-click → Create → Feed the realm → Items → Database
 /// </summary>
-[CreateAssetMenu(fileName = "ItemDatabase", menuName = "FeedTheRealm/Items/Database", order = 1)]
+[CreateAssetMenu(fileName = "ItemDatabase", menuName = "Feed the realm/Items/Database", order = 1)]
 public class ItemDatabase : ScriptableObject
 {
     [Header("═══ Database Configuration ═══")]
