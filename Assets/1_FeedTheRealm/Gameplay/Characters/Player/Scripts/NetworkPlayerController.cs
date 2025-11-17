@@ -184,4 +184,32 @@ public class NetworkPlayerController : NetworkBehaviour
             playerInputReader.InventoryClosedEvent -= OnInventoryClosed;
         }
     }
+
+    /// <summary>
+    /// ServerRpc llamado por el cliente para solicitar que el servidor despawnee un loot recogido
+    /// </summary>
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestDespawnLootServerRpc(ulong lootNetworkObjectId, ServerRpcParams rpcParams = default)
+    {
+        ulong senderId = rpcParams.Receive.SenderClientId;
+        logger?.Log($"[NetworkPlayerController] Cliente {senderId} solicita despawn de loot NetworkObjectId={lootNetworkObjectId}", this);
+        
+        // Buscar el NetworkObject por ID
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(lootNetworkObjectId, out NetworkObject lootNetworkObject))
+        {
+            if (lootNetworkObject != null && lootNetworkObject.IsSpawned)
+            {
+                logger?.Log($"[NetworkPlayerController] Despawneando loot NetworkObjectId={lootNetworkObjectId}", this);
+                lootNetworkObject.Despawn(true);
+            }
+            else
+            {
+                logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} ya no está spawneado", this);
+            }
+        }
+        else
+        {
+            logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} no encontrado en SpawnManager", this);
+        }
+    }
 }

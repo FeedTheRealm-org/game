@@ -1,9 +1,11 @@
 using UnityEngine;
+using Unity.Netcode;
 using System.Collections.Generic;
 
 /// <summary>
 /// Representa un ítem de loot (bolsa) que aparece en el mundo cuando un enemigo muere.
 /// Al acercarse, automáticamente transfiere los items al inventario del jugador.
+/// Compatible con single-player y multiplayer (Netcode).
 /// </summary>
 public class LootItem : MonoBehaviour {
     
@@ -86,9 +88,23 @@ public class LootItem : MonoBehaviour {
     }
 
     private void OnTriggerEnter(Collider other) {
+        // CRÍTICO: En multiplayer, los triggers se ejecutan en TODOS (servidor + clientes)
+        // Solo queremos procesar en clientes que tengan UI/Inventarios
+        
         // Verificar si es el jugador
         if (((1 << other.gameObject.layer) & playerLayer) != 0) {
             logger?.Log($"[LootItem] Jugador detectado: {other.name}", this);
+            
+            // En multiplayer, SOLO procesar si NO somos dedicated server
+            bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+            if (isMultiplayer) {
+                // Si somos servidor puro (no host), ignorar
+                if (NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsHost) {
+                    logger?.Log($"[LootItem] Dedicated Server ignorando trigger", this);
+                    return;
+                }
+            }
+            
             playersInRange.Add(other);
             
             // Intentar recoger inmediatamente
@@ -99,6 +115,12 @@ public class LootItem : MonoBehaviour {
     private void OnTriggerExit(Collider other) {
         // Remover jugador del rango y resetear flag
         if (((1 << other.gameObject.layer) & playerLayer) != 0) {
+            // El servidor no necesita trackear jugadores en rango
+            bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+            if (isMultiplayer && NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsHost) {
+                return;
+            }
+            
             logger?.Log($"[LootItem] Jugador salió del rango: {other.name}", this);
             playersInRange.Remove(other);
             
@@ -116,6 +138,20 @@ public class LootItem : MonoBehaviour {
         // Evitar procesamiento múltiple si ya se intentó y falló
         if (hasAttemptedPickup) {
             return;
+        }
+
+        // En multiplayer, solo el dueño del jugador puede recoger items para su inventario
+        // Esto evita que si ambos clientes detectan la colisión, ambos procesen el pickup
+        NetworkObject playerNetworkObject = player.GetComponent<NetworkObject>();
+        bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        
+        if (isMultiplayer && playerNetworkObject != null) {
+            // Solo procesar si somos el dueño de este jugador (nuestro cliente local)
+            if (!playerNetworkObject.IsOwner) {
+                // Esto es normal - otros clientes ven el jugador pero no deben procesar su pickup
+                return;
+            }
+            Debug.Log($"[LootItem] Procesando pickup para nuestro jugador local {player.name}");
         }
 
         // Buscar el PlayerInventoryReference en el jugador
@@ -138,10 +174,12 @@ public class LootItem : MonoBehaviour {
 
         // Verificar si hay items para transferir
         if (containedItems.Count == 0) {
-            logger?.Log($"[LootItem] La bolsa está vacía, destruyendo...", this);
-            DestroyLootBag();
+            Debug.Log($"[LootItem] La bolsa está vacía (ya fue looteada), destruyendo...");
+            DestroyLootBag(player);
             return;
         }
+        
+        Debug.Log($"[LootItem] Bolsa tiene {containedItems.Count} items, procediendo con transferencia");
 
         // Contar cuántos slots vacíos hay
         int emptySlots = inventory.GetEmptySlotCount();
@@ -177,14 +215,17 @@ public class LootItem : MonoBehaviour {
             containedItems.Remove(item);
         }
 
-        logger?.Log($"[LootItem] Transferencia completada: {itemsTransferred} items transferidos", this);
+        logger?.Log($"[LootItem] Transferencia completada: {itemsTransferred} items transferidos. Items restantes en la bolsa: {containedItems.Count}", this);
+
 
         // Si se transfirieron todos los items, destruir la bolsa
         if (containedItems.Count == 0) {
+            logger?.Log($"[LootItem] Bolsa vacía, procediendo a destruir...", this);
             PlayPickupFeedback();
-            DestroyLootBag();
+            DestroyLootBag(player);
         } else {
             // Si quedan items pero el inventario está lleno, marcar como intentado
+            logger?.Log($"[LootItem] Inventario lleno, quedan {containedItems.Count} items en la bolsa", this);
             hasAttemptedPickup = true;
         }
     }
@@ -207,11 +248,42 @@ public class LootItem : MonoBehaviour {
     }
 
     /// <summary>
-    /// Destruye la bolsa de loot
+    /// Destruye la bolsa de loot (compatible con multiplayer)
     /// </summary>
-    private void DestroyLootBag() {
-        logger?.Log($"[LootItem] Destruyendo bolsa de loot", this);
-        Destroy(gameObject);
+    private void DestroyLootBag(GameObject player) {
+        // En multiplayer, solo el servidor puede destruir NetworkObjects
+        NetworkObject networkObject = GetComponent<NetworkObject>();
+        bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        
+        if (isMultiplayer && networkObject != null && networkObject.IsSpawned) {
+            logger?.Log($"[LootItem] DestroyLootBag - IsServer={NetworkManager.Singleton.IsServer}, IsHost={NetworkManager.Singleton.IsHost}, IsClient={NetworkManager.Singleton.IsClient}", this);
+            
+            // CRÍTICO: En multiplayer, usar el ServerRpc del NetworkPlayerController
+            // Esto evita problemas de ownership y contexto de servidor
+            NetworkPlayerController playerController = player.GetComponent<NetworkPlayerController>();
+            
+            if (playerController != null) {
+                logger?.Log($"[LootItem] Solicitando despawn via NetworkPlayerController NetworkObjectId={networkObject.NetworkObjectId}", this);
+                playerController.RequestDespawnLootServerRpc(networkObject.NetworkObjectId);
+            } else {
+                logger?.Log($"[LootItem] Player no tiene NetworkPlayerController! Usando fallback", this);
+                
+                // Fallback: Si somos dedicated server, despawnear directo
+                if (NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient) {
+                    logger?.Log($"[LootItem] DEDICATED SERVER despawneando directamente NetworkObjectId={networkObject.NetworkObjectId}", this);
+                    networkObject.Despawn(true);
+                } else {
+                    logger?.Log($"[LootItem] No se pudo despawnear el loot", this);
+                }
+            }
+        } else if (!isMultiplayer) {
+            // Single-player - usar Destroy normal
+            logger?.Log($"[LootItem] Single-player: destruyendo con Destroy()", this);
+            Destroy(gameObject);
+        } else {
+            // Caso edge: multiplayer pero sin NetworkObject o ya despawned
+            logger?.Log($"[LootItem] Intento de destruir loot sin NetworkObject válido. IsSpawned={networkObject?.IsSpawned}", this);
+        }
     }
 
     /// <summary>
