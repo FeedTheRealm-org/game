@@ -11,6 +11,9 @@ public class WorldFeedMenuController : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
 
+    [SerializeField]
+    private API.WorldService worldService;
+
     private VisualElement ui;
     private TextField searchField;
     private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
@@ -27,7 +30,22 @@ public class WorldFeedMenuController : MonoBehaviour {
     }
 
     private void OnEnable() {
-        CreateCategories();
+        listOfWorlds.createACategory(Worlds.Worlds.NULL_CATEGORY_NAME);
+        logger.Log("Worlds OnEnable called, fetching worlds...", this);
+
+        StartCoroutine(worldService.GetWorldPage(0, 10, (amount, worlds, error) => {
+            if (!string.IsNullOrEmpty(error)) {
+                logger.Log($"Error fetching worlds: {error}", this, Logging.LogType.Error);
+                return;
+            }
+
+            foreach (var world in worlds) {
+                listOfWorlds.addWorldToCategory(Worlds.Worlds.NULL_CATEGORY_NAME, world.name);
+            }
+
+            logger.Log($"Fetched and categorized {worlds.Count} worlds.", this);
+            CreateCategories();
+        }));
     }
 
     private void CreateCategories() {

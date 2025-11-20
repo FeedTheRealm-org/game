@@ -10,36 +10,15 @@ namespace Worlds {
 
   [CreateAssetMenu(fileName = "Worlds", menuName = "Scriptable Objects/Worlds")]
   public class Worlds : ScriptableObject {
-    private const string NULL_CATEGORY_NAME = "Uncategorized";
+    public const string NULL_CATEGORY_NAME = "Uncategorized";
 
     [Header("World Categories")]
     [SerializeField]
     private List<Category> categories = new List<Category>();
 
-    [Header("Services")]
-    [SerializeField]
-    private API.WorldService worldService;
-
     [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
-
-    private void OnEnable() {
-      createACategory(NULL_CATEGORY_NAME);
-      logger.Log("Worlds OnEnable called, fetching worlds...", this);
-
-      worldService.GetWorldPage(0, 10, (amount, worlds, error) => {
-        if (!string.IsNullOrEmpty(error)) {
-          logger.Log($"Error fetching worlds: {error}", this, Logging.LogType.Error);
-          return;
-        }
-        logger.Log($"Fetched {amount} worlds from server.", this);
-        foreach (var world in worlds) {
-          logger.Log($"World: {world.name}", this);
-          addWorldToCategory(NULL_CATEGORY_NAME, world.name);
-        }
-      });
-    }
 
     public bool createACategory(string categoryName) {
       logger.Log($"Creating category: {categoryName}", this);

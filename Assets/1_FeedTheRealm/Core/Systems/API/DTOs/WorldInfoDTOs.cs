@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 namespace API {
+  [System.Serializable]
   public class WorldsData {
     public string id;
     public string user_id;
