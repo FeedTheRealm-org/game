@@ -60,10 +60,20 @@ public class WorldFeedMenuController : MonoBehaviour {
             if (worlds == null || worlds.Count == 0) {
                 logger.Log("No worlds received from server", this, Logging.LogType.Warning);
                 listOfWorlds.Clear();
-                maxPageOffset = offset - PAGE_SIZE;
-                currentOffset = offset - PAGE_SIZE;
-                CreateCategories();
+
+                if (offset > 0) {
+                    maxPageOffset = offset - PAGE_SIZE;
+                    currentOffset = maxPageOffset;
+                    RenderWorldPage(currentOffset, filter);
+                } else {
+                    maxPageOffset = 0;
+                    CreateCategories();
+                }
                 return;
+            }
+
+            if (worlds.Count < PAGE_SIZE) {
+                maxPageOffset = offset;
             }
 
             foreach (var world in worlds) {
@@ -92,7 +102,7 @@ public class WorldFeedMenuController : MonoBehaviour {
     }
 
     private void OnForwardButtonClicked() {
-        if (currentOffset <= maxPageOffset) {
+        if (currentOffset < maxPageOffset) {
             currentOffset += PAGE_SIZE;
             logger.Log($"Navigating to next page, offset: {currentOffset}", this);
             RenderWorldPage(currentOffset, searchField?.value);
