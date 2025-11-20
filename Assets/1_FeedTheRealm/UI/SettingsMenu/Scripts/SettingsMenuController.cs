@@ -19,7 +19,7 @@ public class SettingsMenuController : MonoBehaviour {
     private DropdownField _resolutionSelect;
     private Toggle _fullscreenToggle;
 
-    private void OnAwake() {
+    private void Awake() {
         if (inputReader == null) {
             logger.Log("InputReader is not assigned in the inspector.", this, Logging.LogType.Error);
             return;
@@ -78,8 +78,21 @@ public class SettingsMenuController : MonoBehaviour {
     }
 
     private void toggleSettings() {
-        gameObject.SetActive(!gameObject.activeSelf);
-        cursorToggle();
+        logger.Log("Toggle settings", this);
+
+        bool willBeActive = !gameObject.activeSelf;
+
+        if (willBeActive) {
+            UnityEngine.Cursor.lockState = CursorLockMode.None;
+            UnityEngine.Cursor.visible = true;
+            logger.Log("Cursor shown (toggle)", this);
+        } else {
+            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+            UnityEngine.Cursor.visible = false;
+            logger.Log("Cursor hidden (toggle)", this);
+        }
+
+        gameObject.SetActive(willBeActive);
     }
 
     private void onHomeButtonClicked() {
@@ -111,19 +124,5 @@ public class SettingsMenuController : MonoBehaviour {
         // if (parts.Length == 2 && int.TryParse(parts[0], out int w) && int.TryParse(parts[1], out int h)) {
         //     Screen.SetResolution(w, h, Screen.fullScreen);
         // }
-    }
-
-    private void cursorToggle() {
-        bool shouldShowCursor = !UnityEngine.Cursor.visible;
-
-        if (shouldShowCursor) {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
-            logger.Log("Cursor mostrado (toggle)", this);
-        } else {
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-            UnityEngine.Cursor.visible = false;
-            logger.Log("Cursor oculto (toggle)", this);
-        }
     }
 }
