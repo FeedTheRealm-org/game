@@ -16,6 +16,8 @@ public class WorldFeedMenuController : MonoBehaviour {
 
     private VisualElement ui;
     private TextField searchField;
+    private Button backButton;
+    private Button forwardButton;
     private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
 
     private void Awake() {
@@ -27,6 +29,13 @@ public class WorldFeedMenuController : MonoBehaviour {
         } else {
             logger.Log("SearchField not found in UI", this, Logging.LogType.Warning);
         }
+
+
+        backButton = ui.Q<Button>("BackButton");
+        forwardButton = ui.Q<Button>("ForwardButton");
+
+        backButton.clicked += () => logger.Log("Back button clicked", this);
+        forwardButton.clicked += () => logger.Log("Forward button clicked", this);
     }
 
     private void OnEnable() {
