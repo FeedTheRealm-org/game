@@ -159,6 +159,10 @@ public class WorldFeedMenuController : MonoBehaviour {
             logger.Log("No worlds to display", this, Logging.LogType.Warning);
             if (backButton != null) backButton.style.display = DisplayStyle.None;
             if (forwardButton != null) forwardButton.style.display = DisplayStyle.None;
+        } else if (totalWorlds < PAGE_SIZE && currentOffset == 0) {
+            logger.Log($"Rendered {totalCategories} categories with {totalWorlds} worlds (less than page size, hiding pagination)", this);
+            if (backButton != null) backButton.style.display = DisplayStyle.None;
+            if (forwardButton != null) forwardButton.style.display = DisplayStyle.None;
         } else {
             logger.Log($"Rendered {totalCategories} categories with {totalWorlds} worlds", this);
             if (backButton != null) backButton.style.display = DisplayStyle.Flex;
