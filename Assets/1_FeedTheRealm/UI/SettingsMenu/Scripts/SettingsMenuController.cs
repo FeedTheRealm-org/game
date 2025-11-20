@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
+using System.Linq;
 
 public class SettingsMenuController : MonoBehaviour {
     [Header("Ingame Input")]
@@ -18,6 +20,8 @@ public class SettingsMenuController : MonoBehaviour {
     /* Display settings */
     private DropdownField _resolutionSelect;
     private Toggle _fullscreenToggle;
+
+    private List<Resolution> _availableResolutions;
 
     private void Awake() {
         if (inputReader == null) {
@@ -54,11 +58,35 @@ public class SettingsMenuController : MonoBehaviour {
             return;
         }
 
+        initializeDisplaySettings();
         registerButtonCallbacks(true);
     }
 
     private void OnDisable() {
         registerButtonCallbacks(false);
+    }
+
+    private void initializeDisplaySettings() {
+        _availableResolutions = Screen.resolutions
+            .GroupBy(r => new { r.width, r.height })
+            .Select(g => g.OrderByDescending(r => r.refreshRateRatio.value).First())
+            .OrderByDescending(r => r.width)
+            .ThenByDescending(r => r.height)
+            .ToList();
+
+        List<string> resolutionStrings = _availableResolutions
+            .Select(r => $"{r.width}x{r.height}")
+            .ToList();
+
+        _resolutionSelect.choices = resolutionStrings;
+
+        // Set current resolution
+        string currentResolution = $"{Screen.currentResolution.width}x{Screen.currentResolution.height}";
+        _resolutionSelect.value = currentResolution;
+
+        _fullscreenToggle.value = Screen.fullScreen;
+
+        logger.Log($"Initialized {_availableResolutions.Count} resolutions. Current: {currentResolution}", this);
     }
 
     private void registerButtonCallbacks(bool register) {
@@ -120,9 +148,15 @@ public class SettingsMenuController : MonoBehaviour {
         string selected = evt.newValue;
         logger.Log("Resolution changed to: " + selected, this, Logging.LogType.Info);
 
-        // var parts = selected.Split('x');
-        // if (parts.Length == 2 && int.TryParse(parts[0], out int w) && int.TryParse(parts[1], out int h)) {
-        //     Screen.SetResolution(w, h, Screen.fullScreen);
-        // }
+        var parts = selected.Split('x');
+        if (parts.Length == 2 && int.TryParse(parts[0], out int w) && int.TryParse(parts[1], out int h)) {
+            // Find the matching resolution to get the correct refresh rate
+            Resolution targetResolution = _availableResolutions.FirstOrDefault(r => r.width == w && r.height == h);
+            if (targetResolution.width != 0) {
+                FullScreenMode mode = Screen.fullScreenMode;
+                Screen.SetResolution(w, h, mode, targetResolution.refreshRateRatio);
+                logger.Log($"Resolution set to {w}x{h} @ {targetResolution.refreshRateRatio.value}Hz", this);
+            }
+        }
     }
 }
