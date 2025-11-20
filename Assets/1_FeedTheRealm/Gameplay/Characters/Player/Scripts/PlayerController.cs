@@ -16,8 +16,6 @@ public class PlayerController : MonoBehaviour {
     private MovementComponent movementComponent;
     private DashComponent dashComponent;
     private AttackComponent attackComponent;
-    
-    private bool isInventoryOpen = false;
 
     private void Awake() {
         if (playerPrefab == null) {
@@ -38,7 +36,6 @@ public class PlayerController : MonoBehaviour {
         if (attackComponent == null) {
             logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
-        cursorToggle();
     }
 
     private void OnEnable() {
@@ -46,16 +43,9 @@ public class PlayerController : MonoBehaviour {
             inputReader.MoveEvent += movementComponent.OnMove;
             inputReader.DashEvent += dashComponent.OnDash;
             inputReader.AttackEvent += OnAttackInput;
-            inputReader.CursorToggleEvent += cursorToggle;
-            
-            // Suscribirse a eventos de inventario
-            inputReader.InventoryOpenedEvent += OnInventoryOpened;
-            inputReader.InventoryClosedEvent += OnInventoryClosed;
 
             logger.Log($"PlayerController subscribed to events. InputReader: {inputReader.name}", this);
-        }
-        else
-        {
+        } else {
             logger.Log($"PlayerController OnEnable - Missing components! InputReader: {inputReader != null}, Movement: {movementComponent != null}, Dash: {dashComponent != null}", this, Logging.LogType.Error);
         }
     }
@@ -65,55 +55,17 @@ public class PlayerController : MonoBehaviour {
             inputReader.MoveEvent -= movementComponent.OnMove;
             inputReader.DashEvent -= dashComponent.OnDash;
             inputReader.AttackEvent -= OnAttackInput;
-            inputReader.CursorToggleEvent -= cursorToggle;
-            
-            // Desuscribirse de eventos de inventario
-            inputReader.InventoryOpenedEvent -= OnInventoryOpened;
-            inputReader.InventoryClosedEvent -= OnInventoryClosed;
         }
     }
 
     private void OnAttackInput() {
-        // No permitir ataque si el inventario está abierto
-        if (isInventoryOpen) {
-            logger.Log("Attack blocked - Inventory is open", this);
-            return;
-        }
-
-        // Lock cursor when attacking (return to gameplay)
         if (Cursor.visible) {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            logger.Log("Cursor locked (attack)", this);
+            return;
         }
 
         if (attackComponent != null) {
             attackComponent.OnAttack();
             logger.Log("Attack executed", this);
-        }
-    }
-
-    private void OnInventoryOpened() {
-        isInventoryOpen = true;
-        logger.Log("Inventory opened - Attacks disabled", this);
-    }
-
-    private void OnInventoryClosed() {
-        isInventoryOpen = false;
-        logger.Log("Inventory closed - Attacks enabled", this);
-    }
-
-    private void cursorToggle() {
-        bool shouldShowCursor = !Cursor.visible;
-        
-        if (shouldShowCursor) {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            logger.Log("Cursor mostrado (toggle)", this);
-        } else {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            logger.Log("Cursor oculto (toggle)", this);
         }
     }
 }

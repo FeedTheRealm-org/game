@@ -16,8 +16,8 @@
                 </ui:Tab>
                 <ui:Tab label="Display" name="DisplayTab" tabindex="0" class="tab-button" style="width: 100%; height: 100%;">
                     <ui:ScrollView name="DisplayContent" class="tab-content" style="background-color: rgba(58, 58, 58, 0.14); align-items: flex-start; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
-                        <ui:DropdownField label="Resolution" name="DropdownField" />
-                        <ui:Toggle label="Fullscreen" toggle-on-label-click="true" value="true" />
+                        <ui:DropdownField label="Resolution" name="ResolutionSelect" />
+                        <ui:Toggle label="Fullscreen" toggle-on-label-click="true" value="true" name="FullscreenToggle" />
                     </ui:ScrollView>
                 </ui:Tab>
             </ui:TabView>
