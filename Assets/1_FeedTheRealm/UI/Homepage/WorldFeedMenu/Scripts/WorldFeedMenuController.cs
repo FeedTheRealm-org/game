@@ -18,6 +18,9 @@ public class WorldFeedMenuController : MonoBehaviour {
     private TextField searchField;
     private Button backButton;
     private Button forwardButton;
+    private int currentOffset = 0;
+    private int maxPageOffset = int.MaxValue;
+    private const int PAGE_SIZE = 20;
     private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
 
     private void Awake() {
@@ -30,21 +33,27 @@ public class WorldFeedMenuController : MonoBehaviour {
             logger.Log("SearchField not found in UI", this, Logging.LogType.Warning);
         }
 
-
         backButton = ui.Q<Button>("BackButton");
-        forwardButton = ui.Q<Button>("ForwardButton");
+        backButton.clicked += OnBackButtonClicked;
 
-        backButton.clicked += () => logger.Log("Back button clicked", this);
-        forwardButton.clicked += () => logger.Log("Forward button clicked", this);
+        forwardButton = ui.Q<Button>("ForwardButton");
+        forwardButton.clicked += OnForwardButtonClicked;
     }
 
-    private void OnEnable() {
-        listOfWorlds.createACategory(Worlds.Worlds.NULL_CATEGORY_NAME);
-        logger.Log("Worlds OnEnable called, fetching worlds...", this);
+    private void RenderWorldPage(int offset) {
+        listOfWorlds.Clear();
 
-        StartCoroutine(worldService.GetWorldPage(0, 10, (amount, worlds, error) => {
+        StartCoroutine(worldService.GetWorldPage(offset, PAGE_SIZE, (amount, worlds, error) => {
             if (!string.IsNullOrEmpty(error)) {
                 logger.Log($"Error fetching worlds: {error}", this, Logging.LogType.Error);
+                return;
+            }
+
+            if (worlds == null || worlds.Count == 0) {
+                logger.Log("No worlds received from server", this, Logging.LogType.Warning);
+                listOfWorlds.Clear();
+                maxPageOffset = offset - PAGE_SIZE;
+                currentOffset = offset - PAGE_SIZE;
                 return;
             }
 
@@ -55,6 +64,32 @@ public class WorldFeedMenuController : MonoBehaviour {
             logger.Log($"Fetched and categorized {worlds.Count} worlds.", this);
             CreateCategories();
         }));
+    }
+
+    private void OnEnable() {
+        listOfWorlds.createACategory(Worlds.Worlds.NULL_CATEGORY_NAME);
+        logger.Log("Worlds OnEnable called, fetching worlds...", this);
+        RenderWorldPage(currentOffset);
+    }
+
+    private void OnBackButtonClicked() {
+        if (currentOffset >= PAGE_SIZE) {
+            currentOffset -= PAGE_SIZE;
+            logger.Log($"Navigating to previous page, offset: {currentOffset}", this);
+            RenderWorldPage(currentOffset);
+        } else {
+            logger.Log("Already at the first page, cannot go back.", this, Logging.LogType.Warning);
+        }
+    }
+
+    private void OnForwardButtonClicked() {
+        if (currentOffset <= maxPageOffset) {
+            currentOffset += PAGE_SIZE;
+            logger.Log($"Navigating to next page, offset: {currentOffset}", this);
+            RenderWorldPage(currentOffset);
+        } else {
+            logger.Log("Already at the last page, cannot go forward.", this, Logging.LogType.Warning);
+        }
     }
 
     private void CreateCategories() {

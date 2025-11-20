@@ -57,5 +57,10 @@ namespace Worlds {
     public List<Category> GetCategoryObjects() {
       return new List<Category>(categories);
     }
+
+    public void Clear() {
+      categories.Clear();
+      logger.Log("Cleared all categories and worlds.", this);
+    }
   }
 }
