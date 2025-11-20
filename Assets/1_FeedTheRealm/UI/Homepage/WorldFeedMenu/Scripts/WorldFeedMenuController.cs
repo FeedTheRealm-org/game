@@ -28,22 +28,30 @@ public class WorldFeedMenuController : MonoBehaviour {
 
         searchField = ui.Q<TextField>("SearchField");
         if (searchField != null) {
-            searchField.RegisterValueChangedCallback(evt => RenderCategories(evt.newValue));
+            searchField.RegisterValueChangedCallback(evt => {
+                currentOffset = 0;
+                maxPageOffset = int.MaxValue;
+                RenderWorldPage(currentOffset, evt.newValue);
+            });
         } else {
             logger.Log("SearchField not found in UI", this, Logging.LogType.Warning);
         }
 
         backButton = ui.Q<Button>("BackButton");
-        backButton.clicked += OnBackButtonClicked;
+        if (backButton != null) {
+            backButton.clicked += OnBackButtonClicked;
+        }
 
         forwardButton = ui.Q<Button>("ForwardButton");
-        forwardButton.clicked += OnForwardButtonClicked;
+        if (forwardButton != null) {
+            forwardButton.clicked += OnForwardButtonClicked;
+        }
     }
 
-    private void RenderWorldPage(int offset) {
+    private void RenderWorldPage(int offset, string filter = null) {
         listOfWorlds.Clear();
 
-        StartCoroutine(worldService.GetWorldPage(offset, PAGE_SIZE, (amount, worlds, error) => {
+        StartCoroutine(worldService.GetWorldPage(offset, PAGE_SIZE, filter, (amount, worlds, error) => {
             if (!string.IsNullOrEmpty(error)) {
                 logger.Log($"Error fetching worlds: {error}", this, Logging.LogType.Error);
                 return;
@@ -54,6 +62,7 @@ public class WorldFeedMenuController : MonoBehaviour {
                 listOfWorlds.Clear();
                 maxPageOffset = offset - PAGE_SIZE;
                 currentOffset = offset - PAGE_SIZE;
+                CreateCategories();
                 return;
             }
 
@@ -76,7 +85,7 @@ public class WorldFeedMenuController : MonoBehaviour {
         if (currentOffset >= PAGE_SIZE) {
             currentOffset -= PAGE_SIZE;
             logger.Log($"Navigating to previous page, offset: {currentOffset}", this);
-            RenderWorldPage(currentOffset);
+            RenderWorldPage(currentOffset, searchField?.value);
         } else {
             logger.Log("Already at the first page, cannot go back.", this, Logging.LogType.Warning);
         }
@@ -86,7 +95,7 @@ public class WorldFeedMenuController : MonoBehaviour {
         if (currentOffset <= maxPageOffset) {
             currentOffset += PAGE_SIZE;
             logger.Log($"Navigating to next page, offset: {currentOffset}", this);
-            RenderWorldPage(currentOffset);
+            RenderWorldPage(currentOffset, searchField?.value);
         } else {
             logger.Log("Already at the last page, cannot go forward.", this, Logging.LogType.Warning);
         }
@@ -97,19 +106,21 @@ public class WorldFeedMenuController : MonoBehaviour {
 
         if (listOfWorlds == null) {
             logger.Log("listOfWorlds is null - cannot load categories", this, Logging.LogType.Error);
+            RenderCategories();
             return;
         }
 
         List<Worlds.Category> categories = listOfWorlds.GetCategoryObjects();
         if (categories == null || categories.Count == 0) {
             logger.Log("No categories found in listOfWorlds", this, Logging.LogType.Warning);
+            RenderCategories();
             return;
         }
 
         allCategories.AddRange(categories);
         logger.Log($"Loaded {allCategories.Count} categories with {allCategories.Sum(c => c.worlds?.Count ?? 0)} total worlds", this);
 
-        RenderCategories(searchField != null ? searchField.value : string.Empty);
+        RenderCategories();
     }
 
 
@@ -128,50 +139,37 @@ public class WorldFeedMenuController : MonoBehaviour {
         return worldElement;
     }
 
-    private void RenderCategories(string filter) {
+    private void RenderCategories() {
         var rootContainer = ui.Q<VisualElement>("ListOfWorlds") ?? ui;
         rootContainer.Clear();
 
-        var trimmedFilter = (filter ?? string.Empty).Trim();
-        int totalMatchedCategories = 0;
-        int totalMatchedWorlds = 0;
+        int totalCategories = 0;
+        int totalWorlds = 0;
 
         foreach (var category in allCategories) {
-            if (category == null) continue;
+            if (category == null || category.worlds == null || category.worlds.Count == 0) continue;
 
-            var matchedWorlds = GetMatchedWorlds(category, trimmedFilter);
-            if (matchedWorlds.Count == 0) continue;
-
-            totalMatchedCategories++;
-            totalMatchedWorlds += matchedWorlds.Count;
-            rootContainer.Add(CreateCategoryContainer(category, matchedWorlds));
+            totalCategories++;
+            totalWorlds += category.worlds.Count;
+            rootContainer.Add(CreateCategoryContainer(category, category.worlds));
         }
 
-        if (totalMatchedCategories == 0 && !string.IsNullOrEmpty(trimmedFilter)) {
-            rootContainer.Add(CreateNoResultsMessage(trimmedFilter));
-            logger.Log($"No results found for filter: '{trimmedFilter}'", this, Logging.LogType.Warning);
+        if (totalWorlds == 0) {
+            rootContainer.Add(CreateNoResultsMessage());
+            logger.Log("No worlds to display", this, Logging.LogType.Warning);
+            if (backButton != null) backButton.style.display = DisplayStyle.None;
+            if (forwardButton != null) forwardButton.style.display = DisplayStyle.None;
+        } else {
+            logger.Log($"Rendered {totalCategories} categories with {totalWorlds} worlds", this);
+            if (backButton != null) backButton.style.display = DisplayStyle.Flex;
+            if (forwardButton != null) forwardButton.style.display = DisplayStyle.Flex;
         }
     }
 
-    private List<string> GetMatchedWorlds(Worlds.Category category, string filter) {
-        if (category.worlds == null || category.worlds.Count == 0) {
-            return new List<string>();
-        }
-
-        bool categoryMatches = string.IsNullOrEmpty(filter) ||
-                               category.name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
-
-        var matchedWorlds = new List<string>();
-        foreach (var world in category.worlds) {
-            if (string.IsNullOrEmpty(world)) continue;
-            if (string.IsNullOrEmpty(filter) ||
-                categoryMatches ||
-                world.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0) {
-                matchedWorlds.Add(world);
-            }
-        }
-
-        return matchedWorlds;
+    private Label CreateNoResultsMessage() {
+        var noResultsLabel = new Label("No worlds found");
+        noResultsLabel.AddToClassList("noResultsMessage");
+        return noResultsLabel;
     }
 
     private VisualElement CreateCategoryContainer(Worlds.Category category, List<string> worlds) {
@@ -190,12 +188,5 @@ public class WorldFeedMenuController : MonoBehaviour {
         }
 
         return categoryContainer;
-    }
-
-    private Label CreateNoResultsMessage(string filter) {
-        var noResultsLabel = new Label($"No worlds or categories found matching '{filter}'");
-        noResultsLabel.AddToClassList("noResultsMessage");
-
-        return noResultsLabel;
     }
 }

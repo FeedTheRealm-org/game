@@ -27,8 +27,12 @@ namespace API {
     /// <summary>
     /// Get a page of worlds from the server.
     /// </summary>
-    public IEnumerator GetWorldPage(int offset, int limit, System.Action<int, List<WorldsData>, string> handler) {
+    public IEnumerator GetWorldPage(int offset, int limit, string filter, System.Action<int, List<WorldsData>, string> handler) {
       var url = $"http://{Hostname}:{Port}/world?offset={offset}&limit={limit}";
+      if (filter != null) {
+        filter = filter.Trim();
+        url = $"{url}&filter={UnityWebRequest.EscapeURL(filter)}";
+      }
       logger.Log($"Fetching worlds from URL: {url}", this);
 
       var uwr = UnityWebRequest.Get(url);
