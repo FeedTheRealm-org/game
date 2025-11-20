@@ -1,16 +1,20 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Linq;
 
 public class SettingsMenuController : MonoBehaviour {
-    [Header("Ingame Input")]
+    [Header("Scenes")]
     [SerializeField]
-    public PlayerInputReader inputReader;
+    private SceneReference homeScene;
 
     [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
+
+    [SerializeField]
+    public PlayerInputReader inputReader;
 
     /* General settings */
     private Button _homeButton;
@@ -125,6 +129,7 @@ public class SettingsMenuController : MonoBehaviour {
 
     private void onHomeButtonClicked() {
         logger.Log("Home button clicked", this, Logging.LogType.Info);
+        SceneManager.LoadScene(homeScene.SceneName);
     }
 
     private void onExitButtonClicked() {
