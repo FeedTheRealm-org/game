@@ -51,10 +51,16 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void OnDisable() {
+        logger.Log("Disabling player controller", this);
         if (inputReader != null && movementComponent != null && dashComponent != null) {
             inputReader.MoveEvent -= movementComponent.OnMove;
             inputReader.DashEvent -= dashComponent.OnDash;
             inputReader.AttackEvent -= OnAttackInput;
+
+            movementComponent = null;
+            dashComponent = null;
+            attackComponent = null;
+            logger.Log("PlayerController unsubscribed from events and cleared references.", this);
         }
     }
 

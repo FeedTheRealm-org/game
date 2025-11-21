@@ -92,6 +92,10 @@ public class SettingsMenuController : MonoBehaviour {
         _resolutionSelect.RegisterValueChangedCallback(onResolutionChanged);
     }
 
+    public bool IsOpen() {
+        return gameObject.activeSelf;
+    }
+
     public void ToggleSettings() {
         logger.Log("Toggle settings", this);
 

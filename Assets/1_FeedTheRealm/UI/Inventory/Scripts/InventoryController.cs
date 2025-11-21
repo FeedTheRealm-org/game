@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
 public class InventoryController : MonoBehaviour {
@@ -25,7 +24,6 @@ public class InventoryController : MonoBehaviour {
 
     private Button lootButton;
     private VisualElement dropZone;
-    private bool isInventoryOpen = false;
 
     void Start() {
         uiDocument = GetComponent<UIDocument>();
@@ -339,6 +337,10 @@ public class InventoryController : MonoBehaviour {
             }
         }
         return count;
+    }
+
+    public bool IsOpen() {
+        return gameObject.activeSelf;
     }
 
     public void ToggleInventory() {

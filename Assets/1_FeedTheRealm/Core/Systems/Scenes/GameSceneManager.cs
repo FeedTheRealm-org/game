@@ -22,8 +22,8 @@ public class GameSceneManager : MonoBehaviour {
     private void Start() {
         logger.Log("Game scene loaded successfully", this);
         if (inputReader != null) {
-            inputReader.CursorToggleEvent += settingsMenu.ToggleSettings;
-            inputReader.InventoryEvent += inventoryMenu.ToggleInventory;
+            inputReader.CursorToggleEvent += toggleSettings;
+            inputReader.InventoryEvent += toggleInventory;
         } else {
             logger.Log("Input reader is null in GameSceneManager", this, Logging.LogType.Warning);
         }
@@ -33,9 +33,23 @@ public class GameSceneManager : MonoBehaviour {
 
     private void OnDestroy() {
         if (inputReader != null) {
-            inputReader.CursorToggleEvent -= settingsMenu.ToggleSettings;
-            inputReader.InventoryEvent -= inventoryMenu.ToggleInventory;
+            inputReader.CursorToggleEvent -= toggleSettings;
+            inputReader.InventoryEvent -= toggleInventory;
         }
+    }
+
+    private void toggleSettings() {
+        if (inventoryMenu.IsOpen()) {
+            return;
+        }
+        settingsMenu.ToggleSettings();
+    }
+
+    private void toggleInventory() {
+        if (settingsMenu.IsOpen()) {
+            return;
+        }
+        inventoryMenu.ToggleInventory();
     }
 
     /// <summary>
@@ -48,13 +62,15 @@ public class GameSceneManager : MonoBehaviour {
         logger.Log("Cursor initialized - Locked for gameplay", this);
     }
 
-    // public void DisconnectAndReturnToMenu()
-    // {
-    //     // Liberar el cursor antes de volver al menú
-    //     Cursor.lockState = CursorLockMode.None;
-    //     Cursor.visible = true;
-    //     logger.Log("Cursor unlocked - Returning to menu", this);
+    /// <summary>
+    /// TODO: remove deprecated
+    /// </summary>
+    public void DisconnectAndReturnToMenu() {
+        // Liberar el cursor antes de volver al menú
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        logger.Log("Cursor unlocked - Returning to menu", this);
 
-    //     NetworkSceneManager.Instance.DisconnectAndReturnToMenu();
-    // }
+        NetworkSceneManager.Instance.DisconnectAndReturnToMenu();
+    }
 }
