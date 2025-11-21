@@ -33,6 +33,7 @@ public class SettingsMenuController : MonoBehaviour {
             return;
         }
         inputReader.CursorToggleEvent += toggleSettings;
+        gameObject.SetActive(false);
     }
 
     private void OnDestroy() {
