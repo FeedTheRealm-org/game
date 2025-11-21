@@ -13,9 +13,6 @@ public class SettingsMenuController : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
 
-    [SerializeField]
-    public PlayerInputReader inputReader;
-
     /* General settings */
     private Button _homeButton;
     private Button _exitButton;
@@ -26,21 +23,6 @@ public class SettingsMenuController : MonoBehaviour {
     private Toggle _fullscreenToggle;
 
     private List<Resolution> _availableResolutions;
-
-    private void Awake() {
-        if (inputReader == null) {
-            logger.Log("InputReader is not assigned in the inspector.", this, Logging.LogType.Error);
-            return;
-        }
-        inputReader.CursorToggleEvent += toggleSettings;
-        gameObject.SetActive(false);
-    }
-
-    private void OnDestroy() {
-        if (inputReader != null) {
-            inputReader.CursorToggleEvent -= toggleSettings;
-        }
-    }
 
     private void OnEnable() {
         var root = GetComponent<UIDocument>().rootVisualElement;
@@ -110,7 +92,7 @@ public class SettingsMenuController : MonoBehaviour {
         _resolutionSelect.RegisterValueChangedCallback(onResolutionChanged);
     }
 
-    private void toggleSettings() {
+    public void ToggleSettings() {
         logger.Log("Toggle settings", this);
 
         bool willBeActive = !gameObject.activeSelf;
@@ -140,7 +122,7 @@ public class SettingsMenuController : MonoBehaviour {
 
     private void onCloseSettingsButtonClicked() {
         logger.Log("Close settings button clicked", this, Logging.LogType.Info);
-        toggleSettings();
+        ToggleSettings();
     }
 
     private void onFullscreenToggleChanged(ChangeEvent<bool> evt) {
