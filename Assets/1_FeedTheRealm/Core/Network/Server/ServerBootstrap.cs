@@ -214,33 +214,41 @@ public class ServerBootstrap : MonoBehaviour
 
     /// <summary>
     /// Wait for ItemsManager to be initialized before loading the game scene.
-    /// This ensures loot drops work immediately when enemies die.
+    /// ItemsManager should be initialized in MPMenuScene and persist via DontDestroyOnLoad.
     /// </summary>
     private System.Collections.IEnumerator WaitForItemsManagerThenLoadScene()
     {
-        LogServerInfo($"⏳ Waiting for ItemsManager initialization...");
-        
-        // Wait for DedicatedServerItemsManager to be initialized (max 10 seconds)
-        float timeout = 10f;
-        float elapsed = 0f;
-        
-        while (elapsed < timeout)
+        // Check if DedicatedServerItemsManager is already initialized (should be from MPMenuScene)
+        if (Items.DedicatedServerItemsManager.Instance != null && 
+            Items.DedicatedServerItemsManager.Instance.IsInitialized)
         {
-            // Check if DedicatedServerItemsManager exists and is initialized
-            if (Items.DedicatedServerItemsManager.Instance != null && 
-                Items.DedicatedServerItemsManager.Instance.IsInitialized)
+            LogServerInfo($"✅ ItemsManager already initialized with {Items.DedicatedServerItemsManager.Instance.TotalItemsLoaded} items (from persistent scene)");
+        }
+        else
+        {
+            // ItemsManager not ready yet - wait a bit (should initialize from ItemsManagerBootstrap in MPMenuScene)
+            LogServerInfo($"⏳ Waiting for ItemsManager initialization from MPMenuScene...");
+            
+            float timeout = 10f;
+            float elapsed = 0f;
+            
+            while (elapsed < timeout)
             {
-                LogServerInfo($"✅ ItemsManager ready with {Items.DedicatedServerItemsManager.Instance.TotalItemsLoaded} items!");
-                break;
+                if (Items.DedicatedServerItemsManager.Instance != null && 
+                    Items.DedicatedServerItemsManager.Instance.IsInitialized)
+                {
+                    LogServerInfo($"✅ ItemsManager initialized with {Items.DedicatedServerItemsManager.Instance.TotalItemsLoaded} items!");
+                    break;
+                }
+                
+                yield return new UnityEngine.WaitForSeconds(0.1f);
+                elapsed += 0.1f;
             }
             
-            yield return new UnityEngine.WaitForSeconds(0.1f); // Wait 100ms
-            elapsed += 0.1f;
-        }
-        
-        if (elapsed >= timeout)
-        {
-            Debug.LogWarning("[ServerBootstrap] ⚠️ ItemsManager initialization timeout! Loading scene anyway...");
+            if (elapsed >= timeout)
+            {
+                Debug.LogWarning("[ServerBootstrap] ⚠️ ItemsManager not found! Make sure ItemsManagerBootstrap exists in MPMenuScene. Loading scene anyway...");
+            }
         }
         
         // Cargar escena del juego si está configurado y no estamos ya en ella

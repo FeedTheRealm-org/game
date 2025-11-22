@@ -22,37 +22,32 @@ public class ItemsManagerBootstrap : MonoBehaviour {
     [SerializeField]
     private bool enableDebugLogs = true;
 
-    private void Start() {
-        StartCoroutine(WaitForNetworkThenInitialize());
+    private void Awake() {
+        // Make this GameObject (and all children) persist across scenes
+        DontDestroyOnLoad(gameObject);
+        DebugLog("ItemsManagerBootstrap marked as DontDestroyOnLoad");
     }
 
-    private IEnumerator WaitForNetworkThenInitialize() {
-        // Wait for NetworkManager to be initialized (if in multiplayer)
-        float timeout = 5f;
-        float elapsed = 0f;
-        
-        while (Unity.Netcode.NetworkManager.Singleton == null && elapsed < timeout) {
-            yield return new WaitForSeconds(0.1f);
-            elapsed += 0.1f;
-        }
-        
-        if (Unity.Netcode.NetworkManager.Singleton == null) {
-            DebugLog("NetworkManager not found after timeout, assuming single-player mode");
-        }
-        
-        yield return InitializeCorrectManager();
+    private void Start() {
+        StartCoroutine(InitializeCorrectManager());
     }
 
     private IEnumerator InitializeCorrectManager() {
-        // RUNTIME detection: Check if we are running as dedicated server
-        bool isDedicatedServer = Unity.Netcode.NetworkManager.Singleton != null && 
-                                  Unity.Netcode.NetworkManager.Singleton.IsListening &&
-                                  Unity.Netcode.NetworkManager.Singleton.IsServer && 
-                                  !Unity.Netcode.NetworkManager.Singleton.IsClient;
+        // Detection logic for choosing the correct manager:
+        // - Dedicated Server Build (headless): DedicatedServerItemsManager (no sprites)
+        // - Client/Host (with UI): ItemsManager (with sprites)
         
-        // Fallback: Check application batch mode (dedicated server usually runs headless)
-        if (!isDedicatedServer && Application.isBatchMode) {
-            isDedicatedServer = true;
+        // The way to detect a dedicated server is batch mode
+        // #if UNITY_SERVER is a project-wide define and is active even when playing as client in editor!
+        
+        bool isDedicatedServer = Application.isBatchMode;
+        
+        if (isDedicatedServer) {
+            DebugLog("Detected batch mode (headless) - using DedicatedServerItemsManager");
+        } else {
+            // NOT batch mode = needs UI = needs sprites
+            // This covers: Editor as Client, Editor as Host, Client builds, Host builds
+            DebugLog("Detected interactive mode (needs UI) - using ItemsManager");
         }
         
         if (isDedicatedServer) {

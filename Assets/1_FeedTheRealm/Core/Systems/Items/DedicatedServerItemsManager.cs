@@ -36,7 +36,7 @@ namespace Items {
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // NOTE: DontDestroyOnLoad is called by parent ItemsManagerBootstrap
 
             // Initialize collections
             itemsById = new Dictionary<string, ItemMetadataResponse>();

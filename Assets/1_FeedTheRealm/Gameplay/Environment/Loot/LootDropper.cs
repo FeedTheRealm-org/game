@@ -97,40 +97,41 @@ public class LootDropper : MonoBehaviour {
         // Instanciar el loot
         GameObject lootInstance = Instantiate(lootPrefab, spawnPosition, Quaternion.identity);
         
-        // Configurar el LootItem ANTES de spawnearlo en red
+        // Verificar componentes
         LootItem lootItem = lootInstance.GetComponent<LootItem>();
-        if (lootItem != null) {
-            lootItem.Initialize(spawnPosition);
-            
-            // Obtener items aleatorios desde el DedicatedServerItemsManager
-            List<string> lootItemIds = GetRandomLootItems();
-            
-            if (lootItemIds != null && lootItemIds.Count > 0) {
-                lootItem.SetItemIds(lootItemIds);
-                logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs", this);
-            } else {
-                // Empty loot bag will spawn but won't have items (will be collected but give nothing)
-            }
-        } else {
+        if (lootItem == null) {
             logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene LootItem component!", this, Logging.LogType.Error);
             Destroy(lootInstance);
             return;
         }
+
+        // Inicializar posición (no toca NetworkVariables)
+        lootItem.Initialize(spawnPosition);
         
-        // DESPUÉS de configurar, spawnear en la red (si es multiplayer)
+        // PRIMERO spawnear en la red (si es multiplayer)
         bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
         if (isMultiplayer) {
             NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
-            if (networkObject != null) {
-                networkObject.Spawn();
-                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition}", this);
-            } else {
+            if (networkObject == null) {
                 logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene NetworkObject! El loot no será visible en multiplayer.", this, Logging.LogType.Error);
-                logger?.Log($"[LootDropper] Agrega un componente NetworkObject al prefab de loot para multiplayer.", this, Logging.LogType.Error);
-                // Destruir el loot local ya que no sirve en multiplayer
                 Destroy(lootInstance);
                 return;
             }
+
+            // Spawn en la red PRIMERO
+            networkObject.Spawn();
+            logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition}", this);
+        }
+        
+        // DESPUÉS de spawnear, configurar los items (ahora el NetworkObject ya está spawneado)
+        List<string> lootItemIds = GetRandomLootItems();
+        
+        if (lootItemIds != null && lootItemIds.Count > 0) {
+            lootItem.SetItemIds(lootItemIds);
+            logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs", this);
+        } else {
+            // Empty loot bag will spawn but won't have items
+            logger?.Log($"[LootDropper] WARNING: No items obtained for loot bag", this, Logging.LogType.Warning);
         }
     }
 

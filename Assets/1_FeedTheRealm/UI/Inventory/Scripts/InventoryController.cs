@@ -15,7 +15,8 @@ public class InventoryController : MonoBehaviour
     public PlayerInputReader playerInputReader;
 
     [Header("Items Management")]
-    [SerializeField] private Items.ItemsManager itemsManager;
+    // ItemsManager reference (uses singleton pattern)
+    private Items.ItemsManager ItemsManager => Items.ItemsManager.Instance;
     
     [Header("Debug - Loot Testing")]
     [SerializeField] private bool enableDebugLootButton = false;
@@ -375,13 +376,13 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        if (itemsManager == null)
+        if (ItemsManager == null)
         {
-            logger.Log("ERROR: ItemsManager not assigned to InventoryController!", this, Logging.LogType.Error);
+            logger.Log("ERROR: ItemsManager singleton not available! Make sure ItemsManager exists in MPMenuScene.", this, Logging.LogType.Error);
             return;
         }
 
-        if (!itemsManager.IsInitialized)
+        if (!ItemsManager.IsInitialized)
         {
             logger.Log("WARNING: ItemsManager not initialized yet, cannot add item", this, Logging.LogType.Warning);
             return;
@@ -395,7 +396,7 @@ public class InventoryController : MonoBehaviour
     {
         Texture2D texture = null;
         
-        yield return itemsManager.GetItemSprite(itemId, (loadedTexture) => {
+        yield return ItemsManager.GetItemSprite(itemId, (loadedTexture) => {
             texture = loadedTexture;
         });
 

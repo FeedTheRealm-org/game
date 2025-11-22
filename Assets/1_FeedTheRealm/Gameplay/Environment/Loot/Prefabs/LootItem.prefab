@@ -184,7 +184,6 @@ MonoBehaviour:
   itemVisual: {fileID: 601660624254150770}
   itemName: Loot Item
   heightOffset: 0.1
-  itemDatabase: {fileID: 11400000, guid: effb7e5e0925920b58c42055deec6da5, type: 2}
   pickupRadius: 1
   playerLayer:
     serializedVersion: 2

@@ -660,7 +660,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &611452847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1099,7 +1099,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1228765893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1426,6 +1426,10 @@ PrefabInstance:
       propertyPath: playerInputReader
       value: 
       objectReference: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+    - target: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
+      propertyPath: enableDebugLootButton
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6228110454024648622, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
       propertyPath: m_Name
       value: InventoryUI
@@ -1455,7 +1459,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1947391487
 MonoBehaviour:
   m_ObjectHideFlags: 0
