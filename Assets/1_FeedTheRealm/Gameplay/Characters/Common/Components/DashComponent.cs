@@ -16,7 +16,7 @@ public class DashComponent : MonoBehaviour {
 
     private bool isDashing;
 
-    private void Start() {
+    private void Awake() {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
         if (movement == null) movement = GetComponent<MovementComponent>();
@@ -58,4 +58,3 @@ public class DashComponent : MonoBehaviour {
         return stamina.TryConsumeStamina(staminaConsumption);
     }
 }
-
