@@ -1,0 +1,26 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=03291bb6b0ae84e429b6e77e0ba7855a&amp;type=3#SettingsMenu" />
+    <ui:VisualElement name="Body" style="flex-grow: 1; align-self: center; justify-content: space-between; align-content: stretch; width: 100%; height: 100%; align-items: center; padding-top: 80px; padding-right: 80px; padding-bottom: 80px; padding-left: 80px;">
+        <ui:VisualElement name="Modal" style="flex-grow: 1; background-color: rgba(243, 243, 243, 0.67); width: 100%; height: 100%; align-self: center; align-items: flex-start; justify-content: flex-start; flex-direction: column; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px;">
+            <ui:VisualElement name="Title" style="flex-grow: 1; flex-direction: row; justify-content: space-between; align-content: stretch; align-self: stretch;">
+                <ui:Label text="Settings" name="SettingsLabel" style="font-size: 26px;" />
+                <ui:Button name="CloseButton" style="background-image: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=3316425174430470091&amp;guid=f65e45a379dc54fcc9499c23c4ce4729&amp;type=3#check-dash@2x&quot;); background-color: rgba(188, 188, 188, 0); border-left-color: rgba(149, 149, 149, 0); border-right-color: rgba(149, 149, 149, 0); border-top-color: rgba(149, 149, 149, 0); border-bottom-color: rgba(149, 149, 149, 0); -unity-background-image-tint-color: rgb(0, 0, 0);" />
+            </ui:VisualElement>
+            <ui:VisualElement name="HL" style="flex-grow: 1; width: 100%; height: 2px; background-color: rgb(0, 0, 0); min-height: 2px; max-height: 2px;" />
+            <ui:TabView tabindex="0" reorderable="false" style="margin-top: 10px; height: 100%; width: 100%;">
+                <ui:Tab label="General" name="GeneralTab" enabled="true" tabindex="0" class="tab-button" style="width: 100%; height: 100%;">
+                    <ui:ScrollView name="GeneralContent" class="tab-content" style="background-color: rgba(58, 58, 58, 0.14); align-items: center; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                        <ui:Button text="Back to home" name="HomeButton" class="settings-button" />
+                        <ui:Button text="Exit to desktop" name="ExitButton" class="settings-button" style="margin-top: 10px;" />
+                    </ui:ScrollView>
+                </ui:Tab>
+                <ui:Tab label="Display" name="DisplayTab" tabindex="0" class="tab-button" style="width: 100%; height: 100%;">
+                    <ui:ScrollView name="DisplayContent" class="tab-content" style="background-color: rgba(58, 58, 58, 0.14); align-items: flex-start; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                        <ui:DropdownField label="Resolution" name="ResolutionSelect" />
+                        <ui:Toggle label="Fullscreen" toggle-on-label-click="true" value="true" name="FullscreenToggle" />
+                    </ui:ScrollView>
+                </ui:Tab>
+            </ui:TabView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

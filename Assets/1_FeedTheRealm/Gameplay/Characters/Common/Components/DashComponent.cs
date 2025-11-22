@@ -58,4 +58,3 @@ public class DashComponent : MonoBehaviour {
         return stamina.TryConsumeStamina(staminaConsumption);
     }
 }
-
