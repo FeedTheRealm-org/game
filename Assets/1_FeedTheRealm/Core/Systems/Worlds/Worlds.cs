@@ -10,7 +10,7 @@ namespace Worlds {
 
   [CreateAssetMenu(fileName = "Worlds", menuName = "Scriptable Objects/Worlds")]
   public class Worlds : ScriptableObject {
-
+    public const string NULL_CATEGORY_NAME = "Uncategorized";
 
     [Header("World Categories")]
     [SerializeField]
@@ -54,20 +54,13 @@ namespace Worlds {
       return true;
     }
 
-    public List<string> GetCategories() {
-      var result = new List<string>(categories.Count);
-      foreach (var category in categories) result.Add(category.name);
-      return result;
-    }
-
     public List<Category> GetCategoryObjects() {
       return new List<Category>(categories);
     }
 
-    public List<string> GetWorldsByCategory(string categoryName) {
-      var category = categories.Find(c => c.name == categoryName);
-      if (category == null) return new List<string>();
-      return new List<string>(category.worlds);
+    public void Clear() {
+      categories.Clear();
+      logger.Log("Cleared all categories and worlds.", this);
     }
   }
 }
