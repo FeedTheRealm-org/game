@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f91575297a3ecbc4c91e01dd53794140, type: 3}
+  m_Name: WorldLoader
+  m_EditorClassIdentifier: Assembly-CSharp::Systems.WorldLoader
+  worldDataJson: '{"worldName": "Jdf9ASRi", "objectPlacementData": [{"Position":
+    {"x": -4, "y": 0, "z": -4}, "AssetDataId": 12}, {"Position": {"x": 0, "y": 0,
+    "z": -5}, "AssetDataId": 4}]}'
+  worldId: 29609de9-681d-465f-ae7a-32eeeb6e8198
+  worldName: Jdf9ASRi.world
+  logger: {fileID: 11400000, guid: 0265374ef3d326d4cae829642c91e6c7, type: 2}
