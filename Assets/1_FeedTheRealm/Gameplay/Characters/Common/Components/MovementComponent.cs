@@ -29,7 +29,7 @@ public class MovementComponent : MonoBehaviour {
 
     //private Logging.Logger logger;
 
-    private void Awake() {
+    private void Start() {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (col == null) col = GetComponent<Collider>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();

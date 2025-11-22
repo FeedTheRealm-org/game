@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour {
     private DashComponent dashComponent;
     private AttackComponent attackComponent;
 
-    private void Awake() {
+    private void OnEnable() {
         if (playerPrefab == null) {
             logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
         }
@@ -36,32 +36,29 @@ public class PlayerController : MonoBehaviour {
         if (attackComponent == null) {
             logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
-    }
 
-    private void OnEnable() {
-        if (inputReader != null && movementComponent != null && dashComponent != null) {
-            inputReader.MoveEvent += movementComponent.OnMove;
-            inputReader.DashEvent += dashComponent.OnDash;
+        // Register callbacks
+        if (inputReader != null) {
+            inputReader.DashEvent += OnDashInput;
+            inputReader.MoveEvent += OnMoveInput;
             inputReader.AttackEvent += OnAttackInput;
 
-            logger.Log($"PlayerController subscribed to events. InputReader: {inputReader.name}", this);
-        } else {
-            logger.Log($"PlayerController OnEnable - Missing components! InputReader: {inputReader != null}, Movement: {movementComponent != null}, Dash: {dashComponent != null}", this, Logging.LogType.Error);
+            logger.Log("PlayerController subscribed from events.", this);
         }
     }
 
     private void OnDisable() {
-        logger.Log("Disabling player controller", this);
-        if (inputReader != null && movementComponent != null && dashComponent != null) {
-            inputReader.MoveEvent -= movementComponent.OnMove;
-            inputReader.DashEvent -= dashComponent.OnDash;
+        if (inputReader != null) {
+            inputReader.MoveEvent -= OnMoveInput;
+            inputReader.DashEvent -= OnDashInput;
             inputReader.AttackEvent -= OnAttackInput;
 
-            movementComponent = null;
-            dashComponent = null;
-            attackComponent = null;
-            logger.Log("PlayerController unsubscribed from events and cleared references.", this);
+            logger.Log("PlayerController unsubscribed from events.", this);
         }
+
+        movementComponent = null;
+        dashComponent = null;
+        attackComponent = null;
     }
 
     private void OnAttackInput() {
@@ -69,9 +66,22 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        if (attackComponent != null) {
-            attackComponent.OnAttack();
-            logger.Log("Attack executed", this);
+        attackComponent?.OnAttack();
+    }
+
+    private void OnMoveInput(Vector2 vec) {
+        if (Cursor.visible) {
+            return;
         }
+
+        movementComponent?.OnMove(vec);
+    }
+
+    private void OnDashInput() {
+        if (Cursor.visible) {
+            return;
+        }
+
+        dashComponent?.OnDash();
     }
 }
