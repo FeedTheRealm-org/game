@@ -3854,6 +3854,7 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackComponent: {fileID: 370332728856482138}
   healthComponent: {fileID: 0}
+  networkAttackSynchronizer: {fileID: 0}
 --- !u!1 &6967865666632841473
 GameObject:
   m_ObjectHideFlags: 0

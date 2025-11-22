@@ -16,10 +16,8 @@ public class PlayerController : MonoBehaviour {
     private MovementComponent movementComponent;
     private DashComponent dashComponent;
     private AttackComponent attackComponent;
-    
-    private bool isInventoryOpen = false;
 
-    private void Awake() {
+    private void OnEnable() {
         if (playerPrefab == null) {
             logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
         }
@@ -38,82 +36,52 @@ public class PlayerController : MonoBehaviour {
         if (attackComponent == null) {
             logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
-        cursorToggle();
-    }
 
-    private void OnEnable() {
-        if (inputReader != null && movementComponent != null && dashComponent != null) {
-            inputReader.MoveEvent += movementComponent.OnMove;
-            inputReader.DashEvent += dashComponent.OnDash;
+        // Register callbacks
+        if (inputReader != null) {
+            inputReader.DashEvent += OnDashInput;
+            inputReader.MoveEvent += OnMoveInput;
             inputReader.AttackEvent += OnAttackInput;
-            inputReader.CursorToggleEvent += cursorToggle;
-            
-            // Suscribirse a eventos de inventario
-            inputReader.InventoryOpenedEvent += OnInventoryOpened;
-            inputReader.InventoryClosedEvent += OnInventoryClosed;
 
-            logger.Log($"PlayerController subscribed to events. InputReader: {inputReader.name}", this);
-        }
-        else
-        {
-            logger.Log($"PlayerController OnEnable - Missing components! InputReader: {inputReader != null}, Movement: {movementComponent != null}, Dash: {dashComponent != null}", this, Logging.LogType.Error);
+            logger.Log("PlayerController subscribed from events.", this);
         }
     }
 
     private void OnDisable() {
-        if (inputReader != null && movementComponent != null && dashComponent != null) {
-            inputReader.MoveEvent -= movementComponent.OnMove;
-            inputReader.DashEvent -= dashComponent.OnDash;
+        if (inputReader != null) {
+            inputReader.MoveEvent -= OnMoveInput;
+            inputReader.DashEvent -= OnDashInput;
             inputReader.AttackEvent -= OnAttackInput;
-            inputReader.CursorToggleEvent -= cursorToggle;
-            
-            // Desuscribirse de eventos de inventario
-            inputReader.InventoryOpenedEvent -= OnInventoryOpened;
-            inputReader.InventoryClosedEvent -= OnInventoryClosed;
+
+            logger.Log("PlayerController unsubscribed from events.", this);
         }
+
+        movementComponent = null;
+        dashComponent = null;
+        attackComponent = null;
     }
 
     private void OnAttackInput() {
-        // No permitir ataque si el inventario está abierto
-        if (isInventoryOpen) {
-            logger.Log("Attack blocked - Inventory is open", this);
+        if (Cursor.visible) {
             return;
         }
 
-        // Lock cursor when attacking (return to gameplay)
+        attackComponent?.OnAttack();
+    }
+
+    private void OnMoveInput(Vector2 vec) {
         if (Cursor.visible) {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            logger.Log("Cursor locked (attack)", this);
+            return;
         }
 
-        if (attackComponent != null) {
-            attackComponent.OnAttack();
-            logger.Log("Attack executed", this);
+        movementComponent?.OnMove(vec);
+    }
+
+    private void OnDashInput() {
+        if (Cursor.visible) {
+            return;
         }
-    }
 
-    private void OnInventoryOpened() {
-        isInventoryOpen = true;
-        logger.Log("Inventory opened - Attacks disabled", this);
-    }
-
-    private void OnInventoryClosed() {
-        isInventoryOpen = false;
-        logger.Log("Inventory closed - Attacks enabled", this);
-    }
-
-    private void cursorToggle() {
-        bool shouldShowCursor = !Cursor.visible;
-        
-        if (shouldShowCursor) {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            logger.Log("Cursor mostrado (toggle)", this);
-        } else {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            logger.Log("Cursor oculto (toggle)", this);
-        }
+        dashComponent?.OnDash();
     }
 }
