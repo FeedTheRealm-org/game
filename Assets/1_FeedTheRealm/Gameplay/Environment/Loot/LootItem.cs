@@ -24,19 +24,8 @@ public class LootItem : NetworkBehaviour {
     private float heightOffset = 0.1f;
     
     [Header("Loot Contents")]
-    // Lista local de items (no sincronizada directamente)
-    private List<ItemData> containedItems = new List<ItemData>();
-    
-    // Lista temporal para items agregados ANTES del spawn
-    private List<ItemData> pendingItems = new List<ItemData>();
-    
     // NetworkList para sincronizar IDs de items entre servidor y clientes
     private NetworkList<Unity.Collections.FixedString64Bytes> itemIds;
-    
-    [Header("Item Database")]
-    [SerializeField]
-    [Tooltip("Referencia al ItemDatabase para resolver IDs a ItemData")]
-    private ItemDatabase itemDatabase;
     
     [Header("Pickup Settings")]
     [SerializeField]
@@ -69,22 +58,11 @@ public class LootItem : NetworkBehaviour {
     }
 
     public override void OnNetworkSpawn() {
-        // SI SOMOS SERVIDOR: transferir items pendientes a NetworkList
-        if (IsServer && pendingItems.Count > 0) {
-            logger?.Log($"[LootItem] OnNetworkSpawn: Transfiriendo {pendingItems.Count} items pendientes a NetworkList", this);
-            foreach (var item in pendingItems) {
-                if (item != null && !string.IsNullOrEmpty(item.itemId)) {
-                    itemIds.Add(new Unity.Collections.FixedString64Bytes(item.itemId));
-                }
-            }
-            pendingItems.Clear(); // Limpiar la lista temporal
-        }
+        base.OnNetworkSpawn();
         
-        // SI SOMOS CLIENTE: suscribirse a cambios y sincronizar
-        if (IsClient && !IsServer) {
-            itemIds.OnListChanged += OnItemListChanged;
-            // Poblar containedItems desde itemIds si ya hay datos
-            SyncItemsFromNetwork();
+        // Clientes: Esperar y actualizar visuals
+        if (IsClient) {
+            StartCoroutine(WaitForItemsManagerAndUpdateVisuals());
         }
     }
 
@@ -95,49 +73,52 @@ public class LootItem : NetworkBehaviour {
     }
 
     private void OnItemListChanged(NetworkListEvent<Unity.Collections.FixedString64Bytes> changeEvent) {
-        // Re-sincronizar items cuando la lista cambia
-        SyncItemsFromNetwork();
+        // Re-sincronizar visuals cuando la lista cambia
+        if (IsClient) {
+            UpdateVisualsFromManager();
+        }
     }
 
-    private void SyncItemsFromNetwork() {
-        if (itemDatabase == null) {
-            Debug.LogError("[LootItem] ItemDatabase no asignado! No se pueden resolver los items.", this);
+    private System.Collections.IEnumerator WaitForItemsManagerAndUpdateVisuals() {
+        // Esperar a que ItemsManager esté inicializado
+        while (Items.ItemsManager.Instance == null || !Items.ItemsManager.Instance.IsInitialized) {
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        // Suscribirse a cambios
+        itemIds.OnListChanged += OnItemListChanged;
+        
+        // Actualizar visuals
+        UpdateVisualsFromManager();
+    }
+
+    private string GetFirstItemId() {
+        if (itemIds != null && itemIds.Count > 0) {
+            return itemIds[0].ToString();
+        }
+        return "";
+    }
+
+    private void UpdateVisualsFromManager() {
+        if (Items.ItemsManager.Instance == null || !Items.ItemsManager.Instance.IsInitialized) {
+            Debug.LogWarning("[LootItem] ItemsManager not available or not initialized");
             return;
         }
 
-        containedItems.Clear();
+        logger?.Log($"[LootItem] Updating visuals for {itemIds.Count} items", this);
+        
+        // Aquí podrías actualizar el visual del loot bag basado en los items
+        // Por ahora solo logueamos
         foreach (var itemId in itemIds) {
-            ItemData item = itemDatabase.GetItem(itemId.ToString());
-            if (item != null) {
-                containedItems.Add(item);
-            } else {
-                Debug.LogWarning($"[LootItem] Item con ID '{itemId}' no encontrado en ItemDatabase", this);
+            string id = itemId.ToString();
+            var metadata = Items.ItemsManager.Instance.GetItemById(id);
+            if (metadata != null) {
+                logger?.Log($"[LootItem] Contains: {metadata.name}", this);
             }
         }
-
-        logger?.Log($"[LootItem] Sincronizados {containedItems.Count} items desde red", this);
     }
 
     private void Start() {
-        // Inicializar ItemDatabase si no está asignado
-        if (itemDatabase == null) {
-            // Intentar cargar desde Resources (funciona en builds)
-            itemDatabase = Resources.Load<ItemDatabase>("MainItemDatabase");
-            
-            if (itemDatabase != null) {
-                logger?.Log($"[LootItem] ItemDatabase cargado desde Resources: {itemDatabase.name}", this);
-                itemDatabase.Initialize();
-            } else {
-                Debug.LogError("[LootItem] ❌ NO SE ENCONTRÓ ItemDatabase! Asegúrate de:" +
-                    "\n1. El archivo se llama EXACTAMENTE 'MainItemDatabase.asset'" +
-                    "\n2. Está en la carpeta: Assets/.../Items/Resources/" +
-                    "\n3. O asígnalo manualmente al prefab LootItem en el Inspector", this);
-            }
-        } else {
-            // Si ya está asignado, inicializarlo
-            itemDatabase.Initialize();
-        }
-        
         // Ajustar la posición vertical si es necesario
         if (heightOffset != 0) {
             transform.position += Vector3.up * heightOffset;
@@ -147,19 +128,7 @@ public class LootItem : NetworkBehaviour {
         if (itemVisual == null) {
             logger?.Log($"[LootItem] Warning: No visual assigned for loot '{itemName}'", this, Logging.LogType.Warning);
         } else {
-            // Mostrar qué items contiene la bolsa (filtrando nulls)
-            var validItems = new System.Collections.Generic.List<string>();
-            foreach (var item in containedItems) {
-                if (item != null) {
-                    validItems.Add(item.displayName);
-                }
-            }
-            
-            string itemNames = validItems.Count > 0 
-                ? string.Join(", ", validItems)
-                : "ningún item válido";
-            
-            logger?.Log($"[LootItem] Loot '{itemName}' spawned at {transform.position} con {containedItems.Count} items: [{itemNames}]", this);
+            logger?.Log($"[LootItem] Loot '{itemName}' spawned at {transform.position} with {itemIds.Count} item IDs", this);
         }
         
         // Crear el trigger collider para detección de jugador
@@ -185,22 +154,9 @@ public class LootItem : NetworkBehaviour {
     }
 
     private void OnTriggerEnter(Collider other) {
-        // CRÍTICO: En multiplayer, los triggers se ejecutan en TODOS (servidor + clientes)
-        // Solo queremos procesar en clientes que tengan UI/Inventarios
-        
         // Verificar si es el jugador
         if (((1 << other.gameObject.layer) & playerLayer) != 0) {
             logger?.Log($"[LootItem] Jugador detectado: {other.name}", this);
-            
-            // En multiplayer, SOLO procesar si NO somos dedicated server
-            bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
-            if (isMultiplayer) {
-                // Si somos servidor puro (no host), ignorar
-                if (NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsHost) {
-                    logger?.Log($"[LootItem] Dedicated Server ignorando trigger", this);
-                    return;
-                }
-            }
             
             playersInRange.Add(other);
             
@@ -212,12 +168,6 @@ public class LootItem : NetworkBehaviour {
     private void OnTriggerExit(Collider other) {
         // Remover jugador del rango y resetear flag
         if (((1 << other.gameObject.layer) & playerLayer) != 0) {
-            // El servidor no necesita trackear jugadores en rango
-            bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
-            if (isMultiplayer && NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsHost) {
-                return;
-            }
-            
             logger?.Log($"[LootItem] Jugador salió del rango: {other.name}", this);
             playersInRange.Remove(other);
             
@@ -237,99 +187,122 @@ public class LootItem : NetworkBehaviour {
             return;
         }
 
-        // En multiplayer, solo el dueño del jugador puede recoger items para su inventario
-        // Esto evita que si ambos clientes detectan la colisión, ambos procesen el pickup
-        NetworkObject playerNetworkObject = player.GetComponent<NetworkObject>();
+        // SEPARACIÓN SERVER/CLIENT: Diferentes responsabilidades
         bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        NetworkObject playerNetworkObject = player.GetComponent<NetworkObject>();
         
-        if (isMultiplayer && playerNetworkObject != null) {
-            // Solo procesar si somos el dueño de este jugador (nuestro cliente local)
-            if (!playerNetworkObject.IsOwner) {
-                // Esto es normal - otros clientes ven el jugador pero no deben procesar su pickup
+        if (isMultiplayer && IsServer) {
+            // ============================================
+            // SERVIDOR: Maneja NetworkList y despawn
+            // ============================================
+            Debug.Log($"[LootItem] SERVER - Procesando pickup. Items en bolsa: {itemIds.Count}");
+            
+            // Verificar si hay items para transferir
+            if (itemIds.Count == 0) {
+                Debug.Log($"[LootItem] SERVER - Bolsa vacía, haciendo despawn");
+                if (NetworkObject.IsSpawned) {
+                    NetworkObject.Despawn(true);
+                }
                 return;
             }
-            Debug.Log($"[LootItem] Procesando pickup para nuestro jugador local {player.name}");
-        }
-
-        // Buscar el PlayerInventoryReference en el jugador
-        PlayerInventoryReference inventoryRef = player.GetComponent<PlayerInventoryReference>();
-        
-        if (inventoryRef == null) {
-            logger?.Log($"[LootItem] No se encontró PlayerInventoryReference en {player.name}", this, Logging.LogType.Warning);
-            hasAttemptedPickup = true;
-            return;
-        }
-
-        // Obtener el InventoryController desde la referencia
-        InventoryController inventory = inventoryRef.GetInventory();
-        
-        if (inventory == null) {
-            logger?.Log($"[LootItem] PlayerInventoryReference no tiene InventoryController asignado en {player.name}", this, Logging.LogType.Warning);
-            hasAttemptedPickup = true;
-            return;
-        }
-
-        // Verificar si hay items para transferir
-        if (containedItems.Count == 0) {
-            Debug.Log($"[LootItem] La bolsa está vacía (ya fue looteada), destruyendo...");
-            DestroyLootBag(player);
-            return;
-        }
-        
-        Debug.Log($"[LootItem] Bolsa tiene {containedItems.Count} items, procediendo con transferencia");
-
-        // Contar cuántos slots vacíos hay
-        int emptySlots = inventory.GetEmptySlotCount();
-        bool isFull = inventory.IsInventoryFull();
-        logger?.Log($"[LootItem] Intentando transferir {containedItems.Count} items. Slots vacíos: {emptySlots}, IsFull: {isFull}", this);
-        logger?.Log($"[LootItem] InventoryController GameObject: {inventory.gameObject.name}, IsActive: {inventory.gameObject.activeInHierarchy}", this);
-
-        // Si no hay espacio, marcar como intentado y no hacer nada
-        if (emptySlots == 0) {
-            logger?.Log($"[LootItem] Inventario lleno! No se puede recoger el loot.", this, Logging.LogType.Warning);
-            hasAttemptedPickup = true;
-            return;
-        }
-
-        // Transferir items uno por uno hasta llenar el inventario o vaciar la bolsa
-        int itemsTransferred = 0;
-        List<ItemData> itemsToRemove = new List<ItemData>();
-
-        foreach (ItemData item in containedItems) {
-            if (inventory.IsInventoryFull()) {
-                logger?.Log($"[LootItem] Inventario se llenó durante la transferencia. Items transferidos: {itemsTransferred}/{containedItems.Count}", this);
-                hasAttemptedPickup = true;
-                break;
+            
+            // Remover todos los items del NetworkList (servidor tiene autoridad)
+            int itemsRemoved = itemIds.Count;
+            itemIds.Clear();
+            
+            Debug.Log($"[LootItem] SERVER - Removidos {itemsRemoved} items del NetworkList. Haciendo despawn...");
+            
+            // Despawn del objeto de red
+            if (NetworkObject.IsSpawned) {
+                NetworkObject.Despawn(true);
             }
-
-            // TEMPORAL: Convertir ItemData a Sprite hasta que se actualice InventoryController
-            // TODO: Actualizar InventoryController para aceptar ItemData directamente
-            if (item != null && item.icon != null) {
-                inventory.AddItem(item.icon);
-                itemsToRemove.Add(item);
-                itemsTransferred++;
-            } else {
-                Debug.LogWarning($"[LootItem] Item sin sprite válido: {item?.itemId ?? "null"}", this);
-            }
-        }
-
-        // Remover los items transferidos de la lista
-        foreach (ItemData item in itemsToRemove) {
-            containedItems.Remove(item);
-        }
-
-        logger?.Log($"[LootItem] Transferencia completada: {itemsTransferred} items transferidos. Items restantes en la bolsa: {containedItems.Count}", this);
-
-
-        // Si se transfirieron todos los items, destruir la bolsa
-        if (containedItems.Count == 0) {
-            logger?.Log($"[LootItem] Bolsa vacía, procediendo a destruir...", this);
-            PlayPickupFeedback();
-            DestroyLootBag(player);
+            
         } else {
-            // Si quedan items pero el inventario está lleno, marcar como intentado
-            logger?.Log($"[LootItem] Inventario lleno, quedan {containedItems.Count} items en la bolsa", this);
-            hasAttemptedPickup = true;
+            // ============================================
+            // CLIENTE: Maneja inventario UI y feedback
+            // ============================================
+            
+            // Solo procesar si somos el dueño de este jugador (nuestro cliente local)
+            if (isMultiplayer && playerNetworkObject != null && !playerNetworkObject.IsOwner) {
+                return;
+            }
+            
+            Debug.Log($"[LootItem] CLIENT - Procesando pickup para jugador local {player.name}");
+
+            // Buscar el PlayerInventoryReference en el jugador
+            PlayerInventoryReference inventoryRef = player.GetComponent<PlayerInventoryReference>();
+            
+            if (inventoryRef == null) {
+                logger?.Log($"[LootItem] No se encontró PlayerInventoryReference en {player.name}", this, Logging.LogType.Warning);
+                hasAttemptedPickup = true;
+                return;
+            }
+
+            // Obtener el InventoryController desde la referencia
+            InventoryController inventory = inventoryRef.GetInventory();
+            
+            if (inventory == null) {
+                logger?.Log($"[LootItem] PlayerInventoryReference no tiene InventoryController asignado en {player.name}", this, Logging.LogType.Warning);
+                hasAttemptedPickup = true;
+                return;
+            }
+
+            // Verificar si hay items para transferir
+            if (itemIds.Count == 0) {
+                Debug.Log($"[LootItem] CLIENT - Bolsa vacía (sincronizada desde servidor)");
+                hasAttemptedPickup = true;
+                return;
+            }
+            
+            Debug.Log($"[LootItem] CLIENT - Bolsa tiene {itemIds.Count} items, procediendo con transferencia a UI");
+
+            // Contar cuántos slots vacíos hay
+            int emptySlots = inventory.GetEmptySlotCount();
+            logger?.Log($"[LootItem] CLIENT - Slots vacíos: {emptySlots}, Inventario lleno: {inventory.IsInventoryFull()}", this);
+
+            // Si no hay espacio, marcar como intentado y no hacer nada
+            if (emptySlots == 0) {
+                logger?.Log($"[LootItem] CLIENT - Inventario lleno! No se puede recoger el loot.", this, Logging.LogType.Warning);
+                hasAttemptedPickup = true;
+                return;
+            }
+
+            // Transferir items uno por uno hasta llenar el inventario o vaciar la bolsa
+            int itemsTransferred = 0;
+
+            // Convertir NetworkList a lista temporal para iterar
+            List<string> itemIdsList = new List<string>();
+            for (int i = 0; i < itemIds.Count; i++) {
+                itemIdsList.Add(itemIds[i].ToString());
+            }
+
+            foreach (string itemId in itemIdsList) {
+                if (inventory.IsInventoryFull()) {
+                    logger?.Log($"[LootItem] CLIENT - Inventario lleno. Items transferidos: {itemsTransferred}/{itemIds.Count}", this);
+                    hasAttemptedPickup = true;
+                    break;
+                }
+
+                // Transfer item by ID to inventory UI
+                // InventoryController will handle sprite loading from ItemsManager
+                inventory.AddItemById(itemId);
+                itemsTransferred++;
+                
+                logger?.Log($"[LootItem] CLIENT - Item transferido a UI: {itemId}", this);
+            }
+
+            logger?.Log($"[LootItem] CLIENT - Transferencia completada: {itemsTransferred} items a inventario", this);
+
+            // Reproducir feedback visual/sonoro
+            if (itemsTransferred > 0) {
+                PlayPickupFeedback();
+            }
+
+            // Si el inventario se llenó antes de vaciar la bolsa, marcar como intentado
+            if (itemsTransferred < itemIdsList.Count) {
+                logger?.Log($"[LootItem] CLIENT - Inventario lleno, no se pudieron transferir todos los items", this);
+                hasAttemptedPickup = true;
+            }
         }
     }
 
@@ -398,67 +371,29 @@ public class LootItem : NetworkBehaviour {
     }
     
     /// <summary>
-    /// Añade items a la bolsa de loot (útil para configurar desde LootDropper)
-    /// IMPORTANTE: Llamar ANTES de networkObject.Spawn() en multiplayer
+    /// Configura los item IDs para esta bolsa de loot.
+    /// IMPORTANTE: Llamar ANTES de networkObject.Spawn() en multiplayer.
+    /// Solo el servidor debe llamar este método.
     /// </summary>
-    /// <param name="items">Lista de ItemData a añadir</param>
-    public void AddItems(List<ItemData> items) {
-        if (items == null || items.Count == 0) {
-            logger?.Log($"[LootItem] AddItems llamado con lista vacía o null", this, Logging.LogType.Warning);
+    /// <param name="ids">Lista de item IDs a configurar</param>
+    public void SetItemIds(List<string> ids) {
+        if (!NetworkManager.Singleton.IsServer) {
+            Debug.LogWarning("[LootItem] SetItemIds should only be called by server!");
+            return;
+        }
+
+        if (ids == null || ids.Count == 0) {
+            logger?.Log($"[LootItem] SetItemIds called with empty or null list", this, Logging.LogType.Warning);
             return;
         }
         
-        bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
-        int validItemsCount = 0;
-        int invalidItemsCount = 0;
-        
-        foreach (var item in items) {
-            if (item != null) {
-                // Validar que el item tenga sprite
-                if (item.icon != null && !string.IsNullOrEmpty(item.itemId)) {
-                    containedItems.Add(item);
-                    
-                    // Si es multiplayer, agregar a PENDING (no a NetworkList todavía)
-                    // Se transferirá en OnNetworkSpawn cuando sea seguro
-                    if (isMultiplayer) {
-                        pendingItems.Add(item);
-                    }
-                    
-                    validItemsCount++;
-                } else {
-                    Debug.LogWarning($"[LootItem] ItemData '{item.itemId}' no tiene sprite/ID válido. No se agregará.", this);
-                    invalidItemsCount++;
-                }
-            } else {
-                Debug.LogWarning($"[LootItem] Item null encontrado en la lista de loot. Verifica la configuración del LootDropper.", this);
-                invalidItemsCount++;
+        foreach (var id in ids) {
+            if (!string.IsNullOrEmpty(id)) {
+                itemIds.Add(new Unity.Collections.FixedString64Bytes(id));
             }
         }
         
-        logger?.Log($"[LootItem] {validItemsCount} items válidos añadidos. {invalidItemsCount} items inválidos ignorados. Total en bolsa: {containedItems.Count}", this);
-    }
-
-    /// <summary>
-    /// Añade un item individual a la bolsa
-    /// </summary>
-    /// <param name="item">ItemData del item a añadir</param>
-    public void AddItem(ItemData item) {
-        if (item != null) {
-            if (item.icon != null && !string.IsNullOrEmpty(item.itemId)) {
-                containedItems.Add(item);
-                
-                bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
-                if (isMultiplayer) {
-                    pendingItems.Add(item);
-                }
-                
-                logger?.Log($"[LootItem] Item '{item.displayName}' añadido a la bolsa. Total: {containedItems.Count}", this);
-            } else {
-                Debug.LogWarning($"[LootItem] ItemData '{item.itemId}' no tiene sprite/ID válido. No se agregará.", this);
-            }
-        } else {
-            Debug.LogWarning($"[LootItem] Intento de añadir item null", this);
-        }
+        logger?.Log($"[LootItem] Configured {itemIds.Count} item IDs", this);
     }
     
     /// <summary>

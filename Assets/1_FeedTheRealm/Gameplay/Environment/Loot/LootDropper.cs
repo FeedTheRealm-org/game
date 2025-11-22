@@ -27,14 +27,14 @@ public class LootDropper : MonoBehaviour {
     [Tooltip("Adds a random variation to the spawn position")]
     private float randomOffset = 0.5f;
     
-    [Header("Loot Contents")]
+    [Header("Loot Configuration")]
     [SerializeField]
-    [Tooltip("Tabla de loot que define qué items pueden dropear y sus probabilidades")]
-    private LootTable lootTable;
+    [Tooltip("Number of items to drop (random from all items)")]
+    private int itemCount = 1;
     
     [SerializeField]
-    [Tooltip("(LEGACY - Usar LootTable en su lugar) Items que se agregarán directamente sin tabla")]
-    private List<ItemData> legacyLootItems = new List<ItemData>();
+    [Tooltip("If set, only drop items from this category. Leave empty for any category.")]
+    private string categoryFilter = "";
     
     [SerializeField]
     private Logging.Logger logger;
@@ -97,34 +97,19 @@ public class LootDropper : MonoBehaviour {
         // Instanciar el loot
         GameObject lootInstance = Instantiate(lootPrefab, spawnPosition, Quaternion.identity);
         
-        // Determinar qué items van a dropear (declarar fuera del scope para poder usar después)
-        List<ItemData> itemsToDrop = new List<ItemData>();
-        
-        // CRÍTICO: Configurar el LootItem ANTES de spawnearlo en red
+        // Configurar el LootItem ANTES de spawnearlo en red
         LootItem lootItem = lootInstance.GetComponent<LootItem>();
         if (lootItem != null) {
             lootItem.Initialize(spawnPosition);
             
-            // Priorizar LootTable si está configurado
-            if (lootTable != null) {
-                itemsToDrop = lootTable.RollLoot();
-                logger?.Log($"[LootDropper] LootTable {lootTable.tableName} rolled: {itemsToDrop.Count} items", this);
-            } 
-            // Fallback a legacy items si no hay tabla
-            else if (legacyLootItems != null && legacyLootItems.Count > 0) {
-                itemsToDrop = legacyLootItems;
-                logger?.Log($"[LootDropper] Using legacy items: {itemsToDrop.Count}", this);
-            } 
-            else {
-                logger?.Log($"[LootDropper] Warning: No LootTable ni legacy items configurados", this, Logging.LogType.Warning);
-            }
+            // Obtener items aleatorios desde el DedicatedServerItemsManager
+            List<string> lootItemIds = GetRandomLootItems();
             
-            // Añadir los items a la bolsa ANTES del Spawn
-            if (itemsToDrop.Count > 0) {
-                lootItem.AddItems(itemsToDrop);
-                logger?.Log($"[LootDropper] Items añadidos al loot: {itemsToDrop.Count}", this);
+            if (lootItemIds != null && lootItemIds.Count > 0) {
+                lootItem.SetItemIds(lootItemIds);
+                logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs", this);
             } else {
-                logger?.Log($"[LootDropper] Warning: No hay items para dropear (roll falló o tabla vacía)", this, Logging.LogType.Warning);
+                // Empty loot bag will spawn but won't have items (will be collected but give nothing)
             }
         } else {
             logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene LootItem component!", this, Logging.LogType.Error);
@@ -138,7 +123,7 @@ public class LootDropper : MonoBehaviour {
             NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
             if (networkObject != null) {
                 networkObject.Spawn();
-                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition} with {itemsToDrop.Count} items", this);
+                logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition}", this);
             } else {
                 logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene NetworkObject! El loot no será visible en multiplayer.", this, Logging.LogType.Error);
                 logger?.Log($"[LootDropper] Agrega un componente NetworkObject al prefab de loot para multiplayer.", this, Logging.LogType.Error);
@@ -147,6 +132,82 @@ public class LootDropper : MonoBehaviour {
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// Get random item IDs from the server's items manager.
+    /// Uses category filter if configured.
+    /// </summary>
+    private List<string> GetRandomLootItems() {
+        // Try DedicatedServerItemsManager first (for dedicated server builds)
+        if (Items.DedicatedServerItemsManager.Instance != null) {
+            if (!Items.DedicatedServerItemsManager.Instance.IsInitialized) {
+                logger?.Log("[LootDropper] WARNING: DedicatedServerItemsManager not initialized yet! Items will not drop until initialization completes.", this, Logging.LogType.Warning);
+                logger?.Log("[LootDropper] This is normal on first enemy death. Subsequent deaths should work fine.", this, Logging.LogType.Warning);
+                return new List<string>();
+            }
+
+            return GetRandomItemsFromServerManager();
+        }
+        
+        // Fallback: Try ItemsManager (for client/host)
+        if (Items.ItemsManager.Instance != null) {
+            if (!Items.ItemsManager.Instance.IsInitialized) {
+                logger?.Log("[LootDropper] WARNING: ItemsManager not initialized yet! Items will not drop.", this, Logging.LogType.Warning);
+                return new List<string>();
+            }
+
+            return GetRandomItemsFromClientManager();
+        }
+
+        logger?.Log("[LootDropper] ERROR: No ItemsManager found (neither Server nor Client)!", this, Logging.LogType.Error);
+        return new List<string>();
+    }
+
+    private List<string> GetRandomItemsFromServerManager() {
+        var result = new List<string>();
+
+        for (int i = 0; i < itemCount; i++) {
+            string itemId;
+            
+            if (!string.IsNullOrEmpty(categoryFilter)) {
+                itemId = Items.DedicatedServerItemsManager.Instance.GetRandomItemIdFromCategory(categoryFilter);
+            } else {
+                itemId = Items.DedicatedServerItemsManager.Instance.GetRandomItemId();
+            }
+
+            if (!string.IsNullOrEmpty(itemId)) {
+                result.Add(itemId);
+            }
+        }
+
+        return result;
+    }
+
+    private List<string> GetRandomItemsFromClientManager() {
+        var result = new List<string>();
+
+        for (int i = 0; i < itemCount; i++) {
+            string itemId;
+            
+            var allItems = Items.ItemsManager.Instance.GetAllItems();
+            if (allItems.Length == 0) continue;
+
+            if (!string.IsNullOrEmpty(categoryFilter)) {
+                var categoryItems = Items.ItemsManager.Instance.GetItemsByCategory(categoryFilter);
+                if (categoryItems.Count > 0) {
+                    int randomIndex = UnityEngine.Random.Range(0, categoryItems.Count);
+                    itemId = categoryItems[randomIndex].id;
+                    result.Add(itemId);
+                }
+            } else {
+                int randomIndex = UnityEngine.Random.Range(0, allItems.Length);
+                itemId = allItems[randomIndex].id;
+                result.Add(itemId);
+            }
+        }
+
+        return result;
     }
 
 #if UNITY_EDITOR

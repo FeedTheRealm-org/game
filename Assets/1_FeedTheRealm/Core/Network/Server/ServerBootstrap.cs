@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
+using Items;
 
 /// <summary>
 /// Script que inicia automáticamente un servidor dedicado en builds de servidor.
@@ -69,16 +70,8 @@ public class ServerBootstrap : MonoBehaviour
             LogServerInfo($"   Scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
             LogServerInfo($"   🔊 Server is now LISTENING for connections...");
             
-            // Cargar escena del juego si está configurado y no estamos ya en ella
-            if (autoLoadGameScene && gameScene != null && !string.IsNullOrEmpty(gameScene.SceneName))
-            {
-                string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-                if (currentScene != gameScene.SceneName)
-                {
-                    LogServerInfo($"Loading game scene: {gameScene.SceneName}");
-                    NetworkManager.Singleton.SceneManager.LoadScene(gameScene.SceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
-                }
-            }
+            // Wait for ItemsManager to initialize before loading game scene
+            StartCoroutine(WaitForItemsManagerThenLoadScene());
         }
         else
         {
@@ -218,6 +211,49 @@ public class ServerBootstrap : MonoBehaviour
     }
 
     #endregion
+
+    /// <summary>
+    /// Wait for ItemsManager to be initialized before loading the game scene.
+    /// This ensures loot drops work immediately when enemies die.
+    /// </summary>
+    private System.Collections.IEnumerator WaitForItemsManagerThenLoadScene()
+    {
+        LogServerInfo($"⏳ Waiting for ItemsManager initialization...");
+        
+        // Wait for DedicatedServerItemsManager to be initialized (max 10 seconds)
+        float timeout = 10f;
+        float elapsed = 0f;
+        
+        while (elapsed < timeout)
+        {
+            // Check if DedicatedServerItemsManager exists and is initialized
+            if (Items.DedicatedServerItemsManager.Instance != null && 
+                Items.DedicatedServerItemsManager.Instance.IsInitialized)
+            {
+                LogServerInfo($"✅ ItemsManager ready with {Items.DedicatedServerItemsManager.Instance.TotalItemsLoaded} items!");
+                break;
+            }
+            
+            yield return new UnityEngine.WaitForSeconds(0.1f); // Wait 100ms
+            elapsed += 0.1f;
+        }
+        
+        if (elapsed >= timeout)
+        {
+            Debug.LogWarning("[ServerBootstrap] ⚠️ ItemsManager initialization timeout! Loading scene anyway...");
+        }
+        
+        // Cargar escena del juego si está configurado y no estamos ya en ella
+        if (autoLoadGameScene && gameScene != null && !string.IsNullOrEmpty(gameScene.SceneName))
+        {
+            string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (currentScene != gameScene.SceneName)
+            {
+                LogServerInfo($"Loading game scene: {gameScene.SceneName}");
+                NetworkManager.Singleton.SceneManager.LoadScene(gameScene.SceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+            }
+        }
+    }
 
     #region Logging
 
