@@ -57,5 +57,33 @@ namespace API {
         handler?.Invoke(amount, worlds, "");
       }
     }
+
+    /// <summary>
+    /// Get a specific world by ID from the server.
+    /// </summary>
+    public IEnumerator GetWorld(string worldId, System.Action<WorldsData, string> handler) {
+      var url = $"http://{Hostname}:{Port}/world/{worldId}";
+      logger.Log($"Fetching world from URL: {url}", this);
+
+      var uwr = UnityWebRequest.Get(url);
+
+      uwr.SetRequestHeader("Content-Type", "application/json");
+      uwr.SetRequestHeader("Authorization", $"Bearer {session?.APIToken}");
+
+      yield return uwr.SendWebRequest();
+
+      var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
+      logger.Log($"World response text: {responseText}", this);
+
+      if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
+        var res = string.IsNullOrEmpty(responseText) ? null : JsonUtility.FromJson<ErrorResponse>(responseText);
+        logger.Log($"GetWorld error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
+        handler?.Invoke(null, res?.detail ?? responseText);
+      } else {
+        var res = string.IsNullOrEmpty(responseText) ? null : JsonUtility.FromJson<DataEnvelope<WorldsData>>(responseText);
+        logger.Log($"GetWorld response: {responseText}", this);
+        handler?.Invoke(res?.data, "");
+      }
+    }
   }
 }
