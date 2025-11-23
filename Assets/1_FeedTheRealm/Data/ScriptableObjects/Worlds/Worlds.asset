@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc7e789bd20aad54fa6f6391d891dc00, type: 3}
+  m_Name: Worlds
+  m_EditorClassIdentifier: Assembly-CSharp::ListOfWorld
+  categories:
+  - name: Category 1
+    worlds:
+    - World 1
+    - World 2
+    - World 3
+    - World 4
+    - World 5
+    - World 6
+    - World 7
+    - World 8
+    - World 9
+    - World 10
+    - World 11
+    - World 12
+    - World 13
+    - World 14
+    - World 15
+  - name: Category 2
+    worlds:
+    - World 16
+    - World 17
+    - World 18
+    - World 19
+    - World 20
+    - World 21
+    - World 22
+    - World 23
+    - World 24
+    - World 25
+    - World 26
+    - World 27
+    - World 28
+    - World 29
+    - World 30
+    - World 31
+    - World 32
+    - World 33
+    - World 34
+    - World 35
+    - World 36
+  - name: Uncategorized
+    worlds: []
+  logger: {fileID: 11400000, guid: 0265374ef3d326d4cae829642c91e6c7, type: 2}

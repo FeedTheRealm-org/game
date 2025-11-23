@@ -1,0 +1,18 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Homepage/WorldFeedMenu/Themes/worldMenu.uss?fileID=7433441132597879392&amp;guid=d80d3fad8a1f30e40a333df0ab19b927&amp;type=3#worldMenu" />
+    <ui:VisualElement name="Background" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/1_FeedTheRealm/VisualAssets/mockImg.jpg?fileID=2800000&amp;guid=953106569fba9b4bdb565889f122c1f7&amp;type=3#mockImg&quot;);">
+        <ui:VisualElement name="Form" style="flex-grow: 1; width: 90%; height: 80%; top: 15%; left: 5%; min-width: auto; position: absolute; bottom: 0%; right: 0%; background-color: rgb(159, 159, 159);">
+            <ui:Label text="Feed The Realm - Worlds Feed" name="FormTitle" style="-unity-text-align: upper-center; font-size: 30%; top: auto; height: 8%;" />
+            <ui:VisualElement name="SearchContainer" style="flex-grow: 1; height: 8%; justify-content: center; align-self: auto; align-content: auto; align-items: center;">
+                <ui:TextField label="🔎Search" placeholder-text="Search your world" name="SearchField" style="height: auto; width: 40%; left: auto; top: auto; right: auto; -unity-text-align: middle-left;" />
+            </ui:VisualElement>
+            <ui:ScrollView name="ListOfWorlds" mode="Vertical" vertical-page-size="-1" nested-interaction-kind="Default" horizontal-scroller-visibility="Hidden" style="height: 80%; flex-direction: row; flex-wrap: wrap-reverse; width: 100%; white-space: normal;">
+                <ui:Label text="No worlds or categories found matching " name="NotFound" class="noResultsMessage" style="font-size: 18%;" />
+            </ui:ScrollView>
+            <ui:VisualElement name="PageController" style="flex-grow: 1; align-self: auto; flex-direction: row; justify-content: center;">
+                <ui:Button text="&lt;" name="BackButton" />
+                <ui:Button text="&gt;" name="ForwardButton" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

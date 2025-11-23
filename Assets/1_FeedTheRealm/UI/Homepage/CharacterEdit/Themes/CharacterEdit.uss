@@ -1,0 +1,95 @@
+:root {
+}
+
+#Body > #CharacterEditContainer > #Character > .unity-text-field > #unity-text-input {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-image: none;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(117, 113, 90);
+    color: rgb(255, 255, 255);
+    opacity: 1;
+    -unity-text-align: upper-left;
+    white-space: normal;
+    text-overflow: ellipsis;
+    justify-content: flex-start;
+    align-self: flex-start;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.menu-text-input {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    overflow: visible;
+    background-color: rgba(255, 255, 255, 0);
+    -unity-background-scale-mode: stretch-to-fill;
+    background-position-x: center;
+    background-position-y: center;
+    -unity-slice-type: sliced;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Categories > #Cancel > .unity-button__image {
+    width: 50px;
+    height: 50px;
+    min-width: auto;
+    min-height: auto;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Categories > #unity-content-and-vertical-scroll-container > #unity-content-viewport > #unity-content-container {
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Items > #unity-content-and-vertical-scroll-container > #unity-content-viewport > #unity-content-container {
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Items > .item_button > .unity-button__image {
+    width: 90%;
+    height: 90%;
+    min-width: 90px;
+    max-width: 90px;
+    min-height: 90px;
+    max-height: 90px;
+}
+
+#Body > #CharacterEditContainer > #Cosmetics > #Categories > .category_button > .unity-button__image {
+    width: 200%;
+    height: 200%;
+    min-width: 200%;
+    min-height: 200%;
+    max-width: 200%;
+    max-height: 200%;
+}
+
+.category_button {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+    background-color: rgb(108, 85, 64);
+    color: rgb(255, 255, 255);
+    opacity: 1;
+}
+
+.item_button {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    width: 100px;
+    height: 100px;
+    font-size: 16px;
+    background-color: rgb(75, 47, 24);
+    color: rgb(255, 255, 255);
+    opacity: 1;
+}
