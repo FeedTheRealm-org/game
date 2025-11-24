@@ -388,7 +388,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113972, y: 0.0014780662, z: -0.0005012149, w: 0.94703054}
+  m_LocalRotation: {x: 0.32113945, y: 0.0019451262, z: -0.00065959565, w: 0.9470297}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -831,7 +831,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693203289}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113972, y: 0.0014780662, z: -0.0005012148, w: 0.94703054}
+  m_LocalRotation: {x: 0.32113943, y: 0.0019451261, z: -0.0006595957, w: 0.9470297}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1057,6 +1057,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4151379730473639172, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
       propertyPath: playerInputReader
       value: 
@@ -1074,17 +1082,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
---- !u!114 &1275314130 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
-  m_PrefabInstance: {fileID: 1275314129}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f582fe190d0bf754aa3265cd0b08dee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryController
 --- !u!1 &1353866474
 GameObject:
   m_ObjectHideFlags: 0
@@ -1316,7 +1313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
   settingsMenu: {fileID: 4941900269578677176}
-  inventoryMenu: {fileID: 1275314130}
+  inventoryMenu: {fileID: 728981914}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
 --- !u!4 &1887116171

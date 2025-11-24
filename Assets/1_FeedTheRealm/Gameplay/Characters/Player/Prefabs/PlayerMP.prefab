@@ -190,6 +190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkMovementSynchronizer
   ShowTopMostFoldoutHeaderGroup: 1
+  logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
   movementComponent: {fileID: 448067336067517275}
   rb: {fileID: 3095535743837438187}
   networkSendRate: 10
@@ -332,8 +333,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bb6ff8f6299b8ee092c1a2932a7c048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventoryReference
+  inventoryPrefab: {fileID: 6228110454024648622, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
   inventoryController: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
-  autoFindInventory: 1
+  useSceneInventoryForLocalPlayer: 1
   logger: {fileID: 11400000, guid: 370a1d378e969c1d69728babe5e18233, type: 2}
 --- !u!1 &2178209523778464952
 GameObject:

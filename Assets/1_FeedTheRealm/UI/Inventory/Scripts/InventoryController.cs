@@ -10,6 +10,7 @@ public class InventoryController : MonoBehaviour {
     private VisualElement draggedItem;
     private VisualElement draggedItemOriginalSlot;
     private Vector2 dragOffset;
+    private bool isUIVisible = false;
 
     [Header("Items Management")]
     // ItemsManager reference (uses singleton pattern)
@@ -33,6 +34,9 @@ public class InventoryController : MonoBehaviour {
     void Start() {
         uiDocument = GetComponent<UIDocument>();
         root = uiDocument.rootVisualElement;
+
+        // Inicialmente ocultar la UI (pero mantener el GameObject activo)
+        HideUI();
 
         // Encontrar todos los slots
         for (int i = 1; i <= 12; i++) {
@@ -419,24 +423,38 @@ public class InventoryController : MonoBehaviour {
     }
 
     public bool IsOpen() {
-        return gameObject.activeSelf;
+        return isUIVisible;
     }
 
     public void ToggleInventory() {
-        logger.Log("Toggle settings", this);
+        //logger.Log("Toggle inventory", this);
 
-        bool willBeActive = !gameObject.activeSelf;
+        if (isUIVisible) {
+            HideUI();
+        } else {
+            ShowUI();
+        }
+    }
 
-        if (willBeActive) {
+    private void ShowUI() {
+        if (root != null) {
+            root.style.display = DisplayStyle.Flex;
+            isUIVisible = true;
+
             UnityEngine.Cursor.lockState = CursorLockMode.None;
             UnityEngine.Cursor.visible = true;
-            logger.Log("Cursor shown (toggle)", this);
-        } else {
+            //logger.Log("Inventory UI shown - Cursor unlocked", this);
+        }
+    }
+
+    private void HideUI() {
+        if (root != null) {
+            root.style.display = DisplayStyle.None;
+            isUIVisible = false;
+
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
             UnityEngine.Cursor.visible = false;
-            logger.Log("Cursor hidden (toggle)", this);
+            //logger.Log("Inventory UI hidden - Cursor locked", this);
         }
-
-        gameObject.SetActive(willBeActive);
     }
 }

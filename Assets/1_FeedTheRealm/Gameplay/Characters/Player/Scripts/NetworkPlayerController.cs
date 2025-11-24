@@ -17,10 +17,55 @@ public class NetworkPlayerController : NetworkBehaviour {
     [SerializeField] private PlayerInputReader playerInputReader;
 
     public override void OnNetworkSpawn() {
-        if (IsOwner) {
-            logger.Log($"NetworkPlayerController initialized for player {OwnerClientId}", this);
-            InitializeInput();
+        logger.Log($"NetworkPlayerController.OnNetworkSpawn - IsOwner: {IsOwner}, ClientId: {OwnerClientId}", this);
+
+        // Inicializar el inventario primero (tanto para local como remoto)
+        var inventoryReference = GetComponent<PlayerInventoryReference>();
+        if (inventoryReference != null) {
+            inventoryReference.InitializeForNetworkedPlayer();
         }
+
+        // Solo inicializar input para el jugador local
+        if (IsOwner) {
+            logger.Log($"NetworkPlayerController initialized for LOCAL player {OwnerClientId}", this);
+
+            // Verificar si playerInputReader está asignado antes de crear PlayerControls
+            if (playerInputReader != null) {
+                logger.Log("Using PlayerInputReader for input (shared with GameSceneManager)", this);
+                InitializeInputWithReader();
+            } else {
+                logger.Log("PlayerInputReader not assigned, creating standalone PlayerControls", this, Logging.LogType.Warning);
+                InitializeInput();
+            }
+        }
+    }
+
+    private void InitializeInputWithReader() {
+        if (!IsOwner) return;
+
+        // Search for components
+        movementComponent = GetComponentInChildren<MovementComponent>();
+        if (movementComponent == null) {
+            logger.Log($"MovementComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            return;
+        }
+
+        dashComponent = GetComponentInChildren<DashComponent>();
+        if (dashComponent == null) {
+            logger.Log($"DashComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+        }
+
+        attackComponent = GetComponentInChildren<AttackComponent>();
+        if (attackComponent == null) {
+            logger.Log($"AttackComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+        }
+
+        // Subscribe to PlayerInputReader events instead of creating new PlayerControls
+        playerInputReader.MoveEvent += OnMoveInput;
+        playerInputReader.DashEvent += OnDashInput;
+        playerInputReader.AttackEvent += OnAttackInput;
+
+        logger.Log($"Input configured using PlayerInputReader for player {OwnerClientId}", this);
     }
 
     private void InitializeInput() {
@@ -56,7 +101,30 @@ public class NetworkPlayerController : NetworkBehaviour {
         logger.Log($"Input configured for player {OwnerClientId}", this);
     }
 
-    // Separate methods to avoid lambda issues
+    // Methods for PlayerInputReader events (when using shared input)
+    private void OnMoveInput(Vector2 direction) {
+        if (Cursor.visible) {
+            return;
+        }
+        movementComponent?.OnMove(direction);
+    }
+
+    private void OnDashInput() {
+        if (Cursor.visible) {
+            return;
+        }
+        dashComponent?.OnDash();
+    }
+
+    private void OnAttackInput() {
+        if (Cursor.visible) {
+            logger.Log("Attack blocked - Cursor is visible", this);
+            return;
+        }
+        attackComponent?.OnAttack();
+    }
+
+    // Separate methods to avoid lambda issues (when using standalone PlayerControls)
     private void OnMovePerformed(InputAction.CallbackContext context) {
         Vector2 direction = context.ReadValue<Vector2>();
         movementComponent?.OnMove(direction);
@@ -90,6 +158,14 @@ public class NetworkPlayerController : NetworkBehaviour {
     }
 
     private void CleanupInput() {
+        // Cleanup PlayerInputReader events if using shared input
+        if (playerInputReader != null) {
+            playerInputReader.MoveEvent -= OnMoveInput;
+            playerInputReader.DashEvent -= OnDashInput;
+            playerInputReader.AttackEvent -= OnAttackInput;
+        }
+
+        // Cleanup standalone PlayerControls if they were created
         if (playerControls != null) {
             playerControls.Player.Disable();
             playerControls.Player.Move.performed -= OnMovePerformed;
@@ -98,15 +174,6 @@ public class NetworkPlayerController : NetworkBehaviour {
             playerControls.Player.Attack.performed -= OnAttackPerformed;
             playerControls.Dispose();
             playerControls = null;
-        }
-    }
-
-    private void UnsubscribeFromUIEvents()
-    {
-        if (playerInputReader != null)
-        {
-            playerInputReader.InventoryOpenedEvent -= OnInventoryOpened;
-            playerInputReader.InventoryClosedEvent -= OnInventoryClosed;
         }
     }
 

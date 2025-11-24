@@ -249,12 +249,12 @@ public class LootItem : NetworkBehaviour {
 
             // Verificar si hay items para transferir
             if (itemIds.Count == 0) {
-                Debug.Log($"[LootItem] CLIENT - Bolsa vacía (sincronizada desde servidor)");
+                logger?.Log($"[LootItem] CLIENT - Bolsa vacía (sincronizada desde servidor)", this);
                 hasAttemptedPickup = true;
                 return;
             }
             
-            Debug.Log($"[LootItem] CLIENT - Bolsa tiene {itemIds.Count} items, procediendo con transferencia a UI");
+            logger?.Log($"[LootItem] CLIENT - Bolsa tiene {itemIds.Count} items, procediendo con transferencia a UI", this);
 
             // Contar cuántos slots vacíos hay
             int emptySlots = inventory.GetEmptySlotCount();

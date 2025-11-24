@@ -25,7 +25,7 @@ namespace API {
         [Header("Dedicated Server Settings")]
         [SerializeField]
         [Tooltip("Hardcoded JWT token for dedicated server (fallback when session is not available)")]
-        private string dedicatedServerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM4NDc5NjQsImlzcyI6MTc2Mzc2MTU2NCwidXNlcklEIjoiY2QxMjNkNjktMWE5MS00ZjQxLTlhOTQtYjE3YjQyMmQzOWRlIn0.Er3_zi3U0gJ2AYi9e4wE8bIwq0CwgrgKbV1yr6JEZqo";
+        private string dedicatedServerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQwMjE5NjksImlzcyI6MTc2MzkzNTU2OSwidXNlcklEIjoiY2QxMjNkNjktMWE5MS00ZjQxLTlhOTQtYjE3YjQyMmQzOWRlIn0.QSr9jfdAKAEPVrhzZINEVRX8mFB6asjpPjDxAEJI-4Q";
 
         [Header("General settings")]
         [SerializeField]
