@@ -176,6 +176,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 687963e76888b468f86935c6b8ac3d55, type: 3}
+--- !u!1 &55007811 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6957738974218692161, guid: 687963e76888b468f86935c6b8ac3d55, type: 3}
+  m_PrefabInstance: {fileID: 55007810}
+  m_PrefabAsset: {fileID: 0}
+--- !u!156049354 &55007812 stripped
+Grid:
+  m_CorrespondingSourceObject: {fileID: 7074053888500729754, guid: 687963e76888b468f86935c6b8ac3d55, type: 3}
+  m_PrefabInstance: {fileID: 55007810}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &55605749
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,8 +267,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: FeedTheRealm_Shared::World.WorldController
   cellSize: 1
   worldSize: 10
-  worldPlane: {fileID: 0}
-  grid: {fileID: 0}
+  worldPlane: {fileID: 55007811}
+  grid: {fileID: 55007812}
   placementGridMaterial: {fileID: 2100000, guid: 9045ae2864070341b9356e7b2f507353, type: 2}
   showGridVisualization: 0
   totalWorldSize: 0
