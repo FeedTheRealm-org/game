@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
+using Items;
 
 /// <summary>
 /// Script que inicia automáticamente un servidor dedicado en builds de servidor.
@@ -69,16 +70,8 @@ public class ServerBootstrap : MonoBehaviour
             LogServerInfo($"   Scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
             LogServerInfo($"   🔊 Server is now LISTENING for connections...");
             
-            // Cargar escena del juego si está configurado y no estamos ya en ella
-            if (autoLoadGameScene && gameScene != null && !string.IsNullOrEmpty(gameScene.SceneName))
-            {
-                string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-                if (currentScene != gameScene.SceneName)
-                {
-                    LogServerInfo($"Loading game scene: {gameScene.SceneName}");
-                    NetworkManager.Singleton.SceneManager.LoadScene(gameScene.SceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
-                }
-            }
+            // Wait for ItemsManager to initialize before loading game scene
+            StartCoroutine(WaitForItemsManagerThenLoadScene());
         }
         else
         {
@@ -218,6 +211,57 @@ public class ServerBootstrap : MonoBehaviour
     }
 
     #endregion
+
+    /// <summary>
+    /// Wait for ItemsManager to be initialized before loading the game scene.
+    /// ItemsManager should be initialized in MPMenuScene and persist via DontDestroyOnLoad.
+    /// </summary>
+    private System.Collections.IEnumerator WaitForItemsManagerThenLoadScene()
+    {
+        // Check if DedicatedServerItemsManager is already initialized (should be from MPMenuScene)
+        if (Items.DedicatedServerItemsManager.Instance != null && 
+            Items.DedicatedServerItemsManager.Instance.IsInitialized)
+        {
+            LogServerInfo($"✅ ItemsManager already initialized with {Items.DedicatedServerItemsManager.Instance.TotalItemsLoaded} items (from persistent scene)");
+        }
+        else
+        {
+            // ItemsManager not ready yet - wait a bit (should initialize from ItemsManagerBootstrap in MPMenuScene)
+            LogServerInfo($"⏳ Waiting for ItemsManager initialization from MPMenuScene...");
+            
+            float timeout = 10f;
+            float elapsed = 0f;
+            
+            while (elapsed < timeout)
+            {
+                if (Items.DedicatedServerItemsManager.Instance != null && 
+                    Items.DedicatedServerItemsManager.Instance.IsInitialized)
+                {
+                    LogServerInfo($"✅ ItemsManager initialized with {Items.DedicatedServerItemsManager.Instance.TotalItemsLoaded} items!");
+                    break;
+                }
+                
+                yield return new UnityEngine.WaitForSeconds(0.1f);
+                elapsed += 0.1f;
+            }
+            
+            if (elapsed >= timeout)
+            {
+                Debug.LogWarning("[ServerBootstrap] ⚠️ ItemsManager not found! Make sure ItemsManagerBootstrap exists in MPMenuScene. Loading scene anyway...");
+            }
+        }
+        
+        // Cargar escena del juego si está configurado y no estamos ya en ella
+        if (autoLoadGameScene && gameScene != null && !string.IsNullOrEmpty(gameScene.SceneName))
+        {
+            string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (currentScene != gameScene.SceneName)
+            {
+                LogServerInfo($"Loading game scene: {gameScene.SceneName}");
+                NetworkManager.Singleton.SceneManager.LoadScene(gameScene.SceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+            }
+        }
+    }
 
     #region Logging
 

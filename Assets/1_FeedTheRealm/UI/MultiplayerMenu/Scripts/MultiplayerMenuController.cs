@@ -43,6 +43,42 @@ public class MultiplayerMenuController : MonoBehaviour
         }
     }
 
+    private System.Collections.IEnumerator WaitForItemsManagerThenConnect(string ip, ushort port)
+    {
+        // Wait for ItemsManager to initialize (max 2 seconds)
+        float timeout = 2f;
+        float elapsed = 0f;
+
+        while (!Items.ItemsManager.Instance.IsInitialized && elapsed < timeout)
+        {
+            yield return new WaitForSeconds(0.1f);
+            elapsed += 0.1f;
+        }
+
+        if (Items.ItemsManager.Instance.IsInitialized)
+        {
+            Debug.Log($"[MultiplayerMenuController] ItemsManager initialized with {Items.ItemsManager.Instance.TotalItemsLoaded} items, connecting...");
+            ConnectToServer(ip, port);
+        }
+        else
+        {
+            Debug.LogWarning("[MultiplayerMenuController] ItemsManager initialization timeout, connecting anyway...");
+            ConnectToServer(ip, port);
+        }
+    }
+
+    private void ConnectToServer(string ip, ushort port)
+    {
+        if (NetworkConnectionHandler.Instance != null)
+        {
+            NetworkConnectionHandler.Instance.ConnectToServer(ip, port);
+        }
+        else
+        {
+            Debug.LogError("[MultiplayerMenuController] NetworkConnectionHandler.Instance is null!");
+        }
+    }
+
     private void OnJoinButtonClicked()
     {
         // Obtener valores del UI
@@ -69,14 +105,24 @@ public class MultiplayerMenuController : MonoBehaviour
             port = 7777;
         }
 
-        // Delegar la conexión al NetworkConnectionHandler
-        if (NetworkConnectionHandler.Instance != null)
+        // Verificar que ItemsManager esté inicializado antes de conectar
+        if (Items.ItemsManager.Instance != null)
         {
-            NetworkConnectionHandler.Instance.ConnectToServer(ip, port);
+            if (Items.ItemsManager.Instance.IsInitialized)
+            {
+                Debug.Log($"[MultiplayerMenuController] ItemsManager already initialized with {Items.ItemsManager.Instance.TotalItemsLoaded} items");
+                ConnectToServer(ip, port);
+            }
+            else
+            {
+                Debug.Log("[MultiplayerMenuController] Waiting for ItemsManager to initialize...");
+                StartCoroutine(WaitForItemsManagerThenConnect(ip, port));
+            }
         }
         else
         {
-            Debug.LogError("[MultiplayerMenuController] NetworkConnectionHandler.Instance is null!");
+            Debug.LogWarning("[MultiplayerMenuController] ItemsManager.Instance is null, connecting anyway...");
+            ConnectToServer(ip, port);
         }
     }
 }

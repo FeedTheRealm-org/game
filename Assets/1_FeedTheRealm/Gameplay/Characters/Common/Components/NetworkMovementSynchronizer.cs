@@ -8,6 +8,7 @@ using System.Collections;
 /// </summary>
 public class NetworkMovementSynchronizer : NetworkBehaviour
 {
+    [SerializeField] private Logging.Logger logger;
     [SerializeField] private MovementComponent movementComponent;
     [SerializeField] private Rigidbody rb;
 
@@ -41,7 +42,7 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
         if (IsOwner)
         {
             // Owner controls and synchronizes
-            Debug.Log($"NetworkMovementSynchronizer - Owner: {OwnerClientId}");
+            logger.Log($"NetworkMovementSynchronizer - Owner: {OwnerClientId}", this);
         }
         else
         {
@@ -179,8 +180,7 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
             }
-            
-            Debug.Log($"[NetworkMovementSynchronizer] Client {OwnerClientId} teleported to {position} via ClientRpc");
+            logger.Log($"[NetworkMovementSynchronizer] Client {OwnerClientId} teleported to {position} via ClientRpc", this);
         }
     }
 }

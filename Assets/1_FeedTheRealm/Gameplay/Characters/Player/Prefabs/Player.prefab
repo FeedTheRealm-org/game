@@ -584,6 +584,7 @@ GameObject:
   - component: {fileID: 1534545483887044268}
   - component: {fileID: 370332728856482138}
   - component: {fileID: 4190128248899451067}
+  - component: {fileID: 1279755217581899662}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -818,6 +819,22 @@ MonoBehaviour:
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+--- !u!114 &1279755217581899662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bb6ff8f6299b8ee092c1a2932a7c048, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventoryReference
+  inventoryPrefab: {fileID: 6228110454024648622, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
+  inventoryController: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
+  useSceneInventoryForLocalPlayer: 1
+  logger: {fileID: 11400000, guid: 370a1d378e969c1d69728babe5e18233, type: 2}
 --- !u!1 &1441779320172419306
 GameObject:
   m_ObjectHideFlags: 0

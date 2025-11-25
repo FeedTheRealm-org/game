@@ -10,9 +10,15 @@ public class InventoryController : MonoBehaviour {
     private VisualElement draggedItem;
     private VisualElement draggedItemOriginalSlot;
     private Vector2 dragOffset;
+    private bool isUIVisible = false;
 
-    [Header("Loot Settings")]
-    [SerializeField] private List<Sprite> lootSprites = new List<Sprite>();
+    [Header("Items Management")]
+    // ItemsManager reference (uses singleton pattern)
+    private Items.ItemsManager ItemsManager => Items.ItemsManager.Instance;
+    
+    [Header("Debug - Loot Testing")]
+    [SerializeField] private bool enableDebugLootButton = false;
+    [SerializeField] private List<Sprite> debugLootSprites = new List<Sprite>();
     private int currentLootIndex = 0;
 
     [Header("Slot Sprites")]
@@ -28,6 +34,9 @@ public class InventoryController : MonoBehaviour {
     void Start() {
         uiDocument = GetComponent<UIDocument>();
         root = uiDocument.rootVisualElement;
+
+        // Inicialmente ocultar la UI (pero mantener el GameObject activo)
+        HideUI();
 
         // Encontrar todos los slots
         for (int i = 1; i <= 12; i++) {
@@ -45,10 +54,16 @@ public class InventoryController : MonoBehaviour {
             }
         }
 
-        // Configurar botón de Loot
+        // Configurar botón de Loot (solo para debug)
         lootButton = root.Q<Button>("Loot");
-        if (lootButton != null) {
+        if (lootButton != null && enableDebugLootButton)
+        {
             lootButton.clicked += OnLootButtonClicked;
+        }
+        else if (lootButton != null)
+        {
+            // Ocultar el botón si no está en modo debug
+            lootButton.style.display = DisplayStyle.None;
         }
 
         // Configurar zona de Drop
@@ -269,26 +284,89 @@ public class InventoryController : MonoBehaviour {
         return rect.Contains(pointerPosition);
     }
 
-    private void OnLootButtonClicked() {
-        if (lootSprites == null || lootSprites.Count == 0) {
-            logger.Log("No hay sprites asignados en la lista de loot", this, Logging.LogType.Warning);
+    /// <summary>
+    /// DEBUG ONLY: Button to simulate loot drop with predefined sprites
+    /// </summary>
+    private void OnLootButtonClicked()
+    {
+        if (debugLootSprites == null || debugLootSprites.Count == 0)
+        {
+            logger.Log("[DEBUG] No hay sprites asignados en debugLootSprites", this, Logging.LogType.Warning);
             return;
         }
 
         // Obtener el sprite actual de la lista
-        Sprite spriteToAdd = lootSprites[currentLootIndex];
-
+        Sprite spriteToAdd = debugLootSprites[currentLootIndex];
+        
         // Avanzar al siguiente índice (con wrap-around)
-        currentLootIndex = (currentLootIndex + 1) % lootSprites.Count;
-
-        AddItem(spriteToAdd);
-        logger.Log($"Looteado sprite {currentLootIndex}/{lootSprites.Count}", this);
+        currentLootIndex = (currentLootIndex + 1) % debugLootSprites.Count;
+        
+        AddItemBySprite(spriteToAdd);
+        logger.Log($"[DEBUG] Looteado sprite {currentLootIndex}/{debugLootSprites.Count}", this);
     }
 
-    // Método para añadir un item al inventario
-    public void AddItem(Sprite itemSprite) {
-        if (itemSprite == null) {
-            logger.Log("No se puede añadir un item sin sprite", this, Logging.LogType.Warning);
+    /// <summary>
+    /// Add item to inventory by item ID (gets sprite from ItemsManager).
+    /// This is the main method used by the game.
+    /// </summary>
+    public void AddItemById(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId))
+        {
+            logger.Log("Cannot add item: itemId is null or empty", this, Logging.LogType.Warning);
+            return;
+        }
+
+        if (ItemsManager == null)
+        {
+            logger.Log("ERROR: ItemsManager singleton not available! Make sure ItemsManager exists in MPMenuScene.", this, Logging.LogType.Error);
+            return;
+        }
+
+        if (!ItemsManager.IsInitialized)
+        {
+            logger.Log("WARNING: ItemsManager not initialized yet, cannot add item", this, Logging.LogType.Warning);
+            return;
+        }
+
+        // Get sprite from ItemsManager (coroutine for async loading)
+        StartCoroutine(AddItemByIdCoroutine(itemId));
+    }
+
+    private System.Collections.IEnumerator AddItemByIdCoroutine(string itemId)
+    {
+        Texture2D texture = null;
+        
+        yield return ItemsManager.GetItemSprite(itemId, (loadedTexture) => {
+            texture = loadedTexture;
+        });
+
+        if (texture != null)
+        {
+            // Convert Texture2D to Sprite
+            Sprite sprite = Sprite.Create(
+                texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f)
+            );
+            
+            AddItemBySprite(sprite);
+            logger.Log($"Item added to inventory: {itemId}", this);
+        }
+        else
+        {
+            logger.Log($"Failed to load sprite for item: {itemId}", this, Logging.LogType.Error);
+        }
+    }
+
+    /// <summary>
+    /// Add item to inventory by sprite directly (used by debug button).
+    /// </summary>
+    public void AddItemBySprite(Sprite itemSprite)
+    {
+        if (itemSprite == null)
+        {
+            logger.Log("Cannot add item: sprite is null", this, Logging.LogType.Warning);
             return;
         }
 
@@ -296,12 +374,12 @@ public class InventoryController : MonoBehaviour {
         foreach (var slot in slots) {
             if (slot.childCount == 0) {
                 CreateItemElement(itemSprite, slot);
-                logger.Log($"Item añadido al inventario", this);
+                logger.Log($"Item added to inventory", this);
                 return;
             }
         }
 
-        logger.Log("Inventario lleno, no se puede añadir más items", this);
+        logger.Log("Inventory full, cannot add more items", this, Logging.LogType.Warning);
     }
 
     private void CreateItemElement(Sprite itemSprite, VisualElement parentSlot) {
@@ -329,35 +407,54 @@ public class InventoryController : MonoBehaviour {
         return true;
     }
 
-    public int GetEmptySlotCount() {
+    public int GetEmptySlotCount()
+    {
+        logger?.Log($"[InventoryController] Contando slots vacíos. Total slots en lista: {slots.Count}", this);
+        
         int count = 0;
         foreach (var slot in slots) {
             if (slot.childCount == 0) {
                 count++;
             }
         }
+        
+        logger?.Log($"[InventoryController] Slots vacíos encontrados: {count}/{slots.Count}", this);
         return count;
     }
 
     public bool IsOpen() {
-        return gameObject.activeSelf;
+        return isUIVisible;
     }
 
     public void ToggleInventory() {
-        logger.Log("Toggle settings", this);
+        //logger.Log("Toggle inventory", this);
 
-        bool willBeActive = !gameObject.activeSelf;
+        if (isUIVisible) {
+            HideUI();
+        } else {
+            ShowUI();
+        }
+    }
 
-        if (willBeActive) {
+    private void ShowUI() {
+        if (root != null) {
+            root.style.display = DisplayStyle.Flex;
+            isUIVisible = true;
+
             UnityEngine.Cursor.lockState = CursorLockMode.None;
             UnityEngine.Cursor.visible = true;
-            logger.Log("Cursor shown (toggle)", this);
-        } else {
+            //logger.Log("Inventory UI shown - Cursor unlocked", this);
+        }
+    }
+
+    private void HideUI() {
+        if (root != null) {
+            root.style.display = DisplayStyle.None;
+            isUIVisible = false;
+
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
             UnityEngine.Cursor.visible = false;
-            logger.Log("Cursor hidden (toggle)", this);
+            //logger.Log("Inventory UI hidden - Cursor locked", this);
         }
-
-        gameObject.SetActive(willBeActive);
     }
 }
