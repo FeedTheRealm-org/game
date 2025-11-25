@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MultiplayerScene.unity
     guid: f6ac62a72a7875ffab304152e68e376a
+  - enabled: 1
+    path: Assets/1_FeedTheRealm/Scenes/Main/GameScene.unity
+    guid: dc5591e8fee62344ebea5061cea6ac16
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
