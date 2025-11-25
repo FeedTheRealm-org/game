@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6301960170539827402}
   - component: {fileID: 939860814795634181}
   - component: {fileID: 7234926229242790679}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,7 +119,7 @@ GameObject:
   - component: {fileID: 4926782902878775639}
   - component: {fileID: 7758021345032191184}
   - component: {fileID: 4416602767729884748}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: LootItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1999135714
+  GlobalObjectIdHash: 1504074118
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -191,6 +191,7 @@ MonoBehaviour:
   pickupSound: {fileID: 0}
   pickupVFX: {fileID: 0}
   logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
+  lootableDelay: 0.2
 --- !u!135 &7758021345032191184
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -251,7 +252,7 @@ GameObject:
   - component: {fileID: 7545881860819203172}
   - component: {fileID: 1618750192962942465}
   - component: {fileID: 9036494285597608561}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
