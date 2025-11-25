@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: WorldsLogger
   m_EditorClassIdentifier: FeedTheRealm_Shared::Logging.Logger
   _showLogs: 1
-  _loggerPrefix: 
-  _loggerColor: {r: 0.27211744, g: 0.09878961, b: 0.5660378, a: 0}
+  _loggerPrefix: '[WORLD]'
+  _loggerColor: {r: 0.5294118, g: 0, b: 0.45831874, a: 1}
