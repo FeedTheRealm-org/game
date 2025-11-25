@@ -171,8 +171,8 @@ namespace Items {
             // Download sprite using category-based route
             bool completed = false;
             yield return itemAssetsService.DownloadItemSpriteByCategory(
-                item.category,
                 item.sprite_id,
+                item.category,
                 (texture) => {
                     if (texture != null) {
                         spriteCache[itemId] = texture;

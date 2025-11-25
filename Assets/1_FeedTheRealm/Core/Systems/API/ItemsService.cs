@@ -27,7 +27,7 @@ namespace API {
         /// This is called once on initialization to populate the cache.
         /// </summary>
         public IEnumerator GetItemsMetadata(System.Action<ItemsListResponse, string> handler) {
-            var url = $"http://{Hostname}:{Port}/api/items/metadata";
+            var url = $"http://{Hostname}:{Port}/items/metadata";
             
             logger?.Log($"GetItemsMetadata - URL: {url}", this);
             
@@ -61,7 +61,7 @@ namespace API {
         /// Used for lazy loading individual items if needed.
         /// </summary>
         public IEnumerator GetItemById(string itemId, System.Action<ItemMetadataResponse, string> handler) {
-            var url = $"http://{Hostname}:{Port}/api/items/{itemId}";
+            var url = $"http://{Hostname}:{Port}/items/{itemId}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
