@@ -28,6 +28,7 @@ public class WorldFeedMenuController : MonoBehaviour {
     private TextField searchField;
     private Button backButton;
     private Button forwardButton;
+    private VisualElement loadingPanel;
     private int currentOffset = 0;
     private int maxPageOffset = int.MaxValue;
     private const int PAGE_SIZE = 20;
@@ -36,6 +37,28 @@ public class WorldFeedMenuController : MonoBehaviour {
 
     private void Awake() {
         ui = GetComponent<UIDocument>().rootVisualElement;
+
+        // Initialize loading panel
+        loadingPanel = ui.Q<VisualElement>("LoadingPanel");
+        if (loadingPanel == null) {
+            loadingPanel = new VisualElement();
+            loadingPanel.name = "LoadingPanel";
+            loadingPanel.style.position = Position.Absolute;
+            loadingPanel.style.width = Length.Percent(100);
+            loadingPanel.style.height = Length.Percent(100);
+            loadingPanel.style.backgroundColor = new Color(0, 0, 0, 0.7f);
+            loadingPanel.style.alignItems = Align.Center;
+            loadingPanel.style.justifyContent = Justify.Center;
+
+            var loadingLabel = new Label("Loading world...");
+            loadingLabel.style.color = Color.white;
+            loadingLabel.style.fontSize = 24;
+            loadingLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+            loadingPanel.Add(loadingLabel);
+
+            ui.Add(loadingPanel);
+        }
+        loadingPanel.style.display = DisplayStyle.None;
 
         searchField = ui.Q<TextField>("SearchField");
         if (searchField != null) {
@@ -235,6 +258,12 @@ public class WorldFeedMenuController : MonoBehaviour {
         logger.Log($"========== STARTING WORLD JOIN PROCESS ==========", this);
         logger.Log($"Step 1: Fetching world data for ID: {worldId}", this);
 
+        // Show loading screen
+        if (loadingPanel != null) {
+            loadingPanel.style.display = DisplayStyle.Flex;
+            logger.Log("Showing loading screen", this);
+        }
+
         // Step 1: Fetch world data from API
         bool worldDataFetched = false;
         API.WorldsData fetchedWorldData = null;
@@ -251,11 +280,21 @@ public class WorldFeedMenuController : MonoBehaviour {
 
         if (!string.IsNullOrEmpty(fetchError)) {
             logger.Log($"❌ Error loading world: {fetchError}", this, Logging.LogType.Error);
+            // Hide loading on error
+            if (loadingPanel != null) {
+                loadingPanel.style.display = DisplayStyle.None;
+                logger.Log("Hiding loading screen on error", this);
+            }
             yield break;
         }
 
         if (fetchedWorldData == null) {
             logger.Log("❌ World data is null", this, Logging.LogType.Error);
+            // Hide loading on error
+            if (loadingPanel != null) {
+                loadingPanel.style.display = DisplayStyle.None;
+                logger.Log("Hiding loading screen on error", this);
+            }
             yield break;
         }
 
@@ -263,13 +302,15 @@ public class WorldFeedMenuController : MonoBehaviour {
 
         // Step 2: Download world assets (models) if not already downloaded
         logger.Log($"Step 2: Checking for world assets...", this);
+        bool downloadAttempted = false;
+        bool downloadSuccess = false;
         if (worldAssetsService != null) {
             bool assetsDownloaded = worldAssetsService.AreModelsDownloaded(worldId);
 
             if (!assetsDownloaded) {
                 logger.Log($"⏳ Downloading world models...", this);
+                downloadAttempted = true;
                 bool downloadComplete = false;
-                bool downloadSuccess = false;
                 string downloadError = null;
 
                 yield return worldAssetsService.DownloadWorldModels(worldId, (success, error) => {
@@ -296,6 +337,21 @@ public class WorldFeedMenuController : MonoBehaviour {
             }
         } else {
             logger.Log("⚠️ WorldAssetsService is not assigned! Assets will not be downloaded.", this, Logging.LogType.Warning);
+        }
+
+        // Wait for assets to be available in the folder
+        if (downloadAttempted && downloadSuccess && worldAssetsService != null) {
+            while (!worldAssetsService.AreModelsDownloaded(worldId)) {
+                logger.Log("Waiting for assets to be available in folder...", this);
+                yield return null;
+            }
+            logger.Log("Assets confirmed in folder", this);
+        }
+
+        // Hide loading screen after assets are confirmed
+        if (loadingPanel != null) {
+            loadingPanel.style.display = DisplayStyle.None;
+            logger.Log("Hiding loading screen after assets confirmed", this);
         }
 
         // Step 3: Store world data in WorldLoader for the game scene
