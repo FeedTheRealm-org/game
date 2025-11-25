@@ -20,9 +20,6 @@ public class WorldFeedMenuController : MonoBehaviour {
     [SerializeField]
     private Systems.WorldLoader worldLoader;
 
-    [SerializeField]
-    private WorldDetailsModalController detailsModalController;
-
     [Header("Scene Settings")]
     [SerializeField]
     private string gameSceneName = "GameScene";
@@ -39,13 +36,6 @@ public class WorldFeedMenuController : MonoBehaviour {
 
     private void Awake() {
         ui = GetComponent<UIDocument>().rootVisualElement;
-
-        // Initialize the details modal controller
-        if (detailsModalController != null) {
-            detailsModalController.Initialize(ui);
-        } else {
-            logger.Log("WorldDetailsModalController not assigned!", this, Logging.LogType.Warning);
-        }
 
         searchField = ui.Q<TextField>("SearchField");
         if (searchField != null) {
@@ -173,21 +163,6 @@ public class WorldFeedMenuController : MonoBehaviour {
         // Make the entire world element clickable to join
         worldElement.RegisterCallback<ClickEvent>(evt => OnWorldElementClicked(worldName));
 
-        // Create buttons container
-        var buttonsContainer = new VisualElement();
-        buttonsContainer.AddToClassList("worldButtonsContainer");
-        buttonsContainer.name = "ButtonsContainer";
-
-        // Create Details button
-        var detailsButton = new Button(() => OnDetailsButtonClicked(worldName));
-        detailsButton.text = "Details";
-        detailsButton.AddToClassList("worldButton");
-        detailsButton.AddToClassList("detailsButton");
-        detailsButton.name = "DetailsButton";
-
-        buttonsContainer.Add(detailsButton);
-        worldElement.Add(buttonsContainer);
-
         return worldElement;
     }
 
@@ -254,21 +229,6 @@ public class WorldFeedMenuController : MonoBehaviour {
 
         logger.Log($"World element clicked for world: {worldName} (ID: {worldData.id})", this);
         StartCoroutine(LoadAndJoinWorld(worldData.id));
-    }
-
-    private void OnDetailsButtonClicked(string worldName) {
-        if (!worldDataMap.TryGetValue(worldName, out var worldData)) {
-            logger.Log($"World data not found for: {worldName}", this, Logging.LogType.Error);
-            return;
-        }
-
-        logger.Log($"Details button clicked for world: {worldName}", this);
-
-        if (detailsModalController != null) {
-            detailsModalController.Show(worldData);
-        } else {
-            logger.Log("Details modal controller not available", this, Logging.LogType.Error);
-        }
     }
 
     private System.Collections.IEnumerator LoadAndJoinWorld(string worldId) {
