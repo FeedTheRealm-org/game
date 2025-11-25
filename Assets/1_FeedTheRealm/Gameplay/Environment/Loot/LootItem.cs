@@ -51,6 +51,13 @@ public class LootItem : NetworkBehaviour {
     private SphereCollider triggerCollider;
     private bool hasAttemptedPickup = false;
     private HashSet<Collider> playersInRange = new HashSet<Collider>();
+    
+    // Delay para evitar loot inmediato después del spawn
+    private float spawnTime;
+    private bool isLootable = false;
+    [SerializeField]
+    [Tooltip("Delay in seconds before loot becomes collectible")]
+    private float lootableDelay = 1.0f;
 
     private void Awake() {
         // Inicializar NetworkList
@@ -59,6 +66,8 @@ public class LootItem : NetworkBehaviour {
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
+        
+        logger?.Log($"[LootItem] OnNetworkSpawn - IsServer: {IsServer}, ItemCount: {itemIds.Count}, Items: {string.Join(", ", itemIds)}", this);
         
         // Clientes: Esperar y actualizar visuals
         if (IsClient) {
@@ -156,24 +165,33 @@ public class LootItem : NetworkBehaviour {
     private void OnTriggerEnter(Collider other) {
         // Verificar si es el jugador
         if (((1 << other.gameObject.layer) & playerLayer) != 0) {
-            logger?.Log($"[LootItem] Jugador detectado: {other.name}", this);
+            //logger?.Log($"[LootItem] Jugador detectado: {other.name}", this);
             
             playersInRange.Add(other);
             
-            // Intentar recoger inmediatamente
-            TryPickupItems(other.gameObject);
+            // Solo intentar recoger si el loot ya es looteable
+            if (isLootable) {
+                TryPickupItems(other.gameObject);
+            } else {
+                float timeSinceSpawn = Time.time - spawnTime;
+                //logger?.Log($"[LootItem] Loot no looteable aún. Tiempo transcurrido: {timeSinceSpawn:F2}s de {lootableDelay}s", this);
+            }
         }
     }
 
-    private void OnTriggerExit(Collider other) {
-        // Remover jugador del rango y resetear flag
-        if (((1 << other.gameObject.layer) & playerLayer) != 0) {
-            logger?.Log($"[LootItem] Jugador salió del rango: {other.name}", this);
-            playersInRange.Remove(other);
-            
-            // Si el jugador sale, permitir reintentar cuando vuelva a entrar
-            if (playersInRange.Count == 0) {
-                hasAttemptedPickup = false;
+    private void Update() {
+        // Si hay jugadores en rango pero el loot no es looteable aún, verificar periódicamente
+        if (!isLootable && playersInRange.Count > 0) {
+            if (Time.time - spawnTime >= lootableDelay) {
+                isLootable = true;
+                //logger?.Log($"[LootItem] Loot se volvió looteable mientras había jugadores en rango", this);
+                
+                // Intentar recoger para todos los jugadores en rango
+                foreach (var playerCollider in playersInRange) {
+                    if (playerCollider != null && playerCollider.gameObject != null) {
+                        TryPickupItems(playerCollider.gameObject);
+                    }
+                }
             }
         }
     }
@@ -182,8 +200,11 @@ public class LootItem : NetworkBehaviour {
     /// Intenta transferir los items al inventario del jugador
     /// </summary>
     private void TryPickupItems(GameObject player) {
+        //logger?.Log($"[LootItem] TryPickupItems called - IsLootable: {isLootable}, ItemCount: {itemIds.Count}, TimeSinceSpawn: {Time.time - spawnTime:F2}s", this);
+        
         // Evitar procesamiento múltiple si ya se intentó y falló
         if (hasAttemptedPickup) {
+            //logger?.Log("[LootItem] TryPickupItems - Already attempted pickup, skipping", this);
             return;
         }
 
@@ -368,6 +389,25 @@ public class LootItem : NetworkBehaviour {
     /// <param name="spawnPosition">Posición donde aparecerá el loot</param>
     public void Initialize(Vector3 spawnPosition) {
         transform.position = spawnPosition + Vector3.up * heightOffset;
+        
+        // Registrar tiempo de spawn y iniciar delay
+        spawnTime = Time.time;
+        isLootable = false;
+        
+        // Iniciar coroutine para habilitar loot después del delay
+        StartCoroutine(EnableLootAfterDelay());
+        
+        //logger?.Log($"[LootItem] Inicializado en {spawnPosition}. Loot será looteable en {lootableDelay}s", this);
+    }
+    
+    /// <summary>
+    /// Coroutine que espera el delay antes de permitir que el loot sea recolectado
+    /// </summary>
+    private System.Collections.IEnumerator EnableLootAfterDelay() {
+        yield return new WaitForSeconds(lootableDelay);
+        
+        isLootable = true;
+        //logger?.Log($"[LootItem] Loot ahora es looteable después de {lootableDelay}s", this);
     }
     
     /// <summary>
@@ -382,8 +422,10 @@ public class LootItem : NetworkBehaviour {
             return;
         }
 
+        //logger?.Log($"[LootItem] SetItemIds called with {ids?.Count ?? 0} items: {string.Join(", ", ids ?? new List<string>())}", this);
+
         if (ids == null || ids.Count == 0) {
-            logger?.Log($"[LootItem] SetItemIds called with empty or null list", this, Logging.LogType.Warning);
+            logger?.Log("[LootItem] SetItemIds called with empty or null list", this, Logging.LogType.Warning);
             return;
         }
         

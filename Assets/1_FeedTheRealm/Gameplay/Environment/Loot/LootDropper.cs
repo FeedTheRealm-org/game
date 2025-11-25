@@ -108,7 +108,17 @@ public class LootDropper : MonoBehaviour {
         // Inicializar posición (no toca NetworkVariables)
         lootItem.Initialize(spawnPosition);
         
-        // PRIMERO spawnear en la red (si es multiplayer)
+        // CONFIGURAR LOS ITEMS ANTES DE SPAWNEAR EN LA RED
+        List<string> lootItemIds = GetRandomLootItems();
+        
+        if (lootItemIds != null && lootItemIds.Count > 0) {
+            lootItem.SetItemIds(lootItemIds);
+            logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs: {string.Join(", ", lootItemIds)}", this);
+        } else {
+            logger?.Log("[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!", this, Logging.LogType.Warning);
+        }
+        
+        // AHORA spawnear en la red (después de configurar items)
         bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
         if (isMultiplayer) {
             NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
@@ -118,20 +128,9 @@ public class LootDropper : MonoBehaviour {
                 return;
             }
 
-            // Spawn en la red PRIMERO
+            // Spawn en la red DESPUÉS de configurar items
             networkObject.Spawn();
-            logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition}", this);
-        }
-        
-        // DESPUÉS de spawnear, configurar los items (ahora el NetworkObject ya está spawneado)
-        List<string> lootItemIds = GetRandomLootItems();
-        
-        if (lootItemIds != null && lootItemIds.Count > 0) {
-            lootItem.SetItemIds(lootItemIds);
-            logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs", this);
-        } else {
-            // Empty loot bag will spawn but won't have items
-            logger?.Log($"[LootDropper] WARNING: No items obtained for loot bag", this, Logging.LogType.Warning);
+            logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition} with {lootItemIds?.Count ?? 0} items", this);
         }
     }
 

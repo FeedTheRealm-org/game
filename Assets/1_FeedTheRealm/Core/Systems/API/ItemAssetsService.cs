@@ -18,15 +18,6 @@ namespace API {
         [SerializeField]
         public int Port;
 
-        [Header("Session settings")]
-        [SerializeField]
-        private Session.Session session;
-
-        [Header("Dedicated Server Settings")]
-        [SerializeField]
-        [Tooltip("Hardcoded JWT token for dedicated server (fallback when session is not available)")]
-        private string dedicatedServerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQwMjE5NjksImlzcyI6MTc2MzkzNTU2OSwidXNlcklEIjoiY2QxMjNkNjktMWE5MS00ZjQxLTlhOTQtYjE3YjQyMmQzOWRlIn0.QSr9jfdAKAEPVrhzZINEVRX8mFB6asjpPjDxAEJI-4Q";
-
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
@@ -39,20 +30,10 @@ namespace API {
             var url = $"http://{Hostname}:{Port}/assets/sprites/items/by-id/{spriteId}";
             var uwr = UnityWebRequestTexture.GetTexture(url);
 
-            string token = GetAuthToken();
-            if (!string.IsNullOrEmpty(token)) {
-                uwr.SetRequestHeader("Authorization", $"Bearer {token}");
-            } else {
-                logger?.Log("WARNING: No authentication token available for sprite download!", this, Logging.LogType.Warning);
-            }
-
             yield return uwr.SendWebRequest();
 
             if (uwr.result == UnityWebRequest.Result.ConnectionError || 
                 uwr.result == UnityWebRequest.Result.ProtocolError) {
-                if (uwr.responseCode == 401 || uwr.responseCode == 403) {
-                    Debug.LogWarning("⚠️ [ItemAssetsService] AUTHENTICATION FAILED on sprite download!");
-                }
                 logger?.Log($"DownloadItemSprite error for {spriteId}: {uwr.error}", 
                           this, Logging.LogType.Error);
                 handler?.Invoke(null);
@@ -73,20 +54,10 @@ namespace API {
             var url = $"http://{Hostname}:{Port}/assets/sprites/items/{category}/{spriteId}";
             var uwr = UnityWebRequestTexture.GetTexture(url);
 
-            string token = GetAuthToken();
-            if (!string.IsNullOrEmpty(token)) {
-                uwr.SetRequestHeader("Authorization", $"Bearer {token}");
-            } else {
-                logger?.Log("WARNING: No authentication token available for sprite download!", this, Logging.LogType.Warning);
-            }
-
             yield return uwr.SendWebRequest();
 
             if (uwr.result == UnityWebRequest.Result.ConnectionError || 
                 uwr.result == UnityWebRequest.Result.ProtocolError) {
-                if (uwr.responseCode == 401 || uwr.responseCode == 403) {
-                    Debug.LogWarning("⚠️ [ItemAssetsService] AUTHENTICATION FAILED on sprite download by category!");
-                }
                 logger?.Log($"DownloadItemSpriteByCategory error for {category}/{spriteId}: {uwr.error}", 
                           this, Logging.LogType.Error);
                 handler?.Invoke(null);
@@ -97,28 +68,5 @@ namespace API {
             }
         }
 
-        /// <summary>
-        /// Get authentication token. Uses session token if available, otherwise uses dedicated server token.
-        /// Note: Dedicated server typically doesn't download sprites, but this is here for consistency.
-        /// </summary>
-        private string GetAuthToken() {
-            #if UNITY_SERVER
-            // Dedicated server: use hardcoded token
-            if (!string.IsNullOrEmpty(dedicatedServerToken)) {
-                return dedicatedServerToken;
-            } else {
-                Debug.LogWarning("[ItemAssetsService] Dedicated server token is not set!");
-                return null;
-            }
-            #else
-            // Client: use session token
-            if (session != null && !string.IsNullOrEmpty(session.APIToken)) {
-                return session.APIToken;
-            } else {
-                Debug.LogWarning("[ItemAssetsService] Session or APIToken is null/empty!");
-                return null;
-            }
-            #endif
-        }
     }
 }
