@@ -56,7 +56,7 @@ namespace API {
 
       // Extract ZIP to Resources folder
       string extractPath = Path.Combine(Application.dataPath, "Resources", "WorldModels", worldId);
-      
+
       try {
         // Create directory if it doesn't exist
         if (!Directory.Exists(extractPath)) {
@@ -71,6 +71,10 @@ namespace API {
         // Extract ZIP
         ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
         logger.Log($"Extracted models to: {extractPath}", this);
+
+#if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+#endif
 
         // Clean up temp file
         File.Delete(tempZipPath);
@@ -88,11 +92,11 @@ namespace API {
     public bool AreModelsDownloaded(string worldId) {
       string extractPath = Path.Combine(Application.dataPath, "Resources", "WorldModels", worldId);
       bool exists = Directory.Exists(extractPath) && Directory.GetFiles(extractPath).Length > 0;
-      
+
       if (logger != null) {
         logger.Log($"Models for world {worldId} {(exists ? "exist" : "do not exist")} at {extractPath}", this);
       }
-      
+
       return exists;
     }
   }
