@@ -16,7 +16,6 @@ public class WorldDetailsModalController : MonoBehaviour {
     private Label createdAtLabel;
     private Label updatedAtLabel;
     private Label descriptionLabel;
-    private Button joinWorldButton;
     private Button cancelButton;
     private Button closeButton;
 
@@ -27,14 +26,11 @@ public class WorldDetailsModalController : MonoBehaviour {
     /// Initializes the modal controller with UI references.
     /// </summary>
     /// <param name="rootElement">The root visual element containing the modal</param>
-    /// <param name="onJoinWorld">Callback when user clicks Join World button</param>
-    public void Initialize(VisualElement rootElement, Action<API.WorldsData> onJoinWorld) {
+    public void Initialize(VisualElement rootElement) {
         if (rootElement == null) {
             logger.Log("Root element is null, cannot initialize modal", this, Logging.LogType.Error);
             return;
         }
-
-        onJoinWorldCallback = onJoinWorld;
 
         // Get modal elements
         modalOverlay = rootElement.Q<VisualElement>("ModalOverlay");
@@ -44,15 +40,10 @@ public class WorldDetailsModalController : MonoBehaviour {
         createdAtLabel = rootElement.Q<Label>("CreatedAtLabel");
         updatedAtLabel = rootElement.Q<Label>("UpdatedAtLabel");
         descriptionLabel = rootElement.Q<Label>("DescriptionLabel");
-        joinWorldButton = rootElement.Q<Button>("JoinWorldButton");
         cancelButton = rootElement.Q<Button>("CancelButton");
         closeButton = rootElement.Q<Button>("CloseButton");
 
         // Register button callbacks
-        if (joinWorldButton != null) {
-            joinWorldButton.clicked += OnJoinWorldClicked;
-        }
-
         if (cancelButton != null) {
             cancelButton.clicked += Hide;
         }
@@ -125,25 +116,8 @@ public class WorldDetailsModalController : MonoBehaviour {
         }
     }
 
-    /// <summary>
-    /// Handles the Join World button click.
-    /// </summary>
-    private void OnJoinWorldClicked() {
-        if (currentWorldData != null) {
-            logger.Log($"User clicked Join World for: {currentWorldData.name}", this);
-            onJoinWorldCallback?.Invoke(currentWorldData);
-            Hide();
-        } else {
-            logger.Log("Cannot join world: no world data available", this, Logging.LogType.Error);
-        }
-    }
-
     private void OnDestroy() {
         // Cleanup event handlers
-        if (joinWorldButton != null) {
-            joinWorldButton.clicked -= OnJoinWorldClicked;
-        }
-
         if (cancelButton != null) {
             cancelButton.clicked -= Hide;
         }

@@ -42,7 +42,7 @@ public class WorldFeedMenuController : MonoBehaviour {
 
         // Initialize the details modal controller
         if (detailsModalController != null) {
-            detailsModalController.Initialize(ui, OnJoinWorldFromModal);
+            detailsModalController.Initialize(ui);
         } else {
             logger.Log("WorldDetailsModalController not assigned!", this, Logging.LogType.Warning);
         }
@@ -170,17 +170,13 @@ public class WorldFeedMenuController : MonoBehaviour {
 
         worldElement.Add(worldLabel);
 
+        // Make the entire world element clickable to join
+        worldElement.RegisterCallback<ClickEvent>(evt => OnWorldElementClicked(worldName));
+
         // Create buttons container
         var buttonsContainer = new VisualElement();
         buttonsContainer.AddToClassList("worldButtonsContainer");
         buttonsContainer.name = "ButtonsContainer";
-
-        // Create Join button
-        var joinButton = new Button(() => OnJoinButtonClicked(worldName));
-        joinButton.text = "Join";
-        joinButton.AddToClassList("worldButton");
-        joinButton.AddToClassList("joinButton");
-        joinButton.name = "JoinButton";
 
         // Create Details button
         var detailsButton = new Button(() => OnDetailsButtonClicked(worldName));
@@ -189,7 +185,6 @@ public class WorldFeedMenuController : MonoBehaviour {
         detailsButton.AddToClassList("detailsButton");
         detailsButton.name = "DetailsButton";
 
-        buttonsContainer.Add(joinButton);
         buttonsContainer.Add(detailsButton);
         worldElement.Add(buttonsContainer);
 
@@ -251,13 +246,13 @@ public class WorldFeedMenuController : MonoBehaviour {
         return categoryContainer;
     }
 
-    private void OnJoinButtonClicked(string worldName) {
+    private void OnWorldElementClicked(string worldName) {
         if (!worldDataMap.TryGetValue(worldName, out var worldData)) {
             logger.Log($"World data not found for: {worldName}", this, Logging.LogType.Error);
             return;
         }
 
-        logger.Log($"Join button clicked for world: {worldName} (ID: {worldData.id})", this);
+        logger.Log($"World element clicked for world: {worldName} (ID: {worldData.id})", this);
         StartCoroutine(LoadAndJoinWorld(worldData.id));
     }
 
@@ -274,16 +269,6 @@ public class WorldFeedMenuController : MonoBehaviour {
         } else {
             logger.Log("Details modal controller not available", this, Logging.LogType.Error);
         }
-    }
-
-    private void OnJoinWorldFromModal(API.WorldsData worldData) {
-        if (worldData == null) {
-            logger.Log("Cannot join world from modal: world data is null", this, Logging.LogType.Error);
-            return;
-        }
-
-        logger.Log($"Joining world from modal: {worldData.name} (ID: {worldData.id})", this);
-        StartCoroutine(LoadAndJoinWorld(worldData.id));
     }
 
     private System.Collections.IEnumerator LoadAndJoinWorld(string worldId) {
