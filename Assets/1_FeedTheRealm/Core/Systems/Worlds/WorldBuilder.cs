@@ -122,6 +122,7 @@ public class WorldBuilder : MonoBehaviour {
             int errorCount = 0;
 
             foreach (var placedAsset in worldData.objectPlacementData) {
+                logger?.Log($"Attempting to place asset ID: {placedAsset.AssetDataId} at position: {placedAsset.Position}", this);
                 if (PlaceAsset(placedAsset)) {
                     placedCount++;
                 } else {
@@ -158,12 +159,16 @@ public class WorldBuilder : MonoBehaviour {
         // Instantiate the model
         GameObject instance = assetData.AssetModelInstance;
         if (instance == null) {
-            logger?.Log($"Failed to instantiate model for asset: {assetData.Name}", this, Logging.LogType.Error);
+            logger?.Log($"Failed to instantiate model for asset: {assetData.Name} (ID: {assetData.Id})", this, Logging.LogType.Error);
             return false;
         }
 
         // Place the object at the grid position
         worldController.PlaceObjectAt(placedAsset.Position, instance);
+
+        // Log the world position
+        Vector3 worldPos = worldController.GetCellPosition(placedAsset.Position);
+        logger?.Log($"Placed at world position: {worldPos}", this);
 
         // Store reference in placedAsset for future use
         placedAsset.InstancedGameObject = instance;
@@ -243,8 +248,14 @@ public class WorldBuilder : MonoBehaviour {
         }
 
         if (prefab == null) {
+            // Try folderName/folderName
+            basePath = $"WorldModels/{worldId}/{folderName}/{folderName}";
+            prefab = Resources.Load<GameObject>(basePath);
+        }
+
+        if (prefab == null) {
             logger?.Log($"⚠️ Asset {assetId} (folder: {folderName}) not found in Resources at WorldModels/{worldId}/", this, Logging.LogType.Warning);
-            logger?.Log($"   Tried paths: WorldModels/{worldId}/{folderName}/model, WorldModels/{worldId}/{folderName}, WorldModels/{worldId}/asset_{assetId}", this, Logging.LogType.Info);
+            logger?.Log($"   Tried paths: WorldModels/{worldId}/{folderName}/model, WorldModels/{worldId}/{folderName}, WorldModels/{worldId}/asset_{assetId}, WorldModels/{worldId}/{folderName}/{folderName}", this, Logging.LogType.Info);
             return null;
         }
 
@@ -261,7 +272,7 @@ public class WorldBuilder : MonoBehaviour {
         nameField?.SetValue(asset, prefab.name);
         sizeField?.SetValue(asset, Vector2Int.one); // Default size
         modelPathField?.SetValue(asset, basePath);
-        materialPathField?.SetValue(asset, ""); // No separate material
+        materialPathField?.SetValue(asset, $"WorldModels/{worldId}/{folderName}/material");
 
         logger?.Log($"✅ Loaded asset {assetId} from {basePath}", this);
         return asset;
