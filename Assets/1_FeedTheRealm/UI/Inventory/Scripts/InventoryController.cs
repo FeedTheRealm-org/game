@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using Items;
 
 public class InventoryController : MonoBehaviour {
     [Header("UI References")]
@@ -12,9 +13,15 @@ public class InventoryController : MonoBehaviour {
     private Vector2 dragOffset;
     private bool isUIVisible = false;
 
+    // Track itemId for each item element (used for tooltip)
+    private Dictionary<VisualElement, string> itemIdMap = new Dictionary<VisualElement, string>();
+
     [Header("Items Management")]
     // ItemsManager reference (uses singleton pattern)
     private Items.ItemsManager ItemsManager => Items.ItemsManager.Instance;
+
+    [Header("Tooltip")]
+    [SerializeField] private ItemStatsTooltip itemStatsTooltip;
     
     [Header("Debug - Loot Testing")]
     [SerializeField] private bool enableDebugLootButton = false;
@@ -45,6 +52,10 @@ public class InventoryController : MonoBehaviour {
                 slots.Add(slot);
                 slot.RegisterCallback<PointerDownEvent>(OnSlotPointerDown);
                 slot.RegisterCallback<PointerUpEvent>(OnSlotPointerUp);
+
+                // Register tooltip hover events on all slots (will check if has item inside the handler)
+                slot.RegisterCallback<PointerEnterEvent>(evt => OnItemHoverEnter(evt, slot));
+                slot.RegisterCallback<PointerLeaveEvent>(evt => OnItemHoverLeave(evt, slot));
 
                 // Configurar sprites de hover si están asignados
                 if (slotNormalSprite != null && slotHoverSprite != null) {
@@ -90,6 +101,11 @@ public class InventoryController : MonoBehaviour {
 
     private void OnSlotPointerDown(PointerDownEvent evt) {
         logger.Log($"OnSlotPointerDown - Target: {evt.target}, CurrentTarget: {evt.currentTarget}", this);
+
+        // Hide tooltip when starting drag
+        if (itemStatsTooltip != null) {
+            itemStatsTooltip.HideTooltip();
+        }
 
         // Intentar obtener el slot desde currentTarget (el elemento que registró el callback)
         var slot = evt.currentTarget as VisualElement;
@@ -336,7 +352,7 @@ public class InventoryController : MonoBehaviour {
     private System.Collections.IEnumerator AddItemByIdCoroutine(string itemId)
     {
         Texture2D texture = null;
-        
+
         yield return ItemsManager.GetItemSprite(itemId, (loadedTexture) => {
             texture = loadedTexture;
         });
@@ -349,8 +365,8 @@ public class InventoryController : MonoBehaviour {
                 new Rect(0, 0, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f)
             );
-            
-            AddItemBySprite(sprite);
+
+            AddItemBySpriteWithId(sprite, itemId);
             logger.Log($"Item added to inventory: {itemId}", this);
         }
         else
@@ -361,6 +377,7 @@ public class InventoryController : MonoBehaviour {
 
     /// <summary>
     /// Add item to inventory by sprite directly (used by debug button).
+    /// Note: This version doesn't have itemId, so tooltip won't work for these items.
     /// </summary>
     public void AddItemBySprite(Sprite itemSprite)
     {
@@ -373,7 +390,7 @@ public class InventoryController : MonoBehaviour {
         // Buscar el primer slot vacío
         foreach (var slot in slots) {
             if (slot.childCount == 0) {
-                CreateItemElement(itemSprite, slot);
+                CreateItemElement(itemSprite, slot, null);
                 logger.Log($"Item added to inventory", this);
                 return;
             }
@@ -382,7 +399,30 @@ public class InventoryController : MonoBehaviour {
         logger.Log("Inventory full, cannot add more items", this, Logging.LogType.Warning);
     }
 
-    private void CreateItemElement(Sprite itemSprite, VisualElement parentSlot) {
+    /// <summary>
+    /// Add item to inventory by sprite with itemId (enables tooltip functionality).
+    /// </summary>
+    private void AddItemBySpriteWithId(Sprite itemSprite, string itemId)
+    {
+        if (itemSprite == null)
+        {
+            logger.Log("Cannot add item: sprite is null", this, Logging.LogType.Warning);
+            return;
+        }
+
+        // Buscar el primer slot vacío
+        foreach (var slot in slots) {
+            if (slot.childCount == 0) {
+                CreateItemElement(itemSprite, slot, itemId);
+                logger.Log($"Item added to inventory with ID: {itemId}", this);
+                return;
+            }
+        }
+
+        logger.Log("Inventory full, cannot add more items", this, Logging.LogType.Warning);
+    }
+
+    private void CreateItemElement(Sprite itemSprite, VisualElement parentSlot, string itemId) {
         var itemElement = new VisualElement();
         itemElement.name = "InventoryItem";
         itemElement.style.backgroundImage = new StyleBackground(itemSprite);
@@ -391,11 +431,64 @@ public class InventoryController : MonoBehaviour {
         itemElement.style.position = Position.Relative;
         itemElement.AddToClassList("inventory-item");
 
-        // Importante: permitir que los eventos pasen al slot padre
+        // Importante: permitir que los eventos pasen al slot padre para drag&drop
         itemElement.pickingMode = PickingMode.Ignore;
 
+        // Store itemId for this item element if provided (used by tooltip hover handlers)
+        if (!string.IsNullOrEmpty(itemId)) {
+            itemIdMap[itemElement] = itemId;
+        }
+
         parentSlot.Add(itemElement);
-        logger.Log($"Item creado en slot: {parentSlot.name}", this);
+        logger.Log($"Item creado en slot: {parentSlot.name}" + (itemId != null ? $" (ID: {itemId})" : ""), this);
+    }
+
+    /// <summary>
+    /// Handle hover enter event on item slots to show tooltip.
+    /// </summary>
+    private void OnItemHoverEnter(PointerEnterEvent evt, VisualElement slot) {
+        logger?.Log($"[Tooltip] OnItemHoverEnter - Slot: {slot.name}, ChildCount: {slot.childCount}", this);
+
+        // Only show tooltip if slot has an item
+        if (slot.childCount == 0) {
+            logger?.Log("[Tooltip] Slot is empty, skipping", this);
+            return;
+        }
+
+        // Don't show tooltip while dragging
+        if (draggedItem != null) {
+            logger?.Log("[Tooltip] Currently dragging, skipping", this);
+            return;
+        }
+
+        // Get the item element (first child)
+        var itemElement = slot[0];
+        logger?.Log($"[Tooltip] Item element found: {itemElement.name}", this);
+
+        // Get itemId from map
+        if (itemIdMap.TryGetValue(itemElement, out string itemId)) {
+            logger?.Log($"[Tooltip] ItemId found in map: {itemId}", this);
+            // Show tooltip if available
+            if (itemStatsTooltip != null) {
+                itemStatsTooltip.ShowTooltip(itemId, evt.position);
+                logger?.Log($"[Tooltip] Showing tooltip for item: {itemId}", this);
+            } else {
+                logger?.Log("[Tooltip] itemStatsTooltip is null!", this, Logging.LogType.Warning);
+            }
+        } else {
+            logger?.Log($"[Tooltip] ItemId not found in map for element: {itemElement.name}", this, Logging.LogType.Warning);
+        }
+    }
+
+    /// <summary>
+    /// Handle hover leave event on item slots to hide tooltip.
+    /// </summary>
+    private void OnItemHoverLeave(PointerLeaveEvent evt, VisualElement slot) {
+        // Hide tooltip if available
+        if (itemStatsTooltip != null) {
+            itemStatsTooltip.HideTooltip();
+            logger?.Log("Hiding tooltip", this);
+        }
     }
 
     public bool IsInventoryFull() {
@@ -451,6 +544,11 @@ public class InventoryController : MonoBehaviour {
         if (root != null) {
             root.style.display = DisplayStyle.None;
             isUIVisible = false;
+
+            // Hide tooltip when closing inventory
+            if (itemStatsTooltip != null) {
+                itemStatsTooltip.HideTooltip();
+            }
 
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
             UnityEngine.Cursor.visible = false;
