@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 7856473034520349750}
   - component: {fileID: 8432168777086298840}
   - component: {fileID: -3982517216707536514}
+  - component: {fileID: 1151433029656121642}
   m_Layer: 9
   m_Name: PlayerMP
   m_TagString: Player
@@ -162,7 +163,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
   GlobalObjectIdHash: 4016909381
   InScenePlacedSourceGlobalObjectIdHash: 0
@@ -187,7 +188,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d68d4e1bf0095e402a2b81a6dd47a944, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkMovementSynchronizer
   ShowTopMostFoldoutHeaderGroup: 1
   logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
@@ -206,7 +207,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8efa6421800298419a5f9c4b9c4efb48, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerController
   ShowTopMostFoldoutHeaderGroup: 1
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
@@ -221,7 +222,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e31cc92a0afd21bebb5b679ca1c8c13d, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::StaminaComponent
   staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
@@ -235,7 +236,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9e8e5dc05b9f7953bccecd79ff26176, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::GroundCheckComponent
   rb: {fileID: 3095535743837438187}
   col: {fileID: 4885086532300312383}
@@ -254,7 +255,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5607ea28d9110be3b6ffac2dd61ee7a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
   rb: {fileID: 3095535743837438187}
   col: {fileID: 4885086532300312383}
@@ -271,7 +272,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f468d29dd15b3e4581e99bed56c0fc9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DashComponent
   rb: {fileID: 3095535743837438187}
   groundCheck: {fileID: 1578071206875185455}
@@ -290,7 +291,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 634832fcf61378f318ed48e4ea9376e4, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::AttackComponent
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackCooldown: 0.4
@@ -310,7 +311,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b45f49302c8a3f1b08b9c5911ddfe0ec, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkAttackSynchronizer
   ShowTopMostFoldoutHeaderGroup: 1
   attackComponent: {fileID: 7856473034520349750}
@@ -331,12 +332,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8bb6ff8f6299b8ee092c1a2932a7c048, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventoryReference
   inventoryPrefab: {fileID: 6228110454024648622, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
   inventoryController: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
   useSceneInventoryForLocalPlayer: 1
   logger: {fileID: 11400000, guid: 370a1d378e969c1d69728babe5e18233, type: 2}
+--- !u!114 &1151433029656121642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ae068552dfb671458052c0c93464725, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteLoader
+  spriteManager: {fileID: 11400000, guid: ace9350c5869a9b1492cedfaa5b1b689, type: 2}
+  assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
+  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!1 &2178209523778464952
 GameObject:
   m_ObjectHideFlags: 0
@@ -492,7 +509,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
   centeredBillboard: 0
   centerTransform: {fileID: 0}
@@ -637,91 +654,91 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[11].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[17].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[18].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[23].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[24].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[25].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[26].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[27].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[28].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[29].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[31].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[32].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[33].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[34].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[35].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[36].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[37].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[38].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[39].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[40].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[41].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 860877538420461084, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: matchingTables.Array.data[42].renderer
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 3431018974941178782, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: m_Pivot.x
@@ -833,7 +850,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7028084264199744406, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: m_Controller
-      value: 
+      value:
       objectReference: {fileID: 9100000, guid: 197d93857c7ef17c69f331596a3315f8, type: 2}
     - target: {fileID: 8167311192859580684, guid: c54b36ee7861c4b41bd1dabf2455160f, type: 3}
       propertyPath: m_Enabled
@@ -887,7 +904,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::AnimationAttackEvent
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackComponent: {fileID: 7856473034520349750}
@@ -903,7 +920,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkAnimator
   ShowTopMostFoldoutHeaderGroup: 1
   TransitionStateInfoList: []

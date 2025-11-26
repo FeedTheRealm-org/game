@@ -291,8 +291,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &859485374719578080
 GameObject:
   m_ObjectHideFlags: 0
@@ -584,7 +584,6 @@ GameObject:
   - component: {fileID: 1534545483887044268}
   - component: {fileID: 370332728856482138}
   - component: {fileID: 4190128248899451067}
-  - component: {fileID: 1279755217581899662}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -724,7 +723,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e31cc92a0afd21bebb5b679ca1c8c13d, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::StaminaComponent
   staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
@@ -738,7 +737,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9e8e5dc05b9f7953bccecd79ff26176, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::GroundCheckComponent
   rb: {fileID: 3095535743837438187}
   col: {fileID: 4885086532300312383}
@@ -757,7 +756,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5607ea28d9110be3b6ffac2dd61ee7a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
   rb: {fileID: 3095535743837438187}
   col: {fileID: 4885086532300312383}
@@ -774,7 +773,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f468d29dd15b3e4581e99bed56c0fc9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DashComponent
   rb: {fileID: 3095535743837438187}
   groundCheck: {fileID: 4180349157995795823}
@@ -793,7 +792,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 634832fcf61378f318ed48e4ea9376e4, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::AttackComponent
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackCooldown: 0.4
@@ -813,28 +812,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ae068552dfb671458052c0c93464725, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteLoader
   spriteManager: {fileID: 11400000, guid: ace9350c5869a9b1492cedfaa5b1b689, type: 2}
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
---- !u!114 &1279755217581899662
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8bb6ff8f6299b8ee092c1a2932a7c048, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventoryReference
-  inventoryPrefab: {fileID: 6228110454024648622, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
-  inventoryController: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
-  useSceneInventoryForLocalPlayer: 1
-  logger: {fileID: 11400000, guid: 370a1d378e969c1d69728babe5e18233, type: 2}
 --- !u!1 &1441779320172419306
 GameObject:
   m_ObjectHideFlags: 0
@@ -1213,8 +1196,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &1988203787468957528
 GameObject:
   m_ObjectHideFlags: 0
@@ -1383,8 +1366,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &2680360642338797807
 GameObject:
   m_ObjectHideFlags: 0
@@ -1618,8 +1601,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &3779860962045785382
 GameObject:
   m_ObjectHideFlags: 0
@@ -1753,8 +1736,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &3998960813039597180
 GameObject:
   m_ObjectHideFlags: 0
@@ -2020,8 +2003,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &4485162562722008754
 GameObject:
   m_ObjectHideFlags: 0
@@ -2345,8 +2328,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &5107029538791090538
 GameObject:
   m_ObjectHideFlags: 0
@@ -2390,8 +2373,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &5324828541404735806
 GameObject:
   m_ObjectHideFlags: 0
@@ -2786,8 +2769,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &5786489414473920283
 GameObject:
   m_ObjectHideFlags: 0
@@ -2902,14 +2885,14 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5084db87f5a3218479da5aa1e18581d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   matchingTables:
   - UnitType: Unit
     PartType: Eye
-    PartSubType: 
+    PartSubType:
     Index: 0
-    Dir: 
+    Dir:
     Structure: Back
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/0_Eye/Eye2
     MaskIndex: 0
@@ -2919,9 +2902,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Eye
-    PartSubType: 
+    PartSubType:
     Index: 0
-    Dir: 
+    Dir:
     Structure: Front
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/0_Eye/Eye2
     MaskIndex: 0
@@ -2931,9 +2914,9 @@ MonoBehaviour:
       rgba: 4280690289
   - UnitType: Unit
     PartType: Eye
-    PartSubType: 
+    PartSubType:
     Index: 0
-    Dir: 
+    Dir:
     Structure: Back
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/0_Eye/Eye2
     MaskIndex: 0
@@ -2943,9 +2926,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Eye
-    PartSubType: 
+    PartSubType:
     Index: 0
-    Dir: 
+    Dir:
     Structure: Front
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/0_Eye/Eye2
     MaskIndex: 0
@@ -2955,9 +2938,9 @@ MonoBehaviour:
       rgba: 4280690289
   - UnitType: Unit
     PartType: Body
-    PartSubType: 
+    PartSubType:
     Index: 1
-    Dir: 
+    Dir:
     Structure: Head
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/1_Body/Human_1
     MaskIndex: 0
@@ -2967,9 +2950,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Body
-    PartSubType: 
+    PartSubType:
     Index: 1
-    Dir: 
+    Dir:
     Structure: Body
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/1_Body/Human_1
     MaskIndex: 0
@@ -2979,9 +2962,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Body
-    PartSubType: 
+    PartSubType:
     Index: 1
-    Dir: 
+    Dir:
     Structure: Arm_L
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/1_Body/Human_1
     MaskIndex: 0
@@ -2991,9 +2974,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Body
-    PartSubType: 
+    PartSubType:
     Index: 1
-    Dir: 
+    Dir:
     Structure: Arm_R
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/1_Body/Human_1
     MaskIndex: 0
@@ -3003,9 +2986,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Body
-    PartSubType: 
+    PartSubType:
     Index: 1
-    Dir: 
+    Dir:
     Structure: Foot_L
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/1_Body/Human_1
     MaskIndex: 0
@@ -3015,9 +2998,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Body
-    PartSubType: 
+    PartSubType:
     Index: 1
-    Dir: 
+    Dir:
     Structure: Foot_R
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/1_Body/Human_1
     MaskIndex: 0
@@ -3027,9 +3010,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Hair
-    PartSubType: 
+    PartSubType:
     Index: 2
-    Dir: 
+    Dir:
     Structure: Hair
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/0_Hair/Hair_1
     MaskIndex: 0
@@ -3039,11 +3022,11 @@ MonoBehaviour:
       rgba: 4283695314
   - UnitType: Unit
     PartType: FaceHair
-    PartSubType: 
+    PartSubType:
     Index: 3
-    Dir: 
+    Dir:
     Structure: FaceHair
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 3000553494530234492}
     Color:
@@ -3051,9 +3034,9 @@ MonoBehaviour:
       rgba: 4280690289
   - UnitType: Unit
     PartType: Cloth
-    PartSubType: 
+    PartSubType:
     Index: 4
-    Dir: 
+    Dir:
     Structure: Left
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/2_Cloth/Cloth_3
     MaskIndex: 0
@@ -3063,9 +3046,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Cloth
-    PartSubType: 
+    PartSubType:
     Index: 4
-    Dir: 
+    Dir:
     Structure: Right
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/2_Cloth/Cloth_3
     MaskIndex: 0
@@ -3075,9 +3058,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Cloth
-    PartSubType: 
+    PartSubType:
     Index: 4
-    Dir: 
+    Dir:
     Structure: Body
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/2_Cloth/Cloth_3
     MaskIndex: 0
@@ -3087,9 +3070,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Pant
-    PartSubType: 
+    PartSubType:
     Index: 5
-    Dir: 
+    Dir:
     Structure: Right
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/3_Pant/Foot_2
     MaskIndex: 0
@@ -3099,9 +3082,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Pant
-    PartSubType: 
+    PartSubType:
     Index: 5
-    Dir: 
+    Dir:
     Structure: Left
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/3_Pant/Foot_2
     MaskIndex: 0
@@ -3111,11 +3094,11 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Helmet
-    PartSubType: 
+    PartSubType:
     Index: 6
     Dir: Back
     Structure: Helmet
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 376852360096584503}
     Color:
@@ -3123,11 +3106,11 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Helmet
-    PartSubType: 
+    PartSubType:
     Index: 6
     Dir: Front
     Structure: Helmet
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 7787647334663511466}
     Color:
@@ -3135,9 +3118,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Armor
-    PartSubType: 
+    PartSubType:
     Index: 7
-    Dir: 
+    Dir:
     Structure: Body
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/5_Armor/Armor_2
     MaskIndex: 0
@@ -3147,9 +3130,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Armor
-    PartSubType: 
+    PartSubType:
     Index: 7
-    Dir: 
+    Dir:
     Structure: Left
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/5_Armor/Armor_2
     MaskIndex: 0
@@ -3159,9 +3142,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Armor
-    PartSubType: 
+    PartSubType:
     Index: 7
-    Dir: 
+    Dir:
     Structure: Right
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/5_Armor/Armor_2
     MaskIndex: 0
@@ -3171,9 +3154,9 @@ MonoBehaviour:
       rgba: 4294967295
   - UnitType: Unit
     PartType: Back
-    PartSubType: 
+    PartSubType:
     Index: 9
-    Dir: 
+    Dir:
     Structure: Back
     ItemPath: Addons/Legacy/0_Unit/0_Sprite/7_Back/Back_1
     MaskIndex: 0
@@ -3187,7 +3170,7 @@ MonoBehaviour:
     Index: 10
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3211,7 +3194,7 @@ MonoBehaviour:
     Index: 11
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3223,7 +3206,7 @@ MonoBehaviour:
     Index: 11
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3235,7 +3218,7 @@ MonoBehaviour:
     Index: 12
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3247,7 +3230,7 @@ MonoBehaviour:
     Index: 12
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3271,7 +3254,7 @@ MonoBehaviour:
     Index: 13
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 5671295771044015621}
     Color:
@@ -3283,7 +3266,7 @@ MonoBehaviour:
     Index: 14
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3295,7 +3278,7 @@ MonoBehaviour:
     Index: 14
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3307,7 +3290,7 @@ MonoBehaviour:
     Index: 15
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3319,7 +3302,7 @@ MonoBehaviour:
     Index: 15
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3331,7 +3314,7 @@ MonoBehaviour:
     Index: 16
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3343,7 +3326,7 @@ MonoBehaviour:
     Index: 16
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3355,7 +3338,7 @@ MonoBehaviour:
     Index: 17
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3367,7 +3350,7 @@ MonoBehaviour:
     Index: 17
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3379,7 +3362,7 @@ MonoBehaviour:
     Index: 18
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3391,7 +3374,7 @@ MonoBehaviour:
     Index: 18
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3403,7 +3386,7 @@ MonoBehaviour:
     Index: 19
     Dir: Left
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1882145027759791960}
     Color:
@@ -3415,7 +3398,7 @@ MonoBehaviour:
     Index: 19
     Dir: Right
     Structure: Weapons
-    ItemPath: 
+    ItemPath:
     MaskIndex: 0
     renderer: {fileID: 1468275033295111998}
     Color:
@@ -3851,7 +3834,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -3866,7 +3849,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::AnimationEvents
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackComponent: {fileID: 370332728856482138}
@@ -3915,8 +3898,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &7036809750627000476
 GameObject:
   m_ObjectHideFlags: 0
@@ -4174,8 +4157,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &7554507189475318985
 GameObject:
   m_ObjectHideFlags: 0
@@ -4463,8 +4446,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &7815339998972777498
 GameObject:
   m_ObjectHideFlags: 0
@@ -4965,7 +4948,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
   centeredBillboard: 0
   centerTransform: {fileID: 0}
@@ -5168,8 +5151,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c562f92f3b8b435d98ac3b65547b755, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &8911386860888887787
 GameObject:
   m_ObjectHideFlags: 0
