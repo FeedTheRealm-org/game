@@ -1,173 +1,173 @@
 using UnityEngine;
 
 /// <summary>
-/// Componente puente que conecta el jugador con su InventoryController.
-/// Debe estar en el GameObject del jugador y referenciar al InventoryController (que puede estar en un prefab de UI separado).
-/// Esto permite que otros sistemas (como LootItem) accedan al inventario del jugador de forma multiplayer-friendly.
+/// Bridge component that connects the player with their InventoryController.
+/// Must be on the player's GameObject and reference the InventoryController (which can be in a separate UI prefab).
+/// This allows other systems (like LootItem) to access the player's inventory in a multiplayer-friendly way.
 /// </summary>
 public class PlayerInventoryReference : MonoBehaviour {
-    
+
     [Header("Inventory Reference")]
     [SerializeField]
-    [Tooltip("Prefab del InventoryController que se instanciará para este jugador")]
+    [Tooltip("InventoryController prefab that will be instantiated for this player")]
     private GameObject inventoryPrefab;
-    
+
     [SerializeField]
-    [Tooltip("Referencia al InventoryController instanciado")]
+    [Tooltip("Reference to the instantiated InventoryController")]
     private InventoryController inventoryController;
-    
+
     [Header("Auto-Configuration")]
     [SerializeField]
-    [Tooltip("Si está habilitado, buscará el InventoryController en GameSceneManager si es el jugador local")]
+    [Tooltip("If enabled, will search for the InventoryController in GameSceneManager if it's the local player")]
     private bool useSceneInventoryForLocalPlayer = true;
-    
+
     [Header("Logging")]
     [SerializeField]
     private Logging.Logger logger;
-    
+
     private bool isLocalPlayer = false;
     private bool isInitialized = false;
 
     private void Start() {
-        // Inicializar en Start en lugar de Awake para dar tiempo a que NetworkBehaviour se configure
-        // También intentar inicializar aquí como fallback para single-player
+        // Initialize in Start instead of Awake to give time for NetworkBehaviour to configure
+        // Also try to initialize here as a fallback for single-player
         if (!isInitialized) {
-            InitializeInventoryReference();
-        }
-    }
-    
-    /// <summary>
-    /// Llamar este método desde NetworkPlayerController.OnNetworkSpawn() para garantizar que IsOwner esté correctamente establecido
-    /// </summary>
-    public void InitializeForNetworkedPlayer() {
-        if (!isInitialized) {
-            logger?.Log("[PlayerInventoryReference] InitializeForNetworkedPlayer llamado desde NetworkPlayerController", this);
             InitializeInventoryReference();
         }
     }
 
     /// <summary>
-    /// Inicializa la referencia al inventario. Se puede llamar manualmente si es necesario.
+    /// Call this method from NetworkPlayerController.OnNetworkSpawn() to ensure IsOwner is correctly set
+    /// </summary>
+    public void InitializeForNetworkedPlayer() {
+        if (!isInitialized) {
+            logger?.Log("[PlayerInventoryReference] InitializeForNetworkedPlayer called from NetworkPlayerController", this);
+            InitializeInventoryReference();
+        }
+    }
+
+    /// <summary>
+    /// Initializes the inventory reference. Can be called manually if necessary.
     /// </summary>
     public void InitializeInventoryReference() {
         if (isInitialized) {
-            logger?.Log("[PlayerInventoryReference] Ya inicializado, ignorando llamada duplicada", this);
+            logger?.Log("[PlayerInventoryReference] Already initialized, ignoring duplicate call", this);
             return;
         }
-        
-        // Detectar si este es el jugador local
+
+        // Detect if this is the local player
         DetectLocalPlayer();
-        
-        // Si ya hay una referencia válida y no es un prefab, usarla
+
+        // If there's already a valid reference and it's not a prefab, use it
         if (inventoryController != null && inventoryController.gameObject.scene.name != null) {
-            logger?.Log($"[PlayerInventoryReference] Referencia ya configurada: {inventoryController.gameObject.name}", this);
+            logger?.Log($"[PlayerInventoryReference] Reference already configured: {inventoryController.gameObject.name}", this);
             ConfigureInventoryController();
             isInitialized = true;
             return;
         }
 
-        // Si es el jugador local, buscar el inventario del GameSceneManager
+        // If it's the local player, search for the inventory in GameSceneManager
         if (isLocalPlayer && useSceneInventoryForLocalPlayer) {
-            logger?.Log("[PlayerInventoryReference] Jugador local detectado. Buscando InventoryController en GameSceneManager...", this);
-            
+            logger?.Log("[PlayerInventoryReference] Local player detected. Searching for InventoryController in GameSceneManager...", this);
+
             var gameSceneManager = FindFirstObjectByType<GameSceneManager>();
             if (gameSceneManager != null) {
-                // Usar reflexión para acceder al campo privado inventoryMenu
-                var field = gameSceneManager.GetType().GetField("inventoryMenu", 
+                // Use reflection to access the private inventoryMenu field
+                var field = gameSceneManager.GetType().GetField("inventoryMenu",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                
+
                 if (field != null) {
                     inventoryController = field.GetValue(gameSceneManager) as InventoryController;
-                    
+
                     if (inventoryController != null) {
-                        logger?.Log($"[PlayerInventoryReference] InventoryController obtenido de GameSceneManager: {inventoryController.gameObject.name}", this);
+                        logger?.Log($"[PlayerInventoryReference] InventoryController obtained from GameSceneManager: {inventoryController.gameObject.name}", this);
                         ConfigureInventoryController();
                         isInitialized = true;
                         return;
                     }
                 }
             }
-            
-            logger?.Log("[PlayerInventoryReference] No se pudo obtener InventoryController de GameSceneManager", this, Logging.LogType.Warning);
+
+            logger?.Log("[PlayerInventoryReference] Could not obtain InventoryController from GameSceneManager", this, Logging.LogType.Warning);
         }
 
-        // Si no es jugador local o no se encontró en GameSceneManager, instanciar uno nuevo
+        // If it's not the local player or wasn't found in GameSceneManager, instantiate a new one
         if (inventoryPrefab != null) {
-            logger?.Log("[PlayerInventoryReference] Instanciando InventoryController desde prefab...", this);
-            
+            logger?.Log("[PlayerInventoryReference] Instantiating InventoryController from prefab...", this);
+
             GameObject inventoryGO = Instantiate(inventoryPrefab);
             inventoryGO.name = $"Inventory_{gameObject.name}";
             inventoryController = inventoryGO.GetComponent<InventoryController>();
-            
+
             if (inventoryController != null) {
-                logger?.Log($"[PlayerInventoryReference] InventoryController instanciado: {inventoryGO.name}", this);
-                
-                // Si no es el jugador local, ocultar la UI del inventario y deshabilitar el componente Start()
+                logger?.Log($"[PlayerInventoryReference] InventoryController instantiated: {inventoryGO.name}", this);
+
+                // If it's not the local player, hide the inventory UI and disable the Start() component
                 if (!isLocalPlayer) {
                     var uiDocument = inventoryGO.GetComponent<UnityEngine.UIElements.UIDocument>();
                     if (uiDocument != null) {
                         uiDocument.enabled = false;
-                        logger?.Log($"[PlayerInventoryReference] UI del inventario deshabilitada para jugador remoto", this);
+                        logger?.Log($"[PlayerInventoryReference] Inventory UI disabled for remote player", this);
                     }
-                    
-                    // Deshabilitar el InventoryController para jugadores remotos (evita errores en Start())
+
+                    // Disable the InventoryController for remote players (prevents errors in Start())
                     inventoryController.enabled = false;
-                    logger?.Log($"[PlayerInventoryReference] InventoryController deshabilitado para jugador remoto (solo almacenamiento de datos)", this);
+                    logger?.Log($"[PlayerInventoryReference] InventoryController disabled for remote player (data storage only)", this);
                 }
-                
+
                 ConfigureInventoryController();
                 isInitialized = true;
             } else {
-                logger?.Log("[PlayerInventoryReference] ERROR: El prefab no contiene un InventoryController!", this, Logging.LogType.Error);
+                logger?.Log("[PlayerInventoryReference] ERROR: The prefab does not contain an InventoryController!", this, Logging.LogType.Error);
             }
         } else {
-            logger?.Log("[PlayerInventoryReference] ERROR: No hay prefab de inventario asignado y no se pudo obtener uno de la escena!", this, Logging.LogType.Error);
+            logger?.Log("[PlayerInventoryReference] ERROR: No inventory prefab assigned and could not obtain one from the scene!", this, Logging.LogType.Error);
         }
-        
+
         isInitialized = true;
-    }
-    
-    /// <summary>
-    /// Detecta si este es el jugador local (el que controla el cliente actual)
-    /// </summary>
-    private void DetectLocalPlayer() {
-        // Intentar detectar desde Unity.Netcode.NetworkBehaviour
-        var networkBehaviour = GetComponent<Unity.Netcode.NetworkBehaviour>();
-        if (networkBehaviour != null) {
-            isLocalPlayer = networkBehaviour.IsOwner;
-            logger?.Log($"[PlayerInventoryReference] Jugador {(isLocalPlayer ? "LOCAL" : "REMOTO")} detectado (NetworkBehaviour)", this);
-            return;
-        }
-        
-        // Fallback: Si no hay NetworkBehaviour, asumir que es local (modo single-player)
-        isLocalPlayer = true;
-        logger?.Log($"[PlayerInventoryReference] No se encontró NetworkBehaviour. Asumiendo jugador LOCAL", this);
     }
 
     /// <summary>
-    /// Configura el InventoryController con el PlayerInputReader del jugador
+    /// Detects if this is the local player (the one controlling the current client)
+    /// </summary>
+    private void DetectLocalPlayer() {
+        // Try to detect from Unity.Netcode.NetworkBehaviour
+        var networkBehaviour = GetComponent<Unity.Netcode.NetworkBehaviour>();
+        if (networkBehaviour != null) {
+            isLocalPlayer = networkBehaviour.IsOwner;
+            logger?.Log($"[PlayerInventoryReference] {(isLocalPlayer ? "LOCAL" : "REMOTE")} player detected (NetworkBehaviour)", this);
+            return;
+        }
+
+        // Fallback: If there's no NetworkBehaviour, assume it's local (single-player mode)
+        isLocalPlayer = true;
+        logger?.Log($"[PlayerInventoryReference] NetworkBehaviour not found. Assuming LOCAL player", this);
+    }
+
+    /// <summary>
+    /// Configures the InventoryController with the player's PlayerInputReader
     /// </summary>
     private void ConfigureInventoryController() {
         if (inventoryController == null) return;
 
-        // PlayerInputReader es un ScriptableObject, no un componente
-        // Necesitamos buscarlo en el PlayerController o NetworkPlayerController
+        // PlayerInputReader is a ScriptableObject, not a component
+        // We need to find it in PlayerController or NetworkPlayerController
         PlayerInputReader playerInputReader = null;
 
-        // Intentar obtener desde PlayerController (single-player)
+        // Try to get from PlayerController (single-player)
         var playerController = GetComponent<PlayerController>();
         if (playerController != null) {
             playerInputReader = playerController.inputReader;
         }
 
-        // Si no se encontró, intentar desde NetworkPlayerController (multiplayer)
+        // If not found, try from NetworkPlayerController (multiplayer)
         if (playerInputReader == null) {
             var networkPlayerController = GetComponent<NetworkPlayerController>();
             if (networkPlayerController != null) {
-                // NetworkPlayerController tiene un campo privado serializado, usar reflexión
-                var field = networkPlayerController.GetType().GetField("playerInputReader", 
+                // NetworkPlayerController has a private serialized field, use reflection
+                var field = networkPlayerController.GetType().GetField("playerInputReader",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                
+
                 if (field != null) {
                     playerInputReader = field.GetValue(networkPlayerController) as PlayerInputReader;
                 }
@@ -175,43 +175,43 @@ public class PlayerInventoryReference : MonoBehaviour {
         }
 
         if (playerInputReader != null) {
-            // Usar reflexión para asignar el playerInputReader al InventoryController
-            var field = inventoryController.GetType().GetField("playerInputReader", 
+            // Use reflection to assign the playerInputReader to the InventoryController
+            var field = inventoryController.GetType().GetField("playerInputReader",
                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            
+
             if (field != null) {
                 field.SetValue(inventoryController, playerInputReader);
-                logger?.Log($"[PlayerInventoryReference] PlayerInputReader del jugador '{gameObject.name}' asignado al InventoryController", this);
+                logger?.Log($"[PlayerInventoryReference] Player '{gameObject.name}' PlayerInputReader assigned to InventoryController", this);
             }
         } else {
-            logger?.Log($"[PlayerInventoryReference] WARNING: No se encontró PlayerInputReader en {gameObject.name}. Asegúrate de que PlayerController o NetworkPlayerController esté presente.", this, Logging.LogType.Warning);
+            logger?.Log($"[PlayerInventoryReference] WARNING: PlayerInputReader not found in {gameObject.name}. Make sure PlayerController or NetworkPlayerController is present.", this, Logging.LogType.Warning);
         }
     }
 
     /// <summary>
-    /// Obtiene el InventoryController asociado a este jugador
+    /// Gets the InventoryController associated with this player
     /// </summary>
-    /// <returns>El InventoryController del jugador, o null si no está asignado</returns>
+    /// <returns>The player's InventoryController, or null if not assigned</returns>
     public InventoryController GetInventory() {
         if (inventoryController == null) {
-            logger?.Log("[PlayerInventoryReference] Error: Intentando acceder a un inventario null!", this, Logging.LogType.Error);
+            logger?.Log("[PlayerInventoryReference] Error: Trying to access a null inventory!", this, Logging.LogType.Error);
         }
         return inventoryController;
     }
 
     /// <summary>
-    /// Establece la referencia al InventoryController (útil para configuración dinámica)
+    /// Sets the reference to the InventoryController (useful for dynamic configuration)
     /// </summary>
-    /// <param name="inventory">El InventoryController a asignar</param>
+    /// <param name="inventory">The InventoryController to assign</param>
     public void SetInventory(InventoryController inventory) {
         inventoryController = inventory;
-        logger?.Log($"[PlayerInventoryReference] Inventory asignado dinámicamente para {gameObject.name}", this);
+        logger?.Log($"[PlayerInventoryReference] Inventory dynamically assigned for {gameObject.name}", this);
     }
 
     /// <summary>
-    /// Verifica si hay un inventario válido asignado
+    /// Checks if there's a valid inventory assigned
     /// </summary>
-    /// <returns>True si hay un inventario asignado, false si no</returns>
+    /// <returns>True if there's an inventory assigned, false if not</returns>
     public bool HasInventory() {
         return inventoryController != null;
     }
