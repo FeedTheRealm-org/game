@@ -1,13 +1,11 @@
 using UnityEngine;
 using Unity.Netcode;
-using System.Collections;
 
 /// <summary>
 /// Synchronizes movement and position for networked characters using the base MovementComponent.
 /// This component handles network synchronization while keeping MovementComponent as a pure MonoBehaviour.
 /// </summary>
-public class NetworkMovementSynchronizer : NetworkBehaviour
-{
+public class NetworkMovementSynchronizer : NetworkBehaviour {
     [SerializeField] private Logging.Logger logger;
     [SerializeField] private MovementComponent movementComponent;
     [SerializeField] private Rigidbody rb;
@@ -26,8 +24,7 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
     private Vector3 lastSentPosition;
     private Quaternion lastSentRotation;
 
-    private void Awake()
-    {
+    private void Awake() {
         if (movementComponent == null) movementComponent = GetComponent<MovementComponent>();
         if (rb == null) rb = GetComponent<Rigidbody>();
 
@@ -37,35 +34,25 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
         networkVelocity.OnValueChanged += OnVelocityChanged;
     }
 
-    public override void OnNetworkSpawn()
-    {
-        if (IsOwner)
-        {
+    public override void OnNetworkSpawn() {
+        if (IsOwner) {
             // Owner controls and synchronizes
             logger.Log($"NetworkMovementSynchronizer - Owner: {OwnerClientId}", this);
-        }
-        else
-        {
+        } else {
             // Remote clients - disable local movement and physics
-            if (movementComponent != null)
-            {
+            if (movementComponent != null) {
                 movementComponent.enabled = false;
             }
-            if (rb != null)
-            {
+            if (rb != null) {
                 rb.isKinematic = true;
             }
         }
     }
 
-    private void FixedUpdate()
-    {
-        if (IsOwner)
-        {
+    private void FixedUpdate() {
+        if (IsOwner) {
             SyncWithServer();
-        }
-        else
-        {
+        } else {
             // Smooth interpolation for remote players
             float lerpFactor = Mathf.Clamp01(Time.deltaTime * 15f); // Adjust smoothness
             transform.position = Vector3.Lerp(transform.position, networkPosition.Value, lerpFactor);
@@ -73,24 +60,18 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
         }
     }
 
-    private void SyncWithServer()
-    {
-        if (!IsServer && IsOwner)
-        {
+    private void SyncWithServer() {
+        if (!IsServer && IsOwner) {
             // Owner client - send state to server periodically
-            if (Time.time - lastNetworkSendTime >= 1f / networkSendRate)
-            {
-                if (ShouldSendTransform())
-                {
+            if (Time.time - lastNetworkSendTime >= 1f / networkSendRate) {
+                if (ShouldSendTransform()) {
                     SendTransformToServerRpc(transform.position, transform.rotation, rb != null ? rb.linearVelocity : Vector3.zero);
                     lastNetworkSendTime = Time.time;
                     lastSentPosition = transform.position;
                     lastSentRotation = transform.rotation;
                 }
             }
-        }
-        else if (IsServer && IsOwner)
-        {
+        } else if (IsServer && IsOwner) {
             // Host - update NetworkVariables directly
             networkPosition.Value = transform.position;
             networkRotation.Value = transform.rotation;
@@ -98,8 +79,7 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
         }
     }
 
-    private bool ShouldSendTransform()
-    {
+    private bool ShouldSendTransform() {
         float positionDiff = Vector3.Distance(transform.position, lastSentPosition);
         float rotationDiff = Quaternion.Angle(transform.rotation, lastSentRotation);
 
@@ -107,28 +87,23 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendTransformToServerRpc(Vector3 position, Quaternion rotation, Vector3 velocity)
-    {
+    private void SendTransformToServerRpc(Vector3 position, Quaternion rotation, Vector3 velocity) {
         // Only server updates NetworkVariables
         networkPosition.Value = position;
         networkRotation.Value = rotation;
         networkVelocity.Value = velocity;
     }
 
-    private void OnPositionChanged(Vector3 oldValue, Vector3 newValue)
-    {
+    private void OnPositionChanged(Vector3 oldValue, Vector3 newValue) {
         // Interpolation is handled in FixedUpdate for remote clients
     }
 
-    private void OnRotationChanged(Quaternion oldValue, Quaternion newValue)
-    {
+    private void OnRotationChanged(Quaternion oldValue, Quaternion newValue) {
         // Interpolation is handled in FixedUpdate for remote clients
     }
 
-    private void OnVelocityChanged(Vector3 oldValue, Vector3 newValue)
-    {
-        if (!IsOwner && rb != null && !rb.isKinematic)
-        {
+    private void OnVelocityChanged(Vector3 oldValue, Vector3 newValue) {
+        if (!IsOwner && rb != null && !rb.isKinematic) {
             rb.linearVelocity = newValue;
         }
     }
@@ -136,47 +111,39 @@ public class NetworkMovementSynchronizer : NetworkBehaviour
     /// <summary>
     /// Teleports the character to a new position, synchronizing over the network.
     /// </summary>
-    public void Teleport(Vector3 position)
-    {
+    public void Teleport(Vector3 position) {
         transform.position = position;
-        
+
         // Reset velocity
-        if (rb != null && !rb.isKinematic)
-        {
+        if (rb != null && !rb.isKinematic) {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
-        
+
         // Server has authority to teleport any player
-        if (IsServer)
-        {
+        if (IsServer) {
             networkPosition.Value = position;
             networkVelocity.Value = Vector3.zero;
-            
+
             // Force sync to owner client via ClientRpc
-            if (!IsOwner)
-            {
+            if (!IsOwner) {
                 TeleportClientRpc(position);
             }
         }
         // Owner client can teleport themselves
-        else if (IsOwner)
-        {
+        else if (IsOwner) {
             SendTransformToServerRpc(position, transform.rotation, Vector3.zero);
         }
     }
-    
+
     [ClientRpc]
-    private void TeleportClientRpc(Vector3 position)
-    {
+    private void TeleportClientRpc(Vector3 position) {
         // Only apply if this is the owner client (not server, not other clients)
-        if (IsOwner && !IsServer)
-        {
+        if (IsOwner && !IsServer) {
             transform.position = position;
-            
+
             // Reset velocity on client
-            if (rb != null && !rb.isKinematic)
-            {
+            if (rb != null && !rb.isKinematic) {
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
             }
