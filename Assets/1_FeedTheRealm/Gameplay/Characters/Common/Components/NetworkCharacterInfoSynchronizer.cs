@@ -33,6 +33,9 @@ public class NetworkCharacterInfoSynchronizer : NetworkBehaviour {
             // Remote player: Subscribe to syncedUserId changes
             syncedUserId.OnValueChanged += OnSyncedUserIdChanged;
             logger?.Log($"[NetworkCharacterInfoSynchronizer] Remote player {OwnerClientId} subscribed to UserID sync", this);
+
+            // Check if UserID is already synced (for late-joining clients)
+            StartCoroutine(CheckSyncedUserIdDelayed());
         }
     }
 
@@ -56,6 +59,26 @@ public class NetworkCharacterInfoSynchronizer : NetworkBehaviour {
             spriteLoader.UserId = userIdString;
             spriteLoader.StartLoadingSprites();
             logger?.Log($"[NetworkCharacterInfoSynchronizer] Remote player {OwnerClientId} received UserID: {userIdString}, starting sprite load", this);
+        }
+    }
+
+    private System.Collections.IEnumerator CheckSyncedUserIdDelayed() {
+        // Wait for NetworkVariable sync with timeout
+        float timeout = 5f;
+        float elapsed = 0f;
+
+        while (elapsed < timeout && syncedUserId.Value.IsEmpty) {
+            yield return null;
+            elapsed += Time.deltaTime;
+        }
+
+        if (!syncedUserId.Value.IsEmpty) {
+            string userIdString = syncedUserId.Value.ToString();
+            spriteLoader.UserId = userIdString;
+            spriteLoader.StartLoadingSprites();
+            logger?.Log($"[NetworkCharacterInfoSynchronizer] Remote player {OwnerClientId} found synced UserID after wait: {userIdString}, starting sprite load", this);
+        } else {
+            logger?.Log($"[NetworkCharacterInfoSynchronizer] Remote player {OwnerClientId} timed out waiting for synced UserID after {timeout}s", this);
         }
     }
 }
