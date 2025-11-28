@@ -21,18 +21,7 @@ public class SpriteLoader : MonoBehaviour {
 
     private Dictionary<string, Transform> cachedParts = new Dictionary<string, Transform>();
 
-    private void Awake() {
-        if (spriteManager != null) {
-            spriteManager.onHairChange += changeHair;
-            spriteManager.onFaceHairChange += changeFaceHair;
-            spriteManager.onEyeBackChange += changeEyeBack;
-            spriteManager.onClothChange += changeCloth;
-            spriteManager.onArmorChange += changeArmor;
-            spriteManager.onHelmetChange += changeHelmet;
-            spriteManager.onFootBootChange += changeFootBoot;
-            spriteManager.onCapeChange += changeCape;
-        }
-    }
+    // Removed SpriteManager event subscriptions to prevent cross-player sprite changes in multiplayer
 
     private void CachePartTransforms() {
         cachedParts["P_Hair"] = FindChildRecursive(transform, "P_Hair");
@@ -273,7 +262,33 @@ public class SpriteLoader : MonoBehaviour {
             string categoryName = existingCategories.TryGetValue(entry.Key, out var name) ? name : "";
             SpritePart category = spriteManager.GetSpritePartFromCategoryName(categoryName);
             if (category != SpritePart.None) {
-                spriteManager.ChangeSprite(category, entry.Value);
+                // Directly call the change method instead of using SpriteManager events
+                switch (category) {
+                    case SpritePart.Hair:
+                        changeHair(entry.Value);
+                        break;
+                    case SpritePart.FaceHair:
+                        changeFaceHair(entry.Value);
+                        break;
+                    case SpritePart.EyeBack:
+                        changeEyeBack(entry.Value);
+                        break;
+                    case SpritePart.Cloth:
+                        changeCloth(entry.Value);
+                        break;
+                    case SpritePart.Armor:
+                        changeArmor(entry.Value);
+                        break;
+                    case SpritePart.Helmet:
+                        changeHelmet(entry.Value);
+                        break;
+                    case SpritePart.FootBoot:
+                        changeFootBoot(entry.Value);
+                        break;
+                    case SpritePart.Cape:
+                        changeCape(entry.Value);
+                        break;
+                }
             }
         }
     }
