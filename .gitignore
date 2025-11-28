@@ -16,6 +16,10 @@
 *.blend1
 *.blend1.meta
 
+# project settings
+feed-the-realm-client.slnx
+ProjectSettings/Packages/com.unity.multiplayer.tools/CustomColorSettings.asset
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
