@@ -19,17 +19,17 @@ public class NetworkPlayerController : NetworkBehaviour {
     public override void OnNetworkSpawn() {
         logger.Log($"NetworkPlayerController.OnNetworkSpawn - IsOwner: {IsOwner}, ClientId: {OwnerClientId}", this);
 
-        // Inicializar el inventario primero (tanto para local como remoto)
+        // Initialize the inventory first (for both local and remote)
         var inventoryReference = GetComponent<PlayerInventoryReference>();
         if (inventoryReference != null) {
             inventoryReference.InitializeForNetworkedPlayer();
         }
 
-        // Solo inicializar input para el jugador local
+        // Only initialize input for the local player
         if (IsOwner) {
             logger.Log($"NetworkPlayerController initialized for LOCAL player {OwnerClientId}", this);
 
-            // Verificar si playerInputReader está asignado antes de crear PlayerControls
+            // Check if playerInputReader is assigned before creating PlayerControls
             if (playerInputReader != null) {
                 logger.Log("Using PlayerInputReader for input (shared with GameSceneManager)", this);
                 InitializeInputWithReader();
@@ -178,30 +178,23 @@ public class NetworkPlayerController : NetworkBehaviour {
     }
 
     /// <summary>
-    /// ServerRpc llamado por el cliente para solicitar que el servidor despawnee un loot recogido
+    /// ServerRpc called by the client to request that the server despawn a collected loot
     /// </summary>
     [ServerRpc(RequireOwnership = false)]
-    public void RequestDespawnLootServerRpc(ulong lootNetworkObjectId, ServerRpcParams rpcParams = default)
-    {
+    public void RequestDespawnLootServerRpc(ulong lootNetworkObjectId, ServerRpcParams rpcParams = default) {
         ulong senderId = rpcParams.Receive.SenderClientId;
-        logger?.Log($"[NetworkPlayerController] Cliente {senderId} solicita despawn de loot NetworkObjectId={lootNetworkObjectId}", this);
-        
-        // Buscar el NetworkObject por ID
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(lootNetworkObjectId, out NetworkObject lootNetworkObject))
-        {
-            if (lootNetworkObject != null && lootNetworkObject.IsSpawned)
-            {
-                logger?.Log($"[NetworkPlayerController] Despawneando loot NetworkObjectId={lootNetworkObjectId}", this);
+        logger?.Log($"[NetworkPlayerController] Client {senderId} requests despawn of loot NetworkObjectId={lootNetworkObjectId}", this);
+
+        // Search for the NetworkObject by ID
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(lootNetworkObjectId, out NetworkObject lootNetworkObject)) {
+            if (lootNetworkObject != null && lootNetworkObject.IsSpawned) {
+                logger?.Log($"[NetworkPlayerController] Despawning loot NetworkObjectId={lootNetworkObjectId}", this);
                 lootNetworkObject.Despawn(true);
+            } else {
+                logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} is no longer spawned", this);
             }
-            else
-            {
-                logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} ya no está spawneado", this);
-            }
-        }
-        else
-        {
-            logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} no encontrado en SpawnManager", this);
+        } else {
+            logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} not found in SpawnManager", this);
         }
     }
 }
