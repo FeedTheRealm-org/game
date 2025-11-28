@@ -17,6 +17,10 @@ public class SpriteLoader : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
 
+    public string UserId { get; set; }
+
+    private Dictionary<string, Transform> cachedParts = new Dictionary<string, Transform>();
+
     private void Awake() {
         if (spriteManager != null) {
             spriteManager.onHairChange += changeHair;
@@ -28,7 +32,36 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.onFootBootChange += changeFootBoot;
             spriteManager.onCapeChange += changeCape;
         }
+    }
 
+    private void CachePartTransforms() {
+        cachedParts["P_Hair"] = FindChildRecursive(transform, "P_Hair");
+        cachedParts["P_Mustache"] = FindChildRecursive(transform, "P_Mustache");
+        cachedParts["P_REye"] = FindChildRecursive(transform, "P_REye");
+        cachedParts["P_LEye"] = FindChildRecursive(transform, "P_LEye");
+        cachedParts["P_ClothBody"] = FindChildRecursive(transform, "P_ClothBody");
+        cachedParts["P_ArmorBody"] = FindChildRecursive(transform, "P_ArmorBody");
+        cachedParts["P_Helmet"] = FindChildRecursive(transform, "P_Helmet");
+        cachedParts["P_RCloth"] = FindChildRecursive(transform, "P_RCloth");
+        cachedParts["P_LCloth"] = FindChildRecursive(transform, "P_LCloth");
+        cachedParts["P_Back"] = FindChildRecursive(transform, "P_Back");
+    }
+
+    private Transform FindChildRecursive(Transform parent, string childName) {
+        Transform result = parent.Find(childName);
+        if (result != null) return result;
+
+        foreach (Transform child in parent) {
+            result = FindChildRecursive(child, childName);
+            if (result != null) return result;
+        }
+
+        return null;
+    }
+
+    public void StartLoadingSprites() {
+        logger.Log($"[SpriteLoader] StartLoadingSprites called with UserId: '{UserId}'", this);
+        CachePartTransforms();
         StartCoroutine(initCharacterSpritesCoroutine());
     }
 
@@ -55,22 +88,20 @@ public class SpriteLoader : MonoBehaviour {
             return;
         }
 
-        GameObject currentObject = GameObject.Find(pathSegments[0]);
-        if (currentObject == null) {
-            logger.Log($"Root GameObject not found: {pathSegments[0]}", this, Logging.LogType.Warning);
+        if (!cachedParts.TryGetValue(pathSegments[0], out Transform currentTransform) || currentTransform == null) {
+            logger.Log($"Root child not found: {pathSegments[0]} under {gameObject.name}", this, Logging.LogType.Warning);
             return;
         }
 
         for (int i = 1; i < pathSegments.Length; i++) {
-            Transform childTransform = currentObject.transform.Find(pathSegments[i]);
-            if (childTransform == null) {
-                logger.Log($"Child GameObject not found: {pathSegments[i]} under {currentObject.name}", this, Logging.LogType.Warning);
+            currentTransform = currentTransform.Find(pathSegments[i]);
+            if (currentTransform == null) {
+                logger.Log($"Child GameObject not found: {pathSegments[i]} in path {string.Join("/", pathSegments)}", this, Logging.LogType.Warning);
                 return;
             }
-            currentObject = childTransform.gameObject;
         }
 
-        SpriteRenderer spriteRenderer = currentObject.GetComponentInChildren<SpriteRenderer>();
+        SpriteRenderer spriteRenderer = currentTransform.GetComponentInChildren<SpriteRenderer>();
         if (spriteRenderer != null) {
             spriteRenderer.sprite = newSprite;
         } else {
@@ -211,10 +242,11 @@ public class SpriteLoader : MonoBehaviour {
         // Fetch character info
         API.CharacterInfoResponse characterInfo = null;
         string characterError = null;
+        logger.Log($"[SpriteLoader] Fetching character info for UserId: '{UserId}'", this);
         yield return playerService.GetCharacterInfo((info, err) => {
             characterInfo = info;
             characterError = err;
-        });
+        }, UserId);
 
         if (!string.IsNullOrEmpty(characterError)) {
             logger.Log($"Failed to fetch character info: {characterError}", this, Logging.LogType.Warning);
