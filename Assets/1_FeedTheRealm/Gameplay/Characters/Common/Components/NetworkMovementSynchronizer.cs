@@ -20,9 +20,11 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
 
     private NetworkVariable<Quaternion> networkRotation = new NetworkVariable<Quaternion>();
     private NetworkVariable<Vector3> networkVelocity = new NetworkVariable<Vector3>();
+    private NetworkVariable<bool> networkFacingRight = new NetworkVariable<bool>();
     private float lastNetworkSendTime;
     private Vector3 lastSentPosition;
     private Quaternion lastSentRotation;
+    private bool lastSentFacing;
 
     private void Awake() {
         if (movementComponent == null) movementComponent = GetComponent<MovementComponent>();
@@ -32,6 +34,7 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
         networkPosition.OnValueChanged += OnPositionChanged;
         networkRotation.OnValueChanged += OnRotationChanged;
         networkVelocity.OnValueChanged += OnVelocityChanged;
+        networkFacingRight.OnValueChanged += OnFacingChanged;
     }
 
     public override void OnNetworkSpawn() {
@@ -65,10 +68,11 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
             // Owner client - send state to server periodically
             if (Time.time - lastNetworkSendTime >= 1f / networkSendRate) {
                 if (ShouldSendTransform()) {
-                    SendTransformToServerRpc(transform.position, transform.rotation, rb != null ? rb.linearVelocity : Vector3.zero);
+                    SendTransformToServerRpc(transform.position, transform.rotation, rb != null ? rb.linearVelocity : Vector3.zero, movementComponent.FacingRight);
                     lastNetworkSendTime = Time.time;
                     lastSentPosition = transform.position;
                     lastSentRotation = transform.rotation;
+                    lastSentFacing = movementComponent.FacingRight;
                 }
             }
         } else if (IsServer && IsOwner) {
@@ -76,22 +80,25 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
             networkPosition.Value = transform.position;
             networkRotation.Value = transform.rotation;
             networkVelocity.Value = rb != null ? rb.linearVelocity : Vector3.zero;
+            networkFacingRight.Value = movementComponent.FacingRight;
         }
     }
 
     private bool ShouldSendTransform() {
         float positionDiff = Vector3.Distance(transform.position, lastSentPosition);
         float rotationDiff = Quaternion.Angle(transform.rotation, lastSentRotation);
+        bool facingChanged = lastSentFacing != movementComponent.FacingRight;
 
-        return positionDiff > positionThreshold || rotationDiff > rotationThreshold;
+        return positionDiff > positionThreshold || rotationDiff > rotationThreshold || facingChanged;
     }
 
     [ServerRpc]
-    private void SendTransformToServerRpc(Vector3 position, Quaternion rotation, Vector3 velocity) {
+    private void SendTransformToServerRpc(Vector3 position, Quaternion rotation, Vector3 velocity, bool facingRight) {
         // Only server updates NetworkVariables
         networkPosition.Value = position;
         networkRotation.Value = rotation;
         networkVelocity.Value = velocity;
+        networkFacingRight.Value = facingRight;
     }
 
     private void OnPositionChanged(Vector3 oldValue, Vector3 newValue) {
@@ -105,6 +112,12 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
     private void OnVelocityChanged(Vector3 oldValue, Vector3 newValue) {
         if (!IsOwner && rb != null && !rb.isKinematic) {
             rb.linearVelocity = newValue;
+        }
+    }
+
+    private void OnFacingChanged(bool oldValue, bool newValue) {
+        if (!IsOwner) {
+            movementComponent.SetFacing(newValue);
         }
     }
 
@@ -132,7 +145,7 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
         }
         // Owner client can teleport themselves
         else if (IsOwner) {
-            SendTransformToServerRpc(position, transform.rotation, Vector3.zero);
+            SendTransformToServerRpc(position, transform.rotation, Vector3.zero, movementComponent.FacingRight);
         }
     }
 
