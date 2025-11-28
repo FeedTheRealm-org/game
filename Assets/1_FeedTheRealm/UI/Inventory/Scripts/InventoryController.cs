@@ -470,7 +470,7 @@ public class InventoryController : MonoBehaviour {
             logger?.Log($"[Tooltip] ItemId found in map: {itemId}", this);
             // Show tooltip if available
             if (itemStatsTooltip != null) {
-                itemStatsTooltip.ShowTooltip(itemId, evt.position);
+                itemStatsTooltip.ShowTooltip(itemId, slot);
                 logger?.Log($"[Tooltip] Showing tooltip for item: {itemId}", this);
             } else {
                 logger?.Log("[Tooltip] itemStatsTooltip is null!", this, Logging.LogType.Warning);

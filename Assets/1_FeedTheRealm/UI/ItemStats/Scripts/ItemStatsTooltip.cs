@@ -12,9 +12,6 @@ public class ItemStatsTooltip : MonoBehaviour {
     [Header("UI References")]
     [SerializeField] private UIDocument tooltipDocument;
 
-    [Header("Tooltip Settings")]
-    [SerializeField] private Vector2 cursorOffset = new Vector2(15, -15);
-
     [Header("Mock Stats Configuration")]
     [SerializeField] private int weaponAttackValue = 10;
     [SerializeField] private float weaponAttackSpeedValue = 1.5f;
@@ -85,11 +82,16 @@ public class ItemStatsTooltip : MonoBehaviour {
     }
 
     /// <summary>
-    /// Show tooltip for a specific item at cursor position.
+    /// Show tooltip for a specific item next to the slot.
     /// </summary>
-    public void ShowTooltip(string itemId, Vector2 cursorPosition) {
+    public void ShowTooltip(string itemId, VisualElement slot) {
         if (string.IsNullOrEmpty(itemId)) {
             logger?.Log("Cannot show tooltip: itemId is null or empty", this, Logging.LogType.Warning);
+            return;
+        }
+
+        if (slot == null) {
+            logger?.Log("Cannot show tooltip: slot is null", this, Logging.LogType.Warning);
             return;
         }
 
@@ -108,7 +110,7 @@ public class ItemStatsTooltip : MonoBehaviour {
 
         currentItemId = itemId;
         PopulateTooltipData(itemData);
-        UpdateTooltipPosition(cursorPosition);
+        UpdateTooltipPosition(slot);
 
         tooltipContainer.style.display = DisplayStyle.Flex;
         isVisible = true;
@@ -232,11 +234,17 @@ public class ItemStatsTooltip : MonoBehaviour {
     }
 
     /// <summary>
-    /// Update tooltip position to follow cursor with offset.
+    /// Update tooltip position to appear next to the slot.
+    /// Positions tooltip to the right of the slot, or to the left if not enough space.
     /// </summary>
-    private void UpdateTooltipPosition(Vector2 cursorPosition) {
+    private void UpdateTooltipPosition(VisualElement slot) {
         if (tooltipContainer == null) {
             logger?.Log("[Tooltip] UpdateTooltipPosition: tooltipContainer is null", this, Logging.LogType.Warning);
+            return;
+        }
+
+        if (slot == null) {
+            logger?.Log("[Tooltip] UpdateTooltipPosition: slot is null", this, Logging.LogType.Warning);
             return;
         }
 
@@ -245,19 +253,37 @@ public class ItemStatsTooltip : MonoBehaviour {
             return;
         }
 
-        // Convert screen coordinates to UI Toolkit coordinates
-        // UI Toolkit uses top-left origin, cursor uses bottom-left
-        Vector2 uiPosition = RuntimePanelUtils.ScreenToPanel(
+        // Get slot's world bounds
+        Rect slotBounds = slot.worldBound;
+
+        // Convert slot position to panel coordinates
+        Vector2 slotPanelPos = RuntimePanelUtils.ScreenToPanel(
             tooltipContainer.panel,
-            new Vector2(cursorPosition.x, Screen.height - cursorPosition.y)
+            new Vector2(slotBounds.x, slotBounds.y)
         );
 
-        // Apply offset
-        tooltipContainer.style.left = uiPosition.x + cursorOffset.x;
-        tooltipContainer.style.top = uiPosition.y + cursorOffset.y;
+        // Calculate panel width to check if tooltip fits on the right
+        float panelWidth = tooltipContainer.panel.visualTree.worldBound.width;
+        float tooltipWidth = 200; // Approximate tooltip width, adjust if needed
+        float horizontalOffset = 70; // Space between slot and tooltip
+
+        // Position tooltip to the right of the slot by default
+        float tooltipLeft = slotPanelPos.x + slotBounds.width + horizontalOffset;
+
+        // If tooltip doesn't fit on the right, position it on the left
+        if (tooltipLeft + tooltipWidth > panelWidth) {
+            tooltipLeft = slotPanelPos.x - tooltipWidth - horizontalOffset;
+        }
+
+        // Position vertically aligned with the slot
+        float tooltipTop = slotPanelPos.y;
+
+        // Apply position
+        tooltipContainer.style.left = tooltipLeft;
+        tooltipContainer.style.top = tooltipTop;
         tooltipContainer.style.position = Position.Absolute;
 
-        logger?.Log($"[Tooltip] Position updated: ({uiPosition.x + cursorOffset.x}, {uiPosition.y + cursorOffset.y})", this);
+        logger?.Log($"[Tooltip] Position updated: ({tooltipLeft}, {tooltipTop})", this);
     }
 
     /// <summary>
