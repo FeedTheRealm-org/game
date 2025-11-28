@@ -21,8 +21,6 @@ public class SpriteLoader : MonoBehaviour {
 
     private Dictionary<string, Transform> cachedParts = new Dictionary<string, Transform>();
 
-    // Removed SpriteManager event subscriptions to prevent cross-player sprite changes in multiplayer
-
     private void CachePartTransforms() {
         cachedParts["P_Hair"] = FindChildRecursive(transform, "P_Hair");
         cachedParts["P_Mustache"] = FindChildRecursive(transform, "P_Mustache");
@@ -50,7 +48,22 @@ public class SpriteLoader : MonoBehaviour {
 
     public void StartLoadingSprites() {
         logger.Log($"[SpriteLoader] StartLoadingSprites called with UserId: '{UserId}'", this);
+        StartCoroutine(initCharacterSpritesCoroutine());
+    }
+
+    private void Awake() {
+        logger.Log("[SpriteLoader] Awake called", this);
         CachePartTransforms();
+        if (spriteManager != null) {
+            spriteManager.onHairChange += changeHair;
+            spriteManager.onFaceHairChange += changeFaceHair;
+            spriteManager.onEyeBackChange += changeEyeBack;
+            spriteManager.onClothChange += changeCloth;
+            spriteManager.onArmorChange += changeArmor;
+            spriteManager.onHelmetChange += changeHelmet;
+            spriteManager.onFootBootChange += changeFootBoot;
+            spriteManager.onCapeChange += changeCape;
+        }
         StartCoroutine(initCharacterSpritesCoroutine());
     }
 
