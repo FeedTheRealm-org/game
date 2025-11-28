@@ -71,8 +71,8 @@ MonoBehaviour:
   authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   targetScene:
-    sceneName: LoginScene
-    sceneAsset: {fileID: 102900000, guid: abd87fe87e8b55f40820f171267a39bc, type: 3}
+    sceneName: Homepage
+    sceneAsset: {fileID: 102900000, guid: 62080a43b5e5879e2a936a5a9cbbdf90, type: 3}
   backScene:
     sceneName: LoginScene
     sceneAsset: {fileID: 102900000, guid: abd87fe87e8b55f40820f171267a39bc, type: 3}
