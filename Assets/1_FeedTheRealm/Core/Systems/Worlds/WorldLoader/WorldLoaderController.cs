@@ -130,4 +130,26 @@ public class WorldLoaderController : MonoBehaviour {
 
         logger.Log($"Loaded {selectedWorld.objectPlacementData.Count} placed objects.", this, Logging.LogType.Info);
     }
+
+    public void ApplyRigidBody(GameObject instance) {
+        if (instance == null) {
+            Debug.LogError($"Cannot apply rigidbody to null instance for asset {name}");
+            return;
+        }
+
+        // Add Rigidbody for collision
+        Rigidbody rb = instance.GetComponent<Rigidbody>();
+        if (rb == null) {
+            rb = instance.AddComponent<Rigidbody>();
+        }
+        rb.isKinematic = true;
+
+        // Ensure collider exists
+        Collider[] colliders = instance.GetComponentsInChildren<Collider>();
+        if (colliders.Length == 0) {
+            instance.AddComponent<BoxCollider>();
+        }
+
+        Debug.Log($"Applied rigidbody to asset {name}");
+    }
 }
