@@ -8,7 +8,7 @@
         <ui:Button name="Slot5" icon-image="project://database/Assets/6000FantasyIcons/MedievalIcons/ResourcesMedieval/WoodCup.png?fileID=2800000&amp;guid=07366405c2350ae46b10bf6215acfdd7&amp;type=3#WoodCup" display-tooltip-when-elided="false" focusable="false" class="fast-use-slot" />
     </ui:VisualElement>
     <ui:VisualElement name="CharacterData" style="flex-grow: 1; align-items: flex-start; justify-content: center; align-self: flex-start; align-content: flex-start; position: absolute; width: 30%; height: 15%; flex-direction: row; min-height: 150px;">
-        <ui:Button name="CharacterIcon" focusable="false" class="character-icon" style="height: 100%; background-image: url(&quot;project://database/Assets/6000FantasyIcons/SkillsIcons/SkillIcons3/SkillVol3/Skill_FireElementalSummon.png?fileID=2800000&amp;guid=1fd65c08e915e4f4aa1d46da6055d341&amp;type=3#Skill_FireElementalSummon&quot;);" />
+        <ui:Button name="CharacterIcon" focusable="false" class="character-icon" style="height: 150px; background-image: url(&quot;project://database/Assets/6000FantasyIcons/SkillsIcons/SkillIcons3/SkillVol3/Skill_FireElementalSummon.png?fileID=2800000&amp;guid=1fd65c08e915e4f4aa1d46da6055d341&amp;type=3#Skill_FireElementalSummon&quot;); width: 150px;" />
         <ui:VisualElement name="DataContainer" style="flex-grow: 1; height: auto; width: auto;">
             <ui:Label text="MaxoGod" name="Username" style="font-size: 35%; -unity-font-style: bold;" />
             <ui:ProgressBar value="100" title="health" name="HealthBar" class="progress-bar" style="font-size: 50%; -unity-font-style: normal;" />
