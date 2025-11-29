@@ -1,4 +1,5 @@
 :root {
+    font-size: 190%;
 }
 
 .fields {
@@ -7,15 +8,16 @@
     margin-top: 10px;
     -unity-font-style: normal;
     color: rgb(255, 255, 255);
-    font-size: 30px;
-    padding-left: 5%;
+    font-size: 180%;
+    padding-left: 10%;
 }
 
 .tittle {
     color: rgb(255, 255, 255);
-    font-size: 30px;
+    font-size: 190%;
     -unity-text-align: upper-left;
     justify-content: flex-start;
     align-items: auto;
     align-self: center;
+    -unity-font-style: bold;
 }

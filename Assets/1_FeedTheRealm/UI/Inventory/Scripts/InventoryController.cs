@@ -115,26 +115,32 @@ public class InventoryController : MonoBehaviour {
             draggedItem = slot[0]; // Asumir que el primer hijo es el item
             draggedItemOriginalSlot = slot; // Guardar el slot original
 
-            // Obtener posición del item antes de removerlo
+            // Obtener posición y tamaño del item ANTES de removerlo
             Rect itemWorldBound = draggedItem.worldBound;
+            float itemWidth = itemWorldBound.width;
+            float itemHeight = itemWorldBound.height;
+
+            // Calcular offset usando la posición mundial del item
+            dragOffset = new Vector2(evt.position.x - itemWorldBound.x, evt.position.y - itemWorldBound.y);
 
             // Remover del slot y añadir al root para que esté visible sobre todo
             draggedItem.RemoveFromHierarchy();
             root.Add(draggedItem);
             draggedItem.BringToFront();
 
-            // Calcular offset usando la posición mundial del item
-            dragOffset = new Vector2(evt.position.x - itemWorldBound.x, evt.position.y - itemWorldBound.y);
+            // IMPORTANTE: Fijar el tamaño a píxeles para que no se escale con el root
+            draggedItem.style.width = itemWidth;
+            draggedItem.style.height = itemHeight;
+            draggedItem.style.position = Position.Absolute;
 
             // Convertir posición mundial a local del root
             Vector2 pointerInRoot = root.WorldToLocal(evt.position);
 
             // Posicionar inmediatamente en la posición correcta
-            draggedItem.style.position = Position.Absolute;
             draggedItem.style.left = pointerInRoot.x - dragOffset.x;
             draggedItem.style.top = pointerInRoot.y - dragOffset.y;
 
-            logger.Log($"Iniciando drag - Item: {draggedItem.name}, Offset: {dragOffset}, ItemWorldPos: ({itemWorldBound.x}, {itemWorldBound.y})", this);
+            logger.Log($"Iniciando drag - Item: {draggedItem.name}, Size: ({itemWidth}x{itemHeight}), Offset: {dragOffset}, ItemWorldPos: ({itemWorldBound.x}, {itemWorldBound.y})", this);
             evt.StopPropagation();
         } else {
             logger.Log($"No se pudo iniciar drag - Slot null: {slot == null}, ChildCount: {slot?.childCount ?? 0}", this, Logging.LogType.Warning);
@@ -243,33 +249,35 @@ public class InventoryController : MonoBehaviour {
                 draggedItemOriginalSlot.Add(targetItem);
             }
 
-            // Resetear estilos de ambos items
-            item.style.position = Position.Relative;
-            item.style.left = 0;
-            item.style.top = 0;
-
-            targetItem.style.position = Position.Relative;
-            targetItem.style.left = 0;
-            targetItem.style.top = 0;
+            // Resetear estilos de ambos items a porcentajes (para que se ajusten al slot)
+            ResetItemStyles(item);
+            ResetItemStyles(targetItem);
         } else {
             // Slot vacío o es el mismo slot original, simplemente mover
             item.RemoveFromHierarchy();
             targetSlot.Add(item);
 
-            // Resetear posición
-            item.style.position = Position.Relative;
-            item.style.left = 0;
-            item.style.top = 0;
+            // Resetear estilos
+            ResetItemStyles(item);
         }
+    }
+
+    /// <summary>
+    /// Resetea los estilos del item para que se ajuste correctamente al slot
+    /// </summary>
+    private void ResetItemStyles(VisualElement item) {
+        item.style.position = Position.Relative;
+        item.style.left = 0;
+        item.style.top = 0;
+        item.style.width = new Length(100, LengthUnit.Percent);
+        item.style.height = new Length(100, LengthUnit.Percent);
     }
 
     private void ReturnItemToOriginalSlot() {
         // Intentar devolver al slot original si lo tenemos guardado
         if (draggedItemOriginalSlot != null) {
             draggedItemOriginalSlot.Add(draggedItem);
-            draggedItem.style.position = Position.Relative;
-            draggedItem.style.left = 0;
-            draggedItem.style.top = 0;
+            ResetItemStyles(draggedItem);
             return;
         }
 
@@ -277,9 +285,7 @@ public class InventoryController : MonoBehaviour {
         foreach (var slot in slots) {
             if (slot.childCount == 0) {
                 slot.Add(draggedItem);
-                draggedItem.style.position = Position.Relative;
-                draggedItem.style.left = 0;
-                draggedItem.style.top = 0;
+                ResetItemStyles(draggedItem);
                 return;
             }
         }
@@ -287,9 +293,7 @@ public class InventoryController : MonoBehaviour {
         // Si no hay slots vacíos, añadir al primero
         if (slots.Count > 0) {
             slots[0].Add(draggedItem);
-            draggedItem.style.position = Position.Relative;
-            draggedItem.style.left = 0;
-            draggedItem.style.top = 0;
+            ResetItemStyles(draggedItem);
         }
     }
 
@@ -426,9 +430,19 @@ public class InventoryController : MonoBehaviour {
         var itemElement = new VisualElement();
         itemElement.name = "InventoryItem";
         itemElement.style.backgroundImage = new StyleBackground(itemSprite);
-        itemElement.style.width = 45;
-        itemElement.style.height = 45;
+
+        // Configurar el modo de escala para que la imagen se ajuste manteniendo proporciones
+        itemElement.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
+
+        // Hacer que el elemento llene todo el slot (100%)
+        itemElement.style.width = new Length(100, LengthUnit.Percent);
+        itemElement.style.height = new Length(100, LengthUnit.Percent);
         itemElement.style.position = Position.Relative;
+
+        // Centrar la imagen si no llena todo el espacio
+        itemElement.style.alignItems = Align.Center;
+        itemElement.style.justifyContent = Justify.Center;
+
         itemElement.AddToClassList("inventory-item");
 
         // Importante: permitir que los eventos pasen al slot padre para drag&drop

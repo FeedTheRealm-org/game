@@ -265,7 +265,7 @@ public class ItemStatsTooltip : MonoBehaviour {
         // Calculate panel width to check if tooltip fits on the right
         float panelWidth = tooltipContainer.panel.visualTree.worldBound.width;
         float tooltipWidth = 200; // Approximate tooltip width, adjust if needed
-        float horizontalOffset = 70; // Space between slot and tooltip
+        float horizontalOffset = 135; // Space between slot and tooltip
 
         // Position tooltip to the right of the slot by default
         float tooltipLeft = slotPanelPos.x + slotBounds.width + horizontalOffset;
