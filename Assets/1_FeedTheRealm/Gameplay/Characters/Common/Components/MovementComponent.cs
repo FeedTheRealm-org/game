@@ -23,7 +23,7 @@ public class MovementComponent : MonoBehaviour {
     private Vector2 playerDirection;
     private float movingMagnitudeThreshold = 0.001f;
     private bool isMoving;
-    private bool facingRight = false;
+    public bool FacingRight { get; private set; } = false;
 
     public Vector3 CurrentDirection { get; private set; }
 
@@ -42,7 +42,7 @@ public class MovementComponent : MonoBehaviour {
     public void OnMove(Vector2 direction) {
         playerDirection = direction;
         isMoving = playerDirection.sqrMagnitude > movingMagnitudeThreshold;
-        if (isMoving && (facingRight && playerDirection.x < 0f || !facingRight && playerDirection.x > 0f)) {
+        if (isMoving && (FacingRight && playerDirection.x < 0f || !FacingRight && playerDirection.x > 0f)) {
             flip();
         }
     }
@@ -78,10 +78,16 @@ public class MovementComponent : MonoBehaviour {
     }
 
     private void flip() {
-        facingRight = !facingRight;
+        FacingRight = !FacingRight;
         Vector3 localScale = visualRoot.localScale;
         localScale.x *= -1f;
         visualRoot.localScale = localScale;
+    }
+
+    public void SetFacing(bool facingRight) {
+        if (FacingRight != facingRight) {
+            flip();
+        }
     }
 
 }

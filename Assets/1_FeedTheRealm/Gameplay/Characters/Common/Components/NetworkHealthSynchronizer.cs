@@ -6,8 +6,7 @@ using Unity.Netcode;
 /// This component handles network synchronization while keeping HealthComponent as a pure MonoBehaviour.
 /// Designed to work with enemies and any character that has a HealthComponent.
 /// </summary>
-public class NetworkHealthSynchronizer : NetworkBehaviour
-{
+public class NetworkHealthSynchronizer : NetworkBehaviour {
     [SerializeField] private HealthComponent healthComponent;
     [SerializeField] private Logging.Logger logger;
 
@@ -15,31 +14,27 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
     private NetworkVariable<int> networkHealth = new NetworkVariable<int>(
         writePerm: NetworkVariableWritePermission.Server
     );
-    
+
     private NetworkVariable<bool> networkIsDead = new NetworkVariable<bool>(
         writePerm: NetworkVariableWritePermission.Server
     );
 
     private bool hasProcessedDeath = false;
-    
+
     // Cache animator reference to avoid expensive GetComponentInChildren calls
     private Animator cachedAnimator;
 
-    private void Awake()
-    {
-        if (healthComponent == null)
-        {
+    private void Awake() {
+        if (healthComponent == null) {
             healthComponent = GetComponent<HealthComponent>();
         }
-        
+
         // Cache animator reference
         cachedAnimator = GetComponentInChildren<Animator>();
     }
 
-    public override void OnNetworkSpawn()
-    {
-        if (IsServer)
-        {
+    public override void OnNetworkSpawn() {
+        if (IsServer) {
             // Server: Initialize network variables with current health
             int currentHealth = healthComponent.GetCurrentHealth();
             networkHealth.Value = currentHealth;
@@ -49,17 +44,14 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
             healthComponent.OnDeath += OnDeathServer;
 
             logger?.Log($"[NetworkHealthSynchronizer] Server initialized for {gameObject.name} with health {currentHealth}/{healthComponent.MaxHealth}", this);
-        }
-        else
-        {
+        } else {
             // Clients: Subscribe to network variable changes
             networkHealth.OnValueChanged += OnHealthChangedClient;
             networkIsDead.OnValueChanged += OnIsDeadChangedClient;
 
             // Apply initial state
             ApplyHealthToComponent(networkHealth.Value);
-            if (networkIsDead.Value && !hasProcessedDeath)
-            {
+            if (networkIsDead.Value && !hasProcessedDeath) {
                 ProcessDeath();
             }
 
@@ -67,15 +59,11 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
         }
     }
 
-    public override void OnNetworkDespawn()
-    {
-        if (IsServer && healthComponent != null)
-        {
+    public override void OnNetworkDespawn() {
+        if (IsServer && healthComponent != null) {
             healthComponent.OnHealthChanged -= OnHealthChangedServer;
             healthComponent.OnDeath -= OnDeathServer;
-        }
-        else if (!IsServer)
-        {
+        } else if (!IsServer) {
             networkHealth.OnValueChanged -= OnHealthChangedClient;
             networkIsDead.OnValueChanged -= OnIsDeadChangedClient;
         }
@@ -86,8 +74,7 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
     /// <summary>
     /// Called on server when HealthComponent health changes (e.g., takes damage)
     /// </summary>
-    private void OnHealthChangedServer(float healthValue)
-    {
+    private void OnHealthChangedServer(float healthValue) {
         if (!IsServer) return;
 
         int healthInt = Mathf.RoundToInt(healthValue);
@@ -99,8 +86,7 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
     /// <summary>
     /// Called on server when HealthComponent triggers death
     /// </summary>
-    private void OnDeathServer()
-    {
+    private void OnDeathServer() {
         if (!IsServer) return;
 
         networkIsDead.Value = true;
@@ -114,42 +100,35 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
     /// <summary>
     /// Called on clients when network health changes
     /// </summary>
-    private void OnHealthChangedClient(int oldValue, int newValue)
-    {
+    private void OnHealthChangedClient(int oldValue, int newValue) {
         if (IsServer) return; // Server already has the correct state
 
         // Apply the new health value
         ApplyHealthToComponent(newValue);
-        
+
         // Trigger damage animation if health decreased
-        if (newValue < oldValue && newValue > 0)
-        {
-            if (cachedAnimator != null)
-            {
+        if (newValue < oldValue && newValue > 0) {
+            if (cachedAnimator != null) {
                 cachedAnimator.SetTrigger("3_Damaged");
             }
         }
         // Trigger death animation if health reached 0
-        else if (newValue <= 0)
-        {
-            if (cachedAnimator != null)
-            {
+        else if (newValue <= 0) {
+            if (cachedAnimator != null) {
                 cachedAnimator.SetTrigger("4_Death");
             }
         }
-        
+
         logger?.Log($"[NetworkHealthSynchronizer] Client: Health changed from {oldValue} to {newValue} for {gameObject.name}", this);
     }
 
     /// <summary>
     /// Called on clients when network death state changes
     /// </summary>
-    private void OnIsDeadChangedClient(bool oldValue, bool newValue)
-    {
+    private void OnIsDeadChangedClient(bool oldValue, bool newValue) {
         if (IsServer) return; // Server already handled death
 
-        if (newValue && !hasProcessedDeath)
-        {
+        if (newValue && !hasProcessedDeath) {
             ProcessDeath();
         }
     }
@@ -161,38 +140,31 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
     /// <summary>
     /// Applies health value to the HealthComponent without triggering damage animation
     /// </summary>
-    private void ApplyHealthToComponent(int healthValue)
-    {
+    private void ApplyHealthToComponent(int healthValue) {
         if (healthComponent == null) return;
 
         // Set health directly without triggering animations
         healthComponent.SetCurrentHealth(healthValue);
-        
+
         logger?.Log($"[NetworkHealthSynchronizer] Applied health {healthValue} to {gameObject.name}", this);
     }
 
     /// <summary>
     /// Processes death on clients
     /// </summary>
-    private void ProcessDeath()
-    {
+    private void ProcessDeath() {
         if (hasProcessedDeath) return;
         hasProcessedDeath = true;
 
-        if (healthComponent != null)
-        {
+        if (healthComponent != null) {
             // On server: Let HealthComponent handle death normally (triggers animation + destruction)
             // On clients: Only trigger death animation, destruction will be handled by NetworkObject despawn
-            if (IsServer)
-            {
+            if (IsServer) {
                 healthComponent.Die();
-            }
-            else
-            {
+            } else {
                 // Clients: Just play death animation without destroying
                 // The NetworkObject despawn will handle cleanup automatically
-                if (cachedAnimator != null)
-                {
+                if (cachedAnimator != null) {
                     cachedAnimator.SetTrigger("4_Death");
                 }
             }
@@ -208,16 +180,14 @@ public class NetworkHealthSynchronizer : NetworkBehaviour
     /// <summary>
     /// Gets the current synchronized health value
     /// </summary>
-    public int GetNetworkHealth()
-    {
+    public int GetNetworkHealth() {
         return networkHealth.Value;
     }
 
     /// <summary>
     /// Gets the current synchronized death state
     /// </summary>
-    public bool IsNetworkDead()
-    {
+    public bool IsNetworkDead() {
         return networkIsDead.Value;
     }
 

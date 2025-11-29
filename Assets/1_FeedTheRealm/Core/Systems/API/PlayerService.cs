@@ -55,10 +55,11 @@ namespace API {
         }
 
         /// <summary>
-        /// Retrieve the current character information such as name and bio.
+        /// Retrieve the character information such as name and bio for a given user.
+        /// If no userID is provided it retrieves the currently logged in userID.
         /// </summary>
-        public IEnumerator GetCharacterInfo(System.Action<CharacterInfoResponse, string> handler) {
-            var url = $"http://{Hostname}:{Port}/player/character";
+        public IEnumerator GetCharacterInfo(System.Action<CharacterInfoResponse, string> handler, string UserID = null) {
+            var url = $"http://{Hostname}:{Port}/player/character/{(UserID ?? session.UserId)}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
