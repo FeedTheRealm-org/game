@@ -7,6 +7,9 @@ public class NavbarController : MonoBehaviour {
     private Session.Session session;
 
     [SerializeField]
+    private API.PlayerService playerService;
+
+    [SerializeField]
     private GameObject profileMenuPrefab;
 
     [SerializeField]
@@ -27,6 +30,10 @@ public class NavbarController : MonoBehaviour {
             logger.Log("Session is not assigned.", this, Logging.LogType.Error);
             return;
         }
+
+        StartCoroutine(playerService.GetCharacterInfo((data, err) => {
+            session.CharacterName = data.character_name;
+        }));
 
         _root = GetComponent<UIDocument>().rootVisualElement;
         var body = _root.Q<VisualElement>("Body");
@@ -51,7 +58,7 @@ public class NavbarController : MonoBehaviour {
             return;
         }
 
-        _nameTag.text = session.CharacterName ?? "Guest";
+        _nameTag.text = string.IsNullOrEmpty(session.CharacterName) ? "Guest" : session.CharacterName;
         _profileButton.clicked += onProfileButtonClicked;
         _playButton.clicked += onPlayButtonClicked;
     }

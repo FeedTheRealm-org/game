@@ -1,0 +1,12 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/ItemStats.uss?fileID=7433441132597879392&amp;guid=6651ba007c3f62550a8161cae3909f41&amp;type=3#ItemStats" />
+    <ui:VisualElement name="TooltipContainer" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/Mini_frame0.png?fileID=2800000&amp;guid=4293f3f43e7a5524dbcb191b0ef09d9c&amp;type=3#Mini_frame0&quot;); background-color: rgb(128, 128, 128); border-top-width: 20px; border-left-width: 20px; border-bottom-width: 20px; border-right-width: 20px; justify-content: flex-start; align-items: flex-start; align-self: auto; align-content: auto; width: 10%; height: 30%; min-width: 15%; min-height: 30%; max-width: 15%; max-height: 30%; flex-basis: 0; flex-direction: column; flex-shrink: 1; position: absolute; top: 0; left: 0; flex-wrap: nowrap;">
+        <ui:Label text="Name" name="Name" class="tittle" style="padding-bottom: 12px; padding-top: 12px;" />
+        <ui:Label text="Description" name="Description" class="fields" />
+        <ui:Label text="Attack: " name="Attack" class="fields" />
+        <ui:Label text="Defense: " name="Defense" class="fields" />
+        <ui:Label text="AttackSpeed: " name="AttackSpeed" class="fields" />
+        <ui:Label text="Resistance: " name="Resistance" class="fields" />
+        <ui:Label text="Attack Range:" name="AttackRange" class="fields" />
+    </ui:VisualElement>
+</ui:UXML>
