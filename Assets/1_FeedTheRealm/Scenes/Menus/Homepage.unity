@@ -225,6 +225,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+      propertyPath: session
+      value: 
+      objectReference: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
+    - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+      propertyPath: worldHandler
+      value: 
+      objectReference: {fileID: 11400000, guid: d54015669dd0b4a47aea5d2bef3cd7a0, type: 2}
+    - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: worldService
       value: 
       objectReference: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
@@ -232,6 +240,14 @@ PrefabInstance:
       propertyPath: worldSelector
       value: 
       objectReference: {fileID: 11400000, guid: d54015669dd0b4a47aea5d2bef3cd7a0, type: 2}
+    - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+      propertyPath: worldScene.sceneName
+      value: WorldLoaderTest
+      objectReference: {fileID: 0}
+    - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+      propertyPath: worldScene.sceneAsset
+      value: 
+      objectReference: {fileID: 102900000, guid: 27c5c4b95e037a72ebc7df0708252efe, type: 3}
     - target: {fileID: 2465686432925961172, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 887.7582

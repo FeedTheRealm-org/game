@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
   _showLogs: 0
   _loggerPrefix: '[API]'
-  _loggerColor: {r: 0.49803925, g: 1, b: 0, a: 1}
+  _loggerColor: {r: 1, g: 0.11737174, b: 0.8900216, a: 1}

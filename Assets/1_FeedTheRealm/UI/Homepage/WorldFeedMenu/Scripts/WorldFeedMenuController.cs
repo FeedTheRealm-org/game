@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
@@ -14,7 +15,8 @@ public class WorldFeedMenuController : MonoBehaviour {
     private Session.Session session;
     [SerializeField]
     private API.WorldService worldService;
-    
+    [SerializeField]
+    private SceneReference worldScene;
 
     private VisualElement ui;
     private TextField searchField;
@@ -115,10 +117,9 @@ public class WorldFeedMenuController : MonoBehaviour {
 
 
     private void OnWorldSelected(Models.WorldData worldData) {
-        worldHandler.SetSelectedWorldId(worldData);
-        logger.Log($"World selected: {worldData.worldName}", this);
-
-        // TODO: get all data
+        worldHandler.SetSelectedWorld(worldData);
+        logger.Log($"World selected: {worldData.id}", this);
+        SceneManager.LoadScene(worldScene.SceneName);
     }
 
 

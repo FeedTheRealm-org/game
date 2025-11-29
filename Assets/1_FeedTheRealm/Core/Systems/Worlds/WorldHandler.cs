@@ -13,7 +13,7 @@ namespace Worlds {
   public class WorldHandler : ScriptableObject {
     public const string NULL_CATEGORY_NAME = "Uncategorized";
 
-    public Models.WorldData selectedWorldId = null;
+    public Models.WorldData selectedWorld = null;
 
     [Header("World Categories")]
     [SerializeField]
@@ -67,14 +67,13 @@ namespace Worlds {
       logger.Log("Cleared all categories and worlds.", this);
     }
 
-    public Models.WorldData GetSelectedWorldId() {
-      return selectedWorldId;
+    public Models.WorldData GetSelectedWorld() {
+      return selectedWorld;
     }
 
-    public void SetSelectedWorldId(Models.WorldData worldData) {
-      selectedWorldId = worldData;
+    public void SetSelectedWorld(Models.WorldData worldData) {
+      selectedWorld = worldData;
     }
-
 
   }
 }
