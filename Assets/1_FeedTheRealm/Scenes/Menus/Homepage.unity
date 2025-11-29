@@ -226,8 +226,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: worldService
-      value:
+      value: 
       objectReference: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
+    - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+      propertyPath: worldSelector
+      value: 
+      objectReference: {fileID: 11400000, guid: d54015669dd0b4a47aea5d2bef3cd7a0, type: 2}
     - target: {fileID: 2465686432925961172, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 887.7582
@@ -385,7 +389,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -414,11 +418,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2958266788636507345, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
       propertyPath: m_PanelSettings
-      value:
+      value: 
       objectReference: {fileID: 11400000, guid: 4cd3e0b6e0a0edbfbb89b82289f0088e, type: 2}
     - target: {fileID: 4357481390069937912, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
       propertyPath: playerService
-      value:
+      value: 
       objectReference: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
     - target: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
       propertyPath: m_Name
@@ -523,7 +527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3411038651431154064, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
       propertyPath: sourceAsset
-      value:
+      value: 
       objectReference: {fileID: 9197481963319205126, guid: 8c45a7eb06088c9d787c37ae3a50a380, type: 3}
     - target: {fileID: 3411038651431154064, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
       propertyPath: m_SortingOrder
@@ -556,7 +560,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 85a19dd0d53862e5c9d403bf349af4ac, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NavbarController
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   profileMenuPrefab: {fileID: 1137216438}

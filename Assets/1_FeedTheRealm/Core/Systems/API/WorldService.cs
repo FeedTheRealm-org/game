@@ -8,7 +8,7 @@ namespace API {
   /// Service to manage worlds data.
   /// </summary>
   [CreateAssetMenu(fileName = "WorldService", menuName = "Scriptable Objects/API/WorldService")]
-  public class WorldService : ScriptableObject {
+  public class DEPRECATEDWorldService : ScriptableObject {
     [Header("Server settings")]
     [SerializeField]
     public string Hostname;
