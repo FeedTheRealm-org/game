@@ -16,6 +16,8 @@ public class DashComponent : MonoBehaviour {
 
     private bool isDashing;
 
+    public bool IsDashing => isDashing;
+
     private void Awake() {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();

@@ -26,6 +26,8 @@ public class AttackComponent : MonoBehaviour {
     private bool isAttacking = false;
     private Animator _animator;
 
+    public System.Action OnAttackFinished;
+
     private void Awake() {
         _animator = GetComponentInChildren<Animator>();
     }
@@ -49,7 +51,7 @@ public class AttackComponent : MonoBehaviour {
         if (isAttacking) return;
         logger.Log("Attack event triggered", this);
 
-        _animator.SetTrigger("2_Attack");
+        // Animation now handled by CharacterAnimator via state machine
 
         isAttacking = true;
         StartCoroutine(resetAttackCooldown());
@@ -61,6 +63,7 @@ public class AttackComponent : MonoBehaviour {
     private IEnumerator resetAttackCooldown() {
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
+        OnAttackFinished?.Invoke();
     }
 
     private void OnDrawGizmos() {

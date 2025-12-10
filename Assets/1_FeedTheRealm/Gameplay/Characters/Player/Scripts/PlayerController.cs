@@ -13,35 +13,24 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
 
-    private MovementComponent movementComponent;
-    private DashComponent dashComponent;
-    private AttackComponent attackComponent;
+    private CharacterStateMachine characterStateMachine;
 
     private void OnEnable() {
         if (playerPrefab == null) {
             logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
         }
 
-        movementComponent = playerPrefab.GetComponentInChildren<MovementComponent>();
-        if (movementComponent == null) {
-            logger.Log("MovementComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
-        }
-
-        dashComponent = playerPrefab.GetComponentInChildren<DashComponent>();
-        if (dashComponent == null) {
-            logger.Log("DashComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
-        }
-
-        attackComponent = playerPrefab.GetComponentInChildren<AttackComponent>();
-        if (attackComponent == null) {
-            logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
+        characterStateMachine = playerPrefab.GetComponentInChildren<CharacterStateMachine>();
+        if (characterStateMachine == null) {
+            logger.Log("CharacterStateMachine not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
 
         // Register callbacks
         if (inputReader != null) {
             inputReader.DashEvent += OnDashInput;
             inputReader.MoveEvent += OnMoveInput;
-            inputReader.AttackEvent += OnAttackInput;
+            inputReader.AttackDownEvent += OnAttackDownInput;
+            inputReader.AttackUpEvent += OnAttackUpInput;
 
             logger.Log("PlayerController subscribed from events.", this);
         }
@@ -51,22 +40,29 @@ public class PlayerController : MonoBehaviour {
         if (inputReader != null) {
             inputReader.MoveEvent -= OnMoveInput;
             inputReader.DashEvent -= OnDashInput;
-            inputReader.AttackEvent -= OnAttackInput;
+            inputReader.AttackDownEvent -= OnAttackDownInput;
+            inputReader.AttackUpEvent -= OnAttackUpInput;
 
             logger.Log("PlayerController unsubscribed from events.", this);
         }
 
-        movementComponent = null;
-        dashComponent = null;
-        attackComponent = null;
+        characterStateMachine = null;
     }
 
-    private void OnAttackInput() {
+    private void OnAttackDownInput() {
         if (Cursor.visible) {
             return;
         }
 
-        attackComponent?.OnAttack();
+        characterStateMachine?.OnAttackDown();
+    }
+
+    private void OnAttackUpInput() {
+        if (Cursor.visible) {
+            return;
+        }
+
+        characterStateMachine?.OnAttackUp();
     }
 
     private void OnMoveInput(Vector2 vec) {
@@ -74,7 +70,7 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        movementComponent?.OnMove(vec);
+        characterStateMachine?.OnMove(vec);
     }
 
     private void OnDashInput() {
@@ -82,6 +78,6 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        dashComponent?.OnDash();
+        characterStateMachine?.OnDash();
     }
 }
