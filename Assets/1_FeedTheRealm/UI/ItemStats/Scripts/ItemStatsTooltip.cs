@@ -115,7 +115,8 @@ public class ItemStatsTooltip : MonoBehaviour {
         tooltipContainer.style.display = DisplayStyle.Flex;
         isVisible = true;
 
-        logger?.Log($"Tooltip shown for item: {itemData.name} ({itemData.category})", this);
+        var categoryName = ItemsManager.Instance?.GetCategoryNameById(itemData.category_id) ?? string.Empty;
+        logger?.Log($"Tooltip shown for item: {itemData.name} ({categoryName})", this);
     }
 
     /// <summary>
@@ -148,7 +149,8 @@ public class ItemStatsTooltip : MonoBehaviour {
         }
 
         // Show/hide stats based on category
-        switch (itemData.category.ToLower()) {
+        var categoryName = ItemsManager.Instance?.GetCategoryNameById(itemData.category_id) ?? string.Empty;
+        switch (categoryName.ToLower()) {
             case "weapon":
                 ShowWeaponStats();
                 HideArmorStats();
@@ -163,7 +165,7 @@ public class ItemStatsTooltip : MonoBehaviour {
                 // Unknown category - hide all stats
                 HideWeaponStats();
                 HideArmorStats();
-                logger?.Log($"Unknown category: {itemData.category}", this, Logging.LogType.Warning);
+                logger?.Log($"Unknown category: {categoryName}", this, Logging.LogType.Warning);
                 break;
         }
     }

@@ -31,6 +31,7 @@ namespace Items {
 
         // Cache dictionaries
         private Dictionary<string, ItemMetadataResponse> itemsById;
+        private Dictionary<string, string> categoryNamesById;
         private Dictionary<string, Texture2D> spriteCache;
         private HashSet<string> loadingSprites; // Track sprites currently loading
 
@@ -50,6 +51,7 @@ namespace Items {
 
             // Initialize collections
             itemsById = new Dictionary<string, ItemMetadataResponse>();
+            categoryNamesById = new Dictionary<string, string>();
             spriteCache = new Dictionary<string, Texture2D>();
             loadingSprites = new HashSet<string>();
         }
@@ -66,7 +68,8 @@ namespace Items {
 
             DebugLog("Initializing ItemsManager...");
 
-            // Load all items metadata
+            // Load item categories first (to group items by name correctly), then items metadata
+            yield return LoadItemCategories();
             yield return LoadItemsMetadata();
 
             // Preload all sprites (recommended for small sprite sets)
@@ -92,7 +95,7 @@ namespace Items {
                     return;
                 }
 
-                // Build dictionary from array
+                // Build dictionary from array and group by category name
                 itemsById.Clear();
                 foreach (var item in itemsList.items) {
                     itemsById[item.id] = item;
@@ -103,6 +106,26 @@ namespace Items {
                 completed = true;
             });
 
+            yield return new WaitUntil(() => completed);
+        }
+
+        IEnumerator LoadItemCategories() {
+            bool completed = false;
+            yield return itemsService.GetItemCategories((catsList, error) => {
+                if (!string.IsNullOrEmpty(error)) {
+                    Debug.LogWarning($"[ItemsManager] Failed to load categories: {error}");
+                    completed = true;
+                    return;
+                }
+
+                categoryNamesById.Clear();
+                if (catsList != null && catsList.categories != null) {
+                    foreach (var c in catsList.categories) {
+                        categoryNamesById[c.id] = c.name;
+                    }
+                }
+                completed = true;
+            });
             yield return new WaitUntil(() => completed);
         }
 
@@ -132,7 +155,8 @@ namespace Items {
         public List<ItemMetadataResponse> GetItemsByCategory(string category) {
             var result = new List<ItemMetadataResponse>();
             foreach (var item in itemsById.Values) {
-                if (item.category == category) {
+                var itemCategoryName = GetCategoryNameById(item.category_id);
+                if (itemCategoryName == category) {
                     result.Add(item);
                 }
             }
@@ -168,11 +192,10 @@ namespace Items {
             // Mark as loading
             loadingSprites.Add(itemId);
 
-            // Download sprite using category-based route
+            // Download sprite using sprite id route
             bool completed = false;
-            yield return itemAssetsService.DownloadItemSpriteByCategory(
+            yield return itemAssetsService.DownloadItemSprite(
                 item.sprite_id,
-                item.category,
                 (texture) => {
                     if (texture != null) {
                         spriteCache[itemId] = texture;
@@ -205,11 +228,18 @@ namespace Items {
         /// </summary>
         IEnumerator PreloadSpritesByCategories(string[] categories) {
             foreach (var item in itemsById.Values) {
-                if (System.Array.IndexOf(categories, item.category) >= 0) {
+                var itemCategoryName = GetCategoryNameById(item.category_id);
+                if (System.Array.IndexOf(categories, itemCategoryName) >= 0) {
                     yield return GetItemSprite(item.id, null);
                     yield return null; // Small delay between loads
                 }
             }
+        }
+
+        public string GetCategoryNameById(string categoryId) {
+            if (string.IsNullOrEmpty(categoryId)) return string.Empty;
+            if (categoryNamesById == null) return string.Empty;
+            return categoryNamesById.TryGetValue(categoryId, out var name) ? name : string.Empty;
         }
 
         /// <summary>
