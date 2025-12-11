@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
 /// Manages the character's state machine, handling transitions based on input and state.
@@ -89,15 +88,13 @@ public class CharacterStateMachine : MonoBehaviour {
         currentMovementState.Enter();
     }
 
-    // Called by AttackComponent when attack cooldown ends
-    public void OnAttackFinished() {
+    private void OnAttackFinished() {
         if (currentAttackState == attackState) {
             attackState.Exit();
             currentAttackState = null;
         }
     }
 
-    // Called by DashComponent when dash finishes
     private void OnDashFinished() {
         if (currentMovementState == dashingState) {
             if (lastDirection.sqrMagnitude > 0.01f) {

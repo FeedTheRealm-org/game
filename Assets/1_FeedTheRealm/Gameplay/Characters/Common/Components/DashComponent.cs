@@ -4,8 +4,7 @@ using System.Collections;
 /// <summary>
 /// Handles player dashing movement based on the stamina.
 /// </summary>
-public class DashComponent : MonoBehaviour
-{
+public class DashComponent : MonoBehaviour {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private GroundCheckComponent groundCheck;
     [SerializeField] private MovementComponent movement;
@@ -21,8 +20,7 @@ public class DashComponent : MonoBehaviour
 
     public System.Action OnDashFinished;
 
-    private void Awake()
-    {
+    private void Awake() {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
         if (movement == null) movement = GetComponent<MovementComponent>();
@@ -31,9 +29,11 @@ public class DashComponent : MonoBehaviour
     /// <summary>
     /// Called by the input system to initiate a dash.
     /// </summary>
-    public void OnDash()
-    {
-        if (isDashing || !groundCheck.IsGrounded || !consumeStamina()) return;
+    public void OnDash() {
+        if (isDashing || !groundCheck.IsGrounded || !consumeStamina()) {
+            OnDashFinished?.Invoke();
+            return;
+        }
 
         Vector3 dashDirection = movement.CurrentDirection.normalized;
         if (dashDirection == Vector3.zero)
@@ -47,8 +47,7 @@ public class DashComponent : MonoBehaviour
     /// <summary>
     /// Coroutine to handle the dash force aplication for the defined duration.
     /// </summary>
-    private IEnumerator dashRoutine(Vector3 direction)
-    {
+    private IEnumerator dashRoutine(Vector3 direction) {
         isDashing = true;
 
         // apply instant burst
@@ -63,8 +62,7 @@ public class DashComponent : MonoBehaviour
         OnDashFinished?.Invoke();
     }
 
-    private bool consumeStamina()
-    {
+    private bool consumeStamina() {
         return stamina.TryConsumeStamina(staminaConsumption);
     }
 }
