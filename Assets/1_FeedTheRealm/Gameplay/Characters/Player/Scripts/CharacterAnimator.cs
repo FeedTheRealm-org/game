@@ -30,6 +30,10 @@ public class CharacterAnimator : MonoBehaviour {
         // animator.SetBool("IsDashing", isDashing);
     }
 
+    public void SetAction(bool isAction) {
+        animator.SetBool("Action", isAction);
+    }
+
     /// <summary>
     /// Triggers the attack animation.
     /// </summary>

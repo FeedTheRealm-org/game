@@ -29,8 +29,7 @@ public class PlayerController : MonoBehaviour {
         if (inputReader != null) {
             inputReader.DashEvent += OnDashInput;
             inputReader.MoveEvent += OnMoveInput;
-            inputReader.AttackDownEvent += OnAttackDownInput;
-            inputReader.AttackUpEvent += OnAttackUpInput;
+            inputReader.AttackEvent += OnAttackInput;
 
             logger.Log("PlayerController subscribed from events.", this);
         }
@@ -40,8 +39,7 @@ public class PlayerController : MonoBehaviour {
         if (inputReader != null) {
             inputReader.MoveEvent -= OnMoveInput;
             inputReader.DashEvent -= OnDashInput;
-            inputReader.AttackDownEvent -= OnAttackDownInput;
-            inputReader.AttackUpEvent -= OnAttackUpInput;
+            inputReader.AttackEvent -= OnAttackInput;
 
             logger.Log("PlayerController unsubscribed from events.", this);
         }
@@ -49,20 +47,12 @@ public class PlayerController : MonoBehaviour {
         characterStateMachine = null;
     }
 
-    private void OnAttackDownInput() {
+    private void OnAttackInput() {
         if (Cursor.visible) {
             return;
         }
 
-        characterStateMachine?.OnAttackDown();
-    }
-
-    private void OnAttackUpInput() {
-        if (Cursor.visible) {
-            return;
-        }
-
-        characterStateMachine?.OnAttackUp();
+        characterStateMachine?.OnAttack();
     }
 
     private void OnMoveInput(Vector2 vec) {
