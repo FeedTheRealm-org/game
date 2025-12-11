@@ -4,7 +4,8 @@ using System.Collections.Generic;
 /// <summary>
 /// Manages the character's state machine, handling transitions based on input and state.
 /// </summary>
-public class CharacterStateMachine : MonoBehaviour {
+public class CharacterStateMachine : MonoBehaviour
+{
     [SerializeField] private MovementComponent movementComponent;
     [SerializeField] private DashComponent dashComponent;
     [SerializeField] private AttackComponent attackComponent;
@@ -18,9 +19,11 @@ public class CharacterStateMachine : MonoBehaviour {
     private CharacterChargingAttackState chargingAttackState;
 
     private IState currentMovementState;
-    private List<IState> attackStates;
+    private IState currentAttackState;
+    private Vector2 lastDirection;
 
-    private void Awake() {
+    private void Awake()
+    {
         if (movementComponent == null) movementComponent = GetComponentInChildren<MovementComponent>();
         if (dashComponent == null) dashComponent = GetComponentInChildren<DashComponent>();
         if (attackComponent == null) attackComponent = GetComponentInChildren<AttackComponent>();
@@ -34,7 +37,8 @@ public class CharacterStateMachine : MonoBehaviour {
         chargingAttackState = new CharacterChargingAttackState(movementComponent, characterAnimator);
 
         currentMovementState = idleState;
-        attackStates = new List<IState>();
+        currentAttackState = null;
+        lastDirection = Vector2.zero;
 
         attackComponent.OnAttackFinished += OnAttackFinished;
         dashComponent.OnDashFinished += OnDashFinished;
@@ -46,16 +50,24 @@ public class CharacterStateMachine : MonoBehaviour {
     /// <summary>
     /// Handles movement input.
     /// </summary>
-    public void OnMove(Vector2 direction) {
+    public void OnMove(Vector2 direction)
+    {
+        lastDirection = direction;
+
         if (currentMovementState == dashingState || currentMovementState == chargingAttackState) return; // Cannot move while dashing or charging
 
-        if (direction.sqrMagnitude > 0.01f) {
-            if (currentMovementState != movingState) {
+        if (direction.sqrMagnitude > 0.01f)
+        {
+            if (currentMovementState != movingState)
+            {
                 ChangeMovementState(movingState);
             }
             movingState.SetDirection(direction);
-        } else {
-            if (currentMovementState != idleState) {
+        }
+        else
+        {
+            if (currentMovementState != idleState)
+            {
                 ChangeMovementState(idleState);
             }
         }
@@ -64,8 +76,10 @@ public class CharacterStateMachine : MonoBehaviour {
     /// <summary>
     /// Handles dash input.
     /// </summary>
-    public void OnDash() {
-        if (groundCheckComponent.IsGrounded && currentMovementState != dashingState && currentMovementState != chargingAttackState) {
+    public void OnDash()
+    {
+        if (groundCheckComponent.IsGrounded && currentMovementState != dashingState && currentMovementState != chargingAttackState)
+        {
             ChangeMovementState(dashingState);
         }
     }
@@ -73,8 +87,10 @@ public class CharacterStateMachine : MonoBehaviour {
     /// <summary>
     /// Handles attack down input (start charge or quick attack).
     /// </summary>
-    public void OnAttackDown() {
-        if (currentMovementState != chargingAttackState && !attackStates.Contains(attackState)) {
+    public void OnAttackDown()
+    {
+        if (currentMovementState != chargingAttackState && currentAttackState == null)
+        {
             // Start charging
             ChangeMovementState(chargingAttackState);
         }
@@ -83,34 +99,57 @@ public class CharacterStateMachine : MonoBehaviour {
     /// <summary>
     /// Handles attack up input (release charge).
     /// </summary>
-    public void OnAttackUp() {
-        if (currentMovementState == chargingAttackState) {
+    public void OnAttackUp()
+    {
+        if (currentMovementState == chargingAttackState)
+        {
             // Perform charged attack
-            attackStates.Add(attackState);
+            currentAttackState = attackState;
             attackState.Enter();
-            // After attack, go back to idle
-            ChangeMovementState(idleState);
+            // After attack, go back to idle or moving based on last direction
+            if (lastDirection.sqrMagnitude > 0.01f)
+            {
+                ChangeMovementState(movingState);
+                movingState.SetDirection(lastDirection);
+            }
+            else
+            {
+                ChangeMovementState(idleState);
+            }
         }
     }
 
-    private void ChangeMovementState(IState newState) {
+    private void ChangeMovementState(IState newState)
+    {
         currentMovementState.Exit();
         currentMovementState = newState;
         currentMovementState.Enter();
     }
 
     // Called by AttackComponent when attack cooldown ends
-    public void OnAttackFinished() {
-        if (attackStates.Contains(attackState)) {
+    public void OnAttackFinished()
+    {
+        if (currentAttackState == attackState)
+        {
             attackState.Exit();
-            attackStates.Remove(attackState);
+            currentAttackState = null;
         }
     }
 
     // Called by DashComponent when dash finishes
-    private void OnDashFinished() {
-        if (currentMovementState == dashingState) {
-            ChangeMovementState(idleState);
+    private void OnDashFinished()
+    {
+        if (currentMovementState == dashingState)
+        {
+            if (lastDirection.sqrMagnitude > 0.01f)
+            {
+                ChangeMovementState(movingState);
+                movingState.SetDirection(lastDirection);
+            }
+            else
+            {
+                ChangeMovementState(idleState);
+            }
         }
     }
 }
