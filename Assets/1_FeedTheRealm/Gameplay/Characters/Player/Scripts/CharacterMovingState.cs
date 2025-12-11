@@ -27,5 +27,6 @@ public class CharacterMovingState : IState {
     public void SetDirection(Vector2 direction) {
         currentDirection = direction;
         movementComponent.OnMove(direction);
+        animator.SetDirection(direction);
     }
 }

@@ -789,8 +789,9 @@ GameObject:
   - component: {fileID: 711662038554925756}
   - component: {fileID: 7218945197544148310}
   - component: {fileID: 8763116988974604536}
+  - component: {fileID: 4486304355727522199}
   m_Layer: 0
-  m_Name: Human
+  m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -853,6 +854,20 @@ MonoBehaviour:
   attackComponent: {fileID: 370332728856482138}
   healthComponent: {fileID: 0}
   networkAttackSynchronizer: {fileID: 0}
+--- !u!114 &4486304355727522199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 189247572950467272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa3d0a5bb9d3c04d3ac2dc5893220154, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
+  animator: {fileID: 7218945197544148310}
+  logger: {fileID: 11400000, guid: e566741b31fec873c94b2868946ab81d, type: 2}
 --- !u!1 &190724153863477360
 GameObject:
   m_ObjectHideFlags: 0
@@ -4134,7 +4149,6 @@ GameObject:
   - component: {fileID: 1534545483887044268}
   - component: {fileID: 370332728856482138}
   - component: {fileID: 4190128248899451067}
-  - component: {fileID: 3814941585264854456}
   - component: {fileID: 2124911000678282174}
   m_Layer: 9
   m_Name: Player
@@ -4371,20 +4385,6 @@ MonoBehaviour:
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
---- !u!114 &3814941585264854456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa3d0a5bb9d3c04d3ac2dc5893220154, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
-  animator: {fileID: 7218945197544148310}
-  logger: {fileID: 11400000, guid: e566741b31fec873c94b2868946ab81d, type: 2}
 --- !u!114 &2124911000678282174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4401,7 +4401,7 @@ MonoBehaviour:
   dashComponent: {fileID: 1534545483887044268}
   attackComponent: {fileID: 370332728856482138}
   groundCheckComponent: {fileID: 4180349157995795823}
-  characterAnimator: {fileID: 3814941585264854456}
+  characterAnimator: {fileID: 4486304355727522199}
 --- !u!1 &1424139500108680001
 GameObject:
   m_ObjectHideFlags: 0
