@@ -26,15 +26,6 @@ public class CharacterMovingState : IState
         // No specific exit logic
     }
 
-    public void Update()
-    {
-        // Movement is handled in FixedUpdate
-    }
-
-    public void FixedUpdate()
-    {
-        movementComponent.OnMove(currentDirection);
-    }
 
     /// <summary>
     /// Updates the movement direction.
@@ -42,5 +33,6 @@ public class CharacterMovingState : IState
     public void SetDirection(Vector2 direction)
     {
         currentDirection = direction;
+        movementComponent.OnMove(direction);
     }
 }

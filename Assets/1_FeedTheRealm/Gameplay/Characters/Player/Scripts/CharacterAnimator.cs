@@ -3,15 +3,15 @@ using UnityEngine;
 /// <summary>
 /// Handles character animation logic, centralizing animator control.
 /// </summary>
-public class CharacterAnimator : MonoBehaviour
-{
+public class CharacterAnimator : MonoBehaviour {
     [SerializeField]
     private Animator animator;
 
-    private void Awake()
-    {
-        if (animator == null)
-        {
+    [SerializeField]
+    private Logging.Logger logger;
+
+    private void Awake() {
+        if (animator == null) {
             animator = GetComponentInChildren<Animator>();
         }
     }
@@ -19,40 +19,35 @@ public class CharacterAnimator : MonoBehaviour
     /// <summary>
     /// Sets the moving animation state.
     /// </summary>
-    public void SetMoving(bool isMoving)
-    {
-        // animator.SetBool("IsMoving", isMoving);
+    public void SetMoving(bool isMoving) {
+        animator.SetBool("IsRunning", isMoving);
     }
 
     /// <summary>
     /// Sets the dashing animation state.
     /// </summary>
-    public void SetDashing(bool isDashing)
-    {
+    public void SetDashing(bool isDashing) {
         // animator.SetBool("IsDashing", isDashing);
     }
 
     /// <summary>
     /// Triggers the attack animation.
     /// </summary>
-    public void PlayAttack()
-    {
-        animator.SetTrigger("2_Attack");
+    public void PlayAttack() {
+        animator.SetTrigger("Slash1H");
     }
 
     /// <summary>
     /// Triggers the damaged animation.
     /// </summary>
-    public void PlayDamaged()
-    {
-        animator.SetTrigger("3_Damaged");
+    public void PlayDamaged() {
+        animator.SetTrigger("Hit");
     }
 
     /// <summary>
     /// Triggers the death animation.
     /// </summary>
-    public void PlayDeath()
-    {
-        animator.SetTrigger("4_Death");
+    public void PlayDeath() {
+        animator.SetTrigger("Death");
     }
 }

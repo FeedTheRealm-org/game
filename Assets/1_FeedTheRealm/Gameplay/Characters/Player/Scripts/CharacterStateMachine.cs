@@ -4,8 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Manages the character's state machine, handling transitions based on input and state.
 /// </summary>
-public class CharacterStateMachine : MonoBehaviour
-{
+public class CharacterStateMachine : MonoBehaviour {
     [SerializeField] private MovementComponent movementComponent;
     [SerializeField] private DashComponent dashComponent;
     [SerializeField] private AttackComponent attackComponent;
@@ -21,72 +20,42 @@ public class CharacterStateMachine : MonoBehaviour
     private IState currentMovementState;
     private List<IState> attackStates;
 
-    private void Awake()
-    {
+    private void Awake() {
         if (movementComponent == null) movementComponent = GetComponentInChildren<MovementComponent>();
         if (dashComponent == null) dashComponent = GetComponentInChildren<DashComponent>();
         if (attackComponent == null) attackComponent = GetComponentInChildren<AttackComponent>();
         if (groundCheckComponent == null) groundCheckComponent = GetComponentInChildren<GroundCheckComponent>();
         if (characterAnimator == null) characterAnimator = GetComponentInChildren<CharacterAnimator>();
 
-        idleState = new CharacterIdleState(characterAnimator);
+        idleState = new CharacterIdleState(movementComponent, characterAnimator);
         movingState = new CharacterMovingState(movementComponent, characterAnimator);
         dashingState = new CharacterDashingState(dashComponent, characterAnimator);
         attackState = new CharacterAttackState(attackComponent, characterAnimator);
-        chargingAttackState = new CharacterChargingAttackState(characterAnimator);
+        chargingAttackState = new CharacterChargingAttackState(movementComponent, characterAnimator);
 
         currentMovementState = idleState;
         attackStates = new List<IState>();
 
         attackComponent.OnAttackFinished += OnAttackFinished;
+        dashComponent.OnDashFinished += OnDashFinished;
 
         currentMovementState.Enter();
     }
 
-    private void Update()
-    {
-        // Check for dash end
-        if (currentMovementState == dashingState && !dashComponent.IsDashing)
-        {
-            // Dash finished, go back to idle
-            ChangeMovementState(idleState);
-        }
-
-        currentMovementState.Update();
-        foreach (var state in attackStates)
-        {
-            state.Update();
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        currentMovementState.FixedUpdate();
-        foreach (var state in attackStates)
-        {
-            state.FixedUpdate();
-        }
-    }
 
     /// <summary>
     /// Handles movement input.
     /// </summary>
-    public void OnMove(Vector2 direction)
-    {
+    public void OnMove(Vector2 direction) {
         if (currentMovementState == dashingState || currentMovementState == chargingAttackState) return; // Cannot move while dashing or charging
 
-        if (direction.sqrMagnitude > 0.01f)
-        {
-            if (currentMovementState != movingState)
-            {
+        if (direction.sqrMagnitude > 0.01f) {
+            if (currentMovementState != movingState) {
                 ChangeMovementState(movingState);
             }
             movingState.SetDirection(direction);
-        }
-        else
-        {
-            if (currentMovementState != idleState)
-            {
+        } else {
+            if (currentMovementState != idleState) {
                 ChangeMovementState(idleState);
             }
         }
@@ -95,10 +64,8 @@ public class CharacterStateMachine : MonoBehaviour
     /// <summary>
     /// Handles dash input.
     /// </summary>
-    public void OnDash()
-    {
-        if (groundCheckComponent.IsGrounded && currentMovementState != dashingState && currentMovementState != chargingAttackState)
-        {
+    public void OnDash() {
+        if (groundCheckComponent.IsGrounded && currentMovementState != dashingState && currentMovementState != chargingAttackState) {
             ChangeMovementState(dashingState);
         }
     }
@@ -106,10 +73,8 @@ public class CharacterStateMachine : MonoBehaviour
     /// <summary>
     /// Handles attack down input (start charge or quick attack).
     /// </summary>
-    public void OnAttackDown()
-    {
-        if (currentMovementState != chargingAttackState && !attackStates.Contains(attackState))
-        {
+    public void OnAttackDown() {
+        if (currentMovementState != chargingAttackState && !attackStates.Contains(attackState)) {
             // Start charging
             ChangeMovementState(chargingAttackState);
         }
@@ -118,10 +83,8 @@ public class CharacterStateMachine : MonoBehaviour
     /// <summary>
     /// Handles attack up input (release charge).
     /// </summary>
-    public void OnAttackUp()
-    {
-        if (currentMovementState == chargingAttackState)
-        {
+    public void OnAttackUp() {
+        if (currentMovementState == chargingAttackState) {
             // Perform charged attack
             attackStates.Add(attackState);
             attackState.Enter();
@@ -130,20 +93,24 @@ public class CharacterStateMachine : MonoBehaviour
         }
     }
 
-    private void ChangeMovementState(IState newState)
-    {
+    private void ChangeMovementState(IState newState) {
         currentMovementState.Exit();
         currentMovementState = newState;
         currentMovementState.Enter();
     }
 
     // Called by AttackComponent when attack cooldown ends
-    public void OnAttackFinished()
-    {
-        if (attackStates.Contains(attackState))
-        {
+    public void OnAttackFinished() {
+        if (attackStates.Contains(attackState)) {
             attackState.Exit();
             attackStates.Remove(attackState);
+        }
+    }
+
+    // Called by DashComponent when dash finishes
+    private void OnDashFinished() {
+        if (currentMovementState == dashingState) {
+            ChangeMovementState(idleState);
         }
     }
 }

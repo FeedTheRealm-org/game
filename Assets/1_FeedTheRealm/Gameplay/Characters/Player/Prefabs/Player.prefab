@@ -788,6 +788,7 @@ GameObject:
   m_Component:
   - component: {fileID: 711662038554925756}
   - component: {fileID: 7218945197544148310}
+  - component: {fileID: 8763116988974604536}
   m_Layer: 0
   m_Name: Human
   m_TagString: Untagged
@@ -803,8 +804,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 189247572950467272}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.31730464, y: -0, z: -0, w: 0.94832367}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.035, z: -0.026}
   m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -824,7 +825,7 @@ Animator:
   m_GameObject: {fileID: 189247572950467272}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c0fbc9a82051e94429aa17cc4b2f48e5, type: 2}
+  m_Controller: {fileID: 9100000, guid: b932593c4f32ff8918ec3e08cbda1f6e, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -836,6 +837,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8763116988974604536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 189247572950467272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationEvents
+  logger: {fileID: 11400000, guid: e566741b31fec873c94b2868946ab81d, type: 2}
+  attackComponent: {fileID: 370332728856482138}
+  healthComponent: {fileID: 0}
+  networkAttackSynchronizer: {fileID: 0}
 --- !u!1 &190724153863477360
 GameObject:
   m_ObjectHideFlags: 0
@@ -4367,6 +4384,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
   animator: {fileID: 7218945197544148310}
+  logger: {fileID: 11400000, guid: e566741b31fec873c94b2868946ab81d, type: 2}
 --- !u!114 &2124911000678282174
 MonoBehaviour:
   m_ObjectHideFlags: 0
