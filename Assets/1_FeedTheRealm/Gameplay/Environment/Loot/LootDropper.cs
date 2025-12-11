@@ -3,9 +3,9 @@ using Unity.Netcode;
 using System.Collections.Generic;
 
 /// <summary>
-/// Componente que se agrega a los enemigos para que suelten loot al morir.
-/// Se suscribe al evento OnDeath del HealthComponent.
-/// Compatible con single-player y multiplayer (Netcode).
+/// Component added to enemies to drop loot upon death.
+/// Subscribes to the OnDeath event of the HealthComponent.
+/// Compatible with single-player and multiplayer (Netcode).
 /// </summary>
 [RequireComponent(typeof(HealthComponent))]
 public class LootDropper : MonoBehaviour {
@@ -45,7 +45,7 @@ public class LootDropper : MonoBehaviour {
         healthComponent = GetComponent<HealthComponent>();
         
         if (healthComponent == null) {
-            logger?.Log("[LootDropper] Error: No se encontró HealthComponent en el enemigo!", this, Logging.LogType.Error);
+            logger?.Log("[LootDropper] Error: HealthComponent not found on the enemy!", this, Logging.LogType.Error);
             enabled = false;
             return;
         }
@@ -64,13 +64,13 @@ public class LootDropper : MonoBehaviour {
     }
 
     /// <summary>
-    /// Se ejecuta cuando el enemigo muere
+    /// Executes when the enemy dies
     /// </summary>
     private void HandleDeath() {
-        // En multiplayer, solo el servidor debe spawnear loot
+        // In multiplayer, only the server should spawn loot
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
             if (!NetworkManager.Singleton.IsServer) {
-                logger?.Log("[LootDropper] Cliente ignorando HandleDeath - solo el servidor spawea loot", this);
+                logger?.Log("[LootDropper] Client ignoring HandleDeath - only the server spawns loot", this);
                 return;
             }
         }
@@ -78,15 +78,15 @@ public class LootDropper : MonoBehaviour {
         if (alwaysDrop && lootPrefab != null) {
             DropLoot();
         } else if (lootPrefab == null) {
-            logger?.Log("[LootDropper] Warning: No hay prefab de loot asignado!", this, Logging.LogType.Warning);
+            logger?.Log("[LootDropper] Warning: No loot prefab assigned!", this, Logging.LogType.Warning);
         }
     }
 
     /// <summary>
-    /// Instancia el loot en la posición del enemigo
+    /// Instantiates the loot at the enemy's position
     /// </summary>
     private void DropLoot() {
-        // Calcular posición de spawn con offset aleatorio
+        // Calculate spawn position with random offset
         Vector3 spawnPosition = transform.position + spawnOffset;
         
         if (randomOffset > 0) {
@@ -94,21 +94,21 @@ public class LootDropper : MonoBehaviour {
             spawnPosition += new Vector3(randomCircle.x, 0, randomCircle.y);
         }
         
-        // Instanciar el loot
+        // Instantiate the loot
         GameObject lootInstance = Instantiate(lootPrefab, spawnPosition, Quaternion.identity);
         
-        // Verificar componentes
+        // Check components
         LootItem lootItem = lootInstance.GetComponent<LootItem>();
         if (lootItem == null) {
-            logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene LootItem component!", this, Logging.LogType.Error);
+            logger?.Log($"[LootDropper] ERROR: Loot prefab does not have LootItem component!", this, Logging.LogType.Error);
             Destroy(lootInstance);
             return;
         }
 
-        // Inicializar posición (no toca NetworkVariables)
+        // Initialize position (does not touch NetworkVariables)
         lootItem.Initialize(spawnPosition);
         
-        // CONFIGURAR LOS ITEMS ANTES DE SPAWNEAR EN LA RED
+        // CONFIGURE THE ITEMS BEFORE SPAWNING ON THE NETWORK
         List<string> lootItemIds = GetRandomLootItems();
         
         if (lootItemIds != null && lootItemIds.Count > 0) {
@@ -118,17 +118,17 @@ public class LootDropper : MonoBehaviour {
             logger?.Log("[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!", this, Logging.LogType.Warning);
         }
         
-        // AHORA spawnear en la red (después de configurar items)
+        // NOW spawn on the network (after configuring items)
         bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
         if (isMultiplayer) {
             NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
             if (networkObject == null) {
-                logger?.Log($"[LootDropper] ERROR: Loot prefab no tiene NetworkObject! El loot no será visible en multiplayer.", this, Logging.LogType.Error);
+                logger?.Log($"[LootDropper] ERROR: Loot prefab does not have NetworkObject! The loot will not be visible in multiplayer.", this, Logging.LogType.Error);
                 Destroy(lootInstance);
                 return;
             }
 
-            // Spawn en la red DESPUÉS de configurar items
+            // Spawn on the network AFTER configuring items
             networkObject.Spawn();
             logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition} with {lootItemIds?.Count ?? 0} items", this);
         }
@@ -211,13 +211,13 @@ public class LootDropper : MonoBehaviour {
     }
 
 #if UNITY_EDITOR
-    // Visualización en el editor para ver dónde caerá el loot
+    // Visualization in the editor to see where the loot will drop
     private void OnDrawGizmosSelected() {
         Gizmos.color = Color.cyan;
         Vector3 dropPosition = transform.position + spawnOffset;
         Gizmos.DrawWireSphere(dropPosition, 0.2f);
         
-        // Mostrar el área de spawn aleatorio
+        // Show the random spawn area
         if (randomOffset > 0) {
             Gizmos.color = new Color(0, 1, 1, 0.3f);
             Gizmos.DrawWireSphere(dropPosition, randomOffset);

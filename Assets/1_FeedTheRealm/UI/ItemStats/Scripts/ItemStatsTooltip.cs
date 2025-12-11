@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using API;
 using Items;
+using UnityEngine.Rendering;
 
 /// <summary>
 /// Tooltip controller for displaying item statistics on hover.
@@ -22,6 +23,10 @@ public class ItemStatsTooltip : MonoBehaviour {
 
     [Header("Logging")]
     [SerializeField] private Logging.Logger logger;
+    
+    [Header("Description Wrapping")]
+    [Tooltip("Maximum characters per line before inserting a newline for the Description label.")]
+    [SerializeField] private int descriptionMaxLineLength = 25;
 
     // UI Elements
     private VisualElement root;
@@ -39,6 +44,12 @@ public class ItemStatsTooltip : MonoBehaviour {
     private string currentItemId;
 
     void Awake() {
+
+        if (Application.isBatchMode || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null) {
+            enabled = false;
+            return;
+        }
+
         if (tooltipDocument == null) {
             tooltipDocument = GetComponent<UIDocument>();
         }
@@ -144,14 +155,15 @@ public class ItemStatsTooltip : MonoBehaviour {
         }
 
         if (descriptionLabel != null) {
-            descriptionLabel.text = itemData.description;
+            // Insert line breaks every `descriptionMaxLineLength` characters to avoid overflow
+            descriptionLabel.text = InsertLineBreaks(itemData.description, descriptionMaxLineLength);
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
 
         // Show/hide stats based on category
         var categoryName = ItemsManager.Instance?.GetCategoryNameById(itemData.category_id) ?? string.Empty;
         switch (categoryName.ToLower()) {
-            case "weapon":
+            case "weapons":
                 ShowWeaponStats();
                 HideArmorStats();
                 break;
@@ -168,6 +180,73 @@ public class ItemStatsTooltip : MonoBehaviour {
                 logger?.Log($"Unknown category: {categoryName}", this, Logging.LogType.Warning);
                 break;
         }
+    }
+
+    /// <summary>
+    /// Inserts newline characters into <paramref name="text"/> so that no line exceeds <paramref name="maxLineLength"/>.
+    /// Tries to break on word boundaries; splits long words if necessary.
+    /// </summary>
+    private static string InsertLineBreaks(string text, int maxLineLength) {
+        if (string.IsNullOrEmpty(text) || maxLineLength <= 0) return text ?? string.Empty;
+
+        var sb = new System.Text.StringBuilder();
+        var words = text.Split(' ');
+        int currentLineLength = 0;
+
+        foreach (var word in words) {
+            if (string.IsNullOrEmpty(word)) {
+                // Preserve spaces but avoid multiple spaces growing the line length
+                if (currentLineLength > 0) {
+                    sb.Append(' ');
+                    currentLineLength += 1;
+                }
+                continue;
+            }
+
+            // If the word itself is longer than maxLineLength, we need to split the word
+            if (word.Length > maxLineLength) {
+                // If the current line has content, start a new line first
+                if (currentLineLength > 0) {
+                    sb.Append('\n');
+                    currentLineLength = 0;
+                }
+
+                int startIndex = 0;
+                while (startIndex < word.Length) {
+                    int remaining = word.Length - startIndex;
+                    int take = Mathf.Min(maxLineLength, remaining);
+                    sb.Append(word.Substring(startIndex, take));
+                    startIndex += take;
+                    if (startIndex < word.Length) {
+                        sb.Append('\n');
+                    }
+                }
+                currentLineLength = word.Length - ((word.Length / maxLineLength) * maxLineLength);
+                // If we've exactly filled the last chunk, reset length to zero
+                if (currentLineLength == maxLineLength) currentLineLength = 0;
+                // Add a space afterwards if there are more words
+                int lastWordIndex = words.Length - 1;
+                if (!word.Equals(words[lastWordIndex])) {
+                    sb.Append(' ');
+                    currentLineLength += 1;
+                }
+                continue;
+            }
+
+            // Normal handling: add to current line if it fits
+            if (currentLineLength == 0) {
+                sb.Append(word);
+                currentLineLength = word.Length;
+            } else if (currentLineLength + 1 + word.Length <= maxLineLength) {
+                sb.Append(' ').Append(word);
+                currentLineLength += 1 + word.Length;
+            } else {
+                sb.Append('\n').Append(word);
+                currentLineLength = word.Length;
+            }
+        }
+
+        return sb.ToString();
     }
 
     /// <summary>
