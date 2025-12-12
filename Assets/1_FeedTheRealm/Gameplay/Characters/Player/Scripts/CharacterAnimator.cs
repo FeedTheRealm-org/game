@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public enum FacingDirection {
     Front,
@@ -30,6 +31,8 @@ public class CharacterAnimator : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
 
+    private Dictionary<FacingDirection, GameObject> spriteMap;
+
     private void Awake() {
         spriteMap = new Dictionary<FacingDirection, GameObject>() {
         { FacingDirection.Front, front },
@@ -42,6 +45,15 @@ public class CharacterAnimator : MonoBehaviour {
         SetFacing(FacingDirection.Front);
         if (animator == null) {
             animator = GetComponentInChildren<Animator>();
+        }
+    }
+
+    /// <summary>
+    /// Sets the facing direction of the character.
+    /// </summary>
+    public void SetFacing(FacingDirection facing) {
+        foreach (var kvp in spriteMap) {
+            kvp.Value.SetActive(kvp.Key == facing);
         }
     }
 
@@ -70,17 +82,14 @@ public class CharacterAnimator : MonoBehaviour {
         float rightDot = Vector3.Dot(transform.right, moveDir);
 
         if (forwardDot > 0.1f) {
-            front.SetActive(true);
-            back.SetActive(false);
-            right.SetActive(false);
-            left.SetActive(false);
+            SetFacing(FacingDirection.Back);
         } else if (forwardDot < -0.1f) {
-            Debug.Log("Backward");
+            SetFacing(FacingDirection.Front);
         }
         if (rightDot > 0.1f) {
-            Debug.Log("Right");
+            SetFacing(FacingDirection.Right);
         } else if (rightDot < -0.1f) {
-            Debug.Log("Left");
+            SetFacing(FacingDirection.Left);
         }
     }
 
