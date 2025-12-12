@@ -107,18 +107,9 @@ public class LootDropper : MonoBehaviour {
 
         // Initialize position (does not touch NetworkVariables)
         lootItem.Initialize(spawnPosition);
-        
-        // CONFIGURE THE ITEMS BEFORE SPAWNING ON THE NETWORK
+
+        // Determine if we are in a multiplayer context
         List<string> lootItemIds = GetRandomLootItems();
-        
-        if (lootItemIds != null && lootItemIds.Count > 0) {
-            lootItem.SetItemIds(lootItemIds);
-            logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs: {string.Join(", ", lootItemIds)}", this);
-        } else {
-            logger?.Log("[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!", this, Logging.LogType.Warning);
-        }
-        
-        // NOW spawn on the network (after configuring items)
         bool isMultiplayer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
         if (isMultiplayer) {
             NetworkObject networkObject = lootInstance.GetComponent<NetworkObject>();
@@ -128,9 +119,17 @@ public class LootDropper : MonoBehaviour {
                 return;
             }
 
-            // Spawn on the network AFTER configuring items
+            // First spawn on the network, then configure NetworkVariables on server
             networkObject.Spawn();
-            logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition} with {lootItemIds?.Count ?? 0} items", this);
+            logger?.Log($"[LootDropper] Loot spawned as NetworkObject at {spawnPosition}", this);
+        }
+
+        // Configure the items AFTER the NetworkObject has been spawned
+        if (lootItemIds != null && lootItemIds.Count > 0) {
+            lootItem.SetItemIds(lootItemIds);
+            logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs: {string.Join(", ", lootItemIds)}", this);
+        } else {
+            logger?.Log("[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!", this, Logging.LogType.Warning);
         }
     }
 
@@ -169,12 +168,8 @@ public class LootDropper : MonoBehaviour {
 
         for (int i = 0; i < itemCount; i++) {
             string itemId;
-            
-            if (!string.IsNullOrEmpty(categoryFilter)) {
-                itemId = Items.DedicatedServerItemsManager.Instance.GetRandomItemIdFromCategory(categoryFilter);
-            } else {
-                itemId = Items.DedicatedServerItemsManager.Instance.GetRandomItemId();
-            }
+
+            itemId = Items.DedicatedServerItemsManager.Instance.GetRandomItemId();
 
             if (!string.IsNullOrEmpty(itemId)) {
                 result.Add(itemId);
@@ -188,23 +183,12 @@ public class LootDropper : MonoBehaviour {
         var result = new List<string>();
 
         for (int i = 0; i < itemCount; i++) {
-            string itemId;
-            
             var allItems = Items.ItemsManager.Instance.GetAllItems();
             if (allItems.Length == 0) continue;
 
-            if (!string.IsNullOrEmpty(categoryFilter)) {
-                var categoryItems = Items.ItemsManager.Instance.GetItemsByCategory(categoryFilter);
-                if (categoryItems.Count > 0) {
-                    int randomIndex = UnityEngine.Random.Range(0, categoryItems.Count);
-                    itemId = categoryItems[randomIndex].id;
-                    result.Add(itemId);
-                }
-            } else {
-                int randomIndex = UnityEngine.Random.Range(0, allItems.Length);
-                itemId = allItems[randomIndex].id;
-                result.Add(itemId);
-            }
+            int randomIndex = UnityEngine.Random.Range(0, allItems.Length);
+            var itemId = allItems[randomIndex].id;
+            result.Add(itemId);
         }
 
         return result;

@@ -4,15 +4,15 @@ namespace API {
     /// <summary>
     /// DTO for item metadata response from API.
     /// Matches backend ItemMetadataResponse structure.
-    /// Contains basic item information: id, name, description, category_id, sprite_id.
-    /// Server-side gameplay data (stats, prices) is handled separately.
+    /// Contains basic item information: id, name, description, sprite_id.
+    /// Legacy field category_id is kept for backwards compatibility but is unused.
     /// </summary>
     [Serializable]
     public class ItemMetadataResponse {
         public string id;           // Item UUID
         public string name;         // Item display name
         public string description;  // Item description
-        public string category_id;  // Category UUID (references ItemCategory)
+        public string category_id;  // Legacy: item categories removed from backend (unused)
         public string sprite_id;    // UUID to download sprite via ItemAssetsService
         public string created_at;   // ISO 8601 timestamp
         public string updated_at;   // ISO 8601 timestamp

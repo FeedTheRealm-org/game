@@ -57,29 +57,6 @@ namespace API {
         }
 
         /// <summary>
-        /// Retrieve item categories list from API.
-        /// </summary>
-        public IEnumerator GetItemCategories(System.Action<ItemCategoriesListResponse, string> handler) {
-            var url = $"http://{Hostname}:{Port}/items/categories";
-            logger?.Log($"GetItemCategories - URL: {url}", this);
-
-            var uwr = new UnityWebRequest(url, "GET");
-            uwr.downloadHandler = new DownloadHandlerBuffer();
-
-            yield return uwr.SendWebRequest();
-
-            var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
-
-            if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
-                logger?.Log($"GetItemCategories HTTP Error - Status: {uwr.responseCode}, Error: {uwr.error}", this, Logging.LogType.Error);
-                handler?.Invoke(null, responseText);
-            } else {
-                var res = JsonUtility.FromJson<DataEnvelope<ItemCategoriesListResponse>>(responseText);
-                handler?.Invoke(res.data, "");
-            }
-        }
-
-        /// <summary>
         /// Retrieve single item metadata by ID.
         /// Used for lazy loading individual items if needed.
         /// </summary>

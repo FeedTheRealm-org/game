@@ -23,8 +23,6 @@ namespace Items {
 
         // Cache for metadata only (no sprites on server)
         private Dictionary<string, ItemMetadataResponse> itemsById;
-        private Dictionary<string, List<ItemMetadataResponse>> itemsByCategory;
-        private Dictionary<string, string> categoryNamesById;
 
         // Initialization state
         public bool IsInitialized { get; private set; }
@@ -41,8 +39,6 @@ namespace Items {
 
             // Initialize collections
             itemsById = new Dictionary<string, ItemMetadataResponse>();
-            itemsByCategory = new Dictionary<string, List<ItemMetadataResponse>>();
-            categoryNamesById = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -57,8 +53,7 @@ namespace Items {
 
             DebugLog("Initializing DedicatedServerItemsManager...");
 
-            // Load categories and all items metadata
-            yield return LoadItemCategories();
+            // Load all items metadata
             yield return LoadItemsMetadata();
 
             IsInitialized = true;
@@ -78,30 +73,15 @@ namespace Items {
                     return;
                 }
 
-                // Build dictionaries from array
+                // Build dictionary from array
                 itemsById.Clear();
-                itemsByCategory.Clear();
 
                 foreach (var item in itemsList.items) {
                     itemsById[item.id] = item;
-
-                    var catName = GetCategoryNameById(item.category_id);
-                    if (string.IsNullOrEmpty(catName)) catName = "Unknown";
-
-                    // Group by category for easy filtering
-                    if (!itemsByCategory.ContainsKey(catName)) {
-                        itemsByCategory[catName] = new List<ItemMetadataResponse>();
-                    }
-                    itemsByCategory[catName].Add(item);
                 }
 
                 TotalItemsLoaded = itemsById.Count;
                 DebugLog($"Loaded {TotalItemsLoaded} items metadata");
-                
-                // Log categories for debugging
-                foreach (var category in itemsByCategory.Keys) {
-                    DebugLog($"  Category '{category}': {itemsByCategory[category].Count} items");
-                }
 
                 completed = true;
             });
@@ -137,28 +117,6 @@ namespace Items {
         }
 
         /// <summary>
-        /// Get items by category.
-        /// </summary>
-        public List<ItemMetadataResponse> GetItemsByCategory(string category) {
-            if (itemsByCategory.TryGetValue(category, out var items)) {
-                return new List<ItemMetadataResponse>(items);
-            }
-            return new List<ItemMetadataResponse>();
-        }
-
-        /// <summary>
-        /// Get all item IDs by category.
-        /// </summary>
-        public List<string> GetItemIdsByCategory(string category) {
-            var items = GetItemsByCategory(category);
-            var ids = new List<string>();
-            foreach (var item in items) {
-                ids.Add(item.id);
-            }
-            return ids;
-        }
-
-        /// <summary>
         /// Get random item ID from all items.
         /// </summary>
         public string GetRandomItemId() {
@@ -170,20 +128,6 @@ namespace Items {
             var allIds = GetAllItemIds();
             int randomIndex = Random.Range(0, allIds.Count);
             return allIds[randomIndex];
-        }
-
-        /// <summary>
-        /// Get random item ID from specific category.
-        /// </summary>
-        public string GetRandomItemIdFromCategory(string category) {
-            var categoryIds = GetItemIdsByCategory(category);
-            if (categoryIds.Count == 0) {
-                Debug.LogWarning($"[DedicatedServerItemsManager] No items in category: {category}");
-                return null;
-            }
-
-            int randomIndex = Random.Range(0, categoryIds.Count);
-            return categoryIds[randomIndex];
         }
 
         /// <summary>
@@ -206,39 +150,6 @@ namespace Items {
         /// </summary>
         public bool HasItem(string itemId) {
             return itemsById.ContainsKey(itemId);
-        }
-
-        /// <summary>
-        /// Get available categories.
-        /// </summary>
-        public List<string> GetCategories() {
-            return new List<string>(itemsByCategory.Keys);
-        }
-
-        public string GetCategoryNameById(string categoryId) {
-            if (string.IsNullOrEmpty(categoryId)) return string.Empty;
-            if (categoryNamesById == null) return string.Empty;
-            return categoryNamesById.TryGetValue(categoryId, out var name) ? name : string.Empty;
-        }
-
-        IEnumerator LoadItemCategories() {
-            bool completed = false;
-            yield return itemsService.GetItemCategories((catsList, error) => {
-                if (!string.IsNullOrEmpty(error)) {
-                    Debug.LogWarning($"[DedicatedServerItemsManager] Failed to load categories: {error}");
-                    completed = true;
-                    return;
-                }
-
-                categoryNamesById.Clear();
-                if (catsList != null && catsList.categories != null) {
-                    foreach (var c in catsList.categories) {
-                        categoryNamesById[c.id] = c.name;
-                    }
-                }
-                completed = true;
-            });
-            yield return new WaitUntil(() => completed);
         }
 
         /// <summary>

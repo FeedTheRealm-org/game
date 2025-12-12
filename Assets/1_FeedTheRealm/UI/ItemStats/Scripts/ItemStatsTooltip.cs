@@ -126,8 +126,7 @@ public class ItemStatsTooltip : MonoBehaviour {
         tooltipContainer.style.display = DisplayStyle.Flex;
         isVisible = true;
 
-        var categoryName = ItemsManager.Instance?.GetCategoryNameById(itemData.category_id) ?? string.Empty;
-        logger?.Log($"Tooltip shown for item: {itemData.name} ({categoryName})", this);
+        logger?.Log($"Tooltip shown for item: {itemData.name}", this);
     }
 
     /// <summary>
@@ -145,7 +144,7 @@ public class ItemStatsTooltip : MonoBehaviour {
 
     /// <summary>
     /// Populate tooltip with item data and mock stats.
-    /// Shows/hides labels based on item category.
+    /// Currently treats all items as weapons (categories removed).
     /// </summary>
     private void PopulateTooltipData(ItemMetadataResponse itemData) {
         // Always show Name and Description
@@ -160,26 +159,9 @@ public class ItemStatsTooltip : MonoBehaviour {
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
 
-        // Show/hide stats based on category
-        var categoryName = ItemsManager.Instance?.GetCategoryNameById(itemData.category_id) ?? string.Empty;
-        switch (categoryName.ToLower()) {
-            case "weapons":
-                ShowWeaponStats();
-                HideArmorStats();
-                break;
-
-            case "armor":
-                ShowArmorStats();
-                HideWeaponStats();
-                break;
-
-            default:
-                // Unknown category - hide all stats
-                HideWeaponStats();
-                HideArmorStats();
-                logger?.Log($"Unknown category: {categoryName}", this, Logging.LogType.Warning);
-                break;
-        }
+        // Categories have been removed; for now always show weapon-style stats
+        ShowWeaponStats();
+        HideArmorStats();
     }
 
     /// <summary>

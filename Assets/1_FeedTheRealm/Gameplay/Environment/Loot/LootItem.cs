@@ -25,7 +25,7 @@ public class LootItem : NetworkBehaviour {
     
     [Header("Loot Contents")]
     // NetworkList to synchronize item IDs between server and clients
-    private NetworkList<Unity.Collections.FixedString64Bytes> itemIds;
+    private NetworkList<Unity.Collections.FixedString64Bytes> itemIds = new NetworkList<Unity.Collections.FixedString64Bytes>();
     
     [Header("Pickup Settings")]
     [SerializeField]
@@ -59,14 +59,9 @@ public class LootItem : NetworkBehaviour {
     [Tooltip("Delay in seconds before loot becomes collectible")]
     private float lootableDelay = 1.0f;
 
-    private void Awake() {
-        // Initialize NetworkList
-        itemIds = new NetworkList<Unity.Collections.FixedString64Bytes>();
-    }
-
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
-        
+
         logger?.Log($"[LootItem] OnNetworkSpawn - IsServer: {IsServer}, ItemCount: {itemIds.Count}, Items: {string.Join(", ", itemIds)}", this);
         
         // Clients: Wait and update visuals
@@ -412,13 +407,18 @@ public class LootItem : NetworkBehaviour {
     
     /// <summary>
     /// Sets up the item IDs for this loot bag.
-    /// IMPORTANT: Call BEFORE networkObject.Spawn() in multiplayer.
+    /// IMPORTANT: Call AFTER NetworkObject.Spawn() in multiplayer so NetworkList is initialized.
     /// Only the server should call this method.
     /// </summary>
     /// <param name="ids">List of item IDs to set up</param>
     public void SetItemIds(List<string> ids) {
-        if (!NetworkManager.Singleton.IsServer) {
+        if (!IsServer) {
             Debug.LogWarning("[LootItem] SetItemIds should only be called by server!");
+            return;
+        }
+
+        if (!IsSpawned) {
+            Debug.LogWarning("[LootItem] SetItemIds called before NetworkObject was spawned. Ignoring.");
             return;
         }
 
