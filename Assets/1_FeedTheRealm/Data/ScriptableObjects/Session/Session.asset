@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b1de90136ae18d49b6a7ef7ae02ca95, type: 3}
   m_Name: Session
   m_EditorClassIdentifier: Assembly-CSharp::Session.Session
-  authService: {fileID: 11400000, guid: 6af1c691ab174e24ba00c1dfe0fda281, type: 2}
+  apiToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjU2NDUyMzcsImlzcyI6MTc2NTU1ODgzNywidXNlcklEIjoiODkzNGJlMjUtY2I0ZC00ZTE1LWFiNmQtMjc2M2E2M2IyZjBjIn0.7hrsnP0jLNavkcUkAHj11P9Fe3rDY8E7Qnek-Wks3-Q
+  isFirstLogin: 0

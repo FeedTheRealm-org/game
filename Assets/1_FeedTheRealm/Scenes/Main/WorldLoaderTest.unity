@@ -1437,6 +1437,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemySpawn
       objectReference: {fileID: 0}
+    - target: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3990866465834413684, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
       propertyPath: spawnRate
       value: 2
