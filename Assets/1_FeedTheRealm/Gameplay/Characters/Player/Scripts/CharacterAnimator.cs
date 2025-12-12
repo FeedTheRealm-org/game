@@ -78,17 +78,21 @@ public class CharacterAnimator : MonoBehaviour {
     public void SetDirection(Vector2 direction) {
         Vector3 moveDir = new Vector3(direction.x, 0f, direction.y).normalized;
 
-        float forwardDot = Vector3.Dot(transform.forward, moveDir);
-        float rightDot = Vector3.Dot(transform.right, moveDir);
+        float forwardDot = Vector3.Dot(Vector3.forward, moveDir);
+        float rightDot = Vector3.Dot(Vector3.right, moveDir);
 
         if (forwardDot > 0.1f) {
+            logger.Log("Facing Back", this);
             SetFacing(FacingDirection.Back);
         } else if (forwardDot < -0.1f) {
+            logger.Log("Facing Front", this);
             SetFacing(FacingDirection.Front);
         }
         if (rightDot > 0.1f) {
+            logger.Log("Facing Right", this);
             SetFacing(FacingDirection.Right);
         } else if (rightDot < -0.1f) {
+            logger.Log("Facing Left", this);
             SetFacing(FacingDirection.Left);
         }
     }
