@@ -14,29 +14,32 @@ using System;
 public class WorldLoaderController : MonoBehaviour {
 
     [SerializeField] private WorldHandler worldHandler;
+    [SerializeField] private GltLoaderService gltLoaderService;
     [SerializeField] private ModelService modelService;
     [SerializeField] private Session.Session session;
     [SerializeField] private WorldController worldController;
     [SerializeField] private Logging.Logger logger;
     [SerializeField] private UIDocument loadingScreenUI;
-    [SerializeField] private GameObject world;
 
+    private Dictionary<string, Asset> assetMap;
 
     private async void Start() {
 
-        logger.Log("Starting WorldLoaderController test...", this);
-        await TestLoadFirstModel();
+        logger.Log("Loading World", this);
+        assetMap = new Dictionary<string, Asset>();
+        await LoadAssets();
+        LoadWorld();
+        loadingScreenUI.gameObject.SetActive(false);
     }
 
-    private async Task TestLoadFirstModel() {
+    private async Task LoadAssets() {
 
-        string testWorldId = worldHandler.selectedWorld.id;
-
+        string worldId = worldHandler.selectedWorld.id;
         logger.Log("Fetching model IDs from world...", this);
 
         // 1. GET MODEL ID LIST
         List<string> modelIds = await modelService.ListWorldAssets(
-            testWorldId,
+            worldId,
             session.APIToken
         );
 
@@ -45,38 +48,41 @@ public class WorldLoaderController : MonoBehaviour {
             return;
         }
 
-        string modelId = modelIds[0]; // pick first one
-        logger.Log("Model ID: " + modelId, this);
+        // 2. DOWNLOAD & INSTANTIATE MODELS
+        foreach (string modelId in modelIds) {
+            GameObject modelInstance = await gltLoaderService.DownloadAndLoadModel(
+                worldId,
+                modelId
+            );
+            Asset asset = new(
+                modelId,
+                modelId,
+                new Vector2Int(1, 1),
+                modelInstance
+            );
+            assetMap[modelId] = asset;
+        }
+        logger.Log($"Amount of assets loaded: {assetMap.Count}", this);
+    }
 
-        // 2. BUILD API URL
-        string url = $"http://localhost:8000/assets/models/{testWorldId}/{modelId}";
-        logger.Log("Downloading model from: " + url, this);
-        // 3. LOAD GLB USING GLTFast
-        var gltf = new GltfImport();
+    public void LoadWorld() {
 
-        bool loaded = await gltf.Load(url);
+        WorldData data = worldHandler.selectedWorld;
 
-        if (!loaded) {
-            logger.Log("Failed to download or parse GLB from API", this, Logging.LogType.Error);
+        if (data.objectPlacementData == null || data.objectPlacementData.Count == 0) {
+            logger.Log("New world created!", this, Logging.LogType.Info);
             return;
         }
 
-        // 4. INSTANTIATE MODEL AT (0,0,0)
-        bool instantiated = await gltf.InstantiateMainSceneAsync(world.transform);
-
-        if (!instantiated) {
-            logger.Log("GLTFast failed to instantiate model.", this, Logging.LogType.Error);
-            return;
+        foreach (PlacedAsset placementData in data.objectPlacementData) {
+            Asset assetData = assetMap[placementData.AssetDataId];
+            Vector3Int gridPosition = placementData.Position;
+            worldController.PlaceObjectAt(
+                gridPosition,
+                assetData.InstantiateModel()
+            );
         }
-
-        // Get the instantiated model (first child of this transform)
-        GameObject instance = world.transform.GetChild(0).gameObject;
-        instance.transform.position = Vector3.zero;
-        instance.transform.localScale = Vector3.one;
-        instance.name = "Downloaded_Model_Test";
-
-        logger.Log("Model loaded and instantiated successfully!", this);
-        loadingScreenUI.gameObject.SetActive(false);
+        logger.Log($"Loaded {data.objectPlacementData.Count} placed objects.", this, Logging.LogType.Info);
     }
 
 
