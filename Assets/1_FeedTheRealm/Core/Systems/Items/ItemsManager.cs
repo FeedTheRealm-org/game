@@ -66,7 +66,7 @@ namespace Items {
 
             DebugLog("Initializing ItemsManager...");
 
-            // Load all items metadata
+            // Load items metadata
             yield return LoadItemsMetadata();
 
             // Preload all sprites (recommended for small sprite sets)
@@ -92,7 +92,7 @@ namespace Items {
                     return;
                 }
 
-                // Build dictionary from array
+                // Build dictionary from array and group by category name
                 itemsById.Clear();
                 foreach (var item in itemsList.items) {
                     itemsById[item.id] = item;
@@ -127,19 +127,6 @@ namespace Items {
         }
 
         /// <summary>
-        /// Get items by category.
-        /// </summary>
-        public List<ItemMetadataResponse> GetItemsByCategory(string category) {
-            var result = new List<ItemMetadataResponse>();
-            foreach (var item in itemsById.Values) {
-                if (item.category == category) {
-                    result.Add(item);
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Get item sprite with lazy loading and caching.
         /// If sprite is not cached, it will be downloaded automatically.
         /// </summary>
@@ -168,11 +155,10 @@ namespace Items {
             // Mark as loading
             loadingSprites.Add(itemId);
 
-            // Download sprite using category-based route
+            // Download sprite using sprite id route
             bool completed = false;
-            yield return itemAssetsService.DownloadItemSpriteByCategory(
+            yield return itemAssetsService.DownloadItemSprite(
                 item.sprite_id,
-                item.category,
                 (texture) => {
                     if (texture != null) {
                         spriteCache[itemId] = texture;
@@ -197,18 +183,6 @@ namespace Items {
             foreach (var item in itemsById.Values) {
                 yield return GetItemSprite(item.id, null);
                 yield return null; // Small delay to avoid frame drops
-            }
-        }
-
-        /// <summary>
-        /// Preload sprites for specific categories.
-        /// </summary>
-        IEnumerator PreloadSpritesByCategories(string[] categories) {
-            foreach (var item in itemsById.Values) {
-                if (System.Array.IndexOf(categories, item.category) >= 0) {
-                    yield return GetItemSprite(item.id, null);
-                    yield return null; // Small delay between loads
-                }
             }
         }
 
