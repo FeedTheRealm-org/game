@@ -22,6 +22,7 @@ public class WorldLoaderController : MonoBehaviour {
     [SerializeField] private UIDocument loadingScreenUI;
 
     private Dictionary<string, Asset> assetMap;
+    private List<GameObject> cleanup = new();
 
     private async void Start() {
 
@@ -50,7 +51,7 @@ public class WorldLoaderController : MonoBehaviour {
 
         // 2. DOWNLOAD & INSTANTIATE MODELS
         foreach (string modelId in modelIds) {
-            GameObject modelInstance = await gltLoaderService.DownloadAndLoadModel(
+            GameObject modelInstance = await gltLoaderService.DownloadModel(
                 worldId,
                 modelId
             );
@@ -61,6 +62,7 @@ public class WorldLoaderController : MonoBehaviour {
                 modelInstance
             );
             assetMap[modelId] = asset;
+            cleanup.Add(modelInstance);
         }
         logger.Log($"Amount of assets loaded: {assetMap.Count}", this);
     }
@@ -79,9 +81,15 @@ public class WorldLoaderController : MonoBehaviour {
             Vector3Int gridPosition = placementData.Position;
             worldController.PlaceObjectAt(
                 gridPosition,
-                assetData.InstantiateModel()
+                assetData.GetModelInstance()
             );
         }
+        // since we instantiated models for loading, we need to clean them up
+        foreach (GameObject modelInstance in cleanup) {
+            Destroy(modelInstance);
+        }
+        cleanup.Clear();
+
         logger.Log($"Loaded {data.objectPlacementData.Count} placed objects.", this, Logging.LogType.Info);
     }
 

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
   m_Name: APILogger
   m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  _showLogs: 0
+  _showLogs: 1
   _loggerPrefix: '[API]'
   _loggerColor: {r: 1, g: 0.11737174, b: 0.8900216, a: 1}

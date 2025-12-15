@@ -34,35 +34,27 @@ namespace API {
         /// <summary>
         /// Downloads and loads a GLB model from the API, instantiates it, and returns the GameObject.
         /// </summary>
-        public async Task<GameObject> DownloadAndLoadModel(
+        public async Task<GameObject> DownloadModel(
             string worldId,
             string modelId
         ) {
             try {
                 string url = $"{GetBaseUrl().TrimEnd('/')}/{worldId}/{modelId}";
-                logger.Log($"Downloading model from: {url}", this);
 
                 var gltf = new GltfImport();
                 bool loaded = await gltf.Load(url);
+                if (!loaded) return null;
 
-                if (!loaded) {
-                    logger.Log("Failed to download or parse GLB from API", null, Logging.LogType.Error);
-                    return null;
-                }
-                GameObject modelInstance = new(modelId);
+                GameObject template = new(modelId);
 
-                bool instantiated = await gltf.InstantiateMainSceneAsync(modelInstance.transform);
+                await gltf.InstantiateMainSceneAsync(template.transform);
 
-                if (!instantiated) {
-                    logger.Log("GLTFast failed to instantiate model.", null, Logging.LogType.Error);
-                    return null;
-                }
+                // Normalize GLTF root (this depends on how the GLTF was created/exported)
+                Transform gltfRoot = template.transform.GetChild(0);
+                gltfRoot.localPosition = Vector3.zero;
+                gltfRoot.localScale = Vector3.one;
 
-                GameObject instance = modelInstance.transform.GetChild(modelInstance.transform.childCount - 1).gameObject;
-
-                logger.Log($"Model {modelId} loaded and instantiated successfully!", this);
-                logger.Log($"Model instance: {instance}", this);
-                return modelInstance;
+                return template;
             } catch (System.Exception ex) {
                 logger.Log($"Error loading model {modelId}: {ex.Message}", null, Logging.LogType.Error);
                 return null;
