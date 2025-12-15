@@ -190,75 +190,6 @@ MonoBehaviour:
   staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
---- !u!1001 &117776879
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1507695453073613818, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_Name
-      value: World
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,7 +277,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3211396, y: 0.0016759393, z: -0.000568314, w: 0.94703025}
+  m_LocalRotation: {x: 0.32113877, y: 0.0028113832, z: -0.00095334515, w: 0.9470275}
   m_LocalPosition: {x: 10.65277, y: 7.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -591,7 +522,7 @@ MonoBehaviour:
   gltLoaderService: {fileID: 11400000, guid: 4e035cc658cd2a197929d6443faca33e, type: 2}
   modelService: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  worldController: {fileID: 1652760607}
+  worldController: {fileID: 756758430}
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
   loadingScreenUI: {fileID: 513648749}
 --- !u!4 &513648748
@@ -914,7 +845,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693203289}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3211396, y: 0.0016759393, z: -0.0005683139, w: 0.94703025}
+  m_LocalRotation: {x: 0.3211387, y: 0.0028113832, z: -0.000953345, w: 0.94702756}
   m_LocalPosition: {x: 10.65277, y: 7.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -932,6 +863,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f582fe190d0bf754aa3265cd0b08dee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryController
+--- !u!1001 &756758429
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1507695453073613818, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_Name
+      value: World
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4016054049428811545, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+--- !u!114 &756758430 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3975232993058480544, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+  m_PrefabInstance: {fileID: 756758429}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa8c4e3a25bc91045a343fb7aa2ae4a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FeedTheRealm_Shared::World.WorldController
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1111,17 +1110,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5951985247975804607, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
   m_PrefabInstance: {fileID: 53230203124416423}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1652760607 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3975232993058480544, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
-  m_PrefabInstance: {fileID: 117776879}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa8c4e3a25bc91045a343fb7aa2ae4a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FeedTheRealm_Shared::World.WorldController
 --- !u!1 &1840263989
 GameObject:
   m_ObjectHideFlags: 0
@@ -1599,4 +1587,4 @@ SceneRoots:
   - {fileID: 4941900269578677175}
   - {fileID: 1887116171}
   - {fileID: 513648748}
-  - {fileID: 117776879}
+  - {fileID: 756758429}
