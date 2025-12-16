@@ -1,12 +1,13 @@
+using System.Collections.Generic;
 
 /// <summary>
 /// Director class to build preset sprite configurations using the builder pattern.
 /// </summary>
 public class SpriteConfigDirector {
 
-    private SpriteSheetBuilder _builder;
+    private SpriteConfigBuilder _builder;
 
-    public SpriteConfigDirector(SpriteSheetBuilder builder) {
+    public SpriteConfigDirector(SpriteConfigBuilder builder) {
         _builder = builder;
     }
 

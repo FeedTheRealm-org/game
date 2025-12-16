@@ -145,11 +145,14 @@ public class SpriteLoader : MonoBehaviour {
             var armsConfigs = director.BuildArmorArmsSpriteConfig();
             var legsConfigs = director.BuildArmorLegsSpriteConfig();
             var handsConfigs = director.BuildArmorHandsSpriteConfig();
-            var confs = helmetConfigs
-                .Concat(bodyConfigs)
-                .Concat(armsConfigs)
-                .Concat(legsConfigs)
-                .Concat(handsConfigs);
+
+            var confs = new List<SpriteConfig>();
+            confs.AddRange(helmetConfigs);
+            confs.AddRange(bodyConfigs);
+            confs.AddRange(armsConfigs);
+            confs.AddRange(legsConfigs);
+            confs.AddRange(handsConfigs);
+
             foreach (var config in confs) {
                 var newSprite = Sprite.Create(
                     texture,

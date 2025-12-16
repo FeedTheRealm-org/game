@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 
 /// <summary>
 /// Builder class to build configurations based on the user needs.
 /// </summary>
-private class SpriteConfigBuilder {
+public class SpriteConfigBuilder {
     private List<SpriteConfig> configs = new List<SpriteConfig>();
     private float tileWidth;
     private float tileHeight;
@@ -12,19 +13,19 @@ private class SpriteConfigBuilder {
         this.tileHeight = 0;
     }
 
-    public SpriteSheetBuilder(float tileWidth, float tileHeight) {
+    public SpriteConfigBuilder(float tileWidth, float tileHeight) {
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
     }
 
-    public SpriteSheetBuilder Reset(float newTileWidth, float newTileHeight) {
+    public SpriteConfigBuilder Reset(float newTileWidth, float newTileHeight) {
         configs.Clear();
         this.tileWidth = newTileWidth;
         this.tileHeight = newTileHeight;
         return this;
     }
 
-    public SpriteSheetBuilder AddTile(CharacterSpritePart part, FacingDirection direction, int tileX, int tileY) {
+    public SpriteConfigBuilder AddTile(CharacterSpritePart part, FacingDirection direction, int tileX, int tileY) {
         configs.Add(new SpriteConfig(
             part,
             direction,
@@ -36,7 +37,7 @@ private class SpriteConfigBuilder {
         return this;
     }
 
-    public SpriteSheetBuilder AddTileToAllDirections(CharacterSpritePart part, int frontX, int frontY, int backX, int backY, int leftX, int leftY) {
+    public SpriteConfigBuilder AddTileToAllDirections(CharacterSpritePart part, int frontX, int frontY, int backX, int backY, int leftX, int leftY) {
         AddTile(part, FacingDirection.Front, frontX, frontY);
         AddTile(part, FacingDirection.Back, backX, backY);
         AddTile(part, FacingDirection.Left, leftX, leftY);
