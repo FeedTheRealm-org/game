@@ -23,7 +23,13 @@ public class SpriteManager : ScriptableObject {
     public Action<string> onEarsChange;
 
     // Equipment
-    public Action<string> onArmorChange;
+    public Action<string> onArmorBodyChange;
+    public Action<string> onArmorHelmetChange;
+    public Action<string> onArmorArmsChange;
+    public Action<string> onArmorSleevesChange;
+    public Action<string> onArmorHandsChange;
+    public Action<string> onArmorLegsChange;
+
     public Action<string> onBackChange;
     public Action<string> onEarringsChange;
     public Action<string> onMaskChange;
@@ -36,55 +42,29 @@ public class SpriteManager : ScriptableObject {
         partChangeActions[CharacterPartCategory.EyeBrows] = (id) => onEyeBrowsChange?.Invoke(id);
         partChangeActions[CharacterPartCategory.Eyes] = (id) => onEyesChange?.Invoke(id);
         partChangeActions[CharacterPartCategory.Mouth] = (id) => onMouthChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.Armor] = (id) => onArmorChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.ArmorBody] = (id) => onArmorBodyChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.ArmorHelmet] = (id) => onArmorHelmetChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.ArmorArmR] = (id) => onArmorArmsChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.ArmorSleeveR] = (id) => onArmorSleevesChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.ArmorHandR] = (id) => onArmorHandsChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.ArmorLegR] = (id) => onArmorLegsChange?.Invoke(id);
         partChangeActions[CharacterPartCategory.Back] = (id) => onBackChange?.Invoke(id);
         partChangeActions[CharacterPartCategory.Earrings] = (id) => onEarringsChange?.Invoke(id);
     }
 
-    public void ChangeSprite(CharacterPartSprite part, string textureName) {
+    public void ChangeSprite(CharacterPartCategory part, string textureName) {
         logger.Log($"SpriteManager: Changing sprite for part {part} to texture {textureName}", this, Logging.LogType.Info);
-        partChangeActions[GetCategoryFromSpritePart(part)]?.Invoke(textureName);
+        partChangeActions[part]?.Invoke(textureName);
     }
 
-    public CharacterPartSprite GetSpritePartFromCategoryName(string categoryName) {
+    public CharacterPartCategory GetPartCategoryFromCategoryName(string categoryName) {
         categoryName = categoryName.Replace(" ", "").Replace("_", "").Replace("-", "");
-        if (Enum.TryParse(categoryName, true, out CharacterPartSprite part)) {
+        if (Enum.TryParse(categoryName, true, out CharacterPartCategory part)) {
             logger.Log($"SpriteManager: Mapped category name {categoryName} to part {part}", this, Logging.LogType.Info);
             return part;
         }
 
         logger.Log($"SpriteManager: Unknown category name {categoryName}", this, Logging.LogType.Warning);
-        return CharacterPartSprite.None;
-    }
-
-    public CharacterPartCategory GetCategoryFromSpritePart(CharacterPartSprite part) {
-        switch (part) {
-            case CharacterPartSprite.Hair:
-            case CharacterPartSprite.Beard:
-            case CharacterPartSprite.EyeBrows:
-            case CharacterPartSprite.Eyes:
-            case CharacterPartSprite.Mouth:
-                return CharacterPartCategory.Hair;
-            case CharacterPartSprite.ArmorBody:
-            case CharacterPartSprite.ArmorHelmet:
-            case CharacterPartSprite.ArmorArmL:
-            case CharacterPartSprite.ArmorSleeveL:
-            case CharacterPartSprite.ArmorHandL:
-            case CharacterPartSprite.ArmorArmR:
-            case CharacterPartSprite.ArmorSleeveR:
-            case CharacterPartSprite.ArmorHandR:
-            case CharacterPartSprite.ArmorLegL:
-            case CharacterPartSprite.ArmorLegR:
-                return CharacterPartCategory.Armor;
-            case CharacterPartSprite.EarringL:
-            case CharacterPartSprite.EarringR:
-                return CharacterPartCategory.Earrings;
-            case CharacterPartSprite.Back:
-                return CharacterPartCategory.Back;
-            case CharacterPartSprite.Mask:
-                return CharacterPartCategory.Mask;
-            default:
-                return CharacterPartCategory.None;
-        }
+        return CharacterPartCategory.None;
     }
 }

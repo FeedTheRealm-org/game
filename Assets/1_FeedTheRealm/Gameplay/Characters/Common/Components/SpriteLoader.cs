@@ -19,7 +19,7 @@ public class SpriteLoader : MonoBehaviour {
 
     public string UserId { get; set; }
 
-    private Dictionary<FacingDirection, Dictionary<CharacterPartSprite, Transform>> _cachedPartsPerDirections = new Dictionary<FacingDirection, Dictionary<CharacterPartSprite, Transform>>();
+    private Dictionary<FacingDirection, Dictionary<CharacterPartCategory, Transform>> _cachedPartsPerDirections = new Dictionary<FacingDirection, Dictionary<CharacterPartCategory, Transform>>();
 
     private Dictionary<string, Texture2D> cachedCategoryTextures = new Dictionary<string, Texture2D>();
 
@@ -34,30 +34,29 @@ public class SpriteLoader : MonoBehaviour {
         foreach (var direction in directions) {
             var directionTransform = transform.Find(direction.ToString());
             if (directionTransform != null) {
-                var cachedParts = new Dictionary<CharacterPartSprite, Transform>();
-                cachedParts[CharacterPartSprite.Hair] = FindChildRecursive(directionTransform, "Hair");
-                cachedParts[CharacterPartSprite.Beard] = FindChildRecursive(directionTransform, "Beard");
-                cachedParts[CharacterPartSprite.EyeBrows] = FindChildRecursive(directionTransform, "EyesBrows");
-                cachedParts[CharacterPartSprite.Eyes] = FindChildRecursive(directionTransform, "Eyes");
-                cachedParts[CharacterPartSprite.Mouth] = FindChildRecursive(directionTransform, "Mouth");
+                var cachedParts = new Dictionary<CharacterPartCategory, Transform>();
+                cachedParts[CharacterPartCategory.Hair] = FindChildRecursive(directionTransform, "Hair");
+                cachedParts[CharacterPartCategory.Beard] = FindChildRecursive(directionTransform, "Beard");
+                cachedParts[CharacterPartCategory.EyeBrows] = FindChildRecursive(directionTransform, "EyesBrows");
+                cachedParts[CharacterPartCategory.Eyes] = FindChildRecursive(directionTransform, "Eyes");
+                cachedParts[CharacterPartCategory.Mouth] = FindChildRecursive(directionTransform, "Mouth");
 
-                cachedParts[CharacterPartSprite.ArmorBody] = directionTransform.Find("UpperBody")?.Find("Armor");
-                cachedParts[CharacterPartSprite.ArmorHelmet] = FindChildRecursive(directionTransform, "Helmet");
+                cachedParts[CharacterPartCategory.ArmorBody] = directionTransform.Find("UpperBody")?.Find("Armor");
+                cachedParts[CharacterPartCategory.ArmorHelmet] = FindChildRecursive(directionTransform, "Helmet");
 
-                cachedParts[CharacterPartSprite.ArmorArmL] = FindChildRecursive(directionTransform, "ArmL")?.Find("Armor");
-                cachedParts[CharacterPartSprite.ArmorSleeveL] = FindChildRecursive(directionTransform, "ArmL")?.Find("Sleeve");
-                cachedParts[CharacterPartSprite.ArmorHandL] = FindChildRecursive(directionTransform, "HandL")?.Find("Armor");
-                cachedParts[CharacterPartSprite.ArmorArmR] = FindChildRecursive(directionTransform, "ArmR")?.Find("Armor");
-                cachedParts[CharacterPartSprite.ArmorSleeveR] = FindChildRecursive(directionTransform, "ArmR")?.Find("Sleeve");
-                cachedParts[CharacterPartSprite.ArmorHandR] = FindChildRecursive(directionTransform, "HandR")?.Find("Armor");
+                cachedParts[CharacterPartCategory.ArmorArmR] = FindChildRecursive(directionTransform, "ArmR")?.Find("Armor");
+                cachedParts[CharacterPartCategory.ArmorArmL] = FindChildRecursive(directionTransform, "ArmL")?.Find("Armor");
+                cachedParts[CharacterPartCategory.ArmorSleeveR] = FindChildRecursive(directionTransform, "ArmR")?.Find("Sleeve");
+                cachedParts[CharacterPartCategory.ArmorSleeveL] = FindChildRecursive(directionTransform, "ArmL")?.Find("Sleeve");
+                cachedParts[CharacterPartCategory.ArmorHandR] = FindChildRecursive(directionTransform, "HandR")?.Find("Armor");
+                cachedParts[CharacterPartCategory.ArmorHandL] = FindChildRecursive(directionTransform, "HandL")?.Find("Armor");
+                cachedParts[CharacterPartCategory.ArmorLegR] = FindChildRecursive(directionTransform, "LegR")?.Find("Armor");
+                cachedParts[CharacterPartCategory.ArmorLegL] = FindChildRecursive(directionTransform, "LegL")?.Find("Armor");
 
-                cachedParts[CharacterPartSprite.ArmorLegL] = FindChildRecursive(directionTransform, "LegL")?.Find("Armor");
-                cachedParts[CharacterPartSprite.ArmorLegR] = FindChildRecursive(directionTransform, "LegR")?.Find("Armor");
-
-                cachedParts[CharacterPartSprite.EarringL] = FindChildRecursive(directionTransform, "EarringL");
-                cachedParts[CharacterPartSprite.EarringR] = FindChildRecursive(directionTransform, "EarringR");
-                cachedParts[CharacterPartSprite.Back] = FindChildRecursive(directionTransform, "Back");
-                cachedParts[CharacterPartSprite.Mask] = FindChildRecursive(directionTransform, "Mask");
+                cachedParts[CharacterPartCategory.EarringR] = FindChildRecursive(directionTransform, "EarringR");
+                cachedParts[CharacterPartCategory.EarringL] = FindChildRecursive(directionTransform, "EarringL");
+                cachedParts[CharacterPartCategory.Back] = FindChildRecursive(directionTransform, "Back");
+                cachedParts[CharacterPartCategory.Mask] = FindChildRecursive(directionTransform, "Mask");
                 _cachedPartsPerDirections[direction] = cachedParts;
             } else {
                 logger.Log($"Direction transform not found: {direction} under {gameObject.name}", this, Logging.LogType.Warning);
@@ -99,13 +98,13 @@ public class SpriteLoader : MonoBehaviour {
     /// Replaces the sprite of a part at the given path.
     /// Example: ReplacePartSprite(newSprite, "Parent", "Child", "TargetObject")
     /// </summary>
-    private void ReplacePartSprite(Sprite newSprite, FacingDirection direction, params CharacterPartSprite[] pathSegments) {
+    private void ReplacePartSprite(Sprite newSprite, FacingDirection direction, params CharacterPartCategory[] pathSegments) {
         if (pathSegments == null || pathSegments.Length == 0) {
             logger.Log("No path segments provided to ReplacePartSprite", this, Logging.LogType.Warning);
             return;
         }
 
-        if (!_cachedPartsPerDirections.TryGetValue(direction, out Dictionary<CharacterPartSprite, Transform> partsDict)) {
+        if (!_cachedPartsPerDirections.TryGetValue(direction, out Dictionary<CharacterPartCategory, Transform> partsDict)) {
             logger.Log($"Direction not cached: {direction} under {gameObject.name}", this, Logging.LogType.Warning);
             return;
         }
@@ -286,25 +285,25 @@ public class SpriteLoader : MonoBehaviour {
 
         foreach (var entry in characterInfo.category_sprites) {
             string categoryName = existingCategories.TryGetValue(entry.Key, out var name) ? name : "";
-            CharacterPartSprite category = spriteManager.GetSpritePartFromCategoryName(categoryName);
-            if (category != CharacterPartSprite.None) {
+            CharacterPartCategory category = spriteManager.GetPartCategoryFromCategoryName(categoryName);
+            if (category != CharacterPartCategory.None) {
                 switch (category) {
-                    case CharacterPartSprite.ArmorHelmet:
+                    case CharacterPartCategory.ArmorHelmet:
                         ChangeHelmet(entry.Value);
                         break;
-                    case CharacterPartSprite.ArmorBody:
+                    case CharacterPartCategory.ArmorBody:
                         ChangeBody(entry.Value);
                         break;
-                    case CharacterPartSprite.ArmorArmL:
-                    case CharacterPartSprite.ArmorArmR:
+                    case CharacterPartCategory.ArmorArmL:
+                    case CharacterPartCategory.ArmorArmR:
                         ChangeArms(entry.Value);
                         break;
-                    case CharacterPartSprite.ArmorLegL:
-                    case CharacterPartSprite.ArmorLegR:
+                    case CharacterPartCategory.ArmorLegL:
+                    case CharacterPartCategory.ArmorLegR:
                         ChangeLegs(entry.Value);
                         break;
-                    case CharacterPartSprite.ArmorHandL:
-                    case CharacterPartSprite.ArmorHandR:
+                    case CharacterPartCategory.ArmorHandL:
+                    case CharacterPartCategory.ArmorHandR:
                         ChangeHands(entry.Value);
                         break;
                     default:

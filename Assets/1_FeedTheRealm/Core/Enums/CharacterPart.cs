@@ -1,6 +1,6 @@
 
 /// <summary>
-/// Enum representing different character parts categories.
+/// Enum representing different character sprite parts in the hirarchy.
 /// </summary>
 public enum CharacterPartCategory {
     None,
@@ -13,39 +13,19 @@ public enum CharacterPartCategory {
     Mouth,
 
     // Equipment
-    Armor,
-    Back,
-    Earrings,
-    Mask,
-}
-
-/// <summary>
-/// Enum representing different character sprite parts in the hirarchy.
-/// </summary>
-public enum CharacterPartSprite {
-    None,
-
-    // Body parts
-    Hair,
-    Beard,
-    EyeBrows,
-    Eyes,
-    Mouth,
-
-    // Equipment
     ArmorBody,
     ArmorHelmet,
-    ArmorArmL,
-    ArmorSleeveL,
-    ArmorHandL,
     ArmorArmR,
+    ArmorArmL,
     ArmorSleeveR,
+    ArmorSleeveL,
     ArmorHandR,
-    ArmorLegL,
+    ArmorHandL,
     ArmorLegR,
+    ArmorLegL,
 
-    EarringL,
     EarringR,
+    EarringL,
     Back,
     Mask,
 }
