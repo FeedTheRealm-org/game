@@ -10,6 +10,8 @@
     color: rgb(255, 255, 255);
     font-size: 180%;
     padding-left: 10%;
+    /* Allow newline characters to create line breaks and wrap text properly */
+    white-space: pre-wrap;
 }
 
 .tittle {
