@@ -32,7 +32,7 @@ public class NavbarController : MonoBehaviour {
         }
 
         StartCoroutine(playerService.GetCharacterInfo((data, err) => {
-            session.CharacterName = data.character_name;
+            session.CharacterName = data?.character_name ?? "Guest";
         }));
 
         _root = GetComponent<UIDocument>().rootVisualElement;

@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/1_FeedTheRealm/Scenes/Menus/LoginScene.unity
     guid: abd87fe87e8b55f40820f171267a39bc
   - enabled: 1
+    path: Assets/1_FeedTheRealm/Scenes/Main/WorldLoaderTest.unity
+    guid: 27c5c4b95e037a72ebc7df0708252efe
+  - enabled: 1
     path: Assets/1_FeedTheRealm/Scenes/Menus/SignUpScene.unity
     guid: 3389029b3c1ee7f40bec33f792a7f184
   - enabled: 1
