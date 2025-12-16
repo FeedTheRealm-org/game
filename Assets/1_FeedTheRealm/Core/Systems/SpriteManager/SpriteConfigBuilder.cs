@@ -25,7 +25,7 @@ public class SpriteConfigBuilder {
         return this;
     }
 
-    public SpriteConfigBuilder AddTile(CharacterSpritePart part, FacingDirection direction, int tileX, int tileY) {
+    public SpriteConfigBuilder AddTile(CharacterPartSprite part, FacingDirection direction, int tileX, int tileY) {
         configs.Add(new SpriteConfig(
             part,
             direction,
@@ -37,7 +37,7 @@ public class SpriteConfigBuilder {
         return this;
     }
 
-    public SpriteConfigBuilder AddTileToAllDirections(CharacterSpritePart part, int frontX, int frontY, int backX, int backY, int leftX, int leftY) {
+    public SpriteConfigBuilder AddTileToAllDirections(CharacterPartSprite part, int frontX, int frontY, int backX, int backY, int leftX, int leftY) {
         AddTile(part, FacingDirection.Front, frontX, frontY);
         AddTile(part, FacingDirection.Back, backX, backY);
         AddTile(part, FacingDirection.Left, leftX, leftY);

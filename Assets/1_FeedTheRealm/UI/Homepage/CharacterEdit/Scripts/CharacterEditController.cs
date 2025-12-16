@@ -210,7 +210,7 @@ public class CharacterEditController : MonoBehaviour {
     /// </summary>
     private void onItemClicked(string spriteId) {
         logger.Log($"Item clicked: {spriteId}", this);
-        CharacterPartCategory category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
+        var category = spriteManager.GetSpritePartFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, spriteId);
         characterInfoRequest.category_sprites[_selectedCategoryId] = spriteId;
         _saveButton.text = "Save";
@@ -321,7 +321,7 @@ public class CharacterEditController : MonoBehaviour {
     /// <summary>
     /// Populates the items list with sprite buttons.
     /// </summary>
-    private void populateItems(API.SpriteResponse[] sprites) {
+    private async void populateItems(API.SpriteResponse[] sprites) {
         _itemsList.contentContainer.Clear();
 
         foreach (var sprite in sprites) {
@@ -331,15 +331,14 @@ public class CharacterEditController : MonoBehaviour {
             btn.clicked += () => onItemClicked(sprite.sprite_id);
 
             _itemsList.contentContainer.Add(btn);
-            StartCoroutine(assetsService.DownloadTexture2D(sprite.sprite_id, (texture) => {
-                if (texture != null) {
-                    btn.style.backgroundImage = new StyleBackground(texture);
-                    btn.text = "";
-                } else {
-                    btn.text = sprite.sprite_id;
-                    logger.Log($"Failed to load texture for sprite: {sprite.sprite_id}", this, Logging.LogType.Warning);
-                }
-            }));
+            var texture = await assetsService.DownloadTexture2D(sprite.sprite_id);
+            if (texture != null) {
+                btn.style.backgroundImage = new StyleBackground(texture);
+                btn.text = "";
+            } else {
+                btn.text = sprite.sprite_id;
+                logger.Log($"Failed to load texture for sprite: {sprite.sprite_id}", this, Logging.LogType.Warning);
+            }
         }
     }
 
@@ -347,7 +346,7 @@ public class CharacterEditController : MonoBehaviour {
     /// Loads the first sprite of a category as the category button icon.
     /// </summary>
     private void loadCategoryIcon(string categoryId, Button categoryButton) {
-        StartCoroutine(assetsService.GetSpritesByCategory(categoryId, (response, err) => {
+        StartCoroutine(assetsService.GetSpritesByCategory(categoryId, async (response, err) => {
             if (!string.IsNullOrEmpty(err) || response == null || response.sprites_list == null || response.sprites_list.Length == 0) {
                 logger.Log($"No sprites available for category icon: {categoryId}", this, Logging.LogType.Warning);
                 return;
@@ -355,14 +354,13 @@ public class CharacterEditController : MonoBehaviour {
 
             // Get the first sprite as the category icon
             var firstSprite = response.sprites_list[0];
-            StartCoroutine(assetsService.DownloadTexture2D(firstSprite.sprite_id, (texture) => {
-                if (texture != null) {
-                    categoryButton.style.backgroundImage = new StyleBackground(texture);
-                    categoryButton.text = "";
-                } else {
-                    logger.Log($"Failed to load icon texture for category: {categoryId}", this, Logging.LogType.Warning);
-                }
-            }));
+            var texture = await assetsService.DownloadTexture2D(firstSprite.sprite_id);
+            if (texture != null) {
+                categoryButton.style.backgroundImage = new StyleBackground(texture);
+                categoryButton.text = "";
+            } else {
+                logger.Log($"Failed to load icon texture for category: {categoryId}", this, Logging.LogType.Warning);
+            }
         }));
     }
 

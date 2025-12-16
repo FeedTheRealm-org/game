@@ -22,7 +22,7 @@ public enum CharacterPartCategory {
 /// <summary>
 /// Enum representing different character sprite parts in the hirarchy.
 /// </summary>
-public enum CharacterSpritePart {
+public enum CharacterPartSprite {
     None,
 
     // Body parts

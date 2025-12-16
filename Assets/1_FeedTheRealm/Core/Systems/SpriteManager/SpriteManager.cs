@@ -41,19 +41,50 @@ public class SpriteManager : ScriptableObject {
         partChangeActions[CharacterPartCategory.Earrings] = (id) => onEarringsChange?.Invoke(id);
     }
 
-    public void ChangeSprite(CharacterPartCategory part, string textureName) {
+    public void ChangeSprite(CharacterPartSprite part, string textureName) {
         logger.Log($"SpriteManager: Changing sprite for part {part} to texture {textureName}", this, Logging.LogType.Info);
-        partChangeActions[part]?.Invoke(textureName);
+        partChangeActions[GetCategoryFromSpritePart(part)]?.Invoke(textureName);
     }
 
-    public CharacterPartCategory GetPartCategoryFromCategoryName(string categoryName) {
+    public CharacterPartSprite GetSpritePartFromCategoryName(string categoryName) {
         categoryName = categoryName.Replace(" ", "").Replace("_", "").Replace("-", "");
-        if (Enum.TryParse(categoryName, true, out CharacterPartCategory part)) {
+        if (Enum.TryParse(categoryName, true, out CharacterPartSprite part)) {
             logger.Log($"SpriteManager: Mapped category name {categoryName} to part {part}", this, Logging.LogType.Info);
             return part;
         }
 
         logger.Log($"SpriteManager: Unknown category name {categoryName}", this, Logging.LogType.Warning);
-        return CharacterPartCategory.None;
+        return CharacterPartSprite.None;
+    }
+
+    public CharacterPartCategory GetCategoryFromSpritePart(CharacterPartSprite part) {
+        switch (part) {
+            case CharacterPartSprite.Hair:
+            case CharacterPartSprite.Beard:
+            case CharacterPartSprite.EyeBrows:
+            case CharacterPartSprite.Eyes:
+            case CharacterPartSprite.Mouth:
+                return CharacterPartCategory.Hair;
+            case CharacterPartSprite.ArmorBody:
+            case CharacterPartSprite.ArmorHelmet:
+            case CharacterPartSprite.ArmorArmL:
+            case CharacterPartSprite.ArmorSleeveL:
+            case CharacterPartSprite.ArmorHandL:
+            case CharacterPartSprite.ArmorArmR:
+            case CharacterPartSprite.ArmorSleeveR:
+            case CharacterPartSprite.ArmorHandR:
+            case CharacterPartSprite.ArmorLegL:
+            case CharacterPartSprite.ArmorLegR:
+                return CharacterPartCategory.Armor;
+            case CharacterPartSprite.EarringL:
+            case CharacterPartSprite.EarringR:
+                return CharacterPartCategory.Earrings;
+            case CharacterPartSprite.Back:
+                return CharacterPartCategory.Back;
+            case CharacterPartSprite.Mask:
+                return CharacterPartCategory.Mask;
+            default:
+                return CharacterPartCategory.None;
+        }
     }
 }
