@@ -19,19 +19,48 @@ public class SpriteLoader : MonoBehaviour {
 
     public string UserId { get; set; }
 
-    private Dictionary<string, Transform> cachedParts = new Dictionary<string, Transform>();
+    private Dictionary<FacingDirection, Dictionary<CharacterSpritePart, Transform>> _cachedPartsPerDirections = new Dictionary<FacingDirection, Dictionary<CharacterSpritePart, Transform>>();
 
     private void CachePartTransforms() {
-        cachedParts["P_Hair"] = FindChildRecursive(transform, "P_Hair");
-        cachedParts["P_Mustache"] = FindChildRecursive(transform, "P_Mustache");
-        cachedParts["P_REye"] = FindChildRecursive(transform, "P_REye");
-        cachedParts["P_LEye"] = FindChildRecursive(transform, "P_LEye");
-        cachedParts["P_ClothBody"] = FindChildRecursive(transform, "P_ClothBody");
-        cachedParts["P_ArmorBody"] = FindChildRecursive(transform, "P_ArmorBody");
-        cachedParts["P_Helmet"] = FindChildRecursive(transform, "P_Helmet");
-        cachedParts["P_RCloth"] = FindChildRecursive(transform, "P_RCloth");
-        cachedParts["P_LCloth"] = FindChildRecursive(transform, "P_LCloth");
-        cachedParts["P_Back"] = FindChildRecursive(transform, "P_Back");
+        var directions = new FacingDirection[] {
+            FacingDirection.Front,
+            FacingDirection.Back,
+            FacingDirection.Right,
+            FacingDirection.Left
+        };
+
+        foreach (var direction in directions) {
+            var directionTransform = transform.Find(direction.ToString());
+            if (directionTransform != null) {
+                var cachedParts = new Dictionary<CharacterSpritePart, Transform>();
+                cachedParts[CharacterSpritePart.Hair] = FindChildRecursive(directionTransform, "Hair");
+                cachedParts[CharacterSpritePart.Beard] = FindChildRecursive(directionTransform, "Beard");
+                cachedParts[CharacterSpritePart.EyeBrows] = FindChildRecursive(directionTransform, "EyesBrows");
+                cachedParts[CharacterSpritePart.Eyes] = FindChildRecursive(directionTransform, "Eyes");
+                cachedParts[CharacterSpritePart.Mouth] = FindChildRecursive(directionTransform, "Mouth");
+
+                cachedParts[CharacterSpritePart.ArmorBody] = directionTransform.Find("UpperBody")?.Find("Armor");
+                cachedParts[CharacterSpritePart.ArmorHelmet] = FindChildRecursive(directionTransform, "Helmet");
+
+                cachedParts[CharacterSpritePart.ArmorArmL] = FindChildRecursive(directionTransform, "ArmL")?.Find("Armor");
+                cachedParts[CharacterSpritePart.ArmorSleeveL] = FindChildRecursive(directionTransform, "ArmL")?.Find("Sleeve");
+                cachedParts[CharacterSpritePart.ArmorHandL] = FindChildRecursive(directionTransform, "HandL")?.Find("Armor");
+                cachedParts[CharacterSpritePart.ArmorArmR] = FindChildRecursive(directionTransform, "ArmR")?.Find("Armor");
+                cachedParts[CharacterSpritePart.ArmorSleeveR] = FindChildRecursive(directionTransform, "ArmR")?.Find("Sleeve");
+                cachedParts[CharacterSpritePart.ArmorHandR] = FindChildRecursive(directionTransform, "HandR")?.Find("Armor");
+
+                cachedParts[CharacterSpritePart.ArmorLegL] = FindChildRecursive(directionTransform, "LegL")?.Find("Armor");
+                cachedParts[CharacterSpritePart.ArmorLegR] = FindChildRecursive(directionTransform, "LegR")?.Find("Armor");
+
+                cachedParts[CharacterSpritePart.EarringL] = FindChildRecursive(directionTransform, "EarringL");
+                cachedParts[CharacterSpritePart.EarringR] = FindChildRecursive(directionTransform, "EarringR");
+                cachedParts[CharacterSpritePart.Back] = FindChildRecursive(directionTransform, "Back");
+                cachedParts[CharacterSpritePart.Mask] = FindChildRecursive(directionTransform, "Mask");
+                _cachedPartsPerDirections[direction] = cachedParts;
+            } else {
+                logger.Log($"Direction transform not found: {direction} under {gameObject.name}", this, Logging.LogType.Warning);
+            }
+        }
     }
 
     private Transform FindChildRecursive(Transform parent, string childName) {
@@ -48,186 +77,93 @@ public class SpriteLoader : MonoBehaviour {
 
     public void StartLoadingSprites() {
         logger.Log($"[SpriteLoader] StartLoadingSprites called with UserId: '{UserId}'", this);
-        StartCoroutine(initCharacterSpritesCoroutine());
+        StartCoroutine(InitCharacterSpritesCoroutine());
     }
 
     private void Awake() {
-        logger.Log("[SpriteLoader] Awake called", this);
+        logger.Log("[SpriteLoader] Initializing sprites for character", this);
         CachePartTransforms();
         if (spriteManager != null) {
-            spriteManager.onHairChange += changeHair;
-            spriteManager.onFaceHairChange += changeFaceHair;
-            spriteManager.onEyeBackChange += changeEyeBack;
-            spriteManager.onClothChange += changeCloth;
-            spriteManager.onArmorChange += changeArmor;
-            spriteManager.onHelmetChange += changeHelmet;
-            spriteManager.onFootBootChange += changeFootBoot;
-            spriteManager.onCapeChange += changeCape;
         }
-        StartCoroutine(initCharacterSpritesCoroutine());
+        StartCoroutine(InitCharacterSpritesCoroutine());
     }
 
     private void OnDestroy() {
         if (spriteManager != null) {
-            spriteManager.onHairChange -= changeHair;
-            spriteManager.onFaceHairChange -= changeFaceHair;
-            spriteManager.onEyeBackChange -= changeEyeBack;
-            spriteManager.onClothChange -= changeCloth;
-            spriteManager.onArmorChange -= changeArmor;
-            spriteManager.onHelmetChange -= changeHelmet;
-            spriteManager.onFootBootChange -= changeFootBoot;
-            spriteManager.onCapeChange -= changeCape;
         }
     }
 
     /// <summary>
     /// Replaces the sprite of a part at the given path.
-    /// Example: replacePartSprite(newSprite, "Parent", "Child", "TargetObject")
+    /// Example: ReplacePartSprite(newSprite, "Parent", "Child", "TargetObject")
     /// </summary>
-    private void replacePartSprite(Sprite newSprite, params string[] pathSegments) {
+    private void ReplacePartSprite(Sprite newSprite, FacingDirection direction, params CharacterSpritePart[] pathSegments) {
         if (pathSegments == null || pathSegments.Length == 0) {
-            logger.Log("No path segments provided to replacePartSprite", this, Logging.LogType.Warning);
+            logger.Log("No path segments provided to ReplacePartSprite", this, Logging.LogType.Warning);
             return;
         }
 
-        if (!cachedParts.TryGetValue(pathSegments[0], out Transform currentTransform) || currentTransform == null) {
+        if (!_cachedPartsPerDirections.TryGetValue(direction, out Dictionary<CharacterSpritePart, Transform> partsDict)) {
+            logger.Log($"Direction not cached: {direction} under {gameObject.name}", this, Logging.LogType.Warning);
+            return;
+        }
+
+        if (!partsDict.TryGetValue(pathSegments[0], out Transform currentTransform) || currentTransform == null) {
             logger.Log($"Root child not found: {pathSegments[0]} under {gameObject.name}", this, Logging.LogType.Warning);
             return;
         }
 
-        for (int i = 1; i < pathSegments.Length; i++) {
-            currentTransform = currentTransform.Find(pathSegments[i]);
-            if (currentTransform == null) {
-                logger.Log($"Child GameObject not found: {pathSegments[i]} in path {string.Join("/", pathSegments)}", this, Logging.LogType.Warning);
-                return;
-            }
-        }
-
-        SpriteRenderer spriteRenderer = currentTransform.GetComponentInChildren<SpriteRenderer>();
-        if (spriteRenderer != null) {
-            spriteRenderer.sprite = newSprite;
-        } else {
+        SpriteRenderer spriteRenderer = currentTransform.GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null) {
             logger.Log($"SpriteRenderer not found at path: {string.Join("/", pathSegments)}", this, Logging.LogType.Warning);
         }
+        spriteRenderer.sprite = newSprite;
     }
 
     /// <summary>
     /// Downloads a sprite from the AssetsService and creates a sprite.
     /// </summary>
-    private void downloadSprite(string spriteId, Rect rect, Vector2 pivot, float pxPerUnit, System.Action<Sprite> callback) {
-        StartCoroutine(assetsService.DownloadSprite(spriteId, (texture) => {
+    private void DownloadTexture2D(string spriteId, System.Action<Texture2D> callback) {
+        StartCoroutine(assetsService.DownloadTexture2D(spriteId, (texture) => {
             if (texture == null) {
-                logger.Log($"Failed to download sprite with ID: {spriteId}", this, Logging.LogType.Error);
+                logger.Log($"Failed to download texture2D with ID: {spriteId}", this, Logging.LogType.Error);
                 return;
             }
-            logger.Log($"Successfully downloaded sprite with ID: {spriteId}", this, Logging.LogType.Info);
-            rect.width = rect.width > 0f ? rect.width : texture.width;
-            rect.height = rect.height > 0f ? rect.height : texture.height;
-
-            // Clamp rect to texture bounds in case of invalid values
-            rect.x = Mathf.Max(0, rect.x);
-            rect.y = Mathf.Max(0, rect.y);
-            rect.width = Mathf.Min(rect.width, texture.width - rect.x);
-            rect.height = Mathf.Min(rect.height, texture.height - rect.y);
-
-            Sprite newSprite = Sprite.Create(
-                texture,
-                rect,
-                pivot,
-                pxPerUnit
-            );
-            callback(newSprite);
+            logger.Log($"Successfully downloaded texture2D with ID: {spriteId}", this, Logging.LogType.Info);
+            callback(texture);
         }));
-    }
-
-    /// <summary>
-    /// Convenience method for downloading sprites with auto-sized rects.
-    /// </summary>
-    private void downloadSpriteFullSize(string spriteId, Vector2 pivot, float pxPerUnit, System.Action<Sprite> callback) {
-        downloadSprite(spriteId, new Rect(0f, 0f, 0f, 0f), pivot, pxPerUnit, callback);
-    }
-
-    /// <summary>
-    /// Convenience method for downloading sprites with custom rect.
-    /// </summary>
-    private void downloadSpriteCustom(string spriteId, float x, float y, float width, float height, Vector2 pivot, float pxPerUnit, System.Action<Sprite> callback) {
-        downloadSprite(spriteId, new Rect(x, y, width, height), pivot, pxPerUnit, callback);
     }
 
     /* --- PART CHANGE HANDLERS --- */
 
-    private void changeHair(string spriteId) {
-        if (string.IsNullOrEmpty(spriteId)) {
-            replacePartSprite(null, "P_Hair"); // Remove sprite
-            return;
-        }
-        downloadSpriteFullSize(spriteId, new Vector2(0.5f, 0.5f), 32f, (newHair) => {
-            replacePartSprite(newHair, "P_Hair");
-        });
-    }
-
-    private void changeFaceHair(string spriteId) {
-        if (string.IsNullOrEmpty(spriteId)) {
-            replacePartSprite(null, "P_Mustache"); // Remove sprite
-            return;
-        }
-        downloadSpriteFullSize(spriteId, new Vector2(0.5f, 0.5f), 32f, (newFaceHair) => {
-            replacePartSprite(newFaceHair, "P_Mustache");
-        });
-    }
-
-    private void changeEyeBack(string spriteId) {
-        downloadSpriteFullSize(spriteId, new Vector2(0.5f, 0.5f), 32f, (newEyeBack) => {
-            replacePartSprite(newEyeBack, "P_REye", "PivotBack");
-            replacePartSprite(newEyeBack, "P_LEye", "PivotBack");
-        });
-    }
-
-    private void changeCloth(string spriteId) {
-        downloadSpriteCustom(spriteId, 10f, 11f, 12f, 10f, new Vector2(0.5f, 0.5f), 32f, (newCloth) => {
-            replacePartSprite(newCloth, "P_ClothBody");
-        });
-    }
-
-    private void changeArmor(string spriteId) {
-        if (string.IsNullOrEmpty(spriteId)) {
-            replacePartSprite(null, "P_ArmorBody"); // Remove sprite
-            return;
-        }
-        downloadSpriteCustom(spriteId, 10f, 12f, 12f, 9f, new Vector2(0.5f, 0.5f), 32f, (newArmor) => {
-            replacePartSprite(newArmor, "P_ArmorBody");
-        });
-    }
-
-    private void changeHelmet(string spriteId) {
-        if (string.IsNullOrEmpty(spriteId)) {
-            replacePartSprite(null, "P_Helmet"); // Remove sprite
-            return;
-        }
-        downloadSpriteFullSize(spriteId, new Vector2(0.5f, 0.5f), 32f, (newHelmet) => {
-            replacePartSprite(newHelmet, "P_Helmet");
-        });
-    }
-
-    private void changeFootBoot(string spriteId) {
-        downloadSpriteCustom(spriteId, 6f, 0f, 4f, 7f, new Vector2(0.5f, 0.5f), 32f, (newFootBoot) => {
-            replacePartSprite(newFootBoot, "P_RCloth");
-            replacePartSprite(newFootBoot, "P_LCloth");
-        });
-    }
-
-    private void changeCape(string spriteId) {
-        if (string.IsNullOrEmpty(spriteId)) {
-            replacePartSprite(null, "P_Back"); // Remove sprite
-            return;
-        }
-        downloadSpriteFullSize(spriteId, new Vector2(0.47826087f, 0.90909094f), 32f, (newCape) => {
-            replacePartSprite(newCape, "P_Back");
+    private void ChangeArmor(string spriteId) {
+        DownloadTexture2D(spriteId, (texture) => {
+            var builder = new SpriteConfigBuilder();
+            var director = new SpriteConfigDirector(builder);
+            var helmetConfigs = director.BuildArmorHelmetSpriteConfig();
+            var bodyConfigs = director.BuildArmorBodySpriteConfig();
+            var armsConfigs = director.BuildArmorArmsSpriteConfig();
+            var legsConfigs = director.BuildArmorLegsSpriteConfig();
+            var handsConfigs = director.BuildArmorHandsSpriteConfig();
+            var confs = helmetConfigs
+                .Concat(bodyConfigs)
+                .Concat(armsConfigs)
+                .Concat(legsConfigs)
+                .Concat(handsConfigs);
+            foreach (var config in confs) {
+                var newSprite = Sprite.Create(
+                    texture,
+                    config.Rect,
+                    config.Pivot,
+                    config.PixelsPerUnit
+                );
+                ReplacePartSprite(newSprite, config.Direction, config.Part);
+            }
         });
     }
 
     /* --- INITIALIZATION UTILS --- */
-    private IEnumerator initCharacterSpritesCoroutine() {
+    private IEnumerator InitCharacterSpritesCoroutine() {
         // Fetch categories
         API.SpriteCategoryListResponse categoriesResponse = null;
         string categoriesError = null;
@@ -273,33 +209,11 @@ public class SpriteLoader : MonoBehaviour {
 
         foreach (var entry in characterInfo.category_sprites) {
             string categoryName = existingCategories.TryGetValue(entry.Key, out var name) ? name : "";
-            SpritePart category = spriteManager.GetSpritePartFromCategoryName(categoryName);
-            if (category != SpritePart.None) {
-                // Directly call the change method instead of using SpriteManager events
+            CharacterPartCategory category = spriteManager.GetPartCategoryFromCategoryName(categoryName);
+            if (category != CharacterPartCategory.None) {
                 switch (category) {
-                    case SpritePart.Hair:
-                        changeHair(entry.Value);
-                        break;
-                    case SpritePart.FaceHair:
-                        changeFaceHair(entry.Value);
-                        break;
-                    case SpritePart.EyeBack:
-                        changeEyeBack(entry.Value);
-                        break;
-                    case SpritePart.Cloth:
-                        changeCloth(entry.Value);
-                        break;
-                    case SpritePart.Armor:
-                        changeArmor(entry.Value);
-                        break;
-                    case SpritePart.Helmet:
-                        changeHelmet(entry.Value);
-                        break;
-                    case SpritePart.FootBoot:
-                        changeFootBoot(entry.Value);
-                        break;
-                    case SpritePart.Cape:
-                        changeCape(entry.Value);
+                    case CharacterPartCategory.Armor:
+                        ChangeArmor(entry.Value);
                         break;
                 }
             }

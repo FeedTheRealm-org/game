@@ -1,13 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public enum FacingDirection {
-    Front,
-    Back,
-    Right,
-    Left
-}
-
 /// <summary>
 /// Handles character animation logic, centralizing animator control.
 /// </summary>

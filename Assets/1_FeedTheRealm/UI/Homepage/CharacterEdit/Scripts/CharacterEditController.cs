@@ -210,7 +210,7 @@ public class CharacterEditController : MonoBehaviour {
     /// </summary>
     private void onItemClicked(string spriteId) {
         logger.Log($"Item clicked: {spriteId}", this);
-        SpritePart category = spriteManager.GetSpritePartFromCategoryName(_selectedCategoryName);
+        CharacterPartCategory category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, spriteId);
         characterInfoRequest.category_sprites[_selectedCategoryId] = spriteId;
         _saveButton.text = "Save";
@@ -331,7 +331,7 @@ public class CharacterEditController : MonoBehaviour {
             btn.clicked += () => onItemClicked(sprite.sprite_id);
 
             _itemsList.contentContainer.Add(btn);
-            StartCoroutine(assetsService.DownloadSprite(sprite.sprite_id, (texture) => {
+            StartCoroutine(assetsService.DownloadTexture2D(sprite.sprite_id, (texture) => {
                 if (texture != null) {
                     btn.style.backgroundImage = new StyleBackground(texture);
                     btn.text = "";
@@ -355,7 +355,7 @@ public class CharacterEditController : MonoBehaviour {
 
             // Get the first sprite as the category icon
             var firstSprite = response.sprites_list[0];
-            StartCoroutine(assetsService.DownloadSprite(firstSprite.sprite_id, (texture) => {
+            StartCoroutine(assetsService.DownloadTexture2D(firstSprite.sprite_id, (texture) => {
                 if (texture != null) {
                     categoryButton.style.backgroundImage = new StyleBackground(texture);
                     categoryButton.text = "";

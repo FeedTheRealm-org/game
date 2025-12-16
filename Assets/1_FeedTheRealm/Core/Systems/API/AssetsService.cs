@@ -74,7 +74,7 @@ namespace API {
         /// <summary>
         /// Download the sprite with the given id.
         /// </summary>
-        public IEnumerator DownloadSprite(string spriteId, System.Action<Texture2D> handler) {
+        public IEnumerator DownloadTexture2D(string spriteId, System.Action<Texture2D> handler) {
             var url = $"http://{Hostname}:{Port}/assets/sprites/{spriteId}";
 
             using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url)) {
