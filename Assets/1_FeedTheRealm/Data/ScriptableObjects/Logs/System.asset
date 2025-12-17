@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
   m_Name: System
   m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  _showLogs: 1
+  _showLogs: 0
   _loggerPrefix: '[System]'
   _loggerColor: {r: 0.15148234, g: 0.41400367, b: 1, a: 0}

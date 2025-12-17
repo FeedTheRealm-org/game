@@ -68,11 +68,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f582fe190d0bf754aa3265cd0b08dee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryController
-  playerInputReader: {fileID: 0}
-  lootSprites:
-  - {fileID: 21300000, guid: d659f7396cd57754eba78763cf986c51, type: 3}
-  - {fileID: 21300000, guid: 59a7f0c391e16bb4d98b4be022f6d461, type: 3}
-  - {fileID: 21300000, guid: 06fd7b75262e041e1a78baecb78cd2ef, type: 3}
-  - {fileID: 21300000, guid: b1c6b014ee8384bde8873e80c5b3784c, type: 3}
+  enableDebugLootButton: 0
+  debugLootSprites: []
   slotNormalSprite: {fileID: 21300000, guid: 4b3d2095baccc2041b973b66b786b9d0, type: 3}
   slotHoverSprite: {fileID: 21300000, guid: 6b8728d20b5d4c540b335c3789517218, type: 3}
+  logger: {fileID: 11400000, guid: 370a1d378e969c1d69728babe5e18233, type: 2}

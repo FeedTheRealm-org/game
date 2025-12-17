@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour {
     private DashComponent dashComponent;
     private AttackComponent attackComponent;
 
-    private void Awake() {
+    private void OnEnable() {
         if (playerPrefab == null) {
             logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
         }
@@ -37,36 +37,51 @@ public class PlayerController : MonoBehaviour {
             logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
 
-        cursorToggle();
-    }
+        // Register callbacks
+        if (inputReader != null) {
+            inputReader.DashEvent += OnDashInput;
+            inputReader.MoveEvent += OnMoveInput;
+            inputReader.AttackEvent += OnAttackInput;
 
-    private void OnEnable() {
-        if (inputReader != null && movementComponent != null && dashComponent != null) {
-            inputReader.MoveEvent += movementComponent.OnMove;
-            inputReader.DashEvent += dashComponent.OnDash;
-            inputReader.AttackEvent += attackComponent.OnAttack;
-            inputReader.CursorToggleEvent += cursorToggle;
+            logger.Log("PlayerController subscribed from events.", this);
         }
     }
 
     private void OnDisable() {
-        if (inputReader != null && movementComponent != null && dashComponent != null) {
-            inputReader.MoveEvent -= movementComponent.OnMove;
-            inputReader.DashEvent -= dashComponent.OnDash;
-            inputReader.AttackEvent -= attackComponent.OnAttack;
-            inputReader.CursorToggleEvent -= cursorToggle;
+        if (inputReader != null) {
+            inputReader.MoveEvent -= OnMoveInput;
+            inputReader.DashEvent -= OnDashInput;
+            inputReader.AttackEvent -= OnAttackInput;
+
+            logger.Log("PlayerController unsubscribed from events.", this);
         }
+
+        movementComponent = null;
+        dashComponent = null;
+        attackComponent = null;
     }
 
-    private void cursorToggle() {
+    private void OnAttackInput() {
         if (Cursor.visible) {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            logger.Log("Cursor toggled OFF", this);
-        } else {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            logger.Log("Cursor toggled ON", this);
+            return;
         }
+
+        attackComponent?.OnAttack();
+    }
+
+    private void OnMoveInput(Vector2 vec) {
+        if (Cursor.visible) {
+            return;
+        }
+
+        movementComponent?.OnMove(vec);
+    }
+
+    private void OnDashInput() {
+        if (Cursor.visible) {
+            return;
+        }
+
+        dashComponent?.OnDash();
     }
 }

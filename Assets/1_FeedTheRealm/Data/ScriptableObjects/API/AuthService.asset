@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 440baedae784ae84488ef1d20bd55476, type: 3}
   m_Name: AuthService
   m_EditorClassIdentifier: Assembly-CSharp::API.AuthService
-  logger: {fileID: 11400000, guid: c98d647d46d67a84598b908dfd3deb26, type: 2}
   Hostname: localhost
   Port: 8000
+  logger: {fileID: 11400000, guid: c98d647d46d67a84598b908dfd3deb26, type: 2}
+  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}

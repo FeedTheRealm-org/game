@@ -68,6 +68,68 @@ public class LoadingScreenController : MonoBehaviour
         }
     }
     
+    private void OnEnable()
+    {
+        // Suscribirse a los eventos del sistema de loading screen
+        LoadingScreenEvents.OnShowLoadingScreen += Show;
+        LoadingScreenEvents.OnHideLoadingScreen += Hide;
+        LoadingScreenEvents.OnHideLoadingScreenWithDelay += HandleHideWithDelay;
+        
+        logger?.Log("LoadingScreenController subscribed to events", this);
+    }
+    
+    private void OnDisable()
+    {
+        // Desuscribirse de los eventos
+        LoadingScreenEvents.OnShowLoadingScreen -= Show;
+        LoadingScreenEvents.OnHideLoadingScreen -= Hide;
+        LoadingScreenEvents.OnHideLoadingScreenWithDelay -= HandleHideWithDelay;
+        
+        logger?.Log("LoadingScreenController unsubscribed from events", this);
+    }
+    
+    /// <summary>
+    /// Manejador para el evento de ocultar con delay.
+    /// Si el delay es <= 0, usa el displayDuration configurado.
+    /// </summary>
+    private void HandleHideWithDelay(float customDelay)
+    {
+        // Si se provee un delay personalizado válido, usarlo temporalmente
+        if (customDelay > 0)
+        {
+            // Cancelar cualquier coroutine anterior
+            if (activeCoroutine != null)
+            {
+                StopCoroutine(activeCoroutine);
+            }
+            
+            activeCoroutine = StartCoroutine(HideWithCustomDelayCoroutine(customDelay));
+        }
+        else
+        {
+            // Usar el método normal que usa el displayDuration configurado
+            HideWithDelay();
+        }
+    }
+    
+    /// <summary>
+    /// Coroutine para ocultar con un delay personalizado
+    /// </summary>
+    private IEnumerator HideWithCustomDelayCoroutine(float customDelay)
+    {
+        logger?.Log($"HideWithCustomDelay started - waiting {customDelay}s", this);
+        
+        // Esperar la duración especificada
+        yield return new WaitForSeconds(customDelay);
+        
+        logger?.Log("Starting fade out", this);
+        
+        // Fade out
+        yield return StartCoroutine(FadeOut());
+        
+        activeCoroutine = null;
+    }
+    
     /// <summary>
     /// Muestra el loading screen inmediatamente.
     /// </summary>
