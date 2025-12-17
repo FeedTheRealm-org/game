@@ -210,7 +210,7 @@ public class CharacterEditController : MonoBehaviour {
     /// </summary>
     private void onItemClicked(string spriteId) {
         logger.Log($"Item clicked: {spriteId}", this);
-        var category = spriteManager.GetSpritePartFromCategoryName(_selectedCategoryName);
+        var category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, spriteId);
         characterInfoRequest.category_sprites[_selectedCategoryId] = spriteId;
         _saveButton.text = "Save";

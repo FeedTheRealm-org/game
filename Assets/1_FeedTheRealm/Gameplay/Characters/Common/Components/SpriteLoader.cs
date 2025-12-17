@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class SpriteLoader : MonoBehaviour {
     [SerializeField]
-    private SpriteManager spriteManager;
+    private SpriteManager spriteManager; // Only used for character editor events
 
     [Header("Services settings")]
     [SerializeField]
@@ -24,14 +25,7 @@ public class SpriteLoader : MonoBehaviour {
     private Dictionary<string, Texture2D> cachedCategoryTextures = new Dictionary<string, Texture2D>();
 
     private void CachePartTransforms() {
-        var directions = new FacingDirection[] {
-            FacingDirection.Front,
-            FacingDirection.Back,
-            FacingDirection.Right,
-            FacingDirection.Left
-        };
-
-        foreach (var direction in directions) {
+        foreach (FacingDirection direction in Enum.GetValues(typeof(FacingDirection))) {
             var directionTransform = transform.Find(direction.ToString());
             if (directionTransform != null) {
                 var cachedParts = new Dictionary<CharacterPartCategory, Transform>();
@@ -84,13 +78,23 @@ public class SpriteLoader : MonoBehaviour {
     private void Awake() {
         logger.Log("[SpriteLoader] Initializing sprites for character", this);
         CachePartTransforms();
-        if (spriteManager != null) {
-        }
         StartCoroutine(InitCharacterSpritesCoroutine());
+        if (spriteManager != null) {
+            spriteManager.OnArmorHelmetChange += ChangeHelmet;
+            spriteManager.OnArmorBodyChange += ChangeBody;
+            spriteManager.OnArmorArmsChange += ChangeArms;
+            spriteManager.OnArmorLegsChange += ChangeLegs;
+            spriteManager.OnArmorHandsChange += ChangeHands;
+        }
     }
 
     private void OnDestroy() {
         if (spriteManager != null) {
+            spriteManager.OnArmorHelmetChange -= ChangeHelmet;
+            spriteManager.OnArmorBodyChange -= ChangeBody;
+            spriteManager.OnArmorArmsChange -= ChangeArms;
+            spriteManager.OnArmorLegsChange -= ChangeLegs;
+            spriteManager.OnArmorHandsChange -= ChangeHands;
         }
     }
 
@@ -239,6 +243,7 @@ public class SpriteLoader : MonoBehaviour {
     }
 
     /* --- INITIALIZATION UTILS --- */
+
     private IEnumerator InitCharacterSpritesCoroutine() {
         // Fetch categories
         API.SpriteCategoryListResponse categoriesResponse = null;
