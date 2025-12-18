@@ -174,12 +174,12 @@
 }
 
 .category_button>.unity-button__image {
-    width: 200%;
-    height: 200%;
-    min-width: 200%;
-    min-height: 200%;
-    max-width: 200%;
-    max-height: 200%;
+    width: 150%;
+    height: 150%;
+    min-width: 150%;
+    min-height: 150%;
+    max-width: 150%;
+    max-height: 150%;
 }
 
 .item_button {
@@ -190,11 +190,6 @@
 
 .item_button>.unity-button__image {
     width: 90%;
-    height: 90%;
-    min-width: 90px;
-    max-width: 90px;
-    min-height: 90px;
-    max-height: 90px;
 }
 
 /* Character Preview */
