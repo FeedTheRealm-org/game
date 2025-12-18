@@ -77,4 +77,94 @@ public class SpriteConfigDirector {
             .AddTileToAllDirections(CharacterPartCategory.ArmorLegL, 240, tileY, 720, tileY, 1200, tileY)
             .Build();
     }
+
+    /* --- Build Body --- */
+
+    /// <summary>
+    /// Builds the sprite configuration for the character's hair.
+    /// </summary>
+    public List<SpriteConfig> BuildHairSpriteConfig() {
+        var tileY = 0;
+        return _builder.Reset(480, 640, 0.5f, 0.5f)
+            .AddTileToAllDirections(CharacterPartCategory.Hair, 0, tileY, 480, tileY, 480 * 2, tileY)
+            .Build();
+    }
+
+    public List<SpriteConfig> BuildBeardSpriteConfig() {
+        var tileY = 0;
+        return _builder.Reset(320, 320, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.Beard, FacingDirection.Front, 0, tileY)
+            .AddTile(CharacterPartCategory.Beard, FacingDirection.Front, 320, tileY)
+            .Build();
+    }
+
+    public List<SpriteConfig> BuildEyeBrowsSpriteConfig() {
+        var tileY = 0;
+        var frontEyebrows = _builder.Reset(176, 128, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.EyeBrows, FacingDirection.Front, 0, tileY)
+            .Build();
+        var leftEyebrows = _builder.Reset(138, 128, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.EyeBrows, FacingDirection.Left, 176, tileY)
+            .Build();
+
+        frontEyebrows.AddRange(leftEyebrows);
+
+        return frontEyebrows;
+    }
+
+    public List<SpriteConfig> BuildEyesSpriteConfig() {
+        var tileY = 0;
+        var frontEyes = _builder.Reset(176, 128, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.Eyes, FacingDirection.Front, 0, tileY)
+            .Build();
+        var leftEyes = _builder.Reset(138, 128, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.Eyes, FacingDirection.Left, 176, tileY)
+            .Build();
+
+        frontEyes.AddRange(leftEyes);
+
+        return frontEyes;
+    }
+
+    public List<SpriteConfig> BuildMouthSpriteConfig() {
+        var tileY = 0;
+        var frontMouth = _builder.Reset(96, 64, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.Eyes, FacingDirection.Front, 0, tileY)
+            .Build();
+        var leftMouth = _builder.Reset(64, 64, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.Eyes, FacingDirection.Left, 96, tileY)
+            .Build();
+
+        frontMouth.AddRange(leftMouth);
+
+        return frontMouth;
+    }
+
+    /* --- Build Accessories --- */
+
+    public List<SpriteConfig> BuildEarringsSpriteConfig() {
+        var tileY = 0;
+        return _builder.Reset(128, 192, 0.2f, 0.65f)
+            .AddTile(CharacterPartCategory.EarringR, FacingDirection.Front, 128, tileY)
+            .AddTile(CharacterPartCategory.EarringR, FacingDirection.Back, 384, tileY)
+            .AddTile(CharacterPartCategory.EarringR, FacingDirection.Right, 640, tileY)
+            .AddTile(CharacterPartCategory.EarringL, FacingDirection.Front, 0, tileY)
+            .AddTile(CharacterPartCategory.EarringL, FacingDirection.Back, 256, tileY)
+            .AddTile(CharacterPartCategory.EarringL, FacingDirection.Left, 512, tileY)
+            .Build();
+    }
+
+    public List<SpriteConfig> BuildBackSpriteConfig() {
+        var tileY = 0;
+        return _builder.Reset(480, 480, 0.5f, 0.5f)
+            .AddTileToAllDirections(CharacterPartCategory.Back, 0, tileY, 480, tileY, 480 * 2, tileY)
+            .Build();
+    }
+
+    public List<SpriteConfig> BuildMaskSpriteConfig() {
+        var tileY = 0;
+        return _builder.Reset(480, 480, 0.5f, 0.2f)
+            .AddTileToAllDirections(CharacterPartCategory.Mask, 0, tileY, 480, tileY, 480 * 2, tileY)
+            .Build();
+    }
 }

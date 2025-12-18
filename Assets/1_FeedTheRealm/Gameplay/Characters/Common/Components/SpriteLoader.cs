@@ -37,6 +37,13 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.OnArmorHelmetChange += ChangeHelmet;
             spriteManager.OnArmorBodyChange += ChangeBody;
             spriteManager.OnArmorLegsChange += ChangeLegs;
+            spriteManager.OnHairChange += ChangeHair;
+            spriteManager.OnBeardChange += ChangeBeard;
+            spriteManager.OnEyeBrowsChange += ChangeEyeBrows;
+            spriteManager.OnEyesChange += ChangeEyes;
+            spriteManager.OnBackChange += ChangeBack;
+            spriteManager.OnEarringsChange += ChangeEarrings;
+            spriteManager.OnMaskChange += ChangeMask;
         }
         _ = InitCharacterSpritesAsync();
     }
@@ -46,6 +53,13 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.OnArmorHelmetChange -= ChangeHelmet;
             spriteManager.OnArmorBodyChange -= ChangeBody;
             spriteManager.OnArmorLegsChange -= ChangeLegs;
+            spriteManager.OnHairChange -= ChangeHair;
+            spriteManager.OnBeardChange -= ChangeBeard;
+            spriteManager.OnEyeBrowsChange -= ChangeEyeBrows;
+            spriteManager.OnEyesChange -= ChangeEyes;
+            spriteManager.OnBackChange -= ChangeBack;
+            spriteManager.OnEarringsChange -= ChangeEarrings;
+            spriteManager.OnMaskChange -= ChangeMask;
         }
 
         // Clean up cached textures to prevent memory leaks
@@ -152,6 +166,41 @@ public class SpriteLoader : MonoBehaviour {
         logger.Log("[SpriteLoader] Changed Armor Legs sprites", this);
     }
 
+    private void ChangeHair(Texture2D texture) {
+        ChangeTexture(texture, director.BuildHairSpriteConfig());
+        logger.Log("[SpriteLoader] Changed Hair sprites", this);
+    }
+
+    private void ChangeBeard(Texture2D texture) {
+        ChangeTexture(texture, director.BuildBeardSpriteConfig());
+        logger.Log("[SpriteLoader] Changed Beard sprites", this);
+    }
+
+    private void ChangeEyeBrows(Texture2D texture) {
+        ChangeTexture(texture, director.BuildEyeBrowsSpriteConfig());
+        logger.Log("[SpriteLoader] Changed EyeBrows sprites", this);
+    }
+
+    private void ChangeEyes(Texture2D texture) {
+        ChangeTexture(texture, director.BuildEyesSpriteConfig());
+        logger.Log("[SpriteLoader] Changed Eyes sprites", this);
+    }
+
+    private void ChangeBack(Texture2D texture) {
+        ChangeTexture(texture, director.BuildBackSpriteConfig());
+        logger.Log("[SpriteLoader] Changed Back sprites", this);
+    }
+
+    private void ChangeEarrings(Texture2D texture) {
+        ChangeTexture(texture, director.BuildEarringsSpriteConfig());
+        logger.Log("[SpriteLoader] Changed Earrings sprites", this);
+    }
+
+    private void ChangeMask(Texture2D texture) {
+        ChangeTexture(texture, director.BuildMaskSpriteConfig());
+        logger.Log("[SpriteLoader] Changed Mask sprites", this);
+    }
+
     /// <summary>
     /// Changes the texture for multiple sprite configurations [or removes it if texture is null!].
     /// </summary>
@@ -226,6 +275,28 @@ public class SpriteLoader : MonoBehaviour {
                     case CharacterPartCategory.ArmorLegL:
                     case CharacterPartCategory.ArmorLegR:
                         ChangeLegs(texture);
+                        break;
+                    case CharacterPartCategory.Hair:
+                        ChangeHair(texture);
+                        break;
+                    case CharacterPartCategory.Beard:
+                        ChangeBeard(texture);
+                        break;
+                    case CharacterPartCategory.EyeBrows:
+                        ChangeEyeBrows(texture);
+                        break;
+                    case CharacterPartCategory.Eyes:
+                        ChangeEyes(texture);
+                        break;
+                    case CharacterPartCategory.Back:
+                        ChangeBack(texture);
+                        break;
+                    case CharacterPartCategory.EarringR:
+                    case CharacterPartCategory.EarringL:
+                        ChangeEarrings(texture);
+                        break;
+                    case CharacterPartCategory.Mask:
+                        ChangeMask(texture);
                         break;
                     default:
                         logger.Log($"No handler for category: {category} under {gameObject.name}", this, Logging.LogType.Warning);

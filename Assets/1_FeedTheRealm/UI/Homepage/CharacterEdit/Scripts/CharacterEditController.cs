@@ -188,6 +188,23 @@ public class CharacterEditController : MonoBehaviour {
             case CharacterPartCategory.ArmorLegR:
             case CharacterPartCategory.ArmorLegL:
                 return director.BuildArmorLegsSpriteConfig();
+            case CharacterPartCategory.Hair:
+                return director.BuildHairSpriteConfig();
+            case CharacterPartCategory.Beard:
+                return director.BuildBeardSpriteConfig();
+            case CharacterPartCategory.EyeBrows:
+                return director.BuildEyeBrowsSpriteConfig();
+            case CharacterPartCategory.Eyes:
+                return director.BuildEyesSpriteConfig();
+            case CharacterPartCategory.Mouth:
+                return director.BuildMouthSpriteConfig();
+            case CharacterPartCategory.Back:
+                return director.BuildBackSpriteConfig();
+            case CharacterPartCategory.EarringR:
+            case CharacterPartCategory.EarringL:
+                return director.BuildEarringsSpriteConfig();
+            case CharacterPartCategory.Mask:
+                return director.BuildMaskSpriteConfig();
             default:
                 return null;
         }
