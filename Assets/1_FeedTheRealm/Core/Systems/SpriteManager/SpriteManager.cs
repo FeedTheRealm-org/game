@@ -47,7 +47,7 @@ public class SpriteManager : ScriptableObject {
     }
 
     public void ChangeSprite(CharacterPartCategory part, Texture2D texture) {
-        logger.Log($"SpriteManager: Changing sprite for part {part} to texture {texture.name}", this, Logging.LogType.Info);
+        logger.Log($"SpriteManager: Changing sprite for part {part}", this, Logging.LogType.Info);
         partChangeActions[part]?.Invoke(texture);
     }
 

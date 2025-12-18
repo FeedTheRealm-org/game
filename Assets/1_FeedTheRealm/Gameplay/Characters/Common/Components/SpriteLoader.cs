@@ -130,32 +130,37 @@ public class SpriteLoader : MonoBehaviour {
     /* --- PART CHANGE HANDLERS --- */
 
     private void ChangeHelmet(Texture2D texture) {
-        var confs = director.BuildArmorHelmetSpriteConfig();
-        ChangeTexture(texture, confs);
+        ChangeTexture(texture, director.BuildArmorHelmetSpriteConfig());
         logger.Log("[SpriteLoader] Changed Armor Helmet sprites", this);
     }
 
     private void ChangeBody(Texture2D texture) {
-        var confs = director.BuildArmorBodySpriteConfig();
-        ChangeTexture(texture, confs);
+        ChangeTexture(texture, director.BuildArmorBodySpriteConfig());
         logger.Log("[SpriteLoader] Changed Armor Body sprites", this);
     }
 
     private void ChangeLegs(Texture2D texture) {
-        var confs = director.BuildArmorLegsSpriteConfig();
-        ChangeTexture(texture, confs);
+        ChangeTexture(texture, director.BuildArmorLegsSpriteConfig());
         logger.Log("[SpriteLoader] Changed Armor Legs sprites", this);
     }
 
+    /// <summary>
+    /// Changes the texture for multiple sprite configurations [or removes it if texture is null!].
+    /// </summary>
     private void ChangeTexture(Texture2D texture, List<SpriteConfig> confs) {
         foreach (var config in confs) {
-            var newSprite = Sprite.Create(
-                texture,
-                config.Rect,
-                config.Pivot,
-                config.PixelsPerUnit
-            );
-            ReplacePartSprite(newSprite, config.Direction, config.Part);
+            Sprite sprite = null;
+
+            if (texture != null) {
+                sprite = Sprite.Create(
+                    texture,
+                    config.Rect,
+                    config.Pivot,
+                    config.PixelsPerUnit
+                );
+            }
+
+            ReplacePartSprite(sprite, config.Direction, config.Part);
         }
     }
 

@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// Manages the character editing interface and interactions.
 /// </summary>
-public class CharacterEditController : MonoBehaviour
-{
+public class CharacterEditController : MonoBehaviour {
     [Header("Session settings")]
     [SerializeField]
     private API.PlayerService playerService;
@@ -49,6 +48,7 @@ public class CharacterEditController : MonoBehaviour
     private TextField _bioInput;
 
     // Buttons
+    private Button _emptyItemButton;
     private Button _backButton;
     private Button _cancelButton;
     private Button _saveButton;
@@ -58,10 +58,8 @@ public class CharacterEditController : MonoBehaviour
     private string _selectedCategoryName = "";
     private API.PatchCharacterInfoRequest characterInfoRequest = new API.PatchCharacterInfoRequest();
 
-    private async void OnEnable()
-    {
-        if (session == null)
-        {
+    private async void OnEnable() {
+        if (session == null) {
             logger.Log("Session is not assigned.", this, Logging.LogType.Error);
             return;
         }
@@ -71,37 +69,32 @@ public class CharacterEditController : MonoBehaviour
 
         _root = GetComponent<UIDocument>().rootVisualElement;
         var body = _root.Q<VisualElement>("Body");
-        if (body == null)
-        {
+        if (body == null) {
             logger.Log("Body not found in the UI Document.", this, Logging.LogType.Error);
             return;
         }
 
         // Containers
         var container = body.Q<VisualElement>("CharacterEditContainer");
-        if (container == null)
-        {
+        if (container == null) {
             logger.Log("CharacterEditContainer not found in the UI Document.", this, Logging.LogType.Error);
             return;
         }
         _characterContainer = container.Q<VisualElement>("Character");
         _cosmeticsContainer = container.Q<VisualElement>("Cosmetics");
-        if (_characterContainer == null || _cosmeticsContainer == null)
-        {
+        if (_characterContainer == null || _cosmeticsContainer == null) {
             logger.Log("Character or Cosmetics not found in the UI Document.", this, Logging.LogType.Error);
             return;
         }
 
         _characterPreview = _characterContainer.Q<VisualElement>("CharacterPreview");
-        if (_characterPreview == null)
-        {
+        if (_characterPreview == null) {
             logger.Log("CharacterPreview not found in Character container.", this, Logging.LogType.Error);
             return;
         }
 
         var buttonsContainer = _cosmeticsContainer.Q<VisualElement>("Buttons");
-        if (buttonsContainer == null)
-        {
+        if (buttonsContainer == null) {
             logger.Log("Buttons container not found in Cosmetics.", this, Logging.LogType.Error);
             return;
         }
@@ -118,14 +111,18 @@ public class CharacterEditController : MonoBehaviour
         _itemsList = _cosmeticsContainer.Q<ScrollView>("Items");
         _categoriesList = _cosmeticsContainer.Q<ScrollView>("Categories");
 
-        if (_nameInput == null || _bioInput == null || _backButton == null || _cancelButton == null || _saveButton == null || _errorMessage == null)
-        {
+        if (_nameInput == null || _bioInput == null || _backButton == null || _cancelButton == null || _saveButton == null || _errorMessage == null) {
             logger.Log("Buttons or Inputs not found in UI Document.", this, Logging.LogType.Error);
             return;
         }
 
-        if (session.IsFirstLogin)
-        {
+        _emptyItemButton = _itemsList.Q<Button>("Empty");
+        if (_emptyItemButton == null) {
+            logger.Log("Empty item button not found in Items list.", this, Logging.LogType.Error);
+            return;
+        }
+
+        if (session.IsFirstLogin) {
             logger.Log("First login detected, hiding back button.", this);
             _backButton.style.display = DisplayStyle.None;
         }
@@ -136,15 +133,12 @@ public class CharacterEditController : MonoBehaviour
         await fetchCategories();
     }
 
-    private void OnDisable()
-    {
+    private void OnDisable() {
         registerCallbacks(false);
 
-        for (int i = 0; i < _categoriesList.contentContainer.childCount; i++)
-        {
+        for (int i = 0; i < _categoriesList.contentContainer.childCount; i++) {
             var btn = _categoriesList.contentContainer[i] as Button;
-            if (btn != null)
-            {
+            if (btn != null) {
                 btn.clicked -= async () => await onCategoryClicked(btn.name, btn.text);
             }
         }
@@ -153,19 +147,17 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Registers button click callbacks.
     /// </summary>
-    private void registerCallbacks(bool shouldRegister)
-    {
-        if (shouldRegister)
-        {
+    private void registerCallbacks(bool shouldRegister) {
+        if (shouldRegister) {
             logger.Log("Registering button callbacks", this);
+            _emptyItemButton.clicked += () => onItemClicked(null, "");
             _backButton.clicked += onBackClicked;
             _cancelButton.clicked += onCancelClicked;
             _saveButton.clicked += async () => await onSaveClicked();
             _root.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-        }
-        else
-        {
+        } else {
             logger.Log("Unregistering button callbacks", this);
+            _emptyItemButton.clicked -= () => onItemClicked(null, "");
             _backButton.clicked -= onBackClicked;
             _cancelButton.clicked -= onCancelClicked;
             _saveButton.clicked -= async () => await onSaveClicked();
@@ -173,10 +165,8 @@ public class CharacterEditController : MonoBehaviour
         }
     }
 
-    private List<SpriteConfig> GetConfigsForPart(SpriteConfigDirector director, CharacterPartCategory part)
-    {
-        switch (part)
-        {
+    private List<SpriteConfig> GetConfigsForPart(SpriteConfigDirector director, CharacterPartCategory part) {
+        switch (part) {
             case CharacterPartCategory.ArmorHelmet:
                 return director.BuildArmorHelmetSpriteConfig();
             case CharacterPartCategory.ArmorBody:
@@ -203,8 +193,7 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Handles back button click event to go back to homepage.
     /// </summary>
-    private void onBackClicked()
-    {
+    private void onBackClicked() {
         logger.Log("Back Button Clicked", this);
         transform.parent.gameObject.SetActive(false);
     }
@@ -212,22 +201,19 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Handles cancel button click event.
     /// </summary>
-    private void onCancelClicked()
-    {
+    private void onCancelClicked() {
         logger.Log("Cancel Button Clicked", this);
     }
 
     /// <summary>
     /// Handles save button click event to save character info.
     /// </summary>
-    private async Task onSaveClicked()
-    {
+    private async Task onSaveClicked() {
         logger.Log("Save Button Clicked", this);
         logger.Log($"Name: {_nameInput.value}, Bio {_bioInput.value}", this);
 
         _errorMessage.text = "";
-        if (_nameInput.value == "")
-        {
+        if (_nameInput.value == "") {
             _errorMessage.text = "Name cannot be empty.";
             return;
         }
@@ -241,10 +227,9 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Handles category click events and fetches sprites for that category.
     /// </summary>
-    private async Task onCategoryClicked(string categoryId, string categoryName)
-    {
-        if (categoryId == _selectedCategoryId)
-        {
+    private async Task onCategoryClicked(string categoryId, string categoryName) {
+        logger.Log($"onCategoryClicked called with ID: {categoryId}, Name: {categoryName}", this);
+        if (categoryId == _selectedCategoryId) {
             return;
         }
         logger.Log($"Category clicked: {categoryId}", this);
@@ -257,8 +242,7 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Handles item click events and changes the sprite.
     /// </summary>
-    private void onItemClicked(Texture2D texture, string spriteId)
-    {
+    private void onItemClicked(Texture2D texture, string spriteId) {
         logger.Log($"Item clicked: {spriteId}", this);
         var category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, texture);
@@ -266,8 +250,7 @@ public class CharacterEditController : MonoBehaviour
         _saveButton.text = "Save";
     }
 
-    private void OnGeometryChanged(GeometryChangedEvent evt)
-    {
+    private void OnGeometryChanged(GeometryChangedEvent evt) {
         logger.Log("Geometry changed.", this);
         centerCharacterPreview();
     }
@@ -277,18 +260,14 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Updates the current character information to server.
     /// </summary>
-    private async Task updateCharacterInfo()
-    {
+    private async Task updateCharacterInfo() {
         var characterInfo = await playerService.PatchCharacterInfoAsync(characterInfoRequest);
-        if (characterInfo != null)
-        {
+        if (characterInfo != null) {
             logger.Log("Character info successfully updated", this);
             session.IsFirstLogin = false;
             session.CharacterName = characterInfo.character_name;
             _saveButton.text = "Saved";
-        }
-        else
-        {
+        } else {
             logger.Log("Failed to update character info", this, Logging.LogType.Error);
             _errorMessage.text = "Failed to update character info";
         }
@@ -297,18 +276,14 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Fetches the current character information from the server.
     /// </summary>
-    private async Task fetchCharacterInfo()
-    {
+    private async Task fetchCharacterInfo() {
         var characterInfo = await playerService.GetCharacterInfoAsync();
-        if (characterInfo != null)
-        {
+        if (characterInfo != null) {
             logger.Log("Character info successfully retrieved", this);
             _nameInput.value = characterInfo.character_name;
             _bioInput.value = characterInfo.character_bio;
             characterInfoRequest.category_sprites = characterInfo.category_sprites;
-        }
-        else
-        {
+        } else {
             logger.Log("Failed to retrieve character info", this, Logging.LogType.Warning);
         }
     }
@@ -318,31 +293,36 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Fetches categories from the server and populates the categories list.
     /// </summary>
-    private async Task fetchCategories()
-    {
+    private async Task fetchCategories() {
         var response = await assetsService.GetCategoriesAsync();
-        if (response == null || response.category_list == null)
-        {
+        if (response == null || response.category_list == null) {
             logger.Log("Failed to fetch categories", this, Logging.LogType.Error);
             _errorMessage.text = "Failed to load categories.";
             return;
         }
 
-        populateCategories(response.category_list);
+        foreach (var category in response.category_list) {
+            var btn = _categoriesList.Q<Button>(category.category_name);
+            if (btn == null) {
+                logger.Log($"Error: Category button {category.category_name} not found in UI.", this, Logging.LogType.Error);
+                continue;
+            }
+            btn.clicked += async () => await onCategoryClicked(category.category_id, category.category_name);
+        }
+        logger.Log("Categories successfully populated", this);
         await onCategoryClicked(response.category_list[0].category_id, response.category_list[0].category_name);
+        logger.Log("First category auto-selected", this);
     }
 
     /// <summary>
     /// Fetches sprites for a given category from the server and populates the items list.
     /// </summary>
-    private async Task fetchSpritesByCategory(string categoryId)
-    {
+    private async Task fetchSpritesByCategory(string categoryId) {
         var response = await assetsService.GetSpritesByCategoryAsync(categoryId);
-        if (response == null || response.sprites_list == null)
-        {
+        if (response == null || response.sprites_list == null) {
             logger.Log("Failed to fetch sprites", this, Logging.LogType.Error);
             _errorMessage.text = "Failed to load sprites.";
-            _itemsList.contentContainer.Clear();
+            ClearItems();
             return;
         }
 
@@ -350,59 +330,31 @@ public class CharacterEditController : MonoBehaviour
     }
 
     /// <summary>
-    /// Populates the categories list with buttons.
-    /// </summary>
-    private void populateCategories(API.SpriteCategoryResponse[] categories)
-    {
-        _categoriesList.contentContainer.Clear();
-
-        foreach (var category in categories)
-        {
-            var btn = new Button();
-            btn.AddToClassList("category_button");
-            btn.text = category.category_name;
-            btn.name = category.category_id;
-            btn.clicked += async () => await onCategoryClicked(category.category_id, category.category_name);
-            _categoriesList.contentContainer.Add(btn);
-
-            loadCategoryIcon(category.category_id, category.category_name, btn); // Load icon else use text
-        }
-    }
-
-    /// <summary>
     /// Populates the items list with sprite buttons.
     /// </summary>
-    private async void populateItems(API.SpriteResponse[] sprites)
-    {
-        _itemsList.contentContainer.Clear();
+    private async void populateItems(API.SpriteResponse[] sprites) {
+        ClearItems();
 
-        foreach (var sprite in sprites)
-        {
+        foreach (var sprite in sprites) {
             var btn = new Button();
             btn.AddToClassList("item_button");
             btn.name = sprite.sprite_id;
 
             _itemsList.contentContainer.Add(btn);
             var texture = await assetsService.DownloadTexture2D(sprite.sprite_id);
-            if (texture != null)
-            {
+            if (texture != null) {
                 var category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
                 var configs = GetConfigsForPart(director, category);
-                if (configs != null && configs.Count > 0)
-                {
+                if (configs != null && configs.Count > 0) {
                     var config = configs[0];
                     var spriteObj = Sprite.Create(texture, config.Rect, config.Pivot, config.PixelsPerUnit);
                     btn.style.backgroundImage = new StyleBackground(spriteObj);
-                }
-                else
-                {
+                } else {
                     btn.style.backgroundImage = new StyleBackground(texture);
                 }
                 btn.text = "";
                 btn.clicked += () => onItemClicked(texture, sprite.sprite_id);
-            }
-            else
-            {
+            } else {
                 btn.text = sprite.sprite_id;
                 logger.Log($"Failed to load texture for sprite: {sprite.sprite_id}", this, Logging.LogType.Warning);
             }
@@ -410,44 +362,17 @@ public class CharacterEditController : MonoBehaviour
     }
 
     /// <summary>
-    /// Loads the first sprite of a category as the category button icon.
+    /// Clears all items from the items list, except the first (empty).
     /// </summary>
-    private async void loadCategoryIcon(string categoryId, string categoryName, Button categoryButton)
-    {
-        var response = await assetsService.GetSpritesByCategoryAsync(categoryId);
-        if (response == null || response.sprites_list == null || response.sprites_list.Length == 0)
-        {
-            logger.Log($"No sprites available for category icon: {categoryId}", this, Logging.LogType.Warning);
-            return;
-        }
-
-        // Get the first sprite as the category icon
-        var firstSprite = response.sprites_list[0];
-        var texture = await assetsService.DownloadTexture2D(firstSprite.sprite_id);
-        if (texture != null)
-        {
-            var part = spriteManager.GetPartCategoryFromCategoryName(categoryName);
-            var configs = GetConfigsForPart(director, part);
-            if (configs != null && configs.Count > 0)
-            {
-                var config = configs[0];
-                var sprite = Sprite.Create(texture, config.Rect, config.Pivot, config.PixelsPerUnit);
-                categoryButton.style.backgroundImage = new StyleBackground(sprite);
-            }
-            else
-            {
-                categoryButton.style.backgroundImage = new StyleBackground(texture);
-            }
-            categoryButton.text = "";
-        }
-        else
-        {
-            logger.Log($"Failed to load icon texture for category: {categoryId}", this, Logging.LogType.Warning);
+    private void ClearItems() {
+        while (_itemsList.contentContainer.childCount > 1) {
+            _itemsList.contentContainer.RemoveAt(1);
         }
     }
 
-    private void centerCharacterPreview()
-    {
+
+
+    private void centerCharacterPreview() {
         if (_characterPreview == null || canvasCharacterPreview == null)
             return;
 
