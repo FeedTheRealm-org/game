@@ -94,7 +94,7 @@ public class SpriteConfigDirector {
         var tileY = 0;
         return _builder.Reset(320, 320, 0.5f, 0.5f)
             .AddTile(CharacterPartCategory.Beard, FacingDirection.Front, 0, tileY)
-            .AddTile(CharacterPartCategory.Beard, FacingDirection.Front, 320, tileY)
+            .AddTile(CharacterPartCategory.Beard, FacingDirection.Left, 320, tileY)
             .Build();
     }
 
@@ -129,10 +129,10 @@ public class SpriteConfigDirector {
     public List<SpriteConfig> BuildMouthSpriteConfig() {
         var tileY = 0;
         var frontMouth = _builder.Reset(96, 64, 0.5f, 0.5f)
-            .AddTile(CharacterPartCategory.Eyes, FacingDirection.Front, 0, tileY)
+            .AddTile(CharacterPartCategory.Mouth, FacingDirection.Front, 0, tileY)
             .Build();
         var leftMouth = _builder.Reset(64, 64, 0.5f, 0.5f)
-            .AddTile(CharacterPartCategory.Eyes, FacingDirection.Left, 96, tileY)
+            .AddTile(CharacterPartCategory.Mouth, FacingDirection.Left, 96, tileY)
             .Build();
 
         frontMouth.AddRange(leftMouth);

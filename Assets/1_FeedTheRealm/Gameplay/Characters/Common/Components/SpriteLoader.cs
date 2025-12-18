@@ -41,6 +41,7 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.OnBeardChange += ChangeBeard;
             spriteManager.OnEyeBrowsChange += ChangeEyeBrows;
             spriteManager.OnEyesChange += ChangeEyes;
+            spriteManager.OnMouthChange += ChangeMouth;
             spriteManager.OnBackChange += ChangeBack;
             spriteManager.OnEarringsChange += ChangeEarrings;
             spriteManager.OnMaskChange += ChangeMask;
@@ -57,6 +58,7 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.OnBeardChange -= ChangeBeard;
             spriteManager.OnEyeBrowsChange -= ChangeEyeBrows;
             spriteManager.OnEyesChange -= ChangeEyes;
+            spriteManager.OnMouthChange -= ChangeMouth;
             spriteManager.OnBackChange -= ChangeBack;
             spriteManager.OnEarringsChange -= ChangeEarrings;
             spriteManager.OnMaskChange -= ChangeMask;
@@ -83,7 +85,7 @@ public class SpriteLoader : MonoBehaviour {
                 var cachedParts = new Dictionary<CharacterPartCategory, Transform>();
                 cachedParts[CharacterPartCategory.Hair] = FindChildRecursive(directionTransform, "Hair");
                 cachedParts[CharacterPartCategory.Beard] = FindChildRecursive(directionTransform, "Beard");
-                cachedParts[CharacterPartCategory.EyeBrows] = FindChildRecursive(directionTransform, "EyesBrows");
+                cachedParts[CharacterPartCategory.EyeBrows] = FindChildRecursive(directionTransform, "Eyesbrows");
                 cachedParts[CharacterPartCategory.Eyes] = FindChildRecursive(directionTransform, "Eyes");
                 cachedParts[CharacterPartCategory.Mouth] = FindChildRecursive(directionTransform, "Mouth");
 
@@ -184,6 +186,11 @@ public class SpriteLoader : MonoBehaviour {
     private void ChangeEyes(Texture2D texture) {
         ChangeTexture(texture, director.BuildEyesSpriteConfig());
         logger.Log("[SpriteLoader] Changed Eyes sprites", this);
+    }
+
+    private void ChangeMouth(Texture2D texture) {
+        ChangeTexture(texture, director.BuildMouthSpriteConfig());
+        logger.Log("[SpriteLoader] Changed Mouth sprites", this);
     }
 
     private void ChangeBack(Texture2D texture) {
