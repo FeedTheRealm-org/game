@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -33,8 +34,10 @@ public class CharacterEditController : MonoBehaviour {
     private SpriteConfigBuilder builder;
     private SpriteConfigDirector director;
 
-    // Texture cache to prevent memory leaks
+    // Texture cache
     private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
+    // Category button actions for unregistering
+    private Dictionary<Button, System.Action> categoryButtonActions = new Dictionary<Button, System.Action>();
 
     // Containers
     private VisualElement _root;
@@ -60,6 +63,7 @@ public class CharacterEditController : MonoBehaviour {
     private string _selectedCategoryId = "";
     private string _selectedCategoryName = "";
     private API.PatchCharacterInfoRequest characterInfoRequest = new API.PatchCharacterInfoRequest();
+    private API.SpriteCategoryResponse[] _categories;
 
     private async void OnEnable() {
         if (session == null) {
@@ -139,14 +143,13 @@ public class CharacterEditController : MonoBehaviour {
     private void OnDisable() {
         registerCallbacks(false);
 
-        for (int i = 0; i < _categoriesList.contentContainer.childCount; i++) {
-            var btn = _categoriesList.contentContainer[i] as Button;
-            if (btn != null) {
-                btn.clicked -= async () => await onCategoryClicked(btn.name, btn.text);
-            }
+        foreach (var kvp in categoryButtonActions) {
+            kvp.Key.clicked -= kvp.Value;
         }
+        categoryButtonActions.Clear();
 
-        // Clean up texture cache to prevent memory leaks
+        ClearItems();
+
         foreach (var texture in textureCache.Values) {
             if (texture != null) {
                 Destroy(texture);
@@ -182,15 +185,6 @@ public class CharacterEditController : MonoBehaviour {
                 return director.BuildArmorHelmetSpriteConfig();
             case CharacterPartCategory.ArmorBody:
                 return director.BuildArmorBodySpriteConfig();
-            case CharacterPartCategory.ArmorArmR:
-            case CharacterPartCategory.ArmorArmL:
-                return director.BuildArmorArmsSpriteConfig();
-            case CharacterPartCategory.ArmorSleeveR:
-            case CharacterPartCategory.ArmorSleeveL:
-                return director.BuildArmorSleevesSpriteConfig();
-            case CharacterPartCategory.ArmorHandR:
-            case CharacterPartCategory.ArmorHandL:
-                return director.BuildArmorHandsSpriteConfig();
             case CharacterPartCategory.ArmorLegR:
             case CharacterPartCategory.ArmorLegL:
                 return director.BuildArmorLegsSpriteConfig();
@@ -233,6 +227,14 @@ public class CharacterEditController : MonoBehaviour {
         characterInfoRequest.character_bio = _bioInput.value;
 
         await updateCharacterInfo();
+    }
+
+    /// <summary>
+    /// Handles category button click events.
+    /// </summary>
+    private async void OnCategoryButtonClicked(Button btn) {
+        var cat = _categories.First(c => c.category_name == btn.name);
+        await onCategoryClicked(cat.category_id, cat.category_name);
     }
 
     /// <summary>
@@ -312,13 +314,16 @@ public class CharacterEditController : MonoBehaviour {
             return;
         }
 
+        _categories = response.category_list;
         foreach (var category in response.category_list) {
             var btn = _categoriesList.Q<Button>(category.category_name);
             if (btn == null) {
                 logger.Log($"Error: Category button {category.category_name} not found in UI.", this, Logging.LogType.Error);
                 continue;
             }
-            btn.clicked += async () => await onCategoryClicked(category.category_id, category.category_name);
+            System.Action action = () => OnCategoryButtonClicked(btn);
+            btn.clicked += action;
+            categoryButtonActions[btn] = action;
         }
         logger.Log("Categories successfully populated", this);
         await onCategoryClicked(response.category_list[0].category_id, response.category_list[0].category_name);
