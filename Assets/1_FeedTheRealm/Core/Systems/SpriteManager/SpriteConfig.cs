@@ -6,8 +6,8 @@ public class SpriteConfig {
     public CharacterPartCategory Part { get; private set; }
     public FacingDirection Direction { get; private set; }
     public Rect Rect { get; private set; }
-    public Vector2 Pivot { get; private set; } = new Vector2(0.5f, 0.5f);
-    public float PixelsPerUnit { get; private set; } = 32f;
+    public Vector2 Pivot { get; private set; } = new Vector2(0.5f, 0.2f);
+    public float PixelsPerUnit { get; private set; } = 100f;
 
     public SpriteConfig(CharacterPartCategory part, FacingDirection direction, float x, float y, float width, float height) {
         this.Part = part;

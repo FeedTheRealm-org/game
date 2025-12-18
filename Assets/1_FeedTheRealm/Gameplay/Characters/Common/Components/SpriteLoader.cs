@@ -26,7 +26,7 @@ public class SpriteLoader : MonoBehaviour {
 
     private void CachePartTransforms() {
         foreach (FacingDirection direction in Enum.GetValues(typeof(FacingDirection))) {
-            var directionTransform = transform.Find(direction.ToString());
+            var directionTransform = FindChildRecursive(transform, direction.ToString());
             if (directionTransform != null) {
                 var cachedParts = new Dictionary<CharacterPartCategory, Transform>();
                 cachedParts[CharacterPartCategory.Hair] = FindChildRecursive(directionTransform, "Hair");
@@ -78,7 +78,6 @@ public class SpriteLoader : MonoBehaviour {
     private void Awake() {
         logger.Log("[SpriteLoader] Initializing sprites for character", this);
         CachePartTransforms();
-        StartCoroutine(InitCharacterSpritesCoroutine());
         if (spriteManager != null) {
             spriteManager.OnArmorHelmetChange += ChangeHelmet;
             spriteManager.OnArmorBodyChange += ChangeBody;
@@ -86,6 +85,7 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.OnArmorLegsChange += ChangeLegs;
             spriteManager.OnArmorHandsChange += ChangeHands;
         }
+        StartCoroutine(InitCharacterSpritesCoroutine());
     }
 
     private void OnDestroy() {

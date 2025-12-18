@@ -12,9 +12,9 @@ public class SpriteConfigDirector {
     }
 
     public List<SpriteConfig> BuildArmorHelmetSpriteConfig() {
-        var tileY = 0;
+        var tileY = 320;
         return _builder.Reset(480, 480)
-            .AddTileToAllDirections(CharacterPartCategory.Hair, 0, tileY, 480, tileY, 480 * 2, tileY)
+            .AddTileToAllDirections(CharacterPartCategory.ArmorHelmet, 0, tileY, 480, tileY, 480 * 2, tileY)
             .Build();
     }
 
