@@ -149,6 +149,7 @@ public class SpriteLoader : MonoBehaviour {
             logger.Log($"SpriteRenderer not found at path: {string.Join("/", pathSegments)}", this, Logging.LogType.Warning);
         }
         spriteRenderer.sprite = newSprite;
+        spriteRenderer.enabled = (newSprite != null);
     }
 
     /* --- PART CHANGE HANDLERS --- */
