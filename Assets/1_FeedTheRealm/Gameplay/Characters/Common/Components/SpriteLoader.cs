@@ -47,6 +47,14 @@ public class SpriteLoader : MonoBehaviour {
             spriteManager.OnArmorBodyChange -= ChangeBody;
             spriteManager.OnArmorLegsChange -= ChangeLegs;
         }
+
+        // Clean up cached textures to prevent memory leaks
+        foreach (var texture in cachedCategoryTextures.Values) {
+            if (texture != null) {
+                Destroy(texture);
+            }
+        }
+        cachedCategoryTextures.Clear();
     }
 
     public void StartLoadingSprites() {

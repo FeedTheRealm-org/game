@@ -33,6 +33,9 @@ public class CharacterEditController : MonoBehaviour {
     private SpriteConfigBuilder builder;
     private SpriteConfigDirector director;
 
+    // Texture cache to prevent memory leaks
+    private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
+
     // Containers
     private VisualElement _root;
     private VisualElement _characterContainer;
@@ -142,6 +145,14 @@ public class CharacterEditController : MonoBehaviour {
                 btn.clicked -= async () => await onCategoryClicked(btn.name, btn.text);
             }
         }
+
+        // Clean up texture cache to prevent memory leaks
+        foreach (var texture in textureCache.Values) {
+            if (texture != null) {
+                Destroy(texture);
+            }
+        }
+        textureCache.Clear();
     }
 
     /// <summary>
@@ -341,7 +352,13 @@ public class CharacterEditController : MonoBehaviour {
             btn.name = sprite.sprite_id;
 
             _itemsList.contentContainer.Add(btn);
-            var texture = await assetsService.DownloadTexture2D(sprite.sprite_id);
+            Texture2D texture = null;
+            if (!textureCache.TryGetValue(sprite.sprite_id, out texture)) {
+                texture = await assetsService.DownloadTexture2D(sprite.sprite_id);
+                if (texture != null) {
+                    textureCache[sprite.sprite_id] = texture;
+                }
+            }
             if (texture != null) {
                 var category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
                 var configs = GetConfigsForPart(director, category);
