@@ -7,21 +7,29 @@ public class SpriteConfigBuilder {
     private List<SpriteConfig> configs = new List<SpriteConfig>();
     private float tileWidth;
     private float tileHeight;
+    private float pivotX;
+    private float pivotY;
 
     public SpriteConfigBuilder() {
         this.tileWidth = 0;
         this.tileHeight = 0;
+        this.pivotX = 0.5f;
+        this.pivotY = 0.5f;
     }
 
-    public SpriteConfigBuilder(float tileWidth, float tileHeight) {
+    public SpriteConfigBuilder(float tileWidth, float tileHeight, float pivotX = 0.5f, float pivotY = 0.5f) {
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
+        this.pivotX = pivotX;
+        this.pivotY = pivotY;
     }
 
-    public SpriteConfigBuilder Reset(float newTileWidth, float newTileHeight) {
+    public SpriteConfigBuilder Reset(float newTileWidth, float newTileHeight, float pivotX = 0.5f, float pivotY = 0.5f) {
         configs.Clear();
         this.tileWidth = newTileWidth;
         this.tileHeight = newTileHeight;
+        this.pivotX = pivotX;
+        this.pivotY = pivotY;
         return this;
     }
 
@@ -32,7 +40,9 @@ public class SpriteConfigBuilder {
             tileX,
             tileY,
             tileWidth,
-            tileHeight
+            tileHeight,
+            pivotX,
+            pivotY
         ));
         return this;
     }

@@ -15,46 +15,46 @@ public class SpriteManager : ScriptableObject {
     private Logging.Logger logger;
 
     // Body parts
-    public Action<string> OnHairChange;
-    public Action<string> OnBeardChange;
-    public Action<string> OnEyeBrowsChange;
-    public Action<string> OnEyesChange;
-    public Action<string> OnMouthChange;
-    public Action<string> OnEarsChange;
+    public Action<Texture2D> OnHairChange;
+    public Action<Texture2D> OnBeardChange;
+    public Action<Texture2D> OnEyeBrowsChange;
+    public Action<Texture2D> OnEyesChange;
+    public Action<Texture2D> OnMouthChange;
+    public Action<Texture2D> OnEarsChange;
 
     // Equipment
-    public Action<string> OnArmorBodyChange;
-    public Action<string> OnArmorHelmetChange;
-    public Action<string> OnArmorArmsChange;
-    public Action<string> OnArmorSleevesChange;
-    public Action<string> OnArmorHandsChange;
-    public Action<string> OnArmorLegsChange;
+    public Action<Texture2D> OnArmorBodyChange;
+    public Action<Texture2D> OnArmorHelmetChange;
+    public Action<Texture2D> OnArmorArmsChange;
+    public Action<Texture2D> OnArmorSleevesChange;
+    public Action<Texture2D> OnArmorHandsChange;
+    public Action<Texture2D> OnArmorLegsChange;
 
-    public Action<string> OnBackChange;
-    public Action<string> OnEarringsChange;
-    public Action<string> OnMaskChange;
+    public Action<Texture2D> OnBackChange;
+    public Action<Texture2D> OnEarringsChange;
+    public Action<Texture2D> OnMaskChange;
 
-    private readonly Dictionary<CharacterPartCategory, Action<string>> partChangeActions = new Dictionary<CharacterPartCategory, Action<string>>();
+    private readonly Dictionary<CharacterPartCategory, Action<Texture2D>> partChangeActions = new Dictionary<CharacterPartCategory, Action<Texture2D>>();
 
     public void OnEnable() {
-        partChangeActions[CharacterPartCategory.Hair] = (id) => OnHairChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.Beard] = (id) => OnBeardChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.EyeBrows] = (id) => OnEyeBrowsChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.Eyes] = (id) => OnEyesChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.Mouth] = (id) => OnMouthChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.ArmorBody] = (id) => OnArmorBodyChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.ArmorHelmet] = (id) => OnArmorHelmetChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.ArmorArmR] = (id) => OnArmorArmsChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.ArmorSleeveR] = (id) => OnArmorSleevesChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.ArmorHandR] = (id) => OnArmorHandsChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.ArmorLegR] = (id) => OnArmorLegsChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.Back] = (id) => OnBackChange?.Invoke(id);
-        partChangeActions[CharacterPartCategory.EarringR] = (id) => OnEarringsChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.Hair] = (texture) => OnHairChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Beard] = (texture) => OnBeardChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.EyeBrows] = (texture) => OnEyeBrowsChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Eyes] = (texture) => OnEyesChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Mouth] = (texture) => OnMouthChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorBody] = (texture) => OnArmorBodyChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorHelmet] = (texture) => OnArmorHelmetChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorArmR] = (texture) => OnArmorArmsChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorSleeveR] = (texture) => OnArmorSleevesChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorHandR] = (texture) => OnArmorHandsChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorLegR] = (texture) => OnArmorLegsChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Back] = (texture) => OnBackChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.EarringR] = (texture) => OnEarringsChange?.Invoke(texture);
     }
 
-    public void ChangeSprite(CharacterPartCategory part, string textureName) {
-        logger.Log($"SpriteManager: Changing sprite for part {part} to texture {textureName}", this, Logging.LogType.Info);
-        partChangeActions[part]?.Invoke(textureName);
+    public void ChangeSprite(CharacterPartCategory part, Texture2D texture) {
+        logger.Log($"SpriteManager: Changing sprite for part {part} to texture {texture.name}", this, Logging.LogType.Info);
+        partChangeActions[part]?.Invoke(texture);
     }
 
     public CharacterPartCategory GetPartCategoryFromCategoryName(string categoryName) {
