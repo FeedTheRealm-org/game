@@ -31,6 +31,9 @@ public class CharacterEditController : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
+    private SpriteConfigBuilder builder;
+    private SpriteConfigDirector director;
+
     // Containers
     private VisualElement _root;
     private VisualElement _characterContainer;
@@ -62,6 +65,9 @@ public class CharacterEditController : MonoBehaviour
             logger.Log("Session is not assigned.", this, Logging.LogType.Error);
             return;
         }
+
+        builder = new SpriteConfigBuilder();
+        director = new SpriteConfigDirector(builder);
 
         _root = GetComponent<UIDocument>().rootVisualElement;
         var body = _root.Q<VisualElement>("Body");
@@ -164,6 +170,31 @@ public class CharacterEditController : MonoBehaviour
             _cancelButton.clicked -= onCancelClicked;
             _saveButton.clicked -= async () => await onSaveClicked();
             _root.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+        }
+    }
+
+    private List<SpriteConfig> GetConfigsForPart(SpriteConfigDirector director, CharacterPartCategory part)
+    {
+        switch (part)
+        {
+            case CharacterPartCategory.ArmorHelmet:
+                return director.BuildArmorHelmetSpriteConfig();
+            case CharacterPartCategory.ArmorBody:
+                return director.BuildArmorBodySpriteConfig();
+            case CharacterPartCategory.ArmorArmR:
+            case CharacterPartCategory.ArmorArmL:
+                return director.BuildArmorArmsSpriteConfig();
+            case CharacterPartCategory.ArmorSleeveR:
+            case CharacterPartCategory.ArmorSleeveL:
+                return director.BuildArmorSleevesSpriteConfig();
+            case CharacterPartCategory.ArmorHandR:
+            case CharacterPartCategory.ArmorHandL:
+                return director.BuildArmorHandsSpriteConfig();
+            case CharacterPartCategory.ArmorLegR:
+            case CharacterPartCategory.ArmorLegL:
+                return director.BuildArmorLegsSpriteConfig();
+            default:
+                return null;
         }
     }
 
@@ -334,7 +365,7 @@ public class CharacterEditController : MonoBehaviour
             btn.clicked += async () => await onCategoryClicked(category.category_id, category.category_name);
             _categoriesList.contentContainer.Add(btn);
 
-            loadCategoryIcon(category.category_id, btn); // Load icon else use text
+            loadCategoryIcon(category.category_id, category.category_name, btn); // Load icon else use text
         }
     }
 
@@ -355,7 +386,18 @@ public class CharacterEditController : MonoBehaviour
             var texture = await assetsService.DownloadTexture2D(sprite.sprite_id);
             if (texture != null)
             {
-                btn.style.backgroundImage = new StyleBackground(texture);
+                var category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
+                var configs = GetConfigsForPart(director, category);
+                if (configs != null && configs.Count > 0)
+                {
+                    var config = configs[0];
+                    var spriteObj = Sprite.Create(texture, config.Rect, config.Pivot, config.PixelsPerUnit);
+                    btn.style.backgroundImage = new StyleBackground(spriteObj);
+                }
+                else
+                {
+                    btn.style.backgroundImage = new StyleBackground(texture);
+                }
                 btn.text = "";
                 btn.clicked += () => onItemClicked(texture, sprite.sprite_id);
             }
@@ -370,7 +412,7 @@ public class CharacterEditController : MonoBehaviour
     /// <summary>
     /// Loads the first sprite of a category as the category button icon.
     /// </summary>
-    private async void loadCategoryIcon(string categoryId, Button categoryButton)
+    private async void loadCategoryIcon(string categoryId, string categoryName, Button categoryButton)
     {
         var response = await assetsService.GetSpritesByCategoryAsync(categoryId);
         if (response == null || response.sprites_list == null || response.sprites_list.Length == 0)
@@ -384,7 +426,18 @@ public class CharacterEditController : MonoBehaviour
         var texture = await assetsService.DownloadTexture2D(firstSprite.sprite_id);
         if (texture != null)
         {
-            categoryButton.style.backgroundImage = new StyleBackground(texture);
+            var part = spriteManager.GetPartCategoryFromCategoryName(categoryName);
+            var configs = GetConfigsForPart(director, part);
+            if (configs != null && configs.Count > 0)
+            {
+                var config = configs[0];
+                var sprite = Sprite.Create(texture, config.Rect, config.Pivot, config.PixelsPerUnit);
+                categoryButton.style.backgroundImage = new StyleBackground(sprite);
+            }
+            else
+            {
+                categoryButton.style.backgroundImage = new StyleBackground(texture);
+            }
             categoryButton.text = "";
         }
         else

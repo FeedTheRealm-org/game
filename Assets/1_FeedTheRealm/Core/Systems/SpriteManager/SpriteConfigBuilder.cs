@@ -56,6 +56,6 @@ public class SpriteConfigBuilder {
     }
 
     public List<SpriteConfig> Build() {
-        return configs;
+        return new List<SpriteConfig>(configs);
     }
 }

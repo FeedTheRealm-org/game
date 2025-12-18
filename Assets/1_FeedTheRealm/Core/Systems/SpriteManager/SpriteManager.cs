@@ -25,9 +25,6 @@ public class SpriteManager : ScriptableObject {
     // Equipment
     public Action<Texture2D> OnArmorBodyChange;
     public Action<Texture2D> OnArmorHelmetChange;
-    public Action<Texture2D> OnArmorArmsChange;
-    public Action<Texture2D> OnArmorSleevesChange;
-    public Action<Texture2D> OnArmorHandsChange;
     public Action<Texture2D> OnArmorLegsChange;
 
     public Action<Texture2D> OnBackChange;
@@ -44,9 +41,6 @@ public class SpriteManager : ScriptableObject {
         partChangeActions[CharacterPartCategory.Mouth] = (texture) => OnMouthChange?.Invoke(texture);
         partChangeActions[CharacterPartCategory.ArmorBody] = (texture) => OnArmorBodyChange?.Invoke(texture);
         partChangeActions[CharacterPartCategory.ArmorHelmet] = (texture) => OnArmorHelmetChange?.Invoke(texture);
-        partChangeActions[CharacterPartCategory.ArmorArmR] = (texture) => OnArmorArmsChange?.Invoke(texture);
-        partChangeActions[CharacterPartCategory.ArmorSleeveR] = (texture) => OnArmorSleevesChange?.Invoke(texture);
-        partChangeActions[CharacterPartCategory.ArmorHandR] = (texture) => OnArmorHandsChange?.Invoke(texture);
         partChangeActions[CharacterPartCategory.ArmorLegR] = (texture) => OnArmorLegsChange?.Invoke(texture);
         partChangeActions[CharacterPartCategory.Back] = (texture) => OnBackChange?.Invoke(texture);
         partChangeActions[CharacterPartCategory.EarringR] = (texture) => OnEarringsChange?.Invoke(texture);

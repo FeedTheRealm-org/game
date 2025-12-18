@@ -11,6 +11,11 @@ public class SpriteConfigDirector {
         _builder = builder;
     }
 
+    /* --- Build Armor --- */
+
+    /// <summary>
+    /// Builds the sprite configuration for the armor helmet.
+    /// </summary>
     public List<SpriteConfig> BuildArmorHelmetSpriteConfig() {
         var tileY = 320;
         return _builder.Reset(480, 480, 0.5f, 0.2f)
@@ -18,11 +23,24 @@ public class SpriteConfigDirector {
             .Build();
     }
 
+    /// <summary>
+    /// Builds the sprite configuration for the armor body, including arms, sleeves, and hands.
+    /// </summary>
     public List<SpriteConfig> BuildArmorBodySpriteConfig() {
         var tileY = 160;
-        return _builder.Reset(160, 160, 0.5f, 0.4f)
+        var bodyConf = _builder.Reset(160, 160, 0.5f, 0.4f)
             .AddTileToAllDirections(CharacterPartCategory.ArmorBody, 160, tileY, 640, tileY, 1120, tileY)
             .Build();
+
+        var armsConf = BuildArmorArmsSpriteConfig();
+        var sleevesConf = BuildArmorSleevesSpriteConfig();
+        var handsConf = BuildArmorHandsSpriteConfig();
+
+        bodyConf.AddRange(armsConf);
+        bodyConf.AddRange(sleevesConf);
+        bodyConf.AddRange(handsConf);
+
+        return bodyConf;
     }
 
     public List<SpriteConfig> BuildArmorArmsSpriteConfig() {
@@ -49,6 +67,9 @@ public class SpriteConfigDirector {
             .Build();
     }
 
+    /// <summary>
+    /// Builds the sprite configuration for the armor legs.
+    /// </summary>
     public List<SpriteConfig> BuildArmorLegsSpriteConfig() {
         var tileY = 0;
         return _builder.Reset(80, 160, 0.5f, 0.6f)

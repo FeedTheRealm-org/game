@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 
-public class SpriteLoader : MonoBehaviour
-{
+public class SpriteLoader : MonoBehaviour {
     [SerializeField]
     private SpriteManager spriteManager; // Only used for character editor events
 
@@ -27,13 +26,38 @@ public class SpriteLoader : MonoBehaviour
     private SpriteConfigBuilder builder;
     private SpriteConfigDirector director;
 
-    private void CachePartTransforms()
-    {
-        foreach (FacingDirection direction in Enum.GetValues(typeof(FacingDirection)))
-        {
+    private void Awake() {
+        logger.Log("[SpriteLoader] Initializing sprites for character", this);
+
+        builder = new SpriteConfigBuilder();
+        director = new SpriteConfigDirector(builder);
+
+        CachePartTransforms();
+        if (spriteManager != null) {
+            spriteManager.OnArmorHelmetChange += ChangeHelmet;
+            spriteManager.OnArmorBodyChange += ChangeBody;
+            spriteManager.OnArmorLegsChange += ChangeLegs;
+        }
+        _ = InitCharacterSpritesAsync();
+    }
+
+    private void OnDestroy() {
+        if (spriteManager != null) {
+            spriteManager.OnArmorHelmetChange -= ChangeHelmet;
+            spriteManager.OnArmorBodyChange -= ChangeBody;
+            spriteManager.OnArmorLegsChange -= ChangeLegs;
+        }
+    }
+
+    public void StartLoadingSprites() {
+        logger.Log($"[SpriteLoader] StartLoadingSprites called with UserId: '{UserId}'", this);
+        _ = InitCharacterSpritesAsync();
+    }
+
+    private void CachePartTransforms() {
+        foreach (FacingDirection direction in Enum.GetValues(typeof(FacingDirection))) {
             var directionTransform = FindChildRecursive(transform, direction.ToString());
-            if (directionTransform != null)
-            {
+            if (directionTransform != null) {
                 var cachedParts = new Dictionary<CharacterPartCategory, Transform>();
                 cachedParts[CharacterPartCategory.Hair] = FindChildRecursive(directionTransform, "Hair");
                 cachedParts[CharacterPartCategory.Beard] = FindChildRecursive(directionTransform, "Beard");
@@ -58,21 +82,17 @@ public class SpriteLoader : MonoBehaviour
                 cachedParts[CharacterPartCategory.Back] = FindChildRecursive(directionTransform, "Back");
                 cachedParts[CharacterPartCategory.Mask] = FindChildRecursive(directionTransform, "Mask");
                 _cachedPartsPerDirections[direction] = cachedParts;
-            }
-            else
-            {
+            } else {
                 logger.Log($"Direction transform not found: {direction} under {gameObject.name}", this, Logging.LogType.Warning);
             }
         }
     }
 
-    private Transform FindChildRecursive(Transform parent, string childName)
-    {
+    private Transform FindChildRecursive(Transform parent, string childName) {
         Transform result = parent.Find(childName);
         if (result != null) return result;
 
-        foreach (Transform child in parent)
-        {
+        foreach (Transform child in parent) {
             result = FindChildRecursive(child, childName);
             if (result != null) return result;
         }
@@ -80,72 +100,28 @@ public class SpriteLoader : MonoBehaviour
         return null;
     }
 
-    public void StartLoadingSprites()
-    {
-        logger.Log($"[SpriteLoader] StartLoadingSprites called with UserId: '{UserId}'", this);
-        _ = InitCharacterSpritesAsync();
-    }
-
-    private void Awake()
-    {
-        logger.Log("[SpriteLoader] Initializing sprites for character", this);
-
-        builder = new SpriteConfigBuilder();
-        director = new SpriteConfigDirector(builder);
-
-        CachePartTransforms();
-        if (spriteManager != null)
-        {
-            spriteManager.OnArmorHelmetChange += ChangeHelmet;
-            spriteManager.OnArmorBodyChange += ChangeBody;
-            spriteManager.OnArmorArmsChange += ChangeArms;
-            spriteManager.OnArmorSleevesChange += ChangeSleeves;
-            spriteManager.OnArmorLegsChange += ChangeLegs;
-            spriteManager.OnArmorHandsChange += ChangeHands;
-        }
-        _ = InitCharacterSpritesAsync();
-    }
-
-    private void OnDestroy()
-    {
-        if (spriteManager != null)
-        {
-            spriteManager.OnArmorHelmetChange -= ChangeHelmet;
-            spriteManager.OnArmorBodyChange -= ChangeBody;
-            spriteManager.OnArmorArmsChange -= ChangeArms;
-            spriteManager.OnArmorSleevesChange -= ChangeSleeves;
-            spriteManager.OnArmorLegsChange -= ChangeLegs;
-            spriteManager.OnArmorHandsChange -= ChangeHands;
-        }
-    }
-
     /// <summary>
     /// Replaces the sprite of a part at the given path.
     /// Example: ReplacePartSprite(newSprite, "Parent", "Child", "TargetObject")
     /// </summary>
-    private void ReplacePartSprite(Sprite newSprite, FacingDirection direction, params CharacterPartCategory[] pathSegments)
-    {
-        if (pathSegments == null || pathSegments.Length == 0)
-        {
+    private void ReplacePartSprite(Sprite newSprite, FacingDirection direction, params CharacterPartCategory[] pathSegments) {
+        if (pathSegments == null || pathSegments.Length == 0) {
             logger.Log("No path segments provided to ReplacePartSprite", this, Logging.LogType.Warning);
             return;
         }
 
-        if (!_cachedPartsPerDirections.TryGetValue(direction, out Dictionary<CharacterPartCategory, Transform> partsDict))
-        {
+        if (!_cachedPartsPerDirections.TryGetValue(direction, out Dictionary<CharacterPartCategory, Transform> partsDict)) {
             logger.Log($"Direction not cached: {direction} under {gameObject.name}", this, Logging.LogType.Warning);
             return;
         }
 
-        if (!partsDict.TryGetValue(pathSegments[0], out Transform currentTransform) || currentTransform == null)
-        {
+        if (!partsDict.TryGetValue(pathSegments[0], out Transform currentTransform) || currentTransform == null) {
             logger.Log($"Root child not found: {pathSegments[0]} under {gameObject.name}", this, Logging.LogType.Warning);
             return;
         }
 
         SpriteRenderer spriteRenderer = currentTransform.GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
-        {
+        if (spriteRenderer == null) {
             logger.Log($"SpriteRenderer not found at path: {string.Join("/", pathSegments)}", this, Logging.LogType.Warning);
         }
         spriteRenderer.sprite = newSprite;
@@ -153,46 +129,26 @@ public class SpriteLoader : MonoBehaviour
 
     /* --- PART CHANGE HANDLERS --- */
 
-    private void ChangeHelmet(Texture2D texture)
-    {
+    private void ChangeHelmet(Texture2D texture) {
         var confs = director.BuildArmorHelmetSpriteConfig();
         ChangeTexture(texture, confs);
+        logger.Log("[SpriteLoader] Changed Armor Helmet sprites", this);
     }
 
-    private void ChangeBody(Texture2D texture)
-    {
+    private void ChangeBody(Texture2D texture) {
         var confs = director.BuildArmorBodySpriteConfig();
         ChangeTexture(texture, confs);
+        logger.Log("[SpriteLoader] Changed Armor Body sprites", this);
     }
 
-    private void ChangeArms(Texture2D texture)
-    {
-        var confs = director.BuildArmorArmsSpriteConfig();
-        ChangeTexture(texture, confs);
-    }
-
-    private void ChangeSleeves(Texture2D texture)
-    {
-        var confs = director.BuildArmorSleevesSpriteConfig();
-        ChangeTexture(texture, confs);
-    }
-
-    private void ChangeLegs(Texture2D texture)
-    {
+    private void ChangeLegs(Texture2D texture) {
         var confs = director.BuildArmorLegsSpriteConfig();
         ChangeTexture(texture, confs);
+        logger.Log("[SpriteLoader] Changed Armor Legs sprites", this);
     }
 
-    private void ChangeHands(Texture2D texture)
-    {
-        var confs = director.BuildArmorHandsSpriteConfig();
-        ChangeTexture(texture, confs);
-    }
-
-    private void ChangeTexture(Texture2D texture, List<SpriteConfig> confs)
-    {
-        foreach (var config in confs)
-        {
+    private void ChangeTexture(Texture2D texture, List<SpriteConfig> confs) {
+        foreach (var config in confs) {
             var newSprite = Sprite.Create(
                 texture,
                 config.Rect,
@@ -205,12 +161,10 @@ public class SpriteLoader : MonoBehaviour
 
     /* --- INITIALIZATION UTILS --- */
 
-    private async Task InitCharacterSpritesAsync()
-    {
+    private async Task InitCharacterSpritesAsync() {
         // Fetch categories
         var categoriesResponse = await assetsService.GetCategoriesAsync();
-        if (categoriesResponse == null)
-        {
+        if (categoriesResponse == null) {
             logger.Log("Failed to fetch categories", this, Logging.LogType.Error);
             return;
         }
@@ -218,35 +172,29 @@ public class SpriteLoader : MonoBehaviour
         // Fetch character info
         logger.Log($"[SpriteLoader] Fetching character info for UserId: '{UserId}'", this);
         var characterInfo = await playerService.GetCharacterInfoAsync(UserId);
-        if (characterInfo == null)
-        {
+        if (characterInfo == null) {
             logger.Log("Failed to fetch character info", this, Logging.LogType.Warning);
             return;
         }
 
         // All data fetched, apply sprites
-        if (categoriesResponse.category_list == null)
-        {
+        if (categoriesResponse.category_list == null) {
             logger.Log("No categories found in response.", this, Logging.LogType.Error);
             return;
         }
 
         Dictionary<string, string> existingCategories = new Dictionary<string, string>();
-        foreach (var category in categoriesResponse.category_list)
-        {
+        foreach (var category in categoriesResponse.category_list) {
             existingCategories[category.category_id] = category.category_name;
         }
 
-        if (characterInfo.category_sprites == null)
-        {
+        if (characterInfo.category_sprites == null) {
             logger.Log("No character sprites found in response.", this, Logging.LogType.Warning);
             return;
         }
 
-        foreach (var entry in characterInfo.category_sprites)
-        {
-            if (!cachedCategoryTextures.TryGetValue(entry.Value, out Texture2D texture))
-            {
+        foreach (var entry in characterInfo.category_sprites) {
+            if (!cachedCategoryTextures.TryGetValue(entry.Value, out Texture2D texture)) {
                 texture = await assetsService.DownloadTexture2D(entry.Value);
                 if (texture == null) continue;
                 cachedCategoryTextures[entry.Value] = texture;
@@ -254,31 +202,17 @@ public class SpriteLoader : MonoBehaviour
 
             string categoryName = existingCategories.TryGetValue(entry.Key, out var name) ? name : "";
             CharacterPartCategory category = spriteManager.GetPartCategoryFromCategoryName(categoryName);
-            if (category != CharacterPartCategory.None)
-            {
-                switch (category)
-                {
+            if (category != CharacterPartCategory.None) {
+                switch (category) {
                     case CharacterPartCategory.ArmorHelmet:
                         ChangeHelmet(texture);
                         break;
                     case CharacterPartCategory.ArmorBody:
                         ChangeBody(texture);
                         break;
-                    case CharacterPartCategory.ArmorArmL:
-                    case CharacterPartCategory.ArmorArmR:
-                        ChangeArms(texture);
-                        break;
-                    case CharacterPartCategory.ArmorSleeveL:
-                    case CharacterPartCategory.ArmorSleeveR:
-                        ChangeSleeves(texture);
-                        break;
                     case CharacterPartCategory.ArmorLegL:
                     case CharacterPartCategory.ArmorLegR:
                         ChangeLegs(texture);
-                        break;
-                    case CharacterPartCategory.ArmorHandL:
-                    case CharacterPartCategory.ArmorHandR:
-                        ChangeHands(texture);
                         break;
                     default:
                         logger.Log($"No handler for category: {category} under {gameObject.name}", this, Logging.LogType.Warning);
