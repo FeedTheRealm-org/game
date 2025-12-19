@@ -138,6 +138,7 @@ public class CharacterEditController : MonoBehaviour {
         registerCallbacks(true);
         await fetchCharacterInfo();
         await fetchCategories();
+        await ApplyCurrentCharacterSprites();
     }
 
     private void OnDisable() {
@@ -315,6 +316,35 @@ public class CharacterEditController : MonoBehaviour {
             characterInfoRequest.category_sprites = characterInfo.category_sprites;
         } else {
             logger.Log("Failed to retrieve character info", this, Logging.LogType.Warning);
+        }
+    }
+
+    /// <summary>
+    /// Applies the current character's equipped sprites to the preview.
+    /// </summary>
+    private async Task ApplyCurrentCharacterSprites() {
+        if (_categories == null || characterInfoRequest.category_sprites == null) return;
+
+        foreach (var kvp in characterInfoRequest.category_sprites) {
+            var category = _categories.FirstOrDefault(c => c.category_id == kvp.Key);
+            if (category == null) continue;
+
+            string spriteId = kvp.Value;
+            if (string.IsNullOrEmpty(spriteId)) continue;
+
+            var part = spriteManager.GetPartCategoryFromCategoryName(category.category_name);
+            if (part == CharacterPartCategory.None) continue;
+
+            Texture2D texture = null;
+            if (!textureCache.TryGetValue(spriteId, out texture)) {
+                texture = await assetsService.DownloadTexture2D(spriteId);
+                if (texture != null) {
+                    textureCache[spriteId] = texture;
+                }
+            }
+            if (texture != null) {
+                spriteManager.ChangeSprite(part, texture);
+            }
         }
     }
 
