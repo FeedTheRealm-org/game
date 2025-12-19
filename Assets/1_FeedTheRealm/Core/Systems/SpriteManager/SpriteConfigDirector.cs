@@ -106,8 +106,12 @@ public class SpriteConfigDirector {
         var leftEyebrows = _builder.Reset(138, 128, 0.5f, 0.5f)
             .AddTile(CharacterPartCategory.EyeBrows, FacingDirection.Left, 176, tileY)
             .Build();
+        var rightEyebrows = _builder.Reset(138, 128, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.EyeBrows, FacingDirection.Right, 176, tileY)
+            .Build();
 
         frontEyebrows.AddRange(leftEyebrows);
+        frontEyebrows.AddRange(rightEyebrows);
 
         return frontEyebrows;
     }
@@ -120,8 +124,12 @@ public class SpriteConfigDirector {
         var leftEyes = _builder.Reset(138, 128, 0.5f, 0.5f)
             .AddTile(CharacterPartCategory.Eyes, FacingDirection.Left, 176, tileY)
             .Build();
+        var rightEyes = _builder.Reset(138, 128, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.Eyes, FacingDirection.Right, 176, tileY)
+            .Build();
 
         frontEyes.AddRange(leftEyes);
+        frontEyes.AddRange(rightEyes);
 
         return frontEyes;
     }
@@ -134,8 +142,12 @@ public class SpriteConfigDirector {
         var leftMouth = _builder.Reset(64, 64, 0.5f, 0.5f)
             .AddTile(CharacterPartCategory.Mouth, FacingDirection.Left, 96, tileY)
             .Build();
+        var rightMouth = _builder.Reset(64, 64, 0.5f, 0.5f)
+            .AddTile(CharacterPartCategory.Mouth, FacingDirection.Right, 96, tileY)
+            .Build();
 
         frontMouth.AddRange(leftMouth);
+        frontMouth.AddRange(rightMouth);
 
         return frontMouth;
     }
