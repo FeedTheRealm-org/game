@@ -110,6 +110,13 @@ Packages/packages-lock.json
 ProjectSettings/EditorBuildSettings.asset
 
 # Assets
+Mirror.meta
+Resources.meta
+ScriptTemplates.meta
+Assets/Mirror/
+Assets/ScriptTemplates/
+
+
 Assets/SyntyStudios/
 Assets/TextMesh Pro/
 Assets/Cartoon_Texture_Pack/

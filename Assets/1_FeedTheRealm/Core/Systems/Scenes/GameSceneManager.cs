@@ -85,16 +85,4 @@ public class GameSceneManager : MonoBehaviour {
         Cursor.visible = false;
         logger.Log("Cursor initialized - Locked for gameplay", this);
     }
-
-    /// <summary>
-    /// TODO: remove deprecated
-    /// </summary>
-    public void DisconnectAndReturnToMenu() {
-        // Liberar el cursor antes de volver al menú
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        logger.Log("Cursor unlocked - Returning to menu", this);
-
-        NetworkSceneManager.Instance.DisconnectAndReturnToMenu();
-    }
 }

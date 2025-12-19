@@ -1,12 +1,12 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 using UnityEngine.InputSystem;
 
 /// <summary>
 /// Handles networked player input, connecting to MovementComponent and DashComponent.
 /// This replaces the need for MP-specific versions by keeping components modular.
 /// </summary>
-public class NetworkPlayerController : NetworkBehaviour {
+public class NetworkPlayerController : Mirror.NetworkBehaviour {
     [Header("Input")]
     private PlayerControls playerControls;
     private MovementComponent movementComponent;
@@ -16,8 +16,8 @@ public class NetworkPlayerController : NetworkBehaviour {
     [SerializeField] private Logging.Logger logger;
     [SerializeField] private PlayerInputReader playerInputReader;
 
-    public override void OnNetworkSpawn() {
-        logger.Log($"NetworkPlayerController.OnNetworkSpawn - IsOwner: {IsOwner}, ClientId: {OwnerClientId}", this);
+    public override void OnStartAuthority() {
+        logger.Log($"NetworkPlayerController.OnStartAuthority - netId: {netId}", this);
 
         // Initialize the inventory first (for both local and remote)
         var inventoryReference = GetComponent<PlayerInventoryReference>();
@@ -26,8 +26,8 @@ public class NetworkPlayerController : NetworkBehaviour {
         }
 
         // Only initialize input for the local player
-        if (IsOwner) {
-            logger.Log($"NetworkPlayerController initialized for LOCAL player {OwnerClientId}", this);
+        if (isLocalPlayer) {
+            logger.Log($"NetworkPlayerController initialized for LOCAL player {netId}", this);
 
             // Check if playerInputReader is assigned before creating PlayerControls
             if (playerInputReader != null) {
@@ -41,23 +41,23 @@ public class NetworkPlayerController : NetworkBehaviour {
     }
 
     private void InitializeInputWithReader() {
-        if (!IsOwner) return;
+        if (!isLocalPlayer) return;
 
         // Search for components
         movementComponent = GetComponentInChildren<MovementComponent>();
         if (movementComponent == null) {
-            logger.Log($"MovementComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"MovementComponent not found for player {netId}", this, Logging.LogType.Error);
             return;
         }
 
         dashComponent = GetComponentInChildren<DashComponent>();
         if (dashComponent == null) {
-            logger.Log($"DashComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"DashComponent not found for player {netId}", this, Logging.LogType.Error);
         }
 
         attackComponent = GetComponentInChildren<AttackComponent>();
         if (attackComponent == null) {
-            logger.Log($"AttackComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"AttackComponent not found for player {netId}", this, Logging.LogType.Error);
         }
 
         // Subscribe to PlayerInputReader events instead of creating new PlayerControls
@@ -65,27 +65,27 @@ public class NetworkPlayerController : NetworkBehaviour {
         playerInputReader.DashEvent += OnDashInput;
         playerInputReader.AttackEvent += OnAttackInput;
 
-        logger.Log($"Input configured using PlayerInputReader for player {OwnerClientId}", this);
+        logger.Log($"Input configured using PlayerInputReader for player {netId}", this);
     }
 
     private void InitializeInput() {
-        if (!IsOwner) return;
+        if (!isLocalPlayer) return;
 
         // Search for components in children as well
         movementComponent = GetComponentInChildren<MovementComponent>();
         if (movementComponent == null) {
-            logger.Log($"MovementComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"MovementComponent not found for player {netId}", this, Logging.LogType.Error);
             return;
         }
 
         dashComponent = GetComponentInChildren<DashComponent>();
         if (dashComponent == null) {
-            logger.Log($"DashComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"DashComponent not found for player {netId}", this, Logging.LogType.Error);
         }
 
         attackComponent = GetComponentInChildren<AttackComponent>();
         if (attackComponent == null) {
-            logger.Log($"AttackComponent not found for player {OwnerClientId}", this, Logging.LogType.Error);
+            logger.Log($"AttackComponent not found for player {netId}", this, Logging.LogType.Error);
         }
 
         // Create player-specific controls
@@ -98,7 +98,7 @@ public class NetworkPlayerController : NetworkBehaviour {
         playerControls.Player.Dash.performed += OnDashPerformed;
         playerControls.Player.Attack.performed += OnAttackPerformed;
 
-        logger.Log($"Input configured for player {OwnerClientId}", this);
+        logger.Log($"Input configured for player {netId}", this);
     }
 
     // Methods for PlayerInputReader events (when using shared input)
@@ -147,14 +147,13 @@ public class NetworkPlayerController : NetworkBehaviour {
         attackComponent?.OnAttack();
     }
 
-    public override void OnNetworkDespawn() {
+    public override void OnStopAuthority() {
         CleanupInput();
     }
 
-    public override void OnDestroy() {
-        // Cleanup in case OnNetworkDespawn wasn't called
+    private void OnDestroy() {
+        // Cleanup in case OnStopAuthority wasn't called
         CleanupInput();
-        base.OnDestroy();
     }
 
     private void CleanupInput() {
@@ -178,23 +177,22 @@ public class NetworkPlayerController : NetworkBehaviour {
     }
 
     /// <summary>
-    /// ServerRpc called by the client to request that the server despawn a collected loot
+    /// Command called by the client to request that the server despawn a collected loot
     /// </summary>
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestDespawnLootServerRpc(ulong lootNetworkObjectId, ServerRpcParams rpcParams = default) {
-        ulong senderId = rpcParams.Receive.SenderClientId;
-        logger?.Log($"[NetworkPlayerController] Client {senderId} requests despawn of loot NetworkObjectId={lootNetworkObjectId}", this);
+    [Command]
+    public void CmdRequestDespawnLoot(uint lootNetworkId) {
+        logger?.Log($"[NetworkPlayerController] Client requests despawn of loot netId={lootNetworkId}", this);
 
-        // Search for the NetworkObject by ID
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(lootNetworkObjectId, out NetworkObject lootNetworkObject)) {
-            if (lootNetworkObject != null && lootNetworkObject.IsSpawned) {
-                logger?.Log($"[NetworkPlayerController] Despawning loot NetworkObjectId={lootNetworkObjectId}", this);
-                lootNetworkObject.Despawn(true);
+        // Search for the NetworkIdentity by ID in Mirror's spawned dictionary
+        if (NetworkServer.spawned.TryGetValue(lootNetworkId, out NetworkIdentity lootIdentity)) {
+            if (lootIdentity != null) {
+                logger?.Log($"[NetworkPlayerController] Despawning loot netId={lootNetworkId}", this);
+                NetworkServer.Destroy(lootIdentity.gameObject);
             } else {
-                logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} is no longer spawned", this);
+                logger?.Log($"[NetworkPlayerController] NetworkIdentity {lootNetworkId} is null", this);
             }
         } else {
-            logger?.Log($"[NetworkPlayerController] NetworkObject {lootNetworkObjectId} not found in SpawnManager", this);
+            logger?.Log($"[NetworkPlayerController] NetworkIdentity {lootNetworkId} not found in spawned", this);
         }
     }
 }

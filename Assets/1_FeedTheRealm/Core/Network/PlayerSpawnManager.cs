@@ -1,8 +1,8 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 using System.Collections.Generic;
 
-public class PlayerSpawnManager : NetworkBehaviour {
+public class PlayerSpawnManager : Mirror.NetworkBehaviour {
     [Header("Spawn Settings")]
     public Transform[] spawnPoints;
 
@@ -52,63 +52,60 @@ public class PlayerSpawnManager : NetworkBehaviour {
         }
     }
 
-    public override void OnNetworkSpawn() {
-        if (IsServer) {
-            if (spawnPoints == null || spawnPoints.Length == 0) {
-                logger.Log("[PlayerSpawnManager] No spawn points configured!", this, Logging.LogType.Error);
-            } else {
-                logger.Log($"[PlayerSpawnManager] Spawn Manager activated. Max players: {maxPlayers}, Spawn points: {spawnPoints.Length}", this);
+    public override void OnStartServer() {
+        if (spawnPoints == null || spawnPoints.Length == 0) {
+            logger.Log("[PlayerSpawnManager] No spawn points configured!", this, Logging.LogType.Error);
+        } else {
+            logger.Log($"[PlayerSpawnManager] Spawn Manager activated. Max players: {maxPlayers}, Spawn points: {spawnPoints.Length}", this);
 
-                for (int i = 0; i < spawnPoints.Length; i++) {
-                    logger.Log($"[PlayerSpawnManager] Spawn Point {i}: Position = {spawnPoints[i].position}, Rotation = {spawnPoints[i].rotation.eulerAngles}", this);
-                }
+            for (int i = 0; i < spawnPoints.Length; i++) {
+                logger.Log($"[PlayerSpawnManager] Spawn Point {i}: Position = {spawnPoints[i].position}, Rotation = {spawnPoints[i].rotation.eulerAngles}", this);
             }
-
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedSpawn;
-
-            NetworkManager.Singleton.ConnectionApprovalCallback += ConnectionApprovalCallback;
-
-            repositionCoroutine = StartCoroutine(DelayedRepositionPlayers());
         }
+
+        NetworkServer.OnConnectedEvent += OnClientConnectedSpawn;
+
+        repositionCoroutine = StartCoroutine(DelayedRepositionPlayers());
     }
 
     private System.Collections.IEnumerator DelayedRepositionPlayers() {
-        yield return new WaitForSeconds(0.2f);
+        // Minimal delay to ensure NetworkIdentity is initialized
+        yield return new WaitForFixedUpdate();
 
         RepositionExistingPlayers();
         repositionCoroutine = null;
     }
 
     private void RepositionExistingPlayers() {
-        logger.Log($"[PlayerSpawnManager] Repositioning existing players in scene... Connected clients: {NetworkManager.Singleton.ConnectedClients.Count}", this);
+        logger.Log($"[PlayerSpawnManager] Repositioning existing players in scene... Connected clients: {NetworkServer.connections.Count}", this);
 
         int playerIndex = 0;
-        foreach (var client in NetworkManager.Singleton.ConnectedClients) {
-            if (client.Value.PlayerObject != null) {
-                logger.Log($"[PlayerSpawnManager] Found player {client.Key} with PlayerObject", this);
-                Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(client.Value.PlayerObject, playerIndex));
+        foreach (var conn in NetworkServer.connections.Values) {
+            if (conn.identity != null) {
+                logger.Log($"[PlayerSpawnManager] Found player {conn.connectionId} with identity", this);
+                Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(conn.identity, playerIndex));
                 activeCoroutines.Add(coroutine);
                 playerIndex++;
             } else {
-                logger.Log($"[PlayerSpawnManager] Client {client.Key} has no PlayerObject yet", this, Logging.LogType.Warning);
+                logger.Log($"[PlayerSpawnManager] Connection {conn.connectionId} has no identity yet", this, Logging.LogType.Warning);
             }
         }
 
         logger.Log($"[PlayerSpawnManager] Initiated repositioning for {playerIndex} player(s)", this);
     }
 
-    private System.Collections.IEnumerator RepositionPlayerWithDelay(NetworkObject playerObject, int index) {
-        logger.Log($"[PlayerSpawnManager] Starting delayed reposition for player {playerObject.OwnerClientId}, waiting for NetworkObject to be ready...", this);
+    private System.Collections.IEnumerator RepositionPlayerWithDelay(NetworkIdentity playerIdentity, int index) {
+        logger.Log($"[PlayerSpawnManager] Starting delayed reposition for player {playerIdentity.netId}, waiting for NetworkIdentity to be ready...", this);
 
         yield return new WaitForFixedUpdate();
 
-        RepositionPlayer(playerObject, index);
+        RepositionPlayer(playerIdentity, index);
 
         // Remove from active coroutines list when complete
-        // Note: Can't reference 'this' coroutine directly, cleanup happens in OnNetworkDespawn/OnDestroy
+        // Note: Can't reference 'this' coroutine directly, cleanup happens in OnStopServer/OnDestroy
     }
 
-    private void RepositionPlayer(NetworkObject playerObject, int index) {
+    private void RepositionPlayer(NetworkIdentity playerIdentity, int index) {
         if (spawnPoints == null || spawnPoints.Length == 0) {
             logger.Log("[PlayerSpawnManager] No spawn points to reposition", this, Logging.LogType.Warning);
             return;
@@ -118,66 +115,50 @@ public class PlayerSpawnManager : NetworkBehaviour {
         Vector3 newPosition = GetSpawnPositionByIndex(index);
         Quaternion newRotation = GetSpawnRotationByIndex(index);
 
-        logger.Log($"[PlayerSpawnManager] Repositioning player {playerObject.OwnerClientId} to spawn {spawnIndex} at {newPosition}, current position: {playerObject.transform.position}", this);
+        logger.Log($"[PlayerSpawnManager] Repositioning player {playerIdentity.netId} to spawn {spawnIndex} at {newPosition}, current position: {playerIdentity.transform.position}", this);
 
-        var synchronizer = playerObject.GetComponent<NetworkMovementSynchronizer>();
-        if (synchronizer != null) {
-            synchronizer.Teleport(newPosition);
-            logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} teleported to spawn {spawnIndex} at {newPosition} via NetworkMovementSynchronizer", this);
+        // Use NetworkMovementSynchronizer if available for better synchronization
+        NetworkMovementSynchronizer movementSync = playerIdentity.GetComponent<NetworkMovementSynchronizer>();
+        if (movementSync != null) {
+            // Set rotation directly (Teleport only handles position)
+            playerIdentity.transform.rotation = newRotation;
+            // Use Teleport for position to ensure proper network sync
+            movementSync.Teleport(newPosition);
+            logger.Log($"[PlayerSpawnManager] Player {playerIdentity.netId} repositioned using NetworkMovementSynchronizer.Teleport()", this);
         } else {
-            playerObject.transform.SetPositionAndRotation(newPosition, newRotation);
-            logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} repositioned to spawn {spawnIndex} at {newPosition} (no NetworkMovementSynchronizer found, using transform)", this);
+            // Fallback: Use transform directly (server has authority)
+            playerIdentity.transform.SetPositionAndRotation(newPosition, newRotation);
+            logger.Log($"[PlayerSpawnManager] Player {playerIdentity.netId} repositioned using transform (no NetworkMovementSynchronizer)", this);
         }
 
-        logger.Log($"[PlayerSpawnManager] Player {playerObject.OwnerClientId} position after reposition: {playerObject.transform.position}", this);
+        logger.Log($"[PlayerSpawnManager] Player {playerIdentity.netId} position after reposition: {playerIdentity.transform.position}", this);
     }
 
-    private void ConnectionApprovalCallback(
-        NetworkManager.ConnectionApprovalRequest request,
-        NetworkManager.ConnectionApprovalResponse response) {
-        if (NetworkManager.Singleton.ConnectedClients.Count < maxPlayers) {
-            response.Approved = true;
-            response.CreatePlayerObject = true;
-
-            int nextClientIndex = NetworkManager.Singleton.ConnectedClients.Count;
-
-            Vector3 spawnPos = GetSpawnPositionByIndex(nextClientIndex);
-            Quaternion spawnRot = GetSpawnRotationByIndex(nextClientIndex);
-
-            response.Position = spawnPos;
-            response.Rotation = spawnRot;
-
-            logger.Log($"[PlayerSpawnManager] Client approved. Index: {nextClientIndex}, Spawn index: {nextClientIndex % (spawnPoints?.Length ?? 1)}, Assigned position: {spawnPos}, Rotation: {spawnRot.eulerAngles}", this);
-        } else {
-            response.Approved = false;
-            response.Reason = "Server full";
-            logger.Log($"[PlayerSpawnManager] Connection rejected: server full ({NetworkManager.Singleton.ConnectedClients.Count}/{maxPlayers})", this, Logging.LogType.Warning);
-        }
-    }
-
-    private void OnClientConnectedSpawn(ulong clientId) {
+    private void OnClientConnectedSpawn(NetworkConnectionToClient conn) {
         if (spawnPoints == null || spawnPoints.Length == 0) {
-            logger.Log($"[PlayerSpawnManager] No spawn points configured for client {clientId}", this, Logging.LogType.Warning);
+            logger.Log($"[PlayerSpawnManager] No spawn points configured for connection {conn.connectionId}", this, Logging.LogType.Warning);
             return;
         }
 
-        if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client)) {
-            logger.Log($"[PlayerSpawnManager] Could not find client {clientId}", this, Logging.LogType.Warning);
-            return;
+        // Wait a bit for Mirror to spawn the player automatically
+        StartCoroutine(RepositionAfterSpawn(conn));
+    }
+
+    private System.Collections.IEnumerator RepositionAfterSpawn(NetworkConnectionToClient conn) {
+        // Minimal delay to ensure player is spawned
+        yield return new WaitForFixedUpdate();
+
+        if (conn.identity != null) {
+            GameObject player = conn.identity.gameObject;
+            logger.Log($"[PlayerSpawnManager] Connection {conn.connectionId} spawned. Player current position: {player.transform.position}, Rotation: {player.transform.rotation.eulerAngles}", this);
+
+            int playerIndex = conn.connectionId;
+            logger.Log($"[PlayerSpawnManager] New connection {conn.connectionId} connected, repositioning to spawn point...", this);
+            Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(conn.identity, playerIndex));
+            activeCoroutines.Add(coroutine);
+        } else {
+            logger.Log($"[PlayerSpawnManager] Connection {conn.connectionId} has no identity after spawn", this, Logging.LogType.Warning);
         }
-
-        if (client.PlayerObject == null) {
-            logger.Log($"[PlayerSpawnManager] PlayerObject not ready for client {clientId}", this, Logging.LogType.Warning);
-            return;
-        }
-
-        GameObject player = client.PlayerObject.gameObject;
-        logger.Log($"[PlayerSpawnManager] Client {clientId} connected. Player current position: {player.transform.position}, Rotation: {player.transform.rotation.eulerAngles}", this);
-
-        int playerIndex = (int)clientId;
-        logger.Log($"[PlayerSpawnManager] New client {clientId} connected, repositioning to spawn point...", this);
-        Coroutine coroutine = StartCoroutine(RepositionPlayerWithDelay(client.PlayerObject, playerIndex));
-        activeCoroutines.Add(coroutine);
     }
 
     private Vector3 GetSpawnPositionByIndex(int index) {
@@ -206,20 +187,16 @@ public class PlayerSpawnManager : NetworkBehaviour {
         return Quaternion.identity;
     }
 
-    public override void OnNetworkDespawn() {
-        if (IsServer && NetworkManager.Singleton != null) {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedSpawn;
-            NetworkManager.Singleton.ConnectionApprovalCallback -= ConnectionApprovalCallback;
-        }
+    public override void OnStopServer() {
+        NetworkServer.OnConnectedEvent -= OnClientConnectedSpawn;
 
         // Stop all active coroutines
         StopAllActiveCoroutines();
     }
 
-    public override void OnDestroy() {
-        // Cleanup coroutines in case OnNetworkDespawn wasn't called
+    private void OnDestroy() {
+        // Cleanup coroutines in case OnStopServer wasn't called
         StopAllActiveCoroutines();
-        base.OnDestroy();
     }
 
     private void StopAllActiveCoroutines() {
