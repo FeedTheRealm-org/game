@@ -277,7 +277,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113877, y: 0.0028113832, z: -0.00095334515, w: 0.9470275}
+  m_LocalRotation: {x: 0.32113948, y: 0.0019153462, z: -0.00064949726, w: 0.94702977}
   m_LocalPosition: {x: 10.65277, y: 7.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -525,6 +525,7 @@ MonoBehaviour:
   worldController: {fileID: 756758430}
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
   loadingScreenUI: {fileID: 513648749}
+  enemySpawnPrefab: {fileID: 1720094287}
 --- !u!4 &513648748
 Transform:
   m_ObjectHideFlags: 0
@@ -845,7 +846,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693203289}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3211387, y: 0.0028113832, z: -0.000953345, w: 0.94702756}
+  m_LocalRotation: {x: 0.32113945, y: 0.0019153461, z: -0.0006494972, w: 0.94702977}
   m_LocalPosition: {x: 10.65277, y: 7.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1109,6 +1110,11 @@ GameObject:
 Transform:
   m_CorrespondingSourceObject: {fileID: 5951985247975804607, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
   m_PrefabInstance: {fileID: 53230203124416423}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1720094287 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
+  m_PrefabInstance: {fileID: 392091285275498974}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1840263989
 GameObject:
