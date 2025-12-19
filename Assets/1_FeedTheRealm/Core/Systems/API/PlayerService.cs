@@ -72,7 +72,7 @@ namespace API {
 
             if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
                 var res = string.IsNullOrEmpty(responseText) ? null : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
-                logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
+                logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Warning);
                 handler?.Invoke(null, res.detail);
             } else {
                 var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(responseText);

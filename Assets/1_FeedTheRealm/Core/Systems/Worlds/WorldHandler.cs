@@ -5,12 +5,15 @@ namespace Worlds {
   [System.Serializable]
   public class Category {
     public string name;
-    public List<string> worlds = new List<string>();
+    public string id;
+    public List<Models.WorldData> worlds = new();
   }
 
-  [CreateAssetMenu(fileName = "Worlds", menuName = "Scriptable Objects/Worlds")]
-  public class Worlds : ScriptableObject {
+  [CreateAssetMenu(fileName = "WorldHandler", menuName = "Scriptable Objects/World/WorldHandler")]
+  public class WorldHandler : ScriptableObject {
     public const string NULL_CATEGORY_NAME = "Uncategorized";
+
+    public Models.WorldData selectedWorld = null;
 
     [Header("World Categories")]
     [SerializeField]
@@ -35,9 +38,10 @@ namespace Worlds {
       return true;
     }
 
-    public bool addWorldToCategory(string categoryName, string worldName) {
-      if (string.IsNullOrWhiteSpace(categoryName) || string.IsNullOrWhiteSpace(worldName)) {
-        logger.Log($"Invalid category or world name: {categoryName}, {worldName}", this, Logging.LogType.Error);
+    public bool addWorldToCategory(string categoryName, Models.WorldData worldData) {
+
+      if (string.IsNullOrWhiteSpace(categoryName) || worldData == null || string.IsNullOrWhiteSpace(worldData.worldName)) {
+        logger.Log($"Invalid category or world name: {categoryName}, {worldData?.worldName}", this, Logging.LogType.Error);
         return false;
       }
       var category = categories.Find(c => c.name == categoryName);
@@ -45,12 +49,12 @@ namespace Worlds {
         createACategory(categoryName);
         category = categories.Find(c => c.name == categoryName);
       }
-      if (category.worlds.Contains(worldName)) {
-        logger.Log($"World already exists in category: {worldName} in {categoryName}", this, Logging.LogType.Warning);
+      if (category.worlds.Contains(worldData)) {
+        logger.Log($"World already exists in category: {worldData.worldName} in {categoryName}", this, Logging.LogType.Warning);
         return false;
       }
-      category.worlds.Add(worldName);
-      logger.Log($"World added successfully: {worldName} to {categoryName}", this);
+      category.worlds.Add(worldData);
+      logger.Log($"World added successfully: {worldData.worldName} to {categoryName}", this);
       return true;
     }
 
@@ -62,5 +66,14 @@ namespace Worlds {
       categories.Clear();
       logger.Log("Cleared all categories and worlds.", this);
     }
+
+    public Models.WorldData GetSelectedWorld() {
+      return selectedWorld;
+    }
+
+    public void SetSelectedWorld(Models.WorldData worldData) {
+      selectedWorld = worldData;
+    }
+
   }
 }
