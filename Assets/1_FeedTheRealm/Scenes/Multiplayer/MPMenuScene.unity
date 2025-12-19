@@ -128,9 +128,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 37063744}
-  - component: {fileID: 37063748}
   - component: {fileID: 37063747}
   - component: {fileID: 37063746}
+  - component: {fileID: 37063748}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -211,9 +211,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 37063742}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
+  m_Script: {fileID: 11500000, guid: 1964f70562b888d71afc7a839824d9e8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Mirror::Mirror.NetworkManager
+  m_EditorClassIdentifier: Assembly-CSharp::CustomNetworkManager
   dontDestroyOnLoad: 1
   runInBackground: 1
   headlessStartMode: 0
@@ -230,10 +230,10 @@ MonoBehaviour:
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 1418397613159891299, guid: f939fbe4ddb3e50d2b44eab9416f0c82, type: 3}
   autoCreatePlayer: 1
-  playerSpawnMethod: 0
+  playerSpawnMethod: 1
   spawnPrefabs:
-  - {fileID: 1418397613159891299, guid: d06c67e1d488582ad85aa88a30d69ff7, type: 3}
   - {fileID: 3221426771183678723, guid: 2252faf00cafd6d438bf4e2e0fed7ed4, type: 3}
+  - {fileID: 1418397613159891299, guid: d06c67e1d488582ad85aa88a30d69ff7, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -249,6 +249,8 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
+  spawnManager: {fileID: 0}
+  logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
 --- !u!1 &115973601
 GameObject:
   m_ObjectHideFlags: 0

@@ -122,9 +122,34 @@ public class EnemySpawn : MonoBehaviour {
     private IEnumerator spawnReset() {
         logger.Log($"[EnemySpawn] Spawner resetting... (waiting {resetDelay}s)", this);
         yield return new WaitForSeconds(resetDelay);
-        spawnerResetting = false;
         totalKills = 0;
-        logger.Log("[EnemySpawn] Spawner reset complete. Ready to spawn again!", this);
+
+        // After the cooldown ends, we only resume spawns if there are still
+        // players inside the area (or if they entered again during the cooldown).
+        if (playersInside <= 0) {
+            // We ensure the spawner is completely turned off.
+            spawnerActive = false;
+            if (spawnRoutine != null) {
+                StopCoroutine(spawnRoutine);
+                spawnRoutine = null;
+            }
+
+            spawnerResetting = false;
+            logger.Log("[EnemySpawn] Spawner reset complete, no players inside. Staying idle until someone enters again.", this);
+        } else {
+            // There is at least one player inside; the spawner can remain active.
+            spawnerResetting = false;
+
+            // If for some reason the routine stopped, we resume it.
+            if (!spawnerActive) {
+                spawnerActive = true;
+            }
+            if (spawnRoutine == null) {
+                spawnRoutine = StartCoroutine(spawnEnemies());
+            }
+
+            logger.Log("[EnemySpawn] Spawner reset complete. Players inside, resuming spawn.", this);
+        }
     }
 
     /// <summary>

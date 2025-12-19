@@ -53,14 +53,15 @@ public class NetworkDebugger : MonoBehaviour
         }
     }
 
-    private void Update()
+    // FOR DEBUG (USES A LOT OF CPU IF ENABLED)
+    /*private void Update()
     {
         if (enablePeriodicLogs && Time.time >= nextLogTime)
         {
             nextLogTime = Time.time + logIntervalSeconds;
             LogPeriodicStatus();
         }
-    }
+    }*/
 
     private void LogStartupInfo()
     {

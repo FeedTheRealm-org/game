@@ -1,18 +1,17 @@
 using UnityEngine;
 using Mirror;
 using System.Collections.Generic;
-using System.Linq;
 
 /// <summary>
 /// Represents a loot item (bag) that appears in the world when an enemy dies.
 /// When approaching, it automatically transfers the items to the player's inventory.
-/// Compatible with single-player and multiplayer (Mirror).
+/// Server-authoritative implementation to prevent cheating and duplication bugs.
 ///
 /// Mirror implementation:
-/// - Uses SyncList<string> to synchronize item IDs between server and clients
-/// - Server has authority over loot spawning and despawning
-/// - Clients handle inventory UI updates and visual feedback
-/// - [Command] for client requests to server
+/// - Server has full authority over item transfer and validation
+/// - Client requests pickup via [Command]
+/// - Server validates, transfers items, and notifies client via [TargetRpc]
+/// - SyncList tracks available items
 /// </summary>
 public class LootItem : NetworkBehaviour {
 
@@ -55,8 +54,10 @@ public class LootItem : NetworkBehaviour {
     private Logging.Logger logger;
 
     private SphereCollider triggerCollider;
-    private bool hasAttemptedPickup = false;
-    private HashSet<Collider> playersInRange = new HashSet<Collider>();
+
+    // Prevent multiple simultaneous pickups
+    private bool isBeingPickedUp = false;
+    private HashSet<uint> playersWhoTriedPickup = new HashSet<uint>(); // Track netIds of players who tried
 
     // Delay to avoid immediate loot after spawn
     private float spawnTime;
@@ -116,15 +117,6 @@ public class LootItem : NetworkBehaviour {
         UpdateVisualsFromManager();
     }
 
-    private string GetFirstItemId()
-    {
-        if (itemIds != null && itemIds.Count > 0)
-        {
-            return itemIds[0];
-        }
-        return "";
-    }
-
     private void UpdateVisualsFromManager()
     {
         if (Items.ItemsManager.Instance == null || !Items.ItemsManager.Instance.IsInitialized)
@@ -136,7 +128,6 @@ public class LootItem : NetworkBehaviour {
         logger?.Log($"[LootItem] Updating visuals for {itemIds.Count} items", this);
 
         // Here you could update the loot bag visual based on the items
-        // For now we just log
         foreach (var itemId in itemIds)
         {
             var metadata = Items.ItemsManager.Instance.GetItemById(itemId);
@@ -190,184 +181,114 @@ public class LootItem : NetworkBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
+        // Only process on server (server authority)
+        if (!isServer) return;
+
         // Check if it's the player
-        if (((1 << other.gameObject.layer) & playerLayer) != 0)
-        {
-            //logger?.Log($"[LootItem] Player detected: {other.name}", this);
+        if (((1 << other.gameObject.layer) & playerLayer) == 0) return;
 
-            playersInRange.Add(other);
+        // Check if lootable
+        if (!isLootable) return;
 
-            // Only try to pick up if the loot is already lootable
-            if (isLootable)
-            {
-                TryPickupItems(other.gameObject);
-            }
-            else
-            {
-                float timeSinceSpawn = Time.time - spawnTime;
-                //logger?.Log($"[LootItem] Loot not lootable yet. Time elapsed: {timeSinceSpawn:F2}s of {lootableDelay}s", this);
-            }
-        }
-    }
+        // Check if already being picked up
+        if (isBeingPickedUp) return;
 
-    private void Update()
-    {
-        // If there are players in range but the loot is not lootable yet, check periodically
-        if (!isLootable && playersInRange.Count > 0)
-        {
-            if (Time.time - spawnTime >= lootableDelay)
-            {
-                isLootable = true;
-                //logger?.Log($"[LootItem] Loot became lootable while there were players in range", this);
+        // Get NetworkIdentity
+        NetworkIdentity playerIdentity = other.GetComponent<NetworkIdentity>();
+        if (playerIdentity == null) return;
 
-                // Try to pick up for all players in range
-                foreach (var playerCollider in playersInRange)
-                {
-                    if (playerCollider != null && playerCollider.gameObject != null)
-                    {
-                        TryPickupItems(playerCollider.gameObject);
-                    }
-                }
-            }
-        }
+        // Check if this player already tried to pick up
+        if (playersWhoTriedPickup.Contains(playerIdentity.netId)) return;
+
+        // Mark as being picked up to prevent other players from picking up simultaneously
+        isBeingPickedUp = true;
+        playersWhoTriedPickup.Add(playerIdentity.netId);
+
+        logger?.Log($"[LootItem] SERVER - Player {playerIdentity.netId} triggered pickup", this);
+
+        // Process pickup on server
+        ServerProcessPickup(playerIdentity);
     }
 
     /// <summary>
-    /// Attempts to transfer the items to the player's inventory
+    /// SERVER: Processes the pickup, validates, transfers items
     /// </summary>
-    private void TryPickupItems(GameObject player)
+    private void ServerProcessPickup(NetworkIdentity playerIdentity)
     {
-        //logger?.Log($"[LootItem] TryPickupItems called - IsLootable: {isLootable}, ItemCount: {itemIds.Count}, TimeSinceSpawn: {Time.time - spawnTime:F2}s", this);
-
-        // Avoid multiple processing if already attempted and failed
-        if (hasAttemptedPickup)
+        if (itemIds.Count == 0)
         {
-            //logger?.Log("[LootItem] TryPickupItems - Already attempted pickup, skipping", this);
+            logger?.Log("[LootItem] SERVER - Bag is empty, despawning", this);
+            NetworkServer.Destroy(gameObject);
             return;
         }
 
-        // SERVER/CLIENT SEPARATION: Different responsibilities
-        bool isMultiplayer = NetworkServer.active || NetworkClient.active;
-        NetworkIdentity playerNetworkIdentity = player.GetComponent<NetworkIdentity>();
+        // Get all items from the bag
+        List<string> itemsToTransfer = new List<string>(itemIds);
 
-        if (isMultiplayer && isServer)
+        logger?.Log($"[LootItem] SERVER - Transferring {itemsToTransfer.Count} items to player {playerIdentity.netId}", this);
+
+        // Clear the bag on server
+        itemIds.Clear();
+
+        // Notify the specific client to add items to their inventory
+        TargetReceiveLoot(playerIdentity.connectionToClient, itemsToTransfer);
+
+        // Despawn the loot bag
+        NetworkServer.Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// TARGET RPC: Tells a specific client to add items to their inventory
+    /// This ensures only the player who picked up gets the items
+    /// </summary>
+    [TargetRpc]
+    private void TargetReceiveLoot(NetworkConnectionToClient conn, List<string> receivedItems)
+    {
+        logger?.Log($"[LootItem] CLIENT - Received {receivedItems.Count} items from server", this);
+
+        // Find the local player's inventory using NetworkClient.localPlayer
+        NetworkIdentity localPlayer = NetworkClient.localPlayer;
+        if (localPlayer == null)
         {
-            // ============================================
-            // SERVER: Handles SyncList and despawn
-            // ============================================
-            Debug.Log($"[LootItem] SERVER - Processing pickup. Items in bag: {itemIds.Count}");
-
-            // Check if there are items to transfer
-            if (itemIds.Count == 0)
-            {
-                Debug.Log($"[LootItem] SERVER - Bag empty, despawning");
-                NetworkServer.Destroy(gameObject);
-                return;
-            }
-
-            // Remove all items from SyncList (server has authority)
-            int itemsRemoved = itemIds.Count;
-            itemIds.Clear();
-
-            Debug.Log($"[LootItem] SERVER - Removed {itemsRemoved} items from SyncList. Despawning...");
-
-            // Despawn the network object
-            NetworkServer.Destroy(gameObject);
-
+            logger?.Log("[LootItem] CLIENT - ERROR: No local player identity", this, Logging.LogType.Error);
+            return;
         }
-        else
+
+        PlayerInventoryReference inventoryRef = localPlayer.GetComponent<PlayerInventoryReference>();
+        if (inventoryRef == null)
         {
-            // ============================================
-            // CLIENT: Handles inventory UI and feedback
-            // ============================================
+            logger?.Log("[LootItem] CLIENT - ERROR: PlayerInventoryReference not found", this, Logging.LogType.Error);
+            return;
+        }
 
-            // Only process if we are the owner of this player (our local client)
-            if (isMultiplayer && playerNetworkIdentity != null && !playerNetworkIdentity.isLocalPlayer)
+        InventoryController inventory = inventoryRef.GetInventory();
+        if (inventory == null)
+        {
+            logger?.Log("[LootItem] CLIENT - ERROR: InventoryController not found", this, Logging.LogType.Error);
+            return;
+        }
+
+        // Add items to inventory
+        int itemsAdded = 0;
+        foreach (string itemId in receivedItems)
+        {
+            if (inventory.IsInventoryFull())
             {
-                return;
+                logger?.Log($"[LootItem] CLIENT - Inventory full! Added {itemsAdded}/{receivedItems.Count} items", this, Logging.LogType.Warning);
+                break;
             }
 
-            Debug.Log($"[LootItem] CLIENT - Processing pickup for local player {player.name}");
+            inventory.AddItemById(itemId);
+            itemsAdded++;
+            logger?.Log($"[LootItem] CLIENT - Added item to inventory: {itemId}", this);
+        }
 
-            // Find the PlayerInventoryReference on the player
-            PlayerInventoryReference inventoryRef = player.GetComponent<PlayerInventoryReference>();
+        logger?.Log($"[LootItem] CLIENT - Successfully added {itemsAdded} items to inventory", this);
 
-            if (inventoryRef == null)
-            {
-                logger?.Log($"[LootItem] PlayerInventoryReference not found on {player.name}", this, Logging.LogType.Warning);
-                hasAttemptedPickup = true;
-                return;
-            }
-
-            // Get the InventoryController from the reference
-            InventoryController inventory = inventoryRef.GetInventory();
-
-            if (inventory == null)
-            {
-                logger?.Log($"[LootItem] PlayerInventoryReference has no InventoryController assigned on {player.name}", this, Logging.LogType.Warning);
-                hasAttemptedPickup = true;
-                return;
-            }
-
-            // Check if there are items to transfer
-            if (itemIds.Count == 0)
-            {
-                logger?.Log($"[LootItem] CLIENT - Bag empty (synchronized from server)", this);
-                hasAttemptedPickup = true;
-                return;
-            }
-
-            logger?.Log($"[LootItem] CLIENT - Bag has {itemIds.Count} items, proceeding with transfer to UI", this);
-
-            // Count how many empty slots there are
-            int emptySlots = inventory.GetEmptySlotCount();
-            logger?.Log($"[LootItem] CLIENT - Empty slots: {emptySlots}, Inventory full: {inventory.IsInventoryFull()}", this);
-
-            // If no space, mark as attempted and do nothing
-            if (emptySlots == 0)
-            {
-                logger?.Log($"[LootItem] CLIENT - Inventory full! Cannot pick up loot.", this, Logging.LogType.Warning);
-                hasAttemptedPickup = true;
-                return;
-            }
-
-            // Transfer items one by one until filling the inventory or emptying the bag
-            int itemsTransferred = 0;
-
-            // Convert SyncList to temporary list to iterate
-            List<string> itemIdsList = new List<string>(itemIds);
-
-            foreach (string itemId in itemIdsList)
-            {
-                if (inventory.IsInventoryFull())
-                {
-                    logger?.Log($"[LootItem] CLIENT - Inventory full. Items transferred: {itemsTransferred}/{itemIds.Count}", this);
-                    hasAttemptedPickup = true;
-                    break;
-                }
-
-                // Transfer item by ID to inventory UI
-                // InventoryController will handle sprite loading from ItemsManager
-                inventory.AddItemById(itemId);
-                itemsTransferred++;
-
-                logger?.Log($"[LootItem] CLIENT - Item transferred to UI: {itemId}", this);
-            }
-
-            logger?.Log($"[LootItem] CLIENT - Transfer completed: {itemsTransferred} items to inventory", this);
-
-            // Play visual/sound feedback
-            if (itemsTransferred > 0)
-            {
-                PlayPickupFeedback();
-            }
-
-            // If the inventory filled before emptying the bag, mark as attempted
-            if (itemsTransferred < itemIdsList.Count)
-            {
-                logger?.Log($"[LootItem] CLIENT - Inventory full, not all items could be transferred", this);
-                hasAttemptedPickup = true;
-            }
+        // Play feedback
+        if (itemsAdded > 0)
+        {
+            PlayPickupFeedback();
         }
     }
 
@@ -405,8 +326,6 @@ public class LootItem : NetworkBehaviour {
 
         // Start coroutine to enable loot after delay
         StartCoroutine(EnableLootAfterDelay());
-
-        //logger?.Log($"[LootItem] Initialized at {spawnPosition}. Loot will be lootable in {lootableDelay}s", this);
     }
 
     /// <summary>
@@ -417,7 +336,51 @@ public class LootItem : NetworkBehaviour {
         yield return new WaitForSeconds(lootableDelay);
 
         isLootable = true;
-        //logger?.Log($"[LootItem] Loot is now lootable after {lootableDelay}s", this);
+        logger?.Log($"[LootItem] Loot is now lootable", this);
+
+        // SERVER: Check if there are any players already in range (handles case where loot spawns on top of player)
+        if (isServer)
+        {
+            CheckForPlayersInRange();
+        }
+    }
+
+    /// <summary>
+    /// SERVER: Manually checks for players in range using Physics.OverlapSphere
+    /// This handles the case where loot spawns on top of a player (OnTriggerEnter won't fire)
+    /// </summary>
+    private void CheckForPlayersInRange()
+    {
+        if (!isServer) return;
+        if (isBeingPickedUp) return;
+
+        // Use Physics.OverlapSphere to detect players in the pickup radius
+        Collider[] colliders = Physics.OverlapSphere(transform.position, pickupRadius, playerLayer);
+
+        if (colliders.Length > 0)
+        {
+            logger?.Log($"[LootItem] SERVER - Found {colliders.Length} player(s) already in range after becoming lootable", this);
+
+            // Process pickup for the first valid player found
+            foreach (Collider col in colliders)
+            {
+                NetworkIdentity playerIdentity = col.GetComponent<NetworkIdentity>();
+                if (playerIdentity == null) continue;
+
+                // Check if this player already tried to pick up
+                if (playersWhoTriedPickup.Contains(playerIdentity.netId)) continue;
+
+                // Mark as being picked up to prevent other players from picking up simultaneously
+                isBeingPickedUp = true;
+                playersWhoTriedPickup.Add(playerIdentity.netId);
+
+                logger?.Log($"[LootItem] SERVER - Player {playerIdentity.netId} was already in range, processing pickup", this);
+
+                // Process pickup
+                ServerProcessPickup(playerIdentity);
+                break; // Only process for the first valid player
+            }
+        }
     }
 
     /// <summary>
@@ -433,8 +396,6 @@ public class LootItem : NetworkBehaviour {
             Debug.LogWarning("[LootItem] SetItemIds should only be called by server!");
             return;
         }
-
-        //logger?.Log($"[LootItem] SetItemIds called with {ids?.Count ?? 0} items: {string.Join(", ", ids ?? new List<string>())}", this);
 
         if (ids == null || ids.Count == 0)
         {
