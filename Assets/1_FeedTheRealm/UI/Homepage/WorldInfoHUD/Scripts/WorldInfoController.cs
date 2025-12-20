@@ -7,6 +7,8 @@ using UnityEngine.UIElements;
 public class WorldInfoController : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
+    [SerializeField]
+    private API.PlayerService playerService;
 
     private VisualElement ui;
 
@@ -26,6 +28,33 @@ public class WorldInfoController : MonoBehaviour {
         } else {
             logger.Log("WorldCreatedAtLabel not found in UI", this, Logging.LogType.Warning);
         }
+
+        Label worldCreatorLabel = ui.Q<Label>("CreatedBy");
+        if (worldCreatorLabel != null) {
+            string displayName = getUserDisplayName(world.userId);
+            worldCreatorLabel.text = $"Created By {displayName}";
+        } else {
+            logger.Log("WorldCreatorLabel not found in UI", this, Logging.LogType.Warning); 
+        }
+    }
+
+    private string getUserDisplayName(string userId) {
+        string displayName = "Unknown User";
+
+        playerService.GetCharacterInfo((characterInfo, error) => {
+            if (!string.IsNullOrEmpty(error)) {
+                logger.Log($"Error fetching character info for userId {userId}: {error}", this, Logging.LogType.Error);
+                return;
+            }
+
+            if (characterInfo != null && !string.IsNullOrEmpty(characterInfo.character_name)) {
+                displayName = characterInfo.character_name;
+            } else {
+                logger.Log($"Character info is null or displayName is empty for userId {userId}", this, Logging.LogType.Warning);
+            }
+        }, userId);
+
+        return displayName;
     }
 
     private string makeHumanReadableCreatedAt(string createdAt) {

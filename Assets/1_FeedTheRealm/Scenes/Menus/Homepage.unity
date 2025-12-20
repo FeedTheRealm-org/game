@@ -510,6 +510,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1139361473935034998, guid: b61ff541e582f36479b50b9803b3f900, type: 3}
+      propertyPath: authService
+      value: 
+      objectReference: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
+    - target: {fileID: 1139361473935034998, guid: b61ff541e582f36479b50b9803b3f900, type: 3}
+      propertyPath: playerService
+      value: 
+      objectReference: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
     - target: {fileID: 3186345005200813315, guid: b61ff541e582f36479b50b9803b3f900, type: 3}
       propertyPath: m_LocalPosition.x
       value: -13.48311
