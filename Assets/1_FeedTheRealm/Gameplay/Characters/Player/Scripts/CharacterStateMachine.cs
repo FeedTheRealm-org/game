@@ -77,6 +77,7 @@ public class CharacterStateMachine : MonoBehaviour {
     /// Handles attack down input (start charge or quick attack).
     /// </summary>
     public void OnAttack() {
+        Debug.Log("State machine debug ATTACK");
         if (currentMovementState != chargingAttackState && currentAttackState == null) {
             attackState.Enter();
         }
