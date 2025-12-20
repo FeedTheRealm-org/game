@@ -15,7 +15,7 @@ public class WorldInfoController : MonoBehaviour {
 
         Label worldNameLabel = ui.Q<Label>("Title");
         if (worldNameLabel != null) {
-            worldNameLabel.text = world.name;
+            worldNameLabel.text = world.name.Split('.')[0];
         } else {
             logger.Log("WorldNameLabel not found in UI", this, Logging.LogType.Warning);
         }

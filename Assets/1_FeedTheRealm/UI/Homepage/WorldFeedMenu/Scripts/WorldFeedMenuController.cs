@@ -156,7 +156,7 @@ public class WorldFeedMenuController : MonoBehaviour {
         worldElement.AddToClassList("worldElement");
         worldElement.name = "WorldElement";
 
-        var worldLabel = new Label(worldData.name);
+        var worldLabel = new Label(worldData.name.Split('.')[0]);
         worldLabel.AddToClassList("worldName");
         worldLabel.name = "WorldName";
 
