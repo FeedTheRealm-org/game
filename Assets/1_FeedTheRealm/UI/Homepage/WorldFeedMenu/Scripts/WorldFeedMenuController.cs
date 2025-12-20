@@ -116,9 +116,9 @@ public class WorldFeedMenuController : MonoBehaviour {
     }
 
 
-    private void OnWorldSelected(Models.WorldData worldData) {
-        worldHandler.SetSelectedWorld(worldData);
-        logger.Log($"World selected: {worldData.id}", this);
+    private void OnWorldSelected(Models.WorldMetadata world) {
+        worldHandler.SetSelectedWorld(world);
+        logger.Log($"World selected: {world.id}", this);
         SceneManager.LoadScene(worldScene.SceneName);
     }
 
@@ -147,14 +147,14 @@ public class WorldFeedMenuController : MonoBehaviour {
     }
 
 
-    private VisualElement CreateWorldElement(Models.WorldData worldData) {
-        if (worldData == null || string.IsNullOrEmpty(worldData.worldName)) return null;
+    private VisualElement CreateWorldElement(Models.WorldMetadata worldData) {
+        if (worldData == null || string.IsNullOrEmpty(worldData.name)) return null;
 
         var worldElement = new VisualElement();
         worldElement.AddToClassList("worldElement");
         worldElement.name = "WorldElement";
 
-        var worldLabel = new Label(worldData.worldName);
+        var worldLabel = new Label(worldData.name);
         worldLabel.AddToClassList("worldName");
         worldLabel.name = "WorldName";
 
@@ -203,7 +203,7 @@ public class WorldFeedMenuController : MonoBehaviour {
         return noResultsLabel;
     }
 
-    private VisualElement CreateCategoryContainer(Worlds.Category category, List<Models.WorldData> worlds) {
+    private VisualElement CreateCategoryContainer(Worlds.Category category, List<Models.WorldMetadata> worlds) {
         var categoryContainer = new VisualElement();
         categoryContainer.AddToClassList("categoryList");
 

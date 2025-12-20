@@ -70,7 +70,7 @@ public class WorldLoaderController : MonoBehaviour {
 
     public void LoadWorld() {
 
-        WorldData data = worldHandler.selectedWorld;
+        WorldData data = worldHandler.selectedWorld.data;
 
         if (data.objectPlacementData == null || data.objectPlacementData.Count == 0) {
             logger.Log("New world created!", this, Logging.LogType.Info);
