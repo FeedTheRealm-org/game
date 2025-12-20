@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 using System;
 
 public class HealthComponent : MonoBehaviour {
@@ -60,21 +60,21 @@ public class HealthComponent : MonoBehaviour {
     public void Die() {
         logger.Log("Character has died.", this);
         OnDeath?.Invoke();
-        
-        // In multiplayer, use NetworkObject.Despawn instead of Destroy
-        NetworkObject networkObject = GetComponent<NetworkObject>();
-        if (networkObject != null && networkObject.IsSpawned)
+
+        // In multiplayer, use NetworkServer.Destroy instead of regular Destroy
+        NetworkIdentity networkIdentity = GetComponent<NetworkIdentity>();
+        if (networkIdentity != null && networkIdentity.netId != 0)
         {
-            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+            if (NetworkServer.active)
             {
-                // Server: Despawn the NetworkObject (will replicate to clients)
-                networkObject.Despawn(true); // true = destroy after despawn
-                logger.Log("NetworkObject despawned by server.", this);
+                // Server: Destroy the NetworkIdentity (will replicate to clients)
+                NetworkServer.Destroy(gameObject);
+                logger.Log("NetworkIdentity destroyed by server.", this);
             }
             else
             {
                 // Clients should never reach here in networked objects
-                logger.Log("Client attempted to despawn NetworkObject - this should be handled by server!", this, Logging.LogType.Warning);
+                logger.Log("Client attempted to destroy NetworkIdentity - this should be handled by server!", this, Logging.LogType.Warning);
             }
         }
         else

@@ -51,8 +51,6 @@ public class AttackComponent : MonoBehaviour {
         if (isAttacking) return;
         logger.Log("Attack event triggered", this);
 
-        // Animation now handled by CharacterAnimator via state machine
-
         isAttacking = true;
         StartCoroutine(resetAttackCooldown());
     }

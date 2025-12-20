@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 using System.Collections;
 
 public class EnemySpawn : MonoBehaviour {
@@ -51,8 +51,8 @@ public class EnemySpawn : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other) {
         // In multiplayer, only server processes spawn triggers
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
-            if (!NetworkManager.Singleton.IsServer) {
+        if (NetworkServer.active || NetworkClient.active) {
+            if (!NetworkServer.active) {
                 return; // Clients ignore spawn triggers
             }
         }
@@ -72,8 +72,8 @@ public class EnemySpawn : MonoBehaviour {
 
     private void OnTriggerExit(Collider other) {
         // In multiplayer, only server processes spawn triggers
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
-            if (!NetworkManager.Singleton.IsServer) {
+        if (NetworkServer.active || NetworkClient.active) {
+            if (!NetworkServer.active) {
                 return; // Clients ignore spawn triggers
             }
         }
@@ -122,9 +122,34 @@ public class EnemySpawn : MonoBehaviour {
     private IEnumerator spawnReset() {
         logger.Log($"[EnemySpawn] Spawner resetting... (waiting {resetDelay}s)", this);
         yield return new WaitForSeconds(resetDelay);
-        spawnerResetting = false;
         totalKills = 0;
-        logger.Log("[EnemySpawn] Spawner reset complete. Ready to spawn again!", this);
+
+        // After the cooldown ends, we only resume spawns if there are still
+        // players inside the area (or if they entered again during the cooldown).
+        if (playersInside <= 0) {
+            // We ensure the spawner is completely turned off.
+            spawnerActive = false;
+            if (spawnRoutine != null) {
+                StopCoroutine(spawnRoutine);
+                spawnRoutine = null;
+            }
+
+            spawnerResetting = false;
+            logger.Log("[EnemySpawn] Spawner reset complete, no players inside. Staying idle until someone enters again.", this);
+        } else {
+            // There is at least one player inside; the spawner can remain active.
+            spawnerResetting = false;
+
+            // If for some reason the routine stopped, we resume it.
+            if (!spawnerActive) {
+                spawnerActive = true;
+            }
+            if (spawnRoutine == null) {
+                spawnRoutine = StartCoroutine(spawnEnemies());
+            }
+
+            logger.Log("[EnemySpawn] Spawner reset complete. Players inside, resuming spawn.", this);
+        }
     }
 
     /// <summary>
@@ -139,8 +164,8 @@ public class EnemySpawn : MonoBehaviour {
         }
 
         // In multiplayer, only the server should spawn enemies
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
-            if (!NetworkManager.Singleton.IsServer) {
+        if (NetworkServer.active || NetworkClient.active) {
+            if (!NetworkServer.active) {
                 logger.Log("Client attempted to spawn enemy - only server can spawn!", this, Logging.LogType.Warning);
                 return;
             }
@@ -153,15 +178,15 @@ public class EnemySpawn : MonoBehaviour {
         
         // Increment counter BEFORE spawning to get correct count in logs
         currentEnemies++;
-        
-        // Spawn as NetworkObject if in multiplayer
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
-            NetworkObject networkObject = enemy.GetComponent<NetworkObject>();
-            if (networkObject != null) {
-                networkObject.Spawn();
+
+        // Spawn as NetworkIdentity if in multiplayer
+        if (NetworkServer.active || NetworkClient.active) {
+            NetworkIdentity networkIdentity = enemy.GetComponent<NetworkIdentity>();
+            if (networkIdentity != null) {
+                NetworkServer.Spawn(enemy);
                 logger.Log($"[EnemySpawn] Spawned networked enemy #{currentEnemies}/{maxEnemies} at {point.name}", this);
             } else {
-                logger.Log("Enemy prefab missing NetworkObject component for multiplayer!", this, Logging.LogType.Error);
+                logger.Log("Enemy prefab missing NetworkIdentity component for multiplayer!", this, Logging.LogType.Error);
                 Destroy(enemy);
                 currentEnemies--; // Rollback counter
                 return;
@@ -179,8 +204,8 @@ public class EnemySpawn : MonoBehaviour {
     /// </summary>
     private void onEnemyDeath() {
         // In multiplayer, only server should track enemy deaths for spawning logic
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
-            if (!NetworkManager.Singleton.IsServer) {
+        if (NetworkServer.active || NetworkClient.active) {
+            if (!NetworkServer.active) {
                 return; // Clients don't manage spawn counts
             }
         }

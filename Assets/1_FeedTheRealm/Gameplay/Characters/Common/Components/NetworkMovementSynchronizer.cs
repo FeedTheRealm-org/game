@@ -1,47 +1,43 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 
 /// <summary>
 /// Synchronizes movement and position for networked characters using the base MovementComponent.
 /// This component handles network synchronization while keeping MovementComponent as a pure MonoBehaviour.
+///
+/// Mirror implementation:
+/// - Uses NetworkTransformReliable for position/rotation (already on prefab)
+/// - SyncVars for velocity and facing direction
+/// - Commands for client input to server
+/// - Server authority for all state
 /// </summary>
 public class NetworkMovementSynchronizer : NetworkBehaviour {
     [SerializeField] private Logging.Logger logger;
     [SerializeField] private MovementComponent movementComponent;
     [SerializeField] private Rigidbody rb;
 
-    [Header("Network Settings")]
-    [SerializeField] private float networkSendRate = 10f; // Updates per second
-    [SerializeField] private float positionThreshold = 0.1f; // Minimum change to send
-    [SerializeField] private float rotationThreshold = 5f; // Degrees minimum to send
+    // SyncVars for state that NetworkTransformReliable doesn't handle
+    [SyncVar(hook = nameof(OnVelocityChanged))]
+    private Vector3 networkVelocity;
 
-    // Network state
-    private NetworkVariable<Vector3> networkPosition = new NetworkVariable<Vector3>();
+    [SyncVar(hook = nameof(OnFacingChanged))]
+    private bool networkFacingRight;
 
-    private NetworkVariable<Quaternion> networkRotation = new NetworkVariable<Quaternion>();
-    private NetworkVariable<Vector3> networkVelocity = new NetworkVariable<Vector3>();
-    private NetworkVariable<bool> networkFacingRight = new NetworkVariable<bool>();
-    private float lastNetworkSendTime;
-    private Vector3 lastSentPosition;
-    private Quaternion lastSentRotation;
-    private bool lastSentFacing;
+    // Dash support - prevents velocity sync during dash to allow client-side prediction
+    private bool isDashing = false;
+    private float dashEndTime = 0f;
 
     private void Awake() {
         if (movementComponent == null) movementComponent = GetComponent<MovementComponent>();
         if (rb == null) rb = GetComponent<Rigidbody>();
-
-        // Configure NetworkVariables
-        networkPosition.OnValueChanged += OnPositionChanged;
-        networkRotation.OnValueChanged += OnRotationChanged;
-        networkVelocity.OnValueChanged += OnVelocityChanged;
-        networkFacingRight.OnValueChanged += OnFacingChanged;
     }
 
-    public override void OnNetworkSpawn() {
-        if (IsOwner) {
-            // Owner controls and synchronizes
-            logger.Log($"NetworkMovementSynchronizer - Owner: {OwnerClientId}", this);
-        } else {
+    public override void OnStartServer() {
+        logger?.Log($"[NetworkMovementSynchronizer] Server initialized for netId: {netId}", this);
+    }
+
+    public override void OnStartClient() {
+        if (!isLocalPlayer) {
             // Remote clients - disable local movement and physics
             if (movementComponent != null) {
                 movementComponent.enabled = false;
@@ -49,82 +45,74 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
             if (rb != null) {
                 rb.isKinematic = true;
             }
+            logger?.Log($"[NetworkMovementSynchronizer] Remote player initialized, local movement disabled", this);
+        } else {
+            logger?.Log($"[NetworkMovementSynchronizer] Local player initialized", this);
         }
     }
 
     private void FixedUpdate() {
-        if (IsOwner) {
-            SyncWithServer();
-        } else {
-            // Smooth interpolation for remote players
-            float lerpFactor = Mathf.Clamp01(Time.deltaTime * 15f); // Adjust smoothness
-            transform.position = Vector3.Lerp(transform.position, networkPosition.Value, lerpFactor);
-            transform.rotation = Quaternion.Slerp(transform.rotation, networkRotation.Value, lerpFactor);
+        // Update dash state
+        if (isDashing && Time.time >= dashEndTime) {
+            isDashing = false;
+        }
+
+        if (!isServer) return;
+
+        // Server updates SyncVars (NetworkTransformReliable handles position/rotation)
+        // Skip velocity sync during dash to allow client-side prediction
+        if (rb != null && !isDashing) {
+            networkVelocity = rb.linearVelocity;
+        }
+
+        if (movementComponent != null) {
+            networkFacingRight = movementComponent.FacingRight;
         }
     }
 
-    private void SyncWithServer() {
-        if (!IsServer && IsOwner) {
-            // Owner client - send state to server periodically
-            if (Time.time - lastNetworkSendTime >= 1f / networkSendRate) {
-                if (ShouldSendTransform()) {
-                    SendTransformToServerRpc(transform.position, transform.rotation, rb != null ? rb.linearVelocity : Vector3.zero, movementComponent.FacingRight);
-                    lastNetworkSendTime = Time.time;
-                    lastSentPosition = transform.position;
-                    lastSentRotation = transform.rotation;
-                    lastSentFacing = movementComponent.FacingRight;
-                }
-            }
-        } else if (IsServer && IsOwner) {
-            // Host - update NetworkVariables directly
-            networkPosition.Value = transform.position;
-            networkRotation.Value = transform.rotation;
-            networkVelocity.Value = rb != null ? rb.linearVelocity : Vector3.zero;
-            networkFacingRight.Value = movementComponent.FacingRight;
-        }
-    }
-
-    private bool ShouldSendTransform() {
-        float positionDiff = Vector3.Distance(transform.position, lastSentPosition);
-        float rotationDiff = Quaternion.Angle(transform.rotation, lastSentRotation);
-        bool facingChanged = lastSentFacing != movementComponent.FacingRight;
-
-        return positionDiff > positionThreshold || rotationDiff > rotationThreshold || facingChanged;
-    }
-
-    [ServerRpc]
-    private void SendTransformToServerRpc(Vector3 position, Quaternion rotation, Vector3 velocity, bool facingRight) {
-        // Only server updates NetworkVariables
-        networkPosition.Value = position;
-        networkRotation.Value = rotation;
-        networkVelocity.Value = velocity;
-        networkFacingRight.Value = facingRight;
-    }
-
-    private void OnPositionChanged(Vector3 oldValue, Vector3 newValue) {
-        // Interpolation is handled in FixedUpdate for remote clients
-    }
-
-    private void OnRotationChanged(Quaternion oldValue, Quaternion newValue) {
-        // Interpolation is handled in FixedUpdate for remote clients
-    }
-
+    // Hook called on clients when velocity changes
     private void OnVelocityChanged(Vector3 oldValue, Vector3 newValue) {
-        if (!IsOwner && rb != null && !rb.isKinematic) {
+        if (isServer) return; // Server already has correct value
+
+        // Don't apply server velocity during dash (client has authority during dash)
+        if (isDashing) return;
+
+        if (rb != null && !rb.isKinematic) {
             rb.linearVelocity = newValue;
         }
     }
 
+    // Hook called on clients when facing direction changes
     private void OnFacingChanged(bool oldValue, bool newValue) {
-        if (!IsOwner) {
+        if (isServer) return; // Server already has correct value
+
+        if (movementComponent != null) {
             movementComponent.SetFacing(newValue);
         }
     }
 
     /// <summary>
     /// Teleports the character to a new position, synchronizing over the network.
+    /// Can be called by server or by local player (via Command).
     /// </summary>
     public void Teleport(Vector3 position) {
+        if (isServer) {
+            // Server has authority - teleport directly
+            PerformTeleport(position);
+        } else if (isLocalPlayer) {
+            // Local player requests teleport from server
+            CmdTeleport(position);
+        }
+    }
+
+    [Command]
+    private void CmdTeleport(Vector3 position) {
+        // Server validates and performs teleport
+        PerformTeleport(position);
+    }
+
+    [Server]
+    private void PerformTeleport(Vector3 position) {
         transform.position = position;
 
         // Reset velocity
@@ -133,34 +121,37 @@ public class NetworkMovementSynchronizer : NetworkBehaviour {
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Server has authority to teleport any player
-        if (IsServer) {
-            networkPosition.Value = position;
-            networkVelocity.Value = Vector3.zero;
+        networkVelocity = Vector3.zero;
 
-            // Force sync to owner client via ClientRpc
-            if (!IsOwner) {
-                TeleportClientRpc(position);
-            }
-        }
-        // Owner client can teleport themselves
-        else if (IsOwner) {
-            SendTransformToServerRpc(position, transform.rotation, Vector3.zero, movementComponent.FacingRight);
-        }
+        logger?.Log($"[NetworkMovementSynchronizer] Teleported to {position}", this);
+
+        // Sync to all clients via ClientRpc
+        RpcTeleport(position);
     }
 
     [ClientRpc]
-    private void TeleportClientRpc(Vector3 position) {
-        // Only apply if this is the owner client (not server, not other clients)
-        if (IsOwner && !IsServer) {
-            transform.position = position;
+    private void RpcTeleport(Vector3 position) {
+        if (isServer) return; // Server already set position
 
-            // Reset velocity on client
-            if (rb != null && !rb.isKinematic) {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
-            logger.Log($"[NetworkMovementSynchronizer] Client {OwnerClientId} teleported to {position} via ClientRpc", this);
+        transform.position = position;
+
+        // Reset velocity on clients
+        if (rb != null && !rb.isKinematic) {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
+
+        logger?.Log($"[NetworkMovementSynchronizer] Client received teleport to {position}", this);
+    }
+
+    /// <summary>
+    /// Notifies the synchronizer that a dash is starting.
+    /// This prevents velocity synchronization from interfering with the dash.
+    /// Called by DashComponent when dash begins.
+    /// </summary>
+    public void NotifyDashStart(float duration) {
+        isDashing = true;
+        dashEndTime = Time.time + duration;
+        //logger?.Log($"[NetworkMovementSynchronizer] Dash started, velocity sync disabled for {duration}s", this);
     }
 }

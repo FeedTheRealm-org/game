@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 
 public class AnimationEvents : MonoBehaviour {
 
@@ -25,7 +25,7 @@ public class AnimationEvents : MonoBehaviour {
         if (networkAttackSynchronizer == null) {
             networkAttackSynchronizer = GetComponentInChildren<NetworkAttackSynchronizer>();
         }
-        
+
         if (networkAttackSynchronizer != null) {
             logger?.Log("[AnimationEvents] NetworkAttackSynchronizer found!", this);
         }
@@ -33,7 +33,7 @@ public class AnimationEvents : MonoBehaviour {
 
     private void Attack() {
         // In multiplayer, use NetworkAttackSynchronizer if available
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
+        if (NetworkServer.active || NetworkClient.active) {
             if (networkAttackSynchronizer != null) {
                 logger.Log("[AnimationEvents] Using NetworkAttackSynchronizer for networked attack", this);
                 networkAttackSynchronizer.DetectAttackHit();
@@ -48,7 +48,7 @@ public class AnimationEvents : MonoBehaviour {
             logger.Log("AttackComponent reference is missing!", this, Logging.LogType.Error);
             return;
         }
-        
+
         logger.Log("[AnimationEvents] Using local AttackComponent (singleplayer mode)", this);
         attackComponent.DetectAttackHit();
     }

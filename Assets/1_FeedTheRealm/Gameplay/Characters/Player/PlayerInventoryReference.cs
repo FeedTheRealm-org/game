@@ -131,17 +131,17 @@ public class PlayerInventoryReference : MonoBehaviour {
     /// Detects if this is the local player (the one controlling the current client)
     /// </summary>
     private void DetectLocalPlayer() {
-        // Try to detect from Unity.Netcode.NetworkBehaviour
-        var networkBehaviour = GetComponent<Unity.Netcode.NetworkBehaviour>();
-        if (networkBehaviour != null) {
-            isLocalPlayer = networkBehaviour.IsOwner;
-            logger?.Log($"[PlayerInventoryReference] {(isLocalPlayer ? "LOCAL" : "REMOTE")} player detected (NetworkBehaviour)", this);
+        // Try to detect from Mirror.NetworkIdentity
+        var networkIdentity = GetComponent<Mirror.NetworkIdentity>();
+        if (networkIdentity != null) {
+            isLocalPlayer = networkIdentity.isLocalPlayer;
+            logger?.Log($"[PlayerInventoryReference] {(isLocalPlayer ? "LOCAL" : "REMOTE")} player detected (Mirror NetworkIdentity)", this);
             return;
         }
 
-        // Fallback: If there's no NetworkBehaviour, assume it's local (single-player mode)
+        // Fallback: If there's no NetworkIdentity, assume it's local (single-player mode)
         isLocalPlayer = true;
-        logger?.Log($"[PlayerInventoryReference] NetworkBehaviour not found. Assuming LOCAL player", this);
+        logger?.Log($"[PlayerInventoryReference] NetworkIdentity not found. Assuming LOCAL player (single-player)", this);
     }
 
     /// <summary>
