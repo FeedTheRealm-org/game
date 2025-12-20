@@ -116,3 +116,16 @@
     background-color: rgba(203, 203, 203, 0.85);
     color: rgb(255, 255, 255);
 }
+
+.aboutButton {
+    width: 3%;
+    height: 5%;
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    top: -20%;
+    left: 40%;
+    right: 0;
+    bottom: 0;
+}

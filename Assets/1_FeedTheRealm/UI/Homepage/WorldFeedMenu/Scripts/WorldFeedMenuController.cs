@@ -17,6 +17,8 @@ public class WorldFeedMenuController : MonoBehaviour {
     private API.WorldService worldService;
     [SerializeField]
     private SceneReference worldScene;
+    [SerializeField]
+    private GameObject worldInfoHUD;
 
     private VisualElement ui;
     private TextField searchField;
@@ -158,12 +160,27 @@ public class WorldFeedMenuController : MonoBehaviour {
         worldLabel.AddToClassList("worldName");
         worldLabel.name = "WorldName";
 
+        var worldAboutButton = new Button();
+        worldAboutButton.AddToClassList("aboutButton");
+        worldAboutButton.name = "AboutButton";
+        worldAboutButton.clicked += () => {
+            onClickAboutWorld(worldData);
+        };
+
         worldElement.Add(worldLabel);
+        worldElement.Add(worldAboutButton);
 
         worldElement.AddManipulator(new Clickable(() => {
             OnWorldSelected(worldData);
         }));
+
         return worldElement;
+    }
+
+    private void onClickAboutWorld(Models.WorldMetadata world) {
+        logger.Log($"About world clicked: {world.name}", this);
+        worldInfoHUD.SetActive(true);
+        worldInfoHUD.GetComponent<WorldInfoController>().SetCurrentWorld(world);
     }
 
     private void RenderCategories() {
