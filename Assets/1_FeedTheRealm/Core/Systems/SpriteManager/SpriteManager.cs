@@ -2,18 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public enum SpritePart {
-    None,
-    Hair,
-    FaceHair,
-    EyeBack,
-    Cloth,
-    Armor,
-    Helmet,
-    FootBoot,
-    Cape,
-}
-
 [CreateAssetMenu(fileName = "SpriteManager", menuName = "Scriptable Objects/SpriteManager")]
 public class SpriteManager : ScriptableObject {
     [SerializeField]
@@ -26,41 +14,55 @@ public class SpriteManager : ScriptableObject {
     [SerializeField]
     private Logging.Logger logger;
 
-    public Action<string> onHairChange;
-    public Action<string> onFaceHairChange;
-    public Action<string> onEyeBackChange;
-    public Action<string> onClothChange;
-    public Action<string> onArmorChange;
-    public Action<string> onHelmetChange;
-    public Action<string> onFootBootChange;
-    public Action<string> onCapeChange;
 
-    private readonly Dictionary<SpritePart, Action<string>> partChangeActions = new Dictionary<SpritePart, Action<string>>();
+    // Equipment
+    public Action<Texture2D> OnArmorBodyChange;
+    public Action<Texture2D> OnArmorHelmetChange;
+    public Action<Texture2D> OnArmorLegsChange;
+
+    // Body parts
+    public Action<Texture2D> OnHairChange;
+    public Action<Texture2D> OnBeardChange;
+    public Action<Texture2D> OnEyeBrowsChange;
+    public Action<Texture2D> OnEyesChange;
+    public Action<Texture2D> OnMouthChange;
+    public Action<Texture2D> OnEarsChange;
+
+    public Action<Texture2D> OnBackChange;
+    public Action<Texture2D> OnEarringsChange;
+    public Action<Texture2D> OnMaskChange;
+
+    private readonly Dictionary<CharacterPartCategory, Action<Texture2D>> partChangeActions = new Dictionary<CharacterPartCategory, Action<Texture2D>>();
 
     public void OnEnable() {
-        partChangeActions[SpritePart.Hair] = (id) => onHairChange?.Invoke(id);
-        partChangeActions[SpritePart.FaceHair] = (id) => onFaceHairChange?.Invoke(id);
-        partChangeActions[SpritePart.EyeBack] = (id) => onEyeBackChange?.Invoke(id);
-        partChangeActions[SpritePart.Cloth] = (id) => onClothChange?.Invoke(id);
-        partChangeActions[SpritePart.Armor] = (id) => onArmorChange?.Invoke(id);
-        partChangeActions[SpritePart.Helmet] = (id) => onHelmetChange?.Invoke(id);
-        partChangeActions[SpritePart.FootBoot] = (id) => onFootBootChange?.Invoke(id);
-        partChangeActions[SpritePart.Cape] = (id) => onCapeChange?.Invoke(id);
+        partChangeActions[CharacterPartCategory.ArmorBody] = (texture) => OnArmorBodyChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorHelmet] = (texture) => OnArmorHelmetChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.ArmorLegR] = (texture) => OnArmorLegsChange?.Invoke(texture);
+
+        partChangeActions[CharacterPartCategory.Hair] = (texture) => OnHairChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Beard] = (texture) => OnBeardChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.EyeBrows] = (texture) => OnEyeBrowsChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Eyes] = (texture) => OnEyesChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Mouth] = (texture) => OnMouthChange?.Invoke(texture);
+
+        partChangeActions[CharacterPartCategory.Back] = (texture) => OnBackChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.EarringR] = (texture) => OnEarringsChange?.Invoke(texture);
+        partChangeActions[CharacterPartCategory.Mask] = (texture) => OnMaskChange?.Invoke(texture);
     }
 
-    public void ChangeSprite(SpritePart part, string textureName) {
-        logger.Log($"SpriteManager: Changing sprite for part {part} to texture {textureName}", this, Logging.LogType.Info);
-        partChangeActions[part]?.Invoke(textureName);
+    public void ChangeSprite(CharacterPartCategory part, Texture2D texture) {
+        logger.Log($"SpriteManager: Changing sprite for part {part}", this, Logging.LogType.Info);
+        partChangeActions[part]?.Invoke(texture);
     }
 
-    public SpritePart GetSpritePartFromCategoryName(string categoryName) {
+    public CharacterPartCategory GetPartCategoryFromCategoryName(string categoryName) {
         categoryName = categoryName.Replace(" ", "").Replace("_", "").Replace("-", "");
-        if (Enum.TryParse(categoryName, true, out SpritePart part)) {
+        if (Enum.TryParse(categoryName, true, out CharacterPartCategory part)) {
             logger.Log($"SpriteManager: Mapped category name {categoryName} to part {part}", this, Logging.LogType.Info);
             return part;
         }
 
         logger.Log($"SpriteManager: Unknown category name {categoryName}", this, Logging.LogType.Warning);
-        return SpritePart.None;
+        return CharacterPartCategory.None;
     }
 }

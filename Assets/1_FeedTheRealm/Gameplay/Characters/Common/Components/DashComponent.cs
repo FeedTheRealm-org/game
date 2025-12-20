@@ -17,6 +17,10 @@ public class DashComponent : MonoBehaviour {
     private bool isDashing;
     private NetworkMovementSynchronizer networkMovementSync;
 
+    public bool IsDashing => isDashing;
+
+    public System.Action OnDashFinished;
+
     private void Awake() {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
@@ -30,7 +34,10 @@ public class DashComponent : MonoBehaviour {
     /// Called by the input system to initiate a dash.
     /// </summary>
     public void OnDash() {
-        if (isDashing || !groundCheck.IsGrounded || !consumeStamina()) return;
+        if (isDashing || !groundCheck.IsGrounded || !consumeStamina()) {
+            OnDashFinished?.Invoke();
+            return;
+        }
 
         Vector3 dashDirection = movement.CurrentDirection.normalized;
         if (dashDirection == Vector3.zero)
@@ -68,6 +75,8 @@ public class DashComponent : MonoBehaviour {
 
         // Re-enable MovementComponent
         movement.enabled = wasMovementEnabled;
+      
+        OnDashFinished?.Invoke();
     }
 
     private bool consumeStamina() {

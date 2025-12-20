@@ -33,7 +33,7 @@ public class MovementComponent : MonoBehaviour {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (col == null) col = GetComponent<Collider>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
-        cameraTransform = Camera.main.transform; // TODO: add camera manager to handle changes in scenes, etc
+        cameraTransform = Camera.main?.transform; // TODO: add camera manager to handle changes in scenes, etc
     }
 
     /// <summary>
@@ -42,16 +42,11 @@ public class MovementComponent : MonoBehaviour {
     public void OnMove(Vector2 direction) {
         playerDirection = direction;
         isMoving = playerDirection.sqrMagnitude > movingMagnitudeThreshold;
-        if (isMoving && (FacingRight && playerDirection.x < 0f || !FacingRight && playerDirection.x > 0f)) {
-            flip();
-        }
     }
 
     private void FixedUpdate() {
-        if (cameraTransform == null) {
-            cameraTransform = Camera.main?.transform;
-            //logger.Log("Camera.main was null in FixedUpdate, reassigned cameraTransform.", this, Logging.LogType.Warning);
-        }
+        cameraTransform = Camera.main?.transform;
+        if (cameraTransform == null) return; // Don't move if no camera
         updateCurrentDirectionWithCamera();
 
         // Calculate next position
@@ -77,16 +72,8 @@ public class MovementComponent : MonoBehaviour {
         CurrentDirection = (camRight * playerDirection.x + camForward * playerDirection.y).normalized;
     }
 
-    private void flip() {
-        FacingRight = !FacingRight;
-        Vector3 localScale = visualRoot.localScale;
-        localScale.x *= -1f;
-        visualRoot.localScale = localScale;
-    }
-
     public void SetFacing(bool facingRight) {
         if (FacingRight != facingRight) {
-            flip();
         }
     }
 

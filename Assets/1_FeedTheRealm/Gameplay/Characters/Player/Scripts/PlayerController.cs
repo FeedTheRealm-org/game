@@ -13,28 +13,16 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     private Logging.Logger logger;
 
-    private MovementComponent movementComponent;
-    private DashComponent dashComponent;
-    private AttackComponent attackComponent;
+    private CharacterStateMachine characterStateMachine;
 
     private void OnEnable() {
         if (playerPrefab == null) {
             logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
         }
 
-        movementComponent = playerPrefab.GetComponentInChildren<MovementComponent>();
-        if (movementComponent == null) {
-            logger.Log("MovementComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
-        }
-
-        dashComponent = playerPrefab.GetComponentInChildren<DashComponent>();
-        if (dashComponent == null) {
-            logger.Log("DashComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
-        }
-
-        attackComponent = playerPrefab.GetComponentInChildren<AttackComponent>();
-        if (attackComponent == null) {
-            logger.Log("AttackComponent not found on the instantiated player prefab.", this, Logging.LogType.Error);
+        characterStateMachine = playerPrefab.GetComponentInChildren<CharacterStateMachine>();
+        if (characterStateMachine == null) {
+            logger.Log("CharacterStateMachine not found on the instantiated player prefab.", this, Logging.LogType.Error);
         }
 
         // Register callbacks
@@ -56,9 +44,7 @@ public class PlayerController : MonoBehaviour {
             logger.Log("PlayerController unsubscribed from events.", this);
         }
 
-        movementComponent = null;
-        dashComponent = null;
-        attackComponent = null;
+        characterStateMachine = null;
     }
 
     private void OnAttackInput() {
@@ -66,7 +52,7 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        attackComponent?.OnAttack();
+        characterStateMachine?.OnAttack();
     }
 
     private void OnMoveInput(Vector2 vec) {
@@ -74,7 +60,7 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        movementComponent?.OnMove(vec);
+        characterStateMachine?.OnMove(vec);
     }
 
     private void OnDashInput() {
@@ -82,6 +68,6 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        dashComponent?.OnDash();
+        characterStateMachine?.OnDash();
     }
 }

@@ -20,6 +20,7 @@ public class WorldLoaderController : MonoBehaviour {
     [SerializeField] private WorldController worldController;
     [SerializeField] private Logging.Logger logger;
     [SerializeField] private UIDocument loadingScreenUI;
+    [SerializeField] private GameObject enemySpawnPrefab;
 
     private Dictionary<string, Asset> assetMap;
     private List<GameObject> cleanup = new();
@@ -82,6 +83,13 @@ public class WorldLoaderController : MonoBehaviour {
             worldController.PlaceObjectAt(
                 gridPosition,
                 assetData.GetModelInstance()
+            );
+        }
+
+        foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas) {
+            worldController.PlaceEnemySpawnAreaAt(
+                Vector3Int.FloorToInt(enemySpawnAreaData.Position),
+                enemySpawnPrefab
             );
         }
         // since we instantiated models for loading, we need to clean them up
