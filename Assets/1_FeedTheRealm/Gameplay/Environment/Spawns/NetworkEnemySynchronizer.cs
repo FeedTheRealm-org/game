@@ -1,10 +1,16 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 
 /// <summary>
 /// Synchronizes position and rotation for networked enemies.
 /// Designed for static/physics-based enemies that don't have active movement AI.
 /// This component handles network synchronization for enemies that can be pushed or moved by physics.
+///
+/// Mirror implementation:
+/// - Uses SyncVars for position, rotation, and velocity
+/// - Server has authority over all enemy state
+/// - Clients interpolate smoothly to server position
+/// - NetworkTransformReliable can be used as alternative for simpler cases
 /// </summary>
 public class NetworkEnemySynchronizer : NetworkBehaviour
 {
@@ -19,23 +25,24 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     [Header("Client Interpolation")]
     [SerializeField] private float interpolationSpeed = 15f; // How fast clients interpolate to target position
 
-    // Network state
-    private NetworkVariable<Vector3> networkPosition = new NetworkVariable<Vector3>(
-        writePerm: NetworkVariableWritePermission.Server
-    );
+    // SyncVars for network state (server → clients)
+    [SyncVar(hook = nameof(OnPositionChanged))]
+    private Vector3 networkPosition;
 
-    private NetworkVariable<Quaternion> networkRotation = new NetworkVariable<Quaternion>(
-        writePerm: NetworkVariableWritePermission.Server
-    );
+    [SyncVar(hook = nameof(OnRotationChanged))]
+    private Quaternion networkRotation;
 
-    private NetworkVariable<Vector3> networkVelocity = new NetworkVariable<Vector3>(
-        writePerm: NetworkVariableWritePermission.Server
-    );
+    [SyncVar]
+    private Vector3 networkVelocity;
 
     // Server-side tracking
     private float lastNetworkSendTime;
     private Vector3 lastSentPosition;
     private Quaternion lastSentRotation;
+
+    // Client interpolation targets
+    private Vector3 targetPosition;
+    private Quaternion targetRotation;
 
     private void Awake()
     {
@@ -45,21 +52,22 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
         }
     }
 
-    public override void OnNetworkSpawn()
+    public override void OnStartServer()
     {
-        if (IsServer)
-        {
-            // Server: Initialize network variables with current transform
-            networkPosition.Value = transform.position;
-            networkRotation.Value = transform.rotation;
-            networkVelocity.Value = rb != null ? rb.linearVelocity : Vector3.zero;
+        // Server: Initialize SyncVars with current transform
+        networkPosition = transform.position;
+        networkRotation = transform.rotation;
+        networkVelocity = rb != null ? rb.linearVelocity : Vector3.zero;
 
-            lastSentPosition = transform.position;
-            lastSentRotation = transform.rotation;
+        lastSentPosition = transform.position;
+        lastSentRotation = transform.rotation;
 
-            logger?.Log($"[NetworkEnemySynchronizer] Server spawned enemy at {transform.position}", this);
-        }
-        else
+        logger?.Log($"[NetworkEnemySynchronizer] Server spawned enemy at {transform.position}", this);
+    }
+
+    public override void OnStartClient()
+    {
+        if (!isServer)
         {
             // Clients: Disable physics (server has authority)
             if (rb != null)
@@ -68,16 +76,18 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
             }
 
             // Apply initial state immediately
-            transform.position = networkPosition.Value;
-            transform.rotation = networkRotation.Value;
+            transform.position = networkPosition;
+            transform.rotation = networkRotation;
+            targetPosition = networkPosition;
+            targetRotation = networkRotation;
 
-            logger?.Log($"[NetworkEnemySynchronizer] Client received enemy at {networkPosition.Value}", this);
+            logger?.Log($"[NetworkEnemySynchronizer] Client received enemy at {networkPosition}", this);
         }
     }
 
     private void FixedUpdate()
     {
-        if (IsServer)
+        if (isServer)
         {
             // Server: Periodically sync state to clients
             SyncToClients();
@@ -96,7 +106,7 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     private void SyncToClients()
     {
-        if (!IsServer) return;
+        if (!isServer) return;
 
         // Check if enough time has passed
         if (Time.time - lastNetworkSendTime < 1f / networkSendRate)
@@ -107,9 +117,9 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
         // Check if position or rotation changed significantly
         if (ShouldSendTransform())
         {
-            networkPosition.Value = transform.position;
-            networkRotation.Value = transform.rotation;
-            networkVelocity.Value = rb != null ? rb.linearVelocity : Vector3.zero;
+            networkPosition = transform.position;
+            networkRotation = transform.rotation;
+            networkVelocity = rb != null ? rb.linearVelocity : Vector3.zero;
 
             lastNetworkSendTime = Time.time;
             lastSentPosition = transform.position;
@@ -135,22 +145,40 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     #region Client Methods
 
     /// <summary>
+    /// SyncVar hook called on clients when position changes
+    /// </summary>
+    private void OnPositionChanged(Vector3 oldValue, Vector3 newValue)
+    {
+        if (isServer) return; // Server already has correct value
+        targetPosition = newValue;
+    }
+
+    /// <summary>
+    /// SyncVar hook called on clients when rotation changes
+    /// </summary>
+    private void OnRotationChanged(Quaternion oldValue, Quaternion newValue)
+    {
+        if (isServer) return; // Server already has correct value
+        targetRotation = newValue;
+    }
+
+    /// <summary>
     /// Clients: Smoothly interpolate to server's authoritative position
     /// </summary>
     private void InterpolateToServerState()
     {
-        if (IsServer) return;
+        if (isServer) return;
 
         float lerpFactor = Mathf.Clamp01(Time.deltaTime * interpolationSpeed);
-        
-        transform.position = Vector3.Lerp(transform.position, networkPosition.Value, lerpFactor);
-        transform.rotation = Quaternion.Slerp(transform.rotation, networkRotation.Value, lerpFactor);
+
+        transform.position = Vector3.Lerp(transform.position, targetPosition, lerpFactor);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, lerpFactor);
 
         // Optional: Apply velocity for better prediction
         // This is useful if enemies can be pushed by physics
-        if (rb != null && !rb.isKinematic && networkVelocity.Value.sqrMagnitude > 0.01f)
+        if (rb != null && !rb.isKinematic && networkVelocity.sqrMagnitude > 0.01f)
         {
-            rb.linearVelocity = networkVelocity.Value;
+            rb.linearVelocity = networkVelocity;
         }
     }
 
@@ -163,7 +191,7 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     public void Teleport(Vector3 position, Quaternion rotation)
     {
-        if (!IsServer)
+        if (!isServer)
         {
             logger?.Log("[NetworkEnemySynchronizer] Only server can teleport enemies!", this, Logging.LogType.Warning);
             return;
@@ -178,10 +206,10 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Force immediate sync
-        networkPosition.Value = position;
-        networkRotation.Value = rotation;
-        networkVelocity.Value = Vector3.zero;
+        // Force immediate sync via SyncVars
+        networkPosition = position;
+        networkRotation = rotation;
+        networkVelocity = Vector3.zero;
 
         lastSentPosition = position;
         lastSentRotation = rotation;
@@ -195,7 +223,7 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     public Vector3 GetNetworkPosition()
     {
-        return networkPosition.Value;
+        return networkPosition;
     }
 
     /// <summary>
@@ -203,7 +231,7 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     public Quaternion GetNetworkRotation()
     {
-        return networkRotation.Value;
+        return networkRotation;
     }
 
     #endregion

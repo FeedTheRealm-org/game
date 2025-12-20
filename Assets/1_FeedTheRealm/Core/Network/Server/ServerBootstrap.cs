@@ -1,5 +1,5 @@
-using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
+using Mirror;
+using kcp2k;
 using UnityEngine;
 using Items;
 
@@ -49,13 +49,14 @@ public class ServerBootstrap : MonoBehaviour {
         ConfigureTransport(address, port);
 
         // Subscribe to connection events BEFORE starting the server
-        NetworkManager.Singleton.OnClientConnectedCallback += OnServerClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnServerClientDisconnected;
+        NetworkServer.OnConnectedEvent += OnServerClientConnected;
+        NetworkServer.OnDisconnectedEvent += OnServerClientDisconnected;
 
         LogServerInfo("📡 Subscribed to connection events");
 
         // Start the server
-        bool success = NetworkManager.Singleton.StartServer();
+        NetworkManager.singleton.StartServer();
+        bool success = NetworkServer.active;
 
         if (success) {
             LogServerInfo($"✅ Dedicated Server started successfully!");
@@ -75,58 +76,53 @@ public class ServerBootstrap : MonoBehaviour {
     /// <summary>
     /// Callback when a client connects to the server
     /// </summary>
-    private void OnServerClientConnected(ulong clientId) {
-        LogServerInfo($"🎉 CLIENT CONNECTED! ClientId: {clientId}");
-        LogServerInfo($"   Total clients connected: {NetworkManager.Singleton.ConnectedClientsList.Count}");
+    private void OnServerClientConnected(NetworkConnectionToClient conn) {
+        LogServerInfo($"🎉 CLIENT CONNECTED! ConnectionId: {conn.connectionId}");
+        LogServerInfo($"   Total clients connected: {NetworkServer.connections.Count}");
     }
 
     /// <summary>
     /// Callback when a client disconnects from the server
     /// </summary>
-    private void OnServerClientDisconnected(ulong clientId) {
-        LogServerInfo($"👋 CLIENT DISCONNECTED! ClientId: {clientId}");
-        LogServerInfo($"   Remaining clients: {NetworkManager.Singleton.ConnectedClientsList.Count}");
+    private void OnServerClientDisconnected(NetworkConnectionToClient conn) {
+        LogServerInfo($"👋 CLIENT DISCONNECTED! ConnectionId: {conn.connectionId}");
+        LogServerInfo($"   Remaining clients: {NetworkServer.connections.Count}");
     }
 
     /// <summary>
     /// Configures NetworkManager with server parameters
     /// </summary>
     private void ConfigureNetworkManager(int maxConnections) {
-        if (NetworkManager.Singleton == null) {
-            Debug.LogError("[ServerBootstrap] NetworkManager.Singleton is null! Make sure NetworkManager exists in the scene.");
+        if (NetworkManager.singleton == null) {
+            Debug.LogError("[ServerBootstrap] NetworkManager.singleton is null! Make sure NetworkManager exists in the scene.");
             return;
         }
 
+        NetworkManager.singleton.maxConnections = maxConnections;
         LogServerInfo($"NetworkManager configured with max {maxConnections} connections");
     }
 
     /// <summary>
-    /// Configures Unity Transport with the specified address and port
+    /// Configures KCP Transport with the specified port
     /// </summary>
     private void ConfigureTransport(string address, ushort port) {
-        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        var transport = NetworkManager.singleton.GetComponent<KcpTransport>();
 
         if (transport == null) {
-            Debug.LogError("[ServerBootstrap] UnityTransport component not found on NetworkManager!");
+            Debug.LogError("[ServerBootstrap] KcpTransport component not found on NetworkManager!");
             return;
         }
 
-        // - ServerListenAddress: The interface where the server LISTENS (0.0.0.0 = all)
+        // KCP Transport configuration for server
         // - Port: The port to listen on
-        // - Address: NOT used on server (only for clients)
+        // - KCP always listens on 0.0.0.0 (all interfaces) - no need to configure address
 
-        transport.ConnectionData.ServerListenAddress = address;  // 0.0.0.0 to listen on all interfaces
-        transport.ConnectionData.Port = port;                     // Port 7777
-        transport.ConnectionData.Address = string.Empty;         // Empty on server (not used)
+        transport.Port = port;
 
-        LogServerInfo($"🔧 UnityTransport configured for SERVER:");
-        LogServerInfo($"   → ServerListenAddress: {transport.ConnectionData.ServerListenAddress} (listening on all interfaces)");
-        LogServerInfo($"   → Port: {transport.ConnectionData.Port}");
-        LogServerInfo($"   → Address: '{transport.ConnectionData.Address}' (not used by server)");
-
-        // Configuration with ServerListenAddress="0.0.0.0" allows external connections
-        // Make sure "Allow Remote Connections" is enabled in Unity Transport Inspector
-        LogServerInfo($"   → 🌐 ATTENTION: Verify that 'Allow Remote Connections' is enabled in Unity Transport!");
+        LogServerInfo($"🔧 KcpTransport configured for SERVER:");
+        LogServerInfo($"   → Port: {transport.Port}");
+        LogServerInfo($"   → Listening on all interfaces (0.0.0.0)");
+        LogServerInfo($"   → Address parameter '{address}' not used (KCP listens on 0.0.0.0 by default)");
     }
 
     #region Command Line Arguments Parsing
@@ -223,7 +219,7 @@ public class ServerBootstrap : MonoBehaviour {
             string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
             if (currentScene != gameScene.SceneName) {
                 LogServerInfo($"Loading game scene: {gameScene.SceneName}");
-                NetworkManager.Singleton.SceneManager.LoadScene(gameScene.SceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+                NetworkManager.singleton.ServerChangeScene(gameScene.SceneName);
             }
         }
     }
@@ -241,23 +237,23 @@ public class ServerBootstrap : MonoBehaviour {
     #region Server Lifecycle
 
     private void OnDestroy() {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer) {
+        if (NetworkServer.active) {
             // Unsubscribe from events
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnServerClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnServerClientDisconnected;
+            NetworkServer.OnConnectedEvent -= OnServerClientConnected;
+            NetworkServer.OnDisconnectedEvent -= OnServerClientDisconnected;
 
             LogServerInfo("Shutting down server...");
         }
     }
 
     private void OnApplicationQuit() {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer) {
+        if (NetworkServer.active) {
             // Unsubscribe from events
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnServerClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnServerClientDisconnected;
+            NetworkServer.OnConnectedEvent -= OnServerClientConnected;
+            NetworkServer.OnDisconnectedEvent -= OnServerClientDisconnected;
 
             LogServerInfo("Application quitting - shutting down server...");
-            NetworkManager.Singleton.Shutdown();
+            NetworkManager.singleton.StopServer();
         }
     }
 

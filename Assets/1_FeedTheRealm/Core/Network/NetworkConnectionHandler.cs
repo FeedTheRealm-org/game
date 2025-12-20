@@ -1,5 +1,5 @@
-using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
+using Mirror;
+using kcp2k;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -48,46 +48,35 @@ public class NetworkConnectionHandler : MonoBehaviour
     
     private void SubscribeToNetworkEvents()
     {
-        if (NetworkManager.Singleton == null)
+        if (NetworkManager.singleton == null)
         {
-            LogError("Cannot subscribe to network events: NetworkManager.Singleton is null!");
+            LogError("Cannot subscribe to network events: NetworkManager.singleton is null!");
             return;
         }
-        
+
         if (isSubscribedToEvents)
         {
             LogInfo("Already subscribed to network events, skipping...");
             return;
         }
-        
+
         LogInfo("Subscribing to Network events...");
-        
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-        
-        TrySubscribeToSceneEvents();
-        
+
+        NetworkClient.OnConnectedEvent += OnClientConnected;
+        NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
+
+        // Mirror uses Unity's SceneManager.sceneLoaded instead of network-specific scene events
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
         isSubscribedToEvents = true;
     }
     
+    // Mirror doesn't need separate scene event subscription - using Unity's SceneManager instead
+    // This method is kept for compatibility but does nothing
     private void TrySubscribeToSceneEvents()
     {
-        if (isSubscribedToSceneEvents)
-        {
-            return;
-        }
-        
-        if (NetworkManager.Singleton == null || NetworkManager.Singleton.SceneManager == null)
-        {
-            LogInfo("SceneManager not ready yet, will subscribe after client starts");
-            return;
-        }
-        
-        LogInfo("Subscribing to SceneManager events...");
-        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoadCompleted;
-        NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
-        isSubscribedToSceneEvents = true;
-        LogInfo("✅ Subscribed to SceneManager events successfully");
+        // Scene events are now handled via Unity's SceneManager.sceneLoaded
+        // Subscribed in SubscribeToNetworkEvents()
     }
     
 
@@ -97,20 +86,11 @@ public class NetworkConnectionHandler : MonoBehaviour
         {
             return;
         }
-        
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-            
-            if (isSubscribedToSceneEvents && NetworkManager.Singleton.SceneManager != null)
-            {
-                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnNetworkSceneLoadCompleted;
-                NetworkManager.Singleton.SceneManager.OnSceneEvent -= OnSceneEvent;
-                isSubscribedToSceneEvents = false;
-            }
-        }
-        
+
+        NetworkClient.OnConnectedEvent -= OnClientConnected;
+        NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
         isSubscribedToEvents = false;
         LogInfo("Unsubscribed from network events");
     }
@@ -128,14 +108,14 @@ public class NetworkConnectionHandler : MonoBehaviour
         LogInfo($"   IP Address: {ipAddress}");
         LogInfo($"   Port: {port}");
         LogInfo("==============================================");
-        
-        if (NetworkManager.Singleton == null)
+
+        if (NetworkManager.singleton == null)
         {
-            LogError("NetworkManager.Singleton is null!");
+            LogError("NetworkManager.singleton is null!");
             return;
         }
 
-        if (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsHost)
+        if (NetworkClient.isConnected)
         {
             LogWarning("Already connected or connecting!");
             return;
@@ -158,14 +138,15 @@ public class NetworkConnectionHandler : MonoBehaviour
         if (ConfigureTransport(ipAddress, port))
         {
             // Obtener el transport para verificación final
-            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            var transport = NetworkManager.singleton.GetComponent<KcpTransport>();
             LogInfo($"📡 Final transport configuration before StartClient:");
-            LogInfo($"   → Address: {transport.ConnectionData.Address}");
-            LogInfo($"   → Port: {transport.ConnectionData.Port}");
-            
-            bool success = NetworkManager.Singleton.StartClient();
-            
-            if (success)
+            LogInfo($"   → Address: {NetworkManager.singleton.networkAddress}");
+            LogInfo($"   → Port: {transport.Port}");
+
+            NetworkManager.singleton.StartClient();
+            bool success = NetworkClient.isConnected || NetworkClient.isConnecting;
+
+            if (success || NetworkClient.isConnecting)
             {
                 LogInfo($"✅ Client connection initiated to {ipAddress}:{port}");
             }
@@ -183,43 +164,34 @@ public class NetworkConnectionHandler : MonoBehaviour
     }
     
     /// <summary>
-    /// Configura el Unity Transport con la dirección IP y puerto del servidor
+    /// Configura el KCP Transport con la dirección IP y puerto del servidor
     /// </summary>
     private bool ConfigureTransport(string ipAddress, ushort port)
     {
-        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        
+        var transport = NetworkManager.singleton.GetComponent<KcpTransport>();
+
         if (transport == null)
         {
-            LogError("UnityTransport component not found on NetworkManager!");
+            LogError("KcpTransport component not found on NetworkManager!");
             return false;
         }
 
-        transport.ConnectionData.Address = ipAddress;
-        transport.ConnectionData.Port = port;
-        
-        // Este campo es SOLO para el servidor. Si está configurado, Unity Transport
-        // lo usa en lugar de Address, causando que el cliente intente conectarse a localhost
-        transport.ConnectionData.ServerListenAddress = string.Empty;
-        
+        // En Mirror, la dirección se configura en el NetworkManager, no en el transport
+        NetworkManager.singleton.networkAddress = ipAddress;
+        transport.Port = port;
+
         // Logging detallado para debugging
-        LogInfo($"✅ UnityTransport configured:");
-        LogInfo($"   → Address: {transport.ConnectionData.Address}");
-        LogInfo($"   → Port: {transport.ConnectionData.Port}");
-        LogInfo($"   → ServerListenAddress: '{transport.ConnectionData.ServerListenAddress}' (should be empty for client)");
-        
+        LogInfo($"✅ KcpTransport configured:");
+        LogInfo($"   → Address: {NetworkManager.singleton.networkAddress}");
+        LogInfo($"   → Port: {transport.Port}");
+
         // Verificar que la configuración se aplicó correctamente
-        if (transport.ConnectionData.Address != ipAddress)
+        if (NetworkManager.singleton.networkAddress != ipAddress)
         {
-            LogError($"❌ Transport Address not set correctly! Expected: {ipAddress}, Got: {transport.ConnectionData.Address}");
+            LogError($"❌ Transport Address not set correctly! Expected: {ipAddress}, Got: {NetworkManager.singleton.networkAddress}");
             return false;
         }
-        
-        if (!string.IsNullOrEmpty(transport.ConnectionData.ServerListenAddress))
-        {
-            LogWarning($"⚠️ ServerListenAddress is not empty: '{transport.ConnectionData.ServerListenAddress}' - This may cause connection issues!");
-        }
-        
+
         return true;
     }
     
@@ -250,87 +222,39 @@ public class NetworkConnectionHandler : MonoBehaviour
     #endregion
     
     #region Network Event Callbacks
-    
-    private void OnClientConnected(ulong clientId)
+
+    private void OnClientConnected()
     {
-        if (NetworkManager.Singleton.LocalClientId == clientId)
-        {
-            LogInfo($"🎉 Local client {clientId} connected to server!");
-            LogInfo($"   IsClient: {NetworkManager.Singleton.IsClient}");
-            LogInfo($"   IsServer: {NetworkManager.Singleton.IsServer}");
-            LogInfo($"   IsHost: {NetworkManager.Singleton.IsHost}");
-            
-            TrySubscribeToSceneEvents();
-        }
+        LogInfo($"🎉 Local client connected to server!");
+        LogInfo($"   IsClient: {NetworkClient.isConnected}");
+        LogInfo($"   IsServer: {NetworkServer.active}");
     }
-    
-    private void OnClientDisconnected(ulong clientId)
+
+    private void OnClientDisconnected()
     {
-        LogInfo($"🔌 OnClientDisconnected called: clientId={clientId}, LocalClientId={NetworkManager.Singleton?.LocalClientId}");
-        
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == clientId)
-        {
-            LogWarning($"❌ Local client {clientId} disconnected from server");
-            
-            LoadingScreenEvents.Hide();
-            
-            isConnecting = false;
-        }
+        LogWarning($"❌ Local client disconnected from server");
+
+        LoadingScreenEvents.Hide();
+
+        isConnecting = false;
     }
-    
-    private void OnNetworkSceneLoadCompleted(string sceneName, LoadSceneMode loadSceneMode, 
-        System.Collections.Generic.List<ulong> clientsCompleted, System.Collections.Generic.List<ulong> clientsTimedOut)
+
+    // Mirror uses Unity's SceneManager.sceneLoaded instead of network-specific scene events
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        LogInfo($"📍 OnNetworkSceneLoadCompleted called: Scene={sceneName}, isConnecting={isConnecting}, IsClient={NetworkManager.Singleton?.IsClient}, IsServer={NetworkManager.Singleton?.IsServer}");
-        
-        // Solo procesar si estamos conectando como cliente y no somos servidor
-        if (isConnecting && NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
+        LogInfo($"📍 OnSceneLoaded called: Scene={scene.name}, mode={mode}, isConnecting={isConnecting}");
+
+        // Solo procesar si estamos conectando como cliente
+        if (isConnecting && NetworkClient.isConnected)
         {
-            LogInfo($"Network scene '{sceneName}' load completed. Hiding loading screen with delay via events...");
-            
+            LogInfo($"Scene '{scene.name}' loaded. Hiding loading screen with delay...");
+
             LoadingScreenEvents.HideWithDelay();
-            
+
             isConnecting = false;
         }
-        else
-        {
-            LogInfo($"Skipping loading screen hide: isConnecting={isConnecting}, IsClient={NetworkManager.Singleton?.IsClient}, IsServer={NetworkManager.Singleton?.IsServer}");
-        }
     }
-    
-    private void OnSceneEvent(SceneEvent sceneEvent)
-    {
-        if (NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
-        {
-            LogInfo($"Scene Event: {sceneEvent.SceneEventType} - Scene: {sceneEvent.SceneName}");
-            
-            if (sceneEvent.SceneEventType == SceneEventType.Load && isConnecting)
-            {
-                LogInfo("Scene loading started - ensuring loading screen is visible via events");
-                LoadingScreenEvents.Show();
-            }
-            
-            if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && isConnecting)
-            {
-                LogInfo($"✅ Scene '{sceneEvent.SceneName}' load complete detected! Hiding loading screen with delay via events...");
-                
-                LoadingScreenEvents.HideWithDelay();
-                
-                isConnecting = false;
-            }
-            
-            if (sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete && isConnecting)
-            {
-                LogInfo($"✅ Scene synchronization complete! Hiding loading screen with delay via events...");
-                
-                // Usar el sistema de eventos para ocultar el loading screen
-                LoadingScreenEvents.HideWithDelay();
-                
-                isConnecting = false;
-            }
-        }
-    }
-    
+
     #endregion
     
     #region Helper Methods

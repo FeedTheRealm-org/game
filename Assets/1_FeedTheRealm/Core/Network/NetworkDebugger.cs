@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -41,10 +41,10 @@ public class NetworkDebugger : MonoBehaviour
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-        if (logNetworkEvents && NetworkManager.Singleton != null)
+        if (logNetworkEvents)
         {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+            NetworkServer.OnConnectedEvent += OnClientConnected;
+            NetworkServer.OnDisconnectedEvent += OnClientDisconnected;
         }
 
         if (logBuildScenes)
@@ -53,27 +53,28 @@ public class NetworkDebugger : MonoBehaviour
         }
     }
 
-    private void Update()
+    // FOR DEBUG (USES A LOT OF CPU IF ENABLED)
+    /*private void Update()
     {
         if (enablePeriodicLogs && Time.time >= nextLogTime)
         {
             nextLogTime = Time.time + logIntervalSeconds;
             LogPeriodicStatus();
         }
-    }
+    }*/
 
     private void LogStartupInfo()
     {
         logger.Log("=== NETWORK DEBUGGER INITIALIZED ===", this);
         logger.Log($"Scene: {SceneManager.GetActiveScene().name}", this);
-        logger.Log($"NetworkManager exists: {NetworkManager.Singleton != null}", this);
+        logger.Log($"NetworkManager exists: {NetworkManager.singleton != null}", this);
 
-        if (NetworkManager.Singleton != null)
+        if (NetworkManager.singleton != null)
         {
-            logger.Log($"NetworkManager scene: {NetworkManager.Singleton.gameObject.scene.name}", this);
-            logger.Log($"IsServer: {NetworkManager.Singleton.IsServer}", this);
-            logger.Log($"IsClient: {NetworkManager.Singleton.IsClient}", this);
-            logger.Log($"IsHost: {NetworkManager.Singleton.IsHost}", this);
+            logger.Log($"NetworkManager scene: {NetworkManager.singleton.gameObject.scene.name}", this);
+            logger.Log($"IsServer: {NetworkServer.active}", this);
+            logger.Log($"IsClient: {NetworkClient.isConnected}", this);
+            logger.Log($"IsHost: {NetworkServer.active && NetworkClient.isConnected}", this);
         }
     }
 
@@ -94,15 +95,15 @@ public class NetworkDebugger : MonoBehaviour
     private void LogPeriodicStatus()
     {
         string scene = SceneManager.GetActiveScene().name;
-        bool hasNetworkManager = NetworkManager.Singleton != null;
-        
+        bool hasNetworkManager = NetworkManager.singleton != null;
+
         string status = $"[{Time.time:F1}s] Scene: {scene} | NetworkManager: {hasNetworkManager}";
-        
+
         if (hasNetworkManager)
         {
-            status += $" | Server: {NetworkManager.Singleton.IsServer}";
-            status += $" | Client: {NetworkManager.Singleton.IsClient}";
-            status += $" | Players: {NetworkManager.Singleton.ConnectedClients.Count}";
+            status += $" | Server: {NetworkServer.active}";
+            status += $" | Client: {NetworkClient.isConnected}";
+            status += $" | Players: {NetworkServer.connections.Count}";
         }
 
         logger.Log(status, this);
@@ -111,22 +112,21 @@ public class NetworkDebugger : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         logger.Log($"🔁 Scene loaded: {scene.name} (mode: {mode})", this);
-        
-        if (NetworkManager.Singleton != null)
+
+        if (NetworkManager.singleton != null)
         {
-            logger.Log($"   Network status: Server={NetworkManager.Singleton.IsServer}, Client={NetworkManager.Singleton.IsClient}", this);
+            logger.Log($"   Network status: Server={NetworkServer.active}, Client={NetworkClient.isConnected}", this);
         }
     }
 
-    private void OnClientConnected(ulong clientId)
+    private void OnClientConnected(NetworkConnectionToClient conn)
     {
-        bool isLocal = NetworkManager.Singleton.LocalClientId == clientId;
-        logger.Log($"👤 Client connected: {clientId} {(isLocal ? "(LOCAL)" : "(REMOTE)")}", this);
+        logger.Log($"👤 Client connected: {conn.connectionId}", this);
     }
 
-    private void OnClientDisconnected(ulong clientId)
+    private void OnClientDisconnected(NetworkConnectionToClient conn)
     {
-        logger.Log($"👋 Client disconnected: {clientId}", this);
+        logger.Log($"👋 Client disconnected: {conn.connectionId}", this);
     }
 
     private void OnDestroy()
@@ -134,14 +134,14 @@ public class NetworkDebugger : MonoBehaviour
         if (Instance == this)
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
-            
-            // Safe unsubscribe from NetworkManager events
-            if (NetworkManager.Singleton != null)
+
+            // Unsubscribe from Mirror network events
+            if (NetworkServer.active)
             {
-                NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
-                NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+                NetworkServer.OnConnectedEvent -= OnClientConnected;
+                NetworkServer.OnDisconnectedEvent -= OnClientDisconnected;
             }
-            
+
             Instance = null;
         }
     }
@@ -151,15 +151,14 @@ public class NetworkDebugger : MonoBehaviour
     {
         if (Instance == null) return;
 
-        var netObj = player.GetComponent<NetworkObject>();
+        var netIdentity = player.GetComponent<NetworkIdentity>();
         Instance.logger.Log($"📍 Player Info: {player.name}", Instance);
-        
-        if (netObj != null)
+
+        if (netIdentity != null)
         {
-            Instance.logger.Log($"   NetworkId: {netObj.NetworkObjectId}", Instance);
-            Instance.logger.Log($"   Owner: {netObj.OwnerClientId}", Instance);
-            Instance.logger.Log($"   IsOwner: {netObj.IsOwner}", Instance);
-            Instance.logger.Log($"   IsSpawned: {netObj.IsSpawned}", Instance);
+            Instance.logger.Log($"   NetworkId: {netIdentity.netId}", Instance);
+            Instance.logger.Log($"   ConnectionId: {netIdentity.connectionToClient?.connectionId}", Instance);
+            Instance.logger.Log($"   IsServer: {netIdentity.isServer}", Instance);
         }
     }
 

@@ -15,6 +15,7 @@ public class DashComponent : MonoBehaviour {
     [SerializeField] private float staminaConsumption = 20f;
 
     private bool isDashing;
+    private NetworkMovementSynchronizer networkMovementSync;
 
     public bool IsDashing => isDashing;
 
@@ -24,6 +25,9 @@ public class DashComponent : MonoBehaviour {
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
         if (movement == null) movement = GetComponent<MovementComponent>();
+
+        // Try to find NetworkMovementSynchronizer for multiplayer support
+        networkMovementSync = GetComponent<NetworkMovementSynchronizer>();
     }
 
     /// <summary>
@@ -50,6 +54,15 @@ public class DashComponent : MonoBehaviour {
     private IEnumerator dashRoutine(Vector3 direction) {
         isDashing = true;
 
+        // Notify NetworkMovementSynchronizer to prevent velocity sync during dash
+        if (networkMovementSync != null) {
+            networkMovementSync.NotifyDashStart(dashDuration);
+        }
+
+        // Disable MovementComponent to prevent it from overriding the dash velocity
+        bool wasMovementEnabled = movement.enabled;
+        movement.enabled = false;
+
         // apply instant burst
         rb.linearVelocity = Vector3.zero;
         rb.AddForce(direction * dashSpeed, ForceMode.VelocityChange);
@@ -59,6 +72,10 @@ public class DashComponent : MonoBehaviour {
         // stop dash instantly for "snappy" feel
         rb.linearVelocity = Vector3.zero;
         isDashing = false;
+
+        // Re-enable MovementComponent
+        movement.enabled = wasMovementEnabled;
+      
         OnDashFinished?.Invoke();
     }
 

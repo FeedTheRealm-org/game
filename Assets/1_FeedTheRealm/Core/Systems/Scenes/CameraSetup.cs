@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Cinemachine;
-using Unity.Netcode;
+using Mirror;
 
 public class CameraSetup : MonoBehaviour
 {
@@ -26,6 +26,15 @@ public class CameraSetup : MonoBehaviour
 
     void Start()
     {
+        // Only setup camera on clients, not on dedicated server
+        if (NetworkServer.active && !NetworkClient.active)
+        {
+            // Dedicated server - no camera needed
+            logger.Log("CameraSetup disabled on dedicated server", this);
+            enabled = false;
+            return;
+        }
+
         // Wait a frame for the player to spawn
         setupCoroutine = StartCoroutine(WaitForPlayerAndSetupCamera());
     }
@@ -54,7 +63,7 @@ public class CameraSetup : MonoBehaviour
 
         if (playerTransform == null)
         {
-            logger.Log("CameraSetup: Local player not found! Make sure the player prefab has a NetworkObject and the player tag is set.", this, Logging.LogType.Error);
+            logger.Log("CameraSetup: Local player not found! Make sure the player prefab has a NetworkIdentity and the player tag is set.", this, Logging.LogType.Error);
             return;
         }
 
@@ -103,22 +112,23 @@ public class CameraSetup : MonoBehaviour
         GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
         if (playerObj != null)
         {
-            var netObj = playerObj.GetComponent<NetworkObject>();
-            if (netObj != null && netObj.IsOwner)
+            var netIdentity = playerObj.GetComponent<NetworkIdentity>();
+            if (netIdentity != null && netIdentity.isLocalPlayer)
             {
                 logger.Log($"Found local player by tag '{playerTag}': {playerObj.name}", this);
                 return playerObj.transform;
             }
         }
 
-        // If tag search fails, find all NetworkObjects and get the local player
-        var allNetworkObjects = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
-        foreach (var netObj in allNetworkObjects)
+        // If tag search fails, find all NetworkIdentities and get the local player
+        var allNetworkIdentities = FindObjectsByType<NetworkIdentity>(FindObjectsSortMode.None);
+        foreach (var netIdentity in allNetworkIdentities)
         {
-            if (netObj.IsOwner && netObj.IsPlayerObject)
+            // In Mirror, isLocalPlayer indicates this is the local player
+            if (netIdentity.isLocalPlayer)
             {
-                logger.Log($"Found local player by NetworkObject scan: {netObj.gameObject.name}", this);
-                return netObj.transform;
+                logger.Log($"Found local player by NetworkIdentity scan: {netIdentity.gameObject.name}", this);
+                return netIdentity.transform;
             }
         }
 

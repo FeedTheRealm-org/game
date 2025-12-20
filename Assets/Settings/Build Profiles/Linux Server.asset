@@ -24,6 +24,8 @@ MonoBehaviour:
     m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MPMenuScene.unity
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MultiplayerScene.unity
+  - m_enabled: 0
+    m_path: Assets/1_FeedTheRealm/Scenes/Main/SampleScene.unity
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

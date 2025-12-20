@@ -110,6 +110,13 @@ Packages/packages-lock.json
 ProjectSettings/EditorBuildSettings.asset
 
 # Assets
+Mirror.meta
+Resources.meta
+ScriptTemplates.meta
+Assets/Mirror/
+Assets/ScriptTemplates/
+
+
 Assets/SyntyStudios/
 Assets/SyntyStudios.meta
 Assets/TextMesh Pro/

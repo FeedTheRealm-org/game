@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 
 /// <summary>
 /// Synchronizes attack actions for networked characters.
@@ -7,9 +7,9 @@ using Unity.Netcode;
 /// keeping AttackComponent as a pure MonoBehaviour.
 ///
 /// When a player attacks:
-/// - Client: Sends attack request to server via ServerRpc
+/// - Client: Sends attack request to server via Command
 /// - Server: Validates and executes attack, applies damage to targets
-/// - Clients: Receive attack animation/effects via ClientRpc (optional)
+/// - Clients: Receive attack animation/effects via ClientRpc
 /// </summary>
 public class NetworkAttackSynchronizer : NetworkBehaviour {
     [SerializeField] private AttackComponent attackComponent;
@@ -24,7 +24,6 @@ public class NetworkAttackSynchronizer : NetworkBehaviour {
     [SerializeField] private int attackDamage = 40;
 
     private Transform hitPoint;
-    private bool isLocalPlayerOwned = false;
 
     // Cache animator reference to avoid GetComponentInChildren calls
     private Animator cachedAnimator;
@@ -46,18 +45,15 @@ public class NetworkAttackSynchronizer : NetworkBehaviour {
         cachedAnimator = GetComponentInChildren<Animator>();
     }
 
-    public override void OnNetworkSpawn() {
-        // Check if this is the local player
-        isLocalPlayerOwned = IsOwner;
-
-        if (isLocalPlayerOwned) {
-            // Local player: Subscribe to local attack component
-            // We'll intercept the attack and send it to server
+    public override void OnStartClient() {
+        if (isLocalPlayer) {
+            // Local player
             if (enableLogs)
-                logger?.Log($"[NetworkAttackSynchronizer] Local player {OwnerClientId} initialized (Damage: {attackDamage}, Radius: {hitRadius})", this);
+                logger?.Log($"[NetworkAttackSynchronizer] Local player initialized (Damage: {attackDamage}, Radius: {hitRadius})", this);
         } else {
+            // Remote player
             if (enableLogs)
-                logger?.Log($"[NetworkAttackSynchronizer] Remote player {OwnerClientId} initialized", this);
+                logger?.Log($"[NetworkAttackSynchronizer] Remote player initialized", this);
         }
     }
 
@@ -66,8 +62,8 @@ public class NetworkAttackSynchronizer : NetworkBehaviour {
     /// This replaces the local AttackComponent.DetectAttackHit() in multiplayer
     /// </summary>
     public void DetectAttackHit() {
-        if (!IsOwner) {
-            //logger?.Log("[NetworkAttackSynchronizer] Only owner can trigger attacks!", this, Logging.LogType.Warning);
+        if (!isLocalPlayer) {
+            //logger?.Log("[NetworkAttackSynchronizer] Only local player can trigger attacks!", this, Logging.LogType.Warning);
             return;
         }
 
@@ -78,21 +74,19 @@ public class NetworkAttackSynchronizer : NetworkBehaviour {
         }
 
         // Send attack to server
-        DetectAttackHitServerRpc(hitPoint.position);
+        CmdDetectAttackHit(hitPoint.position);
     }
 
     /// <summary>
-    /// Server receives attack request from client
+    /// Command: Server receives attack request from client
     /// </summary>
-    [ServerRpc]
-    private void DetectAttackHitServerRpc(Vector3 attackPosition) {
-        if (!IsServer) return;
-
+    [Command]
+    private void CmdDetectAttackHit(Vector3 attackPosition) {
         if (enableLogs)
             logger?.Log($"[NetworkAttackSynchronizer] Server processing attack at {attackPosition}", this);
 
         // Broadcast attack animation to all clients (except owner who already played it locally)
-        PlayAttackAnimationClientRpc();
+        RpcPlayAttackAnimation();
 
         // Detect all colliders in hit radius
         Collider[] hitColliders = Physics.OverlapSphere(attackPosition, hitRadius, targetLayers);
@@ -117,18 +111,18 @@ public class NetworkAttackSynchronizer : NetworkBehaviour {
     }
 
     /// <summary>
-    /// Broadcast attack animation to all clients
+    /// ClientRpc: Broadcast attack animation to all clients
     /// </summary>
     [ClientRpc]
-    private void PlayAttackAnimationClientRpc() {
-        // Skip if this is the owner (they already played the animation locally via AttackComponent)
-        if (IsOwner) return;
+    private void RpcPlayAttackAnimation() {
+        // Skip if this is the local player (they already played the animation locally via AttackComponent)
+        if (isLocalPlayer) return;
 
         // Play attack animation on remote clients using cached animator
         if (cachedAnimator != null) {
             cachedAnimator.SetTrigger("2_Attack");
             if (enableLogs)
-                logger?.Log($"[NetworkAttackSynchronizer] Remote client playing attack animation for player {OwnerClientId}", this);
+                logger?.Log($"[NetworkAttackSynchronizer] Remote client playing attack animation", this);
         }
     }
 
@@ -144,12 +138,5 @@ public class NetworkAttackSynchronizer : NetworkBehaviour {
 
         if (enableLogs)
             logger?.Log($"[NetworkAttackSynchronizer] Configured: Radius={radius}, Damage={damage}, Layers={layers.value}", this);
-    }
-
-    private void OnDrawGizmosSelected() {
-        if (hitPoint != null) {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(hitPoint.position, hitRadius);
-        }
     }
 }
