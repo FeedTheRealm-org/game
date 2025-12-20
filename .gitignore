@@ -111,6 +111,7 @@ ProjectSettings/EditorBuildSettings.asset
 
 # Assets
 Assets/SyntyStudios/
+Assets/SyntyStudios.meta
 Assets/TextMesh Pro/
 Assets/Cartoon_Texture_Pack/
 Assets/SPUM/
@@ -127,9 +128,8 @@ RPGPP_LT/
 
 Assets/RPGPP_LT/
 RPGPP_LT.meta
-Assets/Polygon_Arsenal.meta
-Assets/Polygon_Arsenal/
-
+Assets/Polygon Arsenal.meta
+Assets/Polygon Arsenal/
 Assets/HeroEditor4D/
 HeroEditor4D.meta
 SyntyStudios.meta
