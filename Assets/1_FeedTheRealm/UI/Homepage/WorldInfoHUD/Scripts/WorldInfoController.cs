@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,11 +13,14 @@ public class WorldInfoController : MonoBehaviour {
     private API.PlayerService playerService;
 
     private VisualElement ui;
+    private VisualElement SideBar;
     private Button CloseButton;
     private Label WorldNameLabel;
     private Label WorldDescriptionLabel;
     private Label WorldCreatedAtLabel;
     private Label WorldCreatorLabel;
+    private Coroutine sidebarAnimationCoroutine;
+    private float sidebarWidthPx = 0f;
 
     public void SetCurrentWorld(Models.WorldMetadata world) {
         logger.Log($"Setting current world info: {world.name}", this);
@@ -73,6 +77,13 @@ public class WorldInfoController : MonoBehaviour {
     private void OnEnable() {
         ui = GetComponent<UIDocument>().rootVisualElement;
 
+        SideBar = ui.Q<VisualElement>("SideBar");
+        if (SideBar == null) {
+            logger.Log("SideBar element not found in UI", this, Logging.LogType.Warning);
+            return;
+        }
+        SideBar.RegisterCallback<GeometryChangedEvent>(OnSideBarGeometryChanged);
+
         CloseButton = ui.Q<Button>("CloseButton");
         if (CloseButton == null) {
             logger.Log("CloseButton not found in UI", this, Logging.LogType.Warning);
@@ -103,6 +114,47 @@ public class WorldInfoController : MonoBehaviour {
 
     private void OnCloseButtonClicked() {
         logger.Log("Close button clicked", this);
-        gameObject.SetActive(false);
+        if (SideBar == null) {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        CloseButton.SetEnabled(false);
+
+        if (sidebarAnimationCoroutine != null) StopCoroutine(sidebarAnimationCoroutine);
+        sidebarAnimationCoroutine = StartCoroutine(AnimateSidebar(sidebarWidthPx > 0 ? 0f : 0f, -sidebarWidthPx, 0.28f, () => {
+            gameObject.SetActive(false);
+        }));
+    }
+
+    private void OnSideBarGeometryChanged(GeometryChangedEvent evt) {
+        SideBar.UnregisterCallback<GeometryChangedEvent>(OnSideBarGeometryChanged);
+
+        sidebarWidthPx = SideBar.resolvedStyle.width;
+        SideBar.style.position = Position.Absolute;
+        SideBar.style.top = new StyleLength(new Length(0, LengthUnit.Pixel));
+        SideBar.style.height = new StyleLength(new Length(evt.newRect.height, LengthUnit.Pixel));
+        SideBar.style.width = new StyleLength(new Length(sidebarWidthPx, LengthUnit.Pixel));
+
+        SideBar.style.left = new StyleLength(new Length(-sidebarWidthPx, LengthUnit.Pixel));
+        if (sidebarAnimationCoroutine != null) StopCoroutine(sidebarAnimationCoroutine);
+        sidebarAnimationCoroutine = StartCoroutine(AnimateSidebar(-sidebarWidthPx, 0f, 0.28f, () => {
+            CloseButton?.SetEnabled(true);
+        }));
+    }
+
+    private IEnumerator AnimateSidebar(float fromPx, float toPx, float duration, System.Action onComplete = null) {
+        float elapsed = 0f;
+        while (elapsed < duration) {
+            float t = Mathf.Clamp01(elapsed / duration);
+            float eased = 1f - Mathf.Pow(1f - t, 3f);
+            float x = Mathf.Lerp(fromPx, toPx, eased);
+            SideBar.style.left = new StyleLength(new Length(x, LengthUnit.Pixel));
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        SideBar.style.left = new StyleLength(new Length(toPx, LengthUnit.Pixel));
+        onComplete?.Invoke();
+        sidebarAnimationCoroutine = null;
     }
 }
