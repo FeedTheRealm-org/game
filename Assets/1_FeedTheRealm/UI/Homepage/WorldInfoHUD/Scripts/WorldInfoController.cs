@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -11,31 +12,21 @@ public class WorldInfoController : MonoBehaviour {
     private API.PlayerService playerService;
 
     private VisualElement ui;
+    private Button CloseButton;
+    private Label WorldNameLabel;
+    private Label WorldDescriptionLabel;
+    private Label WorldCreatedAtLabel;
+    private Label WorldCreatorLabel;
 
     public void SetCurrentWorld(Models.WorldMetadata world) {
         logger.Log($"Setting current world info: {world.name}", this);
 
-        Label worldNameLabel = ui.Q<Label>("Title");
-        if (worldNameLabel != null) {
-            worldNameLabel.text = world.name.Split('.')[0];
-        } else {
-            logger.Log("WorldNameLabel not found in UI", this, Logging.LogType.Warning);
-        }
+        WorldNameLabel.text = world.name.Split('.')[0];
+        WorldDescriptionLabel.text = world.description;
+        WorldCreatedAtLabel.text = $"Created {makeHumanReadableCreatedAt(world.createdAt)}";
 
-        Label worldCreatedAtLabel = ui.Q<Label>("CreatedAt");
-        if (worldCreatedAtLabel != null) {
-            worldCreatedAtLabel.text = $"Created {makeHumanReadableCreatedAt(world.createdAt)}";
-        } else {
-            logger.Log("WorldCreatedAtLabel not found in UI", this, Logging.LogType.Warning);
-        }
-
-        Label worldCreatorLabel = ui.Q<Label>("CreatedBy");
-        if (worldCreatorLabel != null) {
-            string displayName = getUserDisplayName(world.userId);
-            worldCreatorLabel.text = $"Created By {displayName}";
-        } else {
-            logger.Log("WorldCreatorLabel not found in UI", this, Logging.LogType.Warning); 
-        }
+        string displayName = getUserDisplayName(world.userId);
+        WorldCreatorLabel.text = $"Created By {displayName}";
     }
 
     private string getUserDisplayName(string userId) {
@@ -82,8 +73,32 @@ public class WorldInfoController : MonoBehaviour {
     private void OnEnable() {
         ui = GetComponent<UIDocument>().rootVisualElement;
 
-        Button closeButton = ui.Q<Button>("CloseButton");
-        closeButton.clicked += OnCloseButtonClicked;
+        CloseButton = ui.Q<Button>("CloseButton");
+        if (CloseButton == null) {
+            logger.Log("CloseButton not found in UI", this, Logging.LogType.Warning);
+            return;
+        }
+        CloseButton.clicked += OnCloseButtonClicked;
+
+        WorldNameLabel = ui.Q<Label>("Title");
+        if (WorldNameLabel == null) {
+            logger.Log("WorldNameLabel not found in UI", this, Logging.LogType.Warning);
+        }
+
+        WorldDescriptionLabel = ui.Q<Label>("Description");
+        if (WorldDescriptionLabel == null) {
+            logger.Log("WorldDescriptionLabel not found in UI", this, Logging.LogType.Warning);
+        }
+
+        WorldCreatedAtLabel = ui.Q<Label>("CreatedAt");
+        if (WorldCreatedAtLabel == null) {
+            logger.Log("WorldCreatedAtLabel not found in UI", this, Logging.LogType.Warning);
+        }
+
+        WorldCreatorLabel = ui.Q<Label>("CreatedBy");
+        if (WorldCreatorLabel == null) {
+            logger.Log("WorldCreatorLabel not found in UI", this, Logging.LogType.Warning);
+        }
     }
 
     private void OnCloseButtonClicked() {
