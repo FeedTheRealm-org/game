@@ -8,7 +8,7 @@
             </ui:VisualElement>
             <ui:ScrollView name="ListOfWorlds" mode="Vertical" vertical-page-size="-1" nested-interaction-kind="Default" horizontal-scroller-visibility="Hidden" style="height: 75%; flex-direction: row; flex-wrap: wrap-reverse; width: 100%; white-space: normal; margin-bottom: 10px;">
                 <ui:VisualElement enabled="false" class="worldElement" style="flex-grow: 1;">
-                    <ui:Button text="i " name="AboutButton" class="aboutButton"/>
+                    <ui:Button text="i" name="AboutButton" class="aboutButton"/>
                     <ui:Label text="atusgamesmegaepicworl.world" class="categoryName"/>
                 </ui:VisualElement>
                 <ui:Label text="No worlds or categories found matching " name="NotFound" enabled="true" class="noResultsMessage" style="font-size: 18%;"/>

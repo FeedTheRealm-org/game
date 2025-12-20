@@ -163,6 +163,7 @@ public class WorldFeedMenuController : MonoBehaviour {
         var worldAboutButton = new Button();
         worldAboutButton.AddToClassList("aboutButton");
         worldAboutButton.name = "AboutButton";
+        worldAboutButton.text = "i";
         worldAboutButton.clicked += () => {
             onClickAboutWorld(worldData);
         };
