@@ -22,9 +22,31 @@ public class WorldInfoController : MonoBehaviour {
 
         Label worldCreatedAtLabel = ui.Q<Label>("CreatedAt");
         if (worldCreatedAtLabel != null) {
-            worldCreatedAtLabel.text = $"Created At: {world.createdAt}";
+            worldCreatedAtLabel.text = $"Created {makeHumanReadableCreatedAt(world.createdAt)}";
         } else {
             logger.Log("WorldCreatedAtLabel not found in UI", this, Logging.LogType.Warning);
+        }
+    }
+
+    private string makeHumanReadableCreatedAt(string createdAt) {
+        if (DateTime.TryParse(createdAt, out DateTime parsedDate)) {
+            TimeSpan span = DateTime.UtcNow - parsedDate.ToUniversalTime();
+
+            if (span.TotalSeconds < 60) return "just now";
+            if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} minute{((int)span.TotalMinutes == 1 ? "" : "s")} ago";
+            if (span.TotalHours < 24) return $"{(int)span.TotalHours} hour{((int)span.TotalHours == 1 ? "" : "s")} ago";
+            if (span.TotalDays < 30) return $"{(int)span.TotalDays} day{((int)span.TotalDays == 1 ? "" : "s")} ago";
+
+            if (span.TotalDays < 365) {
+                int months = (int)(span.TotalDays / 30);
+                return $"{months} month{(months == 1 ? "" : "s")} ago";
+            }
+
+            int years = (int)(span.TotalDays / 365);
+            return $"{years} year{(years == 1 ? "" : "s")} ago";
+        } else {
+            logger.Log($"Failed to parse createdAt date: {createdAt}", this, Logging.LogType.Warning);
+            return createdAt;
         }
     }
 
