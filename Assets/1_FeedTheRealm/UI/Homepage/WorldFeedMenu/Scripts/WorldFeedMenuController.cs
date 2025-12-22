@@ -17,6 +17,8 @@ public class WorldFeedMenuController : MonoBehaviour {
     private API.WorldService worldService;
     [SerializeField]
     private SceneReference worldScene;
+    [SerializeField]
+    private GameObject worldInfoHUD;
 
     private VisualElement ui;
     private TextField searchField;
@@ -116,9 +118,9 @@ public class WorldFeedMenuController : MonoBehaviour {
     }
 
 
-    private void OnWorldSelected(Models.WorldData worldData) {
-        worldHandler.SetSelectedWorld(worldData);
-        logger.Log($"World selected: {worldData.id}", this);
+    private void OnWorldSelected(Models.WorldMetadata world) {
+        worldHandler.SetSelectedWorld(world);
+        logger.Log($"World selected: {world.id}", this);
         SceneManager.LoadScene(worldScene.SceneName);
     }
 
@@ -147,23 +149,39 @@ public class WorldFeedMenuController : MonoBehaviour {
     }
 
 
-    private VisualElement CreateWorldElement(Models.WorldData worldData) {
-        if (worldData == null || string.IsNullOrEmpty(worldData.worldName)) return null;
+    private VisualElement CreateWorldElement(Models.WorldMetadata worldData) {
+        if (worldData == null || string.IsNullOrEmpty(worldData.name)) return null;
 
         var worldElement = new VisualElement();
         worldElement.AddToClassList("worldElement");
         worldElement.name = "WorldElement";
 
-        var worldLabel = new Label(worldData.worldName);
+        var worldLabel = new Label(worldData.name.Split('.')[0]);
         worldLabel.AddToClassList("worldName");
         worldLabel.name = "WorldName";
 
+        var worldAboutButton = new Button();
+        worldAboutButton.AddToClassList("aboutButton");
+        worldAboutButton.name = "AboutButton";
+        worldAboutButton.text = "i";
+        worldAboutButton.clicked += () => {
+            onClickAboutWorld(worldData);
+        };
+
         worldElement.Add(worldLabel);
+        worldElement.Add(worldAboutButton);
 
         worldElement.AddManipulator(new Clickable(() => {
             OnWorldSelected(worldData);
         }));
+
         return worldElement;
+    }
+
+    private void onClickAboutWorld(Models.WorldMetadata world) {
+        logger.Log($"About world clicked: {world.name}", this);
+        worldInfoHUD.SetActive(true);
+        worldInfoHUD.GetComponent<WorldInfoController>().SetCurrentWorld(world);
     }
 
     private void RenderCategories() {
@@ -203,7 +221,7 @@ public class WorldFeedMenuController : MonoBehaviour {
         return noResultsLabel;
     }
 
-    private VisualElement CreateCategoryContainer(Worlds.Category category, List<Models.WorldData> worlds) {
+    private VisualElement CreateCategoryContainer(Worlds.Category category, List<Models.WorldMetadata> worlds) {
         var categoryContainer = new VisualElement();
         categoryContainer.AddToClassList("categoryList");
 
