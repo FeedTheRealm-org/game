@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
   m_Name: AnimationLogger
   m_EditorClassIdentifier: FeedTheRealm_Shared::Logging.Logger
-  _showLogs: 1
-  _loggerPrefix: '[Animation]'
-  _loggerColor: {r: 0.95104533, g: 0.58441967, b: 1, a: 0}
+  showLogs: 1
+  loggerPrefix: '[Animations]'
+  loggerColor: {r: 1, g: 0.3223002, b: 0.95482004, a: 0}
+  showColor: 1

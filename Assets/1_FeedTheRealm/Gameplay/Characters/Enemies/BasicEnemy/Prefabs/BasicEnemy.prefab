@@ -96,6 +96,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!136 &4885086532300312383
 CapsuleCollider:
@@ -165,7 +166,7 @@ MonoBehaviour:
   groundCheckSphereRadius: 0.4
   groundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
 --- !u!114 &167866136409368639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,8 +214,8 @@ MonoBehaviour:
   alwaysDrop: 1
   spawnOffset: {x: 0, y: 0, z: 0}
   randomOffset: 0.1
-  lootTable: {fileID: 11400000, guid: 5d3eaf8c503ba676c931c9b6e666df6b, type: 2}
-  legacyLootItems: []
+  itemCount: 1
+  categoryFilter:
   logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!1 &6880780016325336480
 GameObject:
@@ -338,6 +339,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!135 &6281635653476094267
 SphereCollider:

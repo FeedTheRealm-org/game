@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
-  m_Name: InventoryLogger
+  m_Name: Components
   m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  _showLogs: 1
-  _loggerPrefix: '[INVENTORY]'
-  _loggerColor: {r: 0.02055893, g: 0.6226415, b: 0.3192314, a: 1}
+  showLogs: 1
+  loggerPrefix: '[Components]'
+  loggerColor: {r: 0.5998248, g: 1, b: 0.35964906, a: 0}
+  showColor: 0

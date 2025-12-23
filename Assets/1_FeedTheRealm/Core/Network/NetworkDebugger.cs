@@ -64,15 +64,22 @@ public class NetworkDebugger : MonoBehaviour
         }
     }
 
-    // FOR DEBUG (USES A LOT OF CPU IF ENABLED)
-    /*private void Update()
+    private void OnDestroy()
     {
-        if (enablePeriodicLogs && Time.time >= nextLogTime)
+        if (Instance == this)
         {
-            nextLogTime = Time.time + logIntervalSeconds;
-            LogPeriodicStatus();
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+
+            // Unsubscribe from Mirror network events
+            if (NetworkServer.active)
+            {
+                NetworkServer.OnConnectedEvent -= OnClientConnected;
+                NetworkServer.OnDisconnectedEvent -= OnClientDisconnected;
+            }
+
+            Instance = null;
         }
-    }*/
+    }
 
     private void LogStartupInfo()
     {
@@ -143,58 +150,6 @@ public class NetworkDebugger : MonoBehaviour
 
     private void OnClientDisconnected(NetworkConnectionToClient conn)
     {
-        logger.Log($"👋 Client disconnected: {conn.connectionId}", this);
-    }
-
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-
-            // Unsubscribe from Mirror network events
-            if (NetworkServer.active)
-            {
-                NetworkServer.OnConnectedEvent -= OnClientConnected;
-                NetworkServer.OnDisconnectedEvent -= OnClientDisconnected;
-            }
-
-            Instance = null;
-        }
-    }
-
-    // Public utility methods for manual logging
-    public static void LogPlayerInfo(GameObject player)
-    {
-        if (Instance == null)
-            return;
-
-        var netIdentity = player.GetComponent<NetworkIdentity>();
-        Instance.logger.Log($"📍 Player Info: {player.name}", Instance);
-
-        if (netIdentity != null)
-        {
-            Instance.logger.Log($"   NetworkId: {netIdentity.netId}", Instance);
-            Instance.logger.Log(
-                $"   ConnectionId: {netIdentity.connectionToClient?.connectionId}",
-                Instance
-            );
-            Instance.logger.Log($"   IsServer: {netIdentity.isServer}", Instance);
-        }
-    }
-
-    public static void LogCameraInfo(Transform target)
-    {
-        if (Instance == null)
-            return;
-
-        Instance.logger.Log(
-            $"🎥 Camera target set: {(target != null ? target.name : "NULL")}",
-            Instance
-        );
-        Instance.logger.Log(
-            $"   Main Camera: {(Camera.main != null ? Camera.main.name : "NULL")}",
-            Instance
-        );
+        logger.Log($"👤 Client disconnected: {conn.connectionId}", this);
     }
 }
