@@ -113,23 +113,6 @@ public class NetworkDebugger : MonoBehaviour
         }
     }
 
-    private void LogPeriodicStatus()
-    {
-        string scene = SceneManager.GetActiveScene().name;
-        bool hasNetworkManager = NetworkManager.singleton != null;
-
-        string status = $"[{Time.time:F1}s] Scene: {scene} | NetworkManager: {hasNetworkManager}";
-
-        if (hasNetworkManager)
-        {
-            status += $" | Server: {NetworkServer.active}";
-            status += $" | Client: {NetworkClient.isConnected}";
-            status += $" | Players: {NetworkServer.connections.Count}";
-        }
-
-        logger.Log(status, this);
-    }
-
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         logger.Log($"🔁 Scene loaded: {scene.name} (mode: {mode})", this);
@@ -145,11 +128,17 @@ public class NetworkDebugger : MonoBehaviour
 
     private void OnClientConnected(NetworkConnectionToClient conn)
     {
-        logger.Log($"👤 Client connected: {conn.connectionId}", this);
+        logger.Log(
+            $"👤 Client connected: {conn.connectionId}, Total conns: {NetworkServer.connections.Count}",
+            this
+        );
     }
 
     private void OnClientDisconnected(NetworkConnectionToClient conn)
     {
-        logger.Log($"👤 Client disconnected: {conn.connectionId}", this);
+        logger.Log(
+            $"👤 Client disconnected: {conn.connectionId}, Total conns: {NetworkServer.connections.Count}",
+            this
+        );
     }
 }

@@ -4919,8 +4919,6 @@ GameObject:
   - component: {fileID: 4629284952826211309}
   - component: {fileID: 4885086532300312383}
   - component: {fileID: 3095535743837438187}
-  - component: {fileID: 7195002702095716471}
-  - component: {fileID: 7721620102888945814}
   - component: {fileID: 5877262516690015562}
   - component: {fileID: 1578071206875185455}
   - component: {fileID: 448067336067517275}
@@ -4929,10 +4927,12 @@ GameObject:
   - component: {fileID: 8432168777086298840}
   - component: {fileID: -3982517216707536514}
   - component: {fileID: 1151433029656121642}
+  - component: {fileID: 5444488632108469531}
+  - component: {fileID: 7721620102888945814}
+  - component: {fileID: 7195002702095716471}
   - component: {fileID: 2903214459336409646}
   - component: {fileID: -1683734520962331690}
   - component: {fileID: 8942674585528972223}
-  - component: {fileID: 5444488632108469531}
   m_Layer: 9
   m_Name: PlayerMP
   m_TagString: Player
@@ -5063,41 +5063,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &7195002702095716471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d68d4e1bf0095e402a2b81a6dd47a944, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkMovementSynchronizer
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
-  movementComponent: {fileID: 448067336067517275}
-  rb: {fileID: 3095535743837438187}
---- !u!114 &7721620102888945814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8efa6421800298419a5f9c4b9c4efb48, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerController
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
-  playerInputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
 --- !u!114 &5877262516690015562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5130,7 +5095,7 @@ MonoBehaviour:
   groundCheckSphereRadius: 0.4
   groundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
 --- !u!114 &448067336067517275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5186,7 +5151,7 @@ MonoBehaviour:
   hitRadius: 1.5
   targetLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
 --- !u!114 &8432168777086298840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5242,6 +5207,58 @@ MonoBehaviour:
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+--- !u!114 &5444488632108469531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7999438bd0c049ea2ba1c00331a958a1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStateMachine
+  movementComponent: {fileID: 448067336067517275}
+  dashComponent: {fileID: 3922140041663509706}
+  attackComponent: {fileID: 7856473034520349750}
+  groundCheckComponent: {fileID: 1578071206875185455}
+  characterAnimator: {fileID: 1302345659188457434}
+--- !u!114 &7721620102888945814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8efa6421800298419a5f9c4b9c4efb48, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerController
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  playerInputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+--- !u!114 &7195002702095716471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d68d4e1bf0095e402a2b81a6dd47a944, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkMovementSynchronizer
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
+  movementComponent: {fileID: 448067336067517275}
+  rb: {fileID: 3095535743837438187}
 --- !u!114 &2903214459336409646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5311,23 +5328,6 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
---- !u!114 &5444488632108469531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7999438bd0c049ea2ba1c00331a958a1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterStateMachine
-  movementComponent: {fileID: 448067336067517275}
-  dashComponent: {fileID: 3922140041663509706}
-  attackComponent: {fileID: 7856473034520349750}
-  groundCheckComponent: {fileID: 1578071206875185455}
-  characterAnimator: {fileID: 1302345659188457434}
 --- !u!1 &1439889579782305314
 GameObject:
   m_ObjectHideFlags: 0

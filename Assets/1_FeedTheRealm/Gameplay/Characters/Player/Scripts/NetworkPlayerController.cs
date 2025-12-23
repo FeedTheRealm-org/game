@@ -8,14 +8,13 @@ using UnityEngine;
 public class NetworkPlayerController : Mirror.NetworkBehaviour
 {
     [Header("Input")]
-    private PlayerControls playerControls;
-    private CharacterStateMachine stateMachine;
+    [SerializeField]
+    private PlayerInputReader playerInputReader;
 
     [SerializeField]
     private Logging.Logger logger;
 
-    [SerializeField]
-    private PlayerInputReader playerInputReader;
+    private CharacterStateMachine _stateMachine;
 
     public override void OnStartAuthority()
     {
@@ -32,17 +31,24 @@ public class NetworkPlayerController : Mirror.NetworkBehaviour
         if (isLocalPlayer)
         {
             logger.Log($"NetworkPlayerController initialized for LOCAL player {netId}", this);
-            InitializeInputWithReader();
+            RegisterCallbacks();
         }
     }
 
-    private void InitializeInputWithReader()
+    public override void OnStopAuthority()
     {
-        if (!isLocalPlayer)
-            return;
+        UnregisterCallbacks();
+    }
 
-        stateMachine = GetComponentInChildren<CharacterStateMachine>();
-        if (stateMachine == null)
+    private void OnDestroy()
+    {
+        UnregisterCallbacks();
+    }
+
+    private void RegisterCallbacks()
+    {
+        _stateMachine = GetComponentInChildren<CharacterStateMachine>();
+        if (_stateMachine == null)
         {
             logger.Log(
                 $"CharacterStateMachine not found for player {netId}",
@@ -52,7 +58,6 @@ public class NetworkPlayerController : Mirror.NetworkBehaviour
             return;
         }
 
-        // Subscribe to PlayerInputReader events instead of creating new PlayerControls
         playerInputReader.MoveEvent += OnMoveInput;
         playerInputReader.DashEvent += OnDashInput;
         playerInputReader.AttackEvent += OnAttackInput;
@@ -60,54 +65,36 @@ public class NetworkPlayerController : Mirror.NetworkBehaviour
         logger.Log($"Input configured using PlayerInputReader for player {netId}", this);
     }
 
-    // Methods for PlayerInputReader events (when using shared input)
+    private void UnregisterCallbacks()
+    {
+        if (playerInputReader == null)
+            return;
+        playerInputReader.MoveEvent -= OnMoveInput;
+        playerInputReader.DashEvent -= OnDashInput;
+        playerInputReader.AttackEvent -= OnAttackInput;
+    }
+
+    /* --- Input callback handlers --- */
+
     private void OnMoveInput(Vector2 direction)
     {
         if (Cursor.visible)
-        {
             return;
-        }
-        stateMachine?.OnMove(direction);
+        _stateMachine?.OnMove(direction);
     }
 
     private void OnDashInput()
     {
         if (Cursor.visible)
-        {
             return;
-        }
-        stateMachine?.OnDash();
+        _stateMachine?.OnDash();
     }
 
     private void OnAttackInput()
     {
         if (Cursor.visible)
-        {
-            logger.Log("Attack blocked - Cursor is visible", this);
             return;
-        }
-        stateMachine?.OnAttack();
-    }
-
-    public override void OnStopAuthority()
-    {
-        CleanupInput();
-    }
-
-    private void OnDestroy()
-    {
-        // Cleanup in case OnStopAuthority wasn't called
-        CleanupInput();
-    }
-
-    private void CleanupInput()
-    {
-        if (playerInputReader != null)
-        {
-            playerInputReader.MoveEvent -= OnMoveInput;
-            playerInputReader.DashEvent -= OnDashInput;
-            playerInputReader.AttackEvent -= OnAttackInput;
-        }
+        _stateMachine?.OnAttack();
     }
 
     /// <summary>
