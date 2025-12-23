@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 167866136409368639}
   - component: {fileID: 137788444241368618}
   - component: {fileID: 1253728121772926957}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: BasicEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -166,7 +166,7 @@ MonoBehaviour:
   groundCheckSphereRadius: 0.4
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
 --- !u!114 &167866136409368639
 MonoBehaviour:
   m_ObjectHideFlags: 0

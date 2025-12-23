@@ -4933,7 +4933,7 @@ GameObject:
   - component: {fileID: 2903214459336409646}
   - component: {fileID: -1683734520962331690}
   - component: {fileID: 8942674585528972223}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: PlayerMP
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -5095,7 +5095,7 @@ MonoBehaviour:
   groundCheckSphereRadius: 0.4
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
 --- !u!114 &448067336067517275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5151,7 +5151,7 @@ MonoBehaviour:
   hitRadius: 1.5
   targetLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
 --- !u!114 &8432168777086298840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5239,8 +5239,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   playerInputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!114 &7195002702095716471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22278,7 +22278,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4574761988102103408}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}

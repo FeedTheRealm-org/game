@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Handles networked player input, connecting to MovementComponent and DashComponent.
 /// This replaces the need for MP-specific versions by keeping components modular.
+/// Also supports local testing without network.
 /// </summary>
 public class NetworkPlayerController : Mirror.NetworkBehaviour
 {
@@ -15,6 +16,23 @@ public class NetworkPlayerController : Mirror.NetworkBehaviour
     private Logging.Logger logger;
 
     private CharacterStateMachine _stateMachine;
+
+    private void Start()
+    {
+        // Support for non-networked scenes (local testing)
+        if (!NetworkClient.active && !NetworkServer.active)
+        {
+            logger.Log(
+                "NetworkPlayerController: Non-networked mode detected, initializing as local player",
+                this
+            );
+
+            var inventoryReference = GetComponent<PlayerInventoryReference>();
+            inventoryReference?.InitializeForNetworkedPlayer();
+
+            RegisterCallbacks();
+        }
+    }
 
     public override void OnStartAuthority()
     {
