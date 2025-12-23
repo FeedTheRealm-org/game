@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class SpriteBillboardComponent : MonoBehaviour {
+public class SpriteBillboardComponent : MonoBehaviour
+{
     [Header("Centered billboard settings")]
     [SerializeField]
     private bool centeredBillboard = false;
@@ -13,15 +14,19 @@ public class SpriteBillboardComponent : MonoBehaviour {
 
     private Camera _mainCamera;
 
-
-    private void Start() {
+    private void Start()
+    {
         _mainCamera = Camera.main;
     }
 
-    private void LateUpdate() {
-        if (_mainCamera == null) {
+    private void LateUpdate()
+    {
+        if (_mainCamera == null)
+        {
             _mainCamera = Camera.main;
-        } else {
+        }
+        else
+        {
             Quaternion camRot = _mainCamera.transform.rotation;
 
             Vector3 current = transform.rotation.eulerAngles;
@@ -36,7 +41,8 @@ public class SpriteBillboardComponent : MonoBehaviour {
             transform.rotation = Quaternion.Euler(pitch, smoothYaw, roll);
         }
 
-        if (centeredBillboard && centerTransform != null) {
+        if (centeredBillboard && centerTransform != null)
+        {
             transform.position = centerTransform.position + offset;
         }
     }

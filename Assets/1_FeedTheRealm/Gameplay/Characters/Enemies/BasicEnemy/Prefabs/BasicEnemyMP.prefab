@@ -161,7 +161,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9e8e5dc05b9f7953bccecd79ff26176, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::GroundCheckComponent
   rb: {fileID: 3095535743837438187}
   col: {fileID: 4885086532300312383}
@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5607ea28d9110be3b6ffac2dd61ee7a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
   rb: {fileID: 3095535743837438187}
   col: {fileID: 4885086532300312383}
@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76789a48ddc0210028a6676068b139f1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
   MaxHealth: 100
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 641d5fb1f26431d88aa53c434fa27d6a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkEnemySynchronizer
   syncDirection: 0
   syncMode: 0
@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07c7ec0bf9648332f8045bf6737fba36, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkHealthSynchronizer
   syncDirection: 0
   syncMode: 0
@@ -249,14 +249,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07c307c76f66660c896aa4617a8aadc4, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LootDropper
   lootPrefab: {fileID: 3221426771183678723, guid: 2252faf00cafd6d438bf4e2e0fed7ed4, type: 3}
   alwaysDrop: 1
   spawnOffset: {x: 0, y: 0, z: 0}
   randomOffset: 0.1
   itemCount: 1
-  categoryFilter: 
+  categoryFilter:
   logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!114 &7849952187436338664
 MonoBehaviour:
@@ -268,7 +268,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
   sceneId: 0
   _assetId: 4117839745
@@ -461,11 +461,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 925298929608913867, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: target
-      value: 
+      value:
       objectReference: {fileID: 4419354212146333340}
     - target: {fileID: 925298929608913867, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: healthComponent
-      value: 
+      value:
       objectReference: {fileID: 137788444241368618}
     - target: {fileID: 7208925596118356869, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: m_LocalPosition.x
@@ -521,7 +521,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8350905116635297411, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: centerTransform
-      value: 
+      value:
       objectReference: {fileID: 4419354212146333340}
     - target: {fileID: 8350905116635297411, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: centeredBillboard
@@ -555,7 +555,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4768932681013849658, guid: 64359be8b124840d0bb4846426882691, type: 3}
       propertyPath: m_Controller
-      value: 
+      value:
       objectReference: {fileID: 9100000, guid: 197d93857c7ef17c69f331596a3315f8, type: 2}
     - target: {fileID: 5375047960093657315, guid: 64359be8b124840d0bb4846426882691, type: 3}
       propertyPath: m_Pivot.x
@@ -683,7 +683,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
   centeredBillboard: 0
   centerTransform: {fileID: 0}
@@ -703,7 +703,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::AnimationAttackEvent
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   attackComponent: {fileID: 0}

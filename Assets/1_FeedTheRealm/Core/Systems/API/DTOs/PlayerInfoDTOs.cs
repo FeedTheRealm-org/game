@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 
-namespace API {
+namespace API
+{
     /* --- Requests --- */
     [System.Serializable]
-    public class PatchCharacterInfoRequest {
+    public class PatchCharacterInfoRequest
+    {
         public string character_name;
         public string character_bio;
         public Dictionary<string, string> category_sprites;
@@ -11,10 +13,10 @@ namespace API {
 
     /* --- Responses --- */
     [System.Serializable]
-    public class CharacterInfoResponse {
+    public class CharacterInfoResponse
+    {
         public string character_name;
         public string character_bio;
         public Dictionary<string, string> category_sprites;
     }
 }
-

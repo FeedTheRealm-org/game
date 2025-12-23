@@ -57,12 +57,16 @@ public class MultiplayerMenuController : MonoBehaviour
 
         if (Items.ItemsManager.Instance.IsInitialized)
         {
-            Debug.Log($"[MultiplayerMenuController] ItemsManager initialized with {Items.ItemsManager.Instance.TotalItemsLoaded} items, connecting...");
+            Debug.Log(
+                $"[MultiplayerMenuController] ItemsManager initialized with {Items.ItemsManager.Instance.TotalItemsLoaded} items, connecting..."
+            );
             ConnectToServer(ip, port);
         }
         else
         {
-            Debug.LogWarning("[MultiplayerMenuController] ItemsManager initialization timeout, connecting anyway...");
+            Debug.LogWarning(
+                "[MultiplayerMenuController] ItemsManager initialization timeout, connecting anyway..."
+            );
             ConnectToServer(ip, port);
         }
     }
@@ -75,7 +79,9 @@ public class MultiplayerMenuController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("[MultiplayerMenuController] NetworkConnectionHandler.Instance is null!");
+            Debug.LogError(
+                "[MultiplayerMenuController] NetworkConnectionHandler.Instance is null!"
+            );
         }
     }
 
@@ -91,7 +97,7 @@ public class MultiplayerMenuController : MonoBehaviour
             Debug.LogWarning("[MultiplayerMenuController] ⚠️ IP is empty, using default 127.0.0.1");
             ip = "127.0.0.1";
         }
-        
+
         if (string.IsNullOrWhiteSpace(portStr))
         {
             Debug.LogWarning("[MultiplayerMenuController] ⚠️ Port is empty, using default 7777");
@@ -101,7 +107,9 @@ public class MultiplayerMenuController : MonoBehaviour
         // Validar y parsear el puerto
         if (!ushort.TryParse(portStr, out ushort port))
         {
-            Debug.LogWarning($"[MultiplayerMenuController] Invalid port: {portStr}. Using default 7777");
+            Debug.LogWarning(
+                $"[MultiplayerMenuController] Invalid port: {portStr}. Using default 7777"
+            );
             port = 7777;
         }
 
@@ -110,7 +118,9 @@ public class MultiplayerMenuController : MonoBehaviour
         {
             if (Items.ItemsManager.Instance.IsInitialized)
             {
-                Debug.Log($"[MultiplayerMenuController] ItemsManager already initialized with {Items.ItemsManager.Instance.TotalItemsLoaded} items");
+                Debug.Log(
+                    $"[MultiplayerMenuController] ItemsManager already initialized with {Items.ItemsManager.Instance.TotalItemsLoaded} items"
+                );
                 ConnectToServer(ip, port);
             }
             else
@@ -121,7 +131,9 @@ public class MultiplayerMenuController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[MultiplayerMenuController] ItemsManager.Instance is null, connecting anyway...");
+            Debug.LogWarning(
+                "[MultiplayerMenuController] ItemsManager.Instance is null, connecting anyway..."
+            );
             ConnectToServer(ip, port);
         }
     }

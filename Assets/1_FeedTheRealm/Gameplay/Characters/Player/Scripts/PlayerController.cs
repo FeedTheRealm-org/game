@@ -3,7 +3,8 @@ using UnityEngine;
 /// <summary>
 /// Connects player input to the movement component.
 /// </summary>
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
     [SerializeField]
     public PlayerInputReader inputReader;
 
@@ -15,18 +16,30 @@ public class PlayerController : MonoBehaviour {
 
     private CharacterStateMachine characterStateMachine;
 
-    private void OnEnable() {
-        if (playerPrefab == null) {
-            logger.Log("Player prefab is not assigned in the inspector.", this, Logging.LogType.Error);
+    private void OnEnable()
+    {
+        if (playerPrefab == null)
+        {
+            logger.Log(
+                "Player prefab is not assigned in the inspector.",
+                this,
+                Logging.LogType.Error
+            );
         }
 
         characterStateMachine = playerPrefab.GetComponentInChildren<CharacterStateMachine>();
-        if (characterStateMachine == null) {
-            logger.Log("CharacterStateMachine not found on the instantiated player prefab.", this, Logging.LogType.Error);
+        if (characterStateMachine == null)
+        {
+            logger.Log(
+                "CharacterStateMachine not found on the instantiated player prefab.",
+                this,
+                Logging.LogType.Error
+            );
         }
 
         // Register callbacks
-        if (inputReader != null) {
+        if (inputReader != null)
+        {
             inputReader.DashEvent += OnDashInput;
             inputReader.MoveEvent += OnMoveInput;
             inputReader.AttackEvent += OnAttackInput;
@@ -35,8 +48,10 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    private void OnDisable() {
-        if (inputReader != null) {
+    private void OnDisable()
+    {
+        if (inputReader != null)
+        {
             inputReader.MoveEvent -= OnMoveInput;
             inputReader.DashEvent -= OnDashInput;
             inputReader.AttackEvent -= OnAttackInput;
@@ -47,24 +62,30 @@ public class PlayerController : MonoBehaviour {
         characterStateMachine = null;
     }
 
-    private void OnAttackInput() {
-        if (Cursor.visible) {
+    private void OnAttackInput()
+    {
+        if (Cursor.visible)
+        {
             return;
         }
 
         characterStateMachine?.OnAttack();
     }
 
-    private void OnMoveInput(Vector2 vec) {
-        if (Cursor.visible) {
+    private void OnMoveInput(Vector2 vec)
+    {
+        if (Cursor.visible)
+        {
             return;
         }
 
         characterStateMachine?.OnMove(vec);
     }
 
-    private void OnDashInput() {
-        if (Cursor.visible) {
+    private void OnDashInput()
+    {
+        if (Cursor.visible)
+        {
             return;
         }
 

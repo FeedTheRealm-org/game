@@ -1,15 +1,17 @@
-using UnityEngine;
-using UnityEngine.Networking;
 using System.Collections;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using UnityEngine;
+using UnityEngine.Networking;
 
-namespace API {
+namespace API
+{
     /// <summary>
     /// Service to manage player character information.
     /// </summary>
     [CreateAssetMenu(fileName = "PlayerService", menuName = "Scriptable Objects/API/PlayerService")]
-    public class PlayerService : ScriptableObject {
+    public class PlayerService : ScriptableObject
+    {
         [Header("Server settings")]
         [SerializeField]
         public string Hostname;
@@ -28,7 +30,11 @@ namespace API {
         /// <summary>
         /// Update the character information such as name and bio.
         /// </summary>
-        public IEnumerator PatchCharacterInfo(PatchCharacterInfoRequest payload, System.Action<CharacterInfoResponse, string> handler) {
+        public IEnumerator PatchCharacterInfo(
+            PatchCharacterInfoRequest payload,
+            System.Action<CharacterInfoResponse, string> handler
+        )
+        {
             var url = $"http://{Hostname}:{Port}/player/character";
             var json = JsonConvert.SerializeObject(payload);
 
@@ -44,12 +50,26 @@ namespace API {
 
             var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
 
-            if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
-                var res = string.IsNullOrEmpty(responseText) ? null : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
-                logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
+            if (
+                uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.ProtocolError
+            )
+            {
+                var res = string.IsNullOrEmpty(responseText)
+                    ? null
+                    : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
+                logger.Log(
+                    $"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
+                    this,
+                    Logging.LogType.Error
+                );
                 handler?.Invoke(null, res.detail);
-            } else {
-                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(responseText);
+            }
+            else
+            {
+                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(
+                    responseText
+                );
                 logger.Log($"CharacterInfo response: {responseText}", this);
                 handler?.Invoke(res.data, "");
             }
@@ -59,7 +79,11 @@ namespace API {
         /// Retrieve the character information such as name and bio for a given user.
         /// If no userID is provided it retrieves the currently logged in userID.
         /// </summary>
-        public IEnumerator GetCharacterInfo(System.Action<CharacterInfoResponse, string> handler, string UserID = null) {
+        public IEnumerator GetCharacterInfo(
+            System.Action<CharacterInfoResponse, string> handler,
+            string UserID = null
+        )
+        {
             var url = $"http://{Hostname}:{Port}/player/character/{(UserID ?? session.UserId)}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
@@ -70,12 +94,26 @@ namespace API {
 
             var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
 
-            if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
-                var res = string.IsNullOrEmpty(responseText) ? null : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
-                logger.Log($"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Warning);
+            if (
+                uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.ProtocolError
+            )
+            {
+                var res = string.IsNullOrEmpty(responseText)
+                    ? null
+                    : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
+                logger.Log(
+                    $"CharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
+                    this,
+                    Logging.LogType.Warning
+                );
                 handler?.Invoke(null, res.detail);
-            } else {
-                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(responseText);
+            }
+            else
+            {
+                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(
+                    responseText
+                );
                 logger.Log($"CharacterInfo response: {responseText}", this);
                 handler?.Invoke(res.data, "");
             }
@@ -85,7 +123,8 @@ namespace API {
         /// Retrieve the character information such as name and bio for a given user asynchronously.
         /// If no userID is provided it retrieves the currently logged in userID.
         /// </summary>
-        public async Task<CharacterInfoResponse> GetCharacterInfoAsync(string UserID = null) {
+        public async Task<CharacterInfoResponse> GetCharacterInfoAsync(string UserID = null)
+        {
             var url = $"http://{Hostname}:{Port}/player/character/{(UserID ?? session.UserId)}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
@@ -96,12 +135,26 @@ namespace API {
 
             var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
 
-            if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
-                var res = string.IsNullOrEmpty(responseText) ? null : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
-                logger.Log($"GetCharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
+            if (
+                uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.ProtocolError
+            )
+            {
+                var res = string.IsNullOrEmpty(responseText)
+                    ? null
+                    : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
+                logger.Log(
+                    $"GetCharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
+                    this,
+                    Logging.LogType.Error
+                );
                 return null;
-            } else {
-                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(responseText);
+            }
+            else
+            {
+                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(
+                    responseText
+                );
                 logger.Log($"GetCharacterInfo response: {responseText}", this);
                 return res.data;
             }
@@ -110,7 +163,10 @@ namespace API {
         /// <summary>
         /// Update the character information such as name and bio asynchronously.
         /// </summary>
-        public async Task<CharacterInfoResponse> PatchCharacterInfoAsync(PatchCharacterInfoRequest payload) {
+        public async Task<CharacterInfoResponse> PatchCharacterInfoAsync(
+            PatchCharacterInfoRequest payload
+        )
+        {
             var url = $"http://{Hostname}:{Port}/player/character";
             var json = JsonConvert.SerializeObject(payload);
 
@@ -126,12 +182,26 @@ namespace API {
 
             var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
 
-            if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
-                var res = string.IsNullOrEmpty(responseText) ? null : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
-                logger.Log($"PatchCharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}", this, Logging.LogType.Error);
+            if (
+                uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.ProtocolError
+            )
+            {
+                var res = string.IsNullOrEmpty(responseText)
+                    ? null
+                    : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
+                logger.Log(
+                    $"PatchCharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
+                    this,
+                    Logging.LogType.Error
+                );
                 return null;
-            } else {
-                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(responseText);
+            }
+            else
+            {
+                var res = JsonConvert.DeserializeObject<DataEnvelope<CharacterInfoResponse>>(
+                    responseText
+                );
                 logger.Log($"PatchCharacterInfo response: {responseText}", this);
                 return res.data;
             }

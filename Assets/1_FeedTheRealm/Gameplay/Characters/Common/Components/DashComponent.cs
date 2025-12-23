@@ -1,18 +1,31 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// Handles player dashing movement based on the stamina.
 /// </summary>
-public class DashComponent : MonoBehaviour {
-    [SerializeField] private Rigidbody rb;
-    [SerializeField] private GroundCheckComponent groundCheck;
-    [SerializeField] private MovementComponent movement;
-    [SerializeField] private StaminaComponent stamina;
+public class DashComponent : MonoBehaviour
+{
+    [SerializeField]
+    private Rigidbody rb;
 
-    [SerializeField] private float dashSpeed = 50f;
-    [SerializeField] private float dashDuration = 0.1f;
-    [SerializeField] private float staminaConsumption = 20f;
+    [SerializeField]
+    private GroundCheckComponent groundCheck;
+
+    [SerializeField]
+    private MovementComponent movement;
+
+    [SerializeField]
+    private StaminaComponent stamina;
+
+    [SerializeField]
+    private float dashSpeed = 50f;
+
+    [SerializeField]
+    private float dashDuration = 0.1f;
+
+    [SerializeField]
+    private float staminaConsumption = 20f;
 
     private bool isDashing;
     private NetworkMovementSynchronizer networkMovementSync;
@@ -21,10 +34,14 @@ public class DashComponent : MonoBehaviour {
 
     public System.Action OnDashFinished;
 
-    private void Awake() {
-        if (rb == null) rb = GetComponent<Rigidbody>();
-        if (groundCheck == null) groundCheck = GetComponent<GroundCheckComponent>();
-        if (movement == null) movement = GetComponent<MovementComponent>();
+    private void Awake()
+    {
+        if (rb == null)
+            rb = GetComponent<Rigidbody>();
+        if (groundCheck == null)
+            groundCheck = GetComponent<GroundCheckComponent>();
+        if (movement == null)
+            movement = GetComponent<MovementComponent>();
 
         // Try to find NetworkMovementSynchronizer for multiplayer support
         networkMovementSync = GetComponent<NetworkMovementSynchronizer>();
@@ -33,8 +50,10 @@ public class DashComponent : MonoBehaviour {
     /// <summary>
     /// Called by the input system to initiate a dash.
     /// </summary>
-    public void OnDash() {
-        if (isDashing || !groundCheck.IsGrounded || !consumeStamina()) {
+    public void OnDash()
+    {
+        if (isDashing || !groundCheck.IsGrounded || !consumeStamina())
+        {
             OnDashFinished?.Invoke();
             return;
         }
@@ -51,11 +70,13 @@ public class DashComponent : MonoBehaviour {
     /// <summary>
     /// Coroutine to handle the dash force aplication for the defined duration.
     /// </summary>
-    private IEnumerator dashRoutine(Vector3 direction) {
+    private IEnumerator dashRoutine(Vector3 direction)
+    {
         isDashing = true;
 
         // Notify NetworkMovementSynchronizer to prevent velocity sync during dash
-        if (networkMovementSync != null) {
+        if (networkMovementSync != null)
+        {
             networkMovementSync.NotifyDashStart(dashDuration);
         }
 
@@ -75,11 +96,12 @@ public class DashComponent : MonoBehaviour {
 
         // Re-enable MovementComponent
         movement.enabled = wasMovementEnabled;
-      
+
         OnDashFinished?.Invoke();
     }
 
-    private bool consumeStamina() {
+    private bool consumeStamina()
+    {
         return stamina.TryConsumeStamina(staminaConsumption);
     }
 }

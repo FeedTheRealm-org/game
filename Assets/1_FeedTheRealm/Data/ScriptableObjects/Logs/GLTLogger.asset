@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: GLTLogger
   m_EditorClassIdentifier: FeedTheRealm_Shared::Logging.Logger
   _showLogs: 0
-  _loggerPrefix: 
+  _loggerPrefix:
   _loggerColor: {r: 0, g: 0, b: 0, a: 0}

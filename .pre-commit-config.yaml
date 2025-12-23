@@ -1,0 +1,33 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: check-json
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        files: \.(yml|yaml)$
+        args: [--format, parsable]
+
+  - repo: local
+    hooks:
+      - id: csharpier-check
+        name: CSharpier (verify formatting)
+        entry: dotnet tool run csharpier check
+        language: system
+        files: \.cs$
+        pass_filenames: true
+
+      - id: csharpier-format
+        name: CSharpier (auto-format)
+        entry: dotnet tool run csharpier format
+        language: system
+        files: \.cs$
+        pass_filenames: true

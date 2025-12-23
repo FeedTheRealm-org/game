@@ -1000,7 +1000,7 @@ MonoBehaviour:
         m_Architecture: 0
         m_RemoteDeviceSectionFoldoutOpen: 0
         m_DeployTarget: 0
-        m_RemoteDeviceAddress: 
-        m_RemoteDeviceUsername: 
-        m_RemoteDeviceExports: 
-        m_PathOnRemoteDevice: 
+        m_RemoteDeviceAddress:
+        m_RemoteDeviceUsername:
+        m_RemoteDeviceExports:
+        m_PathOnRemoteDevice:

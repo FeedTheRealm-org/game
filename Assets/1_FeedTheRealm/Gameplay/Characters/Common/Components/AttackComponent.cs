@@ -1,10 +1,11 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// Handles attack actions for the player character.
 /// </summary>
-public class AttackComponent : MonoBehaviour {
+public class AttackComponent : MonoBehaviour
+{
     [SerializeField]
     private Logging.Logger logger;
 
@@ -28,18 +29,22 @@ public class AttackComponent : MonoBehaviour {
 
     public System.Action OnAttackFinished;
 
-    private void Awake() {
+    private void Awake()
+    {
         _animator = GetComponentInChildren<Animator>();
     }
 
-    public void DetectAttackHit() {
+    public void DetectAttackHit()
+    {
         Collider[] hitTargets = Physics.OverlapSphere(hitPoint.position, hitRadius, targetLayer);
-        foreach (Collider target in hitTargets) {
+        foreach (Collider target in hitTargets)
+        {
             logger.Log($"Hit target: {target.name}", this);
             target.GetComponent<HealthComponent>()?.TakeDamage(attackDamage);
         }
 
-        if (hitTargets.Length == 0) {
+        if (hitTargets.Length == 0)
+        {
             logger.Log("No targets hit", this);
         }
     }
@@ -47,8 +52,10 @@ public class AttackComponent : MonoBehaviour {
     /// <summary>
     /// Triggers the attack animation.
     /// </summary>
-    public void OnAttack() {
-        if (isAttacking) return;
+    public void OnAttack()
+    {
+        if (isAttacking)
+            return;
         logger.Log("Attack event triggered", this);
 
         isAttacking = true;
@@ -58,13 +65,15 @@ public class AttackComponent : MonoBehaviour {
     /// <summary>
     /// Resets the attack cooldown after a delay.
     /// </summary>
-    private IEnumerator resetAttackCooldown() {
+    private IEnumerator resetAttackCooldown()
+    {
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
         OnAttackFinished?.Invoke();
     }
 
-    private void OnDrawGizmos() {
+    private void OnDrawGizmos()
+    {
         if (hitPoint == null)
             return;
 
@@ -95,5 +104,4 @@ public class AttackComponent : MonoBehaviour {
     public LayerMask GetTargetLayer() => targetLayer;
 
     #endregion
-
 }

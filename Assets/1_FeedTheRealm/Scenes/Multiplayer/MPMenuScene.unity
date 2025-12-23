@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 463a4a38c16c5f4839873539f7ce0692, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ServerBootstrap
   defaultPort: 7777
   defaultAddress: 0.0.0.0
@@ -183,7 +183,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Mirror.Transports::kcp2k.KcpTransport
   port: 7777
   DualMode: 1
@@ -212,14 +212,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1964f70562b888d71afc7a839824d9e8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CustomNetworkManager
   dontDestroyOnLoad: 1
   runInBackground: 1
   headlessStartMode: 0
   editorAutoStart: 0
   sendRate: 60
-  offlineScene: 
+  offlineScene:
   onlineScene: Assets/1_FeedTheRealm/Scenes/Multiplayer/MultiplayerScene.unity
   offlineSceneLoadDelay: 0
   transport: {fileID: 37063747}
@@ -278,11 +278,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2e29dce20a6fa0ef96f802334bb7004, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ScenePreloader
   scenesToPreload:
   - sceneAsset: {fileID: 102900000, guid: f6ac62a72a7875ffab304152e68e376a, type: 3}
-    sceneName: 
+    sceneName:
   preloadOnStart: 1
   delayBeforePreload: 1
   showDebugLogs: 1
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05f1c1dfc1356efdd834ff91a9dc73e5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PersistentManagers
 --- !u!4 &138349355
 Transform:
@@ -375,7 +375,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
   m_SendPointerHoverToParent: 1
   m_MoveRepeatDelay: 0.5
@@ -406,7 +406,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
@@ -534,7 +534,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -581,17 +581,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04d0d58906dbf21f18ca730db87bde66, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkSceneManager
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
   gameScene:
     sceneAsset: {fileID: 102900000, guid: f6ac62a72a7875ffab304152e68e376a, type: 3}
-    sceneName: 
+    sceneName:
   menuScene:
     sceneAsset: {fileID: 102900000, guid: 3991a19a00ad0137bb51525d3ae77f98, type: 3}
-    sceneName: 
+    sceneName:
 --- !u!4 &321505495
 Transform:
   m_ObjectHideFlags: 0
@@ -617,7 +617,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
   sceneId: 2634692403
   _assetId: 0
@@ -651,7 +651,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ef7cfc123e84e938acf80442020f5be, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkConnectionHandler
   logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
   enableLogging: 1
@@ -697,7 +697,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f116e67f5d3d7e71b137ad51465acf2, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ItemsManagerBootstrap
   clientItemsManager: {fileID: 567256359}
   serverItemsManager: {fileID: 1183940048}
@@ -746,7 +746,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 657096d59a92344c2a747cc30c4c2583, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Items.ItemsManager
   itemsService: {fileID: 11400000, guid: 0145d2d6652e17ecbb0ae0de2723e962, type: 2}
   itemAssetsService: {fileID: 11400000, guid: 16d0e1de7dfc30f35ba7c3a139f2ea79, type: 2}
@@ -870,7 +870,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -931,7 +931,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66691f1033814570287b4993a9a7d4bb, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Items.DedicatedServerItemsManager
   itemsService: {fileID: 11400000, guid: 0145d2d6652e17ecbb0ae0de2723e962, type: 2}
   enableDebugLogs: 1
@@ -977,7 +977,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a3680171eea2aacca9c74241cdc76dc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkDebugger
   enablePeriodicLogs: 1
   logIntervalSeconds: 5
