@@ -3,8 +3,6 @@ name: Pre-commit check
 on:
   pull_request:
     branches: [main, dev]
-  push:
-    branches: [us-30/read-npc-dialog]
 
 jobs:
   pre-commit:
