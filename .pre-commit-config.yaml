@@ -3,10 +3,13 @@ repos:
     rev: v4.6.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
       - id: end-of-file-fixer
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
       - id: check-merge-conflict
       - id: check-added-large-files
       - id: check-yaml
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
       - id: check-json
 
   - repo: https://github.com/adrienverge/yamllint
@@ -14,6 +17,7 @@ repos:
     hooks:
       - id: yamllint
         files: \.(yml|yaml)$
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
         args: [--format, parsable]
 
   - repo: local
