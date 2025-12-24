@@ -197,9 +197,13 @@ public class LootItem : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Only process on server (server authority)
-        if (!isServer)
+        // Check if networked or not
+        bool isNetworked = NetworkClient.active || NetworkServer.active;
+
+        if (isNetworked && !isServer)
+        {
             return;
+        }
 
         // Check if it's the player
         if (((1 << other.gameObject.layer) & playerLayer) == 0)
@@ -213,23 +217,44 @@ public class LootItem : NetworkBehaviour
         if (isBeingPickedUp)
             return;
 
-        // Get NetworkIdentity
-        NetworkIdentity playerIdentity = other.GetComponent<NetworkIdentity>();
-        if (playerIdentity == null)
-            return;
+        if (isNetworked)
+        {
+            // Networked processing
+            NetworkIdentity playerIdentity = other.GetComponent<NetworkIdentity>();
+            if (playerIdentity == null)
+                return;
 
-        // Check if this player already tried to pick up
-        if (playersWhoTriedPickup.Contains(playerIdentity.netId))
-            return;
+            // Check if this player already tried to pick up
+            if (playersWhoTriedPickup.Contains(playerIdentity.netId))
+                return;
 
-        // Mark as being picked up to prevent other players from picking up simultaneously
-        isBeingPickedUp = true;
-        playersWhoTriedPickup.Add(playerIdentity.netId);
+            // Mark as being picked up
+            isBeingPickedUp = true;
+            playersWhoTriedPickup.Add(playerIdentity.netId);
 
-        logger?.Log($"[LootItem] SERVER - Player {playerIdentity.netId} triggered pickup", this);
+            logger?.Log(
+                $"[LootItem] SERVER - Player {playerIdentity.netId} triggered pickup",
+                this
+            );
 
-        // Process pickup on server
-        ServerProcessPickup(playerIdentity);
+            // Process pickup on server
+            ServerProcessPickup(playerIdentity);
+        }
+        else
+        {
+            // Non-networked processing
+            PlayerInventoryReference inventoryRef = other.GetComponent<PlayerInventoryReference>();
+            if (inventoryRef == null)
+                return;
+
+            // Mark as being picked up
+            isBeingPickedUp = true;
+
+            logger?.Log($"[LootItem] LOCAL - Player triggered pickup", this);
+
+            // Process pickup locally
+            LocalProcessPickup(inventoryRef);
+        }
     }
 
     /// <summary>
@@ -260,6 +285,71 @@ public class LootItem : NetworkBehaviour
 
         // Despawn the loot bag
         NetworkServer.Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// LOCAL: Processes the pickup in non-networked mode
+    /// </summary>
+    private void LocalProcessPickup(PlayerInventoryReference inventoryRef)
+    {
+        if (itemIds.Count == 0)
+        {
+            logger?.Log("[LootItem] LOCAL - Bag is empty, destroying", this);
+            Destroy(gameObject);
+            return;
+        }
+
+        // Get all items from the bag
+        List<string> itemsToTransfer = new List<string>(itemIds);
+
+        logger?.Log(
+            $"[LootItem] LOCAL - Transferring {itemsToTransfer.Count} items to player",
+            this
+        );
+
+        // Clear the bag
+        itemIds.Clear();
+
+        // Add items directly to player's inventory
+        InventoryController inventory = inventoryRef.GetInventory();
+        if (inventory == null)
+        {
+            logger?.Log(
+                "[LootItem] LOCAL - ERROR: InventoryController not found",
+                this,
+                Logging.LogType.Error
+            );
+            return;
+        }
+
+        int itemsAdded = 0;
+        foreach (string itemId in itemsToTransfer)
+        {
+            if (inventory.IsInventoryFull())
+            {
+                logger?.Log(
+                    $"[LootItem] LOCAL - Inventory full! Added {itemsAdded}/{itemsToTransfer.Count} items",
+                    this,
+                    Logging.LogType.Warning
+                );
+                break;
+            }
+
+            inventory.AddItemById(itemId);
+            itemsAdded++;
+            logger?.Log($"[LootItem] LOCAL - Added item to inventory: {itemId}", this);
+        }
+
+        logger?.Log($"[LootItem] LOCAL - Successfully added {itemsAdded} items to inventory", this);
+
+        // Play feedback
+        if (itemsAdded > 0)
+        {
+            PlayPickupFeedback();
+        }
+
+        // Destroy the loot bag
+        Destroy(gameObject);
     }
 
     /// <summary>
@@ -383,20 +473,22 @@ public class LootItem : NetworkBehaviour
         isLootable = true;
         logger?.Log($"[LootItem] Loot is now lootable", this);
 
-        // SERVER: Check if there are any players already in range (handles case where loot spawns on top of player)
-        if (isServer)
+        // Check if there are any players already in range (handles case where loot spawns on top of player)
+        bool isNetworked = NetworkClient.active || NetworkServer.active;
+        if (isServer || !isNetworked)
         {
             CheckForPlayersInRange();
         }
     }
 
     /// <summary>
-    /// SERVER: Manually checks for players in range using Physics.OverlapSphere
+    /// Manually checks for players in range using Physics.OverlapSphere
     /// This handles the case where loot spawns on top of a player (OnTriggerEnter won't fire)
     /// </summary>
     private void CheckForPlayersInRange()
     {
-        if (!isServer)
+        bool isNetworked = NetworkClient.active || NetworkServer.active;
+        if (isNetworked && !isServer)
             return;
         if (isBeingPickedUp)
             return;
@@ -407,33 +499,57 @@ public class LootItem : NetworkBehaviour
         if (colliders.Length > 0)
         {
             logger?.Log(
-                $"[LootItem] SERVER - Found {colliders.Length} player(s) already in range after becoming lootable",
+                $"[LootItem] Found {colliders.Length} player(s) already in range after becoming lootable",
                 this
             );
 
             // Process pickup for the first valid player found
             foreach (Collider col in colliders)
             {
-                NetworkIdentity playerIdentity = col.GetComponent<NetworkIdentity>();
-                if (playerIdentity == null)
-                    continue;
+                if (isNetworked)
+                {
+                    // Networked mode
+                    NetworkIdentity playerIdentity = col.GetComponent<NetworkIdentity>();
+                    if (playerIdentity == null)
+                        continue;
 
-                // Check if this player already tried to pick up
-                if (playersWhoTriedPickup.Contains(playerIdentity.netId))
-                    continue;
+                    // Check if this player already tried to pick up
+                    if (playersWhoTriedPickup.Contains(playerIdentity.netId))
+                        continue;
 
-                // Mark as being picked up to prevent other players from picking up simultaneously
-                isBeingPickedUp = true;
-                playersWhoTriedPickup.Add(playerIdentity.netId);
+                    // Mark as being picked up
+                    isBeingPickedUp = true;
+                    playersWhoTriedPickup.Add(playerIdentity.netId);
 
-                logger?.Log(
-                    $"[LootItem] SERVER - Player {playerIdentity.netId} was already in range, processing pickup",
-                    this
-                );
+                    logger?.Log(
+                        $"[LootItem] SERVER - Player {playerIdentity.netId} was already in range, processing pickup",
+                        this
+                    );
 
-                // Process pickup
-                ServerProcessPickup(playerIdentity);
-                break; // Only process for the first valid player
+                    // Process pickup
+                    ServerProcessPickup(playerIdentity);
+                    break; // Only process for the first valid player
+                }
+                else
+                {
+                    // Non-networked mode
+                    PlayerInventoryReference inventoryRef =
+                        col.GetComponent<PlayerInventoryReference>();
+                    if (inventoryRef == null)
+                        continue;
+
+                    // Mark as being picked up
+                    isBeingPickedUp = true;
+
+                    logger?.Log(
+                        $"[LootItem] LOCAL - Player was already in range, processing pickup",
+                        this
+                    );
+
+                    // Process pickup
+                    LocalProcessPickup(inventoryRef);
+                    break; // Only process for the first valid player
+                }
             }
         }
     }
