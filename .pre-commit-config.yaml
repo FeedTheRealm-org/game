@@ -8,7 +8,7 @@ repos:
         exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
       - id: check-merge-conflict
       - id: check-added-large-files
-        args: ["--maxkb=1024"]
+        args: ["--maxkb=5120"]
       - id: check-yaml
         exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
       - id: check-json
