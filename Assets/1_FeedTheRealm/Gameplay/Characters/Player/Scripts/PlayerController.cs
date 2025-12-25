@@ -43,6 +43,7 @@ public class PlayerController : MonoBehaviour
             inputReader.DashEvent += OnDashInput;
             inputReader.MoveEvent += OnMoveInput;
             inputReader.AttackEvent += OnAttackInput;
+            inputReader.InteractEvent += OnInteractInput;
 
             logger.Log("PlayerController subscribed from events.", this);
         }
@@ -55,6 +56,7 @@ public class PlayerController : MonoBehaviour
             inputReader.MoveEvent -= OnMoveInput;
             inputReader.DashEvent -= OnDashInput;
             inputReader.AttackEvent -= OnAttackInput;
+            inputReader.InteractEvent -= OnInteractInput;
 
             logger.Log("PlayerController unsubscribed from events.", this);
         }
@@ -90,5 +92,15 @@ public class PlayerController : MonoBehaviour
         }
 
         characterStateMachine?.OnDash();
+    }
+
+    private void OnInteractInput()
+    {
+        if (Cursor.visible)
+        {
+            return;
+        }
+
+        characterStateMachine?.OnInteract();
     }
 }

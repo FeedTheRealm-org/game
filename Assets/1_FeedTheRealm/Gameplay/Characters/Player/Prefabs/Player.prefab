@@ -4154,6 +4154,7 @@ GameObject:
   - component: {fileID: 370332728856482138}
   - component: {fileID: 4190128248899451067}
   - component: {fileID: 2124911000678282174}
+  - component: {fileID: 148068392588541952}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -4406,6 +4407,24 @@ MonoBehaviour:
   attackComponent: {fileID: 370332728856482138}
   groundCheckComponent: {fileID: 4180349157995795823}
   characterAnimator: {fileID: 4486304355727522199}
+  interactComponent: {fileID: 148068392588541952}
+--- !u!114 &148068392588541952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27cb3e8d20e333bf08767c2f29f0e3b1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractComponent
+  interactionRadius: 2
+  interactableLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!1 &1424139500108680001
 GameObject:
   m_ObjectHideFlags: 0

@@ -72,6 +72,7 @@ public class AttackComponent : MonoBehaviour
         OnAttackFinished?.Invoke();
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (hitPoint == null)
@@ -80,6 +81,7 @@ public class AttackComponent : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(hitPoint.position, hitRadius);
     }
+#endif
 
     #region Public Getters for NetworkAttackSynchronizer
 

@@ -20,11 +20,15 @@ public class CharacterStateMachine : MonoBehaviour
     [SerializeField]
     private CharacterAnimator characterAnimator;
 
+    [SerializeField]
+    private PlayerInteractComponent interactComponent;
+
     private CharacterIdleState idleState;
     private CharacterMovingState movingState;
     private CharacterDashingState dashingState;
     private CharacterAttackState attackState;
     private CharacterChargingAttackState chargingAttackState;
+    private CharacterInteractingState interactingState;
 
     private IState currentMovementState;
     private IState currentAttackState;
@@ -40,6 +44,8 @@ public class CharacterStateMachine : MonoBehaviour
             attackComponent = GetComponentInChildren<AttackComponent>();
         if (groundCheckComponent == null)
             groundCheckComponent = GetComponentInChildren<GroundCheckComponent>();
+        if (interactComponent == null)
+            interactComponent = GetComponentInChildren<PlayerInteractComponent>();
         if (characterAnimator == null)
             characterAnimator = GetComponentInChildren<CharacterAnimator>();
 
@@ -51,6 +57,7 @@ public class CharacterStateMachine : MonoBehaviour
             movementComponent,
             characterAnimator
         );
+        interactingState = new CharacterInteractingState(interactComponent, characterAnimator);
 
         currentMovementState = idleState;
         currentAttackState = null;
@@ -145,6 +152,17 @@ public class CharacterStateMachine : MonoBehaviour
             {
                 ChangeMovementState(idleState);
             }
+        }
+    }
+
+    /// <summary>
+    /// Handles interaction input.
+    /// </summary>
+    public void OnInteract()
+    {
+        if (currentMovementState != interactingState)
+        {
+            ChangeMovementState(interactingState);
         }
     }
 }
