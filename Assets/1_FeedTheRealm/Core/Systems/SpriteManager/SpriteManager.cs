@@ -16,21 +16,21 @@ public class SpriteManager : ScriptableObject
     private Logging.Logger logger;
 
     // Equipment
-    public Action<Texture2D> OnArmorBodyChange;
-    public Action<Texture2D> OnArmorHelmetChange;
-    public Action<Texture2D> OnArmorLegsChange;
+    public event Action<Texture2D> OnArmorBodyChange;
+    public event Action<Texture2D> OnArmorHelmetChange;
+    public event Action<Texture2D> OnArmorLegsChange;
 
     // Body parts
-    public Action<Texture2D> OnHairChange;
-    public Action<Texture2D> OnBeardChange;
-    public Action<Texture2D> OnEyeBrowsChange;
-    public Action<Texture2D> OnEyesChange;
-    public Action<Texture2D> OnMouthChange;
-    public Action<Texture2D> OnEarsChange;
+    public event Action<Texture2D> OnHairChange;
+    public event Action<Texture2D> OnBeardChange;
+    public event Action<Texture2D> OnEyeBrowsChange;
+    public event Action<Texture2D> OnEyesChange;
+    public event Action<Texture2D> OnMouthChange;
+    public event Action<Texture2D> OnEarsChange;
 
-    public Action<Texture2D> OnBackChange;
-    public Action<Texture2D> OnEarringsChange;
-    public Action<Texture2D> OnMaskChange;
+    public event Action<Texture2D> OnBackChange;
+    public event Action<Texture2D> OnEarringsChange;
+    public event Action<Texture2D> OnMaskChange;
 
     private readonly Dictionary<CharacterPartCategory, Action<Texture2D>> partChangeActions =
         new Dictionary<CharacterPartCategory, Action<Texture2D>>();
