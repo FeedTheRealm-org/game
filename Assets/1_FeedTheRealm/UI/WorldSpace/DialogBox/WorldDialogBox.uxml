@@ -1,0 +1,14 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+    editor-extension-mode="False">
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/WorldSpace/DialogBox/Themes/WorldDialogBox.uss?fileID=7433441132597879392&amp;guid=e15022699b378092e8853acb6048a9fa&amp;type=3#WorldDialogBox" />
+    <ui:VisualElement name="Body">
+        <ui:VisualElement name="DialogContainer" class="dialog-container">
+            <ui:Label class="dialog-text"
+                text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum "
+                name="DialogText" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
