@@ -160,9 +160,6 @@ public class CharacterStateMachine : MonoBehaviour
     /// </summary>
     public void OnInteract()
     {
-        if (currentMovementState != interactingState)
-        {
-            ChangeMovementState(interactingState);
-        }
+        ChangeMovementState(interactingState);
     }
 }

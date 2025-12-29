@@ -8920,9 +8920,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6835838351028568930}
-  - component: {fileID: 1216648670130625597}
   - component: {fileID: 3822863961782869944}
   - component: {fileID: 6948560733854560613}
+  - component: {fileID: 1216648670130625597}
+  - component: {fileID: 4396716251003102700}
   m_Layer: 10
   m_Name: Npc
   m_TagString: Untagged
@@ -8939,26 +8940,13 @@ Transform:
   m_GameObject: {fileID: 3227871909907725305}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.17, y: -1.34, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1400195153593936078}
-  - {fileID: 449462400261365739}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1216648670130625597
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3227871909907725305}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3742fb13eba2276dbc11fad32934463, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::NpcInteractComponent
 --- !u!136 &3822863961782869944
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9009,6 +8997,39 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
+--- !u!114 &1216648670130625597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3227871909907725305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3742fb13eba2276dbc11fad32934463, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteractComponent
+  _dialogManager: {fileID: 4396716251003102700}
+--- !u!114 &4396716251003102700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3227871909907725305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ce6499b381b5a671aac2f6eca6d43ce, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::DialogManagerComponent
+  shouldResetOnComplete: 1
+  _dialogs:
+  - _sender: Hatsu
+    _content: "Let's sing together! Music connects everyone's hearts! \u266A"
+  - _sender: Hatsu
+    _content: I'm the virtual diva of the future! Nice to meet you!
+  - _sender: Hatsu
+    _content: Practice makes perfect! Let's keep trying until we shine!
 --- !u!1 &3297521188069314544
 GameObject:
   m_ObjectHideFlags: 0
@@ -17477,6 +17498,7 @@ Transform:
   - {fileID: 4326106316448945377}
   - {fileID: 8460245799404142662}
   - {fileID: 8963449699373149061}
+  - {fileID: 449462400261365739}
   m_Father: {fileID: 6835838351028568930}
   m_LocalEulerAnglesHint: {x: 37, y: 0, z: 0}
 --- !u!114 &3278998535856888725
@@ -25000,23 +25022,59 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 6835838351028568930}
+    m_TransformParent: {fileID: 1400195153593936078}
     m_Modifications:
+    - target: {fileID: 283696448335698891, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: dialogManager
+      value:
+      objectReference: {fileID: 4396716251003102700}
+    - target: {fileID: 2891291210302814029, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: m_Pivot
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2891291210302814029, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: m_WorldSpaceWidth
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 2891291210302814029, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: m_WorldSpaceHeight
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 3623424890131714835, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: offset.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3623424890131714835, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: offset.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3623424890131714835, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
       propertyPath: centerTransform
       value:
-      objectReference: {fileID: 6835838351028568930}
+      objectReference: {fileID: 1400195153593936078}
+    - target: {fileID: 5168829270403790104, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5168829270403790104, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5168829270403790104, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 5168829270403790104, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.0196
       objectReference: {fileID: 0}
     - target: {fileID: 5168829270403790104, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.0961837
       objectReference: {fileID: 0}
     - target: {fileID: 5168829270403790104, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.5545705
       objectReference: {fileID: 0}
     - target: {fileID: 5168829270403790104, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -25050,7 +25108,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogBox
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3623424890131714835, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

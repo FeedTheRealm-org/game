@@ -7,8 +7,11 @@
     <ui:VisualElement name="Body">
         <ui:VisualElement name="DialogContainer" class="dialog-container">
             <ui:Label class="dialog-text"
-                text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum "
-                name="DialogText" />
+                text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum LoremL"
+                name="DialogText" /> <!-- SHOULD BE LIMITED TO 90 CHARACTERS -->
+            <ui:Label class="dialog-text dialog-sender"
+                text="- Hatsu"
+                name="DialogSender" /> <!-- NAME SHOULD BE LIMITED TO 25 CHARACTERS -->
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
