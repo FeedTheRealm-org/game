@@ -79,6 +79,7 @@ public class NetworkPlayerController : Mirror.NetworkBehaviour
         playerInputReader.MoveEvent += OnMoveInput;
         playerInputReader.DashEvent += OnDashInput;
         playerInputReader.AttackEvent += OnAttackInput;
+        playerInputReader.InteractEvent += OnInteractInput;
 
         logger.Log($"Input configured using PlayerInputReader for player {netId}", this);
     }
@@ -90,6 +91,7 @@ public class NetworkPlayerController : Mirror.NetworkBehaviour
         playerInputReader.MoveEvent -= OnMoveInput;
         playerInputReader.DashEvent -= OnDashInput;
         playerInputReader.AttackEvent -= OnAttackInput;
+        playerInputReader.InteractEvent -= OnInteractInput;
     }
 
     /* --- Input callback handlers --- */
@@ -113,6 +115,13 @@ public class NetworkPlayerController : Mirror.NetworkBehaviour
         if (Cursor.visible)
             return;
         _stateMachine?.OnAttack();
+    }
+
+    private void OnInteractInput()
+    {
+        if (Cursor.visible)
+            return;
+        _stateMachine?.OnInteract();
     }
 
     /// <summary>

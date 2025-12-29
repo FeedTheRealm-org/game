@@ -4924,6 +4924,7 @@ GameObject:
   - component: {fileID: 448067336067517275}
   - component: {fileID: 3922140041663509706}
   - component: {fileID: 7856473034520349750}
+  - component: {fileID: 8714627742757969959}
   - component: {fileID: 8432168777086298840}
   - component: {fileID: -3982517216707536514}
   - component: {fileID: 1151433029656121642}
@@ -5152,6 +5153,23 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
+--- !u!114 &8714627742757969959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27cb3e8d20e333bf08767c2f29f0e3b1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractComponent
+  interactionRadius: 2
+  interactableLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &8432168777086298840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5224,6 +5242,7 @@ MonoBehaviour:
   attackComponent: {fileID: 7856473034520349750}
   groundCheckComponent: {fileID: 1578071206875185455}
   characterAnimator: {fileID: 1302345659188457434}
+  interactComponent: {fileID: 0}
 --- !u!114 &7721620102888945814
 MonoBehaviour:
   m_ObjectHideFlags: 0

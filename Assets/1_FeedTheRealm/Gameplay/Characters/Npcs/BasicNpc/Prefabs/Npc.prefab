@@ -9023,6 +9023,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogManagerComponent
   shouldResetOnComplete: 1
+  inactivityTimeout: 5
   _dialogs:
   - _sender: Hatsu
     _content: "Let's sing together! Music connects everyone's hearts! \u266A"
@@ -14393,7 +14394,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 660
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -2528335033144150265, guid: bf4435e1f72cada4d908f7da7a636fbd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -14401,7 +14402,7 @@ SpriteRenderer:
   m_Size: {x: 4.8, y: 4.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!114 &5878140397299788054
 MonoBehaviour:

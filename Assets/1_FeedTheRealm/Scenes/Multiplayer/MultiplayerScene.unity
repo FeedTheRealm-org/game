@@ -554,7 +554,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -812,7 +812,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990866465834413684, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
       propertyPath: enemyPrefab
-      value:
+      value: 
       objectReference: {fileID: 1418397613159891299, guid: d06c67e1d488582ad85aa88a30d69ff7, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2075,7 +2075,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
       propertyPath: itemStatsTooltip
-      value:
+      value: 
       objectReference: {fileID: 4699278401528577569}
     - target: {fileID: 6228110454024648622, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
       propertyPath: m_Name
@@ -2099,7 +2099,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f582fe190d0bf754aa3265cd0b08dee, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryController
 --- !u!1001 &363302098
 PrefabInstance:
@@ -2446,8 +2446,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
   m_CustomShadowLayers: 0
@@ -2714,7 +2714,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01ce3fe2c10b54731b27e08fd43f2f7f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawnManager
   syncDirection: 0
   syncMode: 0
@@ -2727,7 +2727,6 @@ MonoBehaviour:
   groundReference: {fileID: 86213104}
   adjustToGroundHeight: 1
   heightOffset: 5
-  maxPlayers: 100
   logger: {fileID: 11400000, guid: aee7d7782f2f76eaf8981e23d2e7d39c, type: 2}
 --- !u!114 &446771533
 MonoBehaviour:
@@ -2739,7 +2738,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
   sceneId: 1502226936
   _assetId: 0
@@ -3336,7 +3335,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -4079,10 +4078,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bc947f37d4a78ebea8448e118d23c91, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraSetup
   playerTag: Player
-  targetChildName:
+  targetChildName: 
   logger: {fileID: 11400000, guid: 7c8d84d8d4cd0cd72af353ba9d79b0e7, type: 2}
 --- !u!4 &714598498
 Transform:
@@ -4699,7 +4698,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e093188cee4ba3969a6cadadd9c459f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDController
   staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
@@ -4714,7 +4713,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 075e87dd07246a581902574539fc140b, type: 2}
   m_ParentUI: {fileID: 0}
@@ -5463,7 +5462,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990866465834413684, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
       propertyPath: enemyPrefab
-      value:
+      value: 
       objectReference: {fileID: 1418397613159891299, guid: d06c67e1d488582ad85aa88a30d69ff7, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5788,6 +5787,66 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 412700, guid: f7e91e1d54c5ad64f8125310343f0d30, type: 3}
   m_PrefabInstance: {fileID: 985236918}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &997751341
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3227871909907725305, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_Name
+      value: Npc
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 7.66
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.1297693
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4599501188160175844, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+  m_SourcePrefab: {fileID: 100100000, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
 --- !u!1001 &1007933061
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6010,7 +6069,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1087972465}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113948, y: 0.001820495, z: -0.00061733305, w: 0.94703}
+  m_LocalRotation: {x: 0.32113847, y: 0.0030768346, z: -0.0010433602, w: 0.9470267}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6027,7 +6086,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineBrain
   ShowDebugText: 0
   ShowCameraFrustum: 1
@@ -6059,8 +6118,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
@@ -7583,7 +7642,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f402063eedeea570955ddc199ae71b4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsMenuController
 --- !u!1001 &1453758294
 PrefabInstance:
@@ -7928,7 +7987,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1519733286}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113948, y: 0.0018204949, z: -0.0006173329, w: 0.94702995}
+  m_LocalRotation: {x: 0.32113844, y: 0.0030768344, z: -0.0010433601, w: 0.9470267}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -7945,7 +8004,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineInputAxisController
   ScanRecursively: 1
   SuppressInputWhileBlending: 1
@@ -7997,7 +8056,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a076c17fe76165e4f8ed21498b877bf9, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineFreeLookModifier
   Easing: 0
   Modifiers: []
@@ -8014,7 +8073,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f38bda98361e1de48a4ca2bd86ea3c17, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotationComposer
   Composition:
     ScreenPosition: {x: -0.00197047, y: -0.1667502}
@@ -8043,7 +8102,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b5d7c088409d9a40b7b09aa707777f8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineOrbitalFollow
   TargetOffset: {x: 0, y: 0, z: 0}
   TrackerSettings:
@@ -8106,7 +8165,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
   Priority:
     Enabled: 0
@@ -8244,7 +8303,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -9594,7 +9653,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3990866465834413684, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
       propertyPath: enemyPrefab
-      value:
+      value: 
       objectReference: {fileID: 1418397613159891299, guid: d06c67e1d488582ad85aa88a30d69ff7, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9705,7 +9764,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e5f841f2aacffa559f373074a838bd6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
   settingsMenu: {fileID: 1425727292}
   inventoryMenu: {fileID: 352916943}
@@ -10014,7 +10073,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -10606,7 +10665,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8e7d6c5b4a394857269f1e2d3c4b5a6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemStatsTooltip
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -10629,3 +10688,4 @@ SceneRoots:
   - {fileID: 103853661}
   - {fileID: 1973320743}
   - {fileID: 1726080116}
+  - {fileID: 997751341}
