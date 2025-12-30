@@ -169,8 +169,8 @@ MonoBehaviour:
   defaultAddress: 0.0.0.0
   maxPlayers: 10
   gameScene:
-    sceneName: WorldLoaderTest
-    sceneAsset: {fileID: 102900000, guid: 27c5c4b95e037a72ebc7df0708252efe, type: 3}
+    sceneName: MPMenuScene
+    sceneAsset: {fileID: 102900000, guid: 3991a19a00ad0137bb51525d3ae77f98, type: 3}
   autoLoadGameScene: 1
   verboseLogging: 1
 --- !u!114 &37063747
@@ -220,7 +220,7 @@ MonoBehaviour:
   editorAutoStart: 0
   sendRate: 60
   offlineScene: 
-  onlineScene: Assets/1_FeedTheRealm/Scenes/Main/WorldLoaderTest.unity
+  onlineScene: Assets/1_FeedTheRealm/Scenes/Multiplayer/MultiplayerScene.unity
   offlineSceneLoadDelay: 0
   transport: {fileID: 37063747}
   networkAddress: 127.0.0.1
@@ -281,7 +281,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ScenePreloader
   scenesToPreload:
-  - sceneAsset: {fileID: 102900000, guid: 27c5c4b95e037a72ebc7df0708252efe, type: 3}
+  - sceneAsset: {fileID: 102900000, guid: f6ac62a72a7875ffab304152e68e376a, type: 3}
     sceneName: 
   preloadOnStart: 1
   delayBeforePreload: 1
@@ -574,6 +574,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ef7cfc123e84e938acf80442020f5be, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkConnectionHandler
+  connectOnStart: 0
+  defaultIpAddress: 127.0.0.1
+  defaultPort: 7777
   logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
   enableLogging: 1
 --- !u!4 &423181915
@@ -825,60 +828,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!1 &1111081833
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1111081835}
-  - component: {fileID: 1111081834}
-  m_Layer: 0
-  m_Name: ServerWorldLoader
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1111081834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1111081833}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e79c77ec883f3929e8237ed49311b44f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ServerWorldLoader
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
-  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  worldHandler: {fileID: 11400000, guid: d54015669dd0b4a47aea5d2bef3cd7a0, type: 2}
-  worldController: {fileID: 0}
-  enemySpawnPrefab: {fileID: 0}
-  playerSpawnManager: {fileID: 0}
-  logger: {fileID: 0}
---- !u!4 &1111081835
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1111081833}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.34695, y: 0, z: -25.39025}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1183940047
 GameObject:
   m_ObjectHideFlags: 0
@@ -1138,4 +1087,4 @@ SceneRoots:
   - {fileID: 2303173142850363025}
   - {fileID: 5670880599720692595}
   - {fileID: 541243211}
-  - {fileID: 1111081835}
+  - {fileID: 582210486}
