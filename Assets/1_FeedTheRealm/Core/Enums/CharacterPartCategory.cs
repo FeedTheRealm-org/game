@@ -1,8 +1,8 @@
-
 /// <summary>
 /// Enum representing different character sprite parts in the hirarchy.
 /// </summary>
-public enum CharacterPartCategory {
+public enum CharacterPartCategory
+{
     None,
 
     // Body parts

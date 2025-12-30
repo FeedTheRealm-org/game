@@ -120,7 +120,7 @@ GameObject:
   - component: {fileID: 7758021345032191184}
   - component: {fileID: 4416602767729884748}
   - component: {fileID: 3556409122039813538}
-  m_Layer: 10
+  m_Layer: 9
   m_Name: LootItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,7 +165,7 @@ MonoBehaviour:
   pickupRadius: 1
   playerLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 128
   pickupSound: {fileID: 0}
   pickupVFX: {fileID: 0}
   logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
   sceneId: 0
   _assetId: 246850664

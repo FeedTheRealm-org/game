@@ -1,6 +1,6 @@
-using UnityEngine;
-using Mirror;
 using System.Collections.Generic;
+using Mirror;
+using UnityEngine;
 
 /// <summary>
 /// Represents a loot item (bag) that appears in the world when an enemy dies.
@@ -13,8 +13,8 @@ using System.Collections.Generic;
 /// - Server validates, transfers items, and notifies client via [TargetRpc]
 /// - SyncList tracks available items
 /// </summary>
-public class LootItem : NetworkBehaviour {
-
+public class LootItem : NetworkBehaviour
+{
     [Header("Loot Configuration")]
     [SerializeField]
     [Tooltip("The sprite or visual model that will be shown on the ground")]
@@ -28,10 +28,6 @@ public class LootItem : NetworkBehaviour {
     [Tooltip("Vertical offset from the spawn point")]
     private float heightOffset = 0.1f;
 
-    [Header("Loot Contents")]
-    // SyncList to synchronize item IDs between server and clients
-    private readonly SyncList<string> itemIds = new SyncList<string>();
-
     [Header("Pickup Settings")]
     [SerializeField]
     [Tooltip("Pickup radius (trigger zone size)")]
@@ -41,42 +37,41 @@ public class LootItem : NetworkBehaviour {
     [Tooltip("Layer mask for detecting the player")]
     private LayerMask playerLayer;
 
-    [Header("Feedback (Optional)")]
-    [SerializeField]
-    [Tooltip("Audio clip to play when items are picked up (optional)")]
-    private AudioClip pickupSound;
-
-    [SerializeField]
-    [Tooltip("Particle effect to spawn when picked up (optional)")]
-    private GameObject pickupVFX;
-
-    [SerializeField]
-    private Logging.Logger logger;
-
-    private SphereCollider triggerCollider;
-
-    // Prevent multiple simultaneous pickups
-    private bool isBeingPickedUp = false;
-    private HashSet<uint> playersWhoTriedPickup = new HashSet<uint>(); // Track netIds of players who tried
-
-    // Delay to avoid immediate loot after spawn
-    private float spawnTime;
-    private bool isLootable = false;
     [SerializeField]
     [Tooltip("Delay in seconds before loot becomes collectible")]
     private float lootableDelay = 1.0f;
 
+    [Header("General settings")]
+    [SerializeField]
+    private Logging.Logger logger;
+
+    // SyncList to synchronize item IDs between server and clients
+    private readonly SyncList<string> _itemIds = new SyncList<string>();
+
+    private SphereCollider _triggerCollider;
+
+    // Prevent multiple simultaneous pickups
+    private bool _isBeingPickedUp = false;
+    private HashSet<uint> _playersWhoTriedPickup = new HashSet<uint>();
+
+    // Delay to avoid immediate loot after spawn
+    private float _spawnTime;
+    private bool _isLootable = false;
+
     public override void OnStartServer()
     {
         base.OnStartServer();
-        logger?.Log($"[LootItem] OnStartServer - ItemCount: {itemIds.Count}", this);
+        logger?.Log($"[LootItem] OnStartServer - ItemCount: {_itemIds.Count}", this);
     }
 
     public override void OnStartClient()
     {
         base.OnStartClient();
 
-        logger?.Log($"[LootItem] OnStartClient - isServer: {isServer}, ItemCount: {itemIds.Count}, Items: {string.Join(", ", itemIds)}", this);
+        logger?.Log(
+            $"[LootItem] OnStartClient - isServer: {isServer}, ItemCount: {_itemIds.Count}, Items: {string.Join(", ", _itemIds)}",
+            this
+        );
 
         // Clients: Wait and update visuals
         if (!isServer)
@@ -87,13 +82,18 @@ public class LootItem : NetworkBehaviour {
 
     public override void OnStopClient()
     {
-        if (itemIds != null)
+        if (_itemIds != null)
         {
-            itemIds.Callback -= OnItemListChanged;
+            _itemIds.Callback -= OnItemListChanged;
         }
     }
 
-    private void OnItemListChanged(SyncList<string>.Operation op, int index, string oldItem, string newItem)
+    private void OnItemListChanged(
+        SyncList<string>.Operation op,
+        int index,
+        string oldItem,
+        string newItem
+    )
     {
         // Re-synchronize visuals when the list changes
         if (isClient && !isServer)
@@ -111,7 +111,7 @@ public class LootItem : NetworkBehaviour {
         }
 
         // Subscribe to changes
-        itemIds.Callback += OnItemListChanged;
+        _itemIds.Callback += OnItemListChanged;
 
         // Update visuals
         UpdateVisualsFromManager();
@@ -125,10 +125,10 @@ public class LootItem : NetworkBehaviour {
             return;
         }
 
-        logger?.Log($"[LootItem] Updating visuals for {itemIds.Count} items", this);
+        logger?.Log($"[LootItem] Updating visuals for {_itemIds.Count} items", this);
 
         // Here you could update the loot bag visual based on the items
-        foreach (var itemId in itemIds)
+        foreach (var itemId in _itemIds)
         {
             var metadata = Items.ItemsManager.Instance.GetItemById(itemId);
             if (metadata != null)
@@ -149,11 +149,18 @@ public class LootItem : NetworkBehaviour {
         // Verify that a visual is assigned
         if (itemVisual == null)
         {
-            logger?.Log($"[LootItem] Warning: No visual assigned for loot '{itemName}'", this, Logging.LogType.Warning);
+            logger?.Log(
+                $"[LootItem] Warning: No visual assigned for loot '{itemName}'",
+                this,
+                Logging.LogType.Warning
+            );
         }
         else
         {
-            logger?.Log($"[LootItem] Loot '{itemName}' spawned at {transform.position} with {itemIds.Count} item IDs", this);
+            logger?.Log(
+                $"[LootItem] Loot '{itemName}' spawned at {transform.position} with {_itemIds.Count} item IDs",
+                this
+            );
         }
 
         // Create the trigger collider for player detection
@@ -172,69 +179,146 @@ public class LootItem : NetworkBehaviour {
         triggerObj.layer = gameObject.layer;
 
         // Add and configure the SphereCollider as a trigger
-        triggerCollider = triggerObj.AddComponent<SphereCollider>();
-        triggerCollider.isTrigger = true;
-        triggerCollider.radius = pickupRadius;
+        _triggerCollider = triggerObj.AddComponent<SphereCollider>();
+        _triggerCollider.isTrigger = true;
+        _triggerCollider.radius = pickupRadius;
 
         logger?.Log($"[LootItem] Trigger collider configured with radius {pickupRadius}", this);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Only process on server (server authority)
-        if (!isServer) return;
+        // Check if networked or not
+        bool isNetworked = NetworkClient.active || NetworkServer.active;
+
+        if (isNetworked && !isServer)
+        {
+            return;
+        }
 
         // Check if it's the player
-        if (((1 << other.gameObject.layer) & playerLayer) == 0) return;
+        if (((1 << other.gameObject.layer) & playerLayer) == 0)
+            return;
 
         // Check if lootable
-        if (!isLootable) return;
+        if (!_isLootable)
+            return;
 
         // Check if already being picked up
-        if (isBeingPickedUp) return;
+        if (_isBeingPickedUp)
+            return;
 
-        // Get NetworkIdentity
-        NetworkIdentity playerIdentity = other.GetComponent<NetworkIdentity>();
-        if (playerIdentity == null) return;
+        // Get the player's inventory reference
+        PlayerInventoryReference inventoryRef = other.GetComponent<PlayerInventoryReference>();
+        if (inventoryRef == null)
+            return;
 
-        // Check if this player already tried to pick up
-        if (playersWhoTriedPickup.Contains(playerIdentity.netId)) return;
+        if (isNetworked)
+        {
+            // Networked: Check NetworkIdentity and prevent duplicate pickups
+            NetworkIdentity playerIdentity = other.GetComponent<NetworkIdentity>();
+            if (playerIdentity == null)
+                return;
 
-        // Mark as being picked up to prevent other players from picking up simultaneously
-        isBeingPickedUp = true;
-        playersWhoTriedPickup.Add(playerIdentity.netId);
+            if (_playersWhoTriedPickup.Contains(playerIdentity.netId))
+                return;
 
-        logger?.Log($"[LootItem] SERVER - Player {playerIdentity.netId} triggered pickup", this);
+            _playersWhoTriedPickup.Add(playerIdentity.netId);
+            logger?.Log(
+                $"[LootItem] SERVER - Player {playerIdentity.netId} triggered pickup",
+                this
+            );
+        }
+        else
+        {
+            logger?.Log($"[LootItem] LOCAL - Player triggered pickup", this);
+        }
 
-        // Process pickup on server
-        ServerProcessPickup(playerIdentity);
+        // Mark as being picked up
+        _isBeingPickedUp = true;
+
+        // Process pickup (handles both networked and local)
+        ProcessPickup(inventoryRef);
     }
 
     /// <summary>
-    /// SERVER: Processes the pickup, validates, transfers items
+    /// Processes the pickup, validates, transfers items (works for both networked and local)
     /// </summary>
-    private void ServerProcessPickup(NetworkIdentity playerIdentity)
+    private void ProcessPickup(PlayerInventoryReference inventoryRef)
     {
-        if (itemIds.Count == 0)
+        bool isNetworked = NetworkClient.active || NetworkServer.active;
+
+        if (_itemIds.Count == 0)
         {
-            logger?.Log("[LootItem] SERVER - Bag is empty, despawning", this);
-            NetworkServer.Destroy(gameObject);
+            logger?.Log(
+                $"[LootItem] Bag is empty, {(isNetworked ? "despawning" : "destroying")}",
+                this
+            );
+            if (isNetworked)
+                NetworkServer.Destroy(gameObject);
+            else
+                Destroy(gameObject);
             return;
         }
 
         // Get all items from the bag
-        List<string> itemsToTransfer = new List<string>(itemIds);
+        List<string> itemsToTransfer = new List<string>(_itemIds);
 
-        logger?.Log($"[LootItem] SERVER - Transferring {itemsToTransfer.Count} items to player {playerIdentity.netId}", this);
+        logger?.Log($"[LootItem] Transferring {itemsToTransfer.Count} items to player", this);
 
-        // Clear the bag on server
-        itemIds.Clear();
+        // Clear the bag
+        _itemIds.Clear();
 
-        // Notify the specific client to add items to their inventory
-        TargetReceiveLoot(playerIdentity.connectionToClient, itemsToTransfer);
+        if (isNetworked)
+        {
+            // Networked: Get identity and use TargetRpc
+            NetworkIdentity playerIdentity = inventoryRef.GetComponent<NetworkIdentity>();
+            if (playerIdentity != null)
+            {
+                TargetReceiveLoot(playerIdentity.connectionToClient, itemsToTransfer);
+            }
+            NetworkServer.Destroy(gameObject);
+        }
+        else
+        {
+            // Local: Add items directly
+            InventoryController inventory = inventoryRef.GetInventory();
+            if (inventory == null)
+            {
+                logger?.Log(
+                    "[LootItem] LOCAL - ERROR: InventoryController not found",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
 
-        // Despawn the loot bag
-        NetworkServer.Destroy(gameObject);
+            int itemsAdded = 0;
+            foreach (string itemId in itemsToTransfer)
+            {
+                if (inventory.IsInventoryFull())
+                {
+                    logger?.Log(
+                        $"[LootItem] LOCAL - Inventory full! Added {itemsAdded}/{itemsToTransfer.Count} items",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                    break;
+                }
+
+                inventory.AddItemById(itemId);
+                itemsAdded++;
+                logger?.Log($"[LootItem] LOCAL - Added item to inventory: {itemId}", this);
+            }
+
+            logger?.Log(
+                $"[LootItem] LOCAL - Successfully added {itemsAdded} items to inventory",
+                this
+            );
+
+            // Destroy the loot bag
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>
@@ -250,21 +334,34 @@ public class LootItem : NetworkBehaviour {
         NetworkIdentity localPlayer = NetworkClient.localPlayer;
         if (localPlayer == null)
         {
-            logger?.Log("[LootItem] CLIENT - ERROR: No local player identity", this, Logging.LogType.Error);
+            logger?.Log(
+                "[LootItem] CLIENT - ERROR: No local player identity",
+                this,
+                Logging.LogType.Error
+            );
             return;
         }
 
-        PlayerInventoryReference inventoryRef = localPlayer.GetComponent<PlayerInventoryReference>();
+        PlayerInventoryReference inventoryRef =
+            localPlayer.GetComponent<PlayerInventoryReference>();
         if (inventoryRef == null)
         {
-            logger?.Log("[LootItem] CLIENT - ERROR: PlayerInventoryReference not found", this, Logging.LogType.Error);
+            logger?.Log(
+                "[LootItem] CLIENT - ERROR: PlayerInventoryReference not found",
+                this,
+                Logging.LogType.Error
+            );
             return;
         }
 
         InventoryController inventory = inventoryRef.GetInventory();
         if (inventory == null)
         {
-            logger?.Log("[LootItem] CLIENT - ERROR: InventoryController not found", this, Logging.LogType.Error);
+            logger?.Log(
+                "[LootItem] CLIENT - ERROR: InventoryController not found",
+                this,
+                Logging.LogType.Error
+            );
             return;
         }
 
@@ -274,7 +371,11 @@ public class LootItem : NetworkBehaviour {
         {
             if (inventory.IsInventoryFull())
             {
-                logger?.Log($"[LootItem] CLIENT - Inventory full! Added {itemsAdded}/{receivedItems.Count} items", this, Logging.LogType.Warning);
+                logger?.Log(
+                    $"[LootItem] CLIENT - Inventory full! Added {itemsAdded}/{receivedItems.Count} items",
+                    this,
+                    Logging.LogType.Warning
+                );
                 break;
             }
 
@@ -283,33 +384,10 @@ public class LootItem : NetworkBehaviour {
             logger?.Log($"[LootItem] CLIENT - Added item to inventory: {itemId}", this);
         }
 
-        logger?.Log($"[LootItem] CLIENT - Successfully added {itemsAdded} items to inventory", this);
-
-        // Play feedback
-        if (itemsAdded > 0)
-        {
-            PlayPickupFeedback();
-        }
-    }
-
-    /// <summary>
-    /// Plays sound effects and visuals when picking up
-    /// </summary>
-    private void PlayPickupFeedback()
-    {
-        // Play sound if assigned
-        if (pickupSound != null)
-        {
-            AudioSource.PlayClipAtPoint(pickupSound, transform.position);
-            logger?.Log($"[LootItem] Playing pickup sound", this);
-        }
-
-        // Instantiate VFX if assigned
-        if (pickupVFX != null)
-        {
-            Instantiate(pickupVFX, transform.position, Quaternion.identity);
-            logger?.Log($"[LootItem] Spawning pickup VFX", this);
-        }
+        logger?.Log(
+            $"[LootItem] CLIENT - Successfully added {itemsAdded} items to inventory",
+            this
+        );
     }
 
     /// <summary>
@@ -321,8 +399,8 @@ public class LootItem : NetworkBehaviour {
         transform.position = spawnPosition + Vector3.up * heightOffset;
 
         // Record spawn time and start delay
-        spawnTime = Time.time;
-        isLootable = false;
+        _spawnTime = Time.time;
+        _isLootable = false;
 
         // Start coroutine to enable loot after delay
         StartCoroutine(EnableLootAfterDelay());
@@ -335,49 +413,76 @@ public class LootItem : NetworkBehaviour {
     {
         yield return new WaitForSeconds(lootableDelay);
 
-        isLootable = true;
+        _isLootable = true;
         logger?.Log($"[LootItem] Loot is now lootable", this);
 
-        // SERVER: Check if there are any players already in range (handles case where loot spawns on top of player)
-        if (isServer)
+        // Check if there are any players already in range (handles case where loot spawns on top of player)
+        bool isNetworked = NetworkClient.active || NetworkServer.active;
+        if (isServer || !isNetworked)
         {
             CheckForPlayersInRange();
         }
     }
 
     /// <summary>
-    /// SERVER: Manually checks for players in range using Physics.OverlapSphere
+    /// Manually checks for players in range using Physics.OverlapSphere
     /// This handles the case where loot spawns on top of a player (OnTriggerEnter won't fire)
     /// </summary>
     private void CheckForPlayersInRange()
     {
-        if (!isServer) return;
-        if (isBeingPickedUp) return;
+        bool isNetworked = NetworkClient.active || NetworkServer.active;
+        if (isNetworked && !isServer)
+            return;
+        if (_isBeingPickedUp)
+            return;
 
         // Use Physics.OverlapSphere to detect players in the pickup radius
         Collider[] colliders = Physics.OverlapSphere(transform.position, pickupRadius, playerLayer);
 
         if (colliders.Length > 0)
         {
-            logger?.Log($"[LootItem] SERVER - Found {colliders.Length} player(s) already in range after becoming lootable", this);
+            logger?.Log(
+                $"[LootItem] Found {colliders.Length} player(s) already in range after becoming lootable",
+                this
+            );
 
             // Process pickup for the first valid player found
             foreach (Collider col in colliders)
             {
-                NetworkIdentity playerIdentity = col.GetComponent<NetworkIdentity>();
-                if (playerIdentity == null) continue;
+                PlayerInventoryReference inventoryRef =
+                    col.GetComponent<PlayerInventoryReference>();
+                if (inventoryRef == null)
+                    continue;
 
-                // Check if this player already tried to pick up
-                if (playersWhoTriedPickup.Contains(playerIdentity.netId)) continue;
+                if (isNetworked)
+                {
+                    // Networked: Check NetworkIdentity
+                    NetworkIdentity playerIdentity = col.GetComponent<NetworkIdentity>();
+                    if (playerIdentity == null)
+                        continue;
 
-                // Mark as being picked up to prevent other players from picking up simultaneously
-                isBeingPickedUp = true;
-                playersWhoTriedPickup.Add(playerIdentity.netId);
+                    if (_playersWhoTriedPickup.Contains(playerIdentity.netId))
+                        continue;
 
-                logger?.Log($"[LootItem] SERVER - Player {playerIdentity.netId} was already in range, processing pickup", this);
+                    _playersWhoTriedPickup.Add(playerIdentity.netId);
+                    logger?.Log(
+                        $"[LootItem] SERVER - Player {playerIdentity.netId} was already in range, processing pickup",
+                        this
+                    );
+                }
+                else
+                {
+                    logger?.Log(
+                        $"[LootItem] LOCAL - Player was already in range, processing pickup",
+                        this
+                    );
+                }
+
+                // Mark as being picked up
+                _isBeingPickedUp = true;
 
                 // Process pickup
-                ServerProcessPickup(playerIdentity);
+                ProcessPickup(inventoryRef);
                 break; // Only process for the first valid player
             }
         }
@@ -399,7 +504,11 @@ public class LootItem : NetworkBehaviour {
 
         if (ids == null || ids.Count == 0)
         {
-            logger?.Log("[LootItem] SetItemIds called with empty or null list", this, Logging.LogType.Warning);
+            logger?.Log(
+                "[LootItem] SetItemIds called with empty or null list",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
@@ -407,11 +516,11 @@ public class LootItem : NetworkBehaviour {
         {
             if (!string.IsNullOrEmpty(id))
             {
-                itemIds.Add(id);
+                _itemIds.Add(id);
             }
         }
 
-        logger?.Log($"[LootItem] Configured {itemIds.Count} item IDs", this);
+        logger?.Log($"[LootItem] Configured {_itemIds.Count} item IDs", this);
     }
 
     /// <summary>

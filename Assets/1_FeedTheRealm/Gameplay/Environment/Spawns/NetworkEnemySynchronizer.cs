@@ -1,5 +1,5 @@
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 /// <summary>
 /// Synchronizes position and rotation for networked enemies.
@@ -14,16 +14,25 @@ using Mirror;
 /// </summary>
 public class NetworkEnemySynchronizer : NetworkBehaviour
 {
-    [SerializeField] private Rigidbody rb;
-    [SerializeField] private Logging.Logger logger;
+    [SerializeField]
+    private Rigidbody rb;
+
+    [SerializeField]
+    private Logging.Logger logger;
 
     [Header("Network Settings")]
-    [SerializeField] private float networkSendRate = 10f; // Updates per second
-    [SerializeField] private float positionThreshold = 0.1f; // Minimum change to send
-    [SerializeField] private float rotationThreshold = 5f; // Degrees minimum to send
+    [SerializeField]
+    private float networkSendRate = 10f; // Updates per second
+
+    [SerializeField]
+    private float positionThreshold = 0.1f; // Minimum change to send
+
+    [SerializeField]
+    private float rotationThreshold = 5f; // Degrees minimum to send
 
     [Header("Client Interpolation")]
-    [SerializeField] private float interpolationSpeed = 15f; // How fast clients interpolate to target position
+    [SerializeField]
+    private float interpolationSpeed = 15f; // How fast clients interpolate to target position
 
     // SyncVars for network state (server → clients)
     [SyncVar(hook = nameof(OnPositionChanged))]
@@ -62,7 +71,10 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
         lastSentPosition = transform.position;
         lastSentRotation = transform.rotation;
 
-        logger?.Log($"[NetworkEnemySynchronizer] Server spawned enemy at {transform.position}", this);
+        logger?.Log(
+            $"[NetworkEnemySynchronizer] Server spawned enemy at {transform.position}",
+            this
+        );
     }
 
     public override void OnStartClient()
@@ -81,7 +93,10 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
             targetPosition = networkPosition;
             targetRotation = networkRotation;
 
-            logger?.Log($"[NetworkEnemySynchronizer] Client received enemy at {networkPosition}", this);
+            logger?.Log(
+                $"[NetworkEnemySynchronizer] Client received enemy at {networkPosition}",
+                this
+            );
         }
     }
 
@@ -106,7 +121,8 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     private void SyncToClients()
     {
-        if (!isServer) return;
+        if (!isServer)
+            return;
 
         // Check if enough time has passed
         if (Time.time - lastNetworkSendTime < 1f / networkSendRate)
@@ -149,7 +165,8 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     private void OnPositionChanged(Vector3 oldValue, Vector3 newValue)
     {
-        if (isServer) return; // Server already has correct value
+        if (isServer)
+            return; // Server already has correct value
         targetPosition = newValue;
     }
 
@@ -158,7 +175,8 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     private void OnRotationChanged(Quaternion oldValue, Quaternion newValue)
     {
-        if (isServer) return; // Server already has correct value
+        if (isServer)
+            return; // Server already has correct value
         targetRotation = newValue;
     }
 
@@ -167,7 +185,8 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     /// </summary>
     private void InterpolateToServerState()
     {
-        if (isServer) return;
+        if (isServer)
+            return;
 
         float lerpFactor = Mathf.Clamp01(Time.deltaTime * interpolationSpeed);
 
@@ -193,7 +212,11 @@ public class NetworkEnemySynchronizer : NetworkBehaviour
     {
         if (!isServer)
         {
-            logger?.Log("[NetworkEnemySynchronizer] Only server can teleport enemies!", this, Logging.LogType.Warning);
+            logger?.Log(
+                "[NetworkEnemySynchronizer] Only server can teleport enemies!",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 

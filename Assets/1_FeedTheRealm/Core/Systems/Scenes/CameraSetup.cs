@@ -1,6 +1,6 @@
-using UnityEngine;
-using Unity.Cinemachine;
 using Mirror;
+using Unity.Cinemachine;
+using UnityEngine;
 
 public class CameraSetup : MonoBehaviour
 {
@@ -8,11 +8,14 @@ public class CameraSetup : MonoBehaviour
     [Tooltip("Optional: Specify a tag to find the player. Default is 'Player'.")]
     public string playerTag = "Player";
 
-    [Tooltip("Optional: Manually set a specific child transform of the player (like a spine/chest bone).")]
+    [Tooltip(
+        "Optional: Manually set a specific child transform of the player (like a spine/chest bone)."
+    )]
     public string targetChildName = "";
 
-    [SerializeField] private Logging.Logger logger;
-    
+    [SerializeField]
+    private Logging.Logger logger;
+
     private Coroutine setupCoroutine;
 
     void Awake()
@@ -38,7 +41,7 @@ public class CameraSetup : MonoBehaviour
         // Wait a frame for the player to spawn
         setupCoroutine = StartCoroutine(WaitForPlayerAndSetupCamera());
     }
-    
+
     private void OnDestroy()
     {
         if (setupCoroutine != null)
@@ -63,7 +66,11 @@ public class CameraSetup : MonoBehaviour
 
         if (playerTransform == null)
         {
-            logger.Log("CameraSetup: Local player not found! Make sure the player prefab has a NetworkIdentity and the player tag is set.", this, Logging.LogType.Error);
+            logger.Log(
+                "CameraSetup: Local player not found! Make sure the player prefab has a NetworkIdentity and the player tag is set.",
+                this,
+                Logging.LogType.Error
+            );
             return;
         }
 
@@ -79,18 +86,25 @@ public class CameraSetup : MonoBehaviour
             }
             else
             {
-                logger.Log($"Child '{targetChildName}' not found, using player root instead", this, Logging.LogType.Warning);
+                logger.Log(
+                    $"Child '{targetChildName}' not found, using player root instead",
+                    this,
+                    Logging.LogType.Warning
+                );
             }
         }
 
         // Find FreeLook Camera in the scene
         var cinemachineCameras = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);
-        
+
         foreach (var vcam in cinemachineCameras)
         {
             // Configure the camera to follow this player
             vcam.Target.TrackingTarget = targetTransform;
-            logger.Log($"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this);
+            logger.Log(
+                $"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}",
+                this
+            );
         }
 
         // Alternative: Find by name if you have a specific camera
@@ -101,7 +115,10 @@ public class CameraSetup : MonoBehaviour
             if (freeLookCam != null)
             {
                 freeLookCam.Target.TrackingTarget = targetTransform;
-                logger.Log($"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this);
+                logger.Log(
+                    $"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}",
+                    this
+                );
             }
         }
     }
@@ -127,7 +144,10 @@ public class CameraSetup : MonoBehaviour
             // In Mirror, isLocalPlayer indicates this is the local player
             if (netIdentity.isLocalPlayer)
             {
-                logger.Log($"Found local player by NetworkIdentity scan: {netIdentity.gameObject.name}", this);
+                logger.Log(
+                    $"Found local player by NetworkIdentity scan: {netIdentity.gameObject.name}",
+                    this
+                );
                 return netIdentity.transform;
             }
         }

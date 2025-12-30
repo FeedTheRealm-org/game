@@ -11,18 +11,18 @@ public static class LoadingScreenEvents
     /// Evento que se dispara cuando se debe mostrar el loading screen
     /// </summary>
     public static event Action OnShowLoadingScreen;
-    
+
     /// <summary>
     /// Evento que se dispara cuando se debe ocultar el loading screen inmediatamente
     /// </summary>
     public static event Action OnHideLoadingScreen;
-    
+
     /// <summary>
     /// Evento que se dispara cuando se debe ocultar el loading screen con delay/fade
     /// Incluye un parámetro opcional de delay en segundos
     /// </summary>
     public static event Action<float> OnHideLoadingScreenWithDelay;
-    
+
     /// <summary>
     /// Dispara el evento para mostrar el loading screen
     /// </summary>
@@ -31,7 +31,7 @@ public static class LoadingScreenEvents
         Debug.Log("[LoadingScreenEvents] Show event triggered");
         OnShowLoadingScreen?.Invoke();
     }
-    
+
     /// <summary>
     /// Dispara el evento para ocultar el loading screen inmediatamente
     /// </summary>
@@ -40,7 +40,7 @@ public static class LoadingScreenEvents
         Debug.Log("[LoadingScreenEvents] Hide event triggered");
         OnHideLoadingScreen?.Invoke();
     }
-    
+
     /// <summary>
     /// Dispara el evento para ocultar el loading screen con delay
     /// </summary>
@@ -50,7 +50,7 @@ public static class LoadingScreenEvents
         Debug.Log($"[LoadingScreenEvents] HideWithDelay event triggered (delay: {delay}s)");
         OnHideLoadingScreenWithDelay?.Invoke(delay);
     }
-    
+
     /// <summary>
     /// Limpia todos los suscriptores (útil para testing o cuando se cambia de escena)
     /// </summary>
