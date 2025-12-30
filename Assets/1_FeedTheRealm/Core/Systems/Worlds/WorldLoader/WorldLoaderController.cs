@@ -184,15 +184,18 @@ public class WorldLoaderController : MonoBehaviour
             }
         }
 
-        foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas) {
+        foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas)
+        {
             var spawn = Instantiate(enemySpawnPrefab);
             spawn.transform.localScale = enemySpawnAreaData.Size * Vector3.one;
-            spawn.GetComponent<EnemySpawn>().Initialize(
-                enemySpawnAreaData.MaxEnemies,
-                enemySpawnAreaData.SpawnRate,
-                enemySpawnAreaData.ResetAfterKills,
-                enemySpawnAreaData.ResetDelay
-            );
+            spawn
+                .GetComponent<EnemySpawn>()
+                .Initialize(
+                    enemySpawnAreaData.MaxEnemies,
+                    enemySpawnAreaData.SpawnRate,
+                    enemySpawnAreaData.ResetAfterKills,
+                    enemySpawnAreaData.ResetDelay
+                );
 
             worldController.PlaceEnemySpawnAreaAt(
                 Vector3Int.FloorToInt(enemySpawnAreaData.Position),
