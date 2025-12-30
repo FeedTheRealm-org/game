@@ -37,6 +37,9 @@ public class WorldLoaderController : MonoBehaviour
     [SerializeField]
     private GameObject enemySpawnPrefab;
 
+    [Header("Debug")]
+    [SerializeField] private bool logWorldDataJson = false;
+
     private Dictionary<string, Asset> assetMap;
     private List<GameObject> cleanup = new();
 
@@ -46,16 +49,46 @@ public class WorldLoaderController : MonoBehaviour
         assetMap = new Dictionary<string, Asset>();
         await LoadAssets();
         LoadWorld();
-        loadingScreenUI.gameObject.SetActive(false);
+        if (loadingScreenUI != null) {
+            loadingScreenUI.gameObject.SetActive(false);
+        }
+
+        // Hide the global loading screen once all world data
+        // (models + enemy spawns) has been loaded on the client.
+        LoadingScreenEvents.HideWithDelay();
     }
 
-    private async Task LoadAssets()
-    {
+    private async Task LoadAssets() {
         string worldId = worldHandler.selectedWorld.id;
+
+        // Select token according to build type:
+        // - Dedicated server (UNITY_SERVER): always environment token.
+        // - Client / Editor: always user session token.
+        string accessToken;
+
+#if UNITY_SERVER && !UNITY_EDITOR
+        accessToken = System.Environment.GetEnvironmentVariable("FTR_SERVER_API_TOKEN");
+        if (string.IsNullOrWhiteSpace(accessToken)) {
+            logger.Log("[WorldLoaderController] UNITY_SERVER build without FTR_SERVER_API_TOKEN; cannot load world assets.", this, Logging.LogType.Error);
+            return;
+        }
+        logger.Log("[WorldLoaderController] Using server API token from environment for world assets (UNITY_SERVER).", this);
+#else
+        accessToken = session.APIToken;
+        if (string.IsNullOrWhiteSpace(accessToken)) {
+            logger.Log("[WorldLoaderController] Session API token is empty; user must be logged in to load world assets.", this, Logging.LogType.Error);
+            return;
+        }
+        logger.Log("[WorldLoaderController] Using player session API token for world assets (client/editor).", this);
+#endif
+
         logger.Log("Fetching model IDs from world...", this);
 
         // 1. GET MODEL ID LIST
-        List<string> modelIds = await modelService.ListWorldAssets(worldId, session.APIToken);
+        List<string> modelIds = await modelService.ListWorldAssets(
+            worldId,
+            accessToken
+        );
 
         if (modelIds.Count == 0)
         {
@@ -78,17 +111,36 @@ public class WorldLoaderController : MonoBehaviour
     {
         WorldData data = worldHandler.selectedWorld.data;
 
-        if (data.objectPlacementData == null || data.objectPlacementData.Count == 0)
-        {
+        if (logWorldDataJson && data != null) {
+            try {
+                string json = JsonUtility.ToJson(data, true);
+                string worldName = worldHandler.selectedWorld != null ? worldHandler.selectedWorld.name : "<unknown>";
+                logger.Log($"[WorldLoaderController] World data JSON for '{worldName}':\n{json}", this);
+            } catch (Exception ex) {
+                logger.Log($"[WorldLoaderController] Failed to serialize world data for logging: {ex.Message}", this, Logging.LogType.Warning);
+            }
+        }
+
+        if (data.objectPlacementData == null || data.objectPlacementData.Count == 0) {
             logger.Log("New world created!", this, Logging.LogType.Info);
             return;
         }
 
-        foreach (PlacedAsset placementData in data.objectPlacementData)
-        {
-            Asset assetData = assetMap[placementData.AssetDataId];
-            Vector3Int gridPosition = placementData.Position;
-            worldController.PlaceObjectAt(gridPosition, assetData.GetModelInstance());
+        if (assetMap == null || assetMap.Count == 0) {
+            logger.Log("No assets loaded for world; skipping placed object instantiation.", this, Logging.LogType.Warning);
+        } else {
+            foreach (PlacedAsset placementData in data.objectPlacementData) {
+                if (!assetMap.TryGetValue(placementData.AssetDataId, out Asset assetData)) {
+                    logger.Log($"Asset with id '{placementData.AssetDataId}' not found in assetMap; skipping placed object.", this, Logging.LogType.Warning);
+                    continue;
+                }
+
+                Vector3Int gridPosition = placementData.Position;
+                worldController.PlaceObjectAt(
+                    gridPosition,
+                    assetData.GetModelInstance()
+                );
+            }
         }
 
         foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas)

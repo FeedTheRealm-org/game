@@ -4,14 +4,19 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Maneja el ciclo de vida de la conexión de red y coordina el loading screen.
-/// Este componente persiste entre cambios de escena usando DontDestroyOnLoad.
-/// Los valores de IP y puerto son pasados desde el UI (MultiplayerMenuController).
+/// Handles the lifecycle of the network connection and coordinates the loading screen.
+/// This component persists between scene changes using DontDestroyOnLoad.
+/// The IP and port values are passed from the UI (MultiplayerMenuController).
 /// </summary>
 public class NetworkConnectionHandler : MonoBehaviour
 {
     private static NetworkConnectionHandler instance;
     public static NetworkConnectionHandler Instance => instance;
+
+    [Header("Auto Connect Settings")]
+    [SerializeField] private bool connectOnStart = false;
+    [SerializeField] private string defaultIpAddress = "127.0.0.1";
+    [SerializeField] private ushort defaultPort = 7777;
 
     [Header("Debug")]
     [SerializeField]
@@ -44,6 +49,19 @@ public class NetworkConnectionHandler : MonoBehaviour
         );
     }
 
+    private void Start()
+    {
+#if UNITY_SERVER
+        // No intent to auto-connect as client on dedicated server builds
+        return;
+#endif
+
+        if (connectOnStart)
+        {
+            ConnectToServer(defaultIpAddress, defaultPort);
+        }
+    }
+    
     private void OnDestroy()
     {
         if (instance == this)
@@ -104,8 +122,8 @@ public class NetworkConnectionHandler : MonoBehaviour
     #region Public Methods
 
     /// <summary>
-    /// Conecta al servidor con IP y puerto específicos.
-    /// Este método debe ser llamado desde el UI (ej: MultiplayerMenuController).
+    /// Connects to the server with a specific IP and port.
+    /// This method should be called from the UI (e.g., MultiplayerMenuController).
     /// </summary>
     public void ConnectToServer(string ipAddress, ushort port)
     {
@@ -127,7 +145,7 @@ public class NetworkConnectionHandler : MonoBehaviour
             return;
         }
 
-        // Verificar que la IP no sea localhost si estamos intentando conectar a un servidor remoto
+        // Verify that the IP is not localhost if we are trying to connect to a remote server
         if (ipAddress == "127.0.0.1" || ipAddress == "localhost")
         {
             LogWarning(
@@ -137,15 +155,15 @@ public class NetworkConnectionHandler : MonoBehaviour
 
         LogInfo($"Attempting to connect to server at {ipAddress}:{port}");
 
-        // Suscribirse a eventos de red justo antes de conectar
+        // Subscribe to network events just before connecting
         SubscribeToNetworkEvents();
 
-        // Mostrar loading screen
+        // Show loading screen
         BeginConnection();
 
         if (ConfigureTransport(ipAddress, port))
         {
-            // Obtener el transport para verificación final
+            // Get the transport for final verification
             var transport = NetworkManager.singleton.GetComponent<KcpTransport>();
             LogInfo($"📡 Final transport configuration before StartClient:");
             LogInfo($"   → Address: {NetworkManager.singleton.networkAddress}");
@@ -172,7 +190,7 @@ public class NetworkConnectionHandler : MonoBehaviour
     }
 
     /// <summary>
-    /// Configura el KCP Transport con la dirección IP y puerto del servidor
+    /// Configures the KCP Transport with the server's IP address and port
     /// </summary>
     private bool ConfigureTransport(string ipAddress, ushort port)
     {
@@ -184,16 +202,16 @@ public class NetworkConnectionHandler : MonoBehaviour
             return false;
         }
 
-        // En Mirror, la dirección se configura en el NetworkManager, no en el transport
+        // In Mirror, the address is set on the NetworkManager, not on the transport
         NetworkManager.singleton.networkAddress = ipAddress;
         transport.Port = port;
 
-        // Logging detallado para debugging
+        // Detailed logging for debugging
         LogInfo($"✅ KcpTransport configured:");
         LogInfo($"   → Address: {NetworkManager.singleton.networkAddress}");
         LogInfo($"   → Port: {transport.Port}");
 
-        // Verificar que la configuración se aplicó correctamente
+        // Verify that the configuration was applied correctly
         if (NetworkManager.singleton.networkAddress != ipAddress)
         {
             LogError(
@@ -206,19 +224,19 @@ public class NetworkConnectionHandler : MonoBehaviour
     }
 
     /// <summary>
-    /// Llama esto antes de conectar al servidor para mostrar el loading screen
+    /// Call this before connecting to the server to show the loading screen
     /// </summary>
     public void BeginConnection()
     {
         LogInfo("BeginConnection() - Showing loading screen via events");
         isConnecting = true;
-
-        // Usar el sistema de eventos en lugar de llamar al controller directamente
+        
+        // Use the event system instead of calling the controller directly
         LoadingScreenEvents.Show();
     }
 
     /// <summary>
-    /// Oculta el loading screen manualmente
+    /// Manually hides the loading screen
     /// </summary>
     public void HideLoadingScreen()
     {
@@ -256,7 +274,7 @@ public class NetworkConnectionHandler : MonoBehaviour
             $"📍 OnSceneLoaded called: Scene={scene.name}, mode={mode}, isConnecting={isConnecting}"
         );
 
-        // Solo procesar si estamos conectando como cliente
+        // Only process if we are connecting as a client
         if (isConnecting && NetworkClient.isConnected)
         {
             LogInfo($"Scene '{scene.name}' loaded. Hiding loading screen with delay...");
