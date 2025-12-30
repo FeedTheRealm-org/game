@@ -1,10 +1,11 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Handles character animation logic, centralizing animator control.
 /// </summary>
-public class CharacterAnimator : MonoBehaviour {
+public class CharacterAnimator : MonoBehaviour
+{
     [SerializeField]
     private Animator animator;
 
@@ -26,17 +27,20 @@ public class CharacterAnimator : MonoBehaviour {
 
     private Dictionary<FacingDirection, GameObject> spriteMap;
 
-    private void Awake() {
-        spriteMap = new Dictionary<FacingDirection, GameObject>() {
-        { FacingDirection.Front, front },
-        { FacingDirection.Back, back },
-        { FacingDirection.Right, right },
-        { FacingDirection.Left, left }
-    };
+    private void Awake()
+    {
+        spriteMap = new Dictionary<FacingDirection, GameObject>()
+        {
+            { FacingDirection.Front, front },
+            { FacingDirection.Back, back },
+            { FacingDirection.Right, right },
+            { FacingDirection.Left, left },
+        };
 
         // optional: disable all on start
         SetFacing(FacingDirection.Front);
-        if (animator == null) {
+        if (animator == null)
+        {
             animator = GetComponentInChildren<Animator>();
         }
     }
@@ -44,8 +48,10 @@ public class CharacterAnimator : MonoBehaviour {
     /// <summary>
     /// Sets the facing direction of the character.
     /// </summary>
-    public void SetFacing(FacingDirection facing) {
-        foreach (var kvp in spriteMap) {
+    public void SetFacing(FacingDirection facing)
+    {
+        foreach (var kvp in spriteMap)
+        {
             kvp.Value.SetActive(kvp.Key == facing);
         }
     }
@@ -53,38 +59,48 @@ public class CharacterAnimator : MonoBehaviour {
     /// <summary>
     /// Sets the moving animation state.
     /// </summary>
-    public void SetMoving(bool isMoving) {
+    public void SetMoving(bool isMoving)
+    {
         animator.SetBool("IsRunning", isMoving);
     }
 
     /// <summary>
     /// Sets the dashing animation state.
     /// </summary>
-    public void SetDashing(bool isDashing) {
+    public void SetDashing(bool isDashing)
+    {
         // animator.SetBool("IsDashing", isDashing);
     }
 
-    public void SetAction(bool isAction) {
+    public void SetAction(bool isAction)
+    {
         animator.SetBool("Action", isAction);
     }
 
-    public void SetDirection(Vector2 direction) {
+    public void SetDirection(Vector2 direction)
+    {
         Vector3 moveDir = new Vector3(direction.x, 0f, direction.y).normalized;
 
         float forwardDot = Vector3.Dot(Vector3.forward, moveDir);
         float rightDot = Vector3.Dot(Vector3.right, moveDir);
 
-        if (forwardDot > 0.1f) {
+        if (forwardDot > 0.1f)
+        {
             logger.Log("Facing Back", this);
             SetFacing(FacingDirection.Back);
-        } else if (forwardDot < -0.1f) {
+        }
+        else if (forwardDot < -0.1f)
+        {
             logger.Log("Facing Front", this);
             SetFacing(FacingDirection.Front);
         }
-        if (rightDot > 0.1f) {
+        if (rightDot > 0.1f)
+        {
             logger.Log("Facing Right", this);
             SetFacing(FacingDirection.Right);
-        } else if (rightDot < -0.1f) {
+        }
+        else if (rightDot < -0.1f)
+        {
             logger.Log("Facing Left", this);
             SetFacing(FacingDirection.Left);
         }
@@ -93,21 +109,24 @@ public class CharacterAnimator : MonoBehaviour {
     /// <summary>
     /// Triggers the attack animation.
     /// </summary>
-    public void PlayAttack() {
+    public void PlayAttack()
+    {
         animator.SetTrigger("Slash1H");
     }
 
     /// <summary>
     /// Triggers the damaged animation.
     /// </summary>
-    public void PlayDamaged() {
+    public void PlayDamaged()
+    {
         animator.SetTrigger("Hit");
     }
 
     /// <summary>
     /// Triggers the death animation.
     /// </summary>
-    public void PlayDeath() {
+    public void PlayDeath()
+    {
         animator.SetTrigger("Death");
     }
 }

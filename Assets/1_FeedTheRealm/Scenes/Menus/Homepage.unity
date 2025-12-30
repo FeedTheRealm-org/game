@@ -660,8 +660,8 @@ MonoBehaviour:
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   profileMenuPrefab: {fileID: 1137216438}
   gameplayScene:
-    sceneName: WorldLoaderTest
-    sceneAsset: {fileID: 102900000, guid: 27c5c4b95e037a72ebc7df0708252efe, type: 3}
+    sceneName: MultiplayerScene
+    sceneAsset: {fileID: 102900000, guid: f6ac62a72a7875ffab304152e68e376a, type: 3}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

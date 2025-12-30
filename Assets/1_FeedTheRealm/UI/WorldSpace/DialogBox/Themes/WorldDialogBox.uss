@@ -1,0 +1,14 @@
+.dialog-container {
+    width: 500px;
+    height: 200px;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 15px;
+    border-radius: 30px;
+}
+
+.dialog-text {
+    font-size: 28px;
+    color: rgb(51, 51, 51);
+    white-space: normal;
+    overflow: hidden;
+}

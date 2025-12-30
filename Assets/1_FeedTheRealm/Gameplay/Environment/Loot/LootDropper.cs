@@ -1,6 +1,6 @@
-using UnityEngine;
-using Mirror;
 using System.Collections.Generic;
+using Mirror;
+using UnityEngine;
 
 /// <summary>
 /// Component added to enemies to drop loot upon death.
@@ -15,7 +15,6 @@ using System.Collections.Generic;
 [RequireComponent(typeof(HealthComponent))]
 public class LootDropper : MonoBehaviour
 {
-
     [Header("Loot configuration")]
     [SerializeField]
     [Tooltip("Prefab of the LootItem to instantiate")]
@@ -53,7 +52,11 @@ public class LootDropper : MonoBehaviour
 
         if (healthComponent == null)
         {
-            logger?.Log("[LootDropper] Error: HealthComponent not found on the enemy!", this, Logging.LogType.Error);
+            logger?.Log(
+                "[LootDropper] Error: HealthComponent not found on the enemy!",
+                this,
+                Logging.LogType.Error
+            );
             enabled = false;
             return;
         }
@@ -85,7 +88,10 @@ public class LootDropper : MonoBehaviour
         {
             if (!NetworkServer.active)
             {
-                logger?.Log("[LootDropper] Client ignoring HandleDeath - only the server spawns loot", this);
+                logger?.Log(
+                    "[LootDropper] Client ignoring HandleDeath - only the server spawns loot",
+                    this
+                );
                 return;
             }
         }
@@ -96,7 +102,11 @@ public class LootDropper : MonoBehaviour
         }
         else if (lootPrefab == null)
         {
-            logger?.Log("[LootDropper] Warning: No loot prefab assigned!", this, Logging.LogType.Warning);
+            logger?.Log(
+                "[LootDropper] Warning: No loot prefab assigned!",
+                this,
+                Logging.LogType.Warning
+            );
         }
     }
 
@@ -121,7 +131,11 @@ public class LootDropper : MonoBehaviour
         LootItem lootItem = lootInstance.GetComponent<LootItem>();
         if (lootItem == null)
         {
-            logger?.Log($"[LootDropper] ERROR: Loot prefab does not have LootItem component!", this, Logging.LogType.Error);
+            logger?.Log(
+                $"[LootDropper] ERROR: Loot prefab does not have LootItem component!",
+                this,
+                Logging.LogType.Error
+            );
             Destroy(lootInstance);
             return;
         }
@@ -138,7 +152,11 @@ public class LootDropper : MonoBehaviour
             NetworkIdentity networkIdentity = lootInstance.GetComponent<NetworkIdentity>();
             if (networkIdentity == null)
             {
-                logger?.Log($"[LootDropper] ERROR: Loot prefab does not have NetworkIdentity! The loot will not be visible in multiplayer.", this, Logging.LogType.Error);
+                logger?.Log(
+                    $"[LootDropper] ERROR: Loot prefab does not have NetworkIdentity! The loot will not be visible in multiplayer.",
+                    this,
+                    Logging.LogType.Error
+                );
                 Destroy(lootInstance);
                 return;
             }
@@ -152,11 +170,18 @@ public class LootDropper : MonoBehaviour
         if (lootItemIds != null && lootItemIds.Count > 0)
         {
             lootItem.SetItemIds(lootItemIds);
-            logger?.Log($"[LootDropper] Configured loot with {lootItemIds.Count} item IDs: {string.Join(", ", lootItemIds)}", this);
+            logger?.Log(
+                $"[LootDropper] Configured loot with {lootItemIds.Count} item IDs: {string.Join(", ", lootItemIds)}",
+                this
+            );
         }
         else
         {
-            logger?.Log("[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!", this, Logging.LogType.Warning);
+            logger?.Log(
+                "[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!",
+                this,
+                Logging.LogType.Warning
+            );
         }
     }
 
@@ -171,8 +196,16 @@ public class LootDropper : MonoBehaviour
         {
             if (!Items.DedicatedServerItemsManager.Instance.IsInitialized)
             {
-                logger?.Log("[LootDropper] WARNING: DedicatedServerItemsManager not initialized yet! Items will not drop until initialization completes.", this, Logging.LogType.Warning);
-                logger?.Log("[LootDropper] This is normal on first enemy death. Subsequent deaths should work fine.", this, Logging.LogType.Warning);
+                logger?.Log(
+                    "[LootDropper] WARNING: DedicatedServerItemsManager not initialized yet! Items will not drop until initialization completes.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                logger?.Log(
+                    "[LootDropper] This is normal on first enemy death. Subsequent deaths should work fine.",
+                    this,
+                    Logging.LogType.Warning
+                );
                 return new List<string>();
             }
 
@@ -184,14 +217,22 @@ public class LootDropper : MonoBehaviour
         {
             if (!Items.ItemsManager.Instance.IsInitialized)
             {
-                logger?.Log("[LootDropper] WARNING: ItemsManager not initialized yet! Items will not drop.", this, Logging.LogType.Warning);
+                logger?.Log(
+                    "[LootDropper] WARNING: ItemsManager not initialized yet! Items will not drop.",
+                    this,
+                    Logging.LogType.Warning
+                );
                 return new List<string>();
             }
 
             return GetRandomItemsFromClientManager();
         }
 
-        logger?.Log("[LootDropper] ERROR: No ItemsManager found (neither Server nor Client)!", this, Logging.LogType.Error);
+        logger?.Log(
+            "[LootDropper] ERROR: No ItemsManager found (neither Server nor Client)!",
+            this,
+            Logging.LogType.Error
+        );
         return new List<string>();
     }
 
@@ -221,7 +262,8 @@ public class LootDropper : MonoBehaviour
         for (int i = 0; i < itemCount; i++)
         {
             var allItems = Items.ItemsManager.Instance.GetAllItems();
-            if (allItems.Length == 0) continue;
+            if (allItems.Length == 0)
+                continue;
 
             int randomIndex = UnityEngine.Random.Range(0, allItems.Length);
             var itemId = allItems[randomIndex].id;

@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+      - id: end-of-file-fixer
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=5120"]
+      - id: check-yaml
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+      - id: check-json
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        files: \.(yml|yaml)$
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+        args: [--format, parsable]
+
+  - repo: local
+    hooks:
+      - id: csharpier-check
+        name: CSharpier (verify formatting)
+        entry: dotnet tool run csharpier check
+        language: system
+        files: \.cs$
+        pass_filenames: true
+
+      - id: csharpier-format
+        name: CSharpier (auto-format)
+        entry: dotnet tool run csharpier format
+        language: system
+        files: \.cs$
+        pass_filenames: true

@@ -1,32 +1,44 @@
-using UnityEngine;
-using UnityEngine.UIElements;
 using API;
 using Items;
+using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Tooltip controller for displaying item statistics on hover.
 /// Shows dynamic stats based on item category (weapon/armor).
 /// Uses mock data until backend provides real stats.
 /// </summary>
-public class ItemStatsTooltip : MonoBehaviour {
+public class ItemStatsTooltip : MonoBehaviour
+{
     [Header("UI References")]
-    [SerializeField] private UIDocument tooltipDocument;
+    [SerializeField]
+    private UIDocument tooltipDocument;
 
     [Header("Mock Stats Configuration")]
-    [SerializeField] private int weaponAttackValue = 10;
-    [SerializeField] private float weaponAttackSpeedValue = 1.5f;
-    [SerializeField] private int weaponAttackRangeValue = 5;
+    [SerializeField]
+    private int weaponAttackValue = 10;
 
-    [SerializeField] private int armorDefenseValue = 8;
-    [SerializeField] private int armorResistanceValue = 12;
+    [SerializeField]
+    private float weaponAttackSpeedValue = 1.5f;
+
+    [SerializeField]
+    private int weaponAttackRangeValue = 5;
+
+    [SerializeField]
+    private int armorDefenseValue = 8;
+
+    [SerializeField]
+    private int armorResistanceValue = 12;
 
     [Header("Logging")]
-    [SerializeField] private Logging.Logger logger;
-    
+    [SerializeField]
+    private Logging.Logger logger;
+
     [Header("Description Wrapping")]
     [Tooltip("Maximum characters per line before inserting a newline for the Description label.")]
-    [SerializeField] private int descriptionMaxLineLength = 25;
+    [SerializeField]
+    private int descriptionMaxLineLength = 25;
 
     // UI Elements
     private VisualElement root;
@@ -43,22 +55,27 @@ public class ItemStatsTooltip : MonoBehaviour {
     private bool isVisible = false;
     private string currentItemId;
 
-    void Awake() {
-
-        if (Application.isBatchMode || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null) {
+    void Awake()
+    {
+        if (Application.isBatchMode || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+        {
             enabled = false;
             return;
         }
 
-        if (tooltipDocument == null) {
+        if (tooltipDocument == null)
+        {
             tooltipDocument = GetComponent<UIDocument>();
         }
 
-        if (tooltipDocument != null) {
+        if (tooltipDocument != null)
+        {
             root = tooltipDocument.rootVisualElement;
             InitializeUIElements();
             HideTooltip();
-        } else {
+        }
+        else
+        {
             logger?.Log("UIDocument not assigned!", this, Logging.LogType.Error);
         }
     }
@@ -66,12 +83,18 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Initialize references to all UI elements.
     /// </summary>
-    private void InitializeUIElements() {
+    private void InitializeUIElements()
+    {
         // Get the main container by name
         tooltipContainer = root.Q<VisualElement>("TooltipContainer");
 
-        if (tooltipContainer == null) {
-            logger?.Log("TooltipContainer not found! Make sure UXML has a VisualElement named 'TooltipContainer'", this, Logging.LogType.Error);
+        if (tooltipContainer == null)
+        {
+            logger?.Log(
+                "TooltipContainer not found! Make sure UXML has a VisualElement named 'TooltipContainer'",
+                this,
+                Logging.LogType.Error
+            );
             return;
         }
 
@@ -85,7 +108,8 @@ public class ItemStatsTooltip : MonoBehaviour {
         attackRangeLabel = root.Q<Label>("AttackRange");
 
         // Validate that all elements were found
-        if (nameLabel == null || descriptionLabel == null) {
+        if (nameLabel == null || descriptionLabel == null)
+        {
             logger?.Log("Failed to find required UI labels!", this, Logging.LogType.Error);
         }
 
@@ -95,26 +119,39 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Show tooltip for a specific item next to the slot.
     /// </summary>
-    public void ShowTooltip(string itemId, VisualElement slot) {
-        if (string.IsNullOrEmpty(itemId)) {
-            logger?.Log("Cannot show tooltip: itemId is null or empty", this, Logging.LogType.Warning);
+    public void ShowTooltip(string itemId, VisualElement slot)
+    {
+        if (string.IsNullOrEmpty(itemId))
+        {
+            logger?.Log(
+                "Cannot show tooltip: itemId is null or empty",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
-        if (slot == null) {
+        if (slot == null)
+        {
             logger?.Log("Cannot show tooltip: slot is null", this, Logging.LogType.Warning);
             return;
         }
 
         // Get item metadata from ItemsManager
         var itemsManager = ItemsManager.Instance;
-        if (itemsManager == null || !itemsManager.IsInitialized) {
-            logger?.Log("ItemsManager not available or not initialized", this, Logging.LogType.Warning);
+        if (itemsManager == null || !itemsManager.IsInitialized)
+        {
+            logger?.Log(
+                "ItemsManager not available or not initialized",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
         var itemData = itemsManager.GetItemById(itemId);
-        if (itemData == null) {
+        if (itemData == null)
+        {
             logger?.Log($"Item not found: {itemId}", this, Logging.LogType.Warning);
             return;
         }
@@ -132,8 +169,10 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Hide the tooltip.
     /// </summary>
-    public void HideTooltip() {
-        if (tooltipContainer != null) {
+    public void HideTooltip()
+    {
+        if (tooltipContainer != null)
+        {
             tooltipContainer.style.display = DisplayStyle.None;
         }
         isVisible = false;
@@ -146,16 +185,22 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// Populate tooltip with item data and mock stats.
     /// Currently treats all items as weapons (categories removed).
     /// </summary>
-    private void PopulateTooltipData(ItemMetadataResponse itemData) {
+    private void PopulateTooltipData(ItemMetadataResponse itemData)
+    {
         // Always show Name and Description
-        if (nameLabel != null) {
+        if (nameLabel != null)
+        {
             nameLabel.text = itemData.name;
             nameLabel.style.display = DisplayStyle.Flex;
         }
 
-        if (descriptionLabel != null) {
+        if (descriptionLabel != null)
+        {
             // Insert line breaks every `descriptionMaxLineLength` characters to avoid overflow
-            descriptionLabel.text = InsertLineBreaks(itemData.description, descriptionMaxLineLength);
+            descriptionLabel.text = InsertLineBreaks(
+                itemData.description,
+                descriptionMaxLineLength
+            );
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
 
@@ -168,17 +213,22 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// Inserts newline characters into <paramref name="text"/> so that no line exceeds <paramref name="maxLineLength"/>.
     /// Tries to break on word boundaries; splits long words if necessary.
     /// </summary>
-    private static string InsertLineBreaks(string text, int maxLineLength) {
-        if (string.IsNullOrEmpty(text) || maxLineLength <= 0) return text ?? string.Empty;
+    private static string InsertLineBreaks(string text, int maxLineLength)
+    {
+        if (string.IsNullOrEmpty(text) || maxLineLength <= 0)
+            return text ?? string.Empty;
 
         var sb = new System.Text.StringBuilder();
         var words = text.Split(' ');
         int currentLineLength = 0;
 
-        foreach (var word in words) {
-            if (string.IsNullOrEmpty(word)) {
+        foreach (var word in words)
+        {
+            if (string.IsNullOrEmpty(word))
+            {
                 // Preserve spaces but avoid multiple spaces growing the line length
-                if (currentLineLength > 0) {
+                if (currentLineLength > 0)
+                {
                     sb.Append(' ');
                     currentLineLength += 1;
                 }
@@ -186,29 +236,35 @@ public class ItemStatsTooltip : MonoBehaviour {
             }
 
             // If the word itself is longer than maxLineLength, we need to split the word
-            if (word.Length > maxLineLength) {
+            if (word.Length > maxLineLength)
+            {
                 // If the current line has content, start a new line first
-                if (currentLineLength > 0) {
+                if (currentLineLength > 0)
+                {
                     sb.Append('\n');
                     currentLineLength = 0;
                 }
 
                 int startIndex = 0;
-                while (startIndex < word.Length) {
+                while (startIndex < word.Length)
+                {
                     int remaining = word.Length - startIndex;
                     int take = Mathf.Min(maxLineLength, remaining);
                     sb.Append(word.Substring(startIndex, take));
                     startIndex += take;
-                    if (startIndex < word.Length) {
+                    if (startIndex < word.Length)
+                    {
                         sb.Append('\n');
                     }
                 }
                 currentLineLength = word.Length - ((word.Length / maxLineLength) * maxLineLength);
                 // If we've exactly filled the last chunk, reset length to zero
-                if (currentLineLength == maxLineLength) currentLineLength = 0;
+                if (currentLineLength == maxLineLength)
+                    currentLineLength = 0;
                 // Add a space afterwards if there are more words
                 int lastWordIndex = words.Length - 1;
-                if (!word.Equals(words[lastWordIndex])) {
+                if (!word.Equals(words[lastWordIndex]))
+                {
                     sb.Append(' ');
                     currentLineLength += 1;
                 }
@@ -216,13 +272,18 @@ public class ItemStatsTooltip : MonoBehaviour {
             }
 
             // Normal handling: add to current line if it fits
-            if (currentLineLength == 0) {
+            if (currentLineLength == 0)
+            {
                 sb.Append(word);
                 currentLineLength = word.Length;
-            } else if (currentLineLength + 1 + word.Length <= maxLineLength) {
+            }
+            else if (currentLineLength + 1 + word.Length <= maxLineLength)
+            {
                 sb.Append(' ').Append(word);
                 currentLineLength += 1 + word.Length;
-            } else {
+            }
+            else
+            {
                 sb.Append('\n').Append(word);
                 currentLineLength = word.Length;
             }
@@ -234,18 +295,22 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Show weapon-specific stats with mock values.
     /// </summary>
-    private void ShowWeaponStats() {
-        if (attackLabel != null) {
+    private void ShowWeaponStats()
+    {
+        if (attackLabel != null)
+        {
             attackLabel.text = $"Attack: {weaponAttackValue}";
             attackLabel.style.display = DisplayStyle.Flex;
         }
 
-        if (attackSpeedLabel != null) {
+        if (attackSpeedLabel != null)
+        {
             attackSpeedLabel.text = $"Attack Speed: {weaponAttackSpeedValue}";
             attackSpeedLabel.style.display = DisplayStyle.Flex;
         }
 
-        if (attackRangeLabel != null) {
+        if (attackRangeLabel != null)
+        {
             attackRangeLabel.text = $"Attack Range: {weaponAttackRangeValue}";
             attackRangeLabel.style.display = DisplayStyle.Flex;
         }
@@ -254,16 +319,20 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Hide weapon-specific stats.
     /// </summary>
-    private void HideWeaponStats() {
-        if (attackLabel != null) {
+    private void HideWeaponStats()
+    {
+        if (attackLabel != null)
+        {
             attackLabel.style.display = DisplayStyle.None;
         }
 
-        if (attackSpeedLabel != null) {
+        if (attackSpeedLabel != null)
+        {
             attackSpeedLabel.style.display = DisplayStyle.None;
         }
 
-        if (attackRangeLabel != null) {
+        if (attackRangeLabel != null)
+        {
             attackRangeLabel.style.display = DisplayStyle.None;
         }
     }
@@ -271,13 +340,16 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Show armor-specific stats with mock values.
     /// </summary>
-    private void ShowArmorStats() {
-        if (defenseLabel != null) {
+    private void ShowArmorStats()
+    {
+        if (defenseLabel != null)
+        {
             defenseLabel.text = $"Defense: {armorDefenseValue}";
             defenseLabel.style.display = DisplayStyle.Flex;
         }
 
-        if (resistanceLabel != null) {
+        if (resistanceLabel != null)
+        {
             resistanceLabel.text = $"Resistance: {armorResistanceValue}";
             resistanceLabel.style.display = DisplayStyle.Flex;
         }
@@ -286,12 +358,15 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Hide armor-specific stats.
     /// </summary>
-    private void HideArmorStats() {
-        if (defenseLabel != null) {
+    private void HideArmorStats()
+    {
+        if (defenseLabel != null)
+        {
             defenseLabel.style.display = DisplayStyle.None;
         }
 
-        if (resistanceLabel != null) {
+        if (resistanceLabel != null)
+        {
             resistanceLabel.style.display = DisplayStyle.None;
         }
     }
@@ -300,19 +375,35 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// Update tooltip position to appear next to the slot.
     /// Positions tooltip to the right of the slot, or to the left if not enough space.
     /// </summary>
-    private void UpdateTooltipPosition(VisualElement slot) {
-        if (tooltipContainer == null) {
-            logger?.Log("[Tooltip] UpdateTooltipPosition: tooltipContainer is null", this, Logging.LogType.Warning);
+    private void UpdateTooltipPosition(VisualElement slot)
+    {
+        if (tooltipContainer == null)
+        {
+            logger?.Log(
+                "[Tooltip] UpdateTooltipPosition: tooltipContainer is null",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
-        if (slot == null) {
-            logger?.Log("[Tooltip] UpdateTooltipPosition: slot is null", this, Logging.LogType.Warning);
+        if (slot == null)
+        {
+            logger?.Log(
+                "[Tooltip] UpdateTooltipPosition: slot is null",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
-        if (tooltipContainer.panel == null) {
-            logger?.Log("[Tooltip] UpdateTooltipPosition: panel is null", this, Logging.LogType.Warning);
+        if (tooltipContainer.panel == null)
+        {
+            logger?.Log(
+                "[Tooltip] UpdateTooltipPosition: panel is null",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
@@ -334,7 +425,8 @@ public class ItemStatsTooltip : MonoBehaviour {
         float tooltipLeft = slotPanelPos.x + slotBounds.width + horizontalOffset;
 
         // If tooltip doesn't fit on the right, position it on the left
-        if (tooltipLeft + tooltipWidth > panelWidth) {
+        if (tooltipLeft + tooltipWidth > panelWidth)
+        {
             tooltipLeft = slotPanelPos.x - tooltipWidth - horizontalOffset;
         }
 
@@ -352,14 +444,16 @@ public class ItemStatsTooltip : MonoBehaviour {
     /// <summary>
     /// Check if tooltip is currently visible.
     /// </summary>
-    public bool IsVisible() {
+    public bool IsVisible()
+    {
         return isVisible;
     }
 
     /// <summary>
     /// Get the current item ID being displayed.
     /// </summary>
-    public string GetCurrentItemId() {
+    public string GetCurrentItemId()
+    {
         return currentItemId;
     }
 }

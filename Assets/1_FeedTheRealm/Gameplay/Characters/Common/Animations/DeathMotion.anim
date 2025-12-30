@@ -5981,7 +5981,7 @@ AnimationClip:
   m_Events:
   - time: 0.6166667
     functionName: Die
-    data: 
+    data:
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
