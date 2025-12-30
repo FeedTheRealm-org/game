@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 15003, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: Linux-Multiplayer-PoC
+  m_Name: Linux-Multiplayer-World
   m_EditorClassIdentifier: UnityEditor.dll::UnityEditor.Build.Profile.BuildProfile
   m_AssetVersion: 1
   m_BuildTarget: 24
@@ -21,9 +21,17 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MPMenuScene.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Menus/LoginScene.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MultiplayerScene.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Menus/SignUpScene.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Menus/VerifyCodeScene.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Main/WorldLoaderTest.unity
+  - m_enabled: 0
+    m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MPMenuScene.unity
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

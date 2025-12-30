@@ -49,6 +49,39 @@ public class PlayerSpawnManager : NetworkBehaviour {
         }
     }
 
+    /// <summary>
+    /// Sets player spawn points from WorldData (playerSpawnAreas) dynamically. If no data, keeps
+    /// the current configuration.
+    /// </summary>
+    [Server]
+    public void ConfigureSpawnPointsFromWorldData(Models.WorldData worldData) {
+        if (worldData == null || worldData.playerSpawnAreas == null || worldData.playerSpawnAreas.Count == 0) {
+            logger.Log("[PlayerSpawnManager] WorldData has no playerSpawnAreas; keeping existing spawnPoints.", this, Logging.LogType.Warning);
+            return;
+        }
+
+        var newSpawnPoints = new List<Transform>();
+
+        for (int i = 0; i < worldData.playerSpawnAreas.Count; i++) {
+            var area = worldData.playerSpawnAreas[i];
+            Vector3 position = area.Position;
+
+            if (adjustToGroundHeight && groundReference != null) {
+                position.y = groundReference.position.y + heightOffset;
+            }
+
+            var go = new GameObject($"WorldPlayerSpawn_{i}");
+            go.transform.SetParent(transform, false);
+            go.transform.position = position;
+
+            newSpawnPoints.Add(go.transform);
+            logger.Log($"[PlayerSpawnManager] Created world spawn point {i} at {position}.", this);
+        }
+
+        spawnPoints = newSpawnPoints.ToArray();
+        logger.Log($"[PlayerSpawnManager] Configured {spawnPoints.Length} spawn points from world data.", this);
+    }
+
     public override void OnStartServer() {
         if (spawnPoints == null || spawnPoints.Length == 0) {
             logger.Log("[PlayerSpawnManager] No spawn points configured!", this, Logging.LogType.Error);
