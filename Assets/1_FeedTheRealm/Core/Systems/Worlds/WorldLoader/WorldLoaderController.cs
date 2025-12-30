@@ -10,6 +10,7 @@ using Worlds;
 using System.Threading.Tasks;
 using System.IO;
 using System;
+using System.Drawing;
 
 public class WorldLoaderController : MonoBehaviour {
 
@@ -136,6 +137,7 @@ public class WorldLoaderController : MonoBehaviour {
 
         foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas) {
             var spawn = Instantiate(enemySpawnPrefab);
+            spawn.transform.localScale = enemySpawnAreaData.Size * Vector3.one;
             spawn.GetComponent<EnemySpawn>().Initialize(
                 enemySpawnAreaData.MaxEnemies,
                 enemySpawnAreaData.SpawnRate,
