@@ -99,19 +99,31 @@ public class PlayerSpawnManager : NetworkBehaviour
     /// the current configuration.
     /// </summary>
     [Server]
-    public void ConfigureSpawnPointsFromWorldData(Models.WorldData worldData) {
-        if (worldData == null || worldData.playerSpawnAreas == null || worldData.playerSpawnAreas.Count == 0) {
-            logger.Log("[PlayerSpawnManager] WorldData has no playerSpawnAreas; keeping existing spawnPoints.", this, Logging.LogType.Warning);
+    public void ConfigureSpawnPointsFromWorldData(Models.WorldData worldData)
+    {
+        if (
+            worldData == null
+            || worldData.playerSpawnAreas == null
+            || worldData.playerSpawnAreas.Count == 0
+        )
+        {
+            logger.Log(
+                "[PlayerSpawnManager] WorldData has no playerSpawnAreas; keeping existing spawnPoints.",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
         var newSpawnPoints = new List<Transform>();
 
-        for (int i = 0; i < worldData.playerSpawnAreas.Count; i++) {
+        for (int i = 0; i < worldData.playerSpawnAreas.Count; i++)
+        {
             var area = worldData.playerSpawnAreas[i];
             Vector3 position = area.Position;
 
-            if (adjustToGroundHeight && groundReference != null) {
+            if (adjustToGroundHeight && groundReference != null)
+            {
                 position.y = groundReference.position.y + heightOffset;
             }
 
@@ -124,7 +136,10 @@ public class PlayerSpawnManager : NetworkBehaviour
         }
 
         spawnPoints = newSpawnPoints.ToArray();
-        logger.Log($"[PlayerSpawnManager] Configured {spawnPoints.Length} spawn points from world data.", this);
+        logger.Log(
+            $"[PlayerSpawnManager] Configured {spawnPoints.Length} spawn points from world data.",
+            this
+        );
     }
 
     /// <summary>

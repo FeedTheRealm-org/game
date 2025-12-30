@@ -14,9 +14,14 @@ public class NetworkConnectionHandler : MonoBehaviour
     public static NetworkConnectionHandler Instance => instance;
 
     [Header("Auto Connect Settings")]
-    [SerializeField] private bool connectOnStart = false;
-    [SerializeField] private string defaultIpAddress = "127.0.0.1";
-    [SerializeField] private ushort defaultPort = 7777;
+    [SerializeField]
+    private bool connectOnStart = false;
+
+    [SerializeField]
+    private string defaultIpAddress = "127.0.0.1";
+
+    [SerializeField]
+    private ushort defaultPort = 7777;
 
     [Header("Debug")]
     [SerializeField]
@@ -61,7 +66,7 @@ public class NetworkConnectionHandler : MonoBehaviour
             ConnectToServer(defaultIpAddress, defaultPort);
         }
     }
-    
+
     private void OnDestroy()
     {
         if (instance == this)
@@ -230,7 +235,7 @@ public class NetworkConnectionHandler : MonoBehaviour
     {
         LogInfo("BeginConnection() - Showing loading screen via events");
         isConnecting = true;
-        
+
         // Use the event system instead of calling the controller directly
         LoadingScreenEvents.Show();
     }
