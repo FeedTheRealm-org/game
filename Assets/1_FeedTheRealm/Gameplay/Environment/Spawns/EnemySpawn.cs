@@ -38,6 +38,13 @@ public class EnemySpawn : MonoBehaviour {
     private int playersInside;
     private int totalKills;
 
+    public void Initialize(int maxEnemies, float spawnRate, int resetAfterKills, float resetDelay) {
+        this.maxEnemies = maxEnemies;
+        this.spawnRate = spawnRate;
+        this.resetAfterKills = resetAfterKills;
+        this.resetDelay = resetDelay;
+    }
+
     private void Start() {
         if (spawnPointContainer != null && (spawnPoints == null || spawnPoints.Length == 0)) {
             var children = spawnPointContainer.GetComponentsInChildren<Transform>();

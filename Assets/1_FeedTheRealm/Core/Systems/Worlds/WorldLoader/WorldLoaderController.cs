@@ -135,9 +135,17 @@ public class WorldLoaderController : MonoBehaviour {
         }
 
         foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas) {
+            var spawn = Instantiate(enemySpawnPrefab);
+            spawn.GetComponent<EnemySpawn>().Initialize(
+                enemySpawnAreaData.MaxEnemies,
+                enemySpawnAreaData.SpawnRate,
+                enemySpawnAreaData.ResetAfterKills,
+                enemySpawnAreaData.ResetDelay
+            );
+
             worldController.PlaceEnemySpawnAreaAt(
                 Vector3Int.FloorToInt(enemySpawnAreaData.Position),
-                enemySpawnPrefab
+                spawn
             );
         }
         // since we instantiated models for loading, we need to clean them up
