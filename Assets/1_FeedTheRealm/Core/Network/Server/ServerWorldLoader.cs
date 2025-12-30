@@ -31,6 +31,9 @@ public class ServerWorldLoader : NetworkBehaviour {
     [Header("Logging")]
     [SerializeField] private Logging.Logger logger;
 
+    [Header("Debug")]
+    [SerializeField] private bool logWorldDataJson = false;
+
     private const string WorldArgShort = "-world";
     private const string WorldArgLong = "--world";
 
@@ -121,6 +124,15 @@ public class ServerWorldLoader : NetworkBehaviour {
         }
 
         WorldData data = selected.data;
+
+        if (logWorldDataJson && data != null) {
+            try {
+                string json = JsonUtility.ToJson(data, true);
+                logger?.Log($"[ServerWorldLoader] World data JSON for '{selected.name}':\n{json}", this);
+            } catch (System.Exception ex) {
+                logger?.Log($"[ServerWorldLoader] Failed to serialize world data for logging: {ex.Message}", this, Logging.LogType.Warning);
+            }
+        }
 
         // Configure enemy spawns on server
         if (worldController != null && enemySpawnPrefab != null && data.enemySpawnAreas != null) {

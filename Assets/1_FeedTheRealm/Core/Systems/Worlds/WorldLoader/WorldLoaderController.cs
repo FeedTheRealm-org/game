@@ -22,6 +22,9 @@ public class WorldLoaderController : MonoBehaviour {
     [SerializeField] private UIDocument loadingScreenUI;
     [SerializeField] private GameObject enemySpawnPrefab;
 
+    [Header("Debug")]
+    [SerializeField] private bool logWorldDataJson = false;
+
     private Dictionary<string, Asset> assetMap;
     private List<GameObject> cleanup = new();
 
@@ -98,6 +101,16 @@ public class WorldLoaderController : MonoBehaviour {
     public void LoadWorld() {
 
         WorldData data = worldHandler.selectedWorld.data;
+
+        if (logWorldDataJson && data != null) {
+            try {
+                string json = JsonUtility.ToJson(data, true);
+                string worldName = worldHandler.selectedWorld != null ? worldHandler.selectedWorld.name : "<unknown>";
+                logger.Log($"[WorldLoaderController] World data JSON for '{worldName}':\n{json}", this);
+            } catch (Exception ex) {
+                logger.Log($"[WorldLoaderController] Failed to serialize world data for logging: {ex.Message}", this, Logging.LogType.Warning);
+            }
+        }
 
         if (data.objectPlacementData == null || data.objectPlacementData.Count == 0) {
             logger.Log("New world created!", this, Logging.LogType.Info);
