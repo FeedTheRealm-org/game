@@ -26,9 +26,6 @@ public class WorldLoaderController : MonoBehaviour
     private Session.Session session;
 
     [SerializeField]
-    private WorldController worldController;
-
-    [SerializeField]
     private Logging.Logger logger;
 
     [SerializeField]
@@ -183,17 +180,25 @@ public class WorldLoaderController : MonoBehaviour
                     continue;
                 }
 
-                Vector3Int gridPosition = Vector3Int.FloorToInt(structureData.position);
-                worldController.PlaceObjectAt(gridPosition, assetData.GetModelInstance());
+                GameObject instance = assetData.GetModelInstance();
+                Vector3 targetPosition = structureData.position;
+                instance.transform.position = targetPosition;
+
+                logger.Log(
+                    $"[WorldLoaderController] Placed object '{structureData.structureName}' (assetId={structureData.id}) at {targetPosition}.",
+                    this
+                );
             }
         }
 
         foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas)
         {
-            worldController.PlaceEnemySpawnAreaAt(
-                Vector3Int.FloorToInt(enemySpawnAreaData.Position),
-                enemySpawnPrefab
-            );
+            Vector3 targetPosition = enemySpawnAreaData.Position;
+            Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
+            GameObject spawnInstance = Instantiate(enemySpawnPrefab, spawnPos, Quaternion.identity);
+            spawnInstance.SetActive(true);
+
+            logger.Log($"[WorldLoaderController] Placed enemy spawn area at {spawnPos}.", this);
         }
         // since we instantiated models for loading, we need to clean them up
         foreach (GameObject modelInstance in cleanup)

@@ -102,6 +102,22 @@ namespace Worlds
         public void SetSelectedWorld(Models.WorldMetadata world)
         {
             selectedWorld = world;
+
+            // Ensure WorldData.worldName is aligned with the selected world's name
+            if (selectedWorld != null && selectedWorld.data != null)
+            {
+                string baseName = selectedWorld.name;
+                if (!string.IsNullOrWhiteSpace(baseName))
+                {
+                    int dotIndex = baseName.IndexOf('.');
+                    if (dotIndex > 0)
+                    {
+                        baseName = baseName.Substring(0, dotIndex);
+                    }
+                }
+
+                selectedWorld.data.worldName = baseName;
+            }
         }
     }
 }
