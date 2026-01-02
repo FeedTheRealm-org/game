@@ -66,62 +66,51 @@ namespace Items
         }
 
         /// <summary>
-        /// Initialize the items manager by loading metadata and optionally preloading sprites.
+        /// Initialize the items manager.
+        ///
+        /// Legacy metadata-based loading has been disabled in favor of
+        /// world-driven items (WorldItemsRegistry + ItemAssetsService).
+        /// This initializer now simply marks the manager as ready so
+        /// existing callers that wait on IsInitialized keep working.
         /// </summary>
         IEnumerator Initialize()
         {
             if (IsInitialized)
                 yield break;
 
-            DebugLog("Initializing ItemsManager...");
+            DebugLog(
+                "Initializing ItemsManager in world-driven mode (metadata loading disabled)..."
+            );
 
-            // Load items metadata
-            yield return LoadItemsMetadata();
-
-            // Preload all sprites (recommended for small sprite sets)
-            if (preloadAllSprites)
-            {
-                DebugLog("Preloading all sprites...");
-                yield return PreloadAllSprites();
-            }
+            // Do NOT load metadata from ItemsService anymore.
+            // World items are defined in WorldData.consumableItems and
+            // accessed via Worlds.WorldItemsRegistry.
+            itemsById.Clear();
+            TotalItemsLoaded = 0;
+            TotalSpritesLoaded = 0;
 
             IsInitialized = true;
             DebugLog(
-                $"ItemsManager initialized! Items: {TotalItemsLoaded}, Sprites: {TotalSpritesLoaded}"
+                "ItemsManager initialized. Legacy metadata system is disabled; "
+                    + "runtime items are driven by WorldData.consumableItems."
             );
         }
 
         /// <summary>
         /// Load all items metadata from API.
+        ///
+        /// This method is kept for API compatibility but is now a no-op,
+        /// as gameplay items are fully driven by WorldData instead of
+        /// the legacy items metadata list.
         /// </summary>
         IEnumerator LoadItemsMetadata()
         {
-            bool completed = false;
-
-            yield return itemsService.GetItemsMetadata(
-                (itemsList, error) =>
-                {
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        Debug.LogError($"[ItemsManager] Failed to load items metadata: {error}");
-                        completed = true;
-                        return;
-                    }
-
-                    // Build dictionary from array and group by category name
-                    itemsById.Clear();
-                    foreach (var item in itemsList.items)
-                    {
-                        itemsById[item.id] = item;
-                    }
-
-                    TotalItemsLoaded = itemsById.Count;
-                    DebugLog($"Loaded {TotalItemsLoaded} items metadata");
-                    completed = true;
-                }
+            itemsById.Clear();
+            TotalItemsLoaded = 0;
+            DebugLog(
+                "Skipping legacy items metadata loading; world-driven items are used instead."
             );
-
-            yield return new WaitUntil(() => completed);
+            yield break;
         }
 
         /// <summary>
@@ -232,13 +221,19 @@ namespace Items
 
         /// <summary>
         /// Reload all metadata from API.
-        /// Useful for detecting new items without restarting.
+        ///
+        /// In world-driven mode this is effectively a no-op and only
+        /// clears the local legacy cache to keep behavior predictable.
         /// </summary>
         public IEnumerator ReloadMetadata()
         {
-            DebugLog("Reloading items metadata...");
-            yield return LoadItemsMetadata();
-            DebugLog($"Metadata reloaded: {TotalItemsLoaded} items");
+            DebugLog(
+                "ReloadMetadata called, but legacy metadata loading is disabled. "
+                    + "Clearing local cache only."
+            );
+            itemsById.Clear();
+            TotalItemsLoaded = 0;
+            yield break;
         }
 
         void DebugLog(string message)

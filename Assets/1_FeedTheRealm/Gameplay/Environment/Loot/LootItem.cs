@@ -119,21 +119,52 @@ public class LootItem : NetworkBehaviour
 
     private void UpdateVisualsFromManager()
     {
-        if (Items.ItemsManager.Instance == null || !Items.ItemsManager.Instance.IsInitialized)
-        {
-            Debug.LogWarning("[LootItem] ItemsManager not available or not initialized");
-            return;
-        }
-
         logger?.Log($"[LootItem] Updating visuals for {_itemIds.Count} items", this);
 
-        // Here you could update the loot bag visual based on the items
+        // Here you could update the loot bag visual based on the items.
+        // We support both legacy metadata-based items (ItemsManager) and
+        // world-defined items identified by spriteId (WorldItemsRegistry).
         foreach (var itemId in _itemIds)
         {
-            var metadata = Items.ItemsManager.Instance.GetItemById(itemId);
-            if (metadata != null)
+            // World-defined item (spriteId coming from WorldData)
+            if (Worlds.WorldItemsRegistry.IsWorldItem(itemId))
             {
-                logger?.Log($"[LootItem] Contains: {metadata.name}", this);
+                var consumable = Worlds.WorldItemsRegistry.GetConsumableBySpriteId(itemId);
+                if (consumable != null)
+                {
+                    logger?.Log(
+                        $"[LootItem] Contains world item: {consumable.name} (spriteId={itemId})",
+                        this
+                    );
+                }
+                else
+                {
+                    logger?.Log(
+                        $"[LootItem] World item spriteId in bag but no consumable found: {itemId}",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                }
+            }
+            else
+            {
+                // Legacy metadata-based item
+                if (
+                    Items.ItemsManager.Instance == null
+                    || !Items.ItemsManager.Instance.IsInitialized
+                )
+                {
+                    Debug.LogWarning(
+                        "[LootItem] ItemsManager not available or not initialized for legacy item IDs"
+                    );
+                    continue;
+                }
+
+                var metadata = Items.ItemsManager.Instance.GetItemById(itemId);
+                if (metadata != null)
+                {
+                    logger?.Log($"[LootItem] Contains: {metadata.name}", this);
+                }
             }
         }
     }
@@ -306,6 +337,9 @@ public class LootItem : NetworkBehaviour
                     break;
                 }
 
+                // Treat itemId as either a legacy metadata ID or a
+                // world spriteId. InventoryController will route
+                // world items via AddWorldItemBySpriteId internally.
                 inventory.AddItemById(itemId);
                 itemsAdded++;
                 logger?.Log($"[LootItem] LOCAL - Added item to inventory: {itemId}", this);
@@ -379,6 +413,9 @@ public class LootItem : NetworkBehaviour
                 break;
             }
 
+            // Treat itemId as either a legacy metadata ID or a
+            // world spriteId. InventoryController will route
+            // world items via AddWorldItemBySpriteId internally.
             inventory.AddItemById(itemId);
             itemsAdded++;
             logger?.Log($"[LootItem] CLIENT - Added item to inventory: {itemId}", this);

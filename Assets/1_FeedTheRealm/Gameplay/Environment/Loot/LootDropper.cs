@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Mirror;
+using Models;
 using UnityEngine;
 
 /// <summary>
@@ -186,88 +187,90 @@ public class LootDropper : MonoBehaviour
     }
 
     /// <summary>
-    /// Get random item IDs from the server's items manager.
-    /// Uses category filter if configured.
+    /// Get loot item IDs based on current world's enemy loot configuration.
+    /// Uses EnemyData.lootItems and returns spriteId strings as item IDs.
     /// </summary>
     private List<string> GetRandomLootItems()
     {
-        // Try DedicatedServerItemsManager first (for dedicated server builds)
-        if (Items.DedicatedServerItemsManager.Instance != null)
-        {
-            if (!Items.DedicatedServerItemsManager.Instance.IsInitialized)
-            {
-                logger?.Log(
-                    "[LootDropper] WARNING: DedicatedServerItemsManager not initialized yet! Items will not drop until initialization completes.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                logger?.Log(
-                    "[LootDropper] This is normal on first enemy death. Subsequent deaths should work fine.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                return new List<string>();
-            }
-
-            return GetRandomItemsFromServerManager();
-        }
-
-        // Fallback: Try ItemsManager (for client/host)
-        if (Items.ItemsManager.Instance != null)
-        {
-            if (!Items.ItemsManager.Instance.IsInitialized)
-            {
-                logger?.Log(
-                    "[LootDropper] WARNING: ItemsManager not initialized yet! Items will not drop.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                return new List<string>();
-            }
-
-            return GetRandomItemsFromClientManager();
-        }
-
-        logger?.Log(
-            "[LootDropper] ERROR: No ItemsManager found (neither Server nor Client)!",
-            this,
-            Logging.LogType.Error
-        );
-        return new List<string>();
-    }
-
-    private List<string> GetRandomItemsFromServerManager()
-    {
         var result = new List<string>();
+        var worldData = Worlds.WorldItemsRegistry.CurrentWorldData;
 
-        for (int i = 0; i < itemCount; i++)
+        if (worldData == null)
         {
-            string itemId;
-
-            itemId = Items.DedicatedServerItemsManager.Instance.GetRandomItemId();
-
-            if (!string.IsNullOrEmpty(itemId))
-            {
-                result.Add(itemId);
-            }
+            logger?.Log(
+                "[LootDropper] No world data registered in WorldItemsRegistry. Loot will not drop.",
+                this,
+                Logging.LogType.Warning
+            );
+            return result;
         }
 
-        return result;
-    }
-
-    private List<string> GetRandomItemsFromClientManager()
-    {
-        var result = new List<string>();
-
-        for (int i = 0; i < itemCount; i++)
+        if (worldData.enemies == null || worldData.enemies.Count == 0)
         {
-            var allItems = Items.ItemsManager.Instance.GetAllItems();
-            if (allItems.Length == 0)
+            logger?.Log(
+                "[LootDropper] World has no enemies configured. No loot will drop.",
+                this,
+                Logging.LogType.Warning
+            );
+            return result;
+        }
+
+        // For now, if spawn areas don't specify an enemy, use the first one.
+        EnemyData enemyData = worldData.enemies[0];
+
+        if (enemyData.lootItems == null || enemyData.lootItems.Count == 0)
+        {
+            logger?.Log(
+                $"[LootDropper] Enemy '{enemyData.name}' has no lootItems configured.",
+                this,
+                Logging.LogType.Warning
+            );
+            return result;
+        }
+
+        foreach (EnemyLootItem loot in enemyData.lootItems)
+        {
+            if (loot == null)
+            {
                 continue;
+            }
 
-            int randomIndex = UnityEngine.Random.Range(0, allItems.Length);
-            var itemId = allItems[randomIndex].id;
-            result.Add(itemId);
+            if (loot.dropChance <= 0 || string.IsNullOrEmpty(loot.spriteId))
+            {
+                continue;
+            }
+
+            int roll = UnityEngine.Random.Range(0, 100);
+            if (roll >= loot.dropChance)
+            {
+                logger?.Log(
+                    $"[LootDropper] Loot '{loot.itemName}' (spriteId={loot.spriteId}) did not drop. Roll={roll}, chance={loot.dropChance}",
+                    this
+                );
+                continue;
+            }
+
+            int max = Mathf.Max(1, Mathf.FloorToInt(loot.maxAmount));
+            int count = UnityEngine.Random.Range(1, max + 1);
+
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(loot.spriteId);
+            }
+
+            logger?.Log(
+                $"[LootDropper] Loot '{loot.itemName}' (spriteId={loot.spriteId}) dropped x{count}.",
+                this
+            );
+        }
+
+        if (result.Count == 0)
+        {
+            logger?.Log(
+                "[LootDropper] Loot table evaluated but no items were selected to drop.",
+                this,
+                Logging.LogType.Warning
+            );
         }
 
         return result;

@@ -137,27 +137,38 @@ public class ItemStatsTooltip : MonoBehaviour
             return;
         }
 
-        // Get item metadata from ItemsManager
+        // First try legacy metadata-based items
         var itemsManager = ItemsManager.Instance;
-        if (itemsManager == null || !itemsManager.IsInitialized)
+        ItemMetadataResponse itemData = null;
+
+        if (itemsManager != null && itemsManager.IsInitialized)
         {
-            logger?.Log(
-                "ItemsManager not available or not initialized",
-                this,
-                Logging.LogType.Warning
-            );
-            return;
+            itemData = itemsManager.GetItemById(itemId);
         }
 
-        var itemData = itemsManager.GetItemById(itemId);
-        if (itemData == null)
+        if (itemData != null)
         {
-            logger?.Log($"Item not found: {itemId}", this, Logging.LogType.Warning);
-            return;
+            currentItemId = itemId;
+            PopulateTooltipData(itemData);
         }
+        else
+        {
+            // Fallback: treat itemId as a world spriteId and use
+            // consumable data from the current world.
+            var consumable = Worlds.WorldItemsRegistry.GetConsumableBySpriteId(itemId);
+            if (consumable == null)
+            {
+                logger?.Log(
+                    $"Item not found (metadata or world): {itemId}",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
 
-        currentItemId = itemId;
-        PopulateTooltipData(itemData);
+            currentItemId = itemId;
+            PopulateTooltipDataFromConsumable(consumable);
+        }
         UpdateTooltipPosition(slot);
 
         tooltipContainer.style.display = DisplayStyle.Flex;
@@ -205,6 +216,38 @@ public class ItemStatsTooltip : MonoBehaviour
         }
 
         // Categories have been removed; for now always show weapon-style stats
+        ShowWeaponStats();
+        HideArmorStats();
+    }
+
+    /// <summary>
+    /// Populate tooltip from world-defined consumable item data.
+    /// Uses name/description from the world instead of metadata.
+    /// </summary>
+    private void PopulateTooltipDataFromConsumable(Models.ConsumableItem consumable)
+    {
+        if (consumable == null)
+        {
+            return;
+        }
+
+        if (nameLabel != null)
+        {
+            nameLabel.text = consumable.name;
+            nameLabel.style.display = DisplayStyle.Flex;
+        }
+
+        if (descriptionLabel != null)
+        {
+            descriptionLabel.text = InsertLineBreaks(
+                consumable.description,
+                descriptionMaxLineLength
+            );
+            descriptionLabel.style.display = DisplayStyle.Flex;
+        }
+
+        // For now, still show the same mock weapon stats; later this
+        // can be driven from consumable.effectType/value if desired.
         ShowWeaponStats();
         HideArmorStats();
     }

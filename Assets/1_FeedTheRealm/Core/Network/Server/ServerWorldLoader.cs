@@ -183,6 +183,9 @@ public class ServerWorldLoader : NetworkBehaviour
 
         WorldData data = selected.data;
 
+        // Expose world items/enemies to gameplay systems (loot, inventory, etc.)
+        Worlds.WorldItemsRegistry.RegisterWorldData(data);
+
         if (logWorldDataJson && data != null)
         {
             try

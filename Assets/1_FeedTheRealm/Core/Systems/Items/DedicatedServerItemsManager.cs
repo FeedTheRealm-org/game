@@ -46,8 +46,11 @@ namespace Items
         }
 
         /// <summary>
-        /// Initialize the server items manager by loading metadata from API.
-        /// Call this from ServerBootstrap after server starts.
+        /// Initialize the server items manager.
+        ///
+        /// Legacy metadata-based loading has been disabled. Loot on the
+        /// dedicated server is now fully driven by WorldData (see
+        /// Worlds.WorldItemsRegistry and LootDropper).
         /// </summary>
         public IEnumerator Initialize()
         {
@@ -57,50 +60,35 @@ namespace Items
                 yield break;
             }
 
-            DebugLog("Initializing DedicatedServerItemsManager...");
+            DebugLog(
+                "Initializing DedicatedServerItemsManager in world-driven mode (metadata disabled)..."
+            );
 
-            // Load all items metadata
-            yield return LoadItemsMetadata();
+            // Do NOT call the metadata API anymore.
+            itemsById.Clear();
+            TotalItemsLoaded = 0;
 
             IsInitialized = true;
-            DebugLog($"DedicatedServerItemsManager initialized! Total items: {TotalItemsLoaded}");
+            DebugLog(
+                "DedicatedServerItemsManager initialized. Legacy metadata system is disabled; "
+                    + "server loot is driven by WorldData.enemies[*].lootItems."
+            );
         }
 
         /// <summary>
         /// Load all items metadata from API.
+        ///
+        /// Kept for API compatibility but now a no-op, as the server
+        /// uses world-driven loot instead of the legacy metadata list.
         /// </summary>
         IEnumerator LoadItemsMetadata()
         {
-            bool completed = false;
-
-            yield return itemsService.GetItemsMetadata(
-                (itemsList, error) =>
-                {
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        Debug.LogError(
-                            $"[DedicatedServerItemsManager] Failed to load items metadata: {error}"
-                        );
-                        completed = true;
-                        return;
-                    }
-
-                    // Build dictionary from array
-                    itemsById.Clear();
-
-                    foreach (var item in itemsList.items)
-                    {
-                        itemsById[item.id] = item;
-                    }
-
-                    TotalItemsLoaded = itemsById.Count;
-                    DebugLog($"Loaded {TotalItemsLoaded} items metadata");
-
-                    completed = true;
-                }
+            itemsById.Clear();
+            TotalItemsLoaded = 0;
+            DebugLog(
+                "Skipping legacy items metadata loading on server; world-driven loot is used instead."
             );
-
-            yield return new WaitUntil(() => completed);
+            yield break;
         }
 
         /// <summary>
@@ -178,12 +166,19 @@ namespace Items
 
         /// <summary>
         /// Reload metadata from API (for detecting new items without restart).
+        ///
+        /// In world-driven mode this is effectively a no-op and only
+        /// clears the local legacy cache.
         /// </summary>
         public IEnumerator ReloadMetadata()
         {
-            DebugLog("Reloading items metadata...");
-            yield return LoadItemsMetadata();
-            DebugLog($"Metadata reloaded: {TotalItemsLoaded} items");
+            DebugLog(
+                "ReloadMetadata called on DedicatedServerItemsManager, but legacy metadata "
+                    + "loading is disabled. Clearing local cache only."
+            );
+            itemsById.Clear();
+            TotalItemsLoaded = 0;
+            yield break;
         }
 
         void DebugLog(string message)

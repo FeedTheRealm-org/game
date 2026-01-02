@@ -127,6 +127,10 @@ public class WorldLoaderController : MonoBehaviour
     {
         WorldData data = worldHandler.selectedWorld.data;
 
+        // Register world data so other systems (loot, inventory, tooltips)
+        // can query consumables and enemies by spriteId.
+        Worlds.WorldItemsRegistry.RegisterWorldData(data);
+
         if (logWorldDataJson && data != null)
         {
             try
@@ -167,19 +171,19 @@ public class WorldLoaderController : MonoBehaviour
         }
         else
         {
-            foreach (PlacedAsset placementData in data.objectPlacementData)
+            foreach (StructureData structureData in data.objectPlacementData)
             {
-                if (!assetMap.TryGetValue(placementData.AssetDataId, out Asset assetData))
+                if (!assetMap.TryGetValue(structureData.id, out Asset assetData))
                 {
                     logger.Log(
-                        $"Asset with id '{placementData.AssetDataId}' not found in assetMap; skipping placed object.",
+                        $"Asset with id '{structureData.id}' not found in assetMap; skipping placed object.",
                         this,
                         Logging.LogType.Warning
                     );
                     continue;
                 }
 
-                Vector3Int gridPosition = placementData.Position;
+                Vector3Int gridPosition = Vector3Int.FloorToInt(structureData.position);
                 worldController.PlaceObjectAt(gridPosition, assetData.GetModelInstance());
             }
         }

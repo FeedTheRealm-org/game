@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Reflection;
+using API;
 using Items;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,6 +22,11 @@ public class InventoryController : MonoBehaviour
     [Header("Items Management")]
     // ItemsManager reference (uses singleton pattern)
     private Items.ItemsManager ItemsManager => Items.ItemsManager.Instance;
+
+    [Header("World Items (sprite-based)")]
+    [SerializeField]
+    [Tooltip("Service used to download item sprites by spriteId for world-defined items.")]
+    private ItemAssetsService itemAssetsService;
 
     [Header("Tooltip")]
     [SerializeField]
@@ -49,6 +56,27 @@ public class InventoryController : MonoBehaviour
 
     void Start()
     {
+        // Try to auto-link ItemAssetsService from ItemsManager if not set
+        if (itemAssetsService == null && ItemsManager != null)
+        {
+            var field = ItemsManager
+                .GetType()
+                .GetField("itemAssetsService", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (field != null)
+            {
+                var value = field.GetValue(ItemsManager) as ItemAssetsService;
+                if (value != null)
+                {
+                    itemAssetsService = value;
+                    logger?.Log(
+                        "[Inventory] Auto-linked ItemAssetsService from ItemsManager",
+                        this
+                    );
+                }
+            }
+        }
+
         uiDocument = GetComponent<UIDocument>();
         root = uiDocument.rootVisualElement;
 
@@ -415,6 +443,14 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
+        // If this ID belongs to a world-defined item (spriteId), use the
+        // world item path instead of ItemsManager metadata.
+        if (Worlds.WorldItemsRegistry.IsWorldItem(itemId))
+        {
+            AddWorldItemBySpriteId(itemId);
+            return;
+        }
+
         if (ItemsManager == null)
         {
             logger.Log(
@@ -493,6 +529,77 @@ public class InventoryController : MonoBehaviour
         }
 
         logger.Log("Inventory full, cannot add more items", this, Logging.LogType.Warning);
+    }
+
+    /// <summary>
+    /// Add item to inventory using a world spriteId as identifier.
+    /// Uses ItemAssetsService directly and stores spriteId as itemId for tooltips.
+    /// </summary>
+    public void AddWorldItemBySpriteId(string spriteId)
+    {
+        if (string.IsNullOrEmpty(spriteId))
+        {
+            logger.Log(
+                "Cannot add world item: spriteId is null or empty",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        if (itemAssetsService == null)
+        {
+            logger.Log(
+                "Cannot add world item: ItemAssetsService reference is missing",
+                this,
+                Logging.LogType.Error
+            );
+            return;
+        }
+
+        StartCoroutine(AddWorldItemBySpriteIdCoroutine(spriteId));
+    }
+
+    private System.Collections.IEnumerator AddWorldItemBySpriteIdCoroutine(string spriteId)
+    {
+        Texture2D texture = null;
+        bool completed = false;
+
+        yield return itemAssetsService.DownloadItemSprite(
+            spriteId,
+            (loadedTexture) =>
+            {
+                texture = loadedTexture;
+                completed = true;
+            }
+        );
+
+        yield return new WaitUntil(() => completed);
+
+        if (texture != null)
+        {
+            Sprite sprite = Sprite.Create(
+                texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f)
+            );
+
+            // Use spriteId as the logical itemId so tooltips/integration
+            // can identify this as a world item.
+            AddItemBySpriteWithId(sprite, spriteId);
+
+            var consumable = Worlds.WorldItemsRegistry.GetConsumableBySpriteId(spriteId);
+            string debugName = consumable != null ? consumable.name : spriteId;
+            logger.Log($"World item added to inventory: {debugName} ({spriteId})", this);
+        }
+        else
+        {
+            logger.Log(
+                $"Failed to load world item sprite for spriteId: {spriteId}",
+                this,
+                Logging.LogType.Error
+            );
+        }
     }
 
     /// <summary>

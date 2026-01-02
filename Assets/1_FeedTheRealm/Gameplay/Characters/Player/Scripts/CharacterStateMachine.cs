@@ -116,7 +116,7 @@ public class CharacterStateMachine : MonoBehaviour
     /// </summary>
     public void OnAttack()
     {
-        Debug.Log("State machine debug ATTACK");
+        //Debug.Log("State machine debug ATTACK");
         if (currentMovementState != chargingAttackState && currentAttackState == null)
         {
             attackState.Enter();
