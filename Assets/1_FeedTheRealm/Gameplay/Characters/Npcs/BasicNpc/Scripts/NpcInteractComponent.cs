@@ -11,6 +11,7 @@ public class NpcInteractComponent : MonoBehaviour, IInteractable
     {
         _dialogManager.Next();
         Debug.Log("NPC interacted with by " + interactor.GameObject.name);
+        interactor.FinishInteracting();
     }
 
     public bool CanInteract(IInteractor interactor)

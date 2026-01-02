@@ -65,8 +65,16 @@ public class CharacterStateMachine : MonoBehaviour
 
         attackComponent.OnAttackFinished += OnAttackFinished;
         dashComponent.OnDashFinished += OnDashFinished;
+        interactComponent.OnInteractFinished += OnInteractFinished;
 
         currentMovementState.Enter();
+    }
+
+    private void OnDisable()
+    {
+        attackComponent.OnAttackFinished -= OnAttackFinished;
+        dashComponent.OnDashFinished -= OnDashFinished;
+        interactComponent.OnInteractFinished -= OnInteractFinished;
     }
 
     /// <summary>
@@ -161,5 +169,19 @@ public class CharacterStateMachine : MonoBehaviour
     public void OnInteract()
     {
         ChangeMovementState(interactingState);
+    }
+
+    private void OnInteractFinished()
+    {
+        if (currentMovementState != interactingState)
+            return;
+
+        if (lastDirection.sqrMagnitude > 0.01f)
+        {
+            ChangeMovementState(movingState);
+            movingState.SetDirection(lastDirection);
+            return;
+        }
+        ChangeMovementState(idleState);
     }
 }
