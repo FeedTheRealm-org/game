@@ -1,12 +1,15 @@
 using System;
 using UnityEngine;
 
-public abstract class EventChannelSO<T> : ScriptableObject
+namespace Game.Core.Events
 {
-    public Action<T> OnRaised;
-
-    public void Raise(T value)
+    public abstract class EventChannelSO<T> : ScriptableObject
     {
-        OnRaised?.Invoke(value);
+        public event Action<T> OnRaised;
+
+        public void Raise(T value)
+        {
+            OnRaised?.Invoke(value);
+        }
     }
 }

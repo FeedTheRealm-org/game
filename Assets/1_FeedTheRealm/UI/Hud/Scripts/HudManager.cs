@@ -1,3 +1,5 @@
+using Game.Core.Events;
+using Game.Core.Quests;
 using UnityEngine;
 
 /// <summary>
@@ -11,6 +13,13 @@ public class HudManager : MonoBehaviour
 
     [SerializeField]
     private GameObject questPromptPanel;
+
+    [Header("Quests")]
+    [SerializeField]
+    private QuestOfferedEvent questOfferedEvent;
+
+    [SerializeField]
+    private QuestDecisionEvent questDecisionEvent;
 
     [Header("General settings")]
     [SerializeField]
@@ -27,12 +36,33 @@ public class HudManager : MonoBehaviour
                 this,
                 Logging.LogType.Error
             );
+
+        if (questOfferedEvent == null)
+            logger.Log(
+                "Quest Offered Event is not assigned in the inspector.",
+                this,
+                Logging.LogType.Error
+            );
+
+        if (questDecisionEvent == null)
+            logger.Log(
+                "Quest Decision Event is not assigned in the inspector.",
+                this,
+                Logging.LogType.Error
+            );
     }
 
     private void OnEnable()
     {
         ToggleHud(true);
         ToggleQuestPrompt(false);
+
+        questOfferedEvent.OnRaised += OnQuestOffered;
+    }
+
+    private void OnDisable()
+    {
+        questOfferedEvent.OnRaised -= OnQuestOffered;
     }
 
     /// <summary>
@@ -54,5 +84,10 @@ public class HudManager : MonoBehaviour
         if (questPromptPanel == null)
             return;
         questPromptPanel.SetActive(show);
+    }
+
+    private void OnQuestOffered(QuestData data)
+    {
+        ToggleQuestPrompt(true);
     }
 }
