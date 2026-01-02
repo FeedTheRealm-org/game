@@ -7,7 +7,7 @@ namespace Game.Core.Dialogue
     /// Represents a dialog message with a sender and content.
     /// </summary>
     [Serializable]
-    public class Message
+    public class MessageData
     {
         [SerializeField]
         private string _sender;
@@ -15,7 +15,7 @@ namespace Game.Core.Dialogue
         [SerializeField]
         private string _content;
 
-        public Message(string sender, string content)
+        public MessageData(string sender, string content)
         {
             _sender = sender;
             _content = content;

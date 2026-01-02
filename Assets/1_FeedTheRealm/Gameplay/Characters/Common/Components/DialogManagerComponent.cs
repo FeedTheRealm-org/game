@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class DialogManagerComponent : MonoBehaviour
 {
-    public event Action<Message> OnDialogChanged;
+    public event Action<MessageData> OnDialogChanged;
     public event Action<bool> OnToggleDialog;
 
     [SerializeField]
@@ -18,7 +18,7 @@ public class DialogManagerComponent : MonoBehaviour
     private float inactivityTimeout = 5f;
 
     [SerializeField]
-    private Message[] _dialogs;
+    private MessageData[] _dialogs;
     private int _currentDialogIndex;
 
     private Coroutine _timeoutCoroutine;
@@ -35,7 +35,7 @@ public class DialogManagerComponent : MonoBehaviour
     /// <summary>
     /// Sets the dialog messages.
     /// </summary>
-    public void SetDialogs(Message[] dialogs)
+    public void SetDialogs(MessageData[] dialogs)
     {
         _dialogs = dialogs;
     }
