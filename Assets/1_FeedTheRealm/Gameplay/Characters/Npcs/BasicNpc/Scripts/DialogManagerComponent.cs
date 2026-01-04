@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Game.Core.Dialogue;
+using Game.Core.Events;
 using UnityEngine;
 
 /// <summary>
@@ -11,17 +12,40 @@ public class DialogManagerComponent : MonoBehaviour
     public event Action<MessageData> OnDialogChanged;
     public event Action<bool> OnToggleDialog;
 
+    [Header("Dialog settings")]
     [SerializeField]
     private bool shouldResetOnComplete = true;
 
     [SerializeField]
     private float inactivityTimeout = 5f;
 
+    [Header("NPC settings")]
     [SerializeField]
-    private MessageData[] _dialogs;
+    private string npcName;
+
+    [SerializeField]
+    private NpcMessageData[] dialogs;
     private int _currentDialogIndex;
 
+    [Header("General settings")]
+    [SerializeField]
+    private QuestOfferedEvent questOfferedEvent;
+
+    [SerializeField]
+    private Logging.Logger logger;
+
     private Coroutine _timeoutCoroutine;
+
+    private bool _questOffered;
+
+    private void Start()
+    {
+        _currentDialogIndex = 0;
+        if (string.IsNullOrEmpty(npcName))
+        {
+            npcName = "???";
+        }
+    }
 
     private void OnDisable()
     {
@@ -35,9 +59,9 @@ public class DialogManagerComponent : MonoBehaviour
     /// <summary>
     /// Sets the dialog messages.
     /// </summary>
-    public void SetDialogs(MessageData[] dialogs)
+    public void SetDialogs(NpcMessageData[] dialogs)
     {
-        _dialogs = dialogs;
+        this.dialogs = dialogs;
     }
 
     /// <summary>
@@ -45,22 +69,42 @@ public class DialogManagerComponent : MonoBehaviour
     /// </summary>
     public bool Next()
     {
-        if (_dialogs == null || _currentDialogIndex >= _dialogs.Length)
+        if (dialogs == null || _currentDialogIndex >= dialogs.Length)
         {
             CloseDialog(); // Dialog ended
             return false;
         }
 
-        var dialog = _dialogs[_currentDialogIndex];
-        OnDialogChanged?.Invoke(dialog);
+        var dialog = dialogs[_currentDialogIndex];
+        dialog.Msg.Sender = npcName;
+        OnDialogChanged?.Invoke(dialog.Msg);
 
         if (_currentDialogIndex == 0)
             OpenDialog(); // Dialog started
         _currentDialogIndex++;
 
+        var hasQuest = dialog.Quest != null && !string.IsNullOrEmpty(dialog.Quest.Id);
+        _questOffered = hasQuest;
+        if (hasQuest)
+        {
+            logger.Log(
+                $"NPC '{npcName}' is offering quest '{dialog.Quest.Title}' (ID: {dialog.Quest.Id}).",
+                this,
+                Logging.LogType.Info
+            );
+            OnDisable();
+            questOfferedEvent.Raise(dialog.Quest);
+            return true;
+        }
+
         RestartTimeout();
 
         return true;
+    }
+
+    public bool IsQuestOffer()
+    {
+        return _questOffered;
     }
 
     private void CloseDialog()
