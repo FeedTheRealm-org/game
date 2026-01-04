@@ -12,7 +12,7 @@ public class HudManager : MonoBehaviour
     private GameObject hudPanel;
 
     [SerializeField]
-    private GameObject questPromptPanel;
+    private QuestPromptController questPromptPanel;
 
     [Header("Quests")]
     [SerializeField]
@@ -54,40 +54,29 @@ public class HudManager : MonoBehaviour
 
     private void OnEnable()
     {
-        ToggleHud(true);
-        ToggleQuestPrompt(false);
-
+        hudPanel.SetActive(true);
         questOfferedEvent.OnRaised += OnQuestOffered;
+        questDecisionEvent.OnRaised += OnQuestDecision;
     }
 
     private void OnDisable()
     {
         questOfferedEvent.OnRaised -= OnQuestOffered;
-    }
-
-    /// <summary>
-    /// Toggles the visibility of the HUD panel and quest prompt panel.
-    /// </summary>
-    private void ToggleHud(bool show)
-    {
-        if (hudPanel == null)
-            return;
-        hudPanel.SetActive(show);
-        ToggleQuestPrompt(show);
-    }
-
-    /// <summary>
-    /// Toggles the visibility of the quest prompt panel.
-    /// </summary>
-    private void ToggleQuestPrompt(bool show)
-    {
-        if (questPromptPanel == null)
-            return;
-        questPromptPanel.SetActive(show);
+        questDecisionEvent.OnRaised -= OnQuestDecision;
     }
 
     private void OnQuestOffered(QuestData data)
     {
-        ToggleQuestPrompt(true);
+        questPromptPanel.ToggleQuestPrompt(true);
+        questPromptPanel.OnQuestOffered(data);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    private void OnQuestDecision(QuestDecision _)
+    {
+        questPromptPanel.ToggleQuestPrompt(false);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }

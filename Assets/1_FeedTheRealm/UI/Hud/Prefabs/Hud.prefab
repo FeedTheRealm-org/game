@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7797883667603467193}
   - component: {fileID: 4011512576536506111}
+  - component: {fileID: 2805935830386990463}
   m_Layer: 5
   m_Name: QuestPrompt
   m_TagString: Untagged
@@ -55,6 +56,21 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &2805935830386990463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4530582604930409856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d473d6a7fb96e8f4680b821dcabd87fb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPromptController
+  questOfferedEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
+  questDecisionEvent: {fileID: 11400000, guid: 982c6ff128438cb20afe10947eb6ce40, type: 2}
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
 --- !u!1 &4660389141276997287
 GameObject:
   m_ObjectHideFlags: 0
@@ -173,5 +189,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::HudManager
   hudPanel: {fileID: 4660389141276997287}
-  questPromptPanel: {fileID: 4530582604930409856}
+  questPromptPanel: {fileID: 2805935830386990463}
+  questOfferedEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
+  questDecisionEvent: {fileID: 11400000, guid: 982c6ff128438cb20afe10947eb6ce40, type: 2}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
