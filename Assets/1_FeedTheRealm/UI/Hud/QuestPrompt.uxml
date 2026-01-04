@@ -6,12 +6,14 @@
         src="project://database/Assets/1_FeedTheRealm/UI/Hud/Themes/QuestPrompt.uss?fileID=7433441132597879392&amp;guid=c695cb15a682674cebd12a595401290a&amp;type=3#QuestPrompt" />
     <ui:VisualElement class="body" name="Body" style="flex-grow: 1;">
         <ui:VisualElement class="quest-container" name="QuestContainer" style="flex-grow: 1;">
-            <ui:Label class="quest-title" text="Quest: Slay them skullies" name="QuestTitle" />
+            <ui:Label class="quest-title"
+                text="Quest: Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu"
+                name="QuestTitle" /> <!-- MAX 70 chars -->
             <ui:VisualElement class="hl" name="HL"></ui:VisualElement>
             <ui:Label
                 class="quest-text"
-                text="Clear the crypt by slaying the Skullies—rattling skeletons that haunt the old halls, rise from shattered tombs, and guard forgotten secrets, clashing bones and cursed blades as they defend their dusty domain from intruders."
-                name="QuestDescription" />
+                text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lo."
+                name="QuestDescription" /> <!-- MAX 255 chars -->
             <ui:VisualElement class="button-container" name="ButtonContainer" style="flex-grow: 1;">
                 <ui:Button class="quest-button accept-button" text="Accept" name="AcceptButton" />
                 <ui:Button class="quest-button reject-button" text="Reject" name="RejectButton" />
