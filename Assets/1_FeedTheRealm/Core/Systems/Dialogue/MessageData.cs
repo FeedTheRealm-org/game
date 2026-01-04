@@ -24,6 +24,7 @@ namespace Game.Core.Dialogue
         public string Sender
         {
             get => _sender;
+            set => _sender = value;
         }
 
         public string Content
