@@ -9,6 +9,9 @@ namespace Game.Core.Quests
 
         private bool _isAccepted;
 
+        public QuestData QuestData => _questData;
+
+        public bool IsAccepted => _isAccepted;
         public QuestDecision(QuestData questData, bool isAccepted)
         {
             _questData = questData;
