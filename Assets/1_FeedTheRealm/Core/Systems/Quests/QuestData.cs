@@ -10,18 +10,14 @@ namespace Game.Core.Quests
         private string _id;
 
         [SerializeField]
-        private string _sender;
-
-        [SerializeField]
         private string _title;
 
         [SerializeField]
         private string _content;
 
-        public QuestData(string id, string sender, string title, string content)
+        public QuestData(string id, string title, string content)
         {
             _id = id;
-            _sender = sender;
             _title = title;
             _content = content;
         }
@@ -29,11 +25,6 @@ namespace Game.Core.Quests
         public string Id
         {
             get => _id;
-        }
-
-        public string Sender
-        {
-            get => _sender;
         }
 
         public string Title
