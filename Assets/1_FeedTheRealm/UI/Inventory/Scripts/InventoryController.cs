@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Reflection;
 using API;
-using Items;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,17 +9,14 @@ public class InventoryController : MonoBehaviour
     private UIDocument uiDocument;
     private VisualElement root;
     private List<VisualElement> slots = new List<VisualElement>();
-    private VisualElement draggedItem;
-    private VisualElement draggedItemOriginalSlot;
-    private Vector2 dragOffset;
     private bool isUIVisible = false;
 
     // Track itemId for each item element (used for tooltip)
     private Dictionary<VisualElement, string> itemIdMap = new Dictionary<VisualElement, string>();
 
-    [Header("Items Management")]
-    // ItemsManager reference (uses singleton pattern)
-    private Items.ItemsManager ItemsManager => Items.ItemsManager.Instance;
+    // Helpers
+    private InventoryDragHandler dragHandler;
+    private InventorySlotManager slotManager;
 
     [Header("World Items (sprite-based)")]
     [SerializeField]
@@ -31,13 +26,6 @@ public class InventoryController : MonoBehaviour
     [Header("Tooltip")]
     [SerializeField]
     private ItemStatsTooltip itemStatsTooltip;
-
-    [Header("Debug - Loot Testing")]
-    [SerializeField]
-    private bool enableDebugLootButton = false;
-
-    [SerializeField]
-    private List<Sprite> debugLootSprites = new List<Sprite>();
     private int currentLootIndex = 0;
 
     [Header("Slot Sprites")]
@@ -51,259 +39,74 @@ public class InventoryController : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
-    private Button lootButton;
     private VisualElement dropZone;
 
     void Start()
     {
-        // Try to auto-link ItemAssetsService from ItemsManager if not set
-        if (itemAssetsService == null && ItemsManager != null)
-        {
-            var field = ItemsManager
-                .GetType()
-                .GetField("itemAssetsService", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (field != null)
-            {
-                var value = field.GetValue(ItemsManager) as ItemAssetsService;
-                if (value != null)
-                {
-                    itemAssetsService = value;
-                    logger?.Log(
-                        "[Inventory] Auto-linked ItemAssetsService from ItemsManager",
-                        this
-                    );
-                }
-            }
-        }
-
         uiDocument = GetComponent<UIDocument>();
         root = uiDocument.rootVisualElement;
 
-        // Initially hide the UI (but keep the GameObject active)
         HideUI();
 
-        // Find all slots
-        for (int i = 1; i <= 12; i++)
-        {
-            var slot = root.Q<VisualElement>($"Slot{i}");
-            if (slot != null)
-            {
-                slots.Add(slot);
-                slot.RegisterCallback<PointerDownEvent>(OnSlotPointerDown);
-                slot.RegisterCallback<PointerUpEvent>(OnSlotPointerUp);
+        // Initialize slot manager and slots
+        slotManager = new InventorySlotManager(root, slotNormalSprite, slotHoverSprite);
+        slots = slotManager.InitializeSlots(
+            12,
+            (evt, slot) => OnSlotPointerDown(evt),
+            (evt, slot) => OnSlotPointerUp(evt),
+            (evt, slot) => OnItemHoverEnter(evt, slot),
+            (evt, slot) => OnItemHoverLeave(evt, slot)
+        );
 
-                // Register tooltip hover events on all slots (will check if has item inside the handler)
-                slot.RegisterCallback<PointerEnterEvent>(evt => OnItemHoverEnter(evt, slot));
-                slot.RegisterCallback<PointerLeaveEvent>(evt => OnItemHoverLeave(evt, slot));
-
-                // Configure hover sprites if assigned
-                if (slotNormalSprite != null && slotHoverSprite != null)
-                {
-                    slot.RegisterCallback<PointerEnterEvent>(evt => OnSlotHoverEnter(evt, slot));
-                    slot.RegisterCallback<PointerLeaveEvent>(evt => OnSlotHoverLeave(evt, slot));
-                }
-            }
-        }
-
-        // Configure Loot button (debug only)
-        lootButton = root.Q<Button>("Loot");
-        if (lootButton != null && enableDebugLootButton)
-        {
-            lootButton.clicked += OnLootButtonClicked;
-        }
-        else if (lootButton != null)
-        {
-            // Hide the button if not in debug mode
-            lootButton.style.display = DisplayStyle.None;
-        }
-
-        // Configure Drop zone
         dropZone = root.Q<VisualElement>("Drop");
         if (dropZone != null)
         {
             dropZone.RegisterCallback<PointerUpEvent>(OnDropZonePointerUp);
         }
 
-        // Register global events for drag
-        // PointerMove with TrickleDown to capture across the entire screen
-        root.RegisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
+        // Initialize drag handler
+        dragHandler = new InventoryDragHandler(root, slots, dropZone, logger);
 
-        // PointerUp WITHOUT TrickleDown so it executes AFTER OnSlotPointerUp
-        root.RegisterCallback<PointerUpEvent>(OnGlobalPointerUp);
+        root.RegisterCallback<PointerMoveEvent>(
+            evt => dragHandler.OnPointerMove(evt),
+            TrickleDown.TrickleDown
+        );
+        root.RegisterCallback<PointerUpEvent>(evt =>
+            dragHandler.OnGlobalPointerUp(evt, ReturnItemToOriginalSlot)
+        );
 
-        // Also register on the panel to ensure full coverage
         var panel = root.panel;
         if (panel != null)
         {
             panel.visualTree.RegisterCallback<PointerMoveEvent>(
-                OnPointerMove,
+                evt => dragHandler.OnPointerMove(evt),
                 TrickleDown.TrickleDown
             );
-            // PointerUp on the panel also without TrickleDown
-            panel.visualTree.RegisterCallback<PointerUpEvent>(OnGlobalPointerUp);
+            panel.visualTree.RegisterCallback<PointerUpEvent>(evt =>
+                dragHandler.OnGlobalPointerUp(evt, ReturnItemToOriginalSlot)
+            );
         }
     }
 
     private void OnSlotPointerDown(PointerDownEvent evt)
     {
-        logger.Log(
-            $"OnSlotPointerDown - Target: {evt.target}, CurrentTarget: {evt.currentTarget}",
-            this
-        );
-
         // Hide tooltip when starting drag
-        if (itemStatsTooltip != null)
-        {
-            itemStatsTooltip.HideTooltip();
-        }
-
-        // Try to get the slot from currentTarget (the element that registered the callback)
-        var slot = evt.currentTarget as VisualElement;
-
-        if (slot != null && slot.childCount > 0)
-        {
-            logger.Log($"Slot found with {slot.childCount} child(ren)", this);
-            draggedItem = slot[0]; // Assume the first child is the item
-            draggedItemOriginalSlot = slot; // Save the original slot
-
-            // Get the position and size of the item BEFORE removing it
-            Rect itemWorldBound = draggedItem.worldBound;
-            float itemWidth = itemWorldBound.width;
-            float itemHeight = itemWorldBound.height;
-
-            // Calculate offset using the item's world position
-            dragOffset = new Vector2(
-                evt.position.x - itemWorldBound.x,
-                evt.position.y - itemWorldBound.y
-            );
-
-            // Remove from slot and add to root so it's visible above everything
-            draggedItem.RemoveFromHierarchy();
-            root.Add(draggedItem);
-            draggedItem.BringToFront();
-
-            // IMPORTANT: Fix the size to pixels so it doesn't scale with the root
-            draggedItem.style.width = itemWidth;
-            draggedItem.style.height = itemHeight;
-            draggedItem.style.position = Position.Absolute;
-
-            // Convert world position to local of the root
-            Vector2 pointerInRoot = root.WorldToLocal(evt.position);
-
-            // Position immediately at the correct position
-            draggedItem.style.left = pointerInRoot.x - dragOffset.x;
-            draggedItem.style.top = pointerInRoot.y - dragOffset.y;
-
-            logger.Log(
-                $"Starting drag - Item: {draggedItem.name}, Size: ({itemWidth}x{itemHeight}), Offset: {dragOffset}, ItemWorldPos: ({itemWorldBound.x}, {itemWorldBound.y})",
-                this
-            );
-            evt.StopPropagation();
-        }
-        else
-        {
-            logger.Log(
-                $"Could not start drag - Slot null: {slot == null}, ChildCount: {slot?.childCount ?? 0}",
-                this,
-                Logging.LogType.Warning
-            );
-        }
+        itemStatsTooltip?.HideTooltip();
+        dragHandler.OnSlotPointerDown(evt);
     }
 
-    private void OnPointerMove(PointerMoveEvent evt)
-    {
-        if (draggedItem != null)
-        {
-            // Convert global pointer position to local coordinates of the root
-            Vector2 pointerInRoot = root.WorldToLocal(evt.position);
-
-            // Apply offset
-            draggedItem.style.left = pointerInRoot.x - dragOffset.x;
-            draggedItem.style.top = pointerInRoot.y - dragOffset.y;
-            draggedItem.style.position = Position.Absolute;
-
-            // Prevent the event from propagating
-            evt.StopPropagation();
-            // Debug.Log($"Dragging - PointerInRoot: {pointerInRoot}, ItemPos: ({draggedItem.style.left.value.value}, {draggedItem.style.top.value.value})");
-        }
-    }
+    // Drag logic is now handled by InventoryDragHandler
 
     private void OnSlotPointerUp(PointerUpEvent evt)
     {
-        logger.Log(
-            $"OnSlotPointerUp - Target: {evt.target}, DraggedItem: {draggedItem != null}",
-            this
-        );
-
-        if (draggedItem != null)
-        {
-            var targetSlot = evt.currentTarget as VisualElement;
-            logger.Log(
-                $"Target slot: {targetSlot?.name}, Is in slots list: {slots.Contains(targetSlot)}",
-                this
-            );
-
-            if (targetSlot != null && slots.Contains(targetSlot))
-            {
-                // Move/swap the item to the target slot
-                logger.Log($"Moving/swapping item to slot: {targetSlot.name}", this);
-                MoveItemToSlot(draggedItem, targetSlot);
-
-                // Clear references AFTER moving
-                draggedItem = null;
-                draggedItemOriginalSlot = null;
-
-                // immediately stop propagation
-                evt.StopImmediatePropagation();
-            }
-        }
+        dragHandler.OnSlotPointerUp(evt, MoveItemToSlot);
     }
 
-    private void OnGlobalPointerUp(PointerUpEvent evt)
-    {
-        logger.Log(
-            $"OnGlobalPointerUp - DraggedItem: {draggedItem != null}, Position: {evt.position}",
-            this
-        );
-
-        // Only process if there is still an item being dragged
-        // (if OnSlotPointerUp handled it, draggedItem will be null)
-        if (draggedItem != null)
-        {
-            // Verify if released over drop zone
-            bool isOverDrop = IsPointerOverElement(evt.position, dropZone);
-            logger.Log($"Is over drop zone: {isOverDrop}, DropZone null: {dropZone == null}", this);
-
-            if (isOverDrop)
-            {
-                // Remove the dragged item
-                draggedItem.RemoveFromHierarchy();
-                logger.Log("Item removed in Drop zone (Global)", this);
-            }
-            else
-            {
-                // If released outside a slot, return
-                logger.Log("Returning item (from global)", this);
-                ReturnItemToOriginalSlot();
-            }
-
-            draggedItem = null;
-            draggedItemOriginalSlot = null;
-        }
-    }
+    // Global pointer up handled by InventoryDragHandler
 
     private void OnDropZonePointerUp(PointerUpEvent evt)
     {
-        if (draggedItem != null)
-        {
-            // Remove the dragged item
-            draggedItem.RemoveFromHierarchy();
-            logger.Log("Item removed in Drop zone", this);
-            draggedItem = null;
-            draggedItemOriginalSlot = null;
-            evt.StopPropagation();
-        }
+        dragHandler.OnDropZonePointerUp(evt);
     }
 
     private void OnSlotHoverEnter(PointerEnterEvent evt, VisualElement slot)
@@ -324,34 +127,26 @@ public class InventoryController : MonoBehaviour
 
     private void MoveItemToSlot(VisualElement item, VisualElement targetSlot)
     {
-        // If the target slot has an item AND it's not the original slot, swap
-        if (targetSlot.childCount > 0 && targetSlot != draggedItemOriginalSlot)
+        // Use dragHandler's reference for original slot
+        var originalSlot = dragHandler.DraggedItemOriginalSlot;
+        if (targetSlot.childCount > 0 && targetSlot != originalSlot)
         {
             logger.Log("Slot occupied, swapping items", this);
             var targetItem = targetSlot[0];
-
-            // Remove both items
             item.RemoveFromHierarchy();
             targetItem.RemoveFromHierarchy();
-
-            // Swap positions
             targetSlot.Add(item);
-            if (draggedItemOriginalSlot != null)
+            if (originalSlot != null)
             {
-                draggedItemOriginalSlot.Add(targetItem);
+                originalSlot.Add(targetItem);
             }
-
-            // Reset styles of both items to percentages (to fit the slot)
             ResetItemStyles(item);
             ResetItemStyles(targetItem);
         }
         else
         {
-            // Empty slot or same original slot, simply move
             item.RemoveFromHierarchy();
             targetSlot.Add(item);
-
-            // Reset styles of the item to percentages (to fit the slot)
             ResetItemStyles(item);
         }
     }
@@ -361,6 +156,7 @@ public class InventoryController : MonoBehaviour
     /// </summary>
     private void ResetItemStyles(VisualElement item)
     {
+        // Reset item style to fill the slot
         item.style.position = Position.Relative;
         item.style.left = 0;
         item.style.top = 0;
@@ -370,15 +166,16 @@ public class InventoryController : MonoBehaviour
 
     private void ReturnItemToOriginalSlot()
     {
-        // Try to return to the original slot if we have it saved
+        var draggedItem = dragHandler.DraggedItem;
+        var draggedItemOriginalSlot = dragHandler.DraggedItemOriginalSlot;
+        if (draggedItem == null)
+            return;
         if (draggedItemOriginalSlot != null)
         {
             draggedItemOriginalSlot.Add(draggedItem);
             ResetItemStyles(draggedItem);
             return;
         }
-
-        // If no empty slots, add to the first one
         foreach (var slot in slots)
         {
             if (slot.childCount == 0)
@@ -388,8 +185,6 @@ public class InventoryController : MonoBehaviour
                 return;
             }
         }
-
-        // If no empty slots, add to the first one
         if (slots.Count > 0)
         {
             slots[0].Add(draggedItem);
@@ -397,43 +192,13 @@ public class InventoryController : MonoBehaviour
         }
     }
 
-    private bool IsPointerOverElement(Vector2 pointerPosition, VisualElement element)
-    {
-        if (element == null)
-            return false;
-
-        var rect = element.worldBound;
-        return rect.Contains(pointerPosition);
-    }
+    // Pointer over element logic is now in InventoryDragHandler
 
     /// <summary>
-    /// DEBUG ONLY: Button to simulate loot drop with predefined sprites
-    /// </summary>
-    private void OnLootButtonClicked()
-    {
-        if (debugLootSprites == null || debugLootSprites.Count == 0)
-        {
-            logger.Log(
-                "[DEBUG] No sprites assigned in debugLootSprites",
-                this,
-                Logging.LogType.Warning
-            );
-            return;
-        }
-
-        // Get the current sprite from the list
-        Sprite spriteToAdd = debugLootSprites[currentLootIndex];
-
-        // Advance to the next index (with wrap-around)
-        currentLootIndex = (currentLootIndex + 1) % debugLootSprites.Count;
-
-        AddItemBySprite(spriteToAdd);
-        logger.Log($"[DEBUG] Looted sprite {currentLootIndex}/{debugLootSprites.Count}", this);
-    }
-
-    /// <summary>
-    /// Add item to inventory by item ID (gets sprite from ItemsManager).
-    /// This is the main method used by the game.
+    /// Add item to inventory by item ID.
+    ///
+    /// At runtime, itemId is expected to be a world spriteId coming
+    /// from loot/world data. Non-world IDs are currently ignored.
     /// </summary>
     public void AddItemById(string itemId)
     {
@@ -444,65 +209,18 @@ public class InventoryController : MonoBehaviour
         }
 
         // If this ID belongs to a world-defined item (spriteId), use the
-        // world item path instead of ItemsManager metadata.
+        // world item path (world-driven system).
         if (Worlds.WorldItemsRegistry.IsWorldItem(itemId))
         {
             AddWorldItemBySpriteId(itemId);
             return;
         }
-
-        if (ItemsManager == null)
-        {
-            logger.Log(
-                "ERROR: ItemsManager singleton not available! Make sure ItemsManager exists in MPMenuScene.",
-                this,
-                Logging.LogType.Error
-            );
-            return;
-        }
-
-        if (!ItemsManager.IsInitialized)
-        {
-            logger.Log(
-                "WARNING: ItemsManager not initialized yet, cannot add item",
-                this,
-                Logging.LogType.Warning
-            );
-            return;
-        }
-
-        // Get sprite from ItemsManager (coroutine for async loading)
-        StartCoroutine(AddItemByIdCoroutine(itemId));
-    }
-
-    private System.Collections.IEnumerator AddItemByIdCoroutine(string itemId)
-    {
-        Texture2D texture = null;
-
-        yield return ItemsManager.GetItemSprite(
-            itemId,
-            (loadedTexture) =>
-            {
-                texture = loadedTexture;
-            }
+        // Non-world item IDs are not supported in the new system.
+        logger.Log(
+            $"Ignoring AddItemById for non-world itemId='{itemId}'. World items are driven by WorldItemsRegistry.",
+            this,
+            Logging.LogType.Warning
         );
-
-        if (texture != null)
-        {
-            // Convert Texture2D to Sprite
-            Sprite sprite = Sprite.Create(
-                texture,
-                new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f)
-            );
-
-            AddItemBySpriteWithId(sprite, itemId);
-            logger.Log($"Item added to inventory: {itemId}", this);
-        }
-        else
-        {
-            logger.Log($"Failed to load sprite for item: {itemId}", this, Logging.LogType.Error);
-        }
     }
 
     /// <summary>
@@ -517,7 +235,6 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // Find the first empty slot
         foreach (var slot in slots)
         {
             if (slot.childCount == 0)
@@ -613,7 +330,6 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // Find the first empty slot
         foreach (var slot in slots)
         {
             if (slot.childCount == 0)
@@ -629,33 +345,11 @@ public class InventoryController : MonoBehaviour
 
     private void CreateItemElement(Sprite itemSprite, VisualElement parentSlot, string itemId)
     {
-        var itemElement = new VisualElement();
-        itemElement.name = "InventoryItem";
-        itemElement.style.backgroundImage = new StyleBackground(itemSprite);
-
-        // Configure scale mode so the image fits while maintaining aspect ratio
-        itemElement.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
-
-        // Make the element fill the entire slot (100%)
-        itemElement.style.width = new Length(100, LengthUnit.Percent);
-        itemElement.style.height = new Length(100, LengthUnit.Percent);
-        itemElement.style.position = Position.Relative;
-
-        // center content if image is smaller than slot
-        itemElement.style.alignItems = Align.Center;
-        itemElement.style.justifyContent = Justify.Center;
-
-        itemElement.AddToClassList("inventory-item");
-
-        // allow the item to ignore pointer events (so the slot receives them)
-        itemElement.pickingMode = PickingMode.Ignore;
-
-        // Store itemId for this item element if provided (used by tooltip hover handlers)
+        var itemElement = InventoryItemFactory.CreateItemElement(itemSprite, itemId);
         if (!string.IsNullOrEmpty(itemId))
         {
             itemIdMap[itemElement] = itemId;
         }
-
         parentSlot.Add(itemElement);
         logger.Log(
             $"Item created in slot: {parentSlot.name}" + (itemId != null ? $" (ID: {itemId})" : ""),
@@ -673,29 +367,24 @@ public class InventoryController : MonoBehaviour
             this
         );
 
-        // Only show tooltip if slot has an item
         if (slot.childCount == 0)
         {
             logger?.Log("[Tooltip] Slot is empty, skipping", this);
             return;
         }
 
-        // Don't show tooltip while dragging
-        if (draggedItem != null)
+        if (dragHandler != null && dragHandler.DraggedItem != null)
         {
             logger?.Log("[Tooltip] Currently dragging, skipping", this);
             return;
         }
 
-        // Get the item element (first child)
         var itemElement = slot[0];
         logger?.Log($"[Tooltip] Item element found: {itemElement.name}", this);
 
-        // Get itemId from map
         if (itemIdMap.TryGetValue(itemElement, out string itemId))
         {
             logger?.Log($"[Tooltip] ItemId found in map: {itemId}", this);
-            // Show tooltip if available
             if (itemStatsTooltip != null)
             {
                 itemStatsTooltip.ShowTooltip(itemId, slot);
@@ -721,7 +410,6 @@ public class InventoryController : MonoBehaviour
     /// </summary>
     private void OnItemHoverLeave(PointerLeaveEvent evt, VisualElement slot)
     {
-        // Hide tooltip if available
         if (itemStatsTooltip != null)
         {
             itemStatsTooltip.HideTooltip();
@@ -800,7 +488,6 @@ public class InventoryController : MonoBehaviour
             root.style.display = DisplayStyle.None;
             isUIVisible = false;
 
-            // Hide tooltip when closing inventory
             if (itemStatsTooltip != null)
             {
                 itemStatsTooltip.HideTooltip();
