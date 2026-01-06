@@ -79,12 +79,12 @@ public class QuestPromptController : MonoBehaviour
     private void OnAcceptClicked()
     {
         logger.Log($"Quest {_currentQuestData.Title} was accepted", this);
-        questDecisionEvent.Raise(new QuestDecision(_currentQuestData, true));
+        questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, true));
     }
 
     private void OnRejectClicked()
     {
         logger.Log($"Quest {_currentQuestData.Title} was rejected", this);
-        questDecisionEvent.Raise(new QuestDecision(_currentQuestData, false));
+        questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, false));
     }
 }
