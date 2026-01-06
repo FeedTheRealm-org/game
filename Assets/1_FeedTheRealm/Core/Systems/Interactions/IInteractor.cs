@@ -16,5 +16,10 @@ namespace Game.Core.Interactions
         /// The Transform component of the interactor.
         /// </summary>
         Transform Transform { get; }
+
+        /// <summary>
+        /// Event triggered when the interactor has finished interacting.
+        /// </summary>
+        void FinishInteracting();
     }
 }

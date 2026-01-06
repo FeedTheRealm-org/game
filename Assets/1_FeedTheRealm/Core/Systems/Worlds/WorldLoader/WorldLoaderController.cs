@@ -167,21 +167,21 @@ public class WorldLoaderController : MonoBehaviour
         }
         else
         {
-            foreach (PlacedAsset placementData in data.objectPlacementData)
-            {
-                if (!assetMap.TryGetValue(placementData.AssetDataId, out Asset assetData))
-                {
-                    logger.Log(
-                        $"Asset with id '{placementData.AssetDataId}' not found in assetMap; skipping placed object.",
-                        this,
-                        Logging.LogType.Warning
-                    );
-                    continue;
-                }
+            // foreach (PlacedAsset placementData in data.objectPlacementData)
+            // {
+            //     if (!assetMap.TryGetValue(placementData.AssetDataId, out Asset assetData))
+            //     {
+            //         logger.Log(
+            //             $"Asset with id '{placementData.AssetDataId}' not found in assetMap; skipping placed object.",
+            //             this,
+            //             Logging.LogType.Warning
+            //         );
+            //         continue;
+            //     }
 
-                Vector3Int gridPosition = placementData.Position;
-                worldController.PlaceObjectAt(gridPosition, assetData.GetModelInstance());
-            }
+            //     Vector3Int gridPosition = placementData.Position;
+            //     worldController.PlaceObjectAt(gridPosition, assetData.GetModelInstance());
+            // }
         }
 
         foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas)

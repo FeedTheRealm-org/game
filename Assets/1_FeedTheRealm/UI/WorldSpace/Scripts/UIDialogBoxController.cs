@@ -50,7 +50,7 @@ public class UIDialogController : MonoBehaviour
         dialogManager.OnToggleDialog -= HandleToggleDialog;
     }
 
-    private void HandleDialogChanged(Message message)
+    private void HandleDialogChanged(MessageData message)
     {
         logger.Log($"Dialog changed: {message.Content}", this);
         _msgLabel.text = message.Content;

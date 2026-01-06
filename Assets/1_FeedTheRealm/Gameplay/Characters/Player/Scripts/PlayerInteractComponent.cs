@@ -1,3 +1,4 @@
+using System;
 using Game.Core.Interactions;
 using UnityEngine;
 
@@ -16,6 +17,8 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
 
     public GameObject GameObject => this.gameObject;
     public Transform Transform => this.transform;
+
+    public event Action OnInteractFinished;
 
     public void OnInteract()
     {
@@ -55,6 +58,12 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
 
         logger.Log("Interacting with: " + closestInteractable, this);
         closestInteractable.Interact(this);
+    }
+
+    public void FinishInteracting()
+    {
+        logger.Log("Finished interacting.", this);
+        OnInteractFinished?.Invoke();
     }
 
 #if UNITY_EDITOR
