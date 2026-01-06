@@ -1,9 +1,10 @@
+using Game.Core.StateMachine;
 using UnityEngine;
 
 /// <summary>
 /// State for when the character is moving.
 /// </summary>
-public class CharacterMovingState : IState
+public class CharacterMovingState : IMovementState
 {
     private MovementComponent movementComponent;
     private CharacterAnimator animator;
@@ -15,13 +16,13 @@ public class CharacterMovingState : IState
         this.animator = animator;
     }
 
-    public void Enter()
+    public void Enter(IStateMachine stateMachine)
     {
         animator.SetMoving(true);
         animator.SetDashing(false);
     }
 
-    public void Exit() { }
+    public void Exit(IStateMachine stateMachine) { }
 
     /// <summary>
     /// Updates the movement direction.

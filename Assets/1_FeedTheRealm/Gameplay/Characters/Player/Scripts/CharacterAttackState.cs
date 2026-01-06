@@ -1,3 +1,5 @@
+using Game.Core.StateMachine;
+
 public class CharacterAttackState : IState
 {
     private AttackComponent attackComponent;
@@ -10,14 +12,14 @@ public class CharacterAttackState : IState
         this.animator = animator;
     }
 
-    public void Enter()
+    public void Enter(IStateMachine stateMachine)
     {
         attackComponent.OnAttack();
         animator.SetAction(true);
         animator.PlayAttack();
     }
 
-    public void Exit()
+    public void Exit(IStateMachine stateMachine)
     {
         animator.SetAction(false);
     }

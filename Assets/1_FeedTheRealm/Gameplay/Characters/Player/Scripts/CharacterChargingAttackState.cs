@@ -1,3 +1,4 @@
+using Game.Core.StateMachine;
 using UnityEngine;
 
 /// <summary>
@@ -17,10 +18,10 @@ public class CharacterChargingAttackState : IState
         this.animator = animator;
     }
 
-    public void Enter()
+    public void Enter(IStateMachine stateMachine)
     {
         // TODO: Charged attack
     }
 
-    public void Exit() { }
+    public void Exit(IStateMachine stateMachine) { }
 }

@@ -1,7 +1,10 @@
+using Game.Core.StateMachine;
+using UnityEngine;
+
 /// <summary>
 /// State for when the character is dashing.
 /// </summary>
-public class CharacterDashingState : IState
+public class CharacterDashingState : IMovementState
 {
     private DashComponent dashComponent;
     private CharacterAnimator animator;
@@ -13,15 +16,17 @@ public class CharacterDashingState : IState
         this.animator = animator;
     }
 
-    public void Enter()
+    public void Enter(IStateMachine stateMachine)
     {
         animator.SetMoving(false);
         animator.SetDashing(true);
         dashComponent.OnDash();
     }
 
-    public void Exit()
+    public void Exit(IStateMachine stateMachine)
     {
         animator.SetDashing(false);
     }
+
+    public void SetDirection(Vector2 direction) { }
 }

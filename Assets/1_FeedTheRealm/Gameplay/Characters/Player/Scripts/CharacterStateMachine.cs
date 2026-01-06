@@ -1,28 +1,23 @@
+using Game.Core.StateMachine;
 using UnityEngine;
 
 /// <summary>
 /// Manages the character's state machine, handling transitions based on input and state.
 /// </summary>
-public class CharacterStateMachine : MonoBehaviour
+public class CharacterStateMachine : MonoBehaviour, IStateMachine
 {
     [SerializeField]
+    private Logging.Logger logger;
+
+    /* Components */
     private MovementComponent movementComponent;
-
-    [SerializeField]
     private DashComponent dashComponent;
-
-    [SerializeField]
     private AttackComponent attackComponent;
-
-    [SerializeField]
     private GroundCheckComponent groundCheckComponent;
-
-    [SerializeField]
     private CharacterAnimator characterAnimator;
-
-    [SerializeField]
     private PlayerInteractComponent interactComponent;
 
+    /* States */
     private CharacterIdleState idleState;
     private CharacterMovingState movingState;
     private CharacterDashingState dashingState;
@@ -30,24 +25,57 @@ public class CharacterStateMachine : MonoBehaviour
     private CharacterChargingAttackState chargingAttackState;
     private CharacterInteractingState interactingState;
 
-    private IState currentMovementState;
-    private IState currentAttackState;
-    private Vector2 lastDirection;
+    /* State Layers - accessible by states */
+    public IMovementState CurrentMovementState { get; private set; }
+    public IActionState CurrentActionState { get; private set; }
+
+    private Vector2 lastDirection = Vector2.zero;
 
     private void Awake()
     {
+        movementComponent = GetComponentInChildren<MovementComponent>();
+        dashComponent = GetComponentInChildren<DashComponent>();
+        attackComponent = GetComponentInChildren<AttackComponent>();
+        groundCheckComponent = GetComponentInChildren<GroundCheckComponent>();
+        interactComponent = GetComponentInChildren<PlayerInteractComponent>();
+        characterAnimator = GetComponentInChildren<CharacterAnimator>();
+
         if (movementComponent == null)
-            movementComponent = GetComponentInChildren<MovementComponent>();
+            logger.Log(
+                "MovementComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (dashComponent == null)
-            dashComponent = GetComponentInChildren<DashComponent>();
+            logger.Log(
+                "DashComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (attackComponent == null)
-            attackComponent = GetComponentInChildren<AttackComponent>();
+            logger.Log(
+                "AttackComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (groundCheckComponent == null)
-            groundCheckComponent = GetComponentInChildren<GroundCheckComponent>();
+            logger.Log(
+                "GroundCheckComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (interactComponent == null)
-            interactComponent = GetComponentInChildren<PlayerInteractComponent>();
+            logger.Log(
+                "PlayerInteractComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (characterAnimator == null)
-            characterAnimator = GetComponentInChildren<CharacterAnimator>();
+            logger.Log(
+                "CharacterAnimator not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
 
         idleState = new CharacterIdleState(movementComponent, characterAnimator);
         movingState = new CharacterMovingState(movementComponent, characterAnimator);
@@ -59,15 +87,11 @@ public class CharacterStateMachine : MonoBehaviour
         );
         interactingState = new CharacterInteractingState(interactComponent, characterAnimator);
 
-        currentMovementState = idleState;
-        currentAttackState = null;
-        lastDirection = Vector2.zero;
-
         attackComponent.OnAttackFinished += OnAttackFinished;
         dashComponent.OnDashFinished += OnDashFinished;
         interactComponent.OnInteractFinished += OnInteractFinished;
 
-        currentMovementState.Enter();
+        SetMovementState(idleState);
     }
 
     private void OnDisable()
@@ -77,6 +101,20 @@ public class CharacterStateMachine : MonoBehaviour
         interactComponent.OnInteractFinished -= OnInteractFinished;
     }
 
+    public void SetMovementState(IMovementState newState)
+    {
+        CurrentMovementState?.Exit(this);
+        CurrentMovementState = newState;
+        CurrentMovementState?.Enter(this);
+    }
+
+    public void SetActionState(IActionState newState)
+    {
+        CurrentActionState?.Exit(this);
+        CurrentActionState = newState;
+        CurrentActionState?.Enter(this);
+    }
+
     /// <summary>
     /// Handles movement input.
     /// </summary>
@@ -84,22 +122,22 @@ public class CharacterStateMachine : MonoBehaviour
     {
         lastDirection = direction;
 
-        if (currentMovementState == dashingState || currentMovementState == chargingAttackState)
+        if (CurrentMovementState == dashingState || CurrentMovementState == chargingAttackState)
             return; // Cannot move while dashing or charging
 
         if (direction.sqrMagnitude > 0.01f)
         {
-            if (currentMovementState != movingState)
+            if (CurrentMovementState != movingState)
             {
-                ChangeMovementState(movingState);
+                SetMovementState(movingState);
             }
             movingState.SetDirection(direction);
         }
         else
         {
-            if (currentMovementState != idleState)
+            if (CurrentMovementState != idleState)
             {
-                ChangeMovementState(idleState);
+                SetMovementState(idleState);
             }
         }
     }
@@ -111,11 +149,11 @@ public class CharacterStateMachine : MonoBehaviour
     {
         if (
             groundCheckComponent.IsGrounded
-            && currentMovementState != dashingState
-            && currentMovementState != chargingAttackState
+            && CurrentMovementState != dashingState
+            && CurrentMovementState != chargingAttackState
         )
         {
-            ChangeMovementState(dashingState);
+            SetMovementState(dashingState);
         }
     }
 
@@ -125,40 +163,33 @@ public class CharacterStateMachine : MonoBehaviour
     public void OnAttack()
     {
         Debug.Log("State machine debug ATTACK");
-        if (currentMovementState != chargingAttackState && currentAttackState == null)
+        if (CurrentMovementState != chargingAttackState && CurrentActionState == null)
         {
-            attackState.Enter();
+            attackState.Enter(this);
         }
-    }
-
-    private void ChangeMovementState(IState newState)
-    {
-        currentMovementState.Exit();
-        currentMovementState = newState;
-        currentMovementState.Enter();
     }
 
     private void OnAttackFinished()
     {
-        if (currentAttackState == attackState)
+        if (CurrentActionState == attackState)
         {
-            attackState.Exit();
-            currentAttackState = null;
+            attackState.Exit(this);
+            CurrentActionState = null;
         }
     }
 
     private void OnDashFinished()
     {
-        if (currentMovementState == dashingState)
+        if (CurrentMovementState == dashingState)
         {
             if (lastDirection.sqrMagnitude > 0.01f)
             {
-                ChangeMovementState(movingState);
+                SetMovementState(movingState);
                 movingState.SetDirection(lastDirection);
             }
             else
             {
-                ChangeMovementState(idleState);
+                SetMovementState(idleState);
             }
         }
     }
@@ -168,20 +199,20 @@ public class CharacterStateMachine : MonoBehaviour
     /// </summary>
     public void OnInteract()
     {
-        ChangeMovementState(interactingState);
+        SetActionState(interactingState);
     }
 
     private void OnInteractFinished()
     {
-        if (currentMovementState != interactingState)
+        if (CurrentMovementState != interactingState)
             return;
 
         if (lastDirection.sqrMagnitude > 0.01f)
         {
-            ChangeMovementState(movingState);
+            SetMovementState(movingState);
             movingState.SetDirection(lastDirection);
             return;
         }
-        ChangeMovementState(idleState);
+        SetMovementState(idleState);
     }
 }
