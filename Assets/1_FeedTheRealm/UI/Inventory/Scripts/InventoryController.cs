@@ -196,9 +196,6 @@ public class InventoryController : MonoBehaviour
 
     /// <summary>
     /// Add item to inventory by item ID.
-    ///
-    /// At runtime, itemId is expected to be a world spriteId coming
-    /// from loot/world data. Non-world IDs are currently ignored.
     /// </summary>
     public void AddItemById(string itemId)
     {
@@ -208,19 +205,20 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // If this ID belongs to a world-defined item (spriteId), use the
-        // world item path (world-driven system).
-        if (Worlds.WorldItemsRegistry.IsWorldItem(itemId))
+        // Lookup item data by id
+        var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
+        if (consumable == null)
         {
-            AddWorldItemBySpriteId(itemId);
+            logger.Log(
+                $"Cannot add item: itemId '{itemId}' not found in registry",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
-        // Non-world item IDs are not supported in the new system.
-        logger.Log(
-            $"Ignoring AddItemById for non-world itemId='{itemId}'. World items are driven by WorldItemsRegistry.",
-            this,
-            Logging.LogType.Warning
-        );
+
+        // Download sprite and add to inventory
+        AddItemBySpriteWithId(consumable.spriteId, itemId);
     }
 
     /// <summary>
@@ -249,35 +247,32 @@ public class InventoryController : MonoBehaviour
     }
 
     /// <summary>
-    /// Add item to inventory using a world spriteId as identifier.
-    /// Uses ItemAssetsService directly and stores spriteId as itemId for tooltips.
+    /// Add item to inventory by spriteId with itemId (enables tooltip functionality).
+    /// Downloads the sprite and adds the item to the first empty slot.
     /// </summary>
-    public void AddWorldItemBySpriteId(string spriteId)
+    private void AddItemBySpriteWithId(string spriteId, string itemId)
     {
         if (string.IsNullOrEmpty(spriteId))
         {
-            logger.Log(
-                "Cannot add world item: spriteId is null or empty",
-                this,
-                Logging.LogType.Warning
-            );
+            logger.Log("Cannot add item: spriteId is null or empty", this, Logging.LogType.Warning);
             return;
         }
-
         if (itemAssetsService == null)
         {
             logger.Log(
-                "Cannot add world item: ItemAssetsService reference is missing",
+                "Cannot add item: ItemAssetsService reference is missing",
                 this,
                 Logging.LogType.Error
             );
             return;
         }
-
-        StartCoroutine(AddWorldItemBySpriteIdCoroutine(spriteId));
+        StartCoroutine(AddItemBySpriteWithIdCoroutine(spriteId, itemId));
     }
 
-    private System.Collections.IEnumerator AddWorldItemBySpriteIdCoroutine(string spriteId)
+    private System.Collections.IEnumerator AddItemBySpriteWithIdCoroutine(
+        string spriteId,
+        string itemId
+    )
     {
         Texture2D texture = null;
         bool completed = false;
@@ -301,46 +296,26 @@ public class InventoryController : MonoBehaviour
                 new Vector2(0.5f, 0.5f)
             );
 
-            // Use spriteId as the logical itemId so tooltips/integration
-            // can identify this as a world item.
-            AddItemBySpriteWithId(sprite, spriteId);
+            foreach (var slot in slots)
+            {
+                if (slot.childCount == 0)
+                {
+                    CreateItemElement(sprite, slot, itemId);
+                    logger.Log($"Item added to inventory with ID: {itemId}", this);
+                    yield break;
+                }
+            }
 
-            var consumable = Worlds.WorldItemsRegistry.GetConsumableBySpriteId(spriteId);
-            string debugName = consumable != null ? consumable.name : spriteId;
-            logger.Log($"World item added to inventory: {debugName} ({spriteId})", this);
+            logger.Log("Inventory full, cannot add more items", this, Logging.LogType.Warning);
         }
         else
         {
             logger.Log(
-                $"Failed to load world item sprite for spriteId: {spriteId}",
+                $"Failed to load item sprite for spriteId: {spriteId}",
                 this,
                 Logging.LogType.Error
             );
         }
-    }
-
-    /// <summary>
-    /// Add item to inventory by sprite with itemId (enables tooltip functionality).
-    /// </summary>
-    private void AddItemBySpriteWithId(Sprite itemSprite, string itemId)
-    {
-        if (itemSprite == null)
-        {
-            logger.Log("Cannot add item: sprite is null", this, Logging.LogType.Warning);
-            return;
-        }
-
-        foreach (var slot in slots)
-        {
-            if (slot.childCount == 0)
-            {
-                CreateItemElement(itemSprite, slot, itemId);
-                logger.Log($"Item added to inventory with ID: {itemId}", this);
-                return;
-            }
-        }
-
-        logger.Log("Inventory full, cannot add more items", this, Logging.LogType.Warning);
     }
 
     private void CreateItemElement(Sprite itemSprite, VisualElement parentSlot, string itemId)

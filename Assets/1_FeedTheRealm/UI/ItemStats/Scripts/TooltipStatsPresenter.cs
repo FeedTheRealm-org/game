@@ -28,7 +28,7 @@ namespace UI.ItemStats
             maxStackLabel = maxStack;
         }
 
-        public void ShowConsumableStats(Models.ConsumableItem consumable)
+        public void ShowConsumableStats(Models.ConsumableItemData consumable)
         {
             if (effectLabel != null)
             {

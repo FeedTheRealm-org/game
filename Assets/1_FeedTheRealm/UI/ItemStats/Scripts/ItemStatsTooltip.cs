@@ -131,13 +131,12 @@ public class ItemStatsTooltip : MonoBehaviour
             return;
         }
 
-        // World-driven items: treat itemId as spriteId and use
-        // consumable data from the current world.
-        var consumable = Worlds.WorldItemsRegistry.GetConsumableBySpriteId(itemId);
+        // Lookup consumable by item id
+        var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
         if (consumable == null)
         {
             logger?.Log(
-                $"Item not found in WorldItemsRegistry for spriteId: {itemId}",
+                $"Item not found in WorldItemsRegistry for itemId: {itemId}",
                 this,
                 Logging.LogType.Warning
             );
@@ -173,7 +172,7 @@ public class ItemStatsTooltip : MonoBehaviour
     /// Populate tooltip from world-defined consumable item data.
     /// Uses name/description from the world instead of metadata.
     /// </summary>
-    private void PopulateTooltipDataFromConsumable(Models.ConsumableItem consumable)
+    private void PopulateTooltipDataFromConsumable(Models.ConsumableItemData consumable)
     {
         if (consumable == null)
         {

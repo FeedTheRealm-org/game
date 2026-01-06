@@ -218,50 +218,51 @@ public class LootDropper : MonoBehaviour
         // For now, if spawn areas don't specify an enemy, use the first one.
         EnemyData enemyData = worldData.enemies[0];
 
-        if (enemyData.lootItems == null || enemyData.lootItems.Count == 0)
+        if (
+            enemyData.lootTable == null
+            || enemyData.lootTable.lootItems == null
+            || enemyData.lootTable.lootItems.Count == 0
+        )
         {
             logger?.Log(
-                $"[LootDropper] Enemy '{enemyData.name}' has no lootItems configured.",
+                $"[LootDropper] Enemy '{enemyData.name}' has no lootTable or lootItems configured.",
                 this,
                 Logging.LogType.Warning
             );
             return result;
         }
 
-        foreach (EnemyLootItem loot in enemyData.lootItems)
+        foreach (LootEntryData loot in enemyData.lootTable.lootItems)
         {
             if (loot == null)
             {
                 continue;
             }
 
-            if (loot.dropChance <= 0 || string.IsNullOrEmpty(loot.spriteId))
+            if (loot.dropProbability <= 0 || string.IsNullOrEmpty(loot.id))
             {
                 continue;
             }
 
             int roll = UnityEngine.Random.Range(0, 100);
-            if (roll >= loot.dropChance)
+            if (roll >= loot.dropProbability)
             {
                 logger?.Log(
-                    $"[LootDropper] Loot '{loot.itemName}' (spriteId={loot.spriteId}) did not drop. Roll={roll}, chance={loot.dropChance}",
+                    $"[LootDropper] Loot '{loot.name}' (id={loot.id}) did not drop. Roll={roll}, chance={loot.dropProbability}",
                     this
                 );
                 continue;
             }
 
-            int max = Mathf.Max(1, Mathf.FloorToInt(loot.maxAmount));
-            int count = UnityEngine.Random.Range(1, max + 1);
+            // For compatibility, drop at least one, but you can add a maxAmount field to LootEntryData if needed
+            int count = 1;
 
             for (int i = 0; i < count; i++)
             {
-                result.Add(loot.spriteId);
+                result.Add(loot.id);
             }
 
-            logger?.Log(
-                $"[LootDropper] Loot '{loot.itemName}' (spriteId={loot.spriteId}) dropped x{count}.",
-                this
-            );
+            logger?.Log($"[LootDropper] Loot '{loot.name}' (id={loot.id}) dropped x{count}.", this);
         }
 
         if (result.Count == 0)

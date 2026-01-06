@@ -114,30 +114,24 @@ public class LootItem : NetworkBehaviour
     {
         logger?.Log($"[LootItem] Updating visuals for {_itemIds.Count} items", this);
 
-        // Here you could update the loot bag visual based on the items.
-        // The system uses world-defined items identified by
-        // spriteId (WorldItemsRegistry).
+        // Now items are identified by their unique item id (not spriteId)
         foreach (var itemId in _itemIds)
         {
-            // World-defined item (spriteId coming from WorldData)
-            if (Worlds.WorldItemsRegistry.IsWorldItem(itemId))
+            var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
+            if (consumable != null)
             {
-                var consumable = Worlds.WorldItemsRegistry.GetConsumableBySpriteId(itemId);
-                if (consumable != null)
-                {
-                    logger?.Log(
-                        $"[LootItem] Contains world item: {consumable.name} (spriteId={itemId})",
-                        this
-                    );
-                }
-                else
-                {
-                    logger?.Log(
-                        $"[LootItem] World item spriteId in bag but no consumable found: {itemId}",
-                        this,
-                        Logging.LogType.Warning
-                    );
-                }
+                logger?.Log(
+                    $"[LootItem] Contains world item: {consumable.name} (id={itemId})",
+                    this
+                );
+            }
+            else
+            {
+                logger?.Log(
+                    $"[LootItem] Item id in bag but no consumable found: {itemId}",
+                    this,
+                    Logging.LogType.Warning
+                );
             }
         }
     }
