@@ -263,6 +263,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d4c9583a724961068894efa45cac342e, type: 3}
+--- !u!114 &46665259 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -3149058110524694792, guid: d4c9583a724961068894efa45cac342e, type: 3}
+  m_PrefabInstance: {fileID: 46665258}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22bf0e44569155347b7e5bee60bcf9c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FeedTheRealm_Shared::SettingsMenuController
 --- !u!1 &384360887
 GameObject:
   m_ObjectHideFlags: 0
@@ -1649,7 +1660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5f841f2aacffa559f373074a838bd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
-  settingsMenu: {fileID: 0}
+  settingsMenu: {fileID: 46665259}
   inventoryMenu: {fileID: 1368786327}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
