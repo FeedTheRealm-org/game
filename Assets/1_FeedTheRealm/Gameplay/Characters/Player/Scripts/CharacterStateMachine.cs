@@ -81,53 +81,67 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
 
         movementStates.Add(
             typeof(CharacterIdleState),
-            new CharacterIdleState(movementComponent, characterAnimator)
+            new CharacterIdleState(this, movementComponent, characterAnimator)
         );
         movementStates.Add(
             typeof(CharacterMovingState),
-            new CharacterMovingState(movementComponent, characterAnimator)
+            new CharacterMovingState(this, movementComponent, characterAnimator)
         );
         movementStates.Add(
             typeof(CharacterDashingState),
-            new CharacterDashingState(dashComponent, characterAnimator)
+            new CharacterDashingState(this, dashComponent, characterAnimator)
         );
         actionStates.Add(
             typeof(CharacterAttackState),
-            new CharacterAttackState(attackComponent, characterAnimator)
+            new CharacterAttackState(this, attackComponent, characterAnimator)
         );
         actionStates.Add(
             typeof(CharacterChargingAttackState),
-            new CharacterChargingAttackState(movementComponent, characterAnimator)
+            new CharacterChargingAttackState(this, movementComponent, characterAnimator)
         );
         actionStates.Add(
             typeof(CharacterInteractingState),
-            new CharacterInteractingState(interactComponent, characterAnimator)
+            new CharacterInteractingState(this, interactComponent, characterAnimator)
         );
-
-        // attackComponent.OnAttackFinished += OnAttackFinished;
-        // interactComponent.OnInteractFinished += OnInteractFinished;
 
         SetMovementState(movementStates[typeof(CharacterIdleState)]);
     }
 
+    private void OnDestroy()
+    {
+        foreach (var state in movementStates.Values)
+        {
+            state.Dispose();
+        }
+        movementStates.Clear();
+
+        foreach (var state in actionStates.Values)
+        {
+            state.Dispose();
+        }
+        actionStates.Clear();
+    }
+
     public void SetMovementState(IMovementState newState)
     {
-        CurrentMovementState?.Exit(this);
+        CurrentMovementState?.Exit();
         CurrentMovementState = newState;
-        CurrentMovementState?.Enter(this);
+        CurrentMovementState?.Enter();
         CurrentMovementState.SetDirection(lastDirection);
     }
 
     public void SetActionState(IActionState newState)
     {
-        CurrentActionState?.Exit(this);
+        CurrentActionState?.Exit();
         CurrentActionState = newState;
-        CurrentActionState?.Enter(this);
+        CurrentActionState?.Enter();
     }
 
     public void ToggleBlockMovement(bool shouldBlock)
     {
         isMovementBlocked = shouldBlock;
+        if (isMovementBlocked)
+            SetMovementState(movementStates[typeof(CharacterIdleState)]);
     }
 
     public void ToggleBlockAction(bool shouldBlock)
@@ -156,7 +170,6 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     /// </summary>
     public void OnMove(Vector2 direction)
     {
-        Debug.Log("OnMove called with direction: " + direction);
         if (isMovementBlocked)
             return;
 

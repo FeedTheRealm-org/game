@@ -54,7 +54,10 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
         }
 
         if (closestInteractable == null)
+        {
+            FinishInteracting();
             return;
+        }
 
         logger.Log("Interacting with: " + closestInteractable, this);
         closestInteractable.Interact(this);

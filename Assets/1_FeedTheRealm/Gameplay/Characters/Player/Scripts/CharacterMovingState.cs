@@ -12,39 +12,42 @@ public class CharacterMovingState : IMovementState
     private MovementComponent movementComponent;
     private CharacterAnimator animator;
 
-    public CharacterMovingState(MovementComponent movementComponent, CharacterAnimator animator)
+    public CharacterMovingState(
+        IStateMachine sm,
+        MovementComponent movementComponent,
+        CharacterAnimator animator
+    )
     {
         this.movementComponent = movementComponent;
         this.animator = animator;
+        this.stateMachine = sm;
     }
 
-    public void Enter(IStateMachine stateMachine)
+    public void Enter()
     {
         animator.SetMoving(true);
         animator.SetDashing(false);
-
-        if (this.stateMachine == null)
-            this.stateMachine = stateMachine;
     }
 
-    public void Exit(IStateMachine stateMachine)
-    {
-        if (this.stateMachine != null)
-            this.stateMachine = null;
-    }
+    public void Exit() { }
 
     public void SetDirection(Vector2 direction)
     {
         if (!VectorTransformations.IsMovementMagnitude(direction))
         {
-            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterIdleState));
-            stateMachine?.SetMovementState(nextState);
-            Debug.Log("Switching to Idle State from Moving State");
+            var nextState = stateMachine.GetMovementStateByType(typeof(CharacterIdleState));
+            stateMachine.SetMovementState(nextState);
             return;
         }
 
-        Debug.Log("Character is moving in direction: " + direction);
         movementComponent.OnMove(direction);
         animator.SetDirection(direction);
+    }
+
+    public void Dispose()
+    {
+        stateMachine = null;
+        movementComponent = null;
+        animator = null;
     }
 }

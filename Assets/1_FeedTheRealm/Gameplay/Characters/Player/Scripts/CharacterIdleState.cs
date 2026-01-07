@@ -12,34 +12,39 @@ public class CharacterIdleState : IMovementState
     private MovementComponent movementComponent;
     private CharacterAnimator animator;
 
-    public CharacterIdleState(MovementComponent movementComponent, CharacterAnimator animator)
+    public CharacterIdleState(
+        IStateMachine sm,
+        MovementComponent movementComponent,
+        CharacterAnimator animator
+    )
     {
         this.movementComponent = movementComponent;
         this.animator = animator;
+        this.stateMachine = sm;
     }
 
-    public void Enter(IStateMachine stateMachine)
+    public void Enter()
     {
         animator.SetMoving(false);
         animator.SetDashing(false);
         movementComponent.OnMove(Vector2.zero);
-
-        if (this.stateMachine == null)
-            this.stateMachine = stateMachine;
     }
 
-    public void Exit(IStateMachine stateMachine)
-    {
-        if (this.stateMachine != null)
-            this.stateMachine = null;
-    }
+    public void Exit() { }
 
     public void SetDirection(Vector2 direction)
     {
         if (VectorTransformations.IsMovementMagnitude(direction))
         {
-            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterMovingState));
-            stateMachine?.SetMovementState(nextState);
+            var nextState = stateMachine.GetMovementStateByType(typeof(CharacterMovingState));
+            stateMachine.SetMovementState(nextState);
         }
+    }
+
+    public void Dispose()
+    {
+        stateMachine = null;
+        movementComponent = null;
+        animator = null;
     }
 }

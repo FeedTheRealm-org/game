@@ -8,38 +8,47 @@ public class CharacterInteractingState : IActionState
 {
     private IStateMachine stateMachine;
 
-    private PlayerInteractComponent _interactComponent;
-    private CharacterAnimator _animator;
+    private PlayerInteractComponent interactComponent;
+    private CharacterAnimator animator;
 
     public CharacterInteractingState(
-        PlayerInteractComponent movementComponent,
+        IStateMachine sm,
+        PlayerInteractComponent interactComponent,
         CharacterAnimator animator
     )
     {
-        _interactComponent = movementComponent;
-        _animator = animator;
+        this.interactComponent = interactComponent;
+        this.animator = animator;
+        this.stateMachine = sm;
     }
 
-    public void Enter(IStateMachine stateMachine)
+    public void Enter()
     {
-        _interactComponent.OnInteractFinished += OnInteractFinished;
-        _interactComponent.OnInteract();
-
-        if (this.stateMachine == null)
-        {
-            this.stateMachine = stateMachine;
-        }
+        interactComponent.OnInteractFinished += OnInteractFinished;
+        stateMachine.ToggleBlockMovement(true);
+        stateMachine.ToggleBlockAction(true);
+        interactComponent.OnInteract();
+        Debug.Log("BLOCK");
     }
 
-    public void Exit(IStateMachine stateMachine)
+    public void Exit()
     {
-        _interactComponent.OnInteractFinished -= OnInteractFinished;
-        if (this.stateMachine != null)
-            this.stateMachine = null;
+        interactComponent.OnInteractFinished -= OnInteractFinished;
+        stateMachine.ToggleBlockMovement(false);
+        stateMachine.ToggleBlockAction(false);
+        Debug.Log("UNBLOCK");
     }
 
     private void OnInteractFinished()
     {
-        stateMachine?.SetActionState(null);
+        Debug.Log("Interaction finished.");
+        stateMachine.SetActionState(null);
+    }
+
+    public void Dispose()
+    {
+        stateMachine = null;
+        interactComponent = null;
+        animator = null;
     }
 }

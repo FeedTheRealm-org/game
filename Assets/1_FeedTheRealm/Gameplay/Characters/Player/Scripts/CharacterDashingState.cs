@@ -15,30 +15,29 @@ public class CharacterDashingState : IMovementState
 
     private Vector2 lastDirection;
 
-    public CharacterDashingState(DashComponent dashComponent, CharacterAnimator animator)
+    public CharacterDashingState(
+        IStateMachine sm,
+        DashComponent dashComponent,
+        CharacterAnimator animator
+    )
     {
         this.dashComponent = dashComponent;
         this.animator = animator;
+        this.stateMachine = sm;
     }
 
-    public void Enter(IStateMachine stateMachine)
+    public void Enter()
     {
         animator.SetMoving(false);
         animator.SetDashing(true);
         dashComponent.OnDashFinished += OnDashFinished;
         dashComponent.OnDash();
-
-        if (this.stateMachine == null)
-            this.stateMachine = stateMachine;
     }
 
-    public void Exit(IStateMachine stateMachine)
+    public void Exit()
     {
         animator.SetDashing(false);
         dashComponent.OnDashFinished -= OnDashFinished;
-
-        if (this.stateMachine != null)
-            this.stateMachine = null;
     }
 
     public void SetDirection(Vector2 direction)
@@ -48,18 +47,23 @@ public class CharacterDashingState : IMovementState
 
     private void OnDashFinished()
     {
+        IMovementState nextState;
         if (VectorTransformations.IsMovementMagnitude(lastDirection))
         {
-            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterMovingState));
-            stateMachine?.SetMovementState(nextState);
-            stateMachine?.CurrentMovementState.SetDirection(lastDirection);
+            nextState = stateMachine.GetMovementStateByType(typeof(CharacterMovingState));
+            stateMachine.SetMovementState(nextState);
+            stateMachine.CurrentMovementState.SetDirection(lastDirection);
             return;
         }
-        else
-        {
-            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterIdleState));
-            stateMachine?.SetMovementState(nextState);
-            return;
-        }
+        nextState = stateMachine.GetMovementStateByType(typeof(CharacterIdleState));
+        stateMachine.SetMovementState(nextState);
+        return;
+    }
+
+    public void Dispose()
+    {
+        stateMachine = null;
+        dashComponent = null;
+        animator = null;
     }
 }

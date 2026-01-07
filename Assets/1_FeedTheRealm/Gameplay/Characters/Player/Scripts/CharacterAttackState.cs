@@ -8,34 +8,40 @@ public class CharacterAttackState : IActionState
     private CharacterAnimator animator;
     private bool attackTriggered;
 
-    public CharacterAttackState(AttackComponent attackComponent, CharacterAnimator animator)
+    public CharacterAttackState(
+        IStateMachine sm,
+        AttackComponent attackComponent,
+        CharacterAnimator animator
+    )
     {
         this.attackComponent = attackComponent;
         this.animator = animator;
+        this.stateMachine = sm;
     }
 
-    public void Enter(IStateMachine stateMachine)
+    public void Enter()
     {
         attackComponent.OnAttackFinished += OnAttackFinished;
         attackComponent.OnAttack();
         animator.SetAction(true);
         animator.PlayAttack();
-
-        if (this.stateMachine == null)
-            this.stateMachine = stateMachine;
     }
 
-    public void Exit(IStateMachine stateMachine)
+    public void Exit()
     {
         animator.SetAction(false);
         attackComponent.OnAttackFinished -= OnAttackFinished;
-
-        if (this.stateMachine != null)
-            this.stateMachine = null;
     }
 
     private void OnAttackFinished()
     {
-        stateMachine?.SetActionState(null);
+        stateMachine.SetActionState(null);
+    }
+
+    public void Dispose()
+    {
+        stateMachine = null;
+        attackComponent = null;
+        animator = null;
     }
 }
