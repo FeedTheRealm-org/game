@@ -23,13 +23,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: csharpier-check
-        name: CSharpier (verify formatting)
-        entry: dotnet tool run csharpier check
-        language: system
-        files: \.cs$
-        pass_filenames: true
-
       - id: csharpier-format
         name: CSharpier (auto-format)
         entry: dotnet tool run csharpier format
