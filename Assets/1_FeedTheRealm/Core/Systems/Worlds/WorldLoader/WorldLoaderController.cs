@@ -196,9 +196,27 @@ public class WorldLoaderController : MonoBehaviour
             Vector3 targetPosition = enemySpawnAreaData.Position;
             Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
             GameObject spawnInstance = Instantiate(enemySpawnPrefab, spawnPos, Quaternion.identity);
-            spawnInstance.SetActive(true);
 
-            logger.Log($"[WorldLoaderController] Placed enemy spawn area at {spawnPos}.", this);
+            // Configure the spawn with data from world
+            EnemySpawn spawnComponent = spawnInstance.GetComponent<EnemySpawn>();
+            if (spawnComponent != null)
+            {
+                spawnComponent.ConfigureFromSpawnData(enemySpawnAreaData);
+            }
+            else
+            {
+                logger.Log(
+                    "[WorldLoaderController] Enemy spawn prefab missing EnemySpawn component!",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
+
+            spawnInstance.SetActive(true);
+            logger.Log(
+                $"[WorldLoaderController] Placed enemy spawn area at {spawnPos} with radius {enemySpawnAreaData.Radius}.",
+                this
+            );
         }
         // since we instantiated models for loading, we need to clean them up
         foreach (GameObject modelInstance in cleanup)

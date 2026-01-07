@@ -48,6 +48,10 @@ public class LootItem : NetworkBehaviour
     // SyncList to synchronize item IDs between server and clients
     private readonly SyncList<string> _itemIds = new SyncList<string>();
 
+    // Gold amount contained in this loot bag (server-authoritative)
+    [SyncVar]
+    private int _goldAmount;
+
     private SphereCollider _triggerCollider;
 
     // Prevent multiple simultaneous pickups
@@ -57,6 +61,22 @@ public class LootItem : NetworkBehaviour
     // Delay to avoid immediate loot after spawn
     private float _spawnTime;
     private bool _isLootable = false;
+
+    /// <summary>
+    /// Sets the gold amount contained in this loot bag. Only the server should call this.
+    /// </summary>
+    [Server]
+    public void SetGoldAmount(int amount)
+    {
+        if (!isServer)
+        {
+            return;
+        }
+
+        _goldAmount = Mathf.Max(0, amount);
+
+        logger?.Log($"[LootItem] Gold amount set to {_goldAmount}", this);
+    }
 
     public override void OnStartServer()
     {
@@ -233,10 +253,10 @@ public class LootItem : NetworkBehaviour
     {
         bool isNetworked = NetworkClient.active || NetworkServer.active;
 
-        if (_itemIds.Count == 0)
+        if (_itemIds.Count == 0 && _goldAmount <= 0)
         {
             logger?.Log(
-                $"[LootItem] Bag is empty, {(isNetworked ? "despawning" : "destroying")}",
+                $"[LootItem] Bag is empty (no items or gold), {(isNetworked ? "despawning" : "destroying")}",
                 this
             );
             if (isNetworked)
@@ -249,24 +269,49 @@ public class LootItem : NetworkBehaviour
         // Get all items from the bag
         List<string> itemsToTransfer = new List<string>(_itemIds);
 
-        logger?.Log($"[LootItem] Transferring {itemsToTransfer.Count} items to player", this);
+        int goldToTransfer = _goldAmount;
 
-        // Clear the bag
+        logger?.Log(
+            $"[LootItem] Transferring {itemsToTransfer.Count} items and {goldToTransfer} gold to player",
+            this
+        );
+
+        // Clear the bag contents on server/local
         _itemIds.Clear();
+        _goldAmount = 0;
 
         if (isNetworked)
         {
-            // Networked: Get identity and use TargetRpc
+            // Networked: Get identity and use TargetRpc for items; gold is handled server-side
             NetworkIdentity playerIdentity = inventoryRef.GetComponent<NetworkIdentity>();
             if (playerIdentity != null)
             {
+                // Add gold to the player's gold component on the server
+                PlayerGold playerGold = inventoryRef.GetComponent<PlayerGold>();
+                if (playerGold != null)
+                {
+                    playerGold.AddGold(goldToTransfer);
+                    logger?.Log(
+                        $"[LootItem] SERVER - Added {goldToTransfer} gold to player {playerIdentity.netId}",
+                        this
+                    );
+                }
+                else if (goldToTransfer > 0)
+                {
+                    logger?.Log(
+                        "[LootItem] SERVER - PlayerGold component not found on player while transferring gold.",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                }
+
                 TargetReceiveLoot(playerIdentity.connectionToClient, itemsToTransfer);
             }
             NetworkServer.Destroy(gameObject);
         }
         else
         {
-            // Local: Add items directly
+            // Local (non-networked): Add items directly and apply gold locally
             InventoryController inventory = inventoryRef.GetInventory();
             if (inventory == null)
             {
@@ -300,6 +345,14 @@ public class LootItem : NetworkBehaviour
                 $"[LootItem] LOCAL - Successfully added {itemsAdded} items to inventory",
                 this
             );
+
+            // Local gold handling: if there is a PlayerGold component, update it as well
+            PlayerGold localPlayerGold = inventoryRef.GetComponent<PlayerGold>();
+            if (localPlayerGold != null)
+            {
+                localPlayerGold.AddGold(goldToTransfer);
+                logger?.Log($"[LootItem] LOCAL - Added {goldToTransfer} gold to player.", this);
+            }
 
             // Destroy the loot bag
             Destroy(gameObject);

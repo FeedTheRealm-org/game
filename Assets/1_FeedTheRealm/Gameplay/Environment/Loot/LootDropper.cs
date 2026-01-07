@@ -144,8 +144,9 @@ public class LootDropper : MonoBehaviour
         // Initialize position (does not touch SyncList)
         lootItem.Initialize(spawnPosition);
 
-        // Determine if we are in a multiplayer context
+        // Determine item IDs and gold amount for this loot bag
         List<string> lootItemIds = GetRandomLootItems();
+        int goldAmount = GetRandomGoldAmount();
         bool isMultiplayer = NetworkServer.active || NetworkClient.active;
 
         if (isMultiplayer)
@@ -167,7 +168,7 @@ public class LootDropper : MonoBehaviour
             logger?.Log($"[LootDropper] Loot spawned as NetworkIdentity at {spawnPosition}", this);
         }
 
-        // Configure the items AFTER the NetworkIdentity has been spawned
+        // Configure items and gold AFTER the NetworkIdentity has been spawned
         if (lootItemIds != null && lootItemIds.Count > 0)
         {
             lootItem.SetItemIds(lootItemIds);
@@ -179,10 +180,16 @@ public class LootDropper : MonoBehaviour
         else
         {
             logger?.Log(
-                "[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!",
+                "[LootDropper] WARNING: No items obtained for loot bag - loot will contain only gold (if any).",
                 this,
                 Logging.LogType.Warning
             );
+        }
+
+        if (goldAmount > 0)
+        {
+            lootItem.SetGoldAmount(goldAmount);
+            logger?.Log($"[LootDropper] Configured loot with {goldAmount} gold.", this);
         }
     }
 
@@ -275,6 +282,51 @@ public class LootDropper : MonoBehaviour
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Get a random gold amount for this loot drop based on the enemy's loot table configuration.
+    /// Returns an integer between minGoldDropAmount and maxGoldDropAmount (inclusive).
+    /// If loot table is not configured or max <= 0, returns 0.
+    /// </summary>
+    private int GetRandomGoldAmount()
+    {
+        var worldData = Worlds.WorldItemsRegistry.CurrentWorldData;
+
+        if (worldData == null || worldData.enemies == null || worldData.enemies.Count == 0)
+        {
+            return 0;
+        }
+
+        // For now, mirror the same enemy selection logic as GetRandomLootItems (first enemy)
+        EnemyData enemyData = worldData.enemies[0];
+
+        if (enemyData == null || enemyData.lootTable == null)
+        {
+            return 0;
+        }
+
+        int minGold = Mathf.Max(0, enemyData.lootTable.minGoldDropAmount);
+        int maxGold = Mathf.Max(0, enemyData.lootTable.maxGoldDropAmount);
+
+        if (maxGold <= 0)
+        {
+            return 0;
+        }
+
+        if (minGold > maxGold)
+        {
+            // Swap if misconfigured
+            int temp = minGold;
+            minGold = maxGold;
+            maxGold = temp;
+        }
+
+        int gold = UnityEngine.Random.Range(minGold, maxGold + 1);
+
+        logger?.Log($"[LootDropper] Gold roll between {minGold} and {maxGold}: {gold}", this);
+
+        return gold;
     }
 
 #if UNITY_EDITOR

@@ -220,6 +220,22 @@ public class ServerWorldLoader : NetworkBehaviour
                     spawnPos,
                     Quaternion.identity
                 );
+
+                // Configure the spawn with data from world
+                EnemySpawn spawnComponent = spawnInstance.GetComponent<EnemySpawn>();
+                if (spawnComponent != null)
+                {
+                    spawnComponent.ConfigureFromSpawnData(area);
+                }
+                else
+                {
+                    logger?.Log(
+                        "[ServerWorldLoader] Enemy spawn prefab missing EnemySpawn component!",
+                        this,
+                        Logging.LogType.Error
+                    );
+                }
+
                 spawnInstance.SetActive(true);
             }
             logger?.Log(
