@@ -205,7 +205,6 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // Lookup item data by id
         var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
         if (consumable == null)
         {
@@ -217,8 +216,17 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // Download sprite and add to inventory
-        AddItemBySpriteWithId(consumable.spriteId, itemId);
+        if (itemAssetsService == null)
+        {
+            logger.Log(
+                "Cannot add item: ItemAssetsService reference is missing",
+                this,
+                Logging.LogType.Error
+            );
+            return;
+        }
+
+        AddItemBySpriteWithId(itemId, itemId);
     }
 
     /// <summary>
@@ -248,7 +256,7 @@ public class InventoryController : MonoBehaviour
 
     /// <summary>
     /// Add item to inventory by spriteId with itemId (enables tooltip functionality).
-    /// Downloads the sprite and adds the item to the first empty slot.
+    /// Downloads the sprite (with cache in ItemAssetsService) and adds it to the first empty slot.
     /// </summary>
     private void AddItemBySpriteWithId(string spriteId, string itemId)
     {
