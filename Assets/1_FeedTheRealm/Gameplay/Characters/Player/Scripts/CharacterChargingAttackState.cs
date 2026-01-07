@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// State for when the character is charging an attack.
 /// </summary>
-public class CharacterChargingAttackState : IState
+public class CharacterChargingAttackState : IActionState
 {
     private MovementComponent movementComponent;
     private CharacterAnimator animator;

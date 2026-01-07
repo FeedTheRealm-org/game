@@ -6,6 +6,8 @@ using UnityEngine;
 /// </summary>
 public class CharacterInteractingState : IActionState
 {
+    private IStateMachine stateMachine;
+
     private PlayerInteractComponent _interactComponent;
     private CharacterAnimator _animator;
 
@@ -20,8 +22,24 @@ public class CharacterInteractingState : IActionState
 
     public void Enter(IStateMachine stateMachine)
     {
+        _interactComponent.OnInteractFinished += OnInteractFinished;
         _interactComponent.OnInteract();
+
+        if (this.stateMachine == null)
+        {
+            this.stateMachine = stateMachine;
+        }
     }
 
-    public void Exit(IStateMachine stateMachine) { }
+    public void Exit(IStateMachine stateMachine)
+    {
+        _interactComponent.OnInteractFinished -= OnInteractFinished;
+        if (this.stateMachine != null)
+            this.stateMachine = null;
+    }
+
+    private void OnInteractFinished()
+    {
+        stateMachine?.SetActionState(null);
+    }
 }
