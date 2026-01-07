@@ -28,7 +28,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     public IMovementState CurrentMovementState { get; private set; }
     public IActionState CurrentActionState { get; private set; }
 
-    private Vector2 lastDirection = Vector2.zero;
+    private Vector2 lastDirection;
 
     private bool isMovementBlocked;
     private bool isActionBlocked;
@@ -115,6 +115,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         CurrentMovementState?.Exit(this);
         CurrentMovementState = newState;
         CurrentMovementState?.Enter(this);
+        CurrentMovementState.SetDirection(lastDirection);
     }
 
     public void SetActionState(IActionState newState)
@@ -134,7 +135,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         isActionBlocked = shouldBlock;
     }
 
-    public IMovementState GetMovementStateFromType(System.Type type)
+    public IMovementState GetMovementStateByType(System.Type type)
     {
         var ok = movementStates.TryGetValue(type, out IMovementState state);
         if (!ok)
@@ -142,7 +143,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         return state;
     }
 
-    public IActionState GetActionStateFromType(System.Type type)
+    public IActionState GetActionStateByType(System.Type type)
     {
         var ok = actionStates.TryGetValue(type, out IActionState state);
         if (!ok)
@@ -155,6 +156,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     /// </summary>
     public void OnMove(Vector2 direction)
     {
+        Debug.Log("OnMove called with direction: " + direction);
         if (isMovementBlocked)
             return;
 

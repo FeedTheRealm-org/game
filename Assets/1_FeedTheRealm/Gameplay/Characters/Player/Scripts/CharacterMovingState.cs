@@ -37,11 +37,13 @@ public class CharacterMovingState : IMovementState
     {
         if (!VectorTransformations.IsMovementMagnitude(direction))
         {
-            var nextState = stateMachine?.GetMovementStateFromType(typeof(CharacterIdleState));
+            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterIdleState));
             stateMachine?.SetMovementState(nextState);
+            Debug.Log("Switching to Idle State from Moving State");
             return;
         }
 
+        Debug.Log("Character is moving in direction: " + direction);
         movementComponent.OnMove(direction);
         animator.SetDirection(direction);
     }

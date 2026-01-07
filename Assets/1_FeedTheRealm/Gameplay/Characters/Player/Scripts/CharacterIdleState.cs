@@ -38,10 +38,8 @@ public class CharacterIdleState : IMovementState
     {
         if (VectorTransformations.IsMovementMagnitude(direction))
         {
-            var nextState = stateMachine?.GetMovementStateFromType(typeof(CharacterMovingState));
+            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterMovingState));
             stateMachine?.SetMovementState(nextState);
-            stateMachine?.CurrentMovementState.SetDirection(direction);
-            return;
         }
     }
 }

@@ -38,11 +38,11 @@ namespace Game.Core.StateMachine
         /// <summary>
         /// Gets movement state instance from type.
         /// </summary>
-        IMovementState GetMovementStateFromType(System.Type type);
+        IMovementState GetMovementStateByType(System.Type type);
 
         /// <summary>
         /// Gets action state instance from type.
         /// </summary>
-        IActionState GetActionStateFromType(System.Type type);
+        IActionState GetActionStateByType(System.Type type);
     }
 }

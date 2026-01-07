@@ -50,14 +50,14 @@ public class CharacterDashingState : IMovementState
     {
         if (VectorTransformations.IsMovementMagnitude(lastDirection))
         {
-            var nextState = stateMachine?.GetMovementStateFromType(typeof(CharacterMovingState));
+            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterMovingState));
             stateMachine?.SetMovementState(nextState);
             stateMachine?.CurrentMovementState.SetDirection(lastDirection);
             return;
         }
         else
         {
-            var nextState = stateMachine?.GetMovementStateFromType(typeof(CharacterIdleState));
+            var nextState = stateMachine?.GetMovementStateByType(typeof(CharacterIdleState));
             stateMachine?.SetMovementState(nextState);
             return;
         }
