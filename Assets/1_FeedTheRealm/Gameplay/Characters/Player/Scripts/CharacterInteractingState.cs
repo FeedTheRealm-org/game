@@ -27,8 +27,11 @@ public class CharacterInteractingState : IActionState
         interactComponent.OnInteractFinished += OnInteractFinished;
         stateMachine.ToggleBlockMovement(true);
         stateMachine.ToggleBlockAction(true);
-        interactComponent.OnInteract();
-        Debug.Log("BLOCK");
+        if (!interactComponent.OnInteract())
+        {
+            stateMachine.ToggleBlockMovement(false);
+            stateMachine.ToggleBlockAction(false);
+        }
     }
 
     public void Exit()
@@ -36,12 +39,10 @@ public class CharacterInteractingState : IActionState
         interactComponent.OnInteractFinished -= OnInteractFinished;
         stateMachine.ToggleBlockMovement(false);
         stateMachine.ToggleBlockAction(false);
-        Debug.Log("UNBLOCK");
     }
 
     private void OnInteractFinished()
     {
-        Debug.Log("Interaction finished.");
         stateMachine.SetActionState(null);
     }
 

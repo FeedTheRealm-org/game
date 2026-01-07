@@ -20,13 +20,17 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
 
     public event Action OnInteractFinished;
 
-    public void OnInteract()
+    /// <summary>
+    /// Attempts to interact with the closest interactable object within range.
+    /// Returns true if an interaction was initiated, false otherwise.
+    /// </summary>
+    public bool OnInteract()
     {
         logger.Log("Player interaction triggered.", this);
-        CheckClosestInteractable();
+        return CheckClosestInteractable();
     }
 
-    private void CheckClosestInteractable()
+    private bool CheckClosestInteractable()
     {
         Collider[] hitColliders = Physics.OverlapSphere(
             transform.position,
@@ -54,13 +58,11 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
         }
 
         if (closestInteractable == null)
-        {
-            FinishInteracting();
-            return;
-        }
+            return false;
 
         logger.Log("Interacting with: " + closestInteractable, this);
         closestInteractable.Interact(this);
+        return true;
     }
 
     public void FinishInteracting()
