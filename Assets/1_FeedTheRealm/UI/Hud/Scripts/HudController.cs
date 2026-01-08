@@ -1,3 +1,8 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using FeedTheRealm.UI;
+using Mirror;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,11 +25,26 @@ public class HudController : MonoBehaviour
     private VisualElement _fastUseSlotsContainer;
     private Label _nameLabel;
 
+    // Currency UI
+    private Label _goldAmountLabel;
+
     // Progress Bars
     private ProgressBar _staminaBar;
 
+    private HUDGoldBinder _goldBinder;
+    private CancellationTokenSource _bindCts;
+
     void Start()
     {
+        // Only run HUD on clients. If this instance is a dedicated server (server active
+        // but no client), disable early to avoid server-side UI lookups and warnings.
+        if (NetworkServer.active && !NetworkClient.active)
+        {
+            logger.Log("HUDController disabled: dedicated server (no client active)", this);
+            enabled = false;
+            return;
+        }
+
         var root = GetComponent<UIDocument>().rootVisualElement;
 
         _characterData = root.Q<VisualElement>("CharacterData");
@@ -55,7 +75,80 @@ public class HudController : MonoBehaviour
             _nameLabel.text = session.CharacterName;
         }
 
+        // Currency UI elements
+        var currencyContainer = _characterData.Q<VisualElement>("CurrencyContainer");
+        _goldAmountLabel = currencyContainer?.Q<Label>("GoldAmount");
+
+        if (_goldAmountLabel == null)
+        {
+            logger.Log(
+                "GoldAmount label not found in HUD. Gold UI will not be updated.",
+                this,
+                Logging.LogType.Warning
+            );
+        }
+        else
+        {
+            // Initialize to 0 until we get data from the player
+            _goldAmountLabel.text = "0";
+        }
+
+        // Ensure we have a HUDGoldBinder component (fallback to adding one at runtime)
+        _goldBinder = GetComponent<HUDGoldBinder>();
+        if (_goldBinder == null)
+        {
+            _goldBinder = gameObject.AddComponent<HUDGoldBinder>();
+        }
+        _goldBinder.SetLogger(logger);
+
+        // Start async binding flow using Tasks instead of coroutines
+        _bindCts = new CancellationTokenSource();
+        _ = StartBindingAsync(_bindCts.Token);
+
+        // Register button callbacks immediately (UI is initialized)
         registerButtonCallbacks();
+    }
+
+    private async Task StartBindingAsync(CancellationToken token)
+    {
+        const float timeout = 10f;
+
+        // Wait up to timeout for the network client to become active
+        float elapsed = 0f;
+        while (!NetworkClient.active && elapsed < timeout)
+        {
+            if (token.IsCancellationRequested)
+                return;
+            try
+            {
+                await Task.Delay(500, token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            elapsed += 0.5f;
+        }
+
+        bool bound = false;
+        try
+        {
+            bound = await _goldBinder.BindAsync(timeout - elapsed, token);
+        }
+        catch (OperationCanceledException) { }
+
+        if (!bound)
+        {
+            logger.Log(
+                "HUDController could not find PlayerGold component after waiting; gold UI will stay at initial value.",
+                this,
+                Logging.LogType.Warning
+            );
+        }
+        else
+        {
+            _goldBinder.OnGoldChanged += HandleGoldChanged;
+        }
     }
 
     /// <summary>
@@ -96,6 +189,20 @@ public class HudController : MonoBehaviour
         {
             staminaData.OnStaminaChanged -= handleStaminaChange;
         }
+
+        // Unsubscribe from gold notifier and cancel any pending binding
+        if (_goldBinder != null)
+        {
+            _goldBinder.OnGoldChanged -= HandleGoldChanged;
+            _goldBinder.Unbind();
+        }
+
+        if (_bindCts != null)
+        {
+            _bindCts.Cancel();
+            _bindCts.Dispose();
+            _bindCts = null;
+        }
     }
 
     /// <summary>
@@ -107,6 +214,18 @@ public class HudController : MonoBehaviour
         {
             // Adjust for a stamina greater or lower than progress bar max (100).
             _staminaBar.value = value * _staminaBar.highValue / staminaData.MaxStamina;
+        }
+    }
+
+    /// <summary>
+    /// Updates the HUD gold label when the player's gold changes.
+    /// </summary>
+    /// <param name="newGoldValue">New amount of gold for the player.</param>
+    private void HandleGoldChanged(int newGoldValue)
+    {
+        if (_goldAmountLabel != null)
+        {
+            _goldAmountLabel.text = newGoldValue.ToString();
         }
     }
 }

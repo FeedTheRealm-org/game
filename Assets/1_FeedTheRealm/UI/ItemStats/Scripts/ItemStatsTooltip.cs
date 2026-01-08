@@ -1,35 +1,20 @@
-using API;
-using Items;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 /// <summary>
 /// Tooltip controller for displaying item statistics on hover.
-/// Shows dynamic stats based on item category (weapon/armor).
-/// Uses mock data until backend provides real stats.
+/// Shows stats for items using data provided by the current world.
+///
+/// For gameplay items, data comes from WorldData.consumableItems
+/// (via Worlds.WorldItemsRegistry). Each item is identified by its
+/// spriteId, which is used as the inventory/loot itemId.
 /// </summary>
 public class ItemStatsTooltip : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField]
     private UIDocument tooltipDocument;
-
-    [Header("Mock Stats Configuration")]
-    [SerializeField]
-    private int weaponAttackValue = 10;
-
-    [SerializeField]
-    private float weaponAttackSpeedValue = 1.5f;
-
-    [SerializeField]
-    private int weaponAttackRangeValue = 5;
-
-    [SerializeField]
-    private int armorDefenseValue = 8;
-
-    [SerializeField]
-    private int armorResistanceValue = 12;
 
     [Header("Logging")]
     [SerializeField]
@@ -45,11 +30,14 @@ public class ItemStatsTooltip : MonoBehaviour
     private VisualElement tooltipContainer;
     private Label nameLabel;
     private Label descriptionLabel;
-    private Label attackLabel;
-    private Label defenseLabel;
-    private Label attackSpeedLabel;
-    private Label resistanceLabel;
-    private Label attackRangeLabel;
+    private Label effectLabel;
+    private Label valueLabel;
+    private Label durationLabel;
+    private Label cooldownLabel;
+    private Label maxStackLabel;
+
+    // Helpers
+    private UI.ItemStats.TooltipStatsPresenter statsPresenter;
 
     // State
     private bool isVisible = false;
@@ -72,6 +60,13 @@ public class ItemStatsTooltip : MonoBehaviour
         {
             root = tooltipDocument.rootVisualElement;
             InitializeUIElements();
+            statsPresenter = new UI.ItemStats.TooltipStatsPresenter(
+                effectLabel,
+                valueLabel,
+                durationLabel,
+                cooldownLabel,
+                maxStackLabel
+            );
             HideTooltip();
         }
         else
@@ -101,12 +96,11 @@ public class ItemStatsTooltip : MonoBehaviour
         // Get all labels
         nameLabel = root.Q<Label>("Name");
         descriptionLabel = root.Q<Label>("Description");
-        attackLabel = root.Q<Label>("Attack");
-        defenseLabel = root.Q<Label>("Defense");
-        attackSpeedLabel = root.Q<Label>("AttackSpeed");
-        resistanceLabel = root.Q<Label>("Resistance");
-        attackRangeLabel = root.Q<Label>("AttackRange");
-
+        effectLabel = root.Q<Label>("Effect");
+        valueLabel = root.Q<Label>("Value");
+        durationLabel = root.Q<Label>("Duration");
+        cooldownLabel = root.Q<Label>("Cooldown");
+        maxStackLabel = root.Q<Label>("MaxStack");
         // Validate that all elements were found
         if (nameLabel == null || descriptionLabel == null)
         {
@@ -137,33 +131,26 @@ public class ItemStatsTooltip : MonoBehaviour
             return;
         }
 
-        // Get item metadata from ItemsManager
-        var itemsManager = ItemsManager.Instance;
-        if (itemsManager == null || !itemsManager.IsInitialized)
+        // Lookup consumable by item id
+        var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
+        if (consumable == null)
         {
             logger?.Log(
-                "ItemsManager not available or not initialized",
+                $"Item not found in WorldItemsRegistry for itemId: {itemId}",
                 this,
                 Logging.LogType.Warning
             );
             return;
         }
 
-        var itemData = itemsManager.GetItemById(itemId);
-        if (itemData == null)
-        {
-            logger?.Log($"Item not found: {itemId}", this, Logging.LogType.Warning);
-            return;
-        }
-
         currentItemId = itemId;
-        PopulateTooltipData(itemData);
+        PopulateTooltipDataFromConsumable(consumable);
         UpdateTooltipPosition(slot);
 
         tooltipContainer.style.display = DisplayStyle.Flex;
         isVisible = true;
 
-        logger?.Log($"Tooltip shown for item: {itemData.name}", this);
+        logger?.Log($"Tooltip shown for itemId: {currentItemId}", this);
     }
 
     /// <summary>
@@ -182,193 +169,34 @@ public class ItemStatsTooltip : MonoBehaviour
     }
 
     /// <summary>
-    /// Populate tooltip with item data and mock stats.
-    /// Currently treats all items as weapons (categories removed).
+    /// Populate tooltip from world-defined consumable item data.
+    /// Uses name/description from the world instead of metadata.
     /// </summary>
-    private void PopulateTooltipData(ItemMetadataResponse itemData)
+    private void PopulateTooltipDataFromConsumable(Models.ConsumableItemData consumable)
     {
-        // Always show Name and Description
+        if (consumable == null)
+        {
+            return;
+        }
+
         if (nameLabel != null)
         {
-            nameLabel.text = itemData.name;
+            nameLabel.text = consumable.name;
             nameLabel.style.display = DisplayStyle.Flex;
         }
 
         if (descriptionLabel != null)
         {
-            // Insert line breaks every `descriptionMaxLineLength` characters to avoid overflow
-            descriptionLabel.text = InsertLineBreaks(
-                itemData.description,
+            descriptionLabel.text = TooltipTextUtils.InsertLineBreaks(
+                consumable.description,
                 descriptionMaxLineLength
             );
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
 
-        // Categories have been removed; for now always show weapon-style stats
-        ShowWeaponStats();
-        HideArmorStats();
-    }
-
-    /// <summary>
-    /// Inserts newline characters into <paramref name="text"/> so that no line exceeds <paramref name="maxLineLength"/>.
-    /// Tries to break on word boundaries; splits long words if necessary.
-    /// </summary>
-    private static string InsertLineBreaks(string text, int maxLineLength)
-    {
-        if (string.IsNullOrEmpty(text) || maxLineLength <= 0)
-            return text ?? string.Empty;
-
-        var sb = new System.Text.StringBuilder();
-        var words = text.Split(' ');
-        int currentLineLength = 0;
-
-        foreach (var word in words)
-        {
-            if (string.IsNullOrEmpty(word))
-            {
-                // Preserve spaces but avoid multiple spaces growing the line length
-                if (currentLineLength > 0)
-                {
-                    sb.Append(' ');
-                    currentLineLength += 1;
-                }
-                continue;
-            }
-
-            // If the word itself is longer than maxLineLength, we need to split the word
-            if (word.Length > maxLineLength)
-            {
-                // If the current line has content, start a new line first
-                if (currentLineLength > 0)
-                {
-                    sb.Append('\n');
-                    currentLineLength = 0;
-                }
-
-                int startIndex = 0;
-                while (startIndex < word.Length)
-                {
-                    int remaining = word.Length - startIndex;
-                    int take = Mathf.Min(maxLineLength, remaining);
-                    sb.Append(word.Substring(startIndex, take));
-                    startIndex += take;
-                    if (startIndex < word.Length)
-                    {
-                        sb.Append('\n');
-                    }
-                }
-                currentLineLength = word.Length - ((word.Length / maxLineLength) * maxLineLength);
-                // If we've exactly filled the last chunk, reset length to zero
-                if (currentLineLength == maxLineLength)
-                    currentLineLength = 0;
-                // Add a space afterwards if there are more words
-                int lastWordIndex = words.Length - 1;
-                if (!word.Equals(words[lastWordIndex]))
-                {
-                    sb.Append(' ');
-                    currentLineLength += 1;
-                }
-                continue;
-            }
-
-            // Normal handling: add to current line if it fits
-            if (currentLineLength == 0)
-            {
-                sb.Append(word);
-                currentLineLength = word.Length;
-            }
-            else if (currentLineLength + 1 + word.Length <= maxLineLength)
-            {
-                sb.Append(' ').Append(word);
-                currentLineLength += 1 + word.Length;
-            }
-            else
-            {
-                sb.Append('\n').Append(word);
-                currentLineLength = word.Length;
-            }
-        }
-
-        return sb.ToString();
-    }
-
-    /// <summary>
-    /// Show weapon-specific stats with mock values.
-    /// </summary>
-    private void ShowWeaponStats()
-    {
-        if (attackLabel != null)
-        {
-            attackLabel.text = $"Attack: {weaponAttackValue}";
-            attackLabel.style.display = DisplayStyle.Flex;
-        }
-
-        if (attackSpeedLabel != null)
-        {
-            attackSpeedLabel.text = $"Attack Speed: {weaponAttackSpeedValue}";
-            attackSpeedLabel.style.display = DisplayStyle.Flex;
-        }
-
-        if (attackRangeLabel != null)
-        {
-            attackRangeLabel.text = $"Attack Range: {weaponAttackRangeValue}";
-            attackRangeLabel.style.display = DisplayStyle.Flex;
-        }
-    }
-
-    /// <summary>
-    /// Hide weapon-specific stats.
-    /// </summary>
-    private void HideWeaponStats()
-    {
-        if (attackLabel != null)
-        {
-            attackLabel.style.display = DisplayStyle.None;
-        }
-
-        if (attackSpeedLabel != null)
-        {
-            attackSpeedLabel.style.display = DisplayStyle.None;
-        }
-
-        if (attackRangeLabel != null)
-        {
-            attackRangeLabel.style.display = DisplayStyle.None;
-        }
-    }
-
-    /// <summary>
-    /// Show armor-specific stats with mock values.
-    /// </summary>
-    private void ShowArmorStats()
-    {
-        if (defenseLabel != null)
-        {
-            defenseLabel.text = $"Defense: {armorDefenseValue}";
-            defenseLabel.style.display = DisplayStyle.Flex;
-        }
-
-        if (resistanceLabel != null)
-        {
-            resistanceLabel.text = $"Resistance: {armorResistanceValue}";
-            resistanceLabel.style.display = DisplayStyle.Flex;
-        }
-    }
-
-    /// <summary>
-    /// Hide armor-specific stats.
-    /// </summary>
-    private void HideArmorStats()
-    {
-        if (defenseLabel != null)
-        {
-            defenseLabel.style.display = DisplayStyle.None;
-        }
-
-        if (resistanceLabel != null)
-        {
-            resistanceLabel.style.display = DisplayStyle.None;
-        }
+        // Show stats using the presenter
+        statsPresenter?.HideAllStats();
+        statsPresenter?.ShowConsumableStats(consumable);
     }
 
     /// <summary>
@@ -418,10 +246,9 @@ public class ItemStatsTooltip : MonoBehaviour
 
         // Calculate panel width to check if tooltip fits on the right
         float panelWidth = tooltipContainer.panel.visualTree.worldBound.width;
-        float tooltipWidth = 200; // Approximate tooltip width, adjust if needed
+        float tooltipWidth = 200;
         float horizontalOffset = 135; // Space between slot and tooltip
 
-        // Position tooltip to the right of the slot by default
         float tooltipLeft = slotPanelPos.x + slotBounds.width + horizontalOffset;
 
         // If tooltip doesn't fit on the right, position it on the left

@@ -146,7 +146,7 @@ namespace API
                 logger.Log(
                     $"GetCharacterInfo error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
                     this,
-                    Logging.LogType.Error
+                    Logging.LogType.Warning
                 );
                 return null;
             }

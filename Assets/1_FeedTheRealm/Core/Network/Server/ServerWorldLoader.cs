@@ -29,10 +29,6 @@ public class ServerWorldLoader : NetworkBehaviour
     [SerializeField]
     private WorldHandler worldHandler;
 
-    [Header("Scene References")]
-    [SerializeField]
-    private WorldController worldController;
-
     [SerializeField]
     private GameObject enemySpawnPrefab;
 
@@ -183,6 +179,15 @@ public class ServerWorldLoader : NetworkBehaviour
 
         WorldData data = selected.data;
 
+        // Ensure worldName inside WorldData matches the -world argument used to start the server.
+        if (data != null)
+        {
+            data.worldName = worldName;
+        }
+
+        // Expose world items/enemies to gameplay systems (loot, inventory, etc.)
+        Worlds.WorldItemsRegistry.RegisterWorldData(data);
+
         if (logWorldDataJson && data != null)
         {
             try
@@ -204,15 +209,37 @@ public class ServerWorldLoader : NetworkBehaviour
         }
 
         // Configure enemy spawns on server
-        if (worldController != null && enemySpawnPrefab != null && data.enemySpawnAreas != null)
+        if (enemySpawnPrefab != null && data.enemySpawnAreas != null)
         {
             foreach (EnemySpawnAreaData area in data.enemySpawnAreas)
             {
-                Vector3Int gridPos = Vector3Int.FloorToInt(area.Position);
-                worldController.PlaceEnemySpawnAreaAt(gridPos, enemySpawnPrefab);
+                Vector3 targetPosition = area.Position;
+                Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
+                GameObject spawnInstance = Instantiate(
+                    enemySpawnPrefab,
+                    spawnPos,
+                    Quaternion.identity
+                );
+
+                // Configure the spawn with data from world
+                EnemySpawn spawnComponent = spawnInstance.GetComponent<EnemySpawn>();
+                if (spawnComponent != null)
+                {
+                    spawnComponent.ConfigureFromSpawnData(area);
+                }
+                else
+                {
+                    logger?.Log(
+                        "[ServerWorldLoader] Enemy spawn prefab missing EnemySpawn component!",
+                        this,
+                        Logging.LogType.Error
+                    );
+                }
+
+                spawnInstance.SetActive(true);
             }
             logger?.Log(
-                $"[ServerWorldLoader] Placed {data.enemySpawnAreas.Count} enemy spawn areas from world data.",
+                $"[ServerWorldLoader] Placed {data.enemySpawnAreas.Count} enemy spawn areas from world data (world-space).",
                 this
             );
         }
