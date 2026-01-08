@@ -15,4 +15,17 @@ namespace Game.Core.Events
             OnRaised?.Invoke(value);
         }
     }
+
+    /// <summary>
+    /// A ScriptableObject that acts as an event channel for broadcasting events with no payload.
+    /// </summary>
+    public abstract class EventChannelSO : ScriptableObject
+    {
+        public event Action OnRaised;
+
+        public void Raise()
+        {
+            OnRaised?.Invoke();
+        }
+    }
 }
