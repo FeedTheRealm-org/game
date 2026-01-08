@@ -27,11 +27,7 @@ public class CharacterInteractingState : IActionState
         interactComponent.OnInteractFinished += OnInteractFinished;
         stateMachine.ToggleBlockMovement(true);
         stateMachine.ToggleBlockAction(true);
-        if (!interactComponent.OnInteract())
-        {
-            stateMachine.ToggleBlockMovement(false);
-            stateMachine.ToggleBlockAction(false);
-        }
+        interactComponent.OnInteract();
     }
 
     public void Exit()

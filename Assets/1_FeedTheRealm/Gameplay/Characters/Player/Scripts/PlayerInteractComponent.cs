@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Game.Core.Interactions;
 using UnityEngine;
 
@@ -24,13 +25,17 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
     /// Attempts to interact with the closest interactable object within range.
     /// Returns true if an interaction was initiated, false otherwise.
     /// </summary>
-    public bool OnInteract()
+    public void OnInteract()
     {
         logger.Log("Player interaction triggered.", this);
-        return CheckClosestInteractable();
+        StartCoroutine(CheckClosestInteractable()); // Start the check in a coroutine to avoid blocking
     }
 
-    private bool CheckClosestInteractable()
+    /// <summary>
+    /// Checks for the closest interactable object within the interaction radius
+    /// and initiates interaction if found.
+    /// </summary>
+    private IEnumerator CheckClosestInteractable()
     {
         Collider[] hitColliders = Physics.OverlapSphere(
             transform.position,
@@ -58,11 +63,10 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
         }
 
         if (closestInteractable == null)
-            return false;
+            yield break;
 
         logger.Log("Interacting with: " + closestInteractable, this);
         closestInteractable.Interact(this);
-        return true;
     }
 
     public void FinishInteracting()
