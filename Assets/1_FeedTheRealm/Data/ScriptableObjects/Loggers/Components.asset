@@ -15,4 +15,4 @@ MonoBehaviour:
   showLogs: 0
   loggerPrefix: '[Components]'
   loggerColor: {r: 0.5998248, g: 1, b: 0.35964906, a: 0}
-  showColor: 0
+  showColor: 1

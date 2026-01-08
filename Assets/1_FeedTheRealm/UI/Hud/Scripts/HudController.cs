@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 /// <summary>
 /// Manages the HUD elements and their interactions.
 /// </summary>
-public class HUDController : MonoBehaviour
+public class HudController : MonoBehaviour
 {
     [SerializeField]
     private Stamina staminaData;
