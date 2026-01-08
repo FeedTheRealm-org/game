@@ -66,7 +66,6 @@ public class HudController : MonoBehaviour
             return;
         }
 
-        // Initialize values
         _staminaBar.value = _staminaBar.highValue;
 
         _nameLabel = _characterData.Q<Label>("Username");
@@ -75,7 +74,6 @@ public class HudController : MonoBehaviour
             _nameLabel.text = session.CharacterName;
         }
 
-        // Currency UI elements
         var currencyContainer = _characterData.Q<VisualElement>("CurrencyContainer");
         _goldAmountLabel = currencyContainer?.Q<Label>("GoldAmount");
 
@@ -93,7 +91,6 @@ public class HudController : MonoBehaviour
             _goldAmountLabel.text = "0";
         }
 
-        // Ensure we have a HUDGoldBinder component (fallback to adding one at runtime)
         _goldBinder = GetComponent<HUDGoldBinder>();
         if (_goldBinder == null)
         {
@@ -101,11 +98,9 @@ public class HudController : MonoBehaviour
         }
         _goldBinder.SetLogger(logger);
 
-        // Start async binding flow using Tasks instead of coroutines
         _bindCts = new CancellationTokenSource();
         _ = StartBindingAsync(_bindCts.Token);
 
-        // Register button callbacks immediately (UI is initialized)
         registerButtonCallbacks();
     }
 
@@ -113,7 +108,6 @@ public class HudController : MonoBehaviour
     {
         const float timeout = 10f;
 
-        // Wait up to timeout for the network client to become active
         float elapsed = 0f;
         while (!NetworkClient.active && elapsed < timeout)
         {
@@ -156,14 +150,12 @@ public class HudController : MonoBehaviour
     /// </summary>
     private void registerButtonCallbacks()
     {
-        // Character Icon Button
         var _characterIconButton = _characterData.Q<Button>("CharacterIcon");
         _characterIconButton?.RegisterCallback<ClickEvent>(ev =>
         {
             logger.Log("Character Icon Clicked", this);
         });
 
-        // Fast Use Slot Buttons
         var buttons = _fastUseSlotsContainer.Query<Button>().ToList();
 
         foreach (var button in buttons)
@@ -190,7 +182,6 @@ public class HudController : MonoBehaviour
             staminaData.OnStaminaChanged -= handleStaminaChange;
         }
 
-        // Unsubscribe from gold notifier and cancel any pending binding
         if (_goldBinder != null)
         {
             _goldBinder.OnGoldChanged -= HandleGoldChanged;
@@ -220,7 +211,6 @@ public class HudController : MonoBehaviour
     /// <summary>
     /// Updates the HUD gold label when the player's gold changes.
     /// </summary>
-    /// <param name="newGoldValue">New amount of gold for the player.</param>
     private void HandleGoldChanged(int newGoldValue)
     {
         if (_goldAmountLabel != null)
