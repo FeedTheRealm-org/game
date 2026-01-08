@@ -27,16 +27,37 @@ namespace API
         [SerializeField]
         private Logging.Logger logger;
 
+        // Simple in-memory cache to avoid downloading the same sprite multiple times
+        private readonly System.Collections.Generic.Dictionary<string, Texture2D> spriteCache =
+            new System.Collections.Generic.Dictionary<string, Texture2D>();
+
         /// <summary>
         /// Download sprite by spriteId.
         /// Full URL: /assets/sprites/items/{spriteId}
         /// </summary>
-        public IEnumerator DownloadItemSprite(string spriteId, System.Action<Texture2D> handler)
+        public async System.Threading.Tasks.Task<Texture2D> DownloadItemSpriteAsync(string spriteId)
         {
-            var url = $"http://{Hostname}:{Port}/assets/sprites/items/{spriteId}";
-            var uwr = UnityWebRequestTexture.GetTexture(url);
+            if (string.IsNullOrEmpty(spriteId))
+            {
+                logger?.Log(
+                    "DownloadItemSpriteAsync called with null or empty spriteId",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return null;
+            }
 
-            yield return uwr.SendWebRequest();
+            // If already cached, return immediately without doing a web request
+            if (spriteCache.TryGetValue(spriteId, out var cachedTexture))
+            {
+                logger?.Log($"DownloadItemSpriteAsync cache hit: {spriteId}", this);
+                return cachedTexture;
+            }
+
+            var url = $"http://{Hostname}:{Port}/assets/sprites/items/{spriteId}";
+            using var uwr = UnityWebRequestTexture.GetTexture(url);
+            var asyncOp = uwr.SendWebRequest();
+            await asyncOp;
 
             if (
                 uwr.result == UnityWebRequest.Result.ConnectionError
@@ -44,17 +65,21 @@ namespace API
             )
             {
                 logger?.Log(
-                    $"DownloadItemSprite error for {spriteId}: {uwr.error}",
+                    $"DownloadItemSpriteAsync error for {spriteId}: {uwr.error}",
                     this,
                     Logging.LogType.Error
                 );
-                handler?.Invoke(null);
+                return null;
             }
             else
             {
                 var texture = DownloadHandlerTexture.GetContent(uwr);
-                logger?.Log($"DownloadItemSprite success: {spriteId}", this);
-                handler?.Invoke(texture);
+                if (texture != null)
+                {
+                    spriteCache[spriteId] = texture;
+                }
+                logger?.Log($"DownloadItemSpriteAsync success: {spriteId}", this);
+                return texture;
             }
         }
     }

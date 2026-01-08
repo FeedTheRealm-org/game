@@ -31,12 +31,14 @@ public class EnemySpawn : MonoBehaviour
 
     private Transform[] spawnPoints;
     private int spawnIndex = 0;
-    private Coroutine spawnRoutine;
+    private System.Threading.CancellationTokenSource spawnCts;
     private bool spawnerActive;
     private bool spawnerResetting;
 
     private int currentEnemies;
     private int playersInside;
+    private System.Collections.Generic.HashSet<uint> playersInArea =
+        new System.Collections.Generic.HashSet<uint>();
     private int totalKills;
 
     private void Start()
@@ -64,20 +66,55 @@ public class EnemySpawn : MonoBehaviour
             }
         }
 
-        logger.Log(
-            $"[EnemySpawn] {other.name} (Layer: {LayerMask.LayerToName(other.gameObject.layer)}) entered the area!",
-            this
-        );
+        if (other.gameObject.layer != LayerMask.NameToLayer("Player"))
+            return;
 
-        // Verify this is a player or relevant entity
-        // You can add layer checks here if needed: if (other.gameObject.layer != LayerMask.NameToLayer("Player")) return;
-
-        playersInside++;
-        if (!spawnerActive && playersInside > 0)
+        // Get unique player identifier for multiplayer
+        NetworkIdentity netId = other.GetComponent<NetworkIdentity>();
+        if (netId == null)
         {
-            spawnerActive = true;
-            spawnRoutine = StartCoroutine(spawnEnemies());
-            logger.Log($"[EnemySpawn] Spawner activated! Players inside: {playersInside}", this);
+            logger.Log(
+                $"[EnemySpawn] {other.name} has no NetworkIdentity, ignoring.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        uint playerId = netId.netId;
+        logger.Log($"[EnemySpawn] {other.name} (netId: {playerId}) entered the area!", this);
+
+        if (playersInArea.Add(playerId))
+        {
+            playersInside = playersInArea.Count;
+            logger.Log(
+                $"[EnemySpawn] Player {playerId} added to area. Total unique players: {playersInside}",
+                this
+            );
+
+            if (!spawnerActive && playersInside > 0)
+            {
+                spawnerActive = true;
+                logger.Log(
+                    $"[EnemySpawn] Spawner activated! Players inside: {playersInside}",
+                    this
+                );
+            }
+
+            // Only start spawn task if not already running
+            if (spawnCts == null && spawnerActive)
+            {
+                spawnCts = new System.Threading.CancellationTokenSource();
+                _ = SpawnEnemiesAsync(spawnCts.Token);
+                logger.Log($"[EnemySpawn] Spawn task created.", this);
+            }
+        }
+        else
+        {
+            logger.Log(
+                $"[EnemySpawn] Player {playerId} already in area (duplicate trigger).",
+                this
+            );
         }
     }
 
@@ -92,67 +129,141 @@ public class EnemySpawn : MonoBehaviour
             }
         }
 
-        logger.Log($"[EnemySpawn] {other.name} exited the area!", this);
-        playersInside--;
-        if (playersInside == 0)
+        if (other.gameObject.layer != LayerMask.NameToLayer("Player"))
+            return;
+
+        // Get unique player identifier for multiplayer
+        NetworkIdentity netId = other.GetComponent<NetworkIdentity>();
+        if (netId == null)
         {
-            spawnerActive = false;
-            logger.Log($"[EnemySpawn] Spawner deactivated! No players inside.", this);
-            if (spawnRoutine != null)
+            logger.Log(
+                $"[EnemySpawn] {other.name} has no NetworkIdentity on exit, ignoring.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        uint playerId = netId.netId;
+        logger.Log($"[EnemySpawn] {other.name} (netId: {playerId}) exited the area!", this);
+
+        if (playersInArea.Remove(playerId))
+        {
+            playersInside = playersInArea.Count;
+            logger.Log(
+                $"[EnemySpawn] Player {playerId} removed from area. Remaining players: {playersInside}",
+                this
+            );
+
+            if (playersInside == 0)
             {
-                StopCoroutine(spawnRoutine);
-                spawnRoutine = null;
+                spawnerActive = false;
+                logger.Log($"[EnemySpawn] Spawner deactivated! No players inside.", this);
+                if (spawnCts != null)
+                {
+                    spawnCts.Cancel();
+                    spawnCts.Dispose();
+                    spawnCts = null;
+                }
+                // Don't reset currentEnemies here - enemies still exist in world
+                // They will decrement naturally as they die
             }
+        }
+        else
+        {
+            logger.Log(
+                $"[EnemySpawn] Player {playerId} not found in area (duplicate exit trigger).",
+                this
+            );
         }
     }
 
     /// <summary>
     /// spawns enemies at defined intervals while the spawner is active.
     /// </summary>
-    private IEnumerator spawnEnemies()
+    private async System.Threading.Tasks.Task SpawnEnemiesAsync(
+        System.Threading.CancellationToken token
+    )
     {
         logger.Log(
-            $"[EnemySpawn] Spawn routine started. Max enemies: {maxEnemies}, Spawn rate: {spawnRate}s, Reset after kills: {resetAfterKills}",
+            $"[EnemySpawn] Spawn task started. Max enemies: {maxEnemies}, Spawn rate: {spawnRate}s, Reset after kills: {resetAfterKills}",
             this
         );
-        while (spawnerActive)
-        {
-            // Check if spawner is resetting (kill threshold reached)
-            if (spawnerResetting)
-            {
-                logger.Log($"[EnemySpawn] Spawner is resetting, pausing spawns...", this);
-                yield return new WaitForSeconds(spawnRate);
-                continue;
-            }
 
-            if (currentEnemies < maxEnemies)
+        // Sanity check: clamp currentEnemies to [0, maxEnemies] at start
+        if (currentEnemies < 0 || currentEnemies > maxEnemies)
+        {
+            logger.Log(
+                $"[EnemySpawn] Corrigiendo currentEnemies de {currentEnemies} a rango [0, {maxEnemies}] al iniciar rutina.",
+                this,
+                Logging.LogType.Warning
+            );
+            currentEnemies = Mathf.Clamp(currentEnemies, 0, maxEnemies);
+        }
+        try
+        {
+            while (spawnerActive && !token.IsCancellationRequested)
             {
-                spawnEnemy();
-            }
-            else
-            {
-                // Only log occasionally to avoid spam
-                if (Time.frameCount % 100 == 0)
+                // Check if spawner is resetting (kill threshold reached)
+                if (spawnerResetting)
+                {
+                    logger.Log($"[EnemySpawn] Spawner is resetting, pausing spawns...", this);
+                    await System.Threading.Tasks.Task.Delay((int)(spawnRate * 1000), token);
+                    continue;
+                }
+
+                // Clamp currentEnemies to [0, maxEnemies] before each spawn attempt
+                if (currentEnemies < 0 || currentEnemies > maxEnemies)
                 {
                     logger.Log(
-                        $"[EnemySpawn] Max enemies reached ({currentEnemies}/{maxEnemies}). Waiting...",
-                        this
+                        $"[EnemySpawn] Corrigiendo currentEnemies de {currentEnemies} a rango [0, {maxEnemies}] en ciclo.",
+                        this,
+                        Logging.LogType.Warning
                     );
+                    currentEnemies = Mathf.Clamp(currentEnemies, 0, maxEnemies);
                 }
+
+                if (currentEnemies < maxEnemies && !spawnerResetting)
+                {
+                    spawnEnemy();
+                }
+                else if (currentEnemies >= maxEnemies)
+                {
+                    // Only log occasionally to avoid spam
+                    if (Time.frameCount % 100 == 0)
+                    {
+                        logger.Log(
+                            $"[EnemySpawn] Max enemies reached ({currentEnemies}/{maxEnemies}). Waiting...",
+                            this
+                        );
+                    }
+                }
+                await System.Threading.Tasks.Task.Delay((int)(spawnRate * 1000), token);
             }
-            yield return new WaitForSeconds(spawnRate);
         }
-        logger.Log("[EnemySpawn] Spawn routine stopped.", this);
+        catch (System.OperationCanceledException) { }
+        logger.Log("[EnemySpawn] Spawn task stopped.", this);
     }
 
     /// <summary>
     /// resets the spawner after a delay when the kill threshold is reached.
     /// </summary>
-    private IEnumerator spawnReset()
+    private async System.Threading.Tasks.Task SpawnResetAsync()
     {
         logger.Log($"[EnemySpawn] Spawner resetting... (waiting {resetDelay}s)", this);
-        yield return new WaitForSeconds(resetDelay);
+        await System.Threading.Tasks.Task.Delay((int)(resetDelay * 1000));
         totalKills = 0;
+
+        // Sanity check: clamp currentEnemies after reset
+        if (currentEnemies < 0 || currentEnemies > maxEnemies)
+        {
+            logger.Log(
+                $"[EnemySpawn] Corrigiendo currentEnemies de {currentEnemies} a rango [0, {maxEnemies}] tras reset.",
+                this,
+                Logging.LogType.Warning
+            );
+            currentEnemies = Mathf.Clamp(currentEnemies, 0, maxEnemies);
+        }
 
         // After the cooldown ends, we only resume spawns if there are still
         // players inside the area (or if they entered again during the cooldown).
@@ -160,10 +271,11 @@ public class EnemySpawn : MonoBehaviour
         {
             // We ensure the spawner is completely turned off.
             spawnerActive = false;
-            if (spawnRoutine != null)
+            if (spawnCts != null)
             {
-                StopCoroutine(spawnRoutine);
-                spawnRoutine = null;
+                spawnCts.Cancel();
+                spawnCts.Dispose();
+                spawnCts = null;
             }
 
             spawnerResetting = false;
@@ -177,20 +289,19 @@ public class EnemySpawn : MonoBehaviour
             // There is at least one player inside; the spawner can remain active.
             spawnerResetting = false;
 
-            // If for some reason the routine stopped, we resume it.
             if (!spawnerActive)
             {
                 spawnerActive = true;
             }
-            if (spawnRoutine == null)
+            if (spawnCts == null)
             {
-                spawnRoutine = StartCoroutine(spawnEnemies());
+                spawnCts = new System.Threading.CancellationTokenSource();
+                _ = SpawnEnemiesAsync(spawnCts.Token);
+                logger.Log(
+                    "[EnemySpawn] Spawner reset complete. Players inside, resuming spawn.",
+                    this
+                );
             }
-
-            logger.Log(
-                "[EnemySpawn] Spawner reset complete. Players inside, resuming spawn.",
-                this
-            );
         }
     }
 
@@ -295,7 +406,49 @@ public class EnemySpawn : MonoBehaviour
                 $"[EnemySpawn] Kill threshold reached ({resetAfterKills}). Resetting spawner in {resetDelay}s...",
                 this
             );
-            StartCoroutine(spawnReset());
+            _ = SpawnResetAsync();
+        }
+    }
+
+    /// <summary>
+    /// Configures this spawn instance with data from EnemySpawnAreaData.
+    /// Must be called after instantiation for dynamically placed spawns.
+    /// </summary>
+    public void ConfigureFromSpawnData(Models.EnemySpawnAreaData spawnData)
+    {
+        if (spawnData == null)
+        {
+            logger?.Log(
+                "[EnemySpawn] ConfigureFromSpawnData called with null data!",
+                this,
+                Logging.LogType.Error
+            );
+            return;
+        }
+
+        // Configure spawn parameters
+        maxEnemies = spawnData.MaxEnemies;
+        spawnRate = spawnData.SpawnRate;
+        resetAfterKills = spawnData.ResetAfterKills;
+        resetDelay = spawnData.ResetDelay;
+
+        // Configure collider radius
+        SphereCollider sphere = GetComponent<SphereCollider>();
+        if (sphere != null)
+        {
+            sphere.radius = spawnData.Radius;
+            logger?.Log(
+                $"[EnemySpawn] Configured spawn: radius={spawnData.Radius}, maxEnemies={maxEnemies}, spawnRate={spawnRate}s, resetAfterKills={resetAfterKills}",
+                this
+            );
+        }
+        else
+        {
+            logger?.Log(
+                "[EnemySpawn] No SphereCollider found on spawn instance!",
+                this,
+                Logging.LogType.Warning
+            );
         }
     }
 

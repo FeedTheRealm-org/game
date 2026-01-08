@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Game.Core.Quests
 {
-    public class QuestDecision
+    public class QuestDecisionData
     {
         private QuestData _questData;
 
         private bool _isAccepted;
 
-        public QuestDecision(QuestData questData, bool isAccepted)
+        public QuestDecisionData(QuestData questData, bool isAccepted)
         {
             _questData = questData;
             _isAccepted = isAccepted;

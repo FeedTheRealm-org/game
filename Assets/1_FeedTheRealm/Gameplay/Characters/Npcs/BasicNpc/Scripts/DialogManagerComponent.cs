@@ -69,6 +69,7 @@ public class DialogManagerComponent : MonoBehaviour
     /// </summary>
     public bool Next()
     {
+        _questOffered = false;
         if (dialogs == null || _currentDialogIndex >= dialogs.Length)
         {
             CloseDialog(); // Dialog ended
@@ -84,9 +85,9 @@ public class DialogManagerComponent : MonoBehaviour
         _currentDialogIndex++;
 
         var hasQuest = dialog.Quest != null && !string.IsNullOrEmpty(dialog.Quest.Id);
-        _questOffered = hasQuest;
         if (hasQuest)
         {
+            _questOffered = true;
             logger.Log(
                 $"NPC '{npcName}' is offering quest '{dialog.Quest.Title}' (ID: {dialog.Quest.Id}).",
                 this,

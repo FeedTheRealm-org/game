@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
   m_Name: Components
   m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  showLogs: 1
+  showLogs: 0
   loggerPrefix: '[Components]'
   loggerColor: {r: 0.5998248, g: 1, b: 0.35964906, a: 0}
   showColor: 1

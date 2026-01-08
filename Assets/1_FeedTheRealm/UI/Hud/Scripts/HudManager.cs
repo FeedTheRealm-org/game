@@ -73,7 +73,7 @@ public class HudManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
-    private void OnQuestDecision(QuestDecision _)
+    private void OnQuestDecision(QuestDecisionData _)
     {
         questPromptPanel.ToggleQuestPrompt(false);
         Cursor.visible = false;

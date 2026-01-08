@@ -1,26 +1,51 @@
+using Game.Core.StateMachine;
 using UnityEngine;
 
 /// <summary>
 /// State for when the character is interacting with an object or npc.
 /// </summary>
-public class CharacterInteractingState : IState
+public class CharacterInteractingState : IActionState
 {
-    private PlayerInteractComponent _interactComponent;
-    private CharacterAnimator _animator;
+    private IStateMachine stateMachine;
+
+    private PlayerInteractComponent interactComponent;
+    private CharacterAnimator animator;
 
     public CharacterInteractingState(
-        PlayerInteractComponent movementComponent,
+        IStateMachine sm,
+        PlayerInteractComponent interactComponent,
         CharacterAnimator animator
     )
     {
-        _interactComponent = movementComponent;
-        _animator = animator;
+        this.interactComponent = interactComponent;
+        this.animator = animator;
+        this.stateMachine = sm;
     }
 
     public void Enter()
     {
-        _interactComponent.OnInteract();
+        interactComponent.OnInteractFinished += OnInteractFinished;
+        stateMachine.ToggleBlockMovement(true);
+        stateMachine.ToggleBlockAction(true);
+        interactComponent.OnInteract();
     }
 
-    public void Exit() { }
+    public void Exit()
+    {
+        interactComponent.OnInteractFinished -= OnInteractFinished;
+        stateMachine.ToggleBlockMovement(false);
+        stateMachine.ToggleBlockAction(false);
+    }
+
+    private void OnInteractFinished()
+    {
+        stateMachine.SetActionState(null);
+    }
+
+    public void Dispose()
+    {
+        stateMachine = null;
+        interactComponent = null;
+        animator = null;
+    }
 }

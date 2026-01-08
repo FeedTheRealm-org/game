@@ -1,80 +1,169 @@
+using System.Collections.Generic;
+using Game.Core.StateMachine;
 using UnityEngine;
 
 /// <summary>
 /// Manages the character's state machine, handling transitions based on input and state.
 /// </summary>
-public class CharacterStateMachine : MonoBehaviour
+public class CharacterStateMachine : MonoBehaviour, IStateMachine
 {
     [SerializeField]
+    private Logging.Logger logger;
+
+    /* Components */
     private MovementComponent movementComponent;
-
-    [SerializeField]
     private DashComponent dashComponent;
-
-    [SerializeField]
     private AttackComponent attackComponent;
-
-    [SerializeField]
     private GroundCheckComponent groundCheckComponent;
-
-    [SerializeField]
     private CharacterAnimator characterAnimator;
-
-    [SerializeField]
     private PlayerInteractComponent interactComponent;
 
-    private CharacterIdleState idleState;
-    private CharacterMovingState movingState;
-    private CharacterDashingState dashingState;
-    private CharacterAttackState attackState;
-    private CharacterChargingAttackState chargingAttackState;
-    private CharacterInteractingState interactingState;
+    /* States */
+    public readonly Dictionary<System.Type, IMovementState> movementStates =
+        new Dictionary<System.Type, IMovementState>();
+    public readonly Dictionary<System.Type, IActionState> actionStates =
+        new Dictionary<System.Type, IActionState>();
 
-    private IState currentMovementState;
-    private IState currentAttackState;
+    /* State Layers - accessible by states */
+    public IMovementState CurrentMovementState { get; private set; }
+    public IActionState CurrentActionState { get; private set; }
+
     private Vector2 lastDirection;
+
+    private bool isMovementBlocked;
+    private bool isActionBlocked;
 
     private void Awake()
     {
+        movementComponent = GetComponentInChildren<MovementComponent>();
+        dashComponent = GetComponentInChildren<DashComponent>();
+        attackComponent = GetComponentInChildren<AttackComponent>();
+        groundCheckComponent = GetComponentInChildren<GroundCheckComponent>();
+        interactComponent = GetComponentInChildren<PlayerInteractComponent>();
+        characterAnimator = GetComponentInChildren<CharacterAnimator>();
+
         if (movementComponent == null)
-            movementComponent = GetComponentInChildren<MovementComponent>();
+            logger.Log(
+                "MovementComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (dashComponent == null)
-            dashComponent = GetComponentInChildren<DashComponent>();
+            logger.Log(
+                "DashComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (attackComponent == null)
-            attackComponent = GetComponentInChildren<AttackComponent>();
+            logger.Log(
+                "AttackComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (groundCheckComponent == null)
-            groundCheckComponent = GetComponentInChildren<GroundCheckComponent>();
+            logger.Log(
+                "GroundCheckComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (interactComponent == null)
-            interactComponent = GetComponentInChildren<PlayerInteractComponent>();
+            logger.Log(
+                "PlayerInteractComponent not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
         if (characterAnimator == null)
-            characterAnimator = GetComponentInChildren<CharacterAnimator>();
+            logger.Log(
+                "CharacterAnimator not found on CharacterStateMachine.",
+                this,
+                Logging.LogType.Error
+            );
 
-        idleState = new CharacterIdleState(movementComponent, characterAnimator);
-        movingState = new CharacterMovingState(movementComponent, characterAnimator);
-        dashingState = new CharacterDashingState(dashComponent, characterAnimator);
-        attackState = new CharacterAttackState(attackComponent, characterAnimator);
-        chargingAttackState = new CharacterChargingAttackState(
-            movementComponent,
-            characterAnimator
+        movementStates.Add(
+            typeof(CharacterIdleState),
+            new CharacterIdleState(this, movementComponent, characterAnimator)
         );
-        interactingState = new CharacterInteractingState(interactComponent, characterAnimator);
+        movementStates.Add(
+            typeof(CharacterMovingState),
+            new CharacterMovingState(this, movementComponent, characterAnimator)
+        );
+        movementStates.Add(
+            typeof(CharacterDashingState),
+            new CharacterDashingState(this, dashComponent, characterAnimator)
+        );
+        actionStates.Add(
+            typeof(CharacterAttackState),
+            new CharacterAttackState(this, attackComponent, characterAnimator)
+        );
+        actionStates.Add(
+            typeof(CharacterChargingAttackState),
+            new CharacterChargingAttackState(this, movementComponent, characterAnimator)
+        );
+        actionStates.Add(
+            typeof(CharacterInteractingState),
+            new CharacterInteractingState(this, interactComponent, characterAnimator)
+        );
 
-        currentMovementState = idleState;
-        currentAttackState = null;
-        lastDirection = Vector2.zero;
-
-        attackComponent.OnAttackFinished += OnAttackFinished;
-        dashComponent.OnDashFinished += OnDashFinished;
-        interactComponent.OnInteractFinished += OnInteractFinished;
-
-        currentMovementState.Enter();
+        SetMovementState(movementStates[typeof(CharacterIdleState)]);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        attackComponent.OnAttackFinished -= OnAttackFinished;
-        dashComponent.OnDashFinished -= OnDashFinished;
-        interactComponent.OnInteractFinished -= OnInteractFinished;
+        foreach (var state in movementStates.Values)
+        {
+            state.Dispose();
+        }
+        movementStates.Clear();
+
+        foreach (var state in actionStates.Values)
+        {
+            state.Dispose();
+        }
+        actionStates.Clear();
+    }
+
+    public void SetMovementState(IMovementState newState)
+    {
+        CurrentMovementState?.Exit();
+        CurrentMovementState = newState;
+        CurrentMovementState?.Enter();
+        if (!isMovementBlocked)
+            CurrentMovementState.SetDirection(lastDirection);
+    }
+
+    public void SetActionState(IActionState newState)
+    {
+        CurrentActionState?.Exit();
+        CurrentActionState = newState;
+        CurrentActionState?.Enter();
+    }
+
+    public void ToggleBlockMovement(bool shouldBlock)
+    {
+        isMovementBlocked = shouldBlock;
+        if (isMovementBlocked)
+            SetMovementState(movementStates[typeof(CharacterIdleState)]);
+    }
+
+    public void ToggleBlockAction(bool shouldBlock)
+    {
+        isActionBlocked = shouldBlock;
+    }
+
+    public IMovementState GetMovementStateByType(System.Type type)
+    {
+        var ok = movementStates.TryGetValue(type, out IMovementState state);
+        if (!ok)
+            return null;
+        return state;
+    }
+
+    public IActionState GetActionStateByType(System.Type type)
+    {
+        var ok = actionStates.TryGetValue(type, out IActionState state);
+        if (!ok)
+            return null;
+        return state;
     }
 
     /// <summary>
@@ -82,26 +171,11 @@ public class CharacterStateMachine : MonoBehaviour
     /// </summary>
     public void OnMove(Vector2 direction)
     {
+        if (isMovementBlocked)
+            return;
+
         lastDirection = direction;
-
-        if (currentMovementState == dashingState || currentMovementState == chargingAttackState)
-            return; // Cannot move while dashing or charging
-
-        if (direction.sqrMagnitude > 0.01f)
-        {
-            if (currentMovementState != movingState)
-            {
-                ChangeMovementState(movingState);
-            }
-            movingState.SetDirection(direction);
-        }
-        else
-        {
-            if (currentMovementState != idleState)
-            {
-                ChangeMovementState(idleState);
-            }
-        }
+        CurrentMovementState.SetDirection(direction);
     }
 
     /// <summary>
@@ -109,14 +183,10 @@ public class CharacterStateMachine : MonoBehaviour
     /// </summary>
     public void OnDash()
     {
-        if (
-            groundCheckComponent.IsGrounded
-            && currentMovementState != dashingState
-            && currentMovementState != chargingAttackState
-        )
-        {
-            ChangeMovementState(dashingState);
-        }
+        if (isMovementBlocked)
+            return;
+
+        SetMovementState(movementStates[typeof(CharacterDashingState)]);
     }
 
     /// <summary>
@@ -124,43 +194,10 @@ public class CharacterStateMachine : MonoBehaviour
     /// </summary>
     public void OnAttack()
     {
-        Debug.Log("State machine debug ATTACK");
-        if (currentMovementState != chargingAttackState && currentAttackState == null)
-        {
-            attackState.Enter();
-        }
-    }
+        if (isActionBlocked)
+            return;
 
-    private void ChangeMovementState(IState newState)
-    {
-        currentMovementState.Exit();
-        currentMovementState = newState;
-        currentMovementState.Enter();
-    }
-
-    private void OnAttackFinished()
-    {
-        if (currentAttackState == attackState)
-        {
-            attackState.Exit();
-            currentAttackState = null;
-        }
-    }
-
-    private void OnDashFinished()
-    {
-        if (currentMovementState == dashingState)
-        {
-            if (lastDirection.sqrMagnitude > 0.01f)
-            {
-                ChangeMovementState(movingState);
-                movingState.SetDirection(lastDirection);
-            }
-            else
-            {
-                ChangeMovementState(idleState);
-            }
-        }
+        SetActionState(actionStates[typeof(CharacterAttackState)]);
     }
 
     /// <summary>
@@ -168,20 +205,9 @@ public class CharacterStateMachine : MonoBehaviour
     /// </summary>
     public void OnInteract()
     {
-        ChangeMovementState(interactingState);
-    }
-
-    private void OnInteractFinished()
-    {
-        if (currentMovementState != interactingState)
+        if (isActionBlocked)
             return;
 
-        if (lastDirection.sqrMagnitude > 0.01f)
-        {
-            ChangeMovementState(movingState);
-            movingState.SetDirection(lastDirection);
-            return;
-        }
-        ChangeMovementState(idleState);
+        SetActionState(actionStates[typeof(CharacterInteractingState)]);
     }
 }

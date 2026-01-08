@@ -26,9 +26,6 @@ public class WorldLoaderController : MonoBehaviour
     private Session.Session session;
 
     [SerializeField]
-    private WorldController worldController;
-
-    [SerializeField]
     private Logging.Logger logger;
 
     [SerializeField]
@@ -127,6 +124,10 @@ public class WorldLoaderController : MonoBehaviour
     {
         WorldData data = worldHandler.selectedWorld.data;
 
+        // Register world data so other systems (loot, inventory, tooltips)
+        // can query consumables and enemies by spriteId.
+        Worlds.WorldItemsRegistry.RegisterWorldData(data);
+
         if (logWorldDataJson && data != null)
         {
             try
@@ -167,28 +168,54 @@ public class WorldLoaderController : MonoBehaviour
         }
         else
         {
-            // foreach (PlacedAsset placementData in data.objectPlacementData)
-            // {
-            //     if (!assetMap.TryGetValue(placementData.AssetDataId, out Asset assetData))
-            //     {
-            //         logger.Log(
-            //             $"Asset with id '{placementData.AssetDataId}' not found in assetMap; skipping placed object.",
-            //             this,
-            //             Logging.LogType.Warning
-            //         );
-            //         continue;
-            //     }
+            foreach (StructureData structureData in data.objectPlacementData)
+            {
+                if (!assetMap.TryGetValue(structureData.id, out Asset assetData))
+                {
+                    logger.Log(
+                        $"Asset with id '{structureData.id}' not found in assetMap; skipping placed object.",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                    continue;
+                }
 
-            //     Vector3Int gridPosition = placementData.Position;
-            //     worldController.PlaceObjectAt(gridPosition, assetData.GetModelInstance());
-            // }
+                GameObject instance = assetData.GetModelInstance();
+                Vector3 targetPosition = structureData.position;
+                instance.transform.position = targetPosition;
+
+                logger.Log(
+                    $"[WorldLoaderController] Placed object '{structureData.structureName}' (assetId={structureData.id}) at {targetPosition}.",
+                    this
+                );
+            }
         }
 
         foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas)
         {
-            worldController.PlaceEnemySpawnAreaAt(
-                Vector3Int.FloorToInt(enemySpawnAreaData.Position),
-                enemySpawnPrefab
+            Vector3 targetPosition = enemySpawnAreaData.Position;
+            Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
+            GameObject spawnInstance = Instantiate(enemySpawnPrefab, spawnPos, Quaternion.identity);
+
+            // Configure the spawn with data from world
+            EnemySpawn spawnComponent = spawnInstance.GetComponent<EnemySpawn>();
+            if (spawnComponent != null)
+            {
+                spawnComponent.ConfigureFromSpawnData(enemySpawnAreaData);
+            }
+            else
+            {
+                logger.Log(
+                    "[WorldLoaderController] Enemy spawn prefab missing EnemySpawn component!",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
+
+            spawnInstance.SetActive(true);
+            logger.Log(
+                $"[WorldLoaderController] Placed enemy spawn area at {spawnPos} with radius {enemySpawnAreaData.Radius}.",
+                this
             );
         }
         // since we instantiated models for loading, we need to clean them up

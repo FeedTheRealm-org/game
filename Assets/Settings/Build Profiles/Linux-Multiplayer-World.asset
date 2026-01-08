@@ -29,9 +29,7 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Main/WorldLoaderTest.unity
-  - m_enabled: 0
-    m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MPMenuScene.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Testing/WorldLoaderTest.unity
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
@@ -1008,7 +1006,7 @@ MonoBehaviour:
         m_Architecture: 0
         m_RemoteDeviceSectionFoldoutOpen: 0
         m_DeployTarget: 0
-        m_RemoteDeviceAddress:
-        m_RemoteDeviceUsername:
-        m_RemoteDeviceExports:
-        m_PathOnRemoteDevice:
+        m_RemoteDeviceAddress: 
+        m_RemoteDeviceUsername: 
+        m_RemoteDeviceExports: 
+        m_PathOnRemoteDevice: 
