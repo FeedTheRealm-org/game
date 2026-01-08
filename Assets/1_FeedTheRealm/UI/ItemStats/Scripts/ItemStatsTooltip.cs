@@ -118,7 +118,7 @@ public class ItemStatsTooltip : MonoBehaviour
         if (string.IsNullOrEmpty(itemId))
         {
             logger?.Log(
-                "Cannot show tooltip: itemId is null or empty",
+                "[Tooltip] Cannot show tooltip: itemId is null or empty",
                 this,
                 Logging.LogType.Warning
             );
@@ -127,21 +127,29 @@ public class ItemStatsTooltip : MonoBehaviour
 
         if (slot == null)
         {
-            logger?.Log("Cannot show tooltip: slot is null", this, Logging.LogType.Warning);
+            logger?.Log(
+                "[Tooltip] Cannot show tooltip: slot is null",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
+
+        logger?.Log($"[Tooltip] ShowTooltip called - Slot: {slot.name}", this);
 
         // Lookup consumable by item id
         var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
         if (consumable == null)
         {
             logger?.Log(
-                $"Item not found in WorldItemsRegistry for itemId: {itemId}",
+                $"[Tooltip] Item not found in WorldItemsRegistry for itemId: {itemId}",
                 this,
                 Logging.LogType.Warning
             );
             return;
         }
+
+        logger?.Log($"[Tooltip] ItemId found in map: {itemId}", this);
 
         currentItemId = itemId;
         PopulateTooltipDataFromConsumable(consumable);
@@ -150,7 +158,7 @@ public class ItemStatsTooltip : MonoBehaviour
         tooltipContainer.style.display = DisplayStyle.Flex;
         isVisible = true;
 
-        logger?.Log($"Tooltip shown for itemId: {currentItemId}", this);
+        logger?.Log($"[Tooltip] Tooltip shown for itemId: {currentItemId}", this);
     }
 
     /// <summary>
@@ -165,7 +173,7 @@ public class ItemStatsTooltip : MonoBehaviour
         isVisible = false;
         currentItemId = null;
 
-        logger?.Log("Tooltip hidden", this);
+        logger?.Log("[Tooltip] Tooltip hidden", this);
     }
 
     /// <summary>

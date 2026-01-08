@@ -109,22 +109,6 @@ public class InventoryController : MonoBehaviour
         dragHandler.OnDropZonePointerUp(evt);
     }
 
-    private void OnSlotHoverEnter(PointerEnterEvent evt, VisualElement slot)
-    {
-        if (slotHoverSprite != null)
-        {
-            slot.style.backgroundImage = new StyleBackground(slotHoverSprite);
-        }
-    }
-
-    private void OnSlotHoverLeave(PointerLeaveEvent evt, VisualElement slot)
-    {
-        if (slotNormalSprite != null)
-        {
-            slot.style.backgroundImage = new StyleBackground(slotNormalSprite);
-        }
-    }
-
     private void MoveItemToSlot(VisualElement item, VisualElement targetSlot)
     {
         // Use dragHandler's reference for original slot
@@ -258,7 +242,7 @@ public class InventoryController : MonoBehaviour
     /// Add item to inventory by spriteId with itemId (enables tooltip functionality).
     /// Downloads the sprite (with cache in ItemAssetsService) and adds it to the first empty slot.
     /// </summary>
-    private void AddItemBySpriteWithId(string spriteId, string itemId)
+    private async void AddItemBySpriteWithId(string spriteId, string itemId)
     {
         if (string.IsNullOrEmpty(spriteId))
         {
@@ -274,27 +258,15 @@ public class InventoryController : MonoBehaviour
             );
             return;
         }
-        StartCoroutine(AddItemBySpriteWithIdCoroutine(spriteId, itemId));
+        await AddItemBySpriteWithIdAsync(spriteId, itemId);
     }
 
-    private System.Collections.IEnumerator AddItemBySpriteWithIdCoroutine(
+    private async System.Threading.Tasks.Task AddItemBySpriteWithIdAsync(
         string spriteId,
         string itemId
     )
     {
-        Texture2D texture = null;
-        bool completed = false;
-
-        yield return itemAssetsService.DownloadItemSprite(
-            spriteId,
-            (loadedTexture) =>
-            {
-                texture = loadedTexture;
-                completed = true;
-            }
-        );
-
-        yield return new WaitUntil(() => completed);
+        Texture2D texture = await itemAssetsService.DownloadItemSpriteAsync(spriteId);
 
         if (texture != null)
         {
@@ -310,7 +282,7 @@ public class InventoryController : MonoBehaviour
                 {
                     CreateItemElement(sprite, slot, itemId);
                     logger.Log($"Item added to inventory with ID: {itemId}", this);
-                    yield break;
+                    return;
                 }
             }
 
@@ -345,46 +317,20 @@ public class InventoryController : MonoBehaviour
     /// </summary>
     private void OnItemHoverEnter(PointerEnterEvent evt, VisualElement slot)
     {
-        logger?.Log(
-            $"[Tooltip] OnItemHoverEnter - Slot: {slot.name}, ChildCount: {slot.childCount}",
-            this
-        );
-
         if (slot.childCount == 0)
         {
-            logger?.Log("[Tooltip] Slot is empty, skipping", this);
             return;
         }
 
         if (dragHandler != null && dragHandler.DraggedItem != null)
         {
-            logger?.Log("[Tooltip] Currently dragging, skipping", this);
             return;
         }
 
         var itemElement = slot[0];
-        logger?.Log($"[Tooltip] Item element found: {itemElement.name}", this);
-
         if (itemIdMap.TryGetValue(itemElement, out string itemId))
         {
-            logger?.Log($"[Tooltip] ItemId found in map: {itemId}", this);
-            if (itemStatsTooltip != null)
-            {
-                itemStatsTooltip.ShowTooltip(itemId, slot);
-                logger?.Log($"[Tooltip] Showing tooltip for item: {itemId}", this);
-            }
-            else
-            {
-                logger?.Log("[Tooltip] itemStatsTooltip is null!", this, Logging.LogType.Warning);
-            }
-        }
-        else
-        {
-            logger?.Log(
-                $"[Tooltip] ItemId not found in map for element: {itemElement.name}",
-                this,
-                Logging.LogType.Warning
-            );
+            itemStatsTooltip?.ShowTooltip(itemId, slot);
         }
     }
 
@@ -393,11 +339,7 @@ public class InventoryController : MonoBehaviour
     /// </summary>
     private void OnItemHoverLeave(PointerLeaveEvent evt, VisualElement slot)
     {
-        if (itemStatsTooltip != null)
-        {
-            itemStatsTooltip.HideTooltip();
-            logger?.Log("Hiding tooltip", this);
-        }
+        itemStatsTooltip?.HideTooltip();
     }
 
     public bool IsInventoryFull()

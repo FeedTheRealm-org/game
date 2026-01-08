@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Mirror;
 using Models;
 using UnityEngine;
+using LootEntryData = Models.LootTableData.LootEntryData;
 
 /// <summary>
 /// Component added to enemies to drop loot upon death.
@@ -255,7 +256,7 @@ public class LootDropper : MonoBehaviour
             if (roll >= loot.dropProbability)
             {
                 logger?.Log(
-                    $"[LootDropper] Loot '{loot.name}' (id={loot.id}) did not drop. Roll={roll}, chance={loot.dropProbability}",
+                    $"[LootDropper] Loot (id={loot.id}) did not drop. Roll={roll}, chance={loot.dropProbability}",
                     this
                 );
                 continue;
@@ -269,7 +270,7 @@ public class LootDropper : MonoBehaviour
                 result.Add(loot.id);
             }
 
-            logger?.Log($"[LootDropper] Loot '{loot.name}' (id={loot.id}) dropped x{count}.", this);
+            logger?.Log($"[LootDropper] Loot (id={loot.id}) dropped x{count}.", this);
         }
 
         if (result.Count == 0)
