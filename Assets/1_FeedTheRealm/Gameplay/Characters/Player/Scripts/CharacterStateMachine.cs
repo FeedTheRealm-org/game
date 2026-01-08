@@ -127,7 +127,8 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         CurrentMovementState?.Exit();
         CurrentMovementState = newState;
         CurrentMovementState?.Enter();
-        CurrentMovementState.SetDirection(lastDirection);
+        if (!isMovementBlocked)
+            CurrentMovementState.SetDirection(lastDirection);
     }
 
     public void SetActionState(IActionState newState)
