@@ -1,15 +1,20 @@
-/// <summary>
-/// Interface for defining states in a state machine.
-/// </summary>
-public interface IState
+using System;
+
+namespace Game.Core.StateMachine
 {
     /// <summary>
-    /// Called when entering the state.
+    /// Interface for defining states in a state machine.
     /// </summary>
-    void Enter();
+    public interface IState : IDisposable
+    {
+        /// <summary>
+        /// Called when entering the state.
+        /// </summary>
+        void Enter();
 
-    /// <summary>
-    /// Called when exiting the state.
-    /// </summary>
-    void Exit();
+        /// <summary>
+        /// Called when exiting the state.
+        /// </summary>
+        void Exit();
+    }
 }

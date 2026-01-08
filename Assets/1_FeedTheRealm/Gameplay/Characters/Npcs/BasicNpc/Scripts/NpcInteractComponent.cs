@@ -43,7 +43,7 @@ public class NpcInteractComponent : MonoBehaviour, IInteractable
         return true;
     }
 
-    private void OnQuestDecision(QuestDecision _)
+    private void OnQuestDecision(QuestDecisionData _)
     {
         _currentInteractor.FinishInteracting();
     }
