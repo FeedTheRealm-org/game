@@ -7,9 +7,8 @@ using UnityEngine;
 public class GameSceneManager : MonoBehaviour
 {
     [Header("HUD Configuration")]
-    // TODO: this does not exists in this branch, fix it
-    //[SerializeField]
-    // private SettingsMenuController //settingsMenu;
+    [SerializeField]
+    private SettingsMenuController settingsMenu;
 
     [SerializeField]
     [Tooltip(
@@ -64,16 +63,16 @@ public class GameSceneManager : MonoBehaviour
         {
             return;
         }
-        //settingsMenu.ToggleSettings();
+        settingsMenu.ToggleSettings();
     }
 
     private void toggleInventory()
     {
-        // if (settingsMenu.IsOpen())
-        // {
-        //     logger.Log("Inventory toggle blocked - Settings menu is open", this);
-        //     return;
-        // }
+        if (settingsMenu.IsOpen())
+        {
+            logger.Log("Inventory toggle blocked - Settings menu is open", this);
+            return;
+        }
 
         if (inventoryMenu == null)
         {
