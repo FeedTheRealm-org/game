@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -163,10 +164,15 @@ public class WorldFeedMenuController : MonoBehaviour
         }
     }
 
-    private void OnWorldSelected(Models.WorldMetadata world)
+    private async void OnWorldSelected(Models.WorldMetadata metadata)
     {
-        worldHandler.SetSelectedWorld(world);
-        logger.Log($"World selected: {world.id}", this);
+        var (worldData, error) = await worldService.GetWorldData(metadata.id, session.APIToken);
+        if (!string.IsNullOrEmpty(error) || worldData == null)
+        {
+            logger.Log($"Error loading world data: {error}", this, Logging.LogType.Error);
+            return;
+        }
+        worldHandler.selectedWorld = worldData;
         SceneManager.LoadScene(worldScene.SceneName);
     }
 

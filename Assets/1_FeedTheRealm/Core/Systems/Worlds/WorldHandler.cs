@@ -16,7 +16,7 @@ namespace Worlds
     {
         public const string NULL_CATEGORY_NAME = "Uncategorized";
 
-        public Models.WorldMetadata selectedWorld = null;
+        public Models.WorldData selectedWorld = null;
 
         [Header("World Categories")]
         [SerializeField]
@@ -94,29 +94,26 @@ namespace Worlds
             logger.Log("Cleared all categories and worlds.", this);
         }
 
-        public Models.WorldMetadata GetSelectedWorld()
+        public Models.WorldData GetSelectedWorld()
         {
             return selectedWorld;
         }
 
-        public void SetSelectedWorld(Models.WorldMetadata world)
+        public void SetSelectedWorld(string worldName)
         {
-            selectedWorld = world;
-
-            // Ensure WorldData.worldName is aligned with the selected world's name
-            if (selectedWorld != null && selectedWorld.data != null)
+            // Ensure WorldMetadata.name is aligned with the selected world's name
+            if (selectedWorld != null && selectedWorld != null)
             {
-                string baseName = selectedWorld.name;
-                if (!string.IsNullOrWhiteSpace(baseName))
+                if (!string.IsNullOrWhiteSpace(worldName))
                 {
-                    int dotIndex = baseName.IndexOf('.');
+                    int dotIndex = worldName.IndexOf('.');
                     if (dotIndex > 0)
                     {
-                        baseName = baseName.Substring(0, dotIndex);
+                        worldName = worldName.Substring(0, dotIndex);
                     }
                 }
 
-                selectedWorld.data.worldName = baseName;
+                selectedWorld.worldName = worldName;
             }
         }
     }
