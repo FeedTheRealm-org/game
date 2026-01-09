@@ -1,0 +1,9 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Hud/Quests/Themes/QuestCompletionPanel.uss?fileID=7433441132597879392&amp;guid=90a87f658117a91f49730e303f9795c8&amp;type=3#QuestCompletionPanel"/>
+    <ui:VisualElement name="Body" class="body" style="flex-grow: 1;">
+        <ui:VisualElement name="QuestContainer" class="quest-container" style="flex-grow: 1;">
+            <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu" name="QuestTitle" class="quest-title"/>
+            <ui:VisualElement name="HL" class="hl"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
