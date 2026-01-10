@@ -1,4 +1,5 @@
 using System.Collections;
+using Game.Core.Events;
 using UnityEngine;
 
 /// <summary>
@@ -24,6 +25,9 @@ public class AttackComponent : MonoBehaviour
     [SerializeField]
     private LayerMask targetLayer;
 
+    [SerializeField]
+    private EnemySlayedEvent enemySlayedEvent;
+
     private bool isAttacking = false;
     private Animator _animator;
 
@@ -40,7 +44,9 @@ public class AttackComponent : MonoBehaviour
         foreach (Collider target in hitTargets)
         {
             logger.Log($"Hit target: {target.name}", this);
-            target.GetComponent<HealthComponent>()?.TakeDamage(attackDamage);
+            var isDead = target.GetComponent<HealthComponent>()?.TakeDamage(attackDamage);
+            if (isDead == true)
+                enemySlayedEvent.Raise();
         }
 
         if (hitTargets.Length == 0)

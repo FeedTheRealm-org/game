@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Game.Core.Quests
 {
+    /// <summary>
+    /// Manages active quests, handling quest acceptance and completion.
+    /// </summary>
+    [CreateAssetMenu(fileName = "QuestManager", menuName = "Scriptable Objects/Quest Manager")]
     public class QuestManager : ScriptableObject
     {
         [Header("Events")]

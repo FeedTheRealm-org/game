@@ -49,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HudManager
   hudPanel: {fileID: 4660389141276997287}
   questPromptPanel: {fileID: 2805935830386990463}
-  questCompletionPanel: {fileID: 0}
+  questCompletionPanel: {fileID: 2512206077823609513}
   questOfferedEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
   questDecisionEvent: {fileID: 11400000, guid: 982c6ff128438cb20afe10947eb6ce40, type: 2}
   questCompletedEvent: {fileID: 11400000, guid: b2755233a0e9e83729434441a96c878d, type: 2}
@@ -255,6 +255,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a81b988673b5b191e8120233871c1208, type: 3}
+--- !u!114 &2512206077823609513 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6680370503877614565, guid: a81b988673b5b191e8120233871c1208, type: 3}
+  m_PrefabInstance: {fileID: 9108626497997877580}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 595400fef5918361780dd0524a8750e5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::QuestCompletionPanelController
 --- !u!4 &6522887187576784410 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2660964219807709014, guid: a81b988673b5b191e8120233871c1208, type: 3}
