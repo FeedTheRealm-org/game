@@ -24,6 +24,7 @@ namespace Game.Core.Quests
         [SerializeField]
         private Logging.Logger logger;
 
+        // TODO: grows indefinitely FIX (remove completed quests)
         private List<Quest> activeQuests = new List<Quest>();
 
         private void OnEnable()

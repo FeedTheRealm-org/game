@@ -58,7 +58,7 @@ public class EnemySpawn : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // In multiplayer, only server processes spawn triggers
-        if (NetworkClient.active)
+        if (NetworkClient.active && !NetworkServer.active)
             return; // Clients ignore spawn triggers
 
         if (other.gameObject.layer != LayerMask.NameToLayer("Player"))
@@ -101,7 +101,7 @@ public class EnemySpawn : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         // In multiplayer, only server processes spawn triggers
-        if (NetworkClient.active)
+        if (NetworkClient.active && !NetworkServer.active)
             return; // Clients ignore spawn triggers
 
         if (other.gameObject.layer != LayerMask.NameToLayer("Player"))

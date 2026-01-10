@@ -45,7 +45,7 @@ public class AttackComponent : MonoBehaviour
         {
             logger.Log($"Hit target: {target.name}", this);
             var isDead = target.GetComponent<HealthComponent>()?.TakeDamage(attackDamage);
-            if (isDead == true)
+            if (isDead.HasValue && isDead.Value)
                 enemySlayedEvent.Raise();
         }
 
