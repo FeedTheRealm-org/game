@@ -48,6 +48,10 @@ public class LootItem : NetworkBehaviour
     // SyncList to synchronize item IDs between server and clients
     private readonly SyncList<string> _itemIds = new SyncList<string>();
 
+    // Gold amount contained in this loot bag (server-authoritative)
+    [SyncVar]
+    private int _goldAmount;
+
     private SphereCollider _triggerCollider;
 
     // Prevent multiple simultaneous pickups
@@ -57,6 +61,22 @@ public class LootItem : NetworkBehaviour
     // Delay to avoid immediate loot after spawn
     private float _spawnTime;
     private bool _isLootable = false;
+
+    /// <summary>
+    /// Sets the gold amount contained in this loot bag. Only the server should call this.
+    /// </summary>
+    [Server]
+    public void SetGoldAmount(int amount)
+    {
+        if (!isServer)
+        {
+            return;
+        }
+
+        _goldAmount = Mathf.Max(0, amount);
+
+        logger?.Log($"[LootItem] Gold amount set to {_goldAmount}", this);
+    }
 
     public override void OnStartServer()
     {
@@ -73,7 +93,6 @@ public class LootItem : NetworkBehaviour
             this
         );
 
-        // Clients: Wait and update visuals
         if (!isServer)
         {
             StartCoroutine(WaitForItemsManagerAndUpdateVisuals());
@@ -95,7 +114,6 @@ public class LootItem : NetworkBehaviour
         string newItem
     )
     {
-        // Re-synchronize visuals when the list changes
         if (isClient && !isServer)
         {
             UpdateVisualsFromManager();
@@ -104,49 +122,47 @@ public class LootItem : NetworkBehaviour
 
     private System.Collections.IEnumerator WaitForItemsManagerAndUpdateVisuals()
     {
-        // Wait for ItemsManager to be initialized
-        while (Items.ItemsManager.Instance == null || !Items.ItemsManager.Instance.IsInitialized)
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
-
         // Subscribe to changes
         _itemIds.Callback += OnItemListChanged;
 
         // Update visuals
         UpdateVisualsFromManager();
+        yield break;
     }
 
     private void UpdateVisualsFromManager()
     {
-        if (Items.ItemsManager.Instance == null || !Items.ItemsManager.Instance.IsInitialized)
-        {
-            Debug.LogWarning("[LootItem] ItemsManager not available or not initialized");
-            return;
-        }
-
         logger?.Log($"[LootItem] Updating visuals for {_itemIds.Count} items", this);
 
-        // Here you could update the loot bag visual based on the items
+        // Now items are identified by their unique item id (not spriteId)
         foreach (var itemId in _itemIds)
         {
-            var metadata = Items.ItemsManager.Instance.GetItemById(itemId);
-            if (metadata != null)
+            var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
+            if (consumable != null)
             {
-                logger?.Log($"[LootItem] Contains: {metadata.name}", this);
+                logger?.Log(
+                    $"[LootItem] Contains world item: {consumable.name} (id={itemId})",
+                    this
+                );
+            }
+            else
+            {
+                logger?.Log(
+                    $"[LootItem] Item id in bag but no consumable found: {itemId}",
+                    this,
+                    Logging.LogType.Warning
+                );
             }
         }
     }
 
     private void Start()
     {
-        // Adjust vertical position if necessary
         if (heightOffset != 0)
         {
             transform.position += Vector3.up * heightOffset;
         }
 
-        // Verify that a visual is assigned
         if (itemVisual == null)
         {
             logger?.Log(
@@ -163,7 +179,6 @@ public class LootItem : NetworkBehaviour
             );
         }
 
-        // Create the trigger collider for player detection
         SetupTriggerCollider();
     }
 
@@ -172,13 +187,11 @@ public class LootItem : NetworkBehaviour
     /// </summary>
     private void SetupTriggerCollider()
     {
-        // Create a child GameObject for the trigger
         GameObject triggerObj = new GameObject("PickupTrigger");
         triggerObj.transform.SetParent(transform);
         triggerObj.transform.localPosition = Vector3.zero;
         triggerObj.layer = gameObject.layer;
 
-        // Add and configure the SphereCollider as a trigger
         _triggerCollider = triggerObj.AddComponent<SphereCollider>();
         _triggerCollider.isTrigger = true;
         _triggerCollider.radius = pickupRadius;
@@ -188,7 +201,6 @@ public class LootItem : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check if networked or not
         bool isNetworked = NetworkClient.active || NetworkServer.active;
 
         if (isNetworked && !isServer)
@@ -196,26 +208,21 @@ public class LootItem : NetworkBehaviour
             return;
         }
 
-        // Check if it's the player
         if (((1 << other.gameObject.layer) & playerLayer) == 0)
             return;
 
-        // Check if lootable
         if (!_isLootable)
             return;
 
-        // Check if already being picked up
         if (_isBeingPickedUp)
             return;
 
-        // Get the player's inventory reference
         PlayerInventoryReference inventoryRef = other.GetComponent<PlayerInventoryReference>();
         if (inventoryRef == null)
             return;
 
         if (isNetworked)
         {
-            // Networked: Check NetworkIdentity and prevent duplicate pickups
             NetworkIdentity playerIdentity = other.GetComponent<NetworkIdentity>();
             if (playerIdentity == null)
                 return;
@@ -234,10 +241,8 @@ public class LootItem : NetworkBehaviour
             logger?.Log($"[LootItem] LOCAL - Player triggered pickup", this);
         }
 
-        // Mark as being picked up
         _isBeingPickedUp = true;
 
-        // Process pickup (handles both networked and local)
         ProcessPickup(inventoryRef);
     }
 
@@ -248,10 +253,10 @@ public class LootItem : NetworkBehaviour
     {
         bool isNetworked = NetworkClient.active || NetworkServer.active;
 
-        if (_itemIds.Count == 0)
+        if (_itemIds.Count == 0 && _goldAmount <= 0)
         {
             logger?.Log(
-                $"[LootItem] Bag is empty, {(isNetworked ? "despawning" : "destroying")}",
+                $"[LootItem] Bag is empty (no items or gold), {(isNetworked ? "despawning" : "destroying")}",
                 this
             );
             if (isNetworked)
@@ -264,24 +269,49 @@ public class LootItem : NetworkBehaviour
         // Get all items from the bag
         List<string> itemsToTransfer = new List<string>(_itemIds);
 
-        logger?.Log($"[LootItem] Transferring {itemsToTransfer.Count} items to player", this);
+        int goldToTransfer = _goldAmount;
 
-        // Clear the bag
+        logger?.Log(
+            $"[LootItem] Transferring {itemsToTransfer.Count} items and {goldToTransfer} gold to player",
+            this
+        );
+
+        // Clear the bag contents on server/local
         _itemIds.Clear();
+        _goldAmount = 0;
 
         if (isNetworked)
         {
-            // Networked: Get identity and use TargetRpc
+            // Networked: Get identity and use TargetRpc for items; gold is handled server-side
             NetworkIdentity playerIdentity = inventoryRef.GetComponent<NetworkIdentity>();
             if (playerIdentity != null)
             {
+                // Add gold to the player's gold component on the server
+                PlayerGold playerGold = inventoryRef.GetComponent<PlayerGold>();
+                if (playerGold != null)
+                {
+                    playerGold.AddGold(goldToTransfer);
+                    logger?.Log(
+                        $"[LootItem] SERVER - Added {goldToTransfer} gold to player {playerIdentity.netId}",
+                        this
+                    );
+                }
+                else if (goldToTransfer > 0)
+                {
+                    logger?.Log(
+                        "[LootItem] SERVER - PlayerGold component not found on player while transferring gold.",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                }
+
                 TargetReceiveLoot(playerIdentity.connectionToClient, itemsToTransfer);
             }
             NetworkServer.Destroy(gameObject);
         }
         else
         {
-            // Local: Add items directly
+            // Local (non-networked): Add items directly and apply gold locally
             InventoryController inventory = inventoryRef.GetInventory();
             if (inventory == null)
             {
@@ -315,6 +345,14 @@ public class LootItem : NetworkBehaviour
                 $"[LootItem] LOCAL - Successfully added {itemsAdded} items to inventory",
                 this
             );
+
+            // Local gold handling: if there is a PlayerGold component, update it as well
+            PlayerGold localPlayerGold = inventoryRef.GetComponent<PlayerGold>();
+            if (localPlayerGold != null)
+            {
+                localPlayerGold.AddGold(goldToTransfer);
+                logger?.Log($"[LootItem] LOCAL - Added {goldToTransfer} gold to player.", this);
+            }
 
             // Destroy the loot bag
             Destroy(gameObject);
@@ -416,7 +454,6 @@ public class LootItem : NetworkBehaviour
         _isLootable = true;
         logger?.Log($"[LootItem] Loot is now lootable", this);
 
-        // Check if there are any players already in range (handles case where loot spawns on top of player)
         bool isNetworked = NetworkClient.active || NetworkServer.active;
         if (isServer || !isNetworked)
         {
@@ -436,7 +473,6 @@ public class LootItem : NetworkBehaviour
         if (_isBeingPickedUp)
             return;
 
-        // Use Physics.OverlapSphere to detect players in the pickup radius
         Collider[] colliders = Physics.OverlapSphere(transform.position, pickupRadius, playerLayer);
 
         if (colliders.Length > 0)
@@ -456,7 +492,6 @@ public class LootItem : NetworkBehaviour
 
                 if (isNetworked)
                 {
-                    // Networked: Check NetworkIdentity
                     NetworkIdentity playerIdentity = col.GetComponent<NetworkIdentity>();
                     if (playerIdentity == null)
                         continue;
@@ -478,19 +513,17 @@ public class LootItem : NetworkBehaviour
                     );
                 }
 
-                // Mark as being picked up
                 _isBeingPickedUp = true;
 
-                // Process pickup
                 ProcessPickup(inventoryRef);
-                break; // Only process for the first valid player
+                break;
             }
         }
     }
 
     /// <summary>
     /// Sets up the item IDs for this loot bag.
-    /// IMPORTANT: Call AFTER NetworkServer.Spawn() in multiplayer so SyncList is initialized.
+    /// Call AFTER NetworkServer.Spawn() in multiplayer so SyncList is initialized.
     /// Only the server should call this method.
     /// </summary>
     /// <param name="ids">List of item IDs to set up</param>
@@ -529,7 +562,6 @@ public class LootItem : NetworkBehaviour
     /// <param name="newVisual">The new visual GameObject</param>
     public void SetVisual(GameObject newVisual)
     {
-        // Destroy the previous visual if it exists
         if (itemVisual != null)
         {
             Destroy(itemVisual);

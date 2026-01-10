@@ -18,24 +18,26 @@ public class CameraSetup : MonoBehaviour
 
     private Coroutine setupCoroutine;
 
-    void Awake()
+    void Awake() { }
+
+    void Start()
     {
+        // Only setup camera on clients. If there is no active client (dedicated server
+        // or not yet connected), disable this component early to avoid server-side logs.
+        if (!NetworkClient.active)
+        {
+            logger.Log(
+                "CameraSetup disabled: no active client (dedicated server or not connected)",
+                this
+            );
+            enabled = false;
+            return;
+        }
+
         Camera cam = GetComponentInChildren<Camera>();
         if (cam != null && Camera.main == null)
         {
             cam.tag = "MainCamera";
-        }
-    }
-
-    void Start()
-    {
-        // Only setup camera on clients, not on dedicated server
-        if (NetworkServer.active && !NetworkClient.active)
-        {
-            // Dedicated server - no camera needed
-            logger.Log("CameraSetup disabled on dedicated server", this);
-            enabled = false;
-            return;
         }
 
         // Wait a frame for the player to spawn
@@ -55,6 +57,13 @@ public class CameraSetup : MonoBehaviour
     {
         // Wait a few frames for NetworkManager to spawn the player
         yield return new WaitForSeconds(0.5f);
+
+        // Ensure we are still a client before attempting to find the local player.
+        if (!NetworkClient.active)
+        {
+            logger.Log("CameraSetup aborting: client not active after wait", this);
+            yield break;
+        }
 
         SetupCinemachineCamera();
     }

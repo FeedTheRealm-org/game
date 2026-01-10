@@ -4934,6 +4934,7 @@ GameObject:
   - component: {fileID: 2903214459336409646}
   - component: {fileID: -1683734520962331690}
   - component: {fileID: 8942674585528972223}
+  - component: {fileID: 8370950687297377220}
   m_Layer: 7
   m_Name: PlayerMP
   m_TagString: Player
@@ -5347,6 +5348,22 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
+--- !u!114 &8370950687297377220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8651e365ace064cd7af4e1d53d41ffcc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerGold
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!1 &1439889579782305314
 GameObject:
   m_ObjectHideFlags: 0

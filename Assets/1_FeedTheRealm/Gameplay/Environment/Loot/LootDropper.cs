@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Mirror;
+using Models;
 using UnityEngine;
+using LootEntryData = Models.LootTableData.LootEntryData;
 
 /// <summary>
 /// Component added to enemies to drop loot upon death.
@@ -143,8 +145,9 @@ public class LootDropper : MonoBehaviour
         // Initialize position (does not touch SyncList)
         lootItem.Initialize(spawnPosition);
 
-        // Determine if we are in a multiplayer context
+        // Determine item IDs and gold amount for this loot bag
         List<string> lootItemIds = GetRandomLootItems();
+        int goldAmount = GetRandomGoldAmount();
         bool isMultiplayer = NetworkServer.active || NetworkClient.active;
 
         if (isMultiplayer)
@@ -166,7 +169,7 @@ public class LootDropper : MonoBehaviour
             logger?.Log($"[LootDropper] Loot spawned as NetworkIdentity at {spawnPosition}", this);
         }
 
-        // Configure the items AFTER the NetworkIdentity has been spawned
+        // Configure items and gold AFTER the NetworkIdentity has been spawned
         if (lootItemIds != null && lootItemIds.Count > 0)
         {
             lootItem.SetItemIds(lootItemIds);
@@ -178,99 +181,153 @@ public class LootDropper : MonoBehaviour
         else
         {
             logger?.Log(
-                "[LootDropper] WARNING: No items obtained for loot bag - loot will spawn empty!",
+                "[LootDropper] WARNING: No items obtained for loot bag - loot will contain only gold (if any).",
                 this,
                 Logging.LogType.Warning
             );
         }
+
+        if (goldAmount > 0)
+        {
+            lootItem.SetGoldAmount(goldAmount);
+            logger?.Log($"[LootDropper] Configured loot with {goldAmount} gold.", this);
+        }
     }
 
     /// <summary>
-    /// Get random item IDs from the server's items manager.
-    /// Uses category filter if configured.
+    /// Get loot item IDs based on current world's enemy loot configuration.
+    /// Uses EnemyData.lootItems and returns spriteId strings as item IDs.
     /// </summary>
     private List<string> GetRandomLootItems()
     {
-        // Try DedicatedServerItemsManager first (for dedicated server builds)
-        if (Items.DedicatedServerItemsManager.Instance != null)
-        {
-            if (!Items.DedicatedServerItemsManager.Instance.IsInitialized)
-            {
-                logger?.Log(
-                    "[LootDropper] WARNING: DedicatedServerItemsManager not initialized yet! Items will not drop until initialization completes.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                logger?.Log(
-                    "[LootDropper] This is normal on first enemy death. Subsequent deaths should work fine.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                return new List<string>();
-            }
-
-            return GetRandomItemsFromServerManager();
-        }
-
-        // Fallback: Try ItemsManager (for client/host)
-        if (Items.ItemsManager.Instance != null)
-        {
-            if (!Items.ItemsManager.Instance.IsInitialized)
-            {
-                logger?.Log(
-                    "[LootDropper] WARNING: ItemsManager not initialized yet! Items will not drop.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                return new List<string>();
-            }
-
-            return GetRandomItemsFromClientManager();
-        }
-
-        logger?.Log(
-            "[LootDropper] ERROR: No ItemsManager found (neither Server nor Client)!",
-            this,
-            Logging.LogType.Error
-        );
-        return new List<string>();
-    }
-
-    private List<string> GetRandomItemsFromServerManager()
-    {
         var result = new List<string>();
+        var worldData = Worlds.WorldItemsRegistry.CurrentWorldData;
 
-        for (int i = 0; i < itemCount; i++)
+        if (worldData == null)
         {
-            string itemId;
-
-            itemId = Items.DedicatedServerItemsManager.Instance.GetRandomItemId();
-
-            if (!string.IsNullOrEmpty(itemId))
-            {
-                result.Add(itemId);
-            }
+            logger?.Log(
+                "[LootDropper] No world data registered in WorldItemsRegistry. Loot will not drop.",
+                this,
+                Logging.LogType.Warning
+            );
+            return result;
         }
 
-        return result;
-    }
-
-    private List<string> GetRandomItemsFromClientManager()
-    {
-        var result = new List<string>();
-
-        for (int i = 0; i < itemCount; i++)
+        if (worldData.enemies == null || worldData.enemies.Count == 0)
         {
-            var allItems = Items.ItemsManager.Instance.GetAllItems();
-            if (allItems.Length == 0)
+            logger?.Log(
+                "[LootDropper] World has no enemies configured. No loot will drop.",
+                this,
+                Logging.LogType.Warning
+            );
+            return result;
+        }
+
+        // For now, if spawn areas don't specify an enemy, use the first one.
+        EnemyData enemyData = worldData.enemies[0];
+
+        if (
+            enemyData.lootTable == null
+            || enemyData.lootTable.lootItems == null
+            || enemyData.lootTable.lootItems.Count == 0
+        )
+        {
+            logger?.Log(
+                $"[LootDropper] Enemy '{enemyData.name}' has no lootTable or lootItems configured.",
+                this,
+                Logging.LogType.Warning
+            );
+            return result;
+        }
+
+        foreach (LootEntryData loot in enemyData.lootTable.lootItems)
+        {
+            if (loot == null)
+            {
                 continue;
+            }
 
-            int randomIndex = UnityEngine.Random.Range(0, allItems.Length);
-            var itemId = allItems[randomIndex].id;
-            result.Add(itemId);
+            if (loot.dropProbability <= 0 || string.IsNullOrEmpty(loot.id))
+            {
+                continue;
+            }
+
+            int roll = UnityEngine.Random.Range(0, 100);
+            if (roll >= loot.dropProbability)
+            {
+                logger?.Log(
+                    $"[LootDropper] Loot (id={loot.id}) did not drop. Roll={roll}, chance={loot.dropProbability}",
+                    this
+                );
+                continue;
+            }
+
+            // For compatibility, drop at least one, but you can add a maxAmount field to LootEntryData if needed
+            int count = 1;
+
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(loot.id);
+            }
+
+            logger?.Log($"[LootDropper] Loot (id={loot.id}) dropped x{count}.", this);
+        }
+
+        if (result.Count == 0)
+        {
+            logger?.Log(
+                "[LootDropper] Loot table evaluated but no items were selected to drop.",
+                this,
+                Logging.LogType.Warning
+            );
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Get a random gold amount for this loot drop based on the enemy's loot table configuration.
+    /// Returns an integer between minGoldDropAmount and maxGoldDropAmount (inclusive).
+    /// If loot table is not configured or max <= 0, returns 0.
+    /// </summary>
+    private int GetRandomGoldAmount()
+    {
+        var worldData = Worlds.WorldItemsRegistry.CurrentWorldData;
+
+        if (worldData == null || worldData.enemies == null || worldData.enemies.Count == 0)
+        {
+            return 0;
+        }
+
+        // For now, mirror the same enemy selection logic as GetRandomLootItems (first enemy)
+        EnemyData enemyData = worldData.enemies[0];
+
+        if (enemyData == null || enemyData.lootTable == null)
+        {
+            return 0;
+        }
+
+        int minGold = Mathf.Max(0, enemyData.lootTable.minGoldDropAmount);
+        int maxGold = Mathf.Max(0, enemyData.lootTable.maxGoldDropAmount);
+
+        if (maxGold <= 0)
+        {
+            return 0;
+        }
+
+        if (minGold > maxGold)
+        {
+            // Swap if misconfigured
+            int temp = minGold;
+            minGold = maxGold;
+            maxGold = temp;
+        }
+
+        int gold = UnityEngine.Random.Range(minGold, maxGold + 1);
+
+        logger?.Log($"[LootDropper] Gold roll between {minGold} and {maxGold}: {gold}", this);
+
+        return gold;
     }
 
 #if UNITY_EDITOR

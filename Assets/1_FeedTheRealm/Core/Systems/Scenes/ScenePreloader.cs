@@ -66,7 +66,6 @@ public class ScenePreloader : MonoBehaviour
 
     private IEnumerator PreloadScenesAfterDelay()
     {
-        // Esperar un poco para no sobrecargar el inicio
         yield return new WaitForSeconds(delayBeforePreload);
 
         yield return StartCoroutine(PreloadScenes());
@@ -129,10 +128,8 @@ public class ScenePreloader : MonoBehaviour
                 continue;
             }
 
-            // No activar la escena automáticamente
             asyncLoad.allowSceneActivation = false;
 
-            // Esperar a que la carga llegue al 90% (Unity mantiene en 0.9 hasta que se active)
             while (asyncLoad.progress < 0.9f)
             {
                 if (showDebugLogs)
@@ -146,9 +143,6 @@ public class ScenePreloader : MonoBehaviour
             }
 
             logger.Log($"[ScenePreloader] Scene '{sceneName}' preloaded (ready to activate)", this);
-
-            // Mantener la referencia a la AsyncOperation para activar más tarde si es necesario
-            // Por ahora, la dejamos lista pero no activada
         }
 
         isPreloading = false;
