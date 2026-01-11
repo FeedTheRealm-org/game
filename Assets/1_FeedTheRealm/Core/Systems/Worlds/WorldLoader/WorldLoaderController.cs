@@ -191,7 +191,7 @@ public class WorldLoaderController : MonoBehaviour
             }
         }
 
-        foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas)
+        foreach (EnemySpawnerData enemySpawnAreaData in data.enemySpawnAreas)
         {
             Vector3 targetPosition = enemySpawnAreaData.Position;
             Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
