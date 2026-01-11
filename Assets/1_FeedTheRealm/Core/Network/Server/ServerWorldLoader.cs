@@ -11,7 +11,7 @@ using Worlds;
 /// <summary>
 /// Loads world configuration on the dedicated server from a
 /// command line parameter (-world NAME) and applies:
-/// - Enemy spawn areas (EnemySpawnAreaData)
+/// - Enemy spawn areas (EnemySpawnerData)
 /// - Player spawn points (PlayerSpawnAreaData) for PlayerSpawnManager
 ///
 /// This component should be in the server game scene
@@ -211,13 +211,11 @@ public class ServerWorldLoader : NetworkBehaviour
         // Configure enemy spawns on server
         if (enemySpawnPrefab != null && data.enemySpawnAreas != null)
         {
-            foreach (EnemySpawnAreaData area in data.enemySpawnAreas)
+            foreach (EnemySpawnerData area in data.enemySpawnAreas)
             {
-                Vector3 targetPosition = area.Position;
-                Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
                 GameObject spawnInstance = Instantiate(
                     enemySpawnPrefab,
-                    spawnPos,
+                    area.Position,
                     Quaternion.identity
                 );
 
