@@ -164,16 +164,23 @@ public class WorldFeedMenuController : MonoBehaviour
         }
     }
 
-    private async void OnWorldSelected(Models.WorldMetadata metadata)
+    private async Task OnWorldSelected(Models.WorldMetadata metadata)
     {
-        var (worldData, error) = await worldService.GetWorldData(metadata.id, session.APIToken);
-        if (!string.IsNullOrEmpty(error) || worldData == null)
+        try
         {
-            logger.Log($"Error loading world data: {error}", this, Logging.LogType.Error);
-            return;
+            var (worldData, error) = await worldService.GetWorldData(metadata.id, session.APIToken);
+            if (!string.IsNullOrEmpty(error) || worldData == null)
+            {
+                logger.Log($"Error loading world data: {error}", this, Logging.LogType.Error);
+                return;
+            }
+            worldHandler.selectedWorld = worldData;
+            SceneManager.LoadScene(worldScene.SceneName);
         }
-        worldHandler.selectedWorld = worldData;
-        SceneManager.LoadScene(worldScene.SceneName);
+        catch (Exception ex)
+        {
+            logger.Log($"Exception in OnWorldSelected: {ex.Message}", this, Logging.LogType.Error);
+        }
     }
 
     private void CreateCategories()
@@ -234,9 +241,9 @@ public class WorldFeedMenuController : MonoBehaviour
         worldElement.Add(worldAboutButton);
 
         worldElement.AddManipulator(
-            new Clickable(() =>
+            new Clickable(async () =>
             {
-                OnWorldSelected(worldData);
+                await OnWorldSelected(worldData);
             })
         );
 

@@ -47,52 +47,70 @@ public class ServerWorldLoader : NetworkBehaviour
     private const string WorldArgShort = "-world";
     private const string WorldArgLong = "--world";
 
-    public override async void OnStartServer()
+    public override void OnStartServer()
     {
         base.OnStartServer();
+        _ = RunServerWorldLoadAsync();
+    }
 
-        string worldId = GetWorldIdFromArgs();
-        if (string.IsNullOrWhiteSpace(worldId))
+    private async Task RunServerWorldLoadAsync()
+    {
+        try
         {
+            string worldId = GetWorldIdFromArgs();
+            if (string.IsNullOrWhiteSpace(worldId))
+            {
+                logger?.Log(
+                    "[ServerWorldLoader] No -world argument found; keeping default scene configuration.",
+                    this
+                );
+                return;
+            }
+
+            if (worldService == null || session == null)
+            {
+                logger?.Log(
+                    "[ServerWorldLoader] WorldService or Session not assigned; cannot load world from API.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
+
+            var envToken = System.Environment.GetEnvironmentVariable("FTR_SERVER_API_TOKEN");
             logger?.Log(
-                "[ServerWorldLoader] No -world argument found; keeping default scene configuration.",
+                $"[ServerWorldLoader] Env token prefix: {envToken?.Substring(0, 8)}...",
                 this
             );
-            return;
-        }
 
-        if (worldService == null || session == null)
+            if (string.IsNullOrWhiteSpace(envToken))
+            {
+                logger?.Log(
+                    "[ServerWorldLoader] No API token in environment variable FTR_SERVER_API_TOKEN; cannot authenticate against backend.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
+            else
+            {
+                session.SetAPIToken(envToken);
+                logger?.Log(
+                    "[ServerWorldLoader] Using API token from environment variable FTR_SERVER_API_TOKEN.",
+                    this
+                );
+            }
+
+            await LoadWorldFromService(worldId);
+        }
+        catch (System.Exception ex)
         {
             logger?.Log(
-                "[ServerWorldLoader] WorldService or Session not assigned; cannot load world from API.",
+                $"[ServerWorldLoader] Exception in OnStartServer: {ex.Message}",
                 this,
                 Logging.LogType.Error
             );
-            return;
         }
-
-        var envToken = System.Environment.GetEnvironmentVariable("FTR_SERVER_API_TOKEN");
-        logger?.Log($"[ServerWorldLoader] Env token prefix: {envToken?.Substring(0, 8)}...", this);
-
-        if (string.IsNullOrWhiteSpace(envToken))
-        {
-            logger?.Log(
-                "[ServerWorldLoader] No API token in environment variable FTR_SERVER_API_TOKEN; cannot authenticate against backend.",
-                this,
-                Logging.LogType.Error
-            );
-            return;
-        }
-        else
-        {
-            session.SetAPIToken(envToken);
-            logger?.Log(
-                "[ServerWorldLoader] Using API token from environment variable FTR_SERVER_API_TOKEN.",
-                this
-            );
-        }
-
-        await LoadWorldFromService(worldId);
     }
 
     /// <summary>
@@ -115,7 +133,7 @@ public class ServerWorldLoader : NetworkBehaviour
     }
 
     /// <summary>
-    /// Calls WorldService to get world metadata by ID (using filter)
+    /// Calls WorldService to get world data by ID
     /// and applies its WorldData to enemy and player spawns.
     /// </summary>
     private async Task LoadWorldFromService(string worldId)
@@ -147,16 +165,9 @@ public class ServerWorldLoader : NetworkBehaviour
             return;
         }
 
-        // Save the selected world in the shared WorldHandler, if it exists
         if (worldHandler != null)
         {
-            worldHandler.SetSelectedWorld(worldData.worldName);
-        }
-
-        // Ensure worldName inside WorldData matches the -world argument used to start the server.
-        if (worldData != null)
-        {
-            worldData.worldName = worldId;
+            worldHandler.selectedWorld = worldData;
         }
 
         // Expose world items/enemies to gameplay systems (loot, inventory, etc.)

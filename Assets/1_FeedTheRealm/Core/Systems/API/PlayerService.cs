@@ -12,12 +12,9 @@ namespace API
     [CreateAssetMenu(fileName = "PlayerService", menuName = "Scriptable Objects/API/PlayerService")]
     public class PlayerService : ScriptableObject
     {
-        [Header("Server settings")]
+        [Header("API Config")]
         [SerializeField]
-        public string Hostname;
-
-        [SerializeField]
-        public int Port;
+        private ApiConfig apiConfig;
 
         [Header("Session settings")]
         [SerializeField]
@@ -27,6 +24,9 @@ namespace API
         [SerializeField]
         private Logging.Logger logger;
 
+        private string GetBaseUrl() =>
+            $"http://{apiConfig.Hostname}:{apiConfig.Port}/player/character";
+
         /// <summary>
         /// Update the character information such as name and bio.
         /// </summary>
@@ -35,7 +35,7 @@ namespace API
             System.Action<CharacterInfoResponse, string> handler
         )
         {
-            var url = $"http://{Hostname}:{Port}/player/character";
+            var url = GetBaseUrl();
             var json = JsonConvert.SerializeObject(payload);
 
             var uwr = new UnityWebRequest(url, "PATCH");
@@ -84,7 +84,7 @@ namespace API
             string UserID = null
         )
         {
-            var url = $"http://{Hostname}:{Port}/player/character/{(UserID ?? session.UserId)}";
+            var url = $"{GetBaseUrl()}/{(UserID ?? session.UserId)}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
@@ -125,7 +125,7 @@ namespace API
         /// </summary>
         public async Task<CharacterInfoResponse> GetCharacterInfoAsync(string UserID = null)
         {
-            var url = $"http://{Hostname}:{Port}/player/character/{(UserID ?? session.UserId)}";
+            var url = $"{GetBaseUrl()}/{(UserID ?? session.UserId)}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
@@ -167,7 +167,7 @@ namespace API
             PatchCharacterInfoRequest payload
         )
         {
-            var url = $"http://{Hostname}:{Port}/player/character";
+            var url = GetBaseUrl();
             var json = JsonConvert.SerializeObject(payload);
 
             var uwr = new UnityWebRequest(url, "PATCH");

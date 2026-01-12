@@ -98,23 +98,5 @@ namespace Worlds
         {
             return selectedWorld;
         }
-
-        public void SetSelectedWorld(string worldName)
-        {
-            // Ensure WorldMetadata.name is aligned with the selected world's name
-            if (selectedWorld != null && selectedWorld != null)
-            {
-                if (!string.IsNullOrWhiteSpace(worldName))
-                {
-                    int dotIndex = worldName.IndexOf('.');
-                    if (dotIndex > 0)
-                    {
-                        worldName = worldName.Substring(0, dotIndex);
-                    }
-                }
-
-                selectedWorld.worldName = worldName;
-            }
-        }
     }
 }

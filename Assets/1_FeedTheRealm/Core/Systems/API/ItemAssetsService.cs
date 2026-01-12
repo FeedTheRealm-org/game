@@ -16,16 +16,16 @@ namespace API
     )]
     public class ItemAssetsService : ScriptableObject
     {
-        [Header("Server settings")]
+        [Header("API Config")]
         [SerializeField]
-        public string Hostname;
-
-        [SerializeField]
-        public int Port;
+        private ApiConfig apiConfig;
 
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
+
+        private string GetBaseUrl() =>
+            $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/sprites/items";
 
         // Simple in-memory cache to avoid downloading the same sprite multiple times
         private readonly System.Collections.Generic.Dictionary<string, Texture2D> spriteCache =
@@ -54,7 +54,7 @@ namespace API
                 return cachedTexture;
             }
 
-            var url = $"http://{Hostname}:{Port}/assets/sprites/items/{spriteId}";
+            var url = $"{GetBaseUrl()}/{spriteId}";
             using var uwr = UnityWebRequestTexture.GetTexture(url);
             var asyncOp = uwr.SendWebRequest();
             await asyncOp;
