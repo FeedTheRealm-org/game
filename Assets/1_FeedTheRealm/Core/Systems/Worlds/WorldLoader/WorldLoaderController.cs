@@ -122,7 +122,7 @@ public class WorldLoaderController : MonoBehaviour
 
     public void LoadWorld()
     {
-        WorldData data = worldHandler.selectedWorld.data;
+        WorldData data = worldHandler.selectedWorld;
 
         // Register world data so other systems (loot, inventory, tooltips)
         // can query consumables and enemies by spriteId.
@@ -135,7 +135,7 @@ public class WorldLoaderController : MonoBehaviour
                 string json = JsonUtility.ToJson(data, true);
                 string worldName =
                     worldHandler.selectedWorld != null
-                        ? worldHandler.selectedWorld.name
+                        ? worldHandler.selectedWorld.worldName
                         : "<unknown>";
                 logger.Log(
                     $"[WorldLoaderController] World data JSON for '{worldName}':\n{json}",

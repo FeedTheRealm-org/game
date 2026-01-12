@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6822656ce102549cbb16ac31e3e5fef6, type: 3}
   m_Name: GltLoaderService
   m_EditorClassIdentifier: Assembly-CSharp::API.GltLoaderService
-  Hostname: localhost
-  Port: 8000
+  apiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   logger: {fileID: 11400000, guid: c98d647d46d67a84598b908dfd3deb26, type: 2}
