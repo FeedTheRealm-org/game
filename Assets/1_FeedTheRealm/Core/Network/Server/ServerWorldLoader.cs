@@ -184,13 +184,11 @@ public class ServerWorldLoader : NetworkBehaviour
         // Configure enemy spawns on server
         if (enemySpawnPrefab != null && worldData.enemySpawnAreas != null)
         {
-            foreach (EnemySpawnAreaData area in worldData.enemySpawnAreas)
+            foreach (EnemySpawnerData area in worldData.enemySpawnAreas)
             {
-                Vector3 targetPosition = area.Position;
-                Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
                 GameObject spawnInstance = Instantiate(
                     enemySpawnPrefab,
-                    spawnPos,
+                    area.Position,
                     Quaternion.identity
                 );
 
