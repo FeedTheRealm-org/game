@@ -142,3 +142,13 @@
 .quest-progress {
     height: 14px;
 }
+
+.quest-progress .unity-progress-bar__progress {
+    background-color: rgb(100, 200, 250);
+    border-radius: 10px;
+}
+
+.quest-progress .unity-progress-bar__background {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
