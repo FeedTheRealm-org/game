@@ -15,6 +15,9 @@ namespace Game.Core.Quests
         private QuestDecisionEvent questDecisionEvent;
 
         [SerializeField]
+        private QuestProgressEvent questProgressEvent;
+
+        [SerializeField]
         private QuestCompletedEvent questCompletedEvent;
 
         [SerializeField]
@@ -45,7 +48,12 @@ namespace Game.Core.Quests
         {
             if (decisionData.IsAccepted)
             {
-                var newQuest = new Quest(decisionData.Quest, enemySlayedEvent, questCompletedEvent);
+                var newQuest = new Quest(
+                    decisionData.Quest,
+                    enemySlayedEvent,
+                    questProgressEvent,
+                    questCompletedEvent
+                );
                 newQuest.Start();
                 activeQuests.Add(newQuest);
                 logger.Log($"Quest '{decisionData.Quest.Title}' accepted & started.", this);
