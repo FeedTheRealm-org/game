@@ -1,3 +1,4 @@
+using Models;
 using UnityEngine.UIElements;
 
 namespace UI.ItemStats
@@ -28,7 +29,30 @@ namespace UI.ItemStats
             maxStackLabel = maxStack;
         }
 
-        public void ShowConsumableStats(Models.ConsumableItemData consumable)
+        /// <summary>
+        /// Entry point for showing stats for any item type.
+        /// Clears previous stats and delegates to the appropriate
+        /// type-specific implementation based on the concrete item.
+        /// </summary>
+        public void ShowStats(ItemData item)
+        {
+            HideAllStats();
+
+            switch (item)
+            {
+                case ConsumableItemData consumable:
+                    ShowConsumableStats(consumable);
+                    break;
+                case WeaponItemData weapon:
+                    ShowWeaponStats(weapon);
+                    break;
+                default:
+                    // No stats for unknown item types; keep all labels hidden.
+                    break;
+            }
+        }
+
+        public void ShowConsumableStats(ConsumableItemData consumable)
         {
             if (effectLabel != null)
             {
@@ -53,6 +77,38 @@ namespace UI.ItemStats
             if (maxStackLabel != null)
             {
                 maxStackLabel.text = $"Max Stack: {consumable.maxStack}";
+                maxStackLabel.style.display = DisplayStyle.Flex;
+            }
+        }
+
+        /// <summary>
+        /// Show weapon-specific stats using the same label set.
+        /// </summary>
+        public void ShowWeaponStats(WeaponItemData weapon)
+        {
+            if (effectLabel != null)
+            {
+                effectLabel.text = $"Type: {weapon.weaponType}";
+                effectLabel.style.display = DisplayStyle.Flex;
+            }
+            if (valueLabel != null)
+            {
+                valueLabel.text = $"Damage: {weapon.damage}";
+                valueLabel.style.display = DisplayStyle.Flex;
+            }
+            if (durationLabel != null)
+            {
+                durationLabel.text = $"Range: {weapon.range}";
+                durationLabel.style.display = DisplayStyle.Flex;
+            }
+            if (cooldownLabel != null)
+            {
+                cooldownLabel.text = $"Attack Speed: {weapon.attackSpeed}";
+                cooldownLabel.style.display = DisplayStyle.Flex;
+            }
+            if (maxStackLabel != null)
+            {
+                maxStackLabel.text = $"Ammo: {weapon.ammo}";
                 maxStackLabel.style.display = DisplayStyle.Flex;
             }
         }

@@ -90,19 +90,14 @@ public class InventoryController : MonoBehaviour
 
     private void OnSlotPointerDown(PointerDownEvent evt)
     {
-        // Hide tooltip when starting drag
         itemStatsTooltip?.HideTooltip();
         dragHandler.OnSlotPointerDown(evt);
     }
-
-    // Drag logic is now handled by InventoryDragHandler
 
     private void OnSlotPointerUp(PointerUpEvent evt)
     {
         dragHandler.OnSlotPointerUp(evt, MoveItemToSlot);
     }
-
-    // Global pointer up handled by InventoryDragHandler
 
     private void OnDropZonePointerUp(PointerUpEvent evt)
     {
@@ -189,8 +184,8 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
-        if (consumable == null)
+        var itemData = Worlds.WorldItemsRegistry.GetItemById(itemId);
+        if (itemData == null)
         {
             logger.Log(
                 $"Cannot add item: itemId '{itemId}' not found in registry",
@@ -211,31 +206,6 @@ public class InventoryController : MonoBehaviour
         }
 
         AddItemBySpriteWithId(itemId, itemId);
-    }
-
-    /// <summary>
-    /// Add item to inventory by sprite directly (used by debug button).
-    /// Note: This version doesn't have itemId, so tooltip won't work for these items.
-    /// </summary>
-    public void AddItemBySprite(Sprite itemSprite)
-    {
-        if (itemSprite == null)
-        {
-            logger.Log("Cannot add item: sprite is null", this, Logging.LogType.Warning);
-            return;
-        }
-
-        foreach (var slot in slots)
-        {
-            if (slot.childCount == 0)
-            {
-                CreateItemElement(itemSprite, slot, null);
-                logger.Log($"Item added to inventory", this);
-                return;
-            }
-        }
-
-        logger.Log("Inventory full, cannot add more items", this, Logging.LogType.Warning);
     }
 
     /// <summary>
