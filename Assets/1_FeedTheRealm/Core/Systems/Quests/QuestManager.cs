@@ -7,8 +7,7 @@ namespace Game.Core.Quests
     /// <summary>
     /// Manages active quests, handling quest acceptance and completion.
     /// </summary>
-    [CreateAssetMenu(fileName = "QuestManager", menuName = "Scriptable Objects/Quest Manager")]
-    public class QuestManager : ScriptableObject
+    public class QuestManager : MonoBehaviour
     {
         [Header("Events")]
         [SerializeField]
@@ -33,6 +32,7 @@ namespace Game.Core.Quests
         private void OnEnable()
         {
             questDecisionEvent.OnRaised += OnQuestDecision;
+            logger.Log("QUEST MANAGER: Quest Manager enabled.", this);
         }
 
         private void OnDisable()
@@ -42,10 +42,12 @@ namespace Game.Core.Quests
             {
                 quest.Dispose();
             }
+            logger.Log("QUEST MANAGER: Quest Manager disabled.", this);
         }
 
         private void OnQuestDecision(QuestDecisionData decisionData)
         {
+            logger.Log($"QUEST MANAGER: Quest decision received for quest '{decisionData.Quest.Title}'.", this);
             if (decisionData.IsAccepted)
             {
                 var newQuest = new Quest(

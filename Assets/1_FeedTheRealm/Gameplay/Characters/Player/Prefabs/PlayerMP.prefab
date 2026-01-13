@@ -5154,6 +5154,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
+  enemySlayedEvent: {fileID: 11400000, guid: bc1931e5725e587d5b31e691f308799c, type: 2}
 --- !u!114 &8714627742757969959
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5238,12 +5239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7999438bd0c049ea2ba1c00331a958a1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStateMachine
-  movementComponent: {fileID: 448067336067517275}
-  dashComponent: {fileID: 3922140041663509706}
-  attackComponent: {fileID: 7856473034520349750}
-  groundCheckComponent: {fileID: 1578071206875185455}
-  characterAnimator: {fileID: 1302345659188457434}
-  interactComponent: {fileID: 0}
+  logger: {fileID: 0}
 --- !u!114 &7721620102888945814
 MonoBehaviour:
   m_ObjectHideFlags: 0
