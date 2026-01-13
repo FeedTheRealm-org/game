@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b7c0651f679ce81ea61934ce515cbc0, type: 3}
   m_Name: PlayerService
   m_EditorClassIdentifier: Assembly-CSharp::API.PlayerService
-  Hostname: localhost
-  Port: 8000
+  apiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   logger: {fileID: 11400000, guid: c98d647d46d67a84598b908dfd3deb26, type: 2}

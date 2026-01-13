@@ -314,7 +314,7 @@ public class EnemySpawn : MonoBehaviour
     /// Configures this spawn instance with data from EnemySpawnAreaData.
     /// Must be called after instantiation for dynamically placed spawns.
     /// </summary>
-    public void ConfigureFromSpawnData(Models.EnemySpawnAreaData spawnData)
+    public void ConfigureFromSpawnData(Models.EnemySpawnerData spawnData)
     {
         if (spawnData == null)
         {

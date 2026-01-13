@@ -122,7 +122,7 @@ public class WorldLoaderController : MonoBehaviour
 
     public void LoadWorld()
     {
-        WorldData data = worldHandler.selectedWorld.data;
+        WorldData data = worldHandler.selectedWorld;
 
         // Register world data so other systems (loot, inventory, tooltips)
         // can query consumables and enemies by spriteId.
@@ -135,7 +135,7 @@ public class WorldLoaderController : MonoBehaviour
                 string json = JsonUtility.ToJson(data, true);
                 string worldName =
                     worldHandler.selectedWorld != null
-                        ? worldHandler.selectedWorld.name
+                        ? worldHandler.selectedWorld.worldName
                         : "<unknown>";
                 logger.Log(
                     $"[WorldLoaderController] World data JSON for '{worldName}':\n{json}",
@@ -191,7 +191,7 @@ public class WorldLoaderController : MonoBehaviour
             }
         }
 
-        foreach (EnemySpawnAreaData enemySpawnAreaData in data.enemySpawnAreas)
+        foreach (EnemySpawnerData enemySpawnAreaData in data.enemySpawnAreas)
         {
             Vector3 targetPosition = enemySpawnAreaData.Position;
             Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
