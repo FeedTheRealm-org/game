@@ -1,22 +1,15 @@
-using System;
-using UnityEngine;
-
 namespace Game.Core.Quests
 {
     public class QuestDecisionData
     {
-        private QuestData _questData;
+        public QuestData Quest;
 
-        private bool _isAccepted;
+        public bool IsAccepted;
 
         public QuestDecisionData(QuestData questData, bool isAccepted)
         {
-            _questData = questData;
-            _isAccepted = isAccepted;
+            Quest = questData;
+            IsAccepted = isAccepted;
         }
-
-        public QuestData QuestData => _questData;
-
-        public bool IsAccepted => _isAccepted;
     }
 }

@@ -9,10 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
-  m_Name: UILogger
-  m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  showLogs: 1
-  loggerPrefix: '[UI]'
-  loggerColor: {r: 1, g: 0, b: 0.7175808, a: 0}
-  showColor: 1
+  m_Script: {fileID: 11500000, guid: d0640f0643858333e88d7b6470c51a1e, type: 3}
+  m_Name: EnemySlayedEvent
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Core.Events.EnemySlayedEvent
