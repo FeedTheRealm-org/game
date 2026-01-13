@@ -47,7 +47,10 @@ namespace Game.Core.Quests
 
         private void OnQuestDecision(QuestDecisionData decisionData)
         {
-            logger.Log($"QUEST MANAGER: Quest decision received for quest '{decisionData.Quest.Title}'.", this);
+            logger.Log(
+                $"QUEST MANAGER: Quest decision received for quest '{decisionData.Quest.Title}'.",
+                this
+            );
             if (decisionData.IsAccepted)
             {
                 var newQuest = new Quest(
