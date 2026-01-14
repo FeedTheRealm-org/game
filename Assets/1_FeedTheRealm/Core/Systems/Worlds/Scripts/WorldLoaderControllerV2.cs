@@ -62,12 +62,15 @@ public class WorldLoaderControllerV2 : MonoBehaviour
 
     private async Task<WorldData> LoadWorldData()
     {
-        WorldData data = await worldService.GetWorldData(worldId, accessToken);
+        (WorldData data, string errorMessage) = await worldService.GetWorldData(
+            worldId,
+            accessToken
+        );
 
-        if (data == null)
+        if (data == null || !string.IsNullOrEmpty(errorMessage))
         {
             logger.Log(
-                "Failed to load world data; aborting world load.",
+                $"[WorldLoaderController] Failed to load world '{worldId}': {errorMessage}",
                 this,
                 Logging.LogType.Error
             );

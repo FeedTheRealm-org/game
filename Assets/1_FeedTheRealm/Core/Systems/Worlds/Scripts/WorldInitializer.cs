@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Linq;
 using Models;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -39,9 +40,13 @@ public class WorldInitializer : MonoBehaviour
         if (player != null && worldData != null && worldData.playerSpawnAreas != null)
         {
             int randomIndex = Random.Range(0, worldData.playerSpawnAreas.Count);
+            Debug.Log(
+                $"Available spawnpoints: {string.Join(", ", worldData.playerSpawnAreas.Select(s => s.Position))}"
+            );
             Vector3 spawnPosition = worldData.playerSpawnAreas[randomIndex].Position;
             spawnPosition.y = 0f;
             player.transform.position = spawnPosition;
+            Debug.Log($"Player spawned at: {spawnPosition}");
         }
         loadingScreenUI.gameObject.SetActive(false);
     }
