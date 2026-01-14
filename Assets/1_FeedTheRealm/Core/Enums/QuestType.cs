@@ -1,6 +1,3 @@
-using System;
-using UnityEngine;
-
 namespace Game.Core.Enum
 {
     /// <summary>
@@ -9,6 +6,6 @@ namespace Game.Core.Enum
     public enum QuestType
     {
         EnemySlays,
-        NPCInteract,
+        NpcInteract,
     }
 }

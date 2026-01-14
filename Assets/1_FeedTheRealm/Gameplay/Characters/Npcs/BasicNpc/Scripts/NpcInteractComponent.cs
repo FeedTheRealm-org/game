@@ -29,13 +29,14 @@ public class NpcInteractComponent : MonoBehaviour, IInteractable
         questDecisionEvent.OnRaised -= OnQuestDecision;
     }
 
-    public void Interact(IInteractor interactor)
+    public string Interact(IInteractor interactor)
     {
+        _currentInteractor = interactor;
         dialogManager.Next();
         logger.Log("NPC interacted with by " + interactor.GameObject.name, this);
-        _currentInteractor = interactor;
         if (!dialogManager.IsQuestOffer())
             interactor.FinishInteracting();
+        return dialogManager.NpcId;
     }
 
     public bool CanInteract(IInteractor interactor)
@@ -45,6 +46,6 @@ public class NpcInteractComponent : MonoBehaviour, IInteractable
 
     private void OnQuestDecision(QuestDecisionData _)
     {
-        _currentInteractor.FinishInteracting();
+        _currentInteractor?.FinishInteracting();
     }
 }

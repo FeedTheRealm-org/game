@@ -91,13 +91,13 @@ public class QuestProgressPanelController : MonoBehaviour
         }
 
         float percentComplete =
-            ((float)questProgress.CurrentAmount / questProgress.TargetAmount)
+            ((float)questProgress.CurrentProgressAmount / questProgress.TargetProgressAmount)
             * _questProgressHighValue;
 
         progressBar.value = percentComplete;
         progressBar.title = $"{percentComplete}%";
 
-        if (questProgress.CurrentAmount >= questProgress.TargetAmount)
+        if (questProgress.CurrentProgressAmount >= questProgress.TargetProgressAmount)
             StartCoroutine(RemoveQuestAfterDelay(completeQuestDisplayDuration, questProgress.Id));
     }
 
