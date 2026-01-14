@@ -1,10 +1,13 @@
-/// <summary>
-/// Enum representing the facing direction of a character sprite.
-/// </summary>
-public enum FacingDirection
+namespace Game.Core.Enum
 {
-    Front,
-    Back,
-    Right,
-    Left,
+    /// <summary>
+    /// Enum representing the facing direction of a character sprite.
+    /// </summary>
+    public enum FacingDirection
+    {
+        Front,
+        Back,
+        Right,
+        Left,
+    }
 }
