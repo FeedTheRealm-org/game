@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using API;
 using GLTFast;
 using UnityEngine;
 
@@ -40,21 +41,8 @@ namespace API
             try
             {
                 string url = $"{GetBaseUrl().TrimEnd('/')}/{worldId}/{modelId}";
-
-                var gltf = new GltfImport();
-                bool loaded = await gltf.Load(url);
-                if (!loaded)
-                    return null;
-
                 GameObject template = new(modelId);
-
-                await gltf.InstantiateMainSceneAsync(template.transform);
-
-                // Normalize GLTF root (this depends on how the GLTF was created/exported)
-                Transform gltfRoot = template.transform.GetChild(0);
-                gltfRoot.localPosition = Vector3.zero;
-                gltfRoot.localScale = Vector3.one;
-
+                await GltfHandler.Load(template, url, useLocalAsset: false);
                 return template;
             }
             catch (System.Exception ex)
