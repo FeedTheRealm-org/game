@@ -22,6 +22,9 @@ namespace Game.Core.Quests
         [SerializeField]
         private EnemySlayedEvent enemySlayedEvent;
 
+        [SerializeField]
+        private NpcInteractedEvent npcInteractedEvent;
+
         [Header("General Settings")]
         [SerializeField]
         private Logging.Logger logger;
@@ -56,9 +59,10 @@ namespace Game.Core.Quests
             );
             if (decisionData.IsAccepted)
             {
-                var newQuest = new SlayQuest(
+                var newQuest = QuestFactory.CreateQuest(
                     decisionData.Quest,
                     enemySlayedEvent,
+                    npcInteractedEvent,
                     questProgressEvent,
                     questCompletedEvent
                 );

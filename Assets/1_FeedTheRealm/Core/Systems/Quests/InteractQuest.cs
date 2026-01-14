@@ -1,11 +1,12 @@
 using Game.Core.Events;
+using Game.Core.Interactions;
 
 namespace Game.Core.Quests
 {
-    public class SlayQuest : Quest
+    public class InteractQuest : Quest
     {
         /* Events */
-        private EnemySlayedEvent enemySlayedEvent;
+        private NpcInteractedEvent npcInteractedEvent;
         private QuestProgressEvent questProgressEvent;
         private QuestCompletedEvent questCompletedEvent;
 
@@ -14,16 +15,17 @@ namespace Game.Core.Quests
 
         private QuestProgressData questProgressData;
 
-        private int currentSlayedCount = 0;
+        private bool interactedWithTarget = false;
+        private int targetProgressAmount = 1;
 
-        public SlayQuest(
+        public InteractQuest(
             QuestData questData,
-            EnemySlayedEvent enemySlayedEvent,
+            NpcInteractedEvent npcInteractedEvent,
             QuestProgressEvent questProgressEvent,
             QuestCompletedEvent questCompletedEvent
         )
         {
-            this.enemySlayedEvent = enemySlayedEvent;
+            this.npcInteractedEvent = npcInteractedEvent;
             this.questProgressEvent = questProgressEvent;
             this.questCompletedEvent = questCompletedEvent;
             this.questData = questData;
@@ -31,39 +33,41 @@ namespace Game.Core.Quests
             this.questProgressData = new QuestProgressData
             {
                 Id = questData.Id,
-                TargetProgressAmount = questData.TargetAmount,
-                CurrentProgressAmount = currentSlayedCount,
+                TargetProgressAmount = targetProgressAmount,
+                CurrentProgressAmount = 0,
                 Quest = questData,
             };
         }
 
         public override void Start()
         {
-            enemySlayedEvent.OnRaised += OnEnemySlayed;
+            npcInteractedEvent.OnRaised += OnNpcInteracted;
             RaiseProgress();
         }
 
         public override void Dispose()
         {
-            enemySlayedEvent.OnRaised -= OnEnemySlayed;
+            npcInteractedEvent.OnRaised -= OnNpcInteracted;
         }
 
-        private void OnEnemySlayed()
+        private void OnNpcInteracted(NpcInteractedData interactedData)
         {
-            currentSlayedCount++;
+            if (interactedData.NpcId != questData.TargetInteractionId || interactedWithTarget)
+                return;
 
-            if (currentSlayedCount >= questData.TargetAmount)
-            {
-                questCompletedEvent.Raise(questData);
-                Dispose();
-            }
+            interactedWithTarget = true;
+
+            questCompletedEvent.Raise(questData);
+            Dispose();
 
             RaiseProgress();
         }
 
         private void RaiseProgress()
         {
-            questProgressData.CurrentProgressAmount = currentSlayedCount;
+            questProgressData.CurrentProgressAmount = interactedWithTarget
+                ? targetProgressAmount
+                : 0;
             questProgressEvent.Raise(questProgressData);
         }
     }
