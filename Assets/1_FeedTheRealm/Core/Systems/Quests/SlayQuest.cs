@@ -10,7 +10,7 @@ namespace Game.Core.Quests
         private QuestCompletedEvent questCompletedEvent;
 
         /* Data */
-        private QuestData questData;
+        private readonly QuestData questData;
 
         private QuestProgressData questProgressData;
 
@@ -52,13 +52,13 @@ namespace Game.Core.Quests
         {
             currentSlayedCount++;
 
+            RaiseProgress();
+
             if (currentSlayedCount >= questData.TargetAmount)
             {
                 questCompletedEvent.Raise(questData);
                 Dispose();
             }
-
-            RaiseProgress();
         }
 
         private void RaiseProgress()

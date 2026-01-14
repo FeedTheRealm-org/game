@@ -11,7 +11,7 @@ namespace Game.Core.Quests
         private QuestCompletedEvent questCompletedEvent;
 
         /* Data */
-        private QuestData questData;
+        private readonly QuestData questData;
 
         private QuestProgressData questProgressData;
 
@@ -58,9 +58,8 @@ namespace Game.Core.Quests
             interactedWithTarget = true;
 
             questCompletedEvent.Raise(questData);
-            Dispose();
-
             RaiseProgress();
+            Dispose();
         }
 
         private void RaiseProgress()

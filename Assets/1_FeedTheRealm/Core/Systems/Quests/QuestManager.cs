@@ -29,8 +29,7 @@ namespace Game.Core.Quests
         [SerializeField]
         private Logging.Logger logger;
 
-        // TODO: grows indefinitely FIX (remove completed quests)
-        private Dictionary<string, Quest> activeQuests = new Dictionary<string, Quest>();
+        private readonly Dictionary<string, Quest> activeQuests = new Dictionary<string, Quest>();
 
         private void OnEnable()
         {
