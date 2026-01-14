@@ -53,7 +53,7 @@ namespace Game.Core.Quests
             );
             if (decisionData.IsAccepted)
             {
-                var newQuest = new Quest(
+                var newQuest = new SlayQuest(
                     decisionData.Quest,
                     enemySlayedEvent,
                     questProgressEvent,
