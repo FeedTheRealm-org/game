@@ -356,7 +356,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113928, y: 0.0021712596, z: -0.0007362779, w: 0.94702923}
+  m_LocalRotation: {x: 0.32113937, y: 0.0020250392, z: -0.00068669434, w: 0.94702953}
   m_LocalPosition: {x: 4.35277, y: 8.3303995, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -799,7 +799,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693203289}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113925, y: 0.0021712596, z: -0.00073627796, w: 0.94702923}
+  m_LocalRotation: {x: 0.32113934, y: 0.0020250392, z: -0.0006866942, w: 0.9470296}
   m_LocalPosition: {x: 4.35277, y: 8.3303995, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1106,6 +1106,17 @@ MonoBehaviour:
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
   playerPrefab: {fileID: 1336424179}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+--- !u!114 &1713997898 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8764509565767309715, guid: d4c9583a724961068894efa45cac342e, type: 3}
+  m_PrefabInstance: {fileID: 8841032796515695318}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f402063eedeea570955ddc199ae71b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsMenuController
 --- !u!1001 &1739303081
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1117,6 +1128,10 @@ PrefabInstance:
     - target: {fileID: 1418397613159891299, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4629284952826211309, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4885086532300312383, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
       propertyPath: m_Enabled
@@ -1232,7 +1247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5f841f2aacffa559f373074a838bd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
-  settingsMenu: {fileID: 8841032796515695319}
+  settingsMenu: {fileID: 1713997898}
   inventoryMenu: {fileID: 728981914}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
@@ -1439,24 +1454,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6209252735088991528, guid: d4c9583a724961068894efa45cac342e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d4c9583a724961068894efa45cac342e, type: 3}
---- !u!114 &8841032796515695319 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -3149058110524694792, guid: d4c9583a724961068894efa45cac342e, type: 3}
-  m_PrefabInstance: {fileID: 8841032796515695318}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22bf0e44569155347b7e5bee60bcf9c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FeedTheRealm_Shared::SettingsMenuController
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
