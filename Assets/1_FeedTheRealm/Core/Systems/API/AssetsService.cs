@@ -11,12 +11,9 @@ namespace API
     [CreateAssetMenu(fileName = "AssetsService", menuName = "Scriptable Objects/API/AssetsService")]
     public class AssetsService : ScriptableObject
     {
-        [Header("Server settings")]
+        [Header("API Config")]
         [SerializeField]
-        public string Hostname;
-
-        [SerializeField]
-        public int Port;
+        private ApiConfig apiConfig;
 
         [Header("Session settings")]
         [SerializeField]
@@ -26,12 +23,15 @@ namespace API
         [SerializeField]
         private Logging.Logger logger;
 
+        private string GetBaseUrl() =>
+            $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/sprites";
+
         /// <summary>
         /// Retrieve the list of categories for sprites.
         /// </summary>
         public IEnumerator GetCategories(System.Action<SpriteCategoryListResponse, string> handler)
         {
-            var url = $"http://{Hostname}:{Port}/assets/sprites/categories";
+            var url = $"{GetBaseUrl()}/categories";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
@@ -73,7 +73,7 @@ namespace API
             System.Action<SpritesListResponse, string> handler
         )
         {
-            var url = $"http://{Hostname}:{Port}/assets/sprites/categories/{categoryId}";
+            var url = $"{GetBaseUrl()}/categories/{categoryId}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
@@ -110,7 +110,7 @@ namespace API
         /// </summary>
         public async Task<SpriteCategoryListResponse> GetCategoriesAsync()
         {
-            var url = $"http://{Hostname}:{Port}/assets/sprites/categories";
+            var url = $"{GetBaseUrl()}/categories";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
@@ -149,7 +149,7 @@ namespace API
         /// </summary>
         public async Task<SpritesListResponse> GetSpritesByCategoryAsync(string categoryId)
         {
-            var url = $"http://{Hostname}:{Port}/assets/sprites/categories/{categoryId}";
+            var url = $"{GetBaseUrl()}/categories/{categoryId}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
@@ -186,7 +186,7 @@ namespace API
         /// </summary>
         public async Task<Texture2D> DownloadTexture2D(string spriteId)
         {
-            var url = $"http://{Hostname}:{Port}/assets/sprites/{spriteId}";
+            var url = $"{GetBaseUrl()}/{spriteId}";
 
             using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url))
             {

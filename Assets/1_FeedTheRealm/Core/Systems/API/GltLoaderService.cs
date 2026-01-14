@@ -14,18 +14,16 @@ namespace API
     [CreateAssetMenu(fileName = "GltLoaderService", menuName = "Scriptable Objects/API/GltLoader")]
     public class GltLoaderService : ScriptableObject
     {
-        [Header("Server settings")]
+        [Header("API Config")]
         [SerializeField]
-        public string Hostname;
-
-        [SerializeField]
-        public int Port;
+        private ApiConfig apiConfig;
 
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
 
-        private string GetBaseUrl() => $"http://{Hostname}:{Port}/assets/models";
+        private string GetBaseUrl() =>
+            $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/models";
 
         /// <summary>
         ///  Downloads a specific asset model for a given world.

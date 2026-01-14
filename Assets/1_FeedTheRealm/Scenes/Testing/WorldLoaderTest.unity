@@ -258,22 +258,23 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -3149058110524694792, guid: d4c9583a724961068894efa45cac342e, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d4c9583a724961068894efa45cac342e, type: 3}
 --- !u!114 &46665259 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -3149058110524694792, guid: d4c9583a724961068894efa45cac342e, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8764509565767309715, guid: d4c9583a724961068894efa45cac342e, type: 3}
   m_PrefabInstance: {fileID: 46665258}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22bf0e44569155347b7e5bee60bcf9c2, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f402063eedeea570955ddc199ae71b4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: FeedTheRealm_Shared::SettingsMenuController
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsMenuController
 --- !u!1 &384360887
 GameObject:
   m_ObjectHideFlags: 0

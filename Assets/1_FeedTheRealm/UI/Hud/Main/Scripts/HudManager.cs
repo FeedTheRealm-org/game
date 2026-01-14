@@ -14,12 +14,18 @@ public class HudManager : MonoBehaviour
     [SerializeField]
     private QuestPromptController questPromptPanel;
 
+    [SerializeField]
+    private QuestCompletionPanelController questCompletionPanel;
+
     [Header("Quests")]
     [SerializeField]
     private QuestOfferedEvent questOfferedEvent;
 
     [SerializeField]
     private QuestDecisionEvent questDecisionEvent;
+
+    [SerializeField]
+    private QuestCompletedEvent questCompletedEvent;
 
     [Header("General settings")]
     [SerializeField]
@@ -50,6 +56,13 @@ public class HudManager : MonoBehaviour
                 this,
                 Logging.LogType.Error
             );
+
+        if (questCompletedEvent == null)
+            logger.Log(
+                "Quest Completed Event is not assigned in the inspector.",
+                this,
+                Logging.LogType.Error
+            );
     }
 
     private void OnEnable()
@@ -57,12 +70,14 @@ public class HudManager : MonoBehaviour
         hudPanel.SetActive(true);
         questOfferedEvent.OnRaised += OnQuestOffered;
         questDecisionEvent.OnRaised += OnQuestDecision;
+        questCompletedEvent.OnRaised += OnQuestCompleted;
     }
 
     private void OnDisable()
     {
         questOfferedEvent.OnRaised -= OnQuestOffered;
         questDecisionEvent.OnRaised -= OnQuestDecision;
+        questCompletedEvent.OnRaised -= OnQuestCompleted;
     }
 
     private void OnQuestOffered(QuestData data)
@@ -78,5 +93,11 @@ public class HudManager : MonoBehaviour
         questPromptPanel.ToggleQuestPrompt(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void OnQuestCompleted(QuestData data)
+    {
+        questCompletionPanel.ToggleQuestCompletionPanel(true);
+        questCompletionPanel.OnQuestCompleted(data);
     }
 }

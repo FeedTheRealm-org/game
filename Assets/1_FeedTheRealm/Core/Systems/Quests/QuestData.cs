@@ -7,34 +7,17 @@ namespace Game.Core.Quests
     public class QuestData
     {
         [SerializeField]
-        private string _id;
+        public string Id;
 
         [SerializeField]
-        private string _title;
+        public string Title;
 
         [SerializeField]
-        private string _content;
+        public string Content;
 
-        public QuestData(string id, string title, string content)
-        {
-            _id = id;
-            _title = title;
-            _content = content;
-        }
+        [SerializeField]
+        public int TargetAmount;
 
-        public string Id
-        {
-            get => _id;
-        }
-
-        public string Title
-        {
-            get => _title;
-        }
-
-        public string Content
-        {
-            get => _content;
-        }
+        // TODO: add a type enum or a condition abstract class, and reward system
     }
 }

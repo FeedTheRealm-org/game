@@ -52,19 +52,17 @@ public class HealthComponent : MonoBehaviour
         OnHealthChanged?.Invoke(currentHealth);
     }
 
-    public void TakeDamage(int damage)
+    public bool TakeDamage(int damage)
     {
         currentHealth -= damage;
-        if (currentHealth <= 0)
-        {
+        var isDead = currentHealth <= 0;
+        if (isDead)
             _animator.SetTrigger("4_Death");
-        }
         else
-        {
             _animator.SetTrigger("3_Damaged");
-        }
         OnHealthChanged?.Invoke(currentHealth);
         logger.Log($"Took {damage} damage, current health: {currentHealth}", this);
+        return isDead;
     }
 
     public void Die()
