@@ -6104,7 +6104,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1087972465}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113865, y: 0.0028011878, z: -0.00094988773, w: 0.94702756}
+  m_LocalRotation: {x: 0.32113883, y: 0.002662986, z: -0.00090302323, w: 0.947028}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6341,6 +6341,7 @@ MonoBehaviour:
   questProgressEvent: {fileID: 11400000, guid: 97500dbc39981e47795353313f9d5277, type: 2}
   questCompletedEvent: {fileID: 11400000, guid: b2755233a0e9e83729434441a96c878d, type: 2}
   enemySlayedEvent: {fileID: 11400000, guid: bc1931e5725e587d5b31e691f308799c, type: 2}
+  npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!4 &1102764177
 Transform:
@@ -8129,7 +8130,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1519733286}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113868, y: 0.0028011878, z: -0.00094988756, w: 0.94702756}
+  m_LocalRotation: {x: 0.32113883, y: 0.002662986, z: -0.00090302335, w: 0.947028}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
