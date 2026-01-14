@@ -7,8 +7,9 @@ namespace Game.Core.Interactions
     {
         /// <summary>
         /// Method to handle interaction with the object.
+        /// Returns a string containing the ID of the interacted object.
         /// </summary>
-        void Interact(IInteractor interactor);
+        string Interact(IInteractor interactor);
 
         /// <summary>
         /// Method to check if the object can be interacted with.
