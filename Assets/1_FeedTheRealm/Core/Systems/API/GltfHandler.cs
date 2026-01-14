@@ -48,8 +48,9 @@ namespace API
                 return;
             }
             await gltf.InstantiateMainSceneAsync(parent.transform);
-            FlattenHierarchy(parent);
             NormalizeChildren(parent);
+            FlattenHierarchy(parent);
+            AddColliders(parent);
         }
 
         private static void CreateFallback(GameObject parent)
@@ -83,6 +84,20 @@ namespace API
                 child.localPosition = Vector3.zero;
                 child.localRotation = Quaternion.identity;
                 child.localScale = Vector3.one;
+            }
+        }
+
+        private static void AddColliders(GameObject parent)
+        {
+            foreach (Transform child in parent.transform)
+            {
+                if (
+                    child.GetComponent<Renderer>() != null
+                    && child.GetComponent<Collider>() == null
+                )
+                {
+                    child.gameObject.AddComponent<BoxCollider>();
+                }
             }
         }
     }
