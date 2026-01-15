@@ -137,18 +137,15 @@ public class LootItem : NetworkBehaviour
         // Now items are identified by their unique item id (not spriteId)
         foreach (var itemId in _itemIds)
         {
-            var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
-            if (consumable != null)
+            var item = Worlds.WorldItemsRegistry.GetItemById(itemId);
+            if (item != null)
             {
-                logger?.Log(
-                    $"[LootItem] Contains world item: {consumable.name} (id={itemId})",
-                    this
-                );
+                logger?.Log($"[LootItem] Contains world item: {item.name} (id={itemId})", this);
             }
             else
             {
                 logger?.Log(
-                    $"[LootItem] Item id in bag but no consumable found: {itemId}",
+                    $"[LootItem] Item id in bag but no matching world item found: {itemId}",
                     this,
                     Logging.LogType.Warning
                 );
