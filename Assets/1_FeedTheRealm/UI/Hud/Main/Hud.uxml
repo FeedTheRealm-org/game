@@ -1,0 +1,34 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Hud/Main/Themes/Hud.uss?fileID=7433441132597879392&amp;guid=f2b110e8876311072b361748c42d217d&amp;type=3#Hud"/>
+    <ui:VisualElement name="FastUseSlotsContainer" class="fast-use-container">
+        <ui:Button name="Slot1" class="fast-use-slot"/>
+        <ui:Button name="Slot2" class="fast-use-slot"/>
+        <ui:Button name="Slot3" class="fast-use-slot"/>
+        <ui:Button name="Slot4" class="fast-use-slot"/>
+        <ui:Button name="Slot5" class="fast-use-slot"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="Sidebar" class="sidebar">
+        <ui:VisualElement name="CharacterData" class="character-data">
+            <ui:Button name="CharacterIcon" class="character-icon"/>
+            <ui:VisualElement name="DataContainer" class="character-stats">
+                <ui:Label name="Username" text="MaxoGod" class="username"/>
+                <ui:ProgressBar name="HealthBar" title="Health" value="100" class="stat-bar health"/>
+                <ui:ProgressBar name="StaminaBar" title="Stamina" value="25" class="stat-bar stamina"/>
+                <ui:VisualElement name="CurrencyContainer" class="currency">
+                    <ui:Button name="GoldIcon" class="currency-icon"/>
+                    <ui:Label name="GoldAmount" text="7532" class="currency-amount"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:ScrollView name="CurrentQuestsContainer" class="quest-list">
+            <ui:VisualElement class="quest-item">
+                <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu" class="quest-title"/>
+                <ui:ProgressBar title="0%" class="quest-progress"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="quest-item">
+                <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu" class="quest-title"/>
+                <ui:ProgressBar value="25" title="25%" class="quest-progress"/>
+            </ui:VisualElement>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

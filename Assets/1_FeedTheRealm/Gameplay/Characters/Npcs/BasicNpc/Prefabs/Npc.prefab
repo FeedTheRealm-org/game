@@ -9027,31 +9027,40 @@ MonoBehaviour:
   shouldResetOnComplete: 1
   inactivityTimeout: 5
   npcName: Hatsu
+  npcId: 1
   dialogs:
   - _msg:
       _sender:
       _content: Let's sing together! Music connects everyone's hearts!
     _quest:
-      _id:
-      _title:
-      _content:
+      Id:
+      Title:
+      Content:
+      TargetAmount: 0
+      TargetInteractionId:
+      Type: 0
   - _msg:
       _sender:
       _content: I'm the virtual diva of the future! Nice to meet you!
     _quest:
-      _id:
-      _title:
-      _content:
+      Id:
+      Title:
+      Content:
+      TargetAmount: 0
+      TargetInteractionId:
+      Type: 0
   - _msg:
       _sender:
       _content: Practice makes perfect! Let's keep trying until we shine!
     _quest:
-      _id: 1
-      _title: Slay the skullies!
-      _content: "Clear the crypt by slaying the Skullies\u2014rattling skeletons
-        that haunt the old halls, rise from shattered tombs, and guard forgotten
-        secrets, clashing bones and cursed blades as they defend their dusty domain
-        from intruders."
+      Id: 1
+      Title: Slay them skullies!
+      Content: Clear the crypt by slaying the Skullies rattling skeletons that haunt
+        the old halls, rise from shattered tombs, and guard forgotten secrets, clashing
+        bones and cursed blades as they defend their dusty domain from intruders.
+      TargetAmount: 4
+      TargetInteractionId:
+      Type: 0
   questOfferedEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!1 &3297521188069314544

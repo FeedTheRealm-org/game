@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game.Core.Enum;
 
 /// <summary>
 /// Director class to build preset sprite configurations using the builder pattern.

@@ -21,7 +21,10 @@ public class DialogManagerComponent : MonoBehaviour
 
     [Header("NPC settings")]
     [SerializeField]
-    private string npcName;
+    public string NpcName;
+
+    [SerializeField]
+    public string NpcId;
 
     [SerializeField]
     private NpcMessageData[] dialogs;
@@ -41,9 +44,9 @@ public class DialogManagerComponent : MonoBehaviour
     private void Start()
     {
         _currentDialogIndex = 0;
-        if (string.IsNullOrEmpty(npcName))
+        if (string.IsNullOrEmpty(NpcName))
         {
-            npcName = "???";
+            NpcName = "???";
         }
     }
 
@@ -77,7 +80,7 @@ public class DialogManagerComponent : MonoBehaviour
         }
 
         var dialog = dialogs[_currentDialogIndex];
-        dialog.Msg.Sender = npcName;
+        dialog.Msg.Sender = NpcName;
         OnDialogChanged?.Invoke(dialog.Msg);
 
         if (_currentDialogIndex == 0)
@@ -89,7 +92,7 @@ public class DialogManagerComponent : MonoBehaviour
         {
             _questOffered = true;
             logger.Log(
-                $"NPC '{npcName}' is offering quest '{dialog.Quest.Title}' (ID: {dialog.Quest.Id}).",
+                $"NPC '{NpcName}' is offering quest '{dialog.Quest.Title}' (ID: {dialog.Quest.Id}).",
                 this,
                 Logging.LogType.Info
             );
