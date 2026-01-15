@@ -472,6 +472,7 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
   loadingScreenUI: {fileID: 513648749}
   enemySpawnPrefab: {fileID: 1720094287}
+  npcSpawnPrefab: {fileID: 7265489834613234143, guid: 92a6d90bb86a46146bd725128e92e36d, type: 3}
   logWorldDataJson: 1
 --- !u!4 &513648748
 Transform:
