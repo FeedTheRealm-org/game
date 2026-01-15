@@ -33,7 +33,6 @@ public class NetworkConnectionHandler : MonoBehaviour
     private bool isConnecting = false;
 
     private bool isSubscribedToEvents = false;
-    private bool isSubscribedToSceneEvents = false;
 
     private void Awake()
     {
