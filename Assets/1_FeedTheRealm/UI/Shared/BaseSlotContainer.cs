@@ -25,7 +25,7 @@ namespace FeedTheRealm.UI.Shared
         [Tooltip(
             "Total number of slots in this container (e.g., 12 for inventory, 5 for HUD quickslots). Max: 9 for HUD quickslots"
         )]
-        [Range(1, 12)]
+        [Range(1, 9)]
         protected int slotCount = 5;
 
         protected const string slotNamePrefix = "Slot";

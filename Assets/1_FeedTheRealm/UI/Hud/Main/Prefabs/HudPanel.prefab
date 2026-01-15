@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8752968013940281303}
   - component: {fileID: 3618849165622696105}
   - component: {fileID: -9027243151401024694}
+  - component: {fileID: 4249383579757331920}
   m_Layer: 5
   m_Name: HudPanel
   m_TagString: Untagged
@@ -72,6 +73,8 @@ MonoBehaviour:
   staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
+  inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+  hudFastSlotsRegistry: {fileID: 11400000, guid: 8092805058ea4b049b4659e8c02e7169, type: 2}
 --- !u!114 &-9027243151401024694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,4 +88,20 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::QuestProgressPanelController
   progressEvent: {fileID: 11400000, guid: 97500dbc39981e47795353313f9d5277, type: 2}
+  completeQuestDisplayDuration: 3
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+--- !u!114 &4249383579757331920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516128455864370989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1868733399d7091c78a4c0507b755b9f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::HudFastUseSlotsController
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  itemStatsTooltip: {fileID: 0}
+  slotCount: 5
