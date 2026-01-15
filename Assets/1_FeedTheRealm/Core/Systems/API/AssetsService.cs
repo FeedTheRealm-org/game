@@ -131,7 +131,7 @@ namespace API
                 logger.Log(
                     $"GetCategories error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
                     this,
-                    Logging.LogType.Error
+                    Logging.LogType.Warning
                 );
                 return null;
             }
