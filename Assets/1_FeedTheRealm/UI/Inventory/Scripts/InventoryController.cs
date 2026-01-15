@@ -1,31 +1,22 @@
 using System.Collections.Generic;
 using API;
+using FeedTheRealm.UI.Shared;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class InventoryController : MonoBehaviour
+public class InventoryController : BaseSlotContainer, IDropTarget
 {
     [Header("UI References")]
-    private UIDocument uiDocument;
-    private VisualElement root;
     private List<VisualElement> slots = new List<VisualElement>();
     private bool isUIVisible = false;
-
-    // Track itemId for each item element (used for tooltip)
-    private Dictionary<VisualElement, string> itemIdMap = new Dictionary<VisualElement, string>();
-
-    // Helpers
     private InventoryDragHandler dragHandler;
-    private InventorySlotManager slotManager;
+    private InventorySlotManager slotUIManager;
 
     [Header("World Items (sprite-based)")]
     [SerializeField]
     [Tooltip("Service used to download item sprites by spriteId for world-defined items.")]
     private ItemAssetsService itemAssetsService;
-
-    [Header("Tooltip")]
-    [SerializeField]
-    private ItemStatsTooltip itemStatsTooltip;
+    public string ContainerName => "Inventory";
     private int currentLootIndex = 0;
 
     [Header("Slot Sprites")]
@@ -35,28 +26,43 @@ public class InventoryController : MonoBehaviour
     [SerializeField]
     private Sprite slotHoverSprite;
 
-    [Header("Logging")]
+    [Header("HUD References")]
     [SerializeField]
-    private Logging.Logger logger;
+    [Tooltip(
+        "Registry asset used to locate the HUD fast-use slots controller at runtime (prefab-safe)."
+    )]
+    private HudFastUseSlotsRegistry hudFastSlotsRegistry;
 
     private VisualElement dropZone;
 
-    void Start()
+    protected override void Awake()
     {
-        uiDocument = GetComponent<UIDocument>();
-        root = uiDocument.rootVisualElement;
+        // Configure slot count for Inventory (naming is fixed: "Slot1"..."Slot12")
+        slotCount = 12;
+        base.Awake();
+    }
+
+    protected override void Start()
+    {
+        base.Start();
 
         HideUI();
 
-        // Initialize slot manager and slots
-        slotManager = new InventorySlotManager(root, slotNormalSprite, slotHoverSprite);
-        slots = slotManager.InitializeSlots(
+        // Initialize slot UI manager and slots
+        slotUIManager = new InventorySlotManager(root, slotNormalSprite, slotHoverSprite);
+        slots = slotUIManager.InitializeSlots(
             12,
             (evt, slot) => OnSlotPointerDown(evt),
-            (evt, slot) => OnSlotPointerUp(evt),
-            (evt, slot) => OnItemHoverEnter(evt, slot),
-            (evt, slot) => OnItemHoverLeave(evt, slot)
+            (evt, slot) => { },
+            (evt, slot) => OnItemHoverEnter(slot),
+            (evt, slot) => OnItemHoverLeave(slot)
         );
+
+        // Register slots in the SlotManager (1-based to match slot names "Slot1", "Slot2"...)
+        for (int i = 0; i < slots.Count; i++)
+        {
+            slotManager.RegisterSlot(i + 1, slots[i]);
+        }
 
         dropZone = root.Q<VisualElement>("Drop");
         if (dropZone != null)
@@ -64,28 +70,69 @@ public class InventoryController : MonoBehaviour
             dropZone.RegisterCallback<PointerUpEvent>(OnDropZonePointerUp);
         }
 
-        // Initialize drag handler
-        dragHandler = new InventoryDragHandler(root, slots, dropZone, logger);
-
-        root.RegisterCallback<PointerMoveEvent>(
-            evt => dragHandler.OnPointerMove(evt),
-            TrickleDown.TrickleDown
-        );
-        root.RegisterCallback<PointerUpEvent>(evt =>
-            dragHandler.OnGlobalPointerUp(evt, ReturnItemToOriginalSlot)
-        );
-
-        var panel = root.panel;
-        if (panel != null)
+        // Initialize drag handler (HUD ref may arrive later via registry)
+        if (hudFastSlotsRegistry == null)
         {
-            panel.visualTree.RegisterCallback<PointerMoveEvent>(
-                evt => dragHandler.OnPointerMove(evt),
-                TrickleDown.TrickleDown
-            );
-            panel.visualTree.RegisterCallback<PointerUpEvent>(evt =>
-                dragHandler.OnGlobalPointerUp(evt, ReturnItemToOriginalSlot)
+            logger?.Log(
+                "[InventoryController] HudFastUseSlotsRegistry is not assigned; inventory->HUD drag-drop will be disabled.",
+                this,
+                Logging.LogType.Warning
             );
         }
+
+        dragHandler = new InventoryDragHandler(
+            root,
+            slots,
+            dropZone,
+            logger,
+            hudFastSlotsRegistry?.Current
+        );
+        if (hudFastSlotsRegistry != null)
+        {
+            hudFastSlotsRegistry.Changed += HandleHudFastSlotsChanged;
+        }
+        dragHandler.ItemConsumed += HandleItemConsumed;
+
+        // Register drop targets with mediator
+        dragHandler.RegisterDropTarget(this);
+        if (hudFastSlotsRegistry?.Current != null)
+        {
+            dragHandler.RegisterDropTarget(hudFastSlotsRegistry.Current);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (hudFastSlotsRegistry != null)
+        {
+            hudFastSlotsRegistry.Changed -= HandleHudFastSlotsChanged;
+        }
+    }
+
+    private void HandleHudFastSlotsChanged(HudFastUseSlotsController controller)
+    {
+        dragHandler?.SetHudFastSlotsController(controller);
+
+        // Re-register new HUD controller with mediator
+        if (controller != null)
+        {
+            dragHandler?.RegisterDropTarget(controller);
+        }
+    }
+
+    void Update()
+    {
+        if (!isUIVisible)
+            return;
+
+        // When inventory and HUD are different UI Toolkit panels, pointer events can stop reaching
+        // the inventory panel mid-drag. This tick keeps the drag responsive and finalizes drops.
+        dragHandler?.TickFromInputSystem(CreateInventoryItemElement);
+    }
+
+    private VisualElement CreateInventoryItemElement(string itemId, Sprite sprite)
+    {
+        return CreateItemElement(itemId, sprite);
     }
 
     private void OnSlotPointerDown(PointerDownEvent evt)
@@ -94,84 +141,10 @@ public class InventoryController : MonoBehaviour
         dragHandler.OnSlotPointerDown(evt);
     }
 
-    private void OnSlotPointerUp(PointerUpEvent evt)
-    {
-        dragHandler.OnSlotPointerUp(evt, MoveItemToSlot);
-    }
-
     private void OnDropZonePointerUp(PointerUpEvent evt)
     {
         dragHandler.OnDropZonePointerUp(evt);
     }
-
-    private void MoveItemToSlot(VisualElement item, VisualElement targetSlot)
-    {
-        // Use dragHandler's reference for original slot
-        var originalSlot = dragHandler.DraggedItemOriginalSlot;
-        if (targetSlot.childCount > 0 && targetSlot != originalSlot)
-        {
-            logger.Log("Slot occupied, swapping items", this);
-            var targetItem = targetSlot[0];
-            item.RemoveFromHierarchy();
-            targetItem.RemoveFromHierarchy();
-            targetSlot.Add(item);
-            if (originalSlot != null)
-            {
-                originalSlot.Add(targetItem);
-            }
-            ResetItemStyles(item);
-            ResetItemStyles(targetItem);
-        }
-        else
-        {
-            item.RemoveFromHierarchy();
-            targetSlot.Add(item);
-            ResetItemStyles(item);
-        }
-    }
-
-    /// <summary>
-    /// Reset item styles to fill the slot (100% width/height, relative position).
-    /// </summary>
-    private void ResetItemStyles(VisualElement item)
-    {
-        // Reset item style to fill the slot
-        item.style.position = Position.Relative;
-        item.style.left = 0;
-        item.style.top = 0;
-        item.style.width = new Length(100, LengthUnit.Percent);
-        item.style.height = new Length(100, LengthUnit.Percent);
-    }
-
-    private void ReturnItemToOriginalSlot()
-    {
-        var draggedItem = dragHandler.DraggedItem;
-        var draggedItemOriginalSlot = dragHandler.DraggedItemOriginalSlot;
-        if (draggedItem == null)
-            return;
-        if (draggedItemOriginalSlot != null)
-        {
-            draggedItemOriginalSlot.Add(draggedItem);
-            ResetItemStyles(draggedItem);
-            return;
-        }
-        foreach (var slot in slots)
-        {
-            if (slot.childCount == 0)
-            {
-                slot.Add(draggedItem);
-                ResetItemStyles(draggedItem);
-                return;
-            }
-        }
-        if (slots.Count > 0)
-        {
-            slots[0].Add(draggedItem);
-            ResetItemStyles(draggedItem);
-        }
-    }
-
-    // Pointer over element logic is now in InventoryDragHandler
 
     /// <summary>
     /// Add item to inventory by item ID.
@@ -270,45 +243,24 @@ public class InventoryController : MonoBehaviour
 
     private void CreateItemElement(Sprite itemSprite, VisualElement parentSlot, string itemId)
     {
-        var itemElement = InventoryItemFactory.CreateItemElement(itemSprite, itemId);
-        if (!string.IsNullOrEmpty(itemId))
+        var itemElement = CreateItemElement(itemId, itemSprite);
+        if (itemElement != null)
         {
-            itemIdMap[itemElement] = itemId;
-        }
-        parentSlot.Add(itemElement);
-        logger.Log(
-            $"Item created in slot: {parentSlot.name}" + (itemId != null ? $" (ID: {itemId})" : ""),
-            this
-        );
-    }
-
-    /// <summary>
-    /// Handle hover enter event on item slots to show tooltip.
-    /// </summary>
-    private void OnItemHoverEnter(PointerEnterEvent evt, VisualElement slot)
-    {
-        if (slot.childCount == 0)
-        {
-            return;
-        }
-
-        if (dragHandler != null && dragHandler.DraggedItem != null)
-        {
-            return;
-        }
-
-        var itemElement = slot[0];
-        if (itemIdMap.TryGetValue(itemElement, out string itemId))
-        {
-            itemStatsTooltip?.ShowTooltip(itemId, slot);
+            parentSlot.Add(itemElement);
+            logger.Log(
+                $"Item created in slot: {parentSlot.name}"
+                    + (itemId != null ? $" (ID: {itemId})" : ""),
+                this
+            );
         }
     }
 
-    /// <summary>
-    /// Handle hover leave event on item slots to hide tooltip.
-    /// </summary>
-    private void OnItemHoverLeave(PointerLeaveEvent evt, VisualElement slot)
+    private void HandleItemConsumed(VisualElement itemElement)
     {
+        if (itemElement == null)
+            return;
+
+        UntrackItemElement(itemElement);
         itemStatsTooltip?.HideTooltip();
     }
 
@@ -392,5 +344,112 @@ public class InventoryController : MonoBehaviour
             UnityEngine.Cursor.visible = false;
             //logger.Log("Inventory UI hidden - Cursor locked", this);
         }
+    }
+
+    public bool TryAcceptItem(
+        string itemId,
+        Sprite sprite,
+        Vector2 screenPosition,
+        out ItemPlacementResult result
+    )
+    {
+        result = ItemPlacementResult.Failed();
+
+        if (string.IsNullOrEmpty(itemId) || sprite == null)
+            return false;
+
+        // Check if screen position is over any inventory slot
+        if (root == null || root.panel == null)
+            return false;
+
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, screenPosition);
+        VisualElement targetSlot = FindSlotAtPosition(panelPos);
+
+        if (targetSlot == null)
+            return false;
+
+        // Get slot index
+        if (!TryGetSlotIndexFromElement(targetSlot, out int slotIndex))
+            return false;
+
+        // Check if slot is empty or occupied
+        if (targetSlot.childCount == 0)
+        {
+            // Empty slot: place item
+            var itemElement = CreateInventoryItemElement(itemId, sprite);
+            if (itemElement != null)
+            {
+                itemElement.RemoveFromHierarchy();
+                targetSlot.Add(itemElement);
+                InventoryItemFactory.ResetItemStyles(itemElement);
+                slotManager.Assign(slotIndex, itemId, sprite, targetSlot);
+                result = ItemPlacementResult.PlacedInEmptySlot();
+                logger?.Log($"[Inventory] Placed {itemId} in slot {slotIndex}", this);
+                return true;
+            }
+        }
+        else
+        {
+            // Occupied slot: swap
+            var existingItem = targetSlot[0];
+            if (
+                InventoryItemFactory.TryGetItemData(
+                    existingItem,
+                    out string existingItemId,
+                    out Sprite existingSprite
+                )
+            )
+            {
+                // Remove existing item
+                existingItem.RemoveFromHierarchy();
+                UntrackItemElement(existingItem);
+
+                // Place new item
+                var newItemElement = CreateInventoryItemElement(itemId, sprite);
+                if (newItemElement != null)
+                {
+                    newItemElement.RemoveFromHierarchy();
+                    targetSlot.Add(newItemElement);
+                    InventoryItemFactory.ResetItemStyles(newItemElement);
+                    slotManager.Assign(slotIndex, itemId, sprite, targetSlot);
+
+                    result = ItemPlacementResult.SwappedWith(
+                        existingItemId,
+                        existingSprite,
+                        targetSlot
+                    );
+                    logger?.Log(
+                        $"[Inventory] Swapped {existingItemId} with {itemId} in slot {slotIndex}",
+                        this
+                    );
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public bool IsUnderPosition(Vector2 screenPosition)
+    {
+        if (root == null || root.panel == null || !isUIVisible)
+            return false;
+
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, screenPosition);
+        return FindSlotAtPosition(panelPos) != null;
+    }
+
+    private VisualElement FindSlotAtPosition(Vector2 panelPosition)
+    {
+        if (slots == null)
+            return null;
+
+        foreach (var slot in slots)
+        {
+            if (slot != null && slot.worldBound.Contains(panelPosition))
+                return slot;
+        }
+
+        return null;
     }
 }

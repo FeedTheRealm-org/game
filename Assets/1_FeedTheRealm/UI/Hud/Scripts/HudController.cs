@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 /// <summary>
 /// Manages the HUD elements and their interactions.
 /// </summary>
+[RequireComponent(typeof(HudFastUseSlotsController))]
 public class HudController : MonoBehaviour
 {
     [SerializeField]
@@ -19,6 +20,20 @@ public class HudController : MonoBehaviour
 
     [SerializeField]
     private Session.Session session;
+
+    [Header("Input")]
+    [SerializeField]
+    [Tooltip(
+        "PlayerInputReader used for HUD quickslots (should match the one used by the player/game scene)."
+    )]
+    private PlayerInputReader inputReader;
+
+    [Header("Wiring")]
+    [SerializeField]
+    [Tooltip(
+        "Registry asset used so other prefabs (Inventory) can access HUD quickslots without scene references."
+    )]
+    private HudFastUseSlotsRegistry hudFastSlotsRegistry;
 
     // Containers
     private VisualElement _characterData;
@@ -33,6 +48,8 @@ public class HudController : MonoBehaviour
 
     private HUDGoldBinder _goldBinder;
     private CancellationTokenSource _bindCts;
+
+    private HudFastUseSlotsController _fastUseSlotsController;
 
     void Start()
     {
@@ -57,6 +74,27 @@ public class HudController : MonoBehaviour
                 Logging.LogType.Error
             );
             return;
+        }
+
+        _fastUseSlotsController = GetComponent<HudFastUseSlotsController>();
+        _fastUseSlotsController.SetLogger(logger);
+        _fastUseSlotsController.SetRegistry(hudFastSlotsRegistry);
+        if (inputReader == null)
+        {
+            logger?.Log(
+                "[HUD] PlayerInputReader is not assigned in HudController; quickslot hotkeys will not work.",
+                this,
+                Logging.LogType.Warning
+            );
+        }
+        _fastUseSlotsController.SetInputReader(inputReader);
+        _fastUseSlotsController.OnSlotActivated -= HandleFastUseSlotActivated;
+        _fastUseSlotsController.OnSlotActivated += HandleFastUseSlotActivated;
+
+        // Important: Register fastSlots controller in the registry so InventoryController can access it
+        if (hudFastSlotsRegistry != null)
+        {
+            hudFastSlotsRegistry.Register(_fastUseSlotsController);
         }
 
         _staminaBar = _characterData.Q<ProgressBar>("StaminaBar");
@@ -102,6 +140,12 @@ public class HudController : MonoBehaviour
         _ = StartBindingAsync(_bindCts.Token);
 
         registerButtonCallbacks();
+    }
+
+    private void HandleFastUseSlotActivated(int slotIndex, string itemId)
+    {
+        // Placeholder: for now just log. Game logic can subscribe to HudFastUseSlotsController.OnSlotActivated.
+        logger?.Log($"[HUD] FastUse Slot{slotIndex} activated => itemId={itemId}", this);
     }
 
     private async Task StartBindingAsync(CancellationToken token)
@@ -155,16 +199,6 @@ public class HudController : MonoBehaviour
         {
             logger.Log("Character Icon Clicked", this);
         });
-
-        var buttons = _fastUseSlotsContainer.Query<Button>().ToList();
-
-        foreach (var button in buttons)
-        {
-            button.RegisterCallback<ClickEvent>(ev =>
-            {
-                logger.Log(button.name + " clicked", this);
-            });
-        }
     }
 
     private void OnEnable()
@@ -193,6 +227,11 @@ public class HudController : MonoBehaviour
             _bindCts.Cancel();
             _bindCts.Dispose();
             _bindCts = null;
+        }
+
+        if (_fastUseSlotsController != null)
+        {
+            _fastUseSlotsController.OnSlotActivated -= HandleFastUseSlotActivated;
         }
     }
 
