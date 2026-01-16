@@ -92,29 +92,13 @@ public class NPCSpawns : MonoBehaviour
             );
             return;
         }
-        // Configure position and radius from spawn data
+
         transform.position = spawnData.Position;
         spawnCenter = transform.position;
 
-        SphereCollider sphere = GetComponent<SphereCollider>();
-        if (sphere != null)
-        {
-            sphere.radius = spawnData.Radius;
-            spawnRadius = sphere.radius;
-            logger?.Log(
-                $"[NPCSpawns] Configured spawn: position={spawnData.Position}, radius={spawnData.Radius}, maxNPCs={maxNPCs}",
-                this
-            );
-        }
-        else
-        {
-            // no collider, still record radius for random spawns
-            spawnRadius = spawnData.Radius;
-            logger?.Log(
-                $"[NPCSpawns] Configured spawn: position={spawnData.Position}, radius={spawnData.Radius}, maxNPCs={maxNPCs} (no SphereCollider)",
-                this,
-                Logging.LogType.Warning
-            );
-        }
+        logger?.Log(
+            $"[NPCSpawns] Configured spawn: position={spawnData.Position}, radius={spawnData.Radius}, maxNPCs={maxNPCs}",
+            this
+        );
     }
 }
