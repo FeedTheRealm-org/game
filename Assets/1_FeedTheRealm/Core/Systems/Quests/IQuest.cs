@@ -1,5 +1,4 @@
 using System;
-using Game.Core.Events;
 
 namespace Game.Core.Quests
 {
