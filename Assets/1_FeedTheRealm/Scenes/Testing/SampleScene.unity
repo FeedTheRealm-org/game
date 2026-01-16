@@ -1708,6 +1708,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuestManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5641337873169013911, guid: 4a92951e1185849438a3056ec49c7d05, type: 3}
+      propertyPath: npcInteractedEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
     - target: {fileID: 7081653013582194052, guid: 4a92951e1185849438a3056ec49c7d05, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.35357
@@ -1773,3 +1777,4 @@ SceneRoots:
   - {fileID: 893223426}
   - {fileID: 8841032796515695318}
   - {fileID: 2892055437850622064}
+  - {fileID: 130778284}
