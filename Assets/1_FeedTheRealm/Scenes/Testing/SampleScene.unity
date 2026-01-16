@@ -216,6 +216,35 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: NpcId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: NpcName
+      value: Hatsu
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.Id
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.Title
+      value: Talk to bad hatsu
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.Content
+      value: Bad hatsu has been bothering the skullies, talk to her to know what
+        she is up to...
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.TargetInteractionId
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.80669
@@ -268,6 +297,56 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+--- !u!1 &130778283
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 130778284}
+  - component: {fileID: 130778285}
+  m_Layer: 0
+  m_Name: QuestManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &130778284
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130778283}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.35357, y: 0.2475, z: 0.35357}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &130778285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130778283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16d2654be8d25004b93449d13afcffd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Core.Quests.QuestManager
+  questDecisionEvent: {fileID: 11400000, guid: 982c6ff128438cb20afe10947eb6ce40, type: 2}
+  questProgressEvent: {fileID: 11400000, guid: 97500dbc39981e47795353313f9d5277, type: 2}
+  questCompletedEvent: {fileID: 11400000, guid: b2755233a0e9e83729434441a96c878d, type: 2}
+  enemySlayedEvent: {fileID: 11400000, guid: bc1931e5725e587d5b31e691f308799c, type: 2}
+  npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!114 &232335603 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8764509565767309715, guid: d4c9583a724961068894efa45cac342e, type: 3}
@@ -949,6 +1028,124 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+--- !u!1001 &893223426
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3227871909907725305, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_Name
+      value: Npc (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3822863961782869944, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3822863961782869944, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: NpcId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: npcId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: NpcName
+      value: Hatsu (evil)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: npcName
+      value: Hatsu (evil)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.Id
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.Title
+      value: Slay them skullies!
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[0]._msg._content
+      value: Im just a doppelganger! MUAHAHA
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._msg._content
+      value: Practice makes perfect! Let's keep trying until we shine!
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.Content
+      value: Clear the crypt by slaying the Skullies rattling skeletons that haunt
+        the old halls, rise from shattered tombs, and guard forgotten secrets, clashing
+        bones and cursed blades as they defend their dusty domain from intruders.
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396716251003102700, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: dialogs.Array.data[1]._quest.TargetAmount
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -8.53
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.39602
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835838351028568930, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8901868377038704359, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4599501188160175844, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+  m_SourcePrefab: {fileID: 100100000, guid: 0ca55b5d66c6513a7bf450aa31d2a251, type: 3}
 --- !u!1001 &1275314129
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1055,6 +1252,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 148068392588541952, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
+      propertyPath: npcInteractedEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
     - target: {fileID: 1418397613159891299, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1569,5 +1770,6 @@ SceneRoots:
   - {fileID: 1966294429}
   - {fileID: 1739303081}
   - {fileID: 55015964}
+  - {fileID: 893223426}
   - {fileID: 8841032796515695318}
   - {fileID: 2892055437850622064}

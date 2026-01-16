@@ -8,7 +8,6 @@ using GLTFast;
 using Models;
 using UnityEngine;
 using UnityEngine.UIElements;
-using World;
 using Worlds;
 
 public class WorldLoaderController : MonoBehaviour

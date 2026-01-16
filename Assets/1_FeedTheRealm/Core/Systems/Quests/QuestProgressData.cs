@@ -4,9 +4,9 @@ namespace Game.Core.Quests
     {
         public string Id;
 
-        public int TargetAmount;
+        public int TargetProgressAmount;
 
-        public int CurrentAmount;
+        public int CurrentProgressAmount;
 
         public QuestData Quest;
     }

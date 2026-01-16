@@ -6,9 +6,8 @@ using UnityEngine.UIElements;
 /// Tooltip controller for displaying item statistics on hover.
 /// Shows stats for items using data provided by the current world.
 ///
-/// For gameplay items, data comes from WorldData.consumableItems
-/// (via Worlds.WorldItemsRegistry). Each item is identified by its
-/// spriteId, which is used as the inventory/loot itemId.
+/// For gameplay items, data comes from the current world's item collections
+/// (via Worlds.WorldItemsRegistry). Items are identified by their unique item id.
 /// </summary>
 public class ItemStatsTooltip : MonoBehaviour
 {
@@ -137,9 +136,9 @@ public class ItemStatsTooltip : MonoBehaviour
 
         logger?.Log($"[Tooltip] ShowTooltip called - Slot: {slot.name}", this);
 
-        // Lookup consumable by item id
-        var consumable = Worlds.WorldItemsRegistry.GetConsumableById(itemId);
-        if (consumable == null)
+        // Resolve the item once and then delegate type-specific logic to the presenter.
+        var item = Worlds.WorldItemsRegistry.GetItemById(itemId);
+        if (item == null)
         {
             logger?.Log(
                 $"[Tooltip] Item not found in WorldItemsRegistry for itemId: {itemId}",
@@ -149,10 +148,14 @@ public class ItemStatsTooltip : MonoBehaviour
             return;
         }
 
-        logger?.Log($"[Tooltip] ItemId found in map: {itemId}", this);
-
         currentItemId = itemId;
-        PopulateTooltipDataFromConsumable(consumable);
+
+        // Populate common UI (name, description) for any item type.
+        PopulateCommonItemFields(item);
+
+        // Let the stats presenter decide what to show based on concrete type.
+        statsPresenter?.ShowStats(item);
+
         UpdateTooltipPosition(slot);
 
         tooltipContainer.style.display = DisplayStyle.Flex;
@@ -177,34 +180,29 @@ public class ItemStatsTooltip : MonoBehaviour
     }
 
     /// <summary>
-    /// Populate tooltip from world-defined consumable item data.
-    /// Uses name/description from the world instead of metadata.
+    /// Populate common fields (name, description) shared by any item type.
     /// </summary>
-    private void PopulateTooltipDataFromConsumable(Models.ConsumableItemData consumable)
+    private void PopulateCommonItemFields(Models.ItemData item)
     {
-        if (consumable == null)
+        if (item == null)
         {
             return;
         }
 
         if (nameLabel != null)
         {
-            nameLabel.text = consumable.name;
+            nameLabel.text = item.name;
             nameLabel.style.display = DisplayStyle.Flex;
         }
 
         if (descriptionLabel != null)
         {
             descriptionLabel.text = TooltipTextUtils.InsertLineBreaks(
-                consumable.description,
+                item.description,
                 descriptionMaxLineLength
             );
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
-
-        // Show stats using the presenter
-        statsPresenter?.HideAllStats();
-        statsPresenter?.ShowConsumableStats(consumable);
     }
 
     /// <summary>

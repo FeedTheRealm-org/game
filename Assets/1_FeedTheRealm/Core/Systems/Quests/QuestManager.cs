@@ -22,26 +22,31 @@ namespace Game.Core.Quests
         [SerializeField]
         private EnemySlayedEvent enemySlayedEvent;
 
+        [SerializeField]
+        private NpcInteractedEvent npcInteractedEvent;
+
         [Header("General Settings")]
         [SerializeField]
         private Logging.Logger logger;
 
-        // TODO: grows indefinitely FIX (remove completed quests)
-        private List<Quest> activeQuests = new List<Quest>();
+        private readonly Dictionary<string, Quest> activeQuests = new Dictionary<string, Quest>();
 
         private void OnEnable()
         {
             questDecisionEvent.OnRaised += OnQuestDecision;
+            questCompletedEvent.OnRaised += OnQuestCompleted;
             logger.Log("QUEST MANAGER: Quest Manager enabled.", this);
         }
 
         private void OnDisable()
         {
             questDecisionEvent.OnRaised -= OnQuestDecision;
+            questCompletedEvent.OnRaised -= OnQuestCompleted;
             foreach (var quest in activeQuests)
             {
-                quest.Dispose();
+                quest.Value.Dispose();
             }
+            activeQuests.Clear();
             logger.Log("QUEST MANAGER: Quest Manager disabled.", this);
         }
 
@@ -53,15 +58,29 @@ namespace Game.Core.Quests
             );
             if (decisionData.IsAccepted)
             {
-                var newQuest = new Quest(
+                var newQuest = QuestFactory.CreateQuest(
                     decisionData.Quest,
                     enemySlayedEvent,
+                    npcInteractedEvent,
                     questProgressEvent,
                     questCompletedEvent
                 );
                 newQuest.Start();
-                activeQuests.Add(newQuest);
+                activeQuests.Add(decisionData.Quest.Id, newQuest);
                 logger.Log($"Quest '{decisionData.Quest.Title}' accepted & started.", this);
+            }
+        }
+
+        private void OnQuestCompleted(QuestData questData)
+        {
+            if (activeQuests.ContainsKey(questData.Id))
+            {
+                activeQuests[questData.Id].Dispose();
+                activeQuests.Remove(questData.Id);
+                logger.Log(
+                    $"Quest '{questData.Title}' completed and removed from active quests.",
+                    this
+                );
             }
         }
     }

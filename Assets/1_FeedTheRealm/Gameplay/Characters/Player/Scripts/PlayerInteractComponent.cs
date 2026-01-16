@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Game.Core.Events;
 using Game.Core.Interactions;
 using UnityEngine;
 
@@ -11,6 +12,9 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
 
     [SerializeField]
     private LayerMask interactableLayerMask;
+
+    [SerializeField]
+    private NpcInteractedEvent npcInteractedEvent;
 
     [Header("Logging Settings")]
     [SerializeField]
@@ -69,7 +73,8 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
         }
 
         logger.Log("Interacting with: " + closestInteractable, this);
-        closestInteractable.Interact(this);
+        var interactedId = closestInteractable.Interact(this);
+        npcInteractedEvent.Raise(new NpcInteractedData { PlayerId = "0", NpcId = interactedId });
     }
 
     public void FinishInteracting()
