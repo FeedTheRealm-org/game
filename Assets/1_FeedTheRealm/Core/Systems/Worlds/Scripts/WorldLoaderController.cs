@@ -33,6 +33,9 @@ public class WorldLoaderController : MonoBehaviour
     [SerializeField]
     private GameObject enemySpawnPrefab;
 
+    [SerializeField]
+    private GameObject npcSpawnPrefab;
+
     [Header("Debug")]
     [SerializeField]
     private bool logWorldDataJson = false;
@@ -217,6 +220,35 @@ public class WorldLoaderController : MonoBehaviour
                 this
             );
         }
+
+        foreach (NPCSpawnerData npcSpawnAreaData in data.npcSpawnAreas)
+        {
+            Vector3 targetPosition = npcSpawnAreaData.Position;
+            Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
+            GameObject spawnInstance = Instantiate(npcSpawnPrefab, spawnPos, Quaternion.identity);
+
+            // Configure the spawn with data from world
+            NPCSpawns spawnComponent = spawnInstance.GetComponent<NPCSpawns>();
+            if (spawnComponent != null)
+            {
+                spawnComponent.ConfigureFromSpawnData(npcSpawnAreaData);
+            }
+            else
+            {
+                logger.Log(
+                    "[WorldLoaderController] NPC spawn prefab missing NPCSpawns component!",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
+
+            spawnInstance.SetActive(true);
+            logger.Log(
+                $"[WorldLoaderController] Placed NPC spawn area at {spawnPos} with radius {npcSpawnAreaData.Radius}.",
+                this
+            );
+        }
+
         // since we instantiated models for loading, we need to clean them up
         foreach (GameObject modelInstance in cleanup)
         {

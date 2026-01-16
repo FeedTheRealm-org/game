@@ -5171,6 +5171,7 @@ MonoBehaviour:
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 1024
+  npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &8432168777086298840
 MonoBehaviour:
@@ -5239,7 +5240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7999438bd0c049ea2ba1c00331a958a1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStateMachine
-  logger: {fileID: 0}
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &7721620102888945814
 MonoBehaviour:
   m_ObjectHideFlags: 0
