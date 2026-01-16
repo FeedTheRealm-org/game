@@ -34,6 +34,9 @@ public class ServerWorldLoader : NetworkBehaviour
     private GameObject enemySpawnPrefab;
 
     [SerializeField]
+    private GameObject npcSpawnerPrefab;
+
+    [SerializeField]
     private PlayerSpawnManager playerSpawnManager;
 
     [Header("Logging")]
@@ -229,6 +232,47 @@ public class ServerWorldLoader : NetworkBehaviour
         {
             logger?.Log(
                 "[ServerWorldLoader] Enemy spawn configuration skipped (missing WorldController, prefab or data).",
+                this,
+                Logging.LogType.Warning
+            );
+        }
+
+        if (npcSpawnerPrefab != null && worldData.npcSpawnAreas != null)
+        {
+            foreach (NPCSpawnerData area in worldData.npcSpawnAreas)
+            {
+                GameObject spawnInstance = Instantiate(
+                    npcSpawnerPrefab,
+                    area.Position,
+                    Quaternion.identity
+                );
+
+                // Configure the spawn with data from world
+                NPCSpawns spawnComponent = spawnInstance.GetComponent<NPCSpawns>();
+                if (spawnComponent != null)
+                {
+                    spawnComponent.ConfigureFromSpawnData(area);
+                }
+                else
+                {
+                    logger?.Log(
+                        "[ServerWorldLoader] NPC spawn prefab missing NPCSpawns component!",
+                        this,
+                        Logging.LogType.Error
+                    );
+                }
+
+                spawnInstance.SetActive(true);
+            }
+            logger?.Log(
+                $"[ServerWorldLoader] Placed {worldData.npcSpawnAreas.Count} NPC spawn areas from world data (world-space).",
+                this
+            );
+        }
+        else
+        {
+            logger?.Log(
+                "[ServerWorldLoader] NPC spawn configuration skipped (missing WorldController, prefab or data).",
                 this,
                 Logging.LogType.Warning
             );
