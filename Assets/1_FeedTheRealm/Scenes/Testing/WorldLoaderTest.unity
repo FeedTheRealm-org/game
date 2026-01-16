@@ -191,8 +191,8 @@ MonoBehaviour:
   staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
-  hudFastSlotsRegistry: {fileID: 11400000, guid: 8092805058ea4b049b4659e8c02e7169, type: 2}
+  inputReader: {fileID: 0}
+  hudFastSlotsRegistry: {fileID: 0}
 --- !u!114 &4141093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,7 +345,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: HUD
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 9042235166578390106, guid: 2f019df7ee378bc98995c9c82cc29986, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1914,3 +1915,4 @@ SceneRoots:
   - {fileID: 2009736700}
   - {fileID: 1971587764}
   - {fileID: 820136983}
+  - {fileID: 4141091}
