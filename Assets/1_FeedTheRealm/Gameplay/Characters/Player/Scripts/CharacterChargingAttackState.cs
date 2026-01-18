@@ -6,16 +6,10 @@ using Game.Core.StateMachine;
 public class CharacterChargingAttackState : IActionState
 {
     private IStateMachine stateMachine;
-    private MovementComponent movementComponent;
     private CharacterAnimator animator;
 
-    public CharacterChargingAttackState(
-        IStateMachine sm,
-        MovementComponent movementComponent,
-        CharacterAnimator animator
-    )
+    public CharacterChargingAttackState(IStateMachine sm, CharacterAnimator animator)
     {
-        this.movementComponent = movementComponent;
         this.animator = animator;
         this.stateMachine = sm;
     }
@@ -30,7 +24,6 @@ public class CharacterChargingAttackState : IActionState
     public void Dispose()
     {
         stateMachine = null;
-        movementComponent = null;
         animator = null;
     }
 }

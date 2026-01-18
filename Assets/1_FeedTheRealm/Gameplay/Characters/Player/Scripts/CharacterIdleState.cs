@@ -1,5 +1,6 @@
 using Game.Core.StateMachine;
 using Game.Core.Utils;
+using Game.Gameplay.UnityActors.Movement;
 using UnityEngine;
 
 /// <summary>
@@ -9,16 +10,16 @@ public class CharacterIdleState : IMovementState
 {
     private IStateMachine stateMachine;
 
-    private MovementComponent movementComponent;
+    private MovementController movementController;
     private CharacterAnimator animator;
 
     public CharacterIdleState(
         IStateMachine sm,
-        MovementComponent movementComponent,
+        MovementController movementController,
         CharacterAnimator animator
     )
     {
-        this.movementComponent = movementComponent;
+        this.movementController = movementController;
         this.animator = animator;
         this.stateMachine = sm;
     }
@@ -27,7 +28,7 @@ public class CharacterIdleState : IMovementState
     {
         animator.SetMoving(false);
         animator.SetDashing(false);
-        movementComponent.OnMove(Vector2.zero);
+        movementController.SetDirection(Vector2.zero);
     }
 
     public void Exit() { }
@@ -44,7 +45,7 @@ public class CharacterIdleState : IMovementState
     public void Dispose()
     {
         stateMachine = null;
-        movementComponent = null;
+        movementController = null;
         animator = null;
     }
 }
