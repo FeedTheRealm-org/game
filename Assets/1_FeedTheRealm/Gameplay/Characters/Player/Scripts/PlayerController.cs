@@ -1,9 +1,10 @@
 using Game.Core.Exceptions;
 using Mirror;
+using Unity.Cinemachine;
 using UnityEngine;
 
 /// <summary>
-/// Connects player input to the movement component.
+/// Connects local player input to the state machine.
 /// </summary>
 public class PlayerController : NetworkBehaviour
 {
@@ -33,6 +34,9 @@ public class PlayerController : NetworkBehaviour
                 nameof(characterStateMachine),
                 nameof(PlayerController)
             );
+
+        var cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
+        cinemachineCamera.Target.TrackingTarget = transform;
 
         ToggleRegisterInputs(true);
     }

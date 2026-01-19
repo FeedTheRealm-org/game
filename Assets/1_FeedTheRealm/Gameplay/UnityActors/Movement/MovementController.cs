@@ -18,6 +18,7 @@ public class MovementController : MonoBehaviour
 
     private readonly MovementPrediction prediction = new();
 
+    private Vector2 inputDirection;
     private Vector3 currentDirection;
 
     private uint sequenceNumber = 0;
@@ -32,25 +33,11 @@ public class MovementController : MonoBehaviour
         movementNetworkAdapter.OnMovementReconcileSnapshot -= OnReconcile;
     }
 
-    // TODO: refactor camerai
+    // TODO: refactor camera make a camera manager!
     public void SetDirection(Vector2 direction)
     {
-        var cameraTransform = Camera.main?.transform;
-
-        Vector3 camForward = new Vector3(
-            cameraTransform.forward.x,
-            0f,
-            cameraTransform.forward.z
-        ).normalized;
-
-        Vector3 camRight = new Vector3(
-            cameraTransform.right.x,
-            0f,
-            cameraTransform.right.z
-        ).normalized;
-
-        currentDirection = (camRight * direction.x + camForward * direction.y).normalized;
-        logger.Log($"SetDirection: {currentDirection}", this);
+        this.inputDirection = direction;
+        logger.Log($"SetDirection: {direction}", this);
     }
 
     private void FixedUpdate()
@@ -59,6 +46,8 @@ public class MovementController : MonoBehaviour
         logger.Log($"FixedUpdate: Seq {sequenceNumber}, Dir {currentDirection}", this);
 
         float deltaTime = Time.fixedDeltaTime;
+
+        UpdateCurrentDirectionWithCamera();
 
         MovementCommand command = new MovementCommand
         {
@@ -79,6 +68,25 @@ public class MovementController : MonoBehaviour
         );
 
         movementView.MoveToPosition(nextPosition);
+    }
+
+    private void UpdateCurrentDirectionWithCamera()
+    {
+        var cameraTransform = Camera.main.transform;
+
+        Vector3 camForward = new Vector3(
+            cameraTransform.forward.x,
+            0f,
+            cameraTransform.forward.z
+        ).normalized;
+
+        Vector3 camRight = new Vector3(
+            cameraTransform.right.x,
+            0f,
+            cameraTransform.right.z
+        ).normalized;
+
+        currentDirection = (camRight * inputDirection.x + camForward * inputDirection.y).normalized;
     }
 
     private void OnReconcile(MovementSnapshot snapshot)
