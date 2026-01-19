@@ -16,6 +16,7 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
 
     private PlayerInputReader inputReader;
     private HudFastUseSlotsRegistry registry;
+    private SpriteLoader spriteLoader;
 
     private readonly Dictionary<int, Button> _slotButtons = new();
 
@@ -87,6 +88,12 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
 
         inputReader = reader;
         TryBindInputReader();
+    }
+
+    public void SetSpriteLoader(SpriteLoader loader)
+    {
+        spriteLoader = loader;
+        logger?.Log($"[HUD] SpriteLoader assigned: {(loader != null ? "SUCCESS" : "NULL")}", this);
     }
 
     private void TryBindInputReader()
@@ -261,20 +268,52 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     }
 
     /// <summary>
-    /// Activates the item in a HUD slot (triggered by keyboard 1-5).
-    /// Called by: Update() when corresponding key is pressed.
-    /// Fires OnSlotActivated event that game systems can subscribe to.
+    /// Activates the item in a HUD slot (triggered by keyboard 1-9).
+    /// Called by: HandleQuickSlotPressed when corresponding key is pressed.
+    /// Fires OnSlotActivated event and equips weapon sprite if applicable.
     /// </summary>
     public void ActivateSlot(int slotIndex)
     {
         if (!slotManager.TryGet(slotIndex, out var slotData))
         {
-            logger?.Log($"[HUD] Slot{slotIndex} activated but empty", this);
+            logger?.Log($"Slot{slotIndex} activated but empty", this);
             return;
         }
 
-        logger?.Log($"[HUD] Slot{slotIndex} activated (itemId={slotData.ItemId})", this);
         OnSlotActivated?.Invoke(slotIndex, slotData.ItemId);
+
+        if (spriteLoader != null && !string.IsNullOrEmpty(slotData.ItemId))
+        {
+            logger?.Log($"Calling EquipWeapon with itemId: {slotData.ItemId}", this);
+            try
+            {
+                spriteLoader.EquipWeapon(slotData.ItemId);
+            }
+            catch (System.Exception ex)
+            {
+                logger?.Log(
+                    $"Exception calling EquipWeapon: {ex.Message}\n{ex.StackTrace}",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
+        }
+        else if (spriteLoader == null)
+        {
+            logger?.Log(
+                "SpriteLoader not set, cannot equip weapon sprite",
+                this,
+                Logging.LogType.Warning
+            );
+        }
+        else if (string.IsNullOrEmpty(slotData.ItemId))
+        {
+            logger?.Log(
+                "ItemId is null or empty, cannot equip weapon",
+                this,
+                Logging.LogType.Warning
+            );
+        }
     }
 
     private void AssignSlot(int slotIndex, Button slotButton, string itemId, Sprite sprite)

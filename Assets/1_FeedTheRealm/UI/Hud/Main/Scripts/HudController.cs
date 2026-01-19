@@ -91,6 +91,8 @@ public class HudController : MonoBehaviour
         _fastUseSlotsController.OnSlotActivated -= HandleFastUseSlotActivated;
         _fastUseSlotsController.OnSlotActivated += HandleFastUseSlotActivated;
 
+        SpriteLoader.OnSpriteLoaderReady += HandleSpriteLoaderReady;
+
         // Important: Register fastSlots controller in the registry so InventoryController can access it
         if (hudFastSlotsRegistry != null)
         {
@@ -146,6 +148,15 @@ public class HudController : MonoBehaviour
     {
         // Placeholder: for now just log. Game logic can subscribe to HudFastUseSlotsController.OnSlotActivated.
         logger?.Log($"[HUD] FastUse Slot{slotIndex} activated => itemId={itemId}", this);
+    }
+
+    /// <summary>
+    /// Handles when a SpriteLoader becomes ready and assigns it to the fast use slots controller.
+    /// </summary>
+    private void HandleSpriteLoaderReady(SpriteLoader spriteLoader)
+    {
+        _fastUseSlotsController.SetSpriteLoader(spriteLoader);
+        logger?.Log("[HUD] SpriteLoader assigned via event", this);
     }
 
     private async Task StartBindingAsync(CancellationToken token)
@@ -233,6 +244,8 @@ public class HudController : MonoBehaviour
         {
             _fastUseSlotsController.OnSlotActivated -= HandleFastUseSlotActivated;
         }
+
+        SpriteLoader.OnSpriteLoaderReady -= HandleSpriteLoaderReady;
     }
 
     /// <summary>

@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class SpriteLoader : MonoBehaviour
 {
+    public static event Action<SpriteLoader> OnSpriteLoaderReady;
+
     [SerializeField]
     private SpriteManager spriteManager; // Only used for character editor events
 
@@ -15,6 +17,9 @@ public class SpriteLoader : MonoBehaviour
 
     [SerializeField]
     private API.PlayerService playerService;
+
+    [SerializeField]
+    private API.ItemAssetsService itemAssetsService;
 
     [Header("General settings")]
     [SerializeField]
@@ -41,6 +46,10 @@ public class SpriteLoader : MonoBehaviour
         director = new SpriteConfigDirector(builder);
 
         CachePartTransforms();
+
+        // Notify that SpriteLoader is ready (used on hud controller to load weapon sprites)
+        OnSpriteLoaderReady?.Invoke(this);
+
         if (spriteManager != null)
         {
             spriteManager.OnArmorHelmetChange += ChangeHelmet;
@@ -186,6 +195,11 @@ public class SpriteLoader : MonoBehaviour
                     directionTransform,
                     "Mask"
                 );
+                cachedParts[CharacterPartCategory.WeaponR] = FindChildRecursive(
+                    directionTransform,
+                    "PrimaryWeapon"
+                );
+
                 _cachedPartsPerDirections[direction] = cachedParts;
             }
             else
@@ -344,10 +358,20 @@ public class SpriteLoader : MonoBehaviour
         logger.Log("[SpriteLoader] Changed Mask sprites", this);
     }
 
+    private void ChangeWeapon(Texture2D texture)
+    {
+        ChangeTexture(texture, director.BuildWeaponSpriteConfig(), true);
+        logger?.Log("[SpriteLoader] Changed Weapon sprites", this);
+    }
+
     /// <summary>
     /// Changes the texture for multiple sprite configurations [or removes it if texture is null!].
     /// </summary>
-    private void ChangeTexture(Texture2D texture, List<SpriteConfig> confs)
+    private void ChangeTexture(
+        Texture2D texture,
+        List<SpriteConfig> confs,
+        bool useFullRectIfZero = false
+    )
     {
         foreach (var config in confs)
         {
@@ -355,7 +379,13 @@ public class SpriteLoader : MonoBehaviour
 
             if (texture != null)
             {
-                sprite = Sprite.Create(texture, config.Rect, config.Pivot, config.PixelsPerUnit);
+                Rect finalRect = config.Rect;
+                if (useFullRectIfZero && (finalRect.width == 0 || finalRect.height == 0))
+                {
+                    finalRect = new Rect(0, 0, texture.width, texture.height);
+                }
+
+                sprite = Sprite.Create(texture, finalRect, config.Pivot, config.PixelsPerUnit);
             }
 
             ReplacePartSprite(sprite, config.Direction, config.Part);
@@ -464,5 +494,86 @@ public class SpriteLoader : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Method to equip a weapon by spriteId.
+    /// Downloads (or loads from cache) the weapon sprite from the API and applies it to the character.
+    /// </summary>
+    public void EquipWeapon(string spriteId)
+    {
+        if (string.IsNullOrEmpty(spriteId))
+        {
+            logger?.Log(
+                "EquipWeapon called with null or empty spriteId",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        if (itemAssetsService == null)
+        {
+            logger?.Log("ItemAssetsService is not assigned!", this, Logging.LogType.Error);
+            return;
+        }
+
+        try
+        {
+            var coroutine = StartCoroutine(EquipWeaponCoroutine(spriteId));
+            //Debug.Log($"[SpriteLoader DEBUG] StartCoroutine returned: {(coroutine != null ? "SUCCESS" : "NULL")}");
+        }
+        catch (System.Exception ex)
+        {
+            logger?.Log(
+                $"EquipWeaponCoroutine threw exception: {ex.Message}\n{ex.StackTrace}",
+                this,
+                Logging.LogType.Error
+            );
+        }
+    }
+
+    private System.Collections.IEnumerator EquipWeaponCoroutine(string spriteId)
+    {
+        var downloadTask = itemAssetsService.DownloadItemSpriteAsync(spriteId);
+
+        while (!downloadTask.IsCompleted)
+        {
+            yield return null;
+        }
+
+        if (downloadTask.IsFaulted)
+        {
+            logger?.Log(
+                $"Download task faulted: {downloadTask.Exception}",
+                this,
+                Logging.LogType.Error
+            );
+            yield break;
+        }
+
+        Texture2D weaponTexture = downloadTask.Result;
+
+        if (weaponTexture == null)
+        {
+            logger?.Log(
+                $"Failed to download weapon sprite: {spriteId}",
+                this,
+                Logging.LogType.Error
+            );
+            yield break;
+        }
+
+        ChangeWeapon(weaponTexture);
+        logger?.Log($"Successfully equipped weapon: {spriteId}", this);
+    }
+
+    /// <summary>
+    /// Method to unequip the current weapon (removes weapon sprites).
+    /// </summary>
+    public void UnequipWeapon()
+    {
+        logger?.Log("Unequipping weapon", this);
+        ChangeWeapon(null);
     }
 }
