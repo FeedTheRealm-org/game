@@ -1,9 +1,11 @@
+using Game.Core.Exceptions;
+using Mirror;
 using UnityEngine;
 
 /// <summary>
 /// Connects player input to the movement component.
 /// </summary>
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     [SerializeField]
     public PlayerInputReader inputReader;
@@ -12,58 +14,55 @@ public class PlayerController : MonoBehaviour
     private GameObject playerPrefab;
 
     [SerializeField]
-    private Logging.Logger logger;
-
     private CharacterStateMachine characterStateMachine;
 
-    private void OnEnable()
+    [SerializeField]
+    private Logging.Logger logger;
+
+    public override void OnStartAuthority()
     {
+        if (!isLocalPlayer)
+            return;
+
+        if (inputReader == null)
+            throw new MissingFieldException(nameof(inputReader), nameof(PlayerController));
         if (playerPrefab == null)
-        {
-            logger.Log(
-                "Player prefab is not assigned in the inspector.",
-                this,
-                Logging.LogType.Error
-            );
-        }
-
-        characterStateMachine = playerPrefab.GetComponentInChildren<CharacterStateMachine>();
+            throw new MissingFieldException(nameof(playerPrefab), nameof(PlayerController));
         if (characterStateMachine == null)
-        {
-            logger.Log(
-                "CharacterStateMachine not found on the instantiated player prefab.",
-                this,
-                Logging.LogType.Error
+            throw new MissingFieldException(
+                nameof(characterStateMachine),
+                nameof(PlayerController)
             );
-        }
 
-        // Register callbacks
-        if (inputReader != null)
+        ToggleRegisterInputs(true);
+    }
+
+    public override void OnStopAuthority()
+    {
+        ToggleRegisterInputs(false);
+    }
+
+    public void OnDestroy()
+    {
+        ToggleRegisterInputs(false);
+    }
+
+    private void ToggleRegisterInputs(bool register)
+    {
+        logger.Log($"PlayerController ToggleRegisterInputs: {register}", this);
+        if (register)
         {
             inputReader.DashEvent += OnDashInput;
             inputReader.MoveEvent += OnMoveInput;
             inputReader.AttackEvent += OnAttackInput;
             inputReader.InteractEvent += OnInteractInput;
-
-            logger.Log("PlayerController subscribed from events.", this);
+            return;
         }
 
-        logger.Log("PlayerController enabled.", this);
-    }
-
-    private void OnDisable()
-    {
-        if (inputReader != null)
-        {
-            inputReader.MoveEvent -= OnMoveInput;
-            inputReader.DashEvent -= OnDashInput;
-            inputReader.AttackEvent -= OnAttackInput;
-            inputReader.InteractEvent -= OnInteractInput;
-
-            logger.Log("PlayerController unsubscribed from events.", this);
-        }
-
-        characterStateMachine = null;
+        inputReader.DashEvent -= OnDashInput;
+        inputReader.MoveEvent -= OnMoveInput;
+        inputReader.AttackEvent -= OnAttackInput;
+        inputReader.InteractEvent -= OnInteractInput;
     }
 
     private void OnAttackInput()

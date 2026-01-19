@@ -4353,7 +4353,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DashComponent
   rb: {fileID: 3095535743837438187}
   groundCheck: {fileID: 4180349157995795823}
-  movement: {fileID: 0}
   stamina: {fileID: 6970407581011094335}
   dashSpeed: 50
   dashDuration: 0.1
@@ -4491,8 +4490,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2c025b5871ae5ee0a77f0506d92a74a, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
   playerPrefab: {fileID: 1418397613159891299}
+  characterStateMachine: {fileID: 2124911000678282174}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!1 &1424139500108680001
 GameObject:

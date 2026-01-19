@@ -22,7 +22,7 @@ public class MovementNetworkAdapter : NetworkBehaviour
 
     public void Tick(MovementCommand command)
     {
-        if (!isOwned)
+        if (!isLocalPlayer)
         {
             logger.Log(
                 "Tick called on non-owned MovementNetworkAdapter",
@@ -56,7 +56,7 @@ public class MovementNetworkAdapter : NetworkBehaviour
     [ClientRpc(channel = Channels.Unreliable)]
     private void RpcMovementResponse(MovementSnapshot snapshot)
     {
-        if (isOwned)
+        if (isLocalPlayer)
             OnMovementReconcileSnapshot.Invoke(snapshot);
         else
             transform.position = new Vector3(snapshot.x, snapshot.y, snapshot.z);
