@@ -1,6 +1,5 @@
 using Game.Core.StateMachine;
 using Game.Core.Utils;
-using Game.Gameplay.UnityActors.Movement;
 using UnityEngine;
 
 /// <summary>

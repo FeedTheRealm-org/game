@@ -4147,14 +4147,18 @@ GameObject:
   - component: {fileID: 4629284952826211309}
   - component: {fileID: 4885086532300312383}
   - component: {fileID: 3095535743837438187}
+  - component: {fileID: 614184209223244181}
   - component: {fileID: 6970407581011094335}
   - component: {fileID: 4180349157995795823}
-  - component: {fileID: 4957554400110704478}
   - component: {fileID: 1534545483887044268}
   - component: {fileID: 370332728856482138}
+  - component: {fileID: 148068392588541952}
   - component: {fileID: 4190128248899451067}
   - component: {fileID: 2124911000678282174}
-  - component: {fileID: 148068392588541952}
+  - component: {fileID: 3772100352833835385}
+  - component: {fileID: 3218634496288659472}
+  - component: {fileID: 6302753649131742785}
+  - component: {fileID: 2078024595087042247}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -4285,6 +4289,23 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
+--- !u!114 &614184209223244181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
+  sceneId: 0
+  _assetId: 1567553439
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!114 &6970407581011094335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4318,23 +4339,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &4957554400110704478
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5607ea28d9110be3b6ffac2dd61ee7a, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::MovementComponent
-  rb: {fileID: 3095535743837438187}
-  col: {fileID: 4885086532300312383}
-  groundCheck: {fileID: 4180349157995795823}
-  moveSpeed: 5
-  visualRoot: {fileID: 5951985247975804607}
 --- !u!114 &1534545483887044268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4349,7 +4353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DashComponent
   rb: {fileID: 3095535743837438187}
   groundCheck: {fileID: 4180349157995795823}
-  movement: {fileID: 4957554400110704478}
+  movement: {fileID: 0}
   stamina: {fileID: 6970407581011094335}
   dashSpeed: 50
   dashDuration: 0.1
@@ -4375,6 +4379,24 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   enemySlayedEvent: {fileID: 11400000, guid: bc1931e5725e587d5b31e691f308799c, type: 2}
+--- !u!114 &148068392588541952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27cb3e8d20e333bf08767c2f29f0e3b1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractComponent
+  interactionRadius: 2
+  interactableLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  npcInteractedEvent: {fileID: 0}
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &4190128248899451067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4404,7 +4426,13 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStateMachine
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
---- !u!114 &148068392588541952
+  movementController: {fileID: 3218634496288659472}
+  dashComponent: {fileID: 1534545483887044268}
+  attackComponent: {fileID: 370332728856482138}
+  groundCheckComponent: {fileID: 4180349157995795823}
+  interactComponent: {fileID: 148068392588541952}
+  characterAnimator: {fileID: 4486304355727522199}
+--- !u!114 &3772100352833835385
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4413,13 +4441,58 @@ MonoBehaviour:
   m_GameObject: {fileID: 1418397613159891299}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27cb3e8d20e333bf08767c2f29f0e3b1, type: 3}
+  m_Script: {fileID: 11500000, guid: 808bc30b7a55d36d499dcbc9bac3f6ad, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractComponent
-  interactionRadius: 2
-  interactableLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
+  m_EditorClassIdentifier: Assembly-CSharp::MovementView
+  rb: {fileID: 3095535743837438187}
+--- !u!114 &3218634496288659472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2285b05e43c368759a5146a6b8b394f0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::MovementController
+  movementView: {fileID: 3772100352833835385}
+  movementNetworkAdapter: {fileID: 6302753649131742785}
+  moveSpeed: 5
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+--- !u!114 &6302753649131742785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bab4b03330db6239c9a098d4fc0a4574, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::MovementNetworkAdapter
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  moveSpeed: 5
+  sendInterval: 0.05
+  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+--- !u!114 &2078024595087042247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2c025b5871ae5ee0a77f0506d92a74a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+  playerPrefab: {fileID: 1418397613159891299}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!1 &1424139500108680001
 GameObject:

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Game.Core.Exceptions;
 using Game.Core.StateMachine;
-using Game.Gameplay.UnityActors.Movement;
 using UnityEngine;
 
 /// <summary>
@@ -13,11 +12,22 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     private Logging.Logger logger;
 
     /* Components */
+    [SerializeField]
     private MovementController movementController;
+
+    [SerializeField]
     private DashComponent dashComponent;
+
+    [SerializeField]
     private AttackComponent attackComponent;
+
+    [SerializeField]
     private GroundCheckComponent groundCheckComponent;
+
+    [SerializeField]
     private PlayerInteractComponent interactComponent;
+
+    [SerializeField]
     private CharacterAnimator characterAnimator;
 
     /* States */

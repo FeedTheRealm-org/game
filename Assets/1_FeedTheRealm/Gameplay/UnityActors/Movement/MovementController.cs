@@ -1,8 +1,6 @@
 using Game.Core.Domain.Movement;
 using UnityEngine;
 
-namespace Game.Gameplay.UnityActors.Movement;
-
 public class MovementController : MonoBehaviour
 {
     [SerializeField]
@@ -13,6 +11,10 @@ public class MovementController : MonoBehaviour
 
     [SerializeField]
     private float moveSpeed = 5f;
+
+    [Header("Debug")]
+    [SerializeField]
+    private Logging.Logger logger;
 
     private readonly MovementPrediction prediction = new();
 
@@ -48,11 +50,13 @@ public class MovementController : MonoBehaviour
         ).normalized;
 
         currentDirection = (camRight * direction.x + camForward * direction.y).normalized;
+        logger.Log($"SetDirection: {currentDirection}", this);
     }
 
     private void FixedUpdate()
     {
         sequenceNumber++;
+        logger.Log($"FixedUpdate: Seq {sequenceNumber}, Dir {currentDirection}", this);
 
         float deltaTime = Time.fixedDeltaTime;
 

@@ -4,8 +4,6 @@ using Game.Core.Server.Movement;
 using Mirror;
 using UnityEngine;
 
-namespace Game.Gameplay.UnityActors.Movement;
-
 public class MovementNetworkAdapter : NetworkBehaviour
 {
     [SerializeField]
@@ -14,6 +12,10 @@ public class MovementNetworkAdapter : NetworkBehaviour
     [SerializeField]
     private float sendInterval = 0.05f;
 
+    [Header("Debug")]
+    [SerializeField]
+    private Logging.Logger logger;
+
     public event Action<MovementSnapshot> OnMovementReconcileSnapshot;
 
     private float nextSendTime = 0f;
@@ -21,10 +23,18 @@ public class MovementNetworkAdapter : NetworkBehaviour
     public void Tick(MovementCommand command)
     {
         if (!isOwned)
+        {
+            logger.Log(
+                "Tick called on non-owned MovementNetworkAdapter",
+                this,
+                Logging.LogType.Warning
+            );
             return;
+        }
 
         if (Time.time >= nextSendTime)
         {
+            logger.Log($"Sending MovementCommand Seq {command.sequenceNumber}", this);
             nextSendTime = Time.time + sendInterval;
             CmdMovementRequest(command);
         }

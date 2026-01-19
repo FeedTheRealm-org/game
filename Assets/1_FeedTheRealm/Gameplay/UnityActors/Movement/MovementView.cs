@@ -1,8 +1,6 @@
 using Game.Core.Exceptions;
 using UnityEngine;
 
-namespace Game.Gameplay.UnityActors.Movement;
-
 public class MovementView : MonoBehaviour
 {
     [SerializeField]
