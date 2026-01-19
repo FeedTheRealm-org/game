@@ -250,7 +250,7 @@ public class ServerWorldLoader : NetworkBehaviour
                 NPCSpawns spawnComponent = spawnInstance.GetComponent<NPCSpawns>();
                 if (spawnComponent != null)
                 {
-                    spawnComponent.ConfigureFromSpawnData(area);
+                    spawnComponent.ConfigureFromSpawnData(area, worldData.dialogs[0]);
                 }
                 else
                 {

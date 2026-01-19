@@ -229,9 +229,10 @@ public class WorldLoaderController : MonoBehaviour
 
             // Configure the spawn with data from world
             NPCSpawns spawnComponent = spawnInstance.GetComponent<NPCSpawns>();
+
             if (spawnComponent != null)
             {
-                spawnComponent.ConfigureFromSpawnData(npcSpawnAreaData);
+                spawnComponent.ConfigureFromSpawnData(npcSpawnAreaData, data.dialogs[0]);
             }
             else
             {
