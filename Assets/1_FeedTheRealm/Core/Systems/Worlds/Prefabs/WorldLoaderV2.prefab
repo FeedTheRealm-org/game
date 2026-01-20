@@ -50,6 +50,7 @@ MonoBehaviour:
   worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
   enemySpawnPrefab: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
+  shopPrefab: {fileID: 6448232648378720656, guid: 2c5f2d927e7e43c4288f6f191b8920ee, type: 3}
 --- !u!114 &1584506608635705944
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -25,6 +25,9 @@ public class WorldLoaderControllerV2 : MonoBehaviour
     [SerializeField]
     private GameObject enemySpawnPrefab;
 
+    [SerializeField]
+    private GameObject shopPrefab;
+
     // Private fields
     private string worldId;
     private string accessToken;
@@ -98,6 +101,25 @@ public class WorldLoaderControllerV2 : MonoBehaviour
             instance.transform.position = structureData.position;
             instance.transform.rotation = Quaternion.Euler(structureData.rotation);
             instance.transform.localScale = structureData.size;
+
+            if (structureData.isShop)
+            {
+                GameObject shopInstance = Instantiate(
+                    shopPrefab,
+                    structureData.position,
+                    Quaternion.identity
+                );
+
+                shopInstance.GetComponent<BoxCollider>().size = instance
+                    .transform.GetChild(0)
+                    .GetComponent<BoxCollider>()
+                    .size;
+                shopInstance.GetComponent<BoxCollider>().center = instance
+                    .transform.GetChild(0)
+                    .GetComponent<BoxCollider>()
+                    .center;
+                shopInstance.transform.SetParent(instance.transform);
+            }
 
             logger.Log(
                 $"[WorldLoaderController] Placed object '{structureData.structureName}' (assetId={structureData.id}) at {structureData.position}.",
