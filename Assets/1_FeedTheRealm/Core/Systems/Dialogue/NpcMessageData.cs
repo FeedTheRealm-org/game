@@ -1,5 +1,6 @@
 using System;
 using Game.Core.Quests;
+using Models;
 using UnityEngine;
 
 namespace Game.Core.Dialogue
@@ -18,7 +19,7 @@ namespace Game.Core.Dialogue
 
         public NpcMessageData(string content, QuestData quest)
         {
-            _msg = new MessageData("???", content);
+            _msg = new MessageData("???", "???", content);
             _quest = quest;
         }
 
