@@ -1,0 +1,47 @@
+:root {
+    display: flex;
+    visibility: visible;
+}
+
+.panel {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/barmid_ready.png?fileID=2800000&guid=f7f681cd213d9a7488500ce745f2d4f8&type=3#barmid_ready");
+}
+
+.shop-item {
+    background-size: contain;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.shop-item-price {
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    font-weight: bold;
+    -unity-text-align: middle-center;
+    margin-top: 5px;
+}
+
+.shop-item-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.shop-slot {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&guid=4b3d2095baccc2041b973b66b786b9d0&type=3#button2_ready_off");
+    background-size: cover;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.5);
+    min-width: 90px;
+    min-height: 90px;
+    max-width: 90px;
+    max-height: 90px;
+}
+
+.close-button {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&guid=4b3d2095baccc2041b973b66b786b9d0&type=3#button2_ready_off");
+    background-color: transparent;
+    border-width: 0;
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    font-weight: bold;
+    -unity-text-align: middle-center;
+}
