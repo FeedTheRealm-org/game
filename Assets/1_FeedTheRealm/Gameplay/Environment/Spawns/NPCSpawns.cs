@@ -1,4 +1,5 @@
 using System.Collections;
+using Game.Core.Dialogue;
 using Mirror;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ public class NPCSpawns : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
+    private Models.DialogData dialogData;
     private int currentNPCs;
     private Vector3 spawnCenter;
     private float spawnRadius = 1f;
@@ -71,17 +73,36 @@ public class NPCSpawns : MonoBehaviour
         }
 
         logger.Log($"[NPCSpawns] Spawning NPC at {position}", this);
-        GameObject _ = Instantiate(npcPrefab, position, rotation);
+        GameObject npc = Instantiate(npcPrefab, position, rotation);
+
+        npc.GetComponent<DialogManagerComponent>()
+            ?.SetDialogs(dialogData != null ? transformDialogDataToNpcMessages(dialogData) : null);
 
         currentNPCs++;
         logger.Log($"[NPCSpawns] NPC spawned at {position}. Total NPCs: {currentNPCs}", this);
+    }
+
+    private NpcMessageData[] transformDialogDataToNpcMessages(Models.DialogData dialogData)
+    {
+        NpcMessageData[] npcMessages = new NpcMessageData[dialogData.messages.Count];
+
+        for (int i = 0; i < dialogData.messages.Count; i++)
+        {
+            var msg = dialogData.messages[i];
+            npcMessages[i] = new NpcMessageData(msg.Content, null);
+        }
+
+        return npcMessages;
     }
 
     /// <summary>
     /// Configures this spawn instance with data from NPCSpawnerData.
     /// Must be called after instantiation for dynamically placed spawns.
     /// </summary>
-    public void ConfigureFromSpawnData(Models.NPCSpawnerData spawnData)
+    public void ConfigureFromSpawnData(
+        Models.NPCSpawnerData spawnData,
+        Models.DialogData dialogData
+    )
     {
         if (spawnData == null)
         {
@@ -95,6 +116,9 @@ public class NPCSpawns : MonoBehaviour
 
         transform.position = spawnData.Position;
         spawnCenter = transform.position;
+        this.dialogData = dialogData;
+
+        logger?.Log($"[NPCSpawns] Configuring {dialogData}", this);
 
         logger?.Log(
             $"[NPCSpawns] Configured spawn: position={spawnData.Position}, radius={spawnData.Radius}, maxNPCs={maxNPCs}",

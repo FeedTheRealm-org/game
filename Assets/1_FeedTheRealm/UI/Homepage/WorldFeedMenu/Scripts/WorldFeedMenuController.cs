@@ -168,10 +168,17 @@ public class WorldFeedMenuController : MonoBehaviour
     {
         try
         {
-            var (worldData, error) = await worldService.GetWorldData(metadata.id, session.APIToken);
+            var (worldData, error, code) = await worldService.GetWorldData(
+                metadata.id,
+                session.APIToken
+            );
             if (!string.IsNullOrEmpty(error) || worldData == null)
             {
-                logger.Log($"Error loading world data: {error}", this, Logging.LogType.Error);
+                logger.Log(
+                    $"Error loading world data: {error} (code: {code})",
+                    this,
+                    Logging.LogType.Error
+                );
                 return;
             }
             worldHandler.selectedWorld = worldData;

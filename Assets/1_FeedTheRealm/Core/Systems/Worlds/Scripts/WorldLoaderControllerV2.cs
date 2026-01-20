@@ -28,6 +28,12 @@ public class WorldLoaderControllerV2 : MonoBehaviour
     [SerializeField]
     private GameObject shopPrefab;
 
+    [SerializeField]
+    private GameObject npcSpawnPrefab;
+
+    [SerializeField]
+    private ShopItemsSO shopItemsSO;
+
     // Private fields
     private string worldId;
     private string accessToken;
@@ -65,7 +71,7 @@ public class WorldLoaderControllerV2 : MonoBehaviour
 
     private async Task<WorldData> LoadWorldData()
     {
-        (WorldData data, string errorMessage) = await worldService.GetWorldData(
+        (WorldData data, string errorMessage, var _) = await worldService.GetWorldData(
             worldId,
             accessToken
         );
@@ -81,6 +87,7 @@ public class WorldLoaderControllerV2 : MonoBehaviour
         }
 
         logger.Log($"Loading world: {data.worldName}", this);
+        shopItemsSO.SetShopData(data.shopData);
         // Register world data so other systems (loot, inventory, tooltips)
         // can query consumables and enemies by spriteId.
         Worlds.WorldItemsRegistry.RegisterWorldData(data);
@@ -150,6 +157,32 @@ public class WorldLoaderControllerV2 : MonoBehaviour
             spawnInstance.SetActive(true);
             logger.Log(
                 $"[WorldLoaderController] Placed enemy spawn area at {spawnPos} with radius {enemySpawnAreaData.Radius}.",
+                this
+            );
+        }
+
+        foreach (NPCSpawnerData npcSpawnAreaData in data.npcSpawnAreas)
+        {
+            Vector3 targetPosition = npcSpawnAreaData.Position;
+            Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
+            GameObject spawnInstance = Instantiate(npcSpawnPrefab, spawnPos, Quaternion.identity);
+            NPCSpawns spawnComponent = spawnInstance.GetComponent<NPCSpawns>();
+            if (spawnComponent != null)
+            {
+                spawnComponent.ConfigureFromSpawnData(npcSpawnAreaData, data.dialogs[0]);
+            }
+            else
+            {
+                logger.Log(
+                    "[WorldLoaderController] NPC spawn prefab missing NPCSpawns component!",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
+
+            spawnInstance.SetActive(true);
+            logger.Log(
+                $"[WorldLoaderController] Placed NPC spawn area at {spawnPos} with radius {npcSpawnAreaData.Radius}.",
                 this
             );
         }

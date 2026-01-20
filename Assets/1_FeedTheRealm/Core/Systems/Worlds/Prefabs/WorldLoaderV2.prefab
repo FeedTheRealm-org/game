@@ -51,6 +51,8 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
   enemySpawnPrefab: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
   shopPrefab: {fileID: 6448232648378720656, guid: 2c5f2d927e7e43c4288f6f191b8920ee, type: 3}
+  npcSpawnPrefab: {fileID: 7265489834613234143, guid: 92a6d90bb86a46146bd725128e92e36d, type: 3}
+  shopItemsSO: {fileID: 11400000, guid: 8422c78246daacb49bb405d2f69a6eb2, type: 2}
 --- !u!114 &1584506608635705944
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ public class ShopItemsSO : ScriptableObject
 
     public void SetShopData(Models.ShopData newShopData)
     {
+        Debug.Log($"Setting Shop Data: {newShopData}");
         shopData = newShopData;
     }
 }
