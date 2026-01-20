@@ -145,12 +145,16 @@ public class ServerWorldLoader : NetworkBehaviour
             this
         );
 
-        var (worldData, errorMessage) = await worldService.GetWorldData(worldId, session.APIToken);
+        var (worldData, errorMessage, code) = await worldService.GetWorldData(
+            worldId,
+            session.APIToken
+        );
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
             logger?.Log(
-                $"[ServerWorldLoader] Failed to load world '{worldId}': {errorMessage}",
+                $"[ServerWorldLoader] Failed to load world '{worldId}': {errorMessage}"
+                    + $" (code: {code})",
                 this,
                 Logging.LogType.Error
             );

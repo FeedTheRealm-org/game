@@ -65,7 +65,7 @@ public class WorldLoaderControllerV2 : MonoBehaviour
 
     private async Task<WorldData> LoadWorldData()
     {
-        (WorldData data, string errorMessage) = await worldService.GetWorldData(
+        (WorldData data, string errorMessage, var _) = await worldService.GetWorldData(
             worldId,
             accessToken
         );
