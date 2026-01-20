@@ -12,10 +12,15 @@ public static class InventoryItemFactory
         var itemElement = new VisualElement();
         itemElement.name = "InventoryItem";
         itemElement.style.backgroundImage = new StyleBackground(itemSprite);
-        itemElement.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
+        itemElement.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
         itemElement.style.width = new Length(100, LengthUnit.Percent);
         itemElement.style.height = new Length(100, LengthUnit.Percent);
         itemElement.style.position = Position.Relative;
+        itemElement.style.translate = new Translate(
+            new Length(10, LengthUnit.Pixel),
+            new Length(-10, LengthUnit.Pixel)
+        );
+        itemElement.style.rotate = new Rotate(45);
         itemElement.style.alignItems = Align.Center;
         itemElement.style.justifyContent = Justify.Center;
         itemElement.AddToClassList("inventory-item");
@@ -85,7 +90,7 @@ public static class InventoryItemFactory
         if (sprite != null)
         {
             ghost.style.backgroundImage = new StyleBackground(sprite);
-            ghost.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
+            ghost.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
             ghost.style.backgroundRepeat = new BackgroundRepeat(Repeat.NoRepeat, Repeat.NoRepeat);
             ghost.style.backgroundPositionX = new BackgroundPosition(
                 BackgroundPositionKeyword.Center

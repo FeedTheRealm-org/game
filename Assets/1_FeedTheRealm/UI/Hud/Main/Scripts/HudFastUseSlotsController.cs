@@ -23,6 +23,9 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     private VisualElement _fastUseSlotsContainer;
     private PlayerInputReader _boundInputReader;
 
+    // Active slot management
+    private ActiveSlotManager _activeSlotManager;
+
     protected override void Awake()
     {
         // slotCount is configurable in Unity Inspector (default: 5, max: 9 for keyboard keys 1-9)
@@ -94,6 +97,8 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     {
         spriteLoader = loader;
         logger?.Log($"[HUD] SpriteLoader assigned: {(loader != null ? "SUCCESS" : "NULL")}", this);
+
+        _activeSlotManager?.SetSpriteLoader(loader);
     }
 
     private void TryBindInputReader()
@@ -177,6 +182,17 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             button.RegisterCallback<PointerEnterEvent>(_ => OnItemHoverEnter(button));
             button.RegisterCallback<PointerLeaveEvent>(_ => OnItemHoverLeave(button));
         }
+
+        // Initialize ActiveSlotManager
+        _activeSlotManager = new ActiveSlotManager(
+            _slotButtons,
+            slotManager,
+            spriteLoader,
+            logger,
+            slotCount
+        );
+
+        _activeSlotManager.InitializeDefaultActiveSlot();
     }
 
     public override bool IsSlotEmpty(int slotIndex)
@@ -213,6 +229,9 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             return false;
 
         ClearSlotVisual(slotButton);
+
+        _activeSlotManager?.OnSlotItemRemoved(slotIndex);
+
         return true;
     }
 
@@ -270,49 +289,19 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     /// <summary>
     /// Activates the item in a HUD slot (triggered by keyboard 1-9).
     /// Called by: HandleQuickSlotPressed when corresponding key is pressed.
-    /// Fires OnSlotActivated event and equips weapon sprite if applicable.
+    /// Marks the slot as active and equips weapon if slot has an item and is a weapon type.
     /// </summary>
     public void ActivateSlot(int slotIndex)
     {
-        if (!slotManager.TryGet(slotIndex, out var slotData))
+        if (_activeSlotManager == null)
         {
-            logger?.Log($"Slot{slotIndex} activated but empty", this);
+            logger?.Log("ActiveSlotManager not initialized", this, Logging.LogType.Warning);
             return;
         }
 
-        OnSlotActivated?.Invoke(slotIndex, slotData.ItemId);
-
-        if (spriteLoader != null && !string.IsNullOrEmpty(slotData.ItemId))
+        if (_activeSlotManager.TryActivateSlot(slotIndex))
         {
-            logger?.Log($"Calling EquipWeapon with itemId: {slotData.ItemId}", this);
-            try
-            {
-                spriteLoader.EquipWeapon(slotData.ItemId);
-            }
-            catch (System.Exception ex)
-            {
-                logger?.Log(
-                    $"Exception calling EquipWeapon: {ex.Message}\n{ex.StackTrace}",
-                    this,
-                    Logging.LogType.Error
-                );
-            }
-        }
-        else if (spriteLoader == null)
-        {
-            logger?.Log(
-                "SpriteLoader not set, cannot equip weapon sprite",
-                this,
-                Logging.LogType.Warning
-            );
-        }
-        else if (string.IsNullOrEmpty(slotData.ItemId))
-        {
-            logger?.Log(
-                "ItemId is null or empty, cannot equip weapon",
-                this,
-                Logging.LogType.Warning
-            );
+            OnSlotActivated?.Invoke(slotIndex, _activeSlotManager.GetActiveSlotItemId());
         }
     }
 
@@ -320,26 +309,25 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     {
         slotManager.Assign(slotIndex, itemId, sprite, slotButton);
 
+        var prevItem = slotButton.Q("InventoryItem");
+        if (prevItem != null)
+            slotButton.Remove(prevItem);
+
         if (sprite != null)
         {
-            // Keep existing styling (button background frame) but show item as an overlay background.
-            try
-            {
-                slotButton.iconImage = sprite.texture;
-            }
-            catch
-            {
-                // Fallback: background image.
-                slotButton.style.backgroundImage = new StyleBackground(sprite);
-                slotButton.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
-            }
-        }
-        else
-        {
-            slotButton.iconImage = null;
+            var itemElement = InventoryItemFactory.CreateItemElement(sprite, itemId);
+            itemElement.style.width = new Length(130, LengthUnit.Percent);
+            itemElement.style.height = new Length(130, LengthUnit.Percent);
+            itemElement.style.translate = new Translate(
+                new Length(0, LengthUnit.Pixel),
+                new Length(-5, LengthUnit.Pixel)
+            );
+            slotButton.Add(itemElement);
         }
 
         logger?.Log($"[HUD] Assigned itemId={itemId} to Slot{slotIndex}", this);
+
+        _activeSlotManager?.OnSlotItemAssigned(slotIndex, itemId);
     }
 
     private void ClearSlotVisual(Button slotButton)
@@ -401,15 +389,13 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
         if (root == null || root.panel == null)
             return false;
 
-        // Find HUD slot at screen position
         Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, screenPosition);
         if (!TryResolveHudSlotButton(panelPos, out int slotIndex, out Button slotButton))
             return false;
 
-        // Check if slot is empty or occupied
         if (IsSlotEmpty(slotIndex))
         {
-            // Empty slot: assign item
+            // Empty slot: assign item (will auto-equip if active slot)
             AssignSlot(slotIndex, slotButton, itemId, sprite);
             result = ItemPlacementResult.PlacedInEmptySlot();
             logger?.Log($"[HUD] Placed {itemId} in quickslot {slotIndex}", this);
@@ -420,7 +406,7 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             // Occupied slot: swap
             if (TryGetSlotData(slotIndex, out string existingItemId, out Sprite existingSprite))
             {
-                // Assign new item to slot
+                // Assign new item to slot (will auto-equip if active slot)
                 AssignSlot(slotIndex, slotButton, itemId, sprite);
 
                 result = ItemPlacementResult.SwappedWith(
