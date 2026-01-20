@@ -50,6 +50,10 @@ public class MovementNetworkAdapter : NetworkBehaviour
             Time.fixedDeltaTime
         );
 
+        // Update position if dedicated server (not in host mode)
+        if (isServerOnly)
+            transform.position = new Vector3(snapshot.x, snapshot.y, snapshot.z);
+
         RpcMovementResponse(snapshot);
     }
 

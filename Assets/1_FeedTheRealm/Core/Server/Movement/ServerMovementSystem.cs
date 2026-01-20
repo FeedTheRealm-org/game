@@ -19,7 +19,6 @@ public static class ServerMovementSystem
             moveSpeed,
             deltaTime
         );
-        transform.position = nextPosition;
 
         return new MovementSnapshot
         {
