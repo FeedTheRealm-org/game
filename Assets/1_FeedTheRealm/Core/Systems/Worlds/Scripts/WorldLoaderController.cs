@@ -36,6 +36,12 @@ public class WorldLoaderController : MonoBehaviour
     [SerializeField]
     private GameObject npcSpawnPrefab;
 
+    [SerializeField]
+    private GameObject shopPrefab;
+
+    [SerializeField]
+    private ShopItemsSO shopItemsSO;
+
     [Header("Debug")]
     [SerializeField]
     private bool logWorldDataJson = false;
@@ -160,6 +166,8 @@ public class WorldLoaderController : MonoBehaviour
             return;
         }
 
+        shopItemsSO.SetShopData(data.shopData);
+
         if (assetMap == null || assetMap.Count == 0)
         {
             logger.Log(
@@ -185,6 +193,25 @@ public class WorldLoaderController : MonoBehaviour
                 GameObject instance = assetData.GetModelInstance();
                 Vector3 targetPosition = structureData.position;
                 instance.transform.position = targetPosition;
+
+                if (structureData.isShop)
+                {
+                    GameObject shopInstance = Instantiate(
+                        shopPrefab,
+                        targetPosition,
+                        Quaternion.identity
+                    );
+
+                    shopInstance.GetComponent<BoxCollider>().size = instance
+                        .transform.GetChild(0)
+                        .GetComponent<BoxCollider>()
+                        .size;
+                    shopInstance.GetComponent<BoxCollider>().center = instance
+                        .transform.GetChild(0)
+                        .GetComponent<BoxCollider>()
+                        .center;
+                    shopInstance.transform.SetParent(instance.transform);
+                }
 
                 logger.Log(
                     $"[WorldLoaderController] Placed object '{structureData.structureName}' (assetId={structureData.id}) at {targetPosition}.",

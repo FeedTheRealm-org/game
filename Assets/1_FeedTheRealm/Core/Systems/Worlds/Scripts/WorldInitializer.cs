@@ -37,7 +37,7 @@ public class WorldInitializer : MonoBehaviour
         loadingScreenUI.gameObject.SetActive(true);
         WorldData worldData = await worldLoaderController.LoadWorld(worldId, accessToken);
 
-        if (player != null && worldData != null && worldData.playerSpawnAreas != null)
+        if (player != null && worldData != null && worldData.playerSpawnAreas.Count > 0)
         {
             int randomIndex = Random.Range(0, worldData.playerSpawnAreas.Count);
             Debug.Log(

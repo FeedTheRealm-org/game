@@ -26,7 +26,13 @@ public class WorldLoaderControllerV2 : MonoBehaviour
     private GameObject enemySpawnPrefab;
 
     [SerializeField]
+    private GameObject shopPrefab;
+
+    [SerializeField]
     private GameObject npcSpawnPrefab;
+
+    [SerializeField]
+    private ShopItemsSO shopItemsSO;
 
     // Private fields
     private string worldId;
@@ -81,6 +87,7 @@ public class WorldLoaderControllerV2 : MonoBehaviour
         }
 
         logger.Log($"Loading world: {data.worldName}", this);
+        shopItemsSO.SetShopData(data.shopData);
         // Register world data so other systems (loot, inventory, tooltips)
         // can query consumables and enemies by spriteId.
         Worlds.WorldItemsRegistry.RegisterWorldData(data);
@@ -101,6 +108,25 @@ public class WorldLoaderControllerV2 : MonoBehaviour
             instance.transform.position = structureData.position;
             instance.transform.rotation = Quaternion.Euler(structureData.rotation);
             instance.transform.localScale = structureData.size;
+
+            if (structureData.isShop)
+            {
+                GameObject shopInstance = Instantiate(
+                    shopPrefab,
+                    structureData.position,
+                    Quaternion.identity
+                );
+
+                shopInstance.GetComponent<BoxCollider>().size = instance
+                    .transform.GetChild(0)
+                    .GetComponent<BoxCollider>()
+                    .size;
+                shopInstance.GetComponent<BoxCollider>().center = instance
+                    .transform.GetChild(0)
+                    .GetComponent<BoxCollider>()
+                    .center;
+                shopInstance.transform.SetParent(instance.transform);
+            }
 
             logger.Log(
                 $"[WorldLoaderController] Placed object '{structureData.structureName}' (assetId={structureData.id}) at {structureData.position}.",

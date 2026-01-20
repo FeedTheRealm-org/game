@@ -341,6 +341,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1721660214959025420, guid: 2f019df7ee378bc98995c9c82cc29986, type: 3}
+      propertyPath: shopItemsSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 8422c78246daacb49bb405d2f69a6eb2, type: 2}
     - target: {fileID: 7423416470784103739, guid: 2f019df7ee378bc98995c9c82cc29986, type: 3}
       propertyPath: m_Name
       value: HUD
@@ -549,6 +553,8 @@ MonoBehaviour:
   loadingScreenUI: {fileID: 513648749}
   enemySpawnPrefab: {fileID: 1720094287}
   npcSpawnPrefab: {fileID: 7265489834613234143, guid: 92a6d90bb86a46146bd725128e92e36d, type: 3}
+  shopPrefab: {fileID: 6448232648378720656, guid: 2c5f2d927e7e43c4288f6f191b8920ee, type: 3}
+  shopItemsSO: {fileID: 11400000, guid: 8422c78246daacb49bb405d2f69a6eb2, type: 2}
   logWorldDataJson: 1
 --- !u!4 &513648748
 Transform:
@@ -954,7 +960,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
       propertyPath: slotCount
-      value: 12
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 5358176356993170222, guid: 9d7729fa97594054ea39c0e4ee28e91c, type: 3}
       propertyPath: itemStatsTooltip
