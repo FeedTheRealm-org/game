@@ -53,14 +53,20 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             return;
 
         // Unregister from old registry.
-        registry?.Unregister(this);
+        if (registry != null)
+        {
+            registry.Unregister(this);
+        }
 
         registry = newRegistry;
 
         // Register into the new registry immediately if active.
         if (isActiveAndEnabled)
         {
-            registry?.Register(this);
+            if (registry != null)
+            {
+                registry.Register(this);
+            }
         }
     }
 
@@ -75,13 +81,15 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     private void OnEnable()
     {
         TryBindInputReader();
-        registry?.Register(this);
+        if (registry != null)
+            registry.Register(this);
     }
 
     private void OnDisable()
     {
         UnbindInputReader();
-        registry?.Unregister(this);
+        if (registry != null)
+            registry.Unregister(this);
     }
 
     public void SetInputReader(PlayerInputReader reader)
@@ -336,6 +344,9 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
         {
             slotButton.iconImage = null;
             slotButton.style.backgroundImage = StyleKeyword.Null;
+            var prevItem = slotButton.Q("InventoryItem");
+            if (prevItem != null)
+                slotButton.Remove(prevItem);
         }
     }
 
