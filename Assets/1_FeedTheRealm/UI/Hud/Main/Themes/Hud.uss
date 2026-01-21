@@ -152,3 +152,15 @@
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
 }
+
+.fast-use-slot-selected {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2_ready_on.png?fileID=2800000&guid=6b8728d20b5d4c540b335c3789517218&type=3#button2_ready_on");
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0);
+    width: 64px;
+    height: 64px;
+}
