@@ -1,6 +1,6 @@
-using UnityEngine;
+using Mirror;
 using Unity.Cinemachine;
-using Unity.Netcode;
+using UnityEngine;
 
 public class CameraSetup : MonoBehaviour
 {
@@ -8,28 +8,42 @@ public class CameraSetup : MonoBehaviour
     [Tooltip("Optional: Specify a tag to find the player. Default is 'Player'.")]
     public string playerTag = "Player";
 
-    [Tooltip("Optional: Manually set a specific child transform of the player (like a spine/chest bone).")]
+    [Tooltip(
+        "Optional: Manually set a specific child transform of the player (like a spine/chest bone)."
+    )]
     public string targetChildName = "";
 
-    [SerializeField] private Logging.Logger logger;
-    
+    [SerializeField]
+    private Logging.Logger logger;
+
     private Coroutine setupCoroutine;
 
-    void Awake()
+    void Awake() { }
+
+    void Start()
     {
+        // Only setup camera on clients. If there is no active client (dedicated server
+        // or not yet connected), disable this component early to avoid server-side logs.
+        if (!NetworkClient.active)
+        {
+            logger.Log(
+                "CameraSetup disabled: no active client (dedicated server or not connected)",
+                this
+            );
+            enabled = false;
+            return;
+        }
+
         Camera cam = GetComponentInChildren<Camera>();
         if (cam != null && Camera.main == null)
         {
             cam.tag = "MainCamera";
         }
-    }
 
-    void Start()
-    {
         // Wait a frame for the player to spawn
         setupCoroutine = StartCoroutine(WaitForPlayerAndSetupCamera());
     }
-    
+
     private void OnDestroy()
     {
         if (setupCoroutine != null)
@@ -44,6 +58,13 @@ public class CameraSetup : MonoBehaviour
         // Wait a few frames for NetworkManager to spawn the player
         yield return new WaitForSeconds(0.5f);
 
+        // Ensure we are still a client before attempting to find the local player.
+        if (!NetworkClient.active)
+        {
+            logger.Log("CameraSetup aborting: client not active after wait", this);
+            yield break;
+        }
+
         SetupCinemachineCamera();
     }
 
@@ -54,7 +75,11 @@ public class CameraSetup : MonoBehaviour
 
         if (playerTransform == null)
         {
-            logger.Log("CameraSetup: Local player not found! Make sure the player prefab has a NetworkObject and the player tag is set.", this, Logging.LogType.Error);
+            logger.Log(
+                "CameraSetup: Local player not found! Make sure the player prefab has a NetworkIdentity and the player tag is set.",
+                this,
+                Logging.LogType.Error
+            );
             return;
         }
 
@@ -70,18 +95,25 @@ public class CameraSetup : MonoBehaviour
             }
             else
             {
-                logger.Log($"Child '{targetChildName}' not found, using player root instead", this, Logging.LogType.Warning);
+                logger.Log(
+                    $"Child '{targetChildName}' not found, using player root instead",
+                    this,
+                    Logging.LogType.Warning
+                );
             }
         }
 
         // Find FreeLook Camera in the scene
         var cinemachineCameras = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);
-        
+
         foreach (var vcam in cinemachineCameras)
         {
             // Configure the camera to follow this player
             vcam.Target.TrackingTarget = targetTransform;
-            logger.Log($"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this);
+            logger.Log(
+                $"✓ Cinemachine camera '{vcam.gameObject.name}' tracking target set to: {targetTransform.name} on player: {playerTransform.name}",
+                this
+            );
         }
 
         // Alternative: Find by name if you have a specific camera
@@ -92,7 +124,10 @@ public class CameraSetup : MonoBehaviour
             if (freeLookCam != null)
             {
                 freeLookCam.Target.TrackingTarget = targetTransform;
-                logger.Log($"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}", this);
+                logger.Log(
+                    $"✓ FreeLook Camera tracking target set to: {targetTransform.name} on player: {playerTransform.name}",
+                    this
+                );
             }
         }
     }
@@ -103,22 +138,26 @@ public class CameraSetup : MonoBehaviour
         GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
         if (playerObj != null)
         {
-            var netObj = playerObj.GetComponent<NetworkObject>();
-            if (netObj != null && netObj.IsOwner)
+            var netIdentity = playerObj.GetComponent<NetworkIdentity>();
+            if (netIdentity != null && netIdentity.isLocalPlayer)
             {
                 logger.Log($"Found local player by tag '{playerTag}': {playerObj.name}", this);
                 return playerObj.transform;
             }
         }
 
-        // If tag search fails, find all NetworkObjects and get the local player
-        var allNetworkObjects = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
-        foreach (var netObj in allNetworkObjects)
+        // If tag search fails, find all NetworkIdentities and get the local player
+        var allNetworkIdentities = FindObjectsByType<NetworkIdentity>(FindObjectsSortMode.None);
+        foreach (var netIdentity in allNetworkIdentities)
         {
-            if (netObj.IsOwner && netObj.IsPlayerObject)
+            // In Mirror, isLocalPlayer indicates this is the local player
+            if (netIdentity.isLocalPlayer)
             {
-                logger.Log($"Found local player by NetworkObject scan: {netObj.gameObject.name}", this);
-                return netObj.transform;
+                logger.Log(
+                    $"Found local player by NetworkIdentity scan: {netIdentity.gameObject.name}",
+                    this
+                );
+                return netIdentity.transform;
             }
         }
 

@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
+using API;
 using GLTFast;
 using UnityEngine;
 
-
-
-namespace API {
+namespace API
+{
     /// <summary>
     /// Service to download item sprites from API.
     /// Handles sprite downloads for items system.
@@ -12,18 +12,18 @@ namespace API {
     /// Separated from AssetsService (character editor sprites).
     /// </summary>
     [CreateAssetMenu(fileName = "GltLoaderService", menuName = "Scriptable Objects/API/GltLoader")]
-    public class GltLoaderService : ScriptableObject {
-        [Header("Server settings")]
+    public class GltLoaderService : ScriptableObject
+    {
+        [Header("API Config")]
         [SerializeField]
-        public string Hostname;
-
-        [SerializeField]
-        public int Port;
+        private ApiConfig apiConfig;
 
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
-        private string GetBaseUrl() => $"http://{Hostname}:{Port}/assets/models";
+
+        private string GetBaseUrl() =>
+            $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/models";
 
         /// <summary>
         ///  Downloads a specific asset model for a given world.
@@ -34,32 +34,24 @@ namespace API {
         /// <summary>
         /// Downloads and loads a GLB model from the API, instantiates it, and returns the GameObject.
         /// </summary>
-        public async Task<GameObject> DownloadModel(
-            string worldId,
-            string modelId
-        ) {
-            try {
+        public async Task<GameObject> DownloadModel(string worldId, string modelId)
+        {
+            try
+            {
                 string url = $"{GetBaseUrl().TrimEnd('/')}/{worldId}/{modelId}";
-
-                var gltf = new GltfImport();
-                bool loaded = await gltf.Load(url);
-                if (!loaded) return null;
-
                 GameObject template = new(modelId);
-
-                await gltf.InstantiateMainSceneAsync(template.transform);
-
-                // Normalize GLTF root (this depends on how the GLTF was created/exported)
-                Transform gltfRoot = template.transform.GetChild(0);
-                gltfRoot.localPosition = Vector3.zero;
-                gltfRoot.localScale = Vector3.one;
-
+                await GltfHandler.Load(template, url, useLocalAsset: false);
                 return template;
-            } catch (System.Exception ex) {
-                logger.Log($"Error loading model {modelId}: {ex.Message}", null, Logging.LogType.Error);
+            }
+            catch (System.Exception ex)
+            {
+                logger.Log(
+                    $"Error loading model {modelId}: {ex.Message}",
+                    null,
+                    Logging.LogType.Error
+                );
                 return null;
             }
         }
-
     }
 }

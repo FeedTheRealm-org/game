@@ -12,47 +12,260 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc7e789bd20aad54fa6f6391d891dc00, type: 3}
   m_Name: Worlds
   m_EditorClassIdentifier: Assembly-CSharp::ListOfWorld
+  selectedWorld:
+    id: d2a80726-c166-406b-adaf-dd4285db8506
+    createdAt: 2025-12-18T23:02:31.143911Z
+    name: spawn222.world
+    updatedAt: 2025-12-18T23:02:31.143911Z
+    userId: 4c09b394-f3f5-4e3e-83ff-bd787813a40d
+    data:
+      id:
+      worldName: spawn222
+      objectPlacementData:
+      - Position: {x: -8, y: 0, z: -35}
+        AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+      - Position: {x: 3, y: 0, z: -37}
+        AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+      - Position: {x: -1, y: 0, z: -41}
+        AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+      enemySpawnAreas:
+      - Position: {x: 0, y: 0, z: 0}
+        MaxEnemies: 3
+        SpawnRate: 2
+        ResetAfterKills: 6
+        ResetDelay: 10
+      - Position: {x: 0, y: 0, z: 0}
+        MaxEnemies: 3
+        SpawnRate: 2
+        ResetAfterKills: 6
+        ResetDelay: 10
+      - Position: {x: 0, y: 0, z: 0}
+        MaxEnemies: 3
+        SpawnRate: 2
+        ResetAfterKills: 6
+        ResetDelay: 10
+      consumableItems: []
   categories:
-  - name: Category 1
-    worlds:
-    - World 1
-    - World 2
-    - World 3
-    - World 4
-    - World 5
-    - World 6
-    - World 7
-    - World 8
-    - World 9
-    - World 10
-    - World 11
-    - World 12
-    - World 13
-    - World 14
-    - World 15
-  - name: Category 2
-    worlds:
-    - World 16
-    - World 17
-    - World 18
-    - World 19
-    - World 20
-    - World 21
-    - World 22
-    - World 23
-    - World 24
-    - World 25
-    - World 26
-    - World 27
-    - World 28
-    - World 29
-    - World 30
-    - World 31
-    - World 32
-    - World 33
-    - World 34
-    - World 35
-    - World 36
   - name: Uncategorized
-    worlds: []
+    id:
+    worlds:
+    - id: d2a80726-c166-406b-adaf-dd4285db8506
+      createdAt: 2025-12-18T23:02:31.143911Z
+      name: spawn222.world
+      updatedAt: 2025-12-18T23:02:31.143911Z
+      userId: 4c09b394-f3f5-4e3e-83ff-bd787813a40d
+      data:
+        id:
+        worldName: spawn222
+        objectPlacementData:
+        - Position: {x: -8, y: 0, z: -35}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        - Position: {x: 3, y: 0, z: -37}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        - Position: {x: -1, y: 0, z: -41}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        enemySpawnAreas:
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        consumableItems: []
+    - id: 9adad362-e24d-45c5-9675-64f99b13d98c
+      createdAt: 2025-12-18T23:09:31.704209Z
+      name: spawn222.world
+      updatedAt: 2025-12-18T23:09:31.704209Z
+      userId: 4c09b394-f3f5-4e3e-83ff-bd787813a40d
+      data:
+        id:
+        worldName: spawn222
+        objectPlacementData:
+        - Position: {x: -8, y: 0, z: -35}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        - Position: {x: 3, y: 0, z: -37}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        - Position: {x: -1, y: 0, z: -41}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        enemySpawnAreas:
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        consumableItems: []
+    - id: 1d2e0eda-f4ba-4631-a39c-82fc917b18bb
+      createdAt: 2025-12-18T23:09:45.024042Z
+      name: spawn222.world
+      updatedAt: 2025-12-18T23:09:45.024042Z
+      userId: 4c09b394-f3f5-4e3e-83ff-bd787813a40d
+      data:
+        id:
+        worldName: spawn222
+        objectPlacementData:
+        - Position: {x: -8, y: 0, z: -35}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        - Position: {x: 3, y: 0, z: -37}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        - Position: {x: -1, y: 0, z: -41}
+          AssetDataId: 4d567890-12ab-cdef-0123-456789abcdef
+        enemySpawnAreas:
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        consumableItems: []
+    - id: 40c5053c-b28e-4af4-b230-6aa2d92cc2a6
+      createdAt: 2025-12-18T23:17:34.459182Z
+      name: agorasim.world
+      updatedAt: 2025-12-18T23:17:34.459182Z
+      userId: 4c09b394-f3f5-4e3e-83ff-bd787813a40d
+      data:
+        id:
+        worldName: agorasim
+        objectPlacementData:
+        - Position: {x: -13, y: 0, z: -36}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        - Position: {x: 4, y: 0, z: -31}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        - Position: {x: -6, y: 0, z: -42}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        - Position: {x: -8, y: 0, z: -47}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        enemySpawnAreas:
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        consumableItems: []
+    - id: a8fa5e13-5598-4b7a-82f2-2c164a4d3e14
+      createdAt: 2025-12-18T23:18:43.911918Z
+      name: agorasim.world
+      updatedAt: 2025-12-18T23:18:43.911918Z
+      userId: 4c09b394-f3f5-4e3e-83ff-bd787813a40d
+      data:
+        id:
+        worldName: agorasim
+        objectPlacementData:
+        - Position: {x: -13, y: 0, z: -36}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        - Position: {x: 4, y: 0, z: -31}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        - Position: {x: -6, y: 0, z: -42}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        - Position: {x: -8, y: 0, z: -47}
+          AssetDataId: e7b743e0-36bc-4797-ae0e-5f744a33065d
+        enemySpawnAreas:
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        consumableItems: []
+    - id: 82e8646e-342d-424f-9f80-68a724c9a92e
+      createdAt: 2025-12-18T23:47:51.719331Z
+      name: holaxD.world
+      updatedAt: 2025-12-18T23:47:51.719331Z
+      userId: 4c09b394-f3f5-4e3e-83ff-bd787813a40d
+      data:
+        id:
+        worldName: holaxD
+        objectPlacementData:
+        - Position: {x: -15, y: 0, z: -30}
+          AssetDataId: bce0dedf-6c03-4b14-aa62-66bd83bd3375
+        - Position: {x: 0, y: 0, z: -26}
+          AssetDataId: bce0dedf-6c03-4b14-aa62-66bd83bd3375
+        - Position: {x: -4, y: 0, z: -37}
+          AssetDataId: bce0dedf-6c03-4b14-aa62-66bd83bd3375
+        - Position: {x: 13, y: 0, z: -33}
+          AssetDataId: bce0dedf-6c03-4b14-aa62-66bd83bd3375
+        - Position: {x: -1, y: 0, z: -40}
+          AssetDataId: bce0dedf-6c03-4b14-aa62-66bd83bd3375
+        - Position: {x: -5, y: 0, z: -40}
+          AssetDataId: bce0dedf-6c03-4b14-aa62-66bd83bd3375
+        - Position: {x: -15, y: 0, z: -18}
+          AssetDataId: 788e7ad5-d5df-4509-b8b9-1cb7bc07f9ae
+        enemySpawnAreas:
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        - Position: {x: 0, y: 0, z: 0}
+          MaxEnemies: 3
+          SpawnRate: 2
+          ResetAfterKills: 6
+          ResetDelay: 10
+        consumableItems: []
   logger: {fileID: 11400000, guid: 0265374ef3d326d4cae829642c91e6c7, type: 2}

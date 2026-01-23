@@ -12,4 +12,3 @@ VisualElement {
     background-color: rgb(255, 115, 115);
     border-radius: 10px;
 }
-

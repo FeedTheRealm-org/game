@@ -164,7 +164,7 @@ La escena `MPMenuScene` debe contener los siguientes objetos en Hierarchy, ALGUN
 - Unity.Netcode
 - Unity.Netcode.Transports.UTP (para UDP)
 - SceneReference (de FeedTheRealm_Shared)
-- 
+-
 
 ## 3. NetworkDebugger.cs
 
@@ -637,7 +637,7 @@ Scripts core del juego que funcionan en singleplayer y multiplayer:
 - Pueden ser usados en juegos singleplayer sin cambios
 - Lógica de gameplay pura
 
-#### **Capa 2: NetworkBehaviours (Sincronización)** 
+#### **Capa 2: NetworkBehaviours (Sincronización)**
 Scripts que envuelven los MonoBehaviours para multiplayer:
 - `NetworkHealthSynchronizer`: Sincroniza `HealthComponent`
 - `NetworkAttackSynchronizer`: Sincroniza `AttackComponent`

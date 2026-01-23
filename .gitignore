@@ -109,27 +109,21 @@ client.slnx
 Packages/packages-lock.json
 ProjectSettings/EditorBuildSettings.asset
 
+feed-the-realm-client.slnx
+
 # Assets
+Resources.meta
+ScriptTemplates.meta
+
+Assets/Mirror/
+Assets/ScriptTemplates/
 Assets/SyntyStudios/
 Assets/TextMesh Pro/
 Assets/Cartoon_Texture_Pack/
 Assets/SPUM/
 Assets/GUI_Parts/
 Assets/6000FantasyIcons/
-6000FantasyIcons.meta
-
 Assets/Resources/
-feed-the-realm-client.slnx
-
-RPGPP_LT/
-/[Aa]ssets/RPGPP_LT.meta
-/[Aa]ssets/RPGPP_LT/
-
 Assets/RPGPP_LT/
-RPGPP_LT.meta
-Assets/Polygon_Arsenal.meta
 Assets/Polygon_Arsenal/
-
 Assets/HeroEditor4D/
-HeroEditor4D.meta
-SyntyStudios.meta

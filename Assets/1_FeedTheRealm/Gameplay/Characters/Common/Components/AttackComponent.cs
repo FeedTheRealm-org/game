@@ -1,10 +1,12 @@
-using UnityEngine;
 using System.Collections;
+using Game.Core.Events;
+using UnityEngine;
 
 /// <summary>
 /// Handles attack actions for the player character.
 /// </summary>
-public class AttackComponent : MonoBehaviour {
+public class AttackComponent : MonoBehaviour
+{
     [SerializeField]
     private Logging.Logger logger;
 
@@ -23,21 +25,32 @@ public class AttackComponent : MonoBehaviour {
     [SerializeField]
     private LayerMask targetLayer;
 
+    [SerializeField]
+    private EnemySlayedEvent enemySlayedEvent;
+
     private bool isAttacking = false;
     private Animator _animator;
 
-    private void Awake() {
+    public System.Action OnAttackFinished;
+
+    private void Awake()
+    {
         _animator = GetComponentInChildren<Animator>();
     }
 
-    public void DetectAttackHit() {
+    public void DetectAttackHit()
+    {
         Collider[] hitTargets = Physics.OverlapSphere(hitPoint.position, hitRadius, targetLayer);
-        foreach (Collider target in hitTargets) {
+        foreach (Collider target in hitTargets)
+        {
             logger.Log($"Hit target: {target.name}", this);
-            target.GetComponent<HealthComponent>()?.TakeDamage(attackDamage);
+            var isDead = target.GetComponent<HealthComponent>()?.TakeDamage(attackDamage);
+            if (isDead.HasValue && isDead.Value)
+                enemySlayedEvent.Raise();
         }
 
-        if (hitTargets.Length == 0) {
+        if (hitTargets.Length == 0)
+        {
             logger.Log("No targets hit", this);
         }
     }
@@ -45,11 +58,11 @@ public class AttackComponent : MonoBehaviour {
     /// <summary>
     /// Triggers the attack animation.
     /// </summary>
-    public void OnAttack() {
-        if (isAttacking) return;
+    public void OnAttack()
+    {
+        if (isAttacking)
+            return;
         logger.Log("Attack event triggered", this);
-
-        _animator.SetTrigger("2_Attack");
 
         isAttacking = true;
         StartCoroutine(resetAttackCooldown());
@@ -58,18 +71,23 @@ public class AttackComponent : MonoBehaviour {
     /// <summary>
     /// Resets the attack cooldown after a delay.
     /// </summary>
-    private IEnumerator resetAttackCooldown() {
+    private IEnumerator resetAttackCooldown()
+    {
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
+        OnAttackFinished?.Invoke();
     }
 
-    private void OnDrawGizmos() {
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
         if (hitPoint == null)
             return;
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(hitPoint.position, hitRadius);
     }
+#endif
 
     #region Public Getters for NetworkAttackSynchronizer
 
@@ -94,5 +112,4 @@ public class AttackComponent : MonoBehaviour {
     public LayerMask GetTargetLayer() => targetLayer;
 
     #endregion
-
 }

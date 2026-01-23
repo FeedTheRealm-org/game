@@ -1,7 +1,8 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
-public class StaminaComponent : MonoBehaviour {
+public class StaminaComponent : MonoBehaviour
+{
     [SerializeField]
     private Stamina staminaData;
 
@@ -10,25 +11,35 @@ public class StaminaComponent : MonoBehaviour {
 
     private Coroutine recoveryCoroutine;
 
-    private void OnEnable() {
+    private void OnEnable()
+    {
         recoveryCoroutine = StartCoroutine(staminaRecoveryRoutine());
     }
 
-    private void OnDestroy() {
-        if (recoveryCoroutine != null) {
+    private void OnDestroy()
+    {
+        if (recoveryCoroutine != null)
+        {
             StopCoroutine(recoveryCoroutine);
         }
     }
 
-    private void OnDisable() {
-        if (recoveryCoroutine != null) {
+    private void OnDisable()
+    {
+        if (recoveryCoroutine != null)
+        {
             StopCoroutine(recoveryCoroutine);
         }
     }
 
-    public bool TryConsumeStamina(float amount) {
-        logger.Log("Current stamina: " + staminaData.CurrentStamina + ", Consuming: " + amount, this);
-        if (amount > staminaData.CurrentStamina) {
+    public bool TryConsumeStamina(float amount)
+    {
+        logger.Log(
+            "Current stamina: " + staminaData.CurrentStamina + ", Consuming: " + amount,
+            this
+        );
+        if (amount > staminaData.CurrentStamina)
+        {
             return false;
         }
         staminaData.SetStamina(Mathf.Max(staminaData.CurrentStamina - amount, 0));
@@ -37,17 +48,25 @@ public class StaminaComponent : MonoBehaviour {
 
     /* --- UTIL METHODS --- */
 
-    private void recoverStamina() {
-        if (staminaData.CurrentStamina < staminaData.MaxStamina) {
-            staminaData.SetStamina(Mathf.Min(staminaData.CurrentStamina + staminaData.RecoverAmount, staminaData.MaxStamina));
+    private void recoverStamina()
+    {
+        if (staminaData.CurrentStamina < staminaData.MaxStamina)
+        {
+            staminaData.SetStamina(
+                Mathf.Min(
+                    staminaData.CurrentStamina + staminaData.RecoverAmount,
+                    staminaData.MaxStamina
+                )
+            );
         }
     }
 
-    private IEnumerator staminaRecoveryRoutine() {
-        while (true) {
+    private IEnumerator staminaRecoveryRoutine()
+    {
+        while (true)
+        {
             recoverStamina();
             yield return new WaitForSeconds(staminaData.RecoverRate);
         }
     }
-
 }
