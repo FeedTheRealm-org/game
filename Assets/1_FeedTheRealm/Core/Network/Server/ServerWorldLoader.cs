@@ -145,12 +145,16 @@ public class ServerWorldLoader : NetworkBehaviour
             this
         );
 
-        var (worldData, errorMessage) = await worldService.GetWorldData(worldId, session.APIToken);
+        var (worldData, errorMessage, code) = await worldService.GetWorldData(
+            worldId,
+            session.APIToken
+        );
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
             logger?.Log(
-                $"[ServerWorldLoader] Failed to load world '{worldId}': {errorMessage}",
+                $"[ServerWorldLoader] Failed to load world '{worldId}': {errorMessage}"
+                    + $" (code: {code})",
                 this,
                 Logging.LogType.Error
             );
@@ -250,7 +254,7 @@ public class ServerWorldLoader : NetworkBehaviour
                 NPCSpawns spawnComponent = spawnInstance.GetComponent<NPCSpawns>();
                 if (spawnComponent != null)
                 {
-                    spawnComponent.ConfigureFromSpawnData(area);
+                    spawnComponent.ConfigureFromSpawnData(area, worldData.dialogs[0]);
                 }
                 else
                 {

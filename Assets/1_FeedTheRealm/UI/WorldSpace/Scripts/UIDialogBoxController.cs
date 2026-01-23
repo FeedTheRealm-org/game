@@ -1,4 +1,5 @@
 using Game.Core.Dialogue;
+using Models;
 using UnityEngine;
 using UnityEngine.UIElements;
 

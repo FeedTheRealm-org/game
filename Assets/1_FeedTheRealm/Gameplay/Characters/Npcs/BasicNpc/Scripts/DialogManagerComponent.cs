@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Game.Core.Dialogue;
 using Game.Core.Events;
+using Models;
 using UnityEngine;
 
 /// <summary>

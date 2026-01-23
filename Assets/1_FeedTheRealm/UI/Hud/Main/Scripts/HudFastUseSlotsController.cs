@@ -16,11 +16,15 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
 
     private PlayerInputReader inputReader;
     private HudFastUseSlotsRegistry registry;
+    private SpriteLoader spriteLoader;
 
     private readonly Dictionary<int, Button> _slotButtons = new();
 
     private VisualElement _fastUseSlotsContainer;
     private PlayerInputReader _boundInputReader;
+
+    // Active slot management
+    private ActiveSlotManager _activeSlotManager;
 
     protected override void Awake()
     {
@@ -49,14 +53,20 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             return;
 
         // Unregister from old registry.
-        registry?.Unregister(this);
+        if (registry != null)
+        {
+            registry.Unregister(this);
+        }
 
         registry = newRegistry;
 
         // Register into the new registry immediately if active.
         if (isActiveAndEnabled)
         {
-            registry?.Register(this);
+            if (registry != null)
+            {
+                registry.Register(this);
+            }
         }
     }
 
@@ -71,13 +81,15 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     private void OnEnable()
     {
         TryBindInputReader();
-        registry?.Register(this);
+        if (registry != null)
+            registry.Register(this);
     }
 
     private void OnDisable()
     {
         UnbindInputReader();
-        registry?.Unregister(this);
+        if (registry != null)
+            registry.Unregister(this);
     }
 
     public void SetInputReader(PlayerInputReader reader)
@@ -87,6 +99,14 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
 
         inputReader = reader;
         TryBindInputReader();
+    }
+
+    public void SetSpriteLoader(SpriteLoader loader)
+    {
+        spriteLoader = loader;
+        logger?.Log($"[HUD] SpriteLoader assigned: {(loader != null ? "SUCCESS" : "NULL")}", this);
+
+        _activeSlotManager?.SetSpriteLoader(loader);
     }
 
     private void TryBindInputReader()
@@ -170,6 +190,17 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             button.RegisterCallback<PointerEnterEvent>(_ => OnItemHoverEnter(button));
             button.RegisterCallback<PointerLeaveEvent>(_ => OnItemHoverLeave(button));
         }
+
+        // Initialize ActiveSlotManager
+        _activeSlotManager = new ActiveSlotManager(
+            _slotButtons,
+            slotManager,
+            spriteLoader,
+            logger,
+            slotCount
+        );
+
+        _activeSlotManager.InitializeDefaultActiveSlot();
     }
 
     public override bool IsSlotEmpty(int slotIndex)
@@ -206,6 +237,9 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             return false;
 
         ClearSlotVisual(slotButton);
+
+        _activeSlotManager?.OnSlotItemRemoved(slotIndex);
+
         return true;
     }
 
@@ -261,46 +295,47 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
     }
 
     /// <summary>
-    /// Activates the item in a HUD slot (triggered by keyboard 1-5).
-    /// Called by: Update() when corresponding key is pressed.
-    /// Fires OnSlotActivated event that game systems can subscribe to.
+    /// Activates the item in a HUD slot (triggered by keyboard 1-9).
+    /// Called by: HandleQuickSlotPressed when corresponding key is pressed.
+    /// Marks the slot as active and equips weapon if slot has an item and is a weapon type.
     /// </summary>
     public void ActivateSlot(int slotIndex)
     {
-        if (!slotManager.TryGet(slotIndex, out var slotData))
+        if (_activeSlotManager == null)
         {
-            logger?.Log($"[HUD] Slot{slotIndex} activated but empty", this);
+            logger?.Log("ActiveSlotManager not initialized", this, Logging.LogType.Warning);
             return;
         }
 
-        logger?.Log($"[HUD] Slot{slotIndex} activated (itemId={slotData.ItemId})", this);
-        OnSlotActivated?.Invoke(slotIndex, slotData.ItemId);
+        if (_activeSlotManager.TryActivateSlot(slotIndex))
+        {
+            OnSlotActivated?.Invoke(slotIndex, _activeSlotManager.GetActiveSlotItemId());
+        }
     }
 
     private void AssignSlot(int slotIndex, Button slotButton, string itemId, Sprite sprite)
     {
         slotManager.Assign(slotIndex, itemId, sprite, slotButton);
 
+        var prevItem = slotButton.Q("InventoryItem");
+        if (prevItem != null)
+            slotButton.Remove(prevItem);
+
         if (sprite != null)
         {
-            // Keep existing styling (button background frame) but show item as an overlay background.
-            try
-            {
-                slotButton.iconImage = sprite.texture;
-            }
-            catch
-            {
-                // Fallback: background image.
-                slotButton.style.backgroundImage = new StyleBackground(sprite);
-                slotButton.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
-            }
-        }
-        else
-        {
-            slotButton.iconImage = null;
+            var itemElement = InventoryItemFactory.CreateItemElement(sprite, itemId);
+            itemElement.style.width = new Length(130, LengthUnit.Percent);
+            itemElement.style.height = new Length(130, LengthUnit.Percent);
+            itemElement.style.translate = new Translate(
+                new Length(0, LengthUnit.Pixel),
+                new Length(-5, LengthUnit.Pixel)
+            );
+            slotButton.Add(itemElement);
         }
 
         logger?.Log($"[HUD] Assigned itemId={itemId} to Slot{slotIndex}", this);
+
+        _activeSlotManager?.OnSlotItemAssigned(slotIndex, itemId);
     }
 
     private void ClearSlotVisual(Button slotButton)
@@ -309,6 +344,9 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
         {
             slotButton.iconImage = null;
             slotButton.style.backgroundImage = StyleKeyword.Null;
+            var prevItem = slotButton.Q("InventoryItem");
+            if (prevItem != null)
+                slotButton.Remove(prevItem);
         }
     }
 
@@ -362,15 +400,13 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
         if (root == null || root.panel == null)
             return false;
 
-        // Find HUD slot at screen position
         Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, screenPosition);
         if (!TryResolveHudSlotButton(panelPos, out int slotIndex, out Button slotButton))
             return false;
 
-        // Check if slot is empty or occupied
         if (IsSlotEmpty(slotIndex))
         {
-            // Empty slot: assign item
+            // Empty slot: assign item (will auto-equip if active slot)
             AssignSlot(slotIndex, slotButton, itemId, sprite);
             result = ItemPlacementResult.PlacedInEmptySlot();
             logger?.Log($"[HUD] Placed {itemId} in quickslot {slotIndex}", this);
@@ -381,7 +417,7 @@ public class HudFastUseSlotsController : BaseSlotContainer, IDropTarget
             // Occupied slot: swap
             if (TryGetSlotData(slotIndex, out string existingItemId, out Sprite existingSprite))
             {
-                // Assign new item to slot
+                // Assign new item to slot (will auto-equip if active slot)
                 AssignSlot(slotIndex, slotButton, itemId, sprite);
 
                 result = ItemPlacementResult.SwappedWith(

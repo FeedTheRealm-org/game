@@ -30,5 +30,8 @@ namespace Game.Core.Enum
         EarringL,
         Back,
         Mask,
+
+        // Weapons
+        WeaponR,
     }
 }
