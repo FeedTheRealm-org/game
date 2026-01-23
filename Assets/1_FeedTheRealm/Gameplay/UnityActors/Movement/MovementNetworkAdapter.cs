@@ -32,12 +32,11 @@ public class MovementNetworkAdapter : NetworkBehaviour
             return;
         }
 
-        if (Time.time >= nextSendTime)
-        {
-            logger.Log($"Sending MovementCommand Seq {command.sequenceNumber}", this);
-            nextSendTime = Time.time + sendInterval;
-            CmdMovementRequest(command);
-        }
+        // TODO: optimize message sending (send states not positions, e.g. moving in X direction)
+        // if (Time.time >= nextSendTime)
+        logger.Log($"Sending MovementCommand Seq {command.sequenceNumber}", this);
+        nextSendTime = Time.time + sendInterval;
+        CmdMovementRequest(command);
     }
 
     [Command(channel = Channels.Unreliable)]
@@ -50,8 +49,11 @@ public class MovementNetworkAdapter : NetworkBehaviour
             Time.fixedDeltaTime
         );
 
-        // Update position if dedicated server (not in host mode)
-        if (isServerOnly)
+        // Update position if moving player is not host (as host is moved by view)
+        bool isHostPlayer =
+            NetworkServer.localConnection != null
+            && connectionToClient == NetworkServer.localConnection;
+        if (!isHostPlayer)
             transform.position = new Vector3(snapshot.x, snapshot.y, snapshot.z);
 
         RpcMovementResponse(snapshot);

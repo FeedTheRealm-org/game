@@ -23,9 +23,9 @@ public static class ServerMovementSystem
         return new MovementSnapshot
         {
             sequenceNumber = command.sequenceNumber,
-            x = transform.position.x,
-            y = transform.position.y,
-            z = transform.position.z,
+            x = nextPosition.x,
+            y = nextPosition.y,
+            z = nextPosition.z,
         };
     }
 }
