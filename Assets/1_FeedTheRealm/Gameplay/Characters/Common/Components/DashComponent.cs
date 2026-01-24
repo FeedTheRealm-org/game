@@ -12,8 +12,8 @@ public class DashComponent : MonoBehaviour
     [SerializeField]
     private GroundCheckComponent groundCheck;
 
-    [SerializeField]
-    private MovementComponent movement;
+    // [SerializeField]
+    // private MovementComponent movement;
 
     [SerializeField]
     private StaminaComponent stamina;
@@ -28,7 +28,8 @@ public class DashComponent : MonoBehaviour
     private float staminaConsumption = 20f;
 
     private bool isDashing;
-    private NetworkMovementSynchronizer networkMovementSync;
+
+    // private NetworkMovementSynchronizer networkMovementSync;
 
     public bool IsDashing => isDashing;
 
@@ -40,11 +41,11 @@ public class DashComponent : MonoBehaviour
             rb = GetComponent<Rigidbody>();
         if (groundCheck == null)
             groundCheck = GetComponent<GroundCheckComponent>();
-        if (movement == null)
-            movement = GetComponent<MovementComponent>();
+        // if (movement == null)
+        //     movement = GetComponent<MovementComponent>();
 
         // Try to find NetworkMovementSynchronizer for multiplayer support
-        networkMovementSync = GetComponent<NetworkMovementSynchronizer>();
+        // networkMovementSync = GetComponent<NetworkMovementSynchronizer>();
     }
 
     /// <summary>
@@ -58,7 +59,7 @@ public class DashComponent : MonoBehaviour
             return;
         }
 
-        Vector3 dashDirection = movement.CurrentDirection.normalized;
+        Vector3 dashDirection = Vector3.zero; // movement.CurrentDirection.normalized;
         if (dashDirection == Vector3.zero)
             dashDirection = transform.forward;
 
@@ -75,14 +76,14 @@ public class DashComponent : MonoBehaviour
         isDashing = true;
 
         // Notify NetworkMovementSynchronizer to prevent velocity sync during dash
-        if (networkMovementSync != null)
-        {
-            networkMovementSync.NotifyDashStart(dashDuration);
-        }
+        // if (networkMovementSync != null)
+        // {
+        //     networkMovementSync.NotifyDashStart(dashDuration);
+        // }
 
         // Disable MovementComponent to prevent it from overriding the dash velocity
-        bool wasMovementEnabled = movement.enabled;
-        movement.enabled = false;
+        // bool wasMovementEnabled = movement.enabled;
+        // movement.enabled = false;
 
         // apply instant burst
         rb.linearVelocity = Vector3.zero;
@@ -95,7 +96,7 @@ public class DashComponent : MonoBehaviour
         isDashing = false;
 
         // Re-enable MovementComponent
-        movement.enabled = wasMovementEnabled;
+        // movement.enabled = wasMovementEnabled;
 
         OnDashFinished?.Invoke();
     }

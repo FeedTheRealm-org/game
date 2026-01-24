@@ -27,7 +27,6 @@ public class SpriteManager : ScriptableObject
     public event Action<Texture2D> OnEyeBrowsChange;
     public event Action<Texture2D> OnEyesChange;
     public event Action<Texture2D> OnMouthChange;
-    public event Action<Texture2D> OnEarsChange;
 
     public event Action<Texture2D> OnBackChange;
     public event Action<Texture2D> OnEarringsChange;

@@ -17,7 +17,6 @@ public class InventoryController : BaseSlotContainer, IDropTarget
     [Tooltip("Service used to download item sprites by spriteId for world-defined items.")]
     private ItemAssetsService itemAssetsService;
     public string ContainerName => "Inventory";
-    private int currentLootIndex = 0;
 
     [Header("Slot Sprites")]
     [SerializeField]

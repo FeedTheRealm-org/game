@@ -22,9 +22,6 @@ public class ServerBootstrap : MonoBehaviour
     [SerializeField]
     private SceneReference gameScene;
 
-    [SerializeField]
-    private bool autoLoadGameScene = true;
-
     [Header("Debug")]
     [SerializeField]
     private bool verboseLogging = true;

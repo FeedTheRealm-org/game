@@ -445,7 +445,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113943, y: 0.0019153461, z: -0.00064949715, w: 0.94702977}
+  m_LocalRotation: {x: 0.3211391, y: 0.0023556557, z: -0.00079880684, w: 0.9470288}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -888,7 +888,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693203289}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.32113943, y: 0.0019153462, z: -0.0006494973, w: 0.94702977}
+  m_LocalRotation: {x: 0.3211391, y: 0.002355655, z: -0.0007988066, w: 0.94702876}
   m_LocalPosition: {x: 4.35277, y: 6.0903997, z: -6.46523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1260,6 +1260,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3095535743837438187, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
+      propertyPath: m_IsKinematic
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4885086532300312383, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -1422,9 +1426,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a946b596f03c5eae876374242683380, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldLoader
-  worldId: 
-  world: {fileID: 0}
-  worldsData: {fileID: 11400000, guid: d54015669dd0b4a47aea5d2bef3cd7a0, type: 2}
 --- !u!4 &1966294429
 Transform:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game.Core.Exceptions;
 using Game.Core.StateMachine;
 using UnityEngine;
 
@@ -11,12 +12,23 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     private Logging.Logger logger;
 
     /* Components */
-    private MovementComponent movementComponent;
+    [SerializeField]
+    private MovementController movementController;
+
+    [SerializeField]
     private DashComponent dashComponent;
+
+    [SerializeField]
     private AttackComponent attackComponent;
+
+    [SerializeField]
     private GroundCheckComponent groundCheckComponent;
-    private CharacterAnimator characterAnimator;
+
+    [SerializeField]
     private PlayerInteractComponent interactComponent;
+
+    [SerializeField]
+    private CharacterAnimator characterAnimator;
 
     /* States */
     public readonly Dictionary<System.Type, IMovementState> movementStates =
@@ -35,57 +47,27 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
 
     private void Awake()
     {
-        movementComponent = GetComponentInChildren<MovementComponent>();
-        dashComponent = GetComponentInChildren<DashComponent>();
-        attackComponent = GetComponentInChildren<AttackComponent>();
-        groundCheckComponent = GetComponentInChildren<GroundCheckComponent>();
-        interactComponent = GetComponentInChildren<PlayerInteractComponent>();
-        characterAnimator = GetComponentInChildren<CharacterAnimator>();
-
-        if (movementComponent == null)
-            logger.Log(
-                "MovementComponent not found on CharacterStateMachine.",
-                this,
-                Logging.LogType.Error
+        if (
+            movementController == null
+            || dashComponent == null
+            || attackComponent == null
+            || groundCheckComponent == null
+            || interactComponent == null
+            || characterAnimator == null
+        )
+        {
+            throw new MissingFieldException(
+                "One or more required components are missing in CharacterStateMachine."
             );
-        if (dashComponent == null)
-            logger.Log(
-                "DashComponent not found on CharacterStateMachine.",
-                this,
-                Logging.LogType.Error
-            );
-        if (attackComponent == null)
-            logger.Log(
-                "AttackComponent not found on CharacterStateMachine.",
-                this,
-                Logging.LogType.Error
-            );
-        if (groundCheckComponent == null)
-            logger.Log(
-                "GroundCheckComponent not found on CharacterStateMachine.",
-                this,
-                Logging.LogType.Error
-            );
-        if (interactComponent == null)
-            logger.Log(
-                "PlayerInteractComponent not found on CharacterStateMachine.",
-                this,
-                Logging.LogType.Error
-            );
-        if (characterAnimator == null)
-            logger.Log(
-                "CharacterAnimator not found on CharacterStateMachine.",
-                this,
-                Logging.LogType.Error
-            );
+        }
 
         movementStates.Add(
             typeof(CharacterIdleState),
-            new CharacterIdleState(this, movementComponent, characterAnimator)
+            new CharacterIdleState(this, movementController, characterAnimator)
         );
         movementStates.Add(
             typeof(CharacterMovingState),
-            new CharacterMovingState(this, movementComponent, characterAnimator)
+            new CharacterMovingState(this, movementController, characterAnimator)
         );
         movementStates.Add(
             typeof(CharacterDashingState),
@@ -97,7 +79,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         );
         actionStates.Add(
             typeof(CharacterChargingAttackState),
-            new CharacterChargingAttackState(this, movementComponent, characterAnimator)
+            new CharacterChargingAttackState(this, characterAnimator)
         );
         actionStates.Add(
             typeof(CharacterInteractingState),

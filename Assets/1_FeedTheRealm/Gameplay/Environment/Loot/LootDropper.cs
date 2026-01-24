@@ -34,15 +34,6 @@ public class LootDropper : MonoBehaviour
     [Tooltip("Adds a random variation to the spawn position")]
     private float randomOffset = 0.5f;
 
-    [Header("Loot Configuration")]
-    [SerializeField]
-    [Tooltip("Number of items to drop (random from all items)")]
-    private int itemCount = 1;
-
-    [SerializeField]
-    [Tooltip("If set, only drop items from this category. Leave empty for any category.")]
-    private string categoryFilter = "";
-
     [SerializeField]
     private Logging.Logger logger;
 
