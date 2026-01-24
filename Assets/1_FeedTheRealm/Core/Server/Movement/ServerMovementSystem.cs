@@ -1,4 +1,5 @@
 using Game.Core.Domain.Movement;
+using Game.Core.RpcMessages.Movement;
 using UnityEngine;
 
 namespace Game.Core.Server.Movement;

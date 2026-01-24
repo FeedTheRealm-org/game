@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game.Core.RpcMessages.Movement;
 using UnityEngine;
 
 namespace Game.Core.Domain.Movement;

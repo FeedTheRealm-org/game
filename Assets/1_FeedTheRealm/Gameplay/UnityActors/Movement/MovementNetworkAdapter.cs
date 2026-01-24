@@ -1,5 +1,6 @@
 using System;
 using Game.Core.Domain.Movement;
+using Game.Core.RpcMessages.Movement;
 using Game.Core.Server.Movement;
 using Mirror;
 using UnityEngine;
