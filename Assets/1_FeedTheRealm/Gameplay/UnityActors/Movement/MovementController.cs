@@ -10,7 +10,7 @@ public class MovementController : MonoBehaviour
     private MovementNetworkAdapter movementNetworkAdapter;
 
     [SerializeField]
-    private float moveSpeed = 5f;
+    private float moveSpeed = 5f; // TODO: move to config SO
 
     [Header("Debug")]
     [SerializeField]
@@ -43,7 +43,6 @@ public class MovementController : MonoBehaviour
     private void FixedUpdate()
     {
         sequenceNumber++;
-        logger.Log($"FixedUpdate: Seq {sequenceNumber}, Dir {currentDirection}", this);
 
         float deltaTime = Time.fixedDeltaTime;
 

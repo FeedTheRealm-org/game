@@ -24,17 +24,11 @@ public class MovementNetworkAdapter : NetworkBehaviour
     {
         if (!isLocalPlayer)
         {
-            logger.Log(
-                "Tick called on non-owned MovementNetworkAdapter",
-                this,
-                Logging.LogType.Warning
-            );
             return;
         }
 
         // TODO: optimize message sending (send states not positions, e.g. moving in X direction)
         // if (Time.time >= nextSendTime)
-        logger.Log($"Sending MovementCommand Seq {command.sequenceNumber}", this);
         nextSendTime = Time.time + sendInterval;
         CmdMovementRequest(command);
     }
