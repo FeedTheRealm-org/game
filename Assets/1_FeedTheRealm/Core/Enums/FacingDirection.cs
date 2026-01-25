@@ -5,6 +5,7 @@ namespace Game.Core.Enum
     /// </summary>
     public enum FacingDirection
     {
+        None,
         Front,
         Back,
         Right,

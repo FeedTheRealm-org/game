@@ -25,8 +25,6 @@ public class CharacterIdleState : IMovementState
 
     public void Enter()
     {
-        animator.SetMoving(false);
-        animator.SetDashing(false);
         movementController.SetDirection(Vector2.zero);
     }
 

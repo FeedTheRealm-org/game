@@ -23,11 +23,7 @@ public class CharacterMovingState : IMovementState
         this.stateMachine = sm;
     }
 
-    public void Enter()
-    {
-        animator.SetMoving(true);
-        animator.SetDashing(false);
-    }
+    public void Enter() { }
 
     public void Exit() { }
 
@@ -41,7 +37,6 @@ public class CharacterMovingState : IMovementState
         }
 
         movementController.SetDirection(direction);
-        animator.SetDirection(direction);
     }
 
     public void Dispose()

@@ -4411,6 +4411,7 @@ MonoBehaviour:
   spriteManager: {fileID: 11400000, guid: ace9350c5869a9b1492cedfaa5b1b689, type: 2}
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+  itemAssetsService: {fileID: 0}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &2124911000678282174
 MonoBehaviour:
@@ -4444,6 +4445,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementView
   rb: {fileID: 3095535743837438187}
+  animator: {fileID: 4486304355727522199}
 --- !u!114 &3218634496288659472
 MonoBehaviour:
   m_ObjectHideFlags: 0

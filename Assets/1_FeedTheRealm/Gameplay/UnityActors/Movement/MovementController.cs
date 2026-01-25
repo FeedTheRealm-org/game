@@ -68,6 +68,7 @@ public class MovementController : MonoBehaviour
         );
 
         movementView.MoveToPosition(nextPosition);
+        movementView.UpdateFacingDirection(currentDirection);
     }
 
     private void UpdateCurrentDirectionWithCamera()

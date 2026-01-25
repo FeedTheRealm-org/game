@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Game.Core.Enum;
+using Game.Core.Exceptions;
 using UnityEngine;
 
 /// <summary>
@@ -28,8 +29,11 @@ public class CharacterAnimator : MonoBehaviour
 
     private Dictionary<FacingDirection, GameObject> spriteMap;
 
-    private void Awake()
+    private void Start()
     {
+        if (animator == null)
+            throw new MissingFieldException(nameof(animator), nameof(CharacterAnimator));
+
         spriteMap = new Dictionary<FacingDirection, GameObject>()
         {
             { FacingDirection.Front, front },
@@ -38,17 +42,18 @@ public class CharacterAnimator : MonoBehaviour
             { FacingDirection.Left, left },
         };
 
-        // optional: disable all on start
         SetFacing(FacingDirection.Front);
-        if (animator == null)
-        {
-            animator = GetComponentInChildren<Animator>();
-        }
     }
 
-    /// <summary>
-    /// Sets the facing direction of the character.
-    /// </summary>
+    /* --- Getters --- */
+
+    public bool IsMoving()
+    {
+        return animator.GetBool("IsRunning");
+    }
+
+    /* --- Setters --- */
+
     public void SetFacing(FacingDirection facing)
     {
         foreach (var kvp in spriteMap)
@@ -57,17 +62,11 @@ public class CharacterAnimator : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Sets the moving animation state.
-    /// </summary>
     public void SetMoving(bool isMoving)
     {
         animator.SetBool("IsRunning", isMoving);
     }
 
-    /// <summary>
-    /// Sets the dashing animation state.
-    /// </summary>
     public void SetDashing(bool isDashing)
     {
         // animator.SetBool("IsDashing", isDashing);
@@ -78,54 +77,18 @@ public class CharacterAnimator : MonoBehaviour
         animator.SetBool("Action", isAction);
     }
 
-    public void SetDirection(Vector2 direction)
-    {
-        Vector3 moveDir = new Vector3(direction.x, 0f, direction.y).normalized;
+    /* --- Players --- */
 
-        float forwardDot = Vector3.Dot(Vector3.forward, moveDir);
-        float rightDot = Vector3.Dot(Vector3.right, moveDir);
-
-        if (forwardDot > 0.1f)
-        {
-            logger.Log("Facing Back", this);
-            SetFacing(FacingDirection.Back);
-        }
-        else if (forwardDot < -0.1f)
-        {
-            logger.Log("Facing Front", this);
-            SetFacing(FacingDirection.Front);
-        }
-        if (rightDot > 0.1f)
-        {
-            logger.Log("Facing Right", this);
-            SetFacing(FacingDirection.Right);
-        }
-        else if (rightDot < -0.1f)
-        {
-            logger.Log("Facing Left", this);
-            SetFacing(FacingDirection.Left);
-        }
-    }
-
-    /// <summary>
-    /// Triggers the attack animation.
-    /// </summary>
     public void PlayAttack()
     {
         animator.SetTrigger("Slash1H");
     }
 
-    /// <summary>
-    /// Triggers the damaged animation.
-    /// </summary>
     public void PlayDamaged()
     {
         animator.SetTrigger("Hit");
     }
 
-    /// <summary>
-    /// Triggers the death animation.
-    /// </summary>
     public void PlayDeath()
     {
         animator.SetTrigger("Death");
