@@ -1,5 +1,4 @@
 using System;
-using Game.Core.Domain.Movement;
 using Game.Core.RpcMessages.Movement;
 using Game.Core.Server.Movement;
 using Mirror;
@@ -19,7 +18,21 @@ public class MovementNetworkAdapter : NetworkBehaviour
 
     public event Action<MovementSnapshot> OnMovementReconcileSnapshot;
 
+    public event Action<MovementSnapshot> OnMovementCommandReceived;
+
     private float nextSendTime = 0f;
+
+    private Rigidbody rb;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
+            throw new Game.Core.Exceptions.MissingFieldException(
+                nameof(rb),
+                nameof(MovementNetworkAdapter)
+            );
+    }
 
     public void Tick(MovementCommand command)
     {
@@ -38,7 +51,7 @@ public class MovementNetworkAdapter : NetworkBehaviour
     private void CmdMovementRequest(MovementCommand command)
     {
         var snapshot = ServerMovementSystem.ProcessMovementCommand(
-            transform,
+            rb,
             command,
             moveSpeed,
             Time.fixedDeltaTime
@@ -49,7 +62,7 @@ public class MovementNetworkAdapter : NetworkBehaviour
             NetworkServer.localConnection != null
             && connectionToClient == NetworkServer.localConnection;
         if (!isHostPlayer)
-            transform.position = new Vector3(snapshot.x, snapshot.y, snapshot.z);
+            rb.MovePosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
 
         RpcMovementResponse(snapshot);
     }
@@ -60,6 +73,6 @@ public class MovementNetworkAdapter : NetworkBehaviour
         if (isLocalPlayer)
             OnMovementReconcileSnapshot.Invoke(snapshot);
         else
-            transform.position = new Vector3(snapshot.x, snapshot.y, snapshot.z);
+            OnMovementCommandReceived.Invoke(snapshot);
     }
 }

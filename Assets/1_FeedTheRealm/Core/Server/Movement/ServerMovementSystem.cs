@@ -7,7 +7,7 @@ namespace Game.Core.Server.Movement;
 public static class ServerMovementSystem
 {
     public static MovementSnapshot ProcessMovementCommand(
-        Transform transform,
+        Rigidbody rb,
         MovementCommand command,
         float moveSpeed,
         float deltaTime
@@ -15,7 +15,7 @@ public static class ServerMovementSystem
     {
         Vector3 direction = new Vector3(command.x, command.y, command.z);
         Vector3 nextPosition = MovementRules.CalculateNextPosition(
-            transform.position,
+            rb.position,
             direction,
             moveSpeed,
             deltaTime

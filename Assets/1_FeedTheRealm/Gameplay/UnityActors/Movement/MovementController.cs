@@ -27,11 +27,13 @@ public class MovementController : MonoBehaviour
     private void OnEnable()
     {
         movementNetworkAdapter.OnMovementReconcileSnapshot += OnReconcile;
+        movementNetworkAdapter.OnMovementCommandReceived += OnCommandReceived;
     }
 
     private void OnDisable()
     {
         movementNetworkAdapter.OnMovementReconcileSnapshot -= OnReconcile;
+        movementNetworkAdapter.OnMovementCommandReceived -= OnCommandReceived;
     }
 
     // TODO: refactor camera make a camera manager!
@@ -93,5 +95,10 @@ public class MovementController : MonoBehaviour
     private void OnReconcile(MovementSnapshot snapshot)
     {
         prediction.Reconcile(transform, snapshot, moveSpeed, Time.fixedDeltaTime);
+    }
+
+    private void OnCommandReceived(MovementSnapshot snapshot)
+    {
+        movementView.MoveToPosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
     }
 }
