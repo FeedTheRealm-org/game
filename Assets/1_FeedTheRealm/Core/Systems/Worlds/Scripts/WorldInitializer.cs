@@ -1,53 +1,45 @@
 using System.ComponentModel;
-using System.Linq;
-using Models;
+using System.Threading.Tasks;
+using Core.Systems.Worlds.Loader;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-/// <summary>
-/// This is a helpful tool for locally instantiating and testing worlds during development.
-/// It uses the WorldLoaderControllerV2 to load the world data and assets,
-/// I reccomend using this as a baseline when integrating world loading into other parts of the game
-/// </summary>
-public class WorldInitializer : MonoBehaviour
+namespace Core.Systems.Worlds
 {
-    [Header("UI Elements")]
-    [SerializeField]
-    private UIDocument loadingScreenUI;
-
-    [Header("World Loader Controller")]
-    [SerializeField]
-    private WorldLoaderControllerV2 worldLoaderController;
-
-    [Header("Debug Settings")]
-    [Description(
-        "Here you can set the world ID and access token for debugging purposes. Also add the player GameObject to be spawned in the world."
-    )]
-    [SerializeField]
-    private string worldId;
-
-    [SerializeField]
-    private string accessToken;
-
-    [SerializeField]
-    private GameObject player;
-
-    async void Start()
+    /// <summary>
+    /// This is the main entry point for initializing and loading a game world.
+    /// </summary>
+    public class WorldInitializer : MonoBehaviour
     {
-        loadingScreenUI.gameObject.SetActive(true);
-        WorldData worldData = await worldLoaderController.LoadWorld(worldId, accessToken);
+        // [Header("UI Elements")]
+        // [SerializeField]
+        // private UIDocument loadingScreenUI;
 
-        if (player != null && worldData != null && worldData.playerSpawnAreas.Count > 0)
+        [Header("World Loader Controller")]
+        [SerializeField]
+        private WorldLoaderController worldLoaderController;
+
+        [Header("Debug Settings")]
+        [Description(
+            "Here you can set the world ID and access token for debugging purposes. Also add the player GameObject to be spawned in the world."
+        )]
+        [SerializeField]
+        private string worldId;
+
+        [SerializeField]
+        private string accessToken;
+
+        public Task LoadServer()
         {
-            int randomIndex = Random.Range(0, worldData.playerSpawnAreas.Count);
-            Debug.Log(
-                $"Available spawnpoints: {string.Join(", ", worldData.playerSpawnAreas.Select(s => s.Position))}"
-            );
-            Vector3 spawnPosition = worldData.playerSpawnAreas[randomIndex].Position;
-            spawnPosition.y = 0f;
-            player.transform.position = spawnPosition;
-            Debug.Log($"Player spawned at: {spawnPosition}");
+            worldId = Game.Core.Utils.GetParams.GetEnvVars("worldId", worldId);
+            accessToken = Game.Core.Utils.GetParams.GetEnvVars("accessToken", accessToken);
+            return worldLoaderController.LoadWorldServer(worldId, accessToken);
         }
-        loadingScreenUI.gameObject.SetActive(false);
+
+        public Task LoadClient()
+        {
+            worldId = Game.Core.Utils.GetParams.GetEnvVars("worldId", worldId);
+            accessToken = Game.Core.Utils.GetParams.GetEnvVars("accessToken", accessToken);
+            return worldLoaderController.LoadWorldClient(worldId, accessToken);
+        }
     }
 }

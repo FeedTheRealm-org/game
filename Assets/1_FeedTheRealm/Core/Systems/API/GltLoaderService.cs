@@ -34,14 +34,24 @@ namespace API
         /// <summary>
         /// Downloads and loads a GLB model from the API, instantiates it, and returns the GameObject.
         /// </summary>
-        public async Task<GameObject> DownloadModel(string worldId, string modelId)
+        public async Task<GameObject> DownloadModel(
+            string worldId,
+            string modelId,
+            GameObject targetObject,
+            bool addColliders = true
+        )
         {
             try
             {
                 string url = $"{GetBaseUrl().TrimEnd('/')}/{worldId}/{modelId}";
-                GameObject template = new(modelId);
-                await GltfHandler.Load(template, url, useLocalAsset: false);
-                return template;
+                targetObject.name = modelId;
+                await GltfHandler.Load(
+                    targetObject,
+                    url,
+                    useLocalAsset: false,
+                    addColliders: addColliders
+                );
+                return targetObject;
             }
             catch (System.Exception ex)
             {

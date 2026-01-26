@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2793562231372914308}
   - component: {fileID: 8631657090100396102}
   - component: {fileID: 1584506608635705944}
+  - component: {fileID: 5526206200577206735}
   m_Layer: 0
   m_Name: WorldLoaderV2
   m_TagString: Untagged
@@ -45,14 +46,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 850fc3f21c73ba3af91dba23aa1542ac, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::WorldLoaderControllerV2
-  gltLoaderService: {fileID: 11400000, guid: 4e035cc658cd2a197929d6443faca33e, type: 2}
-  modelService: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
-  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
-  enemySpawnPrefab: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
-  shopPrefab: {fileID: 6448232648378720656, guid: 2c5f2d927e7e43c4288f6f191b8920ee, type: 3}
-  npcSpawnPrefab: {fileID: 7265489834613234143, guid: 92a6d90bb86a46146bd725128e92e36d, type: 3}
-  shopItemsSO: {fileID: 11400000, guid: 8422c78246daacb49bb405d2f69a6eb2, type: 2}
+  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
+  serverLoaders:
+  - {fileID: 5557330315756003555, guid: dbde35e45dc8f5207b067a64519ff5d1, type: 3}
+  clientLoaders:
+  - {fileID: 5557330315756003555, guid: dbde35e45dc8f5207b067a64519ff5d1, type: 3}
 --- !u!114 &1584506608635705944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,3 +75,20 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &5526206200577206735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4036553314095356617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
+  sceneId: 0
+  _assetId: 3297029233
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0

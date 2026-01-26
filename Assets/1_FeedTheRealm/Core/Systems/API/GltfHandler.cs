@@ -21,7 +21,8 @@ namespace API
         public static async Task Load(
             GameObject parent,
             string modelName,
-            bool useLocalAsset = true
+            bool useLocalAsset = true,
+            bool addColliders = true
         )
         {
             if (string.IsNullOrEmpty(modelName))
@@ -50,7 +51,8 @@ namespace API
             await gltf.InstantiateMainSceneAsync(parent.transform);
             NormalizeChildren(parent);
             FlattenHierarchy(parent);
-            AddColliders(parent);
+            if (addColliders)
+                AddColliders(parent);
         }
 
         private static void CreateFallback(GameObject parent)

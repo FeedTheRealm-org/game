@@ -400,7 +400,7 @@ public class SpriteLoader : MonoBehaviour
         var categoriesResponse = await assetsService.GetCategoriesAsync();
         if (categoriesResponse == null)
         {
-            logger.Log("Failed to fetch categories", this, Logging.LogType.Error);
+            logger.Log("Failed to fetch categories", this, Logging.LogType.Warning);
             return;
         }
 
@@ -416,7 +416,7 @@ public class SpriteLoader : MonoBehaviour
         // All data fetched, apply sprites
         if (categoriesResponse.category_list == null)
         {
-            logger.Log("No categories found in response.", this, Logging.LogType.Error);
+            logger.Log("No categories found in response.", this, Logging.LogType.Warning);
             return;
         }
 

@@ -1,4 +1,5 @@
 using System;
+using Core.Systems.Worlds;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,6 +11,10 @@ using UnityEngine.SceneManagement;
 
 public class NewNetworkManager : NetworkManager
 {
+    [Header("World Initialization")]
+    [SerializeField]
+    private WorldInitializer worldInitializer;
+
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
     public static new NewNetworkManager singleton => (NewNetworkManager)NetworkManager.singleton;
@@ -201,6 +206,7 @@ public class NewNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
+        worldInitializer.LoadClient();
     }
 
     /// <summary>
@@ -246,7 +252,10 @@ public class NewNetworkManager : NetworkManager
     /// This is invoked when a server is started - including when a host is started.
     /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
     /// </summary>
-    public override void OnStartServer() { }
+    public override void OnStartServer()
+    {
+        worldInitializer.LoadServer();
+    }
 
     /// <summary>
     /// This is invoked when the client is started.

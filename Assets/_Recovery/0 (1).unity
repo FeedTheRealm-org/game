@@ -359,17 +359,6 @@ MonoBehaviour:
       BarrelClipping: 0.25
       Anamorphism: 0
   BlendHint: 0
---- !u!114 &84006147 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6235903670058703667, guid: 07062d704f2ee57a89ceecbf25e5b347, type: 3}
-  m_PrefabInstance: {fileID: 967980618}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01383ccbf88eb09029085a37bb92eda4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldInitializer
 --- !u!1001 &170227085
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -540,8 +529,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 1418397613159891299, guid: af4efddfb03299e17823bf370a997e5c, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
-  spawnPrefabs:
-  - {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
+  spawnPrefabs: []
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -557,7 +545,6 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
-  worldInitializer: {fileID: 84006147}
 --- !u!114 &722370597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -832,15 +819,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2936097876787336612, guid: 07062d704f2ee57a89ceecbf25e5b347, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 1.53765
       objectReference: {fileID: 0}
     - target: {fileID: 2936097876787336612, guid: 07062d704f2ee57a89ceecbf25e5b347, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -1.24
       objectReference: {fileID: 0}
     - target: {fileID: 2936097876787336612, guid: 07062d704f2ee57a89ceecbf25e5b347, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.8545
       objectReference: {fileID: 0}
     - target: {fileID: 2936097876787336612, guid: 07062d704f2ee57a89ceecbf25e5b347, type: 3}
       propertyPath: m_LocalRotation.w
