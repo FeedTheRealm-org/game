@@ -78,10 +78,6 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
             new CharacterAttackState(this, attackComponent, characterAnimator)
         );
         actionStates.Add(
-            typeof(CharacterChargingAttackState),
-            new CharacterChargingAttackState(this, characterAnimator)
-        );
-        actionStates.Add(
             typeof(CharacterInteractingState),
             new CharacterInteractingState(this, interactComponent, characterAnimator)
         );
