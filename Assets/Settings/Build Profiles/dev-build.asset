@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-756734007990200304
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 15022, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: Multiplayer Role Data
+  m_EditorClassIdentifier: UnityEditor.MultiplayerModule.dll::UnityEditor.Multiplayer.Internal.MultiplayerRoleData
+  multiplayerRole: 3
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10,7 +23,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 15003, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: Linux-Multiplayer-World
+  m_Name: dev-build
   m_EditorClassIdentifier: UnityEditor.dll::UnityEditor.Build.Profile.BuildProfile
   m_AssetVersion: 1
   m_BuildTarget: 24
@@ -29,7 +42,7 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Testing/WorldLoaderTest.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/WorldServer.unity
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
