@@ -1,5 +1,6 @@
 using System;
 using Core.Systems.Worlds;
+using Core.Systems.Worlds.Loader;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,7 +14,7 @@ public class NewNetworkManager : NetworkManager
 {
     [Header("World Initialization")]
     [SerializeField]
-    private WorldInitializer worldInitializer;
+    private WorldLoaderController worldLoader;
 
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
@@ -25,6 +26,8 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void Awake()
     {
+        // TODO: maybe consider implementing our own logic when awakening the NetworkManager
+        // to see either if run it as a server or client insted of using the inspector settings
         base.Awake();
     }
 
@@ -206,7 +209,7 @@ public class NewNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        worldInitializer.LoadClient();
+        worldLoader.LoadClient();
     }
 
     /// <summary>
@@ -254,7 +257,7 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void OnStartServer()
     {
-        worldInitializer.LoadServer();
+        worldLoader.LoadServer();
     }
 
     /// <summary>

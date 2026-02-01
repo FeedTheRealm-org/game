@@ -181,7 +181,7 @@ public class WorldFeedMenuController : MonoBehaviour
                 );
                 return;
             }
-            worldHandler.selectedWorld = worldData;
+            worldHandler.selectedWorldID = worldData.id;
             SceneManager.LoadScene(worldScene.SceneName);
         }
         catch (Exception ex)

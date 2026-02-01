@@ -10,10 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2793562231372914308}
   - component: {fileID: 8631657090100396102}
-  - component: {fileID: 1584506608635705944}
   - component: {fileID: 5526206200577206735}
   m_Layer: 0
-  m_Name: WorldLoaderV2
+  m_Name: WorldLoader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,35 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 850fc3f21c73ba3af91dba23aa1542ac, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::WorldLoaderControllerV2
+  worldHandler: {fileID: 11400000, guid: d54015669dd0b4a47aea5d2bef3cd7a0, type: 2}
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
-  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
   serverLoaders:
   - {fileID: 5557330315756003555, guid: dbde35e45dc8f5207b067a64519ff5d1, type: 3}
   clientLoaders:
   - {fileID: 5557330315756003555, guid: dbde35e45dc8f5207b067a64519ff5d1, type: 3}
---- !u!114 &1584506608635705944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4036553314095356617}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name:
-  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: 20a3da990b8069edf9c060fb35b0e1de, type: 2}
-  m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 928e0064ff04a0049ad58a784fa77d6a, type: 3}
-  m_SortingOrder: 1
-  m_Position: 0
-  m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
-  m_PivotReferenceSize: 0
-  m_Pivot: 0
-  m_WorldSpaceCollider: {fileID: 0}
+  worldId:
+  accessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
+  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
 --- !u!114 &5526206200577206735
 MonoBehaviour:
   m_ObjectHideFlags: 0

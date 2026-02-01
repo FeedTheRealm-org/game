@@ -1,19 +1,22 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using API;
 using Game.Core.Exceptions;
+using Game.Core.Utils;
 using Models;
 using UnityEngine;
+using Worlds;
 
 namespace Core.Systems.Worlds.Loader
 {
     public class WorldLoaderController : MonoBehaviour
     {
         [SerializeField]
-        private Logging.Logger logger;
+        private WorldHandler worldHandler;
 
         [SerializeField]
-        private WorldService worldService;
+        private Logging.Logger logger;
 
         [Header("Loaders")]
         [SerializeField]
@@ -22,10 +25,47 @@ namespace Core.Systems.Worlds.Loader
         [SerializeField]
         private List<GameObject> clientLoaders;
 
+        [Header("Debug Settings")]
+        [Description(
+            "Here you can set the world ID and access token for debugging purposes. Also add the player GameObject to be spawned in the world."
+        )]
+        [SerializeField]
+        private string worldId;
+
+        [SerializeField]
+        private string accessToken;
+
+        [SerializeField]
+        private WorldService worldService;
+
+        public Task LoadServer()
+        {
+            worldId = GetParams.GetEnvVars("worldId", worldId);
+            accessToken = GetParams.GetEnvVars("accessToken", accessToken); // TODO: Secure this token properly
+            logger.Log(
+                $"[SERVER] Server Loading World ID: {worldId} | Access Token: {accessToken}",
+                this
+            );
+            return LoadWorldServer(worldId, accessToken);
+        }
+
+        public Task LoadClient()
+        {
+            worldId = worldHandler.selectedWorldID;
+            accessToken = GetParams.GetEnvVars("accessToken", accessToken); // TODO: Consider using the clients session token instead
+            logger.Log(
+                $"[CLIENT] Client Loading World ID: {worldId} | Access Token: {accessToken}",
+                this
+            );
+            return LoadWorldClient(worldId, accessToken);
+        }
+
+        // ----- Private Methods ----- //
+
         /// <summary>
         ///  Loads the world data on the server side.
         /// </summary>
-        public async Task<WorldData> LoadWorldServer(string worldId, string accessToken)
+        private async Task<WorldData> LoadWorldServer(string worldId, string accessToken)
         {
             logger.Log("Loading World (Server)", this);
             WorldData worldData = await LoadWorldData(worldId, accessToken);
@@ -38,10 +78,7 @@ namespace Core.Systems.Worlds.Loader
                         loaderObject.name,
                         nameof(IServerLoader)
                     );
-
-                logger.Log($"[Server] Starting loader: {loader.GetType().Name}", this);
                 await loader.LoadServer(worldData, accessToken);
-                logger.Log($"[Server] Finished loader: {loader.GetType().Name}", this);
             }
             return worldData;
         }
@@ -49,7 +86,7 @@ namespace Core.Systems.Worlds.Loader
         /// <summary>
         ///  Loads the world data on the client side.
         /// </summary>
-        public async Task LoadWorldClient(string worldId, string accessToken)
+        private async Task LoadWorldClient(string worldId, string accessToken)
         {
             logger.Log("Loading World (Client)", this);
             WorldData worldData = await LoadWorldData(worldId, accessToken);
@@ -61,9 +98,7 @@ namespace Core.Systems.Worlds.Loader
                         loaderObject.name,
                         nameof(IClientLoader)
                     );
-                logger.Log($"[Client] Starting loader: {loader.GetType().Name}", this);
                 await loader.LoadClient(worldData, accessToken);
-                logger.Log($"[Client] Finished loader: {loader.GetType().Name}", this);
             }
         }
 
