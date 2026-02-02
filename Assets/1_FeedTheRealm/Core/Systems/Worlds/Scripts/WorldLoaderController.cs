@@ -97,6 +97,7 @@ namespace Core.Systems.Worlds.Loader
             LoaderStartupMessage(worldData);
             foreach (GameObject loaderObject in serverLoaders)
             {
+                logger.Log($"--------------------------", this);
                 IServerLoader loader =
                     loaderObject.GetComponent<IServerLoader>()
                     ?? throw new MissingControllerException(
@@ -104,8 +105,8 @@ namespace Core.Systems.Worlds.Loader
                         nameof(IServerLoader)
                     );
                 await loader.LoadServer(worldData, accessToken);
-                logger.Log($"--------------------------", this);
             }
+            logger.Log($"World ready for players to join!", this);
             return worldData;
         }
 
