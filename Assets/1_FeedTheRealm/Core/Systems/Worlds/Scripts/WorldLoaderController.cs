@@ -40,8 +40,8 @@ namespace Core.Systems.Worlds.Loader
 
         public Task LoadServer()
         {
-            worldId = GetParams.GetEnvVars("worldId", worldId);
-            accessToken = GetParams.GetEnvVars("accessToken", accessToken); // TODO: Secure this token properly
+            worldId = GetParams.GetArgs("worldId", worldId);
+            accessToken = GetParams.GetArgs("accessToken", accessToken); // TODO: Secure this token properly
             logger.Log(
                 $"[SERVER] Server Loading World ID: {worldId} | Access Token: {accessToken}",
                 this
@@ -52,7 +52,7 @@ namespace Core.Systems.Worlds.Loader
         public Task LoadClient()
         {
             worldId = worldHandler.selectedWorldID;
-            accessToken = GetParams.GetEnvVars("accessToken", accessToken); // TODO: Consider using the clients session token instead
+            accessToken = GetParams.GetArgs("accessToken", accessToken); // TODO: Consider using the clients session token instead
             logger.Log(
                 $"[CLIENT] Client Loading World ID: {worldId} | Access Token: {accessToken}",
                 this

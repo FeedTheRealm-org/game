@@ -1,18 +1,16 @@
 using System;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 
 namespace Game.Core.Utils
 {
     public static class GetParams
     {
-        public static string GetEnvVars(string variableName, string defaultValue = "")
+        public static string GetArgs(string key, string defaultValue = "")
         {
-#if !UNITY_EDITOR
-            return Environment.GetEnvironmentVariable(variableName) ?? defaultValue;
-#else
-            return defaultValue;
-#endif
+            var args = Environment.GetCommandLineArgs();
+            var arg = args.FirstOrDefault(a => a.StartsWith($"--{key}="));
+
+            return arg != null ? arg.Split('=', 2)[1] : defaultValue;
         }
     }
 }

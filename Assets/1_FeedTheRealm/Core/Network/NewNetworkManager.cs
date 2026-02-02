@@ -28,6 +28,13 @@ public class NewNetworkManager : NetworkManager
     {
         // TODO: maybe consider implementing our own logic when awakening the NetworkManager
         // to see either if run it as a server or client insted of using the inspector settings
+        {
+#if !UNITY_EDITOR
+            var hud = GetComponent<NetworkManagerHUD>();
+            if (hud != null)
+                hud.enabled = false;
+#endif
+        }
         base.Awake();
     }
 
@@ -45,6 +52,15 @@ public class NewNetworkManager : NetworkManager
     public override void Start()
     {
         base.Start();
+
+        // Mirror does not recognize build modes, so we have to manually start it here
+        // by either starting a server or a client based on the builds Scripts Defines
+        // (you can see these symbols in the proper build profiles).
+#if SERVER_BUILD
+        StartServer();
+#elif CLIENT_BUILD
+        StartClient();
+#endif
     }
 
     /// <summary>
