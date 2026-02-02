@@ -49,6 +49,7 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
   serverLoaders:
   - {fileID: 5557330315756003555, guid: dbde35e45dc8f5207b067a64519ff5d1, type: 3}
+  - {fileID: 4380272990826207289, guid: 3cbb7eadf013275d0b11e2094f026dcc, type: 3}
   clientLoaders:
   - {fileID: 5557330315756003555, guid: dbde35e45dc8f5207b067a64519ff5d1, type: 3}
   worldId:
