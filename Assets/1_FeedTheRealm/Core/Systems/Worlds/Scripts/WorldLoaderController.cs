@@ -12,11 +12,18 @@ namespace Core.Systems.Worlds.Loader
 {
     public class WorldLoaderController : MonoBehaviour
     {
+        [Header("Dependencies")]
+        [SerializeField]
+        private Logging.Logger logger;
+
         [SerializeField]
         private WorldHandler worldHandler;
 
         [SerializeField]
-        private Logging.Logger logger;
+        private WorldService worldService;
+
+        [SerializeField]
+        private Session.Session session;
 
         [Header("Loaders")]
         [SerializeField]
@@ -35,24 +42,43 @@ namespace Core.Systems.Worlds.Loader
         [SerializeField]
         private string accessToken;
 
-        [SerializeField]
-        private WorldService worldService;
-
+        /// <summary>
+        ///  Loads the world on the server side using command line arguments.
+        /// </summary>
         public Task LoadServer()
         {
-            worldId = GetParams.GetArgs("worldId", worldId);
-            accessToken = GetParams.GetArgs("accessToken", accessToken); // TODO: Secure this token properly
+#if !UNITY_EDITOR
+            worldId = GetParams.GetArgs("worldId");
+            accessToken = GetParams.GetArgs("accessToken");
+#endif
             logger.Log(
                 $"[SERVER] Server Loading World ID: {worldId} | Access Token: {accessToken}",
                 this
             );
+
+            if (string.IsNullOrEmpty(worldId) || string.IsNullOrEmpty(accessToken))
+            {
+                logger.Log(
+                    "World ID or Access Token is not set. Cannot load world.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return Task.CompletedTask;
+            }
+
             return LoadWorldServer(worldId, accessToken);
         }
 
+        /// <summary>
+        ///  Loads the world on the client side using the selected world id from WorldHandler
+        ///  and the clients current session token.
+        /// </summary>
         public Task LoadClient()
         {
+#if !UNITY_EDITOR
             worldId = worldHandler.selectedWorldID;
-            accessToken = GetParams.GetArgs("accessToken", accessToken); // TODO: Consider using the clients session token instead
+            accessToken = session.APIToken ?? accessToken;
+#endif
             logger.Log(
                 $"[CLIENT] Client Loading World ID: {worldId} | Access Token: {accessToken}",
                 this
@@ -67,9 +93,8 @@ namespace Core.Systems.Worlds.Loader
         /// </summary>
         private async Task<WorldData> LoadWorldServer(string worldId, string accessToken)
         {
-            logger.Log("Loading World (Server)", this);
             WorldData worldData = await LoadWorldData(worldId, accessToken);
-
+            LoaderStartupMessage(worldData);
             foreach (GameObject loaderObject in serverLoaders)
             {
                 IServerLoader loader =
@@ -79,6 +104,7 @@ namespace Core.Systems.Worlds.Loader
                         nameof(IServerLoader)
                     );
                 await loader.LoadServer(worldData, accessToken);
+                logger.Log($"--------------------------", this);
             }
             return worldData;
         }
@@ -119,6 +145,22 @@ namespace Core.Systems.Worlds.Loader
                 return null;
             }
             return data;
+        }
+
+        private void LoaderStartupMessage(WorldData worldData)
+        {
+            logger.Log(
+                "------------------------------------------------------------------------------------------------\n"
+                    + "________________________________   ._.    __________________________________   _________________________\n"
+                    + "\\_   _____/\\__    ___/\\______   \\  | |   /   _____/\\_   _____/\\______   \\   \\ /   /\\_   _____/\\______   \\\n"
+                    + " |    __)    |    |    |       _/  |_|   \\_____  \\  |    __)_  |       _/\\   Y   /  |    __)_  |       _/\n"
+                    + " |     \\     |    |    |    |   \\  |-|   /        \\ |        \\ |    |   \\ \\     /   |        \\ |    |   \\\n"
+                    + " \\___  /     |____|    |____|_  /  | |  /_______  //_______  / |____|_  /  \\___/   /_______  / |____|_  /\n"
+                    + "     \\/                       \\/   |_|          \\/         \\/         \\/                   \\/         \\/ \n"
+                    + "------------------------------------------------------------------------------------------------\n"
+                    + $"{worldData}",
+                this
+            );
         }
     }
 }

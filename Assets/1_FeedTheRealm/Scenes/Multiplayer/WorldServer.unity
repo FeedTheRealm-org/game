@@ -1222,6 +1222,10 @@ PrefabInstance:
       value: 203959189
       objectReference: {fileID: 0}
     - target: {fileID: 8631657090100396102, guid: 6aa1fc744d70021b7b05a6d60e18987a, type: 3}
+      propertyPath: session
+      value: 
+      objectReference: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
+    - target: {fileID: 8631657090100396102, guid: 6aa1fc744d70021b7b05a6d60e18987a, type: 3}
       propertyPath: worldId
       value: 16c489e0-32fe-4b91-8bf3-281d07449f6a
       objectReference: {fileID: 0}
