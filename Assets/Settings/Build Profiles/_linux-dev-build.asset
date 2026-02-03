@@ -43,8 +43,9 @@ MonoBehaviour:
     m_path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/WorldServer.unity
-  m_HasScriptingDefines: 0
-  m_ScriptingDefines: []
+  m_HasScriptingDefines: 1
+  m_ScriptingDefines:
+  - DEBUG
   m_PlayerSettingsYaml:
     m_Settings:
     - line: '| PlayerSettings:'

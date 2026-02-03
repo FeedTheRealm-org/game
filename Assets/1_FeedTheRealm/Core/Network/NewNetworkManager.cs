@@ -1,6 +1,8 @@
 using System;
 using Core.Systems.Worlds;
 using Core.Systems.Worlds.Loader;
+using Game.Core.Utils;
+using kcp2k;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -26,13 +28,10 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void Awake()
     {
-        // TODO: maybe consider implementing our own logic when awakening the NetworkManager
-        // to see either if run it as a server or client insted of using the inspector settings
         {
-#if !UNITY_EDITOR
+#if !DEBUG
             var hud = GetComponent<NetworkManagerHUD>();
-            if (hud != null)
-                hud.enabled = false;
+            hud.enabled = false;
 #endif
         }
         base.Awake();
@@ -52,11 +51,20 @@ public class NewNetworkManager : NetworkManager
     public override void Start()
     {
         base.Start();
-
         // Mirror does not recognize build modes, so we have to manually start it here
         // by either starting a server or a client based on the builds Scripts Defines
         // (you can see these symbols in the proper build profiles).
 #if SERVER_BUILD
+        string portArg = GetParams.GetArgs("port");
+        if (!string.IsNullOrEmpty(portArg) && int.TryParse(portArg, out int port))
+        {
+            var transport = GetComponent<KcpTransport>();
+            transport.Port = (ushort)port;
+        }
+        else
+        {
+            Debug.LogWarning("[NetworkManager] No port argument provided, using default port.");
+        }
         StartServer();
 #elif CLIENT_BUILD
         StartClient();

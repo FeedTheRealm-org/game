@@ -47,7 +47,7 @@ namespace Core.Systems.Worlds.Loader
         /// </summary>
         public Task LoadServer()
         {
-#if !UNITY_EDITOR
+#if !DEBUG
             worldId = GetParams.GetArgs("worldId");
             accessToken = GetParams.GetArgs("accessToken");
 #endif
@@ -75,7 +75,7 @@ namespace Core.Systems.Worlds.Loader
         /// </summary>
         public Task LoadClient()
         {
-#if !UNITY_EDITOR
+#if !DEBUG
             worldId = worldHandler.selectedWorldID;
             accessToken = session.APIToken ?? accessToken;
 #endif
