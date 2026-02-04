@@ -17,19 +17,28 @@ MonoBehaviour:
   m_Subtarget: 2
   m_PlatformId: 4e3c793746204150860bf175a9a41a05
   m_PlatformBuildProfile:
-    rid: 3114641651524698211
+    rid: 4432626261525528578
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Menus/LoginScene.unity
-  m_HasScriptingDefines: 0
-  m_ScriptingDefines: []
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Menus/SignUpScene.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Menus/VerifyCodeScene.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/WorldServer.unity
+  m_HasScriptingDefines: 1
+  m_ScriptingDefines:
+  - CLIENT_BUILD
   m_PlayerSettingsYaml:
     m_Settings: []
   references:
     version: 2
     RefIds:
-    - rid: 3114641651524698211
+    - rid: 4432626261525528578
       type: {class: WindowsPlatformSettings, ns: UnityEditor.WindowsStandalone, asm: UnityEditor.WindowsStandalone.Extensions}
       data:
         m_Development: 0
@@ -52,3 +61,16 @@ MonoBehaviour:
         m_CopyPDBFiles: 0
         m_WindowsDevicePortalAddress: 
         m_WindowsDevicePortalUsername: 
+--- !u!114 &4919443911480903708
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 15022, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: Multiplayer Role Data
+  m_EditorClassIdentifier: UnityEditor.MultiplayerModule.dll::UnityEditor.Multiplayer.Internal.MultiplayerRoleData
+  multiplayerRole: 3
