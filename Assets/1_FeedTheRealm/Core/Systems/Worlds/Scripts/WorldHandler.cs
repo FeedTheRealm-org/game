@@ -14,17 +14,13 @@ namespace Worlds
     [CreateAssetMenu(fileName = "WorldHandler", menuName = "Scriptable Objects/World/WorldHandler")]
     public class WorldHandler : ScriptableObject
     {
-        public const string NULL_CATEGORY_NAME = "Uncategorized";
-
-        public Models.WorldData selectedWorld = null;
-
-        [Header("World Categories")]
-        [SerializeField]
-        private List<Category> categories = new List<Category>();
-
-        [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
+
+        [SerializeField]
+        private List<Category> categories = new List<Category>();
+        public string selectedWorldID;
+        public const string NULL_CATEGORY_NAME = "Uncategorized";
 
         public bool createACategory(string categoryName)
         {
@@ -92,11 +88,6 @@ namespace Worlds
         {
             categories.Clear();
             logger.Log("Cleared all categories and worlds.", this);
-        }
-
-        public Models.WorldData GetSelectedWorld()
-        {
-            return selectedWorld;
         }
     }
 }

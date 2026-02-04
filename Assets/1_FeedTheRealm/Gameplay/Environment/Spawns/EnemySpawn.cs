@@ -1,5 +1,6 @@
 using System.Collections;
 using Mirror;
+using Models;
 using UnityEngine;
 
 public class EnemySpawn : MonoBehaviour
@@ -40,6 +41,14 @@ public class EnemySpawn : MonoBehaviour
     private System.Collections.Generic.HashSet<uint> playersInArea =
         new System.Collections.Generic.HashSet<uint>();
     private int totalKills;
+
+    public void SetupSpawner(EnemySpawnerData data)
+    {
+        maxEnemies = data.MaxEnemies;
+        spawnRate = data.SpawnRate;
+        resetAfterKills = data.ResetAfterKills;
+        resetDelay = data.ResetDelay;
+    }
 
     private void Start()
     {

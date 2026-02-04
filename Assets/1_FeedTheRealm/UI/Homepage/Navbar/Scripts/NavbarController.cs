@@ -8,6 +8,9 @@ public class NavbarController : MonoBehaviour
     private Session.Session session;
 
     [SerializeField]
+    private Logging.Logger logger;
+
+    [SerializeField]
     private API.PlayerService playerService;
 
     [SerializeField]
@@ -16,18 +19,22 @@ public class NavbarController : MonoBehaviour
     [SerializeField]
     private SceneReference gameplayScene;
 
-    [Header("General settings")]
     [SerializeField]
-    private Logging.Logger logger;
+    private string sectionName = "Section";
 
-    // Containers
     private VisualElement _root;
-    private Button _profileButton;
-    private Button _playButton;
-    private Label _nameTag;
+    private Button playerProfileButton;
+    private Label sectionLabel;
 
     private void OnEnable()
     {
+        _root = GetComponent<UIDocument>().rootVisualElement;
+        if (_root == null)
+        {
+            logger.Log("UIDocument root not found.", this, Logging.LogType.Error);
+            return;
+        }
+
         if (session == null)
         {
             logger.Log("Session is not assigned.", this, Logging.LogType.Error);
@@ -43,7 +50,14 @@ public class NavbarController : MonoBehaviour
             )
         );
 
-        _root = GetComponent<UIDocument>().rootVisualElement;
+        sectionLabel = _root.Q<Label>("SectionLabel");
+        if (sectionLabel == null)
+        {
+            logger.Log("SectionLabel not found in the UI Document.", this, Logging.LogType.Error);
+            return;
+        }
+        sectionLabel.text = sectionName;
+
         var body = _root.Q<VisualElement>("Body");
         if (body == null)
         {
@@ -51,38 +65,23 @@ public class NavbarController : MonoBehaviour
             return;
         }
 
-        _profileButton = body.Q<Button>("ProfileButton");
-        if (_profileButton == null)
+        playerProfileButton = body.Q<Button>("ProfileButton");
+        if (playerProfileButton == null)
         {
             logger.Log("ProfileButton not found in Body.", this, Logging.LogType.Error);
             return;
         }
-        _playButton = body.Q<Button>("PlayButton");
-        if (_playButton == null)
-        {
-            logger.Log("PlayButton not found in Body.", this, Logging.LogType.Error);
-            return;
-        }
-        _nameTag = body.Q<Label>("NameTag");
-        if (_nameTag == null)
-        {
-            logger.Log("NameTag not found in Body.", this, Logging.LogType.Error);
-            return;
-        }
-
-        _nameTag.text = string.IsNullOrEmpty(session.CharacterName)
+        playerProfileButton.text = string.IsNullOrEmpty(session.CharacterName)
             ? "Guest"
             : session.CharacterName;
-        _profileButton.clicked += onProfileButtonClicked;
-        _playButton.clicked += onPlayButtonClicked;
+        playerProfileButton.clicked += onProfileButtonClicked;
     }
 
     private void OnDisable()
     {
-        if (_profileButton != null)
+        if (playerProfileButton != null)
         {
-            _profileButton.clicked -= onProfileButtonClicked;
-            _playButton.clicked -= onPlayButtonClicked;
+            playerProfileButton.clicked -= onProfileButtonClicked;
         }
     }
 
@@ -94,11 +93,5 @@ public class NavbarController : MonoBehaviour
             return;
         }
         profileMenuPrefab.SetActive(!profileMenuPrefab.activeSelf);
-    }
-
-    private void onPlayButtonClicked()
-    {
-        logger.Log("Play button clicked - starting game...", this);
-        SceneManager.LoadScene(gameplayScene.SceneName);
     }
 }

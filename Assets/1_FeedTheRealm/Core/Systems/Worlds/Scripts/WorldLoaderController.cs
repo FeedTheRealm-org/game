@@ -1,293 +1,173 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using API;
-using GLTFast;
+using Game.Core.Exceptions;
+using Game.Core.Utils;
 using Models;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Worlds;
 
-public class WorldLoaderController : MonoBehaviour
+namespace Core.Systems.Worlds.Loader
 {
-    [SerializeField]
-    private WorldHandler worldHandler;
-
-    [SerializeField]
-    private GltLoaderService gltLoaderService;
-
-    [SerializeField]
-    private ModelService modelService;
-
-    [SerializeField]
-    private Session.Session session;
-
-    [SerializeField]
-    private Logging.Logger logger;
-
-    [SerializeField]
-    private UIDocument loadingScreenUI;
-
-    [SerializeField]
-    private GameObject enemySpawnPrefab;
-
-    [SerializeField]
-    private GameObject npcSpawnPrefab;
-
-    [SerializeField]
-    private GameObject shopPrefab;
-
-    [SerializeField]
-    private ShopItemsSO shopItemsSO;
-
-    [Header("Debug")]
-    [SerializeField]
-    private bool logWorldDataJson = false;
-
-    private Dictionary<string, Asset> assetMap;
-    private List<GameObject> cleanup = new();
-
-    private async void Start()
+    public class WorldLoaderController : MonoBehaviour
     {
-        logger.Log("Loading World", this);
-        assetMap = new Dictionary<string, Asset>();
-        await LoadAssets();
-        LoadWorld();
-        if (loadingScreenUI != null)
+        [Header("Dependencies")]
+        [SerializeField]
+        private Logging.Logger logger;
+
+        [SerializeField]
+        private WorldHandler worldHandler;
+
+        [SerializeField]
+        private WorldService worldService;
+
+        [SerializeField]
+        private Session.Session session;
+
+        [Header("Loaders")]
+        [SerializeField]
+        private List<GameObject> serverLoaders;
+
+        [SerializeField]
+        private List<GameObject> clientLoaders;
+
+        [Header("Debug Settings")]
+        [SerializeField]
+        private string worldId;
+
+        [SerializeField]
+        private string accessToken;
+
+        /// <summary>
+        ///  Loads the world on the server side using command line arguments.
+        /// </summary>
+        public Task LoadServer()
         {
-            loadingScreenUI.gameObject.SetActive(false);
-        }
-
-        // Hide the global loading screen once all world data
-        // (models + enemy spawns) has been loaded on the client.
-        LoadingScreenEvents.HideWithDelay();
-    }
-
-    private async Task LoadAssets()
-    {
-        string worldId = worldHandler.selectedWorld.id;
-
-        // Select token according to build type:
-        // - Dedicated server (UNITY_SERVER): always environment token.
-        // - Client / Editor: always user session token.
-        string accessToken;
-
-#if UNITY_SERVER && !UNITY_EDITOR
-        accessToken = System.Environment.GetEnvironmentVariable("FTR_SERVER_API_TOKEN");
-        if (string.IsNullOrWhiteSpace(accessToken))
-        {
-            logger.Log(
-                "[WorldLoaderController] UNITY_SERVER build without FTR_SERVER_API_TOKEN; cannot load world assets.",
-                this,
-                Logging.LogType.Error
-            );
-            return;
-        }
-        logger.Log(
-            "[WorldLoaderController] Using server API token from environment for world assets (UNITY_SERVER).",
-            this
-        );
-#else
-        accessToken = session.APIToken;
-        if (string.IsNullOrWhiteSpace(accessToken))
-        {
-            logger.Log(
-                "[WorldLoaderController] Session API token is empty; user must be logged in to load world assets.",
-                this,
-                Logging.LogType.Error
-            );
-            return;
-        }
-        logger.Log(
-            "[WorldLoaderController] Using player session API token for world assets (client/editor).",
-            this
-        );
+#if !DEBUG
+            worldId = GetParams.GetArgs("worldId");
+            accessToken = GetParams.GetArgs("accessToken");
 #endif
-
-        logger.Log("Fetching model IDs from world...", this);
-
-        // 1. GET MODEL ID LIST
-        List<string> modelIds = await modelService.ListWorldAssets(worldId, accessToken);
-
-        if (modelIds.Count == 0)
-        {
-            logger.Log("No models found in world", this, Logging.LogType.Warning);
-            return;
-        }
-
-        // 2. DOWNLOAD & INSTANTIATE MODELS
-        foreach (string modelId in modelIds)
-        {
-            GameObject modelInstance = await gltLoaderService.DownloadModel(worldId, modelId);
-            Asset asset = new(modelId, modelId, new Vector2Int(1, 1), modelInstance);
-            assetMap[modelId] = asset;
-            cleanup.Add(modelInstance);
-        }
-        logger.Log($"Amount of assets loaded: {assetMap.Count}", this);
-    }
-
-    public void LoadWorld()
-    {
-        WorldData data = worldHandler.selectedWorld;
-
-        // Register world data so other systems (loot, inventory, tooltips)
-        // can query consumables and enemies by spriteId.
-        Worlds.WorldItemsRegistry.RegisterWorldData(data);
-
-        if (logWorldDataJson && data != null)
-        {
-            try
-            {
-                string json = JsonUtility.ToJson(data, true);
-                string worldName =
-                    worldHandler.selectedWorld != null
-                        ? worldHandler.selectedWorld.worldName
-                        : "<unknown>";
-                logger.Log(
-                    $"[WorldLoaderController] World data JSON for '{worldName}':\n{json}",
-                    this
-                );
-            }
-            catch (Exception ex)
-            {
-                logger.Log(
-                    $"[WorldLoaderController] Failed to serialize world data for logging: {ex.Message}",
-                    this,
-                    Logging.LogType.Warning
-                );
-            }
-        }
-
-        if (data.objectPlacementData == null || data.objectPlacementData.Count == 0)
-        {
-            logger.Log("New world created!", this, Logging.LogType.Info);
-            return;
-        }
-
-        shopItemsSO.SetShopData(data.shopData);
-
-        if (assetMap == null || assetMap.Count == 0)
-        {
             logger.Log(
-                "No assets loaded for world; skipping placed object instantiation.",
-                this,
-                Logging.LogType.Warning
+                $"[SERVER] Server Loading World ID: {worldId} | Access Token Present: {!string.IsNullOrEmpty(accessToken)}",
+                this
             );
-        }
-        else
-        {
-            foreach (StructureData structureData in data.objectPlacementData)
-            {
-                if (!assetMap.TryGetValue(structureData.id, out Asset assetData))
-                {
-                    logger.Log(
-                        $"Asset with id '{structureData.id}' not found in assetMap; skipping placed object.",
-                        this,
-                        Logging.LogType.Warning
-                    );
-                    continue;
-                }
 
-                GameObject instance = assetData.GetModelInstance();
-                Vector3 targetPosition = structureData.position;
-                instance.transform.position = targetPosition;
-
-                if (structureData.isShop)
-                {
-                    GameObject shopInstance = Instantiate(
-                        shopPrefab,
-                        targetPosition,
-                        Quaternion.identity
-                    );
-
-                    shopInstance.GetComponent<BoxCollider>().size = instance
-                        .transform.GetChild(0)
-                        .GetComponent<BoxCollider>()
-                        .size;
-                    shopInstance.GetComponent<BoxCollider>().center = instance
-                        .transform.GetChild(0)
-                        .GetComponent<BoxCollider>()
-                        .center;
-                    shopInstance.transform.SetParent(instance.transform);
-                }
-
-                logger.Log(
-                    $"[WorldLoaderController] Placed object '{structureData.structureName}' (assetId={structureData.id}) at {targetPosition}.",
-                    this
-                );
-            }
-        }
-
-        foreach (EnemySpawnerData enemySpawnAreaData in data.enemySpawnAreas)
-        {
-            Vector3 targetPosition = enemySpawnAreaData.Position;
-            Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
-            GameObject spawnInstance = Instantiate(enemySpawnPrefab, spawnPos, Quaternion.identity);
-
-            // Configure the spawn with data from world
-            EnemySpawn spawnComponent = spawnInstance.GetComponent<EnemySpawn>();
-            if (spawnComponent != null)
-            {
-                spawnComponent.ConfigureFromSpawnData(enemySpawnAreaData);
-            }
-            else
+            if (string.IsNullOrEmpty(worldId) || string.IsNullOrEmpty(accessToken))
             {
                 logger.Log(
-                    "[WorldLoaderController] Enemy spawn prefab missing EnemySpawn component!",
+                    "World ID or Access Token is not set. Cannot load world.",
                     this,
                     Logging.LogType.Error
                 );
+                return Task.CompletedTask;
             }
 
-            spawnInstance.SetActive(true);
-            logger.Log(
-                $"[WorldLoaderController] Placed enemy spawn area at {spawnPos} with radius {enemySpawnAreaData.Radius}.",
-                this
-            );
+            return LoadWorldServer(worldId, accessToken);
         }
 
-        foreach (NPCSpawnerData npcSpawnAreaData in data.npcSpawnAreas)
+        /// <summary>
+        ///  Loads the world on the client side using the selected world id from WorldHandler
+        ///  and the clients current session token.
+        /// </summary>
+        public Task LoadClient()
         {
-            Vector3 targetPosition = npcSpawnAreaData.Position;
-            Vector3 spawnPos = targetPosition + new Vector3(0, 0.05f, 0);
-            GameObject spawnInstance = Instantiate(npcSpawnPrefab, spawnPos, Quaternion.identity);
+#if !DEBUG
+            worldId = worldHandler.selectedWorldID;
+            accessToken = session.APIToken ?? accessToken;
+#endif
+            logger.Log(
+                $"[CLIENT] Client Loading World ID: {worldId} | Access Token: {accessToken}",
+                this
+            );
+            return LoadWorldClient(worldId, accessToken);
+        }
 
-            // Configure the spawn with data from world
-            NPCSpawns spawnComponent = spawnInstance.GetComponent<NPCSpawns>();
+        // ----- Private Methods ----- //
 
-            if (spawnComponent != null)
-            {
-                spawnComponent.ConfigureFromSpawnData(npcSpawnAreaData, data.dialogs[0]);
-            }
-            else
+        /// <summary>
+        ///  Loads the world data on the server side.
+        /// </summary>
+        private async Task<WorldData> LoadWorldServer(string worldId, string accessToken)
+        {
+            WorldData worldData = await LoadWorldData(worldId, accessToken);
+            if (worldData == null)
             {
                 logger.Log(
-                    "[WorldLoaderController] NPC spawn prefab missing NPCSpawns component!",
+                    $"Failed to load world data for world ID: {worldId}. Aborting server loading.",
                     this,
                     Logging.LogType.Error
                 );
+                return null;
             }
+            LoaderStartupMessage(worldData);
+            foreach (GameObject loaderObject in serverLoaders)
+            {
+                logger.Log($"--------------------------", this);
+                IServerLoader loader =
+                    loaderObject.GetComponent<IServerLoader>()
+                    ?? throw new MissingControllerException(
+                        loaderObject.name,
+                        nameof(IServerLoader)
+                    );
+                await loader.LoadServer(worldData, accessToken);
+            }
+            logger.Log($"World ready for players to join!", this);
+            return worldData;
+        }
 
-            spawnInstance.SetActive(true);
+        /// <summary>
+        ///  Loads the world data on the client side.
+        /// </summary>
+        private async Task LoadWorldClient(string worldId, string accessToken)
+        {
+            logger.Log("Loading World (Client)", this);
+            WorldData worldData = await LoadWorldData(worldId, accessToken);
+            foreach (GameObject loaderObject in clientLoaders)
+            {
+                var loader =
+                    loaderObject.GetComponent<IClientLoader>()
+                    ?? throw new MissingControllerException(
+                        loaderObject.name,
+                        nameof(IClientLoader)
+                    );
+                await loader.LoadClient(worldData, accessToken);
+            }
+        }
+
+        /// <summary>
+        ///  Loads the world data from the API.
+        /// </summary>
+        private async Task<WorldData> LoadWorldData(string worldId, string accessToken)
+        {
+            (WorldData data, string errorMessage, long responseCode) =
+                await worldService.GetWorldData(worldId, accessToken);
+            if (data == null || !string.IsNullOrEmpty(errorMessage))
+            {
+                logger.Log(
+                    $"Failed to load world '{worldId}': {errorMessage}, Code: {responseCode}",
+                    this,
+                    Logging.LogType.Error
+                );
+                return null;
+            }
+            return data;
+        }
+
+        private void LoaderStartupMessage(WorldData worldData)
+        {
             logger.Log(
-                $"[WorldLoaderController] Placed NPC spawn area at {spawnPos} with radius {npcSpawnAreaData.Radius}.",
+                "------------------------------------------------------------------------------------------------\n"
+                    + "________________________________   ._.    __________________________________   _________________________\n"
+                    + "\\_   _____/\\__    ___/\\______   \\  | |   /   _____/\\_   _____/\\______   \\   \\ /   /\\_   _____/\\______   \\\n"
+                    + " |    __)    |    |    |       _/  |_|   \\_____  \\  |    __)_  |       _/\\   Y   /  |    __)_  |       _/\n"
+                    + " |     \\     |    |    |    |   \\  |-|   /        \\ |        \\ |    |   \\ \\     /   |        \\ |    |   \\\n"
+                    + " \\___  /     |____|    |____|_  /  | |  /_______  //_______  / |____|_  /  \\___/   /_______  / |____|_  /\n"
+                    + "     \\/                       \\/   |_|          \\/         \\/         \\/                   \\/         \\/ \n"
+                    + "------------------------------------------------------------------------------------------------\n"
+                    + $"{worldData}",
                 this
             );
         }
-
-        // since we instantiated models for loading, we need to clean them up
-        foreach (GameObject modelInstance in cleanup)
-        {
-            Destroy(modelInstance);
-        }
-        cleanup.Clear();
-
-        logger.Log(
-            $"Loaded {data.objectPlacementData.Count} placed objects.",
-            this,
-            Logging.LogType.Info
-        );
     }
 }
