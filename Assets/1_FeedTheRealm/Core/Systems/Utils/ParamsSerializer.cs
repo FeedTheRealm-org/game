@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Game.Core.Utils
 {
-    public static class GetParams
+    public static class ParamsSerializer
     {
         public static string GetArgs(string key, string defaultValue = "")
         {

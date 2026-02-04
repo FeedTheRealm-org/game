@@ -33,9 +33,6 @@ namespace Core.Systems.Worlds.Loader
         private List<GameObject> clientLoaders;
 
         [Header("Debug Settings")]
-        [Description(
-            "Here you can set the world ID and access token for debugging purposes. Also add the player GameObject to be spawned in the world."
-        )]
         [SerializeField]
         private string worldId;
 
@@ -52,7 +49,7 @@ namespace Core.Systems.Worlds.Loader
             accessToken = GetParams.GetArgs("accessToken");
 #endif
             logger.Log(
-                $"[SERVER] Server Loading World ID: {worldId} | Access Token: {accessToken}",
+                $"[SERVER] Server Loading World ID: {worldId} | Access Token Present: {!string.IsNullOrEmpty(accessToken)}",
                 this
             );
 
@@ -94,6 +91,15 @@ namespace Core.Systems.Worlds.Loader
         private async Task<WorldData> LoadWorldServer(string worldId, string accessToken)
         {
             WorldData worldData = await LoadWorldData(worldId, accessToken);
+            if (worldData == null)
+            {
+                logger.Log(
+                    $"Failed to load world data for world ID: {worldId}. Aborting server loading.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return null;
+            }
             LoaderStartupMessage(worldData);
             foreach (GameObject loaderObject in serverLoaders)
             {

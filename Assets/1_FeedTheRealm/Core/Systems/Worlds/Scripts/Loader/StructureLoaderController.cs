@@ -73,7 +73,7 @@ namespace Core.Systems.Worlds.Loader
 
         private void RenderStructures()
         {
-            // TODO: consider a better aproach than FindObjectsOfType
+            // TODO: consider a better approach than FindObjectsOfType
             foreach (
                 StructureController controller in FindObjectsByType<StructureController>(
                     FindObjectsSortMode.None

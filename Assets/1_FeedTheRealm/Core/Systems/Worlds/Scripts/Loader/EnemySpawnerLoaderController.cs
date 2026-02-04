@@ -25,13 +25,13 @@ namespace Core.Systems.Worlds.Loader
             );
             foreach (EnemySpawnerData data in worldData.enemySpawnAreas)
             {
-                EnemySpawn enemySpawnData = enemySpawnerPrefab.GetComponent<EnemySpawn>();
-                enemySpawnData.SetupSpawner(data);
                 GameObject instance = Instantiate(
                     enemySpawnerPrefab,
                     new Vector3(data.Position.x, data.Position.y, data.Position.z),
                     Quaternion.identity
                 );
+                EnemySpawn enemySpawnData = instance.GetComponent<EnemySpawn>();
+                enemySpawnData.SetupSpawner(data);
                 instance.name = $"EnemySpawner";
                 NetworkServer.Spawn(instance);
             }
