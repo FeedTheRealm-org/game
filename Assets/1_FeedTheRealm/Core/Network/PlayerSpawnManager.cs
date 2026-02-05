@@ -1,22 +1,14 @@
 using System.Collections.Generic;
-using Mirror;
 using UnityEngine;
 
 /// <summary>
 /// Manages spawn points for players in multiplayer.
-/// Works with CustomNetworkManager to spawn players at correct positions.
+/// Works with NewNetworkManager to spawn players at correct positions.
 /// </summary>
-public class PlayerSpawnManager : NetworkBehaviour
+public class PlayerSpawnManager : MonoBehaviour
 {
     [Header("Spawn Settings")]
     public Transform[] spawnPoints;
-
-    [Header("Auto-detect Spawn Points")]
-    [SerializeField]
-    private bool autoDetectSpawnPoints = true;
-
-    [SerializeField]
-    private string spawnPointTag = "SpawnPoint";
 
     [Header("Ground Reference")]
     [SerializeField]
@@ -31,74 +23,11 @@ public class PlayerSpawnManager : NetworkBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
-    private void Awake()
-    {
-        if (autoDetectSpawnPoints)
-        {
-            DetectSpawnPoints();
-        }
-    }
-
-    private void DetectSpawnPoints()
-    {
-        List<Transform> detectedSpawnPoints = new List<Transform>();
-
-        foreach (Transform child in transform)
-        {
-            detectedSpawnPoints.Add(child);
-        }
-
-        GameObject[] taggedSpawnPoints = GameObject.FindGameObjectsWithTag(spawnPointTag);
-        foreach (GameObject spawnObj in taggedSpawnPoints)
-        {
-            if (!detectedSpawnPoints.Contains(spawnObj.transform))
-            {
-                detectedSpawnPoints.Add(spawnObj.transform);
-            }
-        }
-
-        if (detectedSpawnPoints.Count > 0)
-        {
-            spawnPoints = detectedSpawnPoints.ToArray();
-            logger.Log(
-                $"[PlayerSpawnManager] Detected {spawnPoints.Length} spawn points automatically",
-                this
-            );
-        }
-        else
-        {
-            logger.Log(
-                "[PlayerSpawnManager] No spawn points detected. Using default position.",
-                this,
-                Logging.LogType.Warning
-            );
-        }
-    }
-
-    public override void OnStartServer()
-    {
-        if (spawnPoints == null || spawnPoints.Length == 0)
-        {
-            logger.Log(
-                "[PlayerSpawnManager] No spawn points configured!",
-                this,
-                Logging.LogType.Error
-            );
-        }
-        else
-        {
-            logger.Log(
-                $"[PlayerSpawnManager] Spawn Manager activated with {spawnPoints.Length} spawn points",
-                this
-            );
-        }
-    }
-
     /// <summary>
-    /// Sets player spawn points from WorldData (playerSpawnAreas) dynamically. If no data, keeps
-    /// the current configuration.
+    /// Sets player spawn points from WorldData (playerSpawnAreas) dynamically. If no data,
+    /// returns without configuring spawn points (NetworkManager will use default spawning).
+    /// Called by NewNetworkManager.OnStartServer() - server-only context is guaranteed by caller.
     /// </summary>
-    [Server]
     public void ConfigureSpawnPointsFromWorldData(Models.WorldData worldData)
     {
         if (
@@ -108,9 +37,8 @@ public class PlayerSpawnManager : NetworkBehaviour
         )
         {
             logger.Log(
-                "[PlayerSpawnManager] WorldData has no playerSpawnAreas; keeping existing spawnPoints.",
-                this,
-                Logging.LogType.Warning
+                "[PlayerSpawnManager] WorldData has no playerSpawnAreas; NetworkManager will use default spawn.",
+                this
             );
             return;
         }

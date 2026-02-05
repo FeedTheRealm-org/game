@@ -4,6 +4,7 @@ using Core.Systems.Worlds.Loader;
 using Game.Core.Utils;
 using kcp2k;
 using Mirror;
+using Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,6 +18,9 @@ public class NewNetworkManager : NetworkManager
     [Header("World Initialization")]
     [SerializeField]
     private WorldLoaderController worldLoader;
+
+    [SerializeField]
+    private PlayerSpawnManager spawnManager;
 
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
@@ -50,12 +54,14 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void Start()
     {
+        Debug.Log("[NetworkManager] Starting NetworkManager...");
         base.Start();
         // Mirror does not recognize build modes, so we have to manually start it here
         // by either starting a server or a client based on the builds Scripts Defines
         // (you can see these symbols in the proper build profiles).
 #if SERVER_BUILD
-        string portArg = GetParams.GetArgs("port");
+        string portArg = ParamsSerializer.GetArgs("port");
+        Debug.Log($"[NetworkManager] Server build detected. Port argument: {portArg}");
         if (!string.IsNullOrEmpty(portArg) && int.TryParse(portArg, out int port))
         {
             var transport = GetComponent<KcpTransport>();
@@ -67,6 +73,7 @@ public class NewNetworkManager : NetworkManager
         }
         StartServer();
 #elif CLIENT_BUILD
+        Debug.Log($"[NetworkManager] Client build detected. Port argument: {portArg}");
         StartClient();
 #endif
     }
@@ -185,7 +192,52 @@ public class NewNetworkManager : NetworkManager
     /// <param name="conn">Connection from client.</param>
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
-        base.OnServerAddPlayer(conn);
+        //base.OnServerAddPlayer(conn);
+        // Get spawn position from PlayerSpawnManager
+        Transform startPos = GetStartPosition();
+
+        // Instantiate player at spawn position
+        GameObject player =
+            startPos != null
+                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
+                : Instantiate(playerPrefab);
+
+        // Spawn the player for this connection
+        NetworkServer.AddPlayerForConnection(conn, player);
+
+        Debug.Log(
+            $"Player spawned for connection {conn.connectionId} at position {player.transform.position}"
+        );
+    }
+
+    public override Transform GetStartPosition()
+    {
+        // Try to find PlayerSpawnManager if not already set
+        if (spawnManager == null)
+        {
+            spawnManager = FindFirstObjectByType<PlayerSpawnManager>();
+        }
+
+        // Use PlayerSpawnManager if available and has spawn points configured from WorldData
+        if (
+            spawnManager != null
+            && spawnManager.spawnPoints != null
+            && spawnManager.spawnPoints.Length > 0
+        )
+        {
+            int connectionCount = NetworkServer.connections.Count;
+            int spawnIndex = (connectionCount - 1) % spawnManager.spawnPoints.Length;
+
+            Transform spawnPoint = spawnManager.spawnPoints[spawnIndex];
+            Debug.Log(
+                $"[NetworkManager] Using WorldData spawn point {spawnIndex}: {spawnPoint.position}"
+            );
+            return spawnPoint;
+        }
+
+        // Fallback to default spawn (uses startPositions list or NetworkManager position)
+        Debug.Log("[NetworkManager] No WorldData spawn points, using default spawn");
+        return base.GetStartPosition();
     }
 
     /// <summary>
@@ -234,6 +286,7 @@ public class NewNetworkManager : NetworkManager
     {
         base.OnClientConnect();
         worldLoader.LoadClient();
+        //TODO:
     }
 
     /// <summary>
@@ -279,9 +332,20 @@ public class NewNetworkManager : NetworkManager
     /// This is invoked when a server is started - including when a host is started.
     /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
     /// </summary>
-    public override void OnStartServer()
+    public override async void OnStartServer()
     {
-        worldLoader.LoadServer();
+        if (spawnManager == null)
+        {
+            spawnManager = FindFirstObjectByType<PlayerSpawnManager>();
+        }
+
+        WorldData worldData = await worldLoader.LoadServer();
+
+        // Configure player spawns from loaded world data
+        if (spawnManager != null && worldData != null)
+        {
+            spawnManager.ConfigureSpawnPointsFromWorldData(worldData);
+        }
     }
 
     /// <summary>
