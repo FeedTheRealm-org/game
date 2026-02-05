@@ -1,4 +1,8 @@
 using System;
+using Core.Systems.Worlds;
+using Core.Systems.Worlds.Loader;
+using Game.Core.Utils;
+using kcp2k;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,6 +14,10 @@ using UnityEngine.SceneManagement;
 
 public class NewNetworkManager : NetworkManager
 {
+    [Header("World Initialization")]
+    [SerializeField]
+    private WorldLoaderController worldLoader;
+
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
     public static new NewNetworkManager singleton => (NewNetworkManager)NetworkManager.singleton;
@@ -20,6 +28,12 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void Awake()
     {
+        {
+#if !DEBUG
+            var hud = GetComponent<NetworkManagerHUD>();
+            hud.enabled = false;
+#endif
+        }
         base.Awake();
     }
 
@@ -37,6 +51,24 @@ public class NewNetworkManager : NetworkManager
     public override void Start()
     {
         base.Start();
+        // Mirror does not recognize build modes, so we have to manually start it here
+        // by either starting a server or a client based on the builds Scripts Defines
+        // (you can see these symbols in the proper build profiles).
+#if SERVER_BUILD
+        string portArg = GetParams.GetArgs("port");
+        if (!string.IsNullOrEmpty(portArg) && int.TryParse(portArg, out int port))
+        {
+            var transport = GetComponent<KcpTransport>();
+            transport.Port = (ushort)port;
+        }
+        else
+        {
+            Debug.LogWarning("[NetworkManager] No port argument provided, using default port.");
+        }
+        StartServer();
+#elif CLIENT_BUILD
+        StartClient();
+#endif
     }
 
     /// <summary>
@@ -201,6 +233,7 @@ public class NewNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
+        worldLoader.LoadClient();
     }
 
     /// <summary>
@@ -246,7 +279,10 @@ public class NewNetworkManager : NetworkManager
     /// This is invoked when a server is started - including when a host is started.
     /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
     /// </summary>
-    public override void OnStartServer() { }
+    public override void OnStartServer()
+    {
+        worldLoader.LoadServer();
+    }
 
     /// <summary>
     /// This is invoked when the client is started.

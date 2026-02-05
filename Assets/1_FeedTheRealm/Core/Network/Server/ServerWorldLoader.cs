@@ -173,7 +173,7 @@ public class ServerWorldLoader : NetworkBehaviour
 
         if (worldHandler != null)
         {
-            worldHandler.selectedWorld = worldData;
+            //worldHandler.selectedWorldID = worldData;
         }
 
         // Expose world items/enemies to gameplay systems (loot, inventory, etc.)
