@@ -38,7 +38,31 @@ public class WorldInfoController : MonoBehaviour
     private async Task getUserDisplayName(string userId)
     {
         API.CharacterInfoResponse characterInfo = await playerService.GetCharacterInfoAsync(userId);
-        WorldCreatorLabel.text = $"Created By {characterInfo.character_name}";
+
+        if (characterInfo == null)
+        {
+            logger.Log(
+                $"Failed to fetch character info for userId '{userId}'; using fallback display name.",
+                this,
+                Logging.LogType.Warning
+            );
+            WorldCreatorLabel.text = "Created By Unknown User";
+            return;
+        }
+
+        string displayName = characterInfo.character_name;
+        if (string.IsNullOrEmpty(displayName))
+        {
+            logger.Log(
+                $"Character info for userId '{userId}' has no character_name; using fallback display name.",
+                this,
+                Logging.LogType.Warning
+            );
+            WorldCreatorLabel.text = "Created By Unknown User";
+            return;
+        }
+
+        WorldCreatorLabel.text = $"Created By {displayName}";
     }
 
     private string makeHumanReadableCreatedAt(string createdAt)
