@@ -53,11 +53,14 @@ public class ServerWorldLoader : NetworkBehaviour
     private const string WorldArgShort = "-world";
     private const string WorldArgLong = "--world";
 
+    // DISABLED: Now using WorldLoaderController instead of ServerWorldLoader
+    /*
     public override void OnStartServer()
     {
         base.OnStartServer();
         _ = RunServerWorldLoadAsync();
     }
+    */
 
     private async Task RunServerWorldLoadAsync()
     {

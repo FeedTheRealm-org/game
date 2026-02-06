@@ -950,16 +950,20 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
     - target: {fileID: 8631657090100396102, guid: 6aa1fc744d70021b7b05a6d60e18987a, type: 3}
       propertyPath: worldId
-      value: c80b48da-f211-4a7e-baf0-5d59e2f49f2e
+      value: 12cf23c2-47cb-4944-a54c-1cbb0feb9e82
       objectReference: {fileID: 0}
     - target: {fileID: 8631657090100396102, guid: 6aa1fc744d70021b7b05a6d60e18987a, type: 3}
       propertyPath: serverLoaders.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8631657090100396102, guid: 6aa1fc744d70021b7b05a6d60e18987a, type: 3}
       propertyPath: 'serverLoaders.Array.data[2]'
       value: 
       objectReference: {fileID: 907924417351602107, guid: 0e0180c790bb9458e8556b535e3e3279, type: 3}
+    - target: {fileID: 8631657090100396102, guid: 6aa1fc744d70021b7b05a6d60e18987a, type: 3}
+      propertyPath: 'serverLoaders.Array.data[3]'
+      value: 
+      objectReference: {fileID: 6494388446053438648, guid: 7b159a098cfa77abd9807ff76b57839e, type: 3}
     m_RemovedComponents:
     - {fileID: 1584506608635705944, guid: 6aa1fc744d70021b7b05a6d60e18987a, type: 3}
     m_RemovedGameObjects: []
