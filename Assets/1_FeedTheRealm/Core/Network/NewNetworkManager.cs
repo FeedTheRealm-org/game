@@ -70,7 +70,6 @@ public class NewNetworkManager : NetworkManager
         }
         StartServer();
 #elif CLIENT_BUILD
-        Debug.Log($"[NetworkManager] Client build detected. Port argument: {portArg}");
         StartClient();
 #endif
     }
@@ -322,7 +321,9 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override async void OnStartServer()
     {
+        Debug.Log("[NewNetworkManager] OnStartServer called");
         WorldData worldData = await worldLoader.LoadServer();
+        Debug.Log("[NewNetworkManager] OnStartServer finished loading world");
     }
 
     /// <summary>

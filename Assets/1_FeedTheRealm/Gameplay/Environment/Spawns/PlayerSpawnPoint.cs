@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Simple component to mark and configure player spawn points.
 /// Instances are created dynamically from WorldData.playerSpawnAreas.
-/// NetworkManager finds these by tag to spawn players.
+/// NetworkManager discovers these via FindObjectsByType<PlayerSpawnPoint> when spawning players.
 /// </summary>
 public class PlayerSpawnPoint : MonoBehaviour
 {

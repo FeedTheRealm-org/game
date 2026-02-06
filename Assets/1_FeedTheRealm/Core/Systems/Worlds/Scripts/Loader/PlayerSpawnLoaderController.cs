@@ -23,26 +23,31 @@ namespace Core.Systems.Worlds.Loader
 
         public async Task LoadServer(WorldData worldData, string accessToken)
         {
-            logger.Log(
-                "[PlayerSpawnLoader][Server] Setting up player spawn points | Amount "
-                    + worldData.playerSpawnAreas.Count,
-                this
-            );
-
-            if (
-                worldData == null
-                || worldData.playerSpawnAreas == null
-                || worldData.playerSpawnAreas.Count == 0
-            )
+            if (worldData == null)
+            {
+                logger.Log("No world data provided; skipping player spawn point setup.", this);
+                return;
+            }
+            var spawnAreas = worldData.playerSpawnAreas;
+            if (spawnAreas == null || spawnAreas.Count == 0)
             {
                 logger.Log(
-                    "[PlayerSpawnLoader][Server] WorldData has no playerSpawnAreas; NetworkManager will use default spawn.",
+                    "No player spawn areas found; NetworkManager will use default spawn.",
                     this
                 );
                 return;
             }
+            if (playerSpawnPointPrefab == null)
+            {
+                logger.Log(
+                    "playerSpawnPointPrefab is not assigned; cannot create player spawn points.",
+                    this
+                );
+                return;
+            }
+            logger.Log("Setting up player spawn points | Amount " + spawnAreas.Count, this);
 
-            foreach (PlayerSpawnerData area in worldData.playerSpawnAreas)
+            foreach (PlayerSpawnerData area in spawnAreas)
             {
                 GameObject spawnInstance = Instantiate(
                     playerSpawnPointPrefab,
@@ -67,11 +72,6 @@ namespace Core.Systems.Worlds.Loader
 
                 spawnInstance.SetActive(true);
             }
-
-            logger.Log(
-                $"[PlayerSpawnLoader][Server] Finished setting up {worldData.playerSpawnAreas.Count} player spawn points!",
-                this
-            );
         }
     }
 }
