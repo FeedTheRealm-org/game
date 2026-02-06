@@ -36,7 +36,11 @@ public class ServerWorldLoader : NetworkBehaviour
     private GameObject npcSpawnerPrefab;
 
     [SerializeField]
-    private PlayerSpawnManager playerSpawnManager;
+    private GameObject playerSpawnPointPrefab;
+
+    [Header("Ground Reference")]
+    [SerializeField]
+    private Transform groundReference;
 
     [Header("Logging")]
     [SerializeField]
@@ -281,15 +285,43 @@ public class ServerWorldLoader : NetworkBehaviour
             );
         }
 
-        // set player spawns using PlayerSpawnManager on server
-        if (playerSpawnManager != null)
+        // Configure player spawn points
+        if (playerSpawnPointPrefab != null && worldData.playerSpawnAreas != null)
         {
-            playerSpawnManager.ConfigureSpawnPointsFromWorldData(worldData);
+            foreach (PlayerSpawnerData area in worldData.playerSpawnAreas)
+            {
+                GameObject spawnInstance = Instantiate(
+                    playerSpawnPointPrefab,
+                    area.Position,
+                    Quaternion.identity
+                );
+
+                // Configure the spawn point with data from world
+                PlayerSpawnPoint spawnComponent = spawnInstance.GetComponent<PlayerSpawnPoint>();
+                if (spawnComponent != null)
+                {
+                    spawnComponent.ConfigureFromSpawnData(area, groundReference);
+                }
+                else
+                {
+                    logger?.Log(
+                        "[ServerWorldLoader] Player spawn prefab missing PlayerSpawnPoint component!",
+                        this,
+                        Logging.LogType.Error
+                    );
+                }
+
+                spawnInstance.SetActive(true);
+            }
+            logger?.Log(
+                $"[ServerWorldLoader] Placed {worldData.playerSpawnAreas.Count} player spawn points from world data (world-space).",
+                this
+            );
         }
         else
         {
             logger?.Log(
-                "[ServerWorldLoader] PlayerSpawnManager not assigned; cannot configure player spawns from world.",
+                "[ServerWorldLoader] Player spawn configuration skipped (missing prefab or data).",
                 this,
                 Logging.LogType.Warning
             );

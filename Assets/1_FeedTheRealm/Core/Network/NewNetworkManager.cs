@@ -19,9 +19,6 @@ public class NewNetworkManager : NetworkManager
     [SerializeField]
     private WorldLoaderController worldLoader;
 
-    [SerializeField]
-    private PlayerSpawnManager spawnManager;
-
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
     public static new NewNetworkManager singleton => (NewNetworkManager)NetworkManager.singleton;
@@ -192,11 +189,8 @@ public class NewNetworkManager : NetworkManager
     /// <param name="conn">Connection from client.</param>
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
-        //base.OnServerAddPlayer(conn);
-        // Get spawn position from PlayerSpawnManager
         Transform startPos = GetStartPosition();
 
-        // Instantiate player at spawn position
         GameObject player =
             startPos != null
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
@@ -212,23 +206,18 @@ public class NewNetworkManager : NetworkManager
 
     public override Transform GetStartPosition()
     {
-        // Try to find PlayerSpawnManager if not already set
-        if (spawnManager == null)
-        {
-            spawnManager = FindFirstObjectByType<PlayerSpawnManager>();
-        }
+        // Find all PlayerSpawnPoint instances created by loaders
+        PlayerSpawnPoint[] spawnPoints = FindObjectsByType<PlayerSpawnPoint>(
+            FindObjectsSortMode.None
+        );
 
-        // Use PlayerSpawnManager if available and has spawn points configured from WorldData
-        if (
-            spawnManager != null
-            && spawnManager.spawnPoints != null
-            && spawnManager.spawnPoints.Length > 0
-        )
+        // Use PlayerSpawnPoint if available
+        if (spawnPoints != null && spawnPoints.Length > 0)
         {
             int connectionCount = NetworkServer.connections.Count;
-            int spawnIndex = (connectionCount - 1) % spawnManager.spawnPoints.Length;
+            int spawnIndex = (connectionCount - 1) % spawnPoints.Length;
 
-            Transform spawnPoint = spawnManager.spawnPoints[spawnIndex];
+            Transform spawnPoint = spawnPoints[spawnIndex].transform;
             Debug.Log(
                 $"[NetworkManager] Using WorldData spawn point {spawnIndex}: {spawnPoint.position}"
             );
@@ -236,7 +225,7 @@ public class NewNetworkManager : NetworkManager
         }
 
         // Fallback to default spawn (uses startPositions list or NetworkManager position)
-        Debug.Log("[NetworkManager] No WorldData spawn points, using default spawn");
+        Debug.LogWarning("[NetworkManager] No WorldData spawn points, using default spawn");
         return base.GetStartPosition();
     }
 
@@ -286,7 +275,6 @@ public class NewNetworkManager : NetworkManager
     {
         base.OnClientConnect();
         worldLoader.LoadClient();
-        //TODO:
     }
 
     /// <summary>
@@ -334,18 +322,7 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override async void OnStartServer()
     {
-        if (spawnManager == null)
-        {
-            spawnManager = FindFirstObjectByType<PlayerSpawnManager>();
-        }
-
         WorldData worldData = await worldLoader.LoadServer();
-
-        // Configure player spawns from loaded world data
-        if (spawnManager != null && worldData != null)
-        {
-            spawnManager.ConfigureSpawnPointsFromWorldData(worldData);
-        }
     }
 
     /// <summary>
