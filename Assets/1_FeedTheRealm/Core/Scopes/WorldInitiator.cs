@@ -23,6 +23,8 @@ public class WorldInitiator : LifetimeScope
 
     void RegisterServer(IContainerBuilder builder)
     {
+        builder.Register<WorldMonitor>(Lifetime.Singleton);
+
         builder.Register<GameLoop>(Lifetime.Singleton);
         builder.Register<NetworkService>(Lifetime.Singleton);
 

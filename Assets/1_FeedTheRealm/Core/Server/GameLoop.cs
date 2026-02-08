@@ -2,6 +2,13 @@ using UnityEngine;
 
 public class GameLoop
 {
+    private readonly WorldMonitor worldMonitor;
+
+    public GameLoop(WorldMonitor worldMonitor)
+    {
+        this.worldMonitor = worldMonitor;
+    }
+
     public void TickOnce(float dt)
     {
         // TODO: Get commands from CommandQueue, process game logic,

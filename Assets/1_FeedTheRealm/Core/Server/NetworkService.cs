@@ -1,5 +1,12 @@
 public class NetworkService
 {
+    private readonly WorldMonitor worldMonitor;
+
+    public NetworkService(WorldMonitor worldMonitor)
+    {
+        this.worldMonitor = worldMonitor;
+    }
+
     public void Poll()
     {
         // TODO: Receive packets from NetworkAdapter build Commands and

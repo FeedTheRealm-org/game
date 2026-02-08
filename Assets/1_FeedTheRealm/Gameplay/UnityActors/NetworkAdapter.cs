@@ -21,6 +21,19 @@ public class NetworkAdapter : NetworkBehaviour
     public event Action<ActionCommandDTO> OnActionRequest;
     public event Action<TransactionCommandDTO> OnTransactionRequest;
 
+    // [Inject] ServerWorld world;
+
+    // public override void OnStartServer()
+    // {
+    //     var entity = new ServerEntity(
+    //         netId,
+    //         this,
+    //         GetComponent<MovementController>()
+    //     );
+
+    //     world.Entities.Register(netId, entity);
+    // }
+
     /* --- DISPATCHERS --- */
 
     /// <summary>
