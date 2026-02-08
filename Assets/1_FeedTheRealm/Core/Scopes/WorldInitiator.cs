@@ -18,7 +18,7 @@ public class WorldInitiator : LifetimeScope
         // builder.Register<WorldState>(Lifetime.Singleton);
         // builder.Register<Clock>(Lifetime.Singleton);
 
-        if (NetworkServer.active)
+        if (NetworkServer.active) // TODO: change to runtime role inside Config SO
         {
             RegisterServer(builder);
         }

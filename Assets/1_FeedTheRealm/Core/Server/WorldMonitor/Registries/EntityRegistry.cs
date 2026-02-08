@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Game.Core.Server.Entities;
-using UnityEngine;
 
 public sealed class EntityRegistry
 {

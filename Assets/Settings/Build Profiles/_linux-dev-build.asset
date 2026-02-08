@@ -43,6 +43,12 @@ MonoBehaviour:
     m_path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/WorldServer.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Game/EntryPoints/ServerEntryPoint.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Game/World.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Game/EntryPoints/ClientEntryPoint.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
   - DEBUG
