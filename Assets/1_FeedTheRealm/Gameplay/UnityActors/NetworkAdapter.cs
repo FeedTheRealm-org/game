@@ -70,19 +70,19 @@ public class NetworkAdapter : NetworkBehaviour
     [Command(channel = Channels.Reliable)]
     private void CmdActionRequest(ActionCommandDTO command)
     {
-        var snapshot = ServerMovementSystem.ProcessMovementCommand(
-            rb,
-            command,
-            moveSpeed,
-            Time.fixedDeltaTime
-        );
+        // var snapshot = ServerMovementSystem.ProcessMovementCommand(
+        //     rb,
+        //     command,
+        //     moveSpeed,
+        //     Time.fixedDeltaTime
+        // );
 
-        // Update position if moving player is not host (as host is moved by view)
-        bool isHostPlayer =
-            NetworkServer.localConnection != null
-            && connectionToClient == NetworkServer.localConnection;
-        if (!isHostPlayer)
-            rb.MovePosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
+        // // Update position if moving player is not host (as host is moved by view)
+        // bool isHostPlayer =
+        //     NetworkServer.localConnection != null
+        //     && connectionToClient == NetworkServer.localConnection;
+        // if (!isHostPlayer)
+        //     rb.MovePosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
 
         // RpcMovementResponse(snapshot);
     }
@@ -93,19 +93,19 @@ public class NetworkAdapter : NetworkBehaviour
     [Command(channel = Channels.Reliable)]
     private void CmdTransactionRequest(TransactionCommandDTO command)
     {
-        var snapshot = ServerMovementSystem.ProcessMovementCommand(
-            rb,
-            command,
-            moveSpeed,
-            Time.fixedDeltaTime
-        );
+        // var snapshot = ServerMovementSystem.ProcessMovementCommand(
+        //     rb,
+        //     command,
+        //     moveSpeed,
+        //     Time.fixedDeltaTime
+        // );
 
-        // Update position if moving player is not host (as host is moved by view)
-        bool isHostPlayer =
-            NetworkServer.localConnection != null
-            && connectionToClient == NetworkServer.localConnection;
-        if (!isHostPlayer)
-            rb.MovePosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
+        // // Update position if moving player is not host (as host is moved by view)
+        // bool isHostPlayer =
+        //     NetworkServer.localConnection != null
+        //     && connectionToClient == NetworkServer.localConnection;
+        // if (!isHostPlayer)
+        //     rb.MovePosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
 
         // RpcMovementResponse(snapshot);
     }
