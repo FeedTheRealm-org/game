@@ -9,11 +9,13 @@ public class NetworkTickDriver
 
     public void TickBefore()
     {
-        network.Poll();
+        // This is where we would have received packets from NetworkAdapters
+        // and build Commands to send to GameLoop via CommandQueue.
+        // As for now they are directly sent to NetworkService via events.
     }
 
     public void TickAfter()
     {
-        network.Flush();
+        network.FlushEventsToClients();
     }
 }

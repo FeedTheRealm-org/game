@@ -1,3 +1,4 @@
+using Game.Core.Events;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -5,6 +6,12 @@ using VContainer.Unity;
 
 public class WorldInitiator : LifetimeScope
 {
+    [SerializeField]
+    private ReceivedActionCommandEvent receivedActionCommandEvent;
+
+    [SerializeField]
+    private ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
+
     protected override void Configure(IContainerBuilder builder)
     {
         // Shared systems (exist on both)
@@ -23,6 +30,9 @@ public class WorldInitiator : LifetimeScope
 
     void RegisterServer(IContainerBuilder builder)
     {
+        builder.RegisterInstance(receivedActionCommandEvent);
+        builder.RegisterInstance(receivedTransactionCommandEvent);
+
         builder.Register<WorldMonitor>(Lifetime.Singleton);
 
         builder.Register<GameLoop>(Lifetime.Singleton);

@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// GameLoop is responsible for processing game logic,
+/// and should be called in a fixed update loop, **RUNS IN MAIN THREAD**.
+/// </summary>
 public class GameLoop
 {
     private readonly WorldMonitor worldMonitor;

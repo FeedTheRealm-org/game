@@ -167,6 +167,8 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
+  receivedActionCommandEvent: {fileID: 11400000, guid: 1384db5f4517e8776be57bd36d028f10, type: 2}
+  receivedTransactionCommandEvent: {fileID: 11400000, guid: 19e573c87b3a8979987279c196d8c64a, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

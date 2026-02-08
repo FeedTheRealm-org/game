@@ -1,7 +1,9 @@
 using System;
+using Game.Core.Events;
 using Game.Core.RpcMessages;
 using Mirror;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// NetworkAdapter is responsible for handling all gameplay network communication between clients and the server.
@@ -21,7 +23,11 @@ public class NetworkAdapter : NetworkBehaviour
     public event Action<ActionCommandDTO> OnActionRequest;
     public event Action<TransactionCommandDTO> OnTransactionRequest;
 
-    // [Inject] ServerWorld world;
+    [Inject]
+    ReceivedActionCommandEvent receivedActionCommandEvent;
+
+    [Inject]
+    ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
 
     // public override void OnStartServer()
     // {
@@ -83,21 +89,7 @@ public class NetworkAdapter : NetworkBehaviour
     [Command(channel = Channels.Reliable)]
     private void CmdActionRequest(ActionCommandDTO command)
     {
-        // var snapshot = ServerMovementSystem.ProcessMovementCommand(
-        //     rb,
-        //     command,
-        //     moveSpeed,
-        //     Time.fixedDeltaTime
-        // );
-
-        // // Update position if moving player is not host (as host is moved by view)
-        // bool isHostPlayer =
-        //     NetworkServer.localConnection != null
-        //     && connectionToClient == NetworkServer.localConnection;
-        // if (!isHostPlayer)
-        //     rb.MovePosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
-
-        // RpcMovementResponse(snapshot);
+        receivedActionCommandEvent.Raise(command);
     }
 
     /// <summary>
@@ -106,21 +98,7 @@ public class NetworkAdapter : NetworkBehaviour
     [Command(channel = Channels.Reliable)]
     private void CmdTransactionRequest(TransactionCommandDTO command)
     {
-        // var snapshot = ServerMovementSystem.ProcessMovementCommand(
-        //     rb,
-        //     command,
-        //     moveSpeed,
-        //     Time.fixedDeltaTime
-        // );
-
-        // // Update position if moving player is not host (as host is moved by view)
-        // bool isHostPlayer =
-        //     NetworkServer.localConnection != null
-        //     && connectionToClient == NetworkServer.localConnection;
-        // if (!isHostPlayer)
-        //     rb.MovePosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
-
-        // RpcMovementResponse(snapshot);
+        receivedTransactionCommandEvent.Raise(command);
     }
 
     /// <summary>
