@@ -44,13 +44,14 @@ The following is a list of the assets packs used in this project.
 - [HeroEditor4d]()
 - [TextMeshPro]()
 
-## Dependencies
+## External Dependencies (Non Unity Built-in)
 
 The following is a list of the dependencies used in this project.
 
 ❗ **Please keep this list up to date!**
 
 - [Feed the realm - Shared Package](http://github.com/feedTheRealm-org/shared-unity-package/)
+- [Mirror](https://mirror-networking.com/)
 - [VContainer](https://vcontainer.hadashikick.jp/)
 - [UniTask](https://github.com/Cysharp/UniTask)
 - [ParrelSync](https://github.com/VeriorPies/ParrelSync)
