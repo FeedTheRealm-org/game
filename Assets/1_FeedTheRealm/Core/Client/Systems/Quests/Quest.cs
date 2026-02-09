@@ -1,4 +1,4 @@
-namespace Game.Core.Quests
+namespace Game.Core.Client.Quests
 {
     public abstract class Quest : IQuest
     {

@@ -1,4 +1,4 @@
-namespace Game.Core.Enum;
+namespace Game.Core.Client.Enum;
 
 /// <summary>
 /// TransactionType represents different types of transactions a character can perform.

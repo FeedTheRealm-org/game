@@ -1,9 +1,9 @@
 using System;
-using Game.Core.Quests;
+using Game.Core.Client.Quests;
 using Models;
 using UnityEngine;
 
-namespace Game.Core.Dialogue
+namespace Game.Core.Client.Dialogue
 {
     /// <summary>
     /// Represents an NPC dialog message with data, npc name and associated quest.

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SpriteManager", menuName = "Scriptable Objects/SpriteManager")]

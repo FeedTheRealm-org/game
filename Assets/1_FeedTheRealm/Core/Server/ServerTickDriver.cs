@@ -1,5 +1,3 @@
-using VContainer.Unity;
-
 public class ServerTickDriver
 {
     readonly GameLoop gameLoop;

@@ -1,6 +1,6 @@
-using Game.Core.Enum;
-using Game.Core.Exceptions;
-using Game.Core.Utils;
+using Game.Core.Client.Enum;
+using Game.Core.Client.Exceptions;
+using Game.Core.Client.Utils;
 using UnityEngine;
 
 public class MovementView : MonoBehaviour

@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Core.Quests
+namespace Game.Core.Client.Quests
 {
     public interface IQuest : IDisposable
     {

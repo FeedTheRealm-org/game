@@ -1,7 +1,7 @@
-using Game.Core.Events;
-using Game.Core.Interactions;
+using Game.Core.Client.Events;
+using Game.Core.Client.Interactions;
 
-namespace Game.Core.Quests
+namespace Game.Core.Client.Quests
 {
     public class InteractQuest : Quest
     {

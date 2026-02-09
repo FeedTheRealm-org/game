@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Game.Core.Enum;
-using Game.Core.Exceptions;
+using Game.Core.Client.Enum;
+using Game.Core.Client.Exceptions;
 using UnityEngine;
 
 /// <summary>

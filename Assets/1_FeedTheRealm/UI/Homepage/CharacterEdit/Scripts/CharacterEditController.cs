@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 using UnityEngine;
 using UnityEngine.UIElements;
 

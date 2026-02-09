@@ -1,4 +1,4 @@
-namespace Game.Core.StateMachine
+namespace Game.Core.Client.StateMachine
 {
     /// <summary>
     /// Interface for defining a state machine base methods.

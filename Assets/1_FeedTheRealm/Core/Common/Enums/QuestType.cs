@@ -1,4 +1,4 @@
-namespace Game.Core.Enum
+namespace Game.Core.Client.Enum
 {
     /// <summary>
     /// Enum representing different types of quests.

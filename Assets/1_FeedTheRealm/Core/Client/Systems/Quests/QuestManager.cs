@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Game.Core.Events;
+using Game.Core.Client.Events;
 using UnityEngine;
 
-namespace Game.Core.Quests
+namespace Game.Core.Client.Quests
 {
     /// <summary>
     /// Manages active quests, handling quest acceptance and completion.

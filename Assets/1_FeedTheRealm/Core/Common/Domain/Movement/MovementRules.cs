@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Core.Domain.Movement;
+namespace Game.Core.Common.Domain.Movement;
 
 public static class MovementRules
 {

@@ -1,4 +1,4 @@
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 using UnityEngine;
 
 [System.Serializable]

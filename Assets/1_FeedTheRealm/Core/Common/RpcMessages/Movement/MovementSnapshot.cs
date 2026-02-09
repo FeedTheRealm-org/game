@@ -1,4 +1,4 @@
-namespace Game.Core.RpcMessages.Movement;
+namespace Game.Core.Common.RpcMessages.Movement;
 
 /// <summary>
 /// Represents a position snapshot issued by the server.

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Game.Core.RpcMessages.Movement;
+using Game.Core.Common.RpcMessages.Movement;
 using UnityEngine;
 
-namespace Game.Core.Domain.Movement;
+namespace Game.Core.Common.Domain.Movement;
 
 public class MovementPrediction
 {

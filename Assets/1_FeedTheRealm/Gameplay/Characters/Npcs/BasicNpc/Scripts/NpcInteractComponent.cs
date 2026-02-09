@@ -1,6 +1,6 @@
-using Game.Core.Events;
-using Game.Core.Interactions;
-using Game.Core.Quests;
+using Game.Core.Client.Events;
+using Game.Core.Client.Interactions;
+using Game.Core.Client.Quests;
 using UnityEngine;
 
 public class NpcInteractComponent : MonoBehaviour, IInteractable

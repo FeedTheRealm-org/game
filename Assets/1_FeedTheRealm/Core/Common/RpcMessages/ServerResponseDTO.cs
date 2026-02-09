@@ -1,6 +1,6 @@
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 
-namespace Game.Core.RpcMessages;
+namespace Game.Core.Common.RpcMessages;
 
 /// <summary>
 /// ServerResponse represents a response from the server, containing the content of the response and its type.

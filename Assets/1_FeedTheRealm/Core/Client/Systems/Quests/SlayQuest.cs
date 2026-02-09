@@ -1,6 +1,6 @@
-using Game.Core.Events;
+using Game.Core.Client.Events;
 
-namespace Game.Core.Quests
+namespace Game.Core.Client.Quests
 {
     public class SlayQuest : Quest
     {

@@ -1,4 +1,4 @@
-namespace Game.Core.RpcMessages.Movement;
+namespace Game.Core.Common.RpcMessages.Movement;
 
 /// <summary>
 /// Represents a movement command issued by the player.

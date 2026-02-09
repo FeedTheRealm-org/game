@@ -1,8 +1,8 @@
 using System;
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 using UnityEngine;
 
-namespace Game.Core.Quests
+namespace Game.Core.Client.Quests
 {
     [Serializable]
     public class QuestData

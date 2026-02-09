@@ -1,6 +1,6 @@
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 
-namespace Game.Core.RpcMessages;
+namespace Game.Core.Common.RpcMessages;
 
 /// <summary>
 /// TransactionCommand represents a transaction command issued by the player to be used in networking.

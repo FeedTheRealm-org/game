@@ -1,4 +1,4 @@
-namespace Game.Core.Exceptions;
+namespace Game.Core.Client.Exceptions;
 
 public class MissingFieldException : System.Exception
 {

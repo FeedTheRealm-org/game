@@ -1,7 +1,7 @@
 using System;
-using Core.Systems.Worlds;
-using Core.Systems.Worlds.Loader;
-using Game.Core.Utils;
+// using Core.Systems.Worlds;
+// using Core.Systems.Worlds.Loader;
+using Game.Core.Common.Utils;
 using kcp2k;
 using Mirror;
 using UnityEngine;
@@ -14,9 +14,9 @@ using UnityEngine.SceneManagement;
 
 public class NewNetworkManager : NetworkManager
 {
-    [Header("World Initialization")]
-    [SerializeField]
-    private WorldLoaderController worldLoader;
+    // [Header("World Initialization")]
+    // [SerializeField]
+    // private WorldLoaderController worldLoader; // TODO: Client-Server is coupled by this controller
 
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
@@ -233,7 +233,7 @@ public class NewNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        worldLoader.LoadClient();
+        // worldLoader.LoadClient();
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void OnStartServer()
     {
-        worldLoader.LoadServer();
+        // worldLoader.LoadServer();
     }
 
     /// <summary>

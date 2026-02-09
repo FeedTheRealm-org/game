@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Game.Core.Events;
+using Game.Core.Common.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 

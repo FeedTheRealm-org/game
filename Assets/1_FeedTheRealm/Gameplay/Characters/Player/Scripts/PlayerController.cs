@@ -1,4 +1,4 @@
-using Game.Core.Exceptions;
+using Game.Core.Client.Exceptions;
 using Mirror;
 using Unity.Cinemachine;
 using UnityEngine;

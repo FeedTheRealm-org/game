@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Game.Core.Exceptions;
-using Game.Core.StateMachine;
+using Game.Core.Client.Exceptions;
+using Game.Core.Client.StateMachine;
 using UnityEngine;
 
 /// <summary>

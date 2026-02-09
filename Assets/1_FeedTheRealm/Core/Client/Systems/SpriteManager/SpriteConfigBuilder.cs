@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 
 /// <summary>
 /// Builder class to build configurations based on the user needs.

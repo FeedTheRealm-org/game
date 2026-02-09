@@ -1,0 +1,17 @@
+{
+  "name": "UI.Client",
+  "references": [
+    "FeedTheRealm_Shared",
+    "Core.Common",
+    "Core.Client",
+    "UnityEngine"
+  ],
+  "includePlatforms": [
+    "Editor",
+    "WindowsStandalone64",
+    "LinuxStandalone64"
+  ],
+  "autoReferenced": false,
+  "noEngineReferences": false,
+  "languageVersion": "10.0"
+}

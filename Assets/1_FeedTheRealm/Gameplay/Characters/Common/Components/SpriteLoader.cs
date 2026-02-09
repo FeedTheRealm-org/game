@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Game.Core.Enum;
+using Game.Core.Client.Enum;
 using UnityEngine;
 
 public class SpriteLoader : MonoBehaviour

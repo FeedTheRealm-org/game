@@ -1,6 +1,6 @@
 using System;
-using Game.Core.Events;
-using Game.Core.RpcMessages;
+using Game.Core.Common.Events;
+using Game.Core.Common.RpcMessages;
 using Mirror;
 using UnityEngine;
 using VContainer;

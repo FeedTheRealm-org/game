@@ -1,37 +1,36 @@
-namespace Game.Core.Enum
+namespace Game.Core.Client.Enum;
+
+/// <summary>
+/// Enum representing different character sprite parts in the hirarchy.
+/// </summary>
+public enum CharacterPartCategory
 {
-    /// <summary>
-    /// Enum representing different character sprite parts in the hirarchy.
-    /// </summary>
-    public enum CharacterPartCategory
-    {
-        None,
+    None,
 
-        // Body parts
-        Hair,
-        Beard,
-        EyeBrows,
-        Eyes,
-        Mouth,
+    // Body parts
+    Hair,
+    Beard,
+    EyeBrows,
+    Eyes,
+    Mouth,
 
-        // Equipment
-        ArmorBody,
-        ArmorHelmet,
-        ArmorArmR,
-        ArmorArmL,
-        ArmorSleeveR,
-        ArmorSleeveL,
-        ArmorHandR,
-        ArmorHandL,
-        ArmorLegR,
-        ArmorLegL,
+    // Equipment
+    ArmorBody,
+    ArmorHelmet,
+    ArmorArmR,
+    ArmorArmL,
+    ArmorSleeveR,
+    ArmorSleeveL,
+    ArmorHandR,
+    ArmorHandL,
+    ArmorLegR,
+    ArmorLegL,
 
-        EarringR,
-        EarringL,
-        Back,
-        Mask,
+    EarringR,
+    EarringL,
+    Back,
+    Mask,
 
-        // Weapons
-        WeaponR,
-    }
+    // Weapons
+    WeaponR,
 }

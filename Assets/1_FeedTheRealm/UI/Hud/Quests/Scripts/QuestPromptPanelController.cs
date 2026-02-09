@@ -1,5 +1,5 @@
-using Game.Core.Events;
-using Game.Core.Quests;
+using Game.Core.Common.Events;
+using Game.Core.Common.Quests;
 using UnityEngine;
 using UnityEngine.UIElements;
 

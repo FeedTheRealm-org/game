@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Core.StateMachine
+namespace Game.Core.Client.StateMachine
 {
     /// <summary>
     /// Interface for defining states in a state machine.

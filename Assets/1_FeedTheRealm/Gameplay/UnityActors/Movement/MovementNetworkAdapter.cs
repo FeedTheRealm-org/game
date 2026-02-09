@@ -1,5 +1,5 @@
 using System;
-using Game.Core.RpcMessages.Movement;
+using Game.Core.Common.RpcMessages.Movement;
 using Game.Core.Server.Movement;
 using Mirror;
 using UnityEngine;
@@ -28,7 +28,7 @@ public class MovementNetworkAdapter : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody>();
         if (rb == null)
-            throw new Game.Core.Exceptions.MissingFieldException(
+            throw new Game.Core.Client.Exceptions.MissingFieldException(
                 nameof(rb),
                 nameof(MovementNetworkAdapter)
             );

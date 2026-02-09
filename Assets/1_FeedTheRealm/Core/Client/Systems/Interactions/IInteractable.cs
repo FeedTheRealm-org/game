@@ -1,4 +1,4 @@
-namespace Game.Core.Interactions
+namespace Game.Core.Client.Interactions
 {
     /// <summary>
     /// Interface for interactable objects in the game.

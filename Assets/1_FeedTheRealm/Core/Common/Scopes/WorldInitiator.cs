@@ -1,4 +1,4 @@
-using Game.Core.Events;
+using Game.Core.Common.Events;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -30,17 +30,17 @@ public class WorldInitiator : LifetimeScope
 
     void RegisterServer(IContainerBuilder builder)
     {
-        builder.RegisterInstance(receivedActionCommandEvent);
-        builder.RegisterInstance(receivedTransactionCommandEvent);
+        // builder.RegisterInstance(receivedActionCommandEvent);
+        // builder.RegisterInstance(receivedTransactionCommandEvent);
 
-        builder.Register<WorldMonitor>(Lifetime.Singleton);
+        // builder.Register<WorldMonitor>(Lifetime.Singleton);
 
-        builder.Register<GameLoop>(Lifetime.Singleton);
-        builder.Register<NetworkService>(Lifetime.Singleton);
+        // builder.Register<GameLoop>(Lifetime.Singleton);
+        // builder.Register<NetworkService>(Lifetime.Singleton);
 
-        builder.Register<ServerTickDriver>(Lifetime.Singleton);
-        builder.Register<NetworkTickDriver>(Lifetime.Singleton);
-        builder.RegisterEntryPoint<CentralizedTickDriver>();
+        // builder.Register<ServerTickDriver>(Lifetime.Singleton);
+        // builder.Register<NetworkTickDriver>(Lifetime.Singleton);
+        // builder.RegisterEntryPoint<CentralizedTickDriver>();
     }
 
     void RegisterClient(IContainerBuilder builder)

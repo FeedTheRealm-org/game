@@ -1,4 +1,4 @@
-using Game.Core.StateMachine;
+using Game.Core.Client.StateMachine;
 
 public class CharacterAttackState : IActionState
 {

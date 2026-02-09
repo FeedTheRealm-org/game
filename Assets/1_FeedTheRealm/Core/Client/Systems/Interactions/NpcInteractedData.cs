@@ -1,4 +1,4 @@
-namespace Game.Core.Interactions
+namespace Game.Core.Client.Interactions
 {
     /// <summary>
     /// Data structure representing player interaction with an NPC.

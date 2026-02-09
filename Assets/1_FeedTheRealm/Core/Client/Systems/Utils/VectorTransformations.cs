@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Core.Utils;
+namespace Game.Core.Client.Utils;
 
 public static class VectorTransformations
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using Game.Core.Dialogue;
-using Game.Core.Events;
+using Game.Core.Client.Dialogue;
+using Game.Core.Client.Events;
 using Models;
 using UnityEngine;
 

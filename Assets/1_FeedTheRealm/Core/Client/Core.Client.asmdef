@@ -1,0 +1,19 @@
+{
+  "name": "Core.Client",
+  "references": [
+    "FeedTheRealm_Shared",
+    "Core.Common",
+    "UnityEngine",
+    "Mirror",
+    "glTFast",
+    "VContainer"
+  ],
+  "includePlatforms": [
+    "Editor",
+    "WindowsStandalone64",
+    "LinuxStandalone64"
+  ],
+  "autoReferenced": false,
+  "noEngineReferences": false,
+  "languageVersion": "10.0"
+}

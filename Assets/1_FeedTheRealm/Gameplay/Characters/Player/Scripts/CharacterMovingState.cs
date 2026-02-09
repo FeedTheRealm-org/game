@@ -1,5 +1,5 @@
-using Game.Core.StateMachine;
-using Game.Core.Utils;
+using Game.Core.Client.StateMachine;
+using Game.Core.Client.Utils;
 using UnityEngine;
 
 /// <summary>

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using Game.Core.Events;
-using Game.Core.Interactions;
+using Game.Core.Client.Events;
+using Game.Core.Client.Interactions;
 using UnityEngine;
 
 public class PlayerInteractComponent : MonoBehaviour, IInteractor
