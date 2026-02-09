@@ -319,11 +319,28 @@ public class NewNetworkManager : NetworkManager
     /// This is invoked when a server is started - including when a host is started.
     /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
     /// </summary>
-    public override async void OnStartServer()
+    public override void OnStartServer()
     {
         Debug.Log("[NewNetworkManager] OnStartServer called");
-        WorldData worldData = await worldLoader.LoadServer();
-        Debug.Log("[NewNetworkManager] OnStartServer finished loading world");
+        if (worldLoader == null)
+        {
+            Debug.LogError("worldLoader is not assigned");
+            return;
+        }
+        LoadWorldServerAsync();
+    }
+
+    private async void LoadWorldServerAsync()
+    {
+        try
+        {
+            await worldLoader.LoadServer();
+            Debug.Log("[NewNetworkManager] OnStartServer finished loading world");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error loading world: {ex}");
+        }
     }
 
     /// <summary>
