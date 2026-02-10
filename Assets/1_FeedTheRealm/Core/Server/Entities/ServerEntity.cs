@@ -1,15 +1,7 @@
-using Game.Core.Server.States;
+using FTR.Core.Server.Commands;
+using FTR.Core.Server.States;
 
-namespace Game.Core.Server.Entities;
-
-public sealed class CharacterComponents
-{
-    // MovementComponent
-    // DashComponent
-    // HealthComponent
-    // StaminaComponent
-    // UseComponent
-}
+namespace FTR.Core.Server.Entities;
 
 public sealed class ServerEntity
 {
@@ -18,29 +10,15 @@ public sealed class ServerEntity
     public EntityState State;
 
     public NetworkAdapter NetworkAdapter { get; }
-    public CharacterComponents CharacterComponents { get; }
+    public ICommandable commandable { get; }
 
     /// <summary>
-    /// Creates a new ServerEntity with the given netId and networkAdapter, and no characterComponents.
+    /// Creates a new ServerEntity with the given netId, networkAdapter, and entity commandable.
     /// </summary>
-    public ServerEntity(uint netId, NetworkAdapter networkAdapter)
+    public ServerEntity(uint netId, NetworkAdapter networkAdapter, ICommandable commandable)
     {
         NetId = netId;
         NetworkAdapter = networkAdapter;
-        CharacterComponents = null;
-    }
-
-    /// <summary>
-    /// Creates a new ServerEntity with the given netId, networkAdapter, and characterComponents.
-    /// </summary>
-    public ServerEntity(
-        uint netId,
-        NetworkAdapter networkAdapter,
-        CharacterComponents characterComponents
-    )
-    {
-        NetId = netId;
-        NetworkAdapter = networkAdapter;
-        CharacterComponents = characterComponents;
+        this.commandable = commandable;
     }
 }

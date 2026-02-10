@@ -1,5 +1,5 @@
-using Game.Core.Common.Events;
-using Game.Core.Common.RpcMessages;
+using FTR.Core.Common.Events;
+using FTR.Core.Common.Protocol.RpcMessages;
 
 /// <summary>
 /// NetworkService is responsible for receiving commands from NetworkAdapters, and sending events to them.

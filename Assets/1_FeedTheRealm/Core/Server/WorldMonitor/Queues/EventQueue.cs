@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Game.Core.Server.Events;
+using FTR.Core.Server.Events;
 
 public sealed class EventQueue
 {

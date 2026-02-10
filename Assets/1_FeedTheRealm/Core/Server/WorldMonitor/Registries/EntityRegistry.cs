@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Game.Core.Server.Entities;
+using FTR.Core.Server.Entities;
 
 public sealed class EntityRegistry
 {

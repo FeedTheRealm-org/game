@@ -1,8 +1,8 @@
 {
-  "name": "Core.Server",
+  "name": "FTR.Core.Server",
   "references": [
     "FeedTheRealm_Shared",
-    "Core.Common",
+    "FTR.Core.Common",
     "UnityEngine",
     "Mirror",
     "VContainer",

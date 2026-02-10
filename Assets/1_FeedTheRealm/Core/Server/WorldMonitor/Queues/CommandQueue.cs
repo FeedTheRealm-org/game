@@ -1,16 +1,16 @@
 using System.Collections.Generic;
-using Game.Core.Server.Commands;
+using FTR.Core.Server.Commands;
 
 public sealed class CommandQueue
 {
-    private readonly Queue<ServerCommand> queue = new();
+    private readonly Queue<BaseServerCommand> queue = new();
 
-    public void Enqueue(ServerCommand cmd)
+    public void Enqueue(BaseServerCommand cmd)
     {
         queue.Enqueue(cmd);
     }
 
-    public bool TryDequeue(out ServerCommand cmd)
+    public bool TryDequeue(out BaseServerCommand cmd)
     {
         return queue.TryDequeue(out cmd);
     }

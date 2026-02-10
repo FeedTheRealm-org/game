@@ -1,4 +1,4 @@
-namespace Game.Core.Server.States;
+namespace FTR.Core.Server.States;
 
 public abstract class EntityState
 {

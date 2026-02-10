@@ -1,7 +1,7 @@
-using Game.Core.Server.Commands;
-using Game.Core.Server.Entities;
-using Game.Core.Server.Events;
-using Game.Core.Server.States;
+using FTR.Core.Server.Commands;
+using FTR.Core.Server.Entities;
+using FTR.Core.Server.Events;
+using FTR.Core.Server.States;
 
 public sealed class WorldMonitor
 {

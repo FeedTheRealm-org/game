@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Game.Core.Server.States;
+using FTR.Core.Server.States;
 
 public sealed class LatestStateStore
 {
