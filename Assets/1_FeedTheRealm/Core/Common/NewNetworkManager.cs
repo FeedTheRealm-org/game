@@ -4,6 +4,7 @@ using System;
 using Game.Core.Common.Utils;
 using kcp2k;
 using Mirror;
+using Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -50,12 +51,14 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void Start()
     {
+        Debug.Log("[NetworkManager] Starting NetworkManager...");
         base.Start();
         // Mirror does not recognize build modes, so we have to manually start it here
         // by either starting a server or a client based on the builds Scripts Defines
         // (you can see these symbols in the proper build profiles).
 #if SERVER_BUILD
-        string portArg = GetParams.GetArgs("port");
+        string portArg = ParamsSerializer.GetArgs("port");
+        Debug.Log($"[NetworkManager] Server build detected. Port argument: {portArg}");
         if (!string.IsNullOrEmpty(portArg) && int.TryParse(portArg, out int port))
         {
             var transport = GetComponent<KcpTransport>();
@@ -185,7 +188,45 @@ public class NewNetworkManager : NetworkManager
     /// <param name="conn">Connection from client.</param>
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
-        base.OnServerAddPlayer(conn);
+        Transform startPos = GetStartPosition();
+
+        GameObject player =
+            startPos != null
+                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
+                : Instantiate(playerPrefab);
+
+        // Spawn the player for this connection
+        NetworkServer.AddPlayerForConnection(conn, player);
+
+        Debug.Log(
+            $"Player spawned for connection {conn.connectionId} at position {player.transform.position}"
+        );
+    }
+
+    public override Transform GetStartPosition()
+    {
+        // TODO: Dont use find objects by type here and dont make the NetworkManager depend on Gameplay
+        // Find all PlayerSpawnPoint instances created by loaders
+        // PlayerSpawnPoint[] spawnPoints = FindObjectsByType<PlayerSpawnPoint>(
+        //     FindObjectsSortMode.None
+        // );
+
+        // // Use PlayerSpawnPoint if available
+        // if (spawnPoints != null && spawnPoints.Length > 0)
+        // {
+        //     int connectionCount = NetworkServer.connections.Count;
+        //     int spawnIndex = (connectionCount - 1) % spawnPoints.Length;
+
+        //     Transform spawnPoint = spawnPoints[spawnIndex].transform;
+        //     Debug.Log(
+        //         $"[NetworkManager] Using WorldData spawn point {spawnIndex}: {spawnPoint.position}"
+        //     );
+        //     return spawnPoint;
+        // }
+
+        // // Fallback to default spawn (uses startPositions list or NetworkManager position)
+        // Debug.LogWarning("[NetworkManager] No WorldData spawn points, using default spawn");
+        return base.GetStartPosition();
     }
 
     /// <summary>
@@ -281,7 +322,8 @@ public class NewNetworkManager : NetworkManager
     /// </summary>
     public override void OnStartServer()
     {
-        // worldLoader.LoadServer();
+        Debug.Log("[NewNetworkManager] OnStartServer called");
+        // _ = worldLoader.LoadServer();
     }
 
     /// <summary>

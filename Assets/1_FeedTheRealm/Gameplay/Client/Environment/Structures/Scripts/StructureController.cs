@@ -28,8 +28,8 @@ public class StructureController : NetworkBehaviour
     private void SetupServerCollider()
     {
         boxCollider = gameObject.AddComponent<BoxCollider>();
-        boxCollider.size = structureData.size;
-        boxCollider.center = structureData.offset;
+        boxCollider.size = structureData.colliderSize;
+        boxCollider.center = structureData.colliderCenter;
         boxCollider.isTrigger = false;
     }
 
@@ -70,8 +70,8 @@ public class StructureController : NetworkBehaviour
         if (boxCollider == null)
             boxCollider = gameObject.AddComponent<BoxCollider>();
 
-        boxCollider.size = structureData.size;
-        boxCollider.center = structureData.offset;
+        boxCollider.size = structureData.colliderSize;
+        boxCollider.center = structureData.colliderCenter;
     }
 
     #endregion

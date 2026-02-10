@@ -125,4 +125,18 @@ public class NPCSpawns : MonoBehaviour
             this
         );
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        SphereCollider sphere = GetComponent<SphereCollider>();
+        if (sphere == null)
+            return;
+
+        Gizmos.color = Color.red;
+        Gizmos.matrix = transform.localToWorldMatrix; // Needed to translate to scene pos
+        Gizmos.DrawWireSphere(sphere.center, sphere.radius);
+        Gizmos.matrix = Matrix4x4.identity;
+    }
+#endif
 }

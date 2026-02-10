@@ -18,12 +18,27 @@ namespace Gameplay.Client.Environment.Worlds.Loader
 
         public async Task LoadServer(WorldData worldData, string accessToken)
         {
-            logger.Log(
-                "[EnemySpawnerLoader][Server] Setting up enemy spawners | Amount "
-                    + worldData.enemySpawnAreas.Count,
-                this
-            );
-            foreach (EnemySpawnerData data in worldData.enemySpawnAreas)
+            if (worldData == null)
+            {
+                logger.Log("No world data provided; skipping enemy spawner setup.", this);
+                return;
+            }
+            var spawnAreas = worldData.enemySpawnAreas;
+            if (spawnAreas == null || spawnAreas.Count == 0)
+            {
+                logger.Log("No enemy spawn areas found; skipping enemy spawner setup.", this);
+                return;
+            }
+            if (enemySpawnerPrefab == null)
+            {
+                logger.Log(
+                    "enemySpawnerPrefab is not assigned; cannot create enemy spawners.",
+                    this
+                );
+                return;
+            }
+            logger.Log("Setting up enemy spawners | Amount " + spawnAreas.Count, this);
+            foreach (EnemySpawnerData data in spawnAreas)
             {
                 GameObject instance = Instantiate(
                     enemySpawnerPrefab,
@@ -31,11 +46,20 @@ namespace Gameplay.Client.Environment.Worlds.Loader
                     Quaternion.identity
                 );
                 EnemySpawn enemySpawnData = instance.GetComponent<EnemySpawn>();
+                if (enemySpawnData == null)
+                {
+                    logger.Log(
+                        "EnemySpawn component missing on enemy spawner instance; destroying instance and skipping.",
+                        this
+                    );
+                    Destroy(instance);
+                    continue;
+                }
                 enemySpawnData.SetupSpawner(data);
                 instance.name = $"EnemySpawner";
                 NetworkServer.Spawn(instance);
             }
-            logger.Log("[EnemySpawnerLoader][Server] Finished setting up enemy spawners!", this);
+            logger.Log("Finished setting up enemy spawners!", this);
         }
     }
 }

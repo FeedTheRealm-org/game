@@ -5,7 +5,8 @@
     "Core.Common",
     "Core.Client",
     "Gameplay.Client",
-    "UnityEngine"
+    "UnityEngine",
+    "Unity.InputSystem"
   ],
   "includePlatforms": [
     "Editor",
