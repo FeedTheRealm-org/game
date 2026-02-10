@@ -6,25 +6,25 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Menus/LoginScene.unity
+    path: Assets/1_FeedTheRealm/Scenes/Client/Menus/LoginScene.unity
     guid: abd87fe87e8b55f40820f171267a39bc
   - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Testing/WorldLoaderTest.unity
     guid: 27c5c4b95e037a72ebc7df0708252efe
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Menus/SignUpScene.unity
+    path: Assets/1_FeedTheRealm/Scenes/Client/Menus/SignUpScene.unity
     guid: 3389029b3c1ee7f40bec33f792a7f184
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Menus/VerifyCodeScene.unity
+    path: Assets/1_FeedTheRealm/Scenes/Client/Menus/VerifyCodeScene.unity
     guid: 6807976b6f5dfcb4382c558daa37b219
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
+    path: Assets/1_FeedTheRealm/Scenes/Client/Menus/Homepage.unity
     guid: 62080a43b5e5879e2a936a5a9cbbdf90
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MultiplayerScene.unity
+    path: Assets/1_FeedTheRealm/Scenes/Multiplayer-REMOVE/MultiplayerScene.unity
     guid: f6ac62a72a7875ffab304152e68e376a
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Multiplayer/MPMenuScene.unity
+    path: Assets/1_FeedTheRealm/Scenes/Multiplayer-REMOVE/MPMenuScene.unity
     guid: 3991a19a00ad0137bb51525d3ae77f98
   - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Testing/DebugWorld.unity
