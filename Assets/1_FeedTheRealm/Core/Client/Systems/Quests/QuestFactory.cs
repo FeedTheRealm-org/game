@@ -1,7 +1,7 @@
-using Game.Core.Client.Enum;
-using Game.Core.Client.Events;
+using FTR.Core.Client.Enum;
+using FTR.Core.Client.Events;
 
-namespace Game.Core.Client.Quests
+namespace FTR.Core.Client.Quests
 {
     public static class QuestFactory
     {

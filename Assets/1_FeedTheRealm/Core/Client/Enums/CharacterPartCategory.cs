@@ -1,4 +1,4 @@
-namespace Game.Core.Client.Enum;
+namespace FTR.Core.Client.Enum;
 
 /// <summary>
 /// Enum representing different character sprite parts in the hirarchy.

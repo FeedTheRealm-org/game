@@ -1,4 +1,4 @@
-namespace Game.Core.Client.Enum;
+namespace FTR.Core.Client.Enum;
 
 /// <summary>
 /// Enum representing the facing direction of a character sprite.

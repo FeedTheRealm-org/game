@@ -1,5 +1,5 @@
-using Game.Core.Client.Events;
-using Game.Core.Client.Interactions;
+using FTR.Core.Client.Events;
+using FTR.Core.Client.Interactions;
 using UnityEngine;
 
 public class ShopInteractComponent : MonoBehaviour, IInteractable

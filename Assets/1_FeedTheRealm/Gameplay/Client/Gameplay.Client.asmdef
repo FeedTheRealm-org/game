@@ -1,9 +1,9 @@
 {
-  "name": "Gameplay.Client",
+  "name": "FTR.Gameplay.Client",
   "references": [
     "FeedTheRealm_Shared",
-    "Core.Common",
-    "Core.Client",
+    "FTR.Core.Common",
+    "FTR.Core.Client",
     "UnityEngine",
     "Unity.Cinemachine",
     "Mirror",

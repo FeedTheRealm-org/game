@@ -1,4 +1,4 @@
-using Game.Core.Client.StateMachine;
+using FTR.Core.Client.StateMachine;
 
 public class CharacterAttackState : IActionState
 {

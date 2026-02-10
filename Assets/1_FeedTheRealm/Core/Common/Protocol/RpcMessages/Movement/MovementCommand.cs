@@ -1,4 +1,4 @@
-namespace Game.Core.Common.RpcMessages.Movement;
+namespace FTR.Core.Common.Protocol.RpcMessages.Movement;
 
 /// <summary>
 /// Represents a movement command issued by the player.

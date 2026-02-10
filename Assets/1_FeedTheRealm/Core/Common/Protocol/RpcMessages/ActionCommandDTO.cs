@@ -1,7 +1,7 @@
-using Game.Core.Client.Enum;
+using FTR.Core.Client.Enum;
 using UnityEngine;
 
-namespace Game.Core.Common.RpcMessages;
+namespace FTR.Core.Common.Protocol.RpcMessages;
 
 /// <summary>
 /// ActionCommand represents an action command issued by the player, and to be used in networking.

@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using API;
-using Game.Core.Client.Exceptions;
+using FTR.Core.Client.Exceptions;
 using Models;
 using UnityEngine;
 using Worlds;
 
-namespace Gameplay.Client.Environment.Worlds.Loader
+namespace FTR.Gameplay.Client.Environment.Worlds.Loader
 {
     public class WorldLoaderController : MonoBehaviour
     {

@@ -1,4 +1,4 @@
-using Game.Core.Common.Events;
+using FTR.Core.Common.Events;
 using Mirror;
 using UnityEngine;
 using VContainer;

@@ -1,9 +1,9 @@
 {
-  "name": "Gameplay.Server",
+  "name": "FTR.Gameplay.Server",
   "references": [
     "FeedTheRealm_Shared",
-    "Core.Common",
-    "Core.Server",
+    "FTR.Core.Common",
+    "FTR.Core.Server",
     "UnityEngine",
     "Mirror",
     "VContainer"

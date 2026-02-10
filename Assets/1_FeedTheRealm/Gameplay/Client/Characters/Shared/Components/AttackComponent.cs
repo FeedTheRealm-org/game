@@ -1,5 +1,5 @@
 using System.Collections;
-using Game.Core.Client.Events;
+using FTR.Core.Client.Events;
 using UnityEngine;
 
 /// <summary>

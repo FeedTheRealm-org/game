@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Game.Core.Client.Events;
+using FTR.Core.Client.Events;
 using UnityEngine;
 using UnityEngine.UIElements;
 

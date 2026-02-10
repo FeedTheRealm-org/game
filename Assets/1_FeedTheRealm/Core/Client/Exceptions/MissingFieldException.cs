@@ -1,4 +1,4 @@
-namespace Game.Core.Client.Exceptions;
+namespace FTR.Core.Client.Exceptions;
 
 public class MissingFieldException : System.Exception
 {

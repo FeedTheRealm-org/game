@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Game.Core.Common.RpcMessages.Movement;
+using FTR.Core.Common.Protocol.RpcMessages.Movement;
 using UnityEngine;
 
-namespace Game.Core.Common.Domain.Movement;
+namespace FTR.Core.Common.Domain.Movement;
 
 public class MovementPrediction
 {

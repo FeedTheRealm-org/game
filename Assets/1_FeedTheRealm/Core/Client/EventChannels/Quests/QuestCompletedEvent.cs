@@ -1,8 +1,8 @@
-using Game.Core.Client.Quests;
-using Game.Core.Common.Events;
+using FTR.Core.Client.Quests;
+using FTR.Core.Common.Events;
 using UnityEngine;
 
-namespace Game.Core.Client.Events
+namespace FTR.Core.Client.Events
 {
     [CreateAssetMenu(menuName = "Events/Quests/Quest Completed")]
     public class QuestCompletedEvent : EventChannelSO<QuestData> { }

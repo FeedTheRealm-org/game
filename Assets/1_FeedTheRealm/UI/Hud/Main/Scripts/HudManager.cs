@@ -1,5 +1,5 @@
-using Game.Core.Client.Events;
-using Game.Core.Client.Quests;
+using FTR.Core.Client.Events;
+using FTR.Core.Client.Quests;
 using UnityEngine;
 
 /// <summary>

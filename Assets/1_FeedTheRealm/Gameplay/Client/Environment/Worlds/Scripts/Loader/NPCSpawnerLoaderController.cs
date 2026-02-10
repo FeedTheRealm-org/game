@@ -5,7 +5,7 @@ using Mirror;
 using Models;
 using UnityEngine;
 
-namespace Gameplay.Client.Environment.Worlds.Loader
+namespace FTR.Gameplay.Client.Environment.Worlds.Loader
 {
     public class NPCSpawnerLoaderController : MonoBehaviour, IServerLoader
     {

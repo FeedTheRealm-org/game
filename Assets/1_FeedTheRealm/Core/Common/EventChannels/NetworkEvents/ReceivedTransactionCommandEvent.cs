@@ -1,7 +1,7 @@
-using Game.Core.Common.RpcMessages;
+using FTR.Core.Common.Protocol.RpcMessages;
 using UnityEngine;
 
-namespace Game.Core.Common.Events
+namespace FTR.Core.Common.Events
 {
     // ReceivedTransactionCommandEvent is an event treated as a mpsc channel
     // Do not subscribe more than one method to it! (Only server-side NetworkService)

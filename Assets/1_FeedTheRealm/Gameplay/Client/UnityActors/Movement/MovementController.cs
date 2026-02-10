@@ -1,5 +1,5 @@
-using Game.Core.Common.Domain.Movement;
-using Game.Core.Common.RpcMessages.Movement;
+using FTR.Core.Common.Domain.Movement;
+using FTR.Core.Common.Protocol.RpcMessages.Movement;
 using UnityEngine;
 
 public class MovementController : MonoBehaviour

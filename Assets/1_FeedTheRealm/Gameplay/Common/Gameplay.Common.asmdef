@@ -1,8 +1,8 @@
 {
-  "name": "Gameplay.Common",
+  "name": "FTR.Gameplay.Common",
   "references": [
     "FeedTheRealm_Shared",
-    "Core.Common",
+    "FTR.Core.Common",
     "UnityEngine",
     "Mirror",
     "VContainer"

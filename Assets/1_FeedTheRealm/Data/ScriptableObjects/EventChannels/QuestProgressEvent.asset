@@ -11,4 +11,4 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7161626b6d9aafd23818d3bb691aa83f, type: 3}
   m_Name: QuestProgressEvent
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Core.Client.Events.QuestProgressEvent
+  m_EditorClassIdentifier: Assembly-CSharp::FTR.Core.Client.Events.QuestProgressEvent

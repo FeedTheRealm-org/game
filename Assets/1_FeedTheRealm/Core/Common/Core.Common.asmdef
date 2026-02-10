@@ -1,5 +1,5 @@
 {
-  "name": "Core.Common",
+  "name": "FTR.Core.Common",
   "references": [
     "FeedTheRealm_Shared",
     "UnityEngine",

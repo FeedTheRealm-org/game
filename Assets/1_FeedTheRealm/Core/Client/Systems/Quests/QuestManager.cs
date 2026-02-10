@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Game.Core.Client.Events;
+using FTR.Core.Client.Events;
 using UnityEngine;
 
-namespace Game.Core.Client.Quests
+namespace FTR.Core.Client.Quests
 {
     /// <summary>
     /// Manages active quests, handling quest acceptance and completion.

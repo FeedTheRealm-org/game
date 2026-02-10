@@ -1,4 +1,4 @@
-namespace Game.Core.Client.Enum;
+namespace FTR.Core.Client.Enum;
 
 /// <summary>
 /// ActionType represents different types of actions a character can perform.

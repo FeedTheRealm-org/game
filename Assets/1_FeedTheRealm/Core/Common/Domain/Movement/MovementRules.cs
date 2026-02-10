@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Core.Common.Domain.Movement;
+namespace FTR.Core.Common.Domain.Movement;
 
 public static class MovementRules
 {

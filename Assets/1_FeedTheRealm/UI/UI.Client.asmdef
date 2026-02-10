@@ -1,10 +1,10 @@
 {
-  "name": "UI.Client",
+  "name": "FTR.UI.Client",
   "references": [
     "FeedTheRealm_Shared",
-    "Core.Common",
-    "Core.Client",
-    "Gameplay.Client",
+    "FTR.Core.Common",
+    "FTR.Core.Client",
+    "FTR.Gameplay.Client",
     "UnityEngine",
     "Unity.InputSystem"
   ],

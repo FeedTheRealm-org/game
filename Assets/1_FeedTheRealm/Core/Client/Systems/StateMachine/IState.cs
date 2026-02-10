@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Core.Client.StateMachine
+namespace FTR.Core.Client.StateMachine
 {
     /// <summary>
     /// Interface for defining states in a state machine.

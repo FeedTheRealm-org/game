@@ -1,8 +1,8 @@
 {
-  "name": "Core.Client",
+  "name": "FTR.Core.Client",
   "references": [
     "FeedTheRealm_Shared",
-    "Core.Common",
+    "FTR.Core.Common",
     "UnityEngine",
     "Mirror",
     "glTFast",

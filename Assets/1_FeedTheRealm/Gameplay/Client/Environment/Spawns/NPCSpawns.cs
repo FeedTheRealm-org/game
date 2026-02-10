@@ -1,5 +1,5 @@
 using System.Collections;
-using Game.Core.Client.Dialogue;
+using FTR.Core.Client.Dialogue;
 using Mirror;
 using UnityEngine;
 

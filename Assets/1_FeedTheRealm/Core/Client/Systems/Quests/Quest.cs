@@ -1,4 +1,4 @@
-namespace Game.Core.Client.Quests
+namespace FTR.Core.Client.Quests
 {
     public abstract class Quest : IQuest
     {

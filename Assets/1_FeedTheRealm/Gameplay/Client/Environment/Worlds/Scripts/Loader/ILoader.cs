@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Models;
 
-namespace Gameplay.Client.Environment.Worlds.Loader
+namespace FTR.Gameplay.Client.Environment.Worlds.Loader
 {
     public interface IServerLoader
     {

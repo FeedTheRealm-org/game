@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Game.Core.Client.Exceptions;
-using Game.Core.Client.StateMachine;
+using FTR.Core.Client.Exceptions;
+using FTR.Core.Client.StateMachine;
 using UnityEngine;
 
 /// <summary>

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using Game.Core.Client.Dialogue;
-using Game.Core.Client.Events;
+using FTR.Core.Client.Dialogue;
+using FTR.Core.Client.Events;
 using Models;
 using UnityEngine;
 

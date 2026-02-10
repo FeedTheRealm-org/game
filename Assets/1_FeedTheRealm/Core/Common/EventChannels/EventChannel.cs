@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Game.Core.Common.Events
+namespace FTR.Core.Common.Events
 {
     /// <summary>
     /// A ScriptableObject that acts as an event channel for broadcasting events with a payload of type T.

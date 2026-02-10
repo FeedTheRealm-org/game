@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Core.Client.Interactions
+namespace FTR.Core.Client.Interactions
 {
     /// <summary>
     /// Interface for interactor entities in the game.

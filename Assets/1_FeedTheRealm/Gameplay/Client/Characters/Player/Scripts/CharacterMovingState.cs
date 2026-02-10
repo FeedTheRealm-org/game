@@ -1,5 +1,5 @@
-using Game.Core.Client.StateMachine;
-using Game.Core.Client.Utils;
+using FTR.Core.Client.StateMachine;
+using FTR.Core.Client.Utils;
 using UnityEngine;
 
 /// <summary>

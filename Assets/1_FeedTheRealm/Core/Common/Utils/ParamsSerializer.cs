@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Game.Core.Common.Utils
+namespace FTR.Core.Common.Utils
 {
     public static class ParamsSerializer
     {

@@ -1,7 +1,7 @@
-using Game.Core.Common.Events;
+using FTR.Core.Common.Events;
 using UnityEngine;
 
-namespace Game.Core.Client.Events
+namespace FTR.Core.Client.Events
 {
     [CreateAssetMenu(menuName = "Events/PlayerEvents/Enemy Slayed")]
     public class EnemySlayedEvent : EventChannelSO { }

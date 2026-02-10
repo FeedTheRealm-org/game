@@ -1,6 +1,6 @@
-using Game.Core.Client.Enum;
-using Game.Core.Client.Exceptions;
-using Game.Core.Client.Utils;
+using FTR.Core.Client.Enum;
+using FTR.Core.Client.Exceptions;
+using FTR.Core.Client.Utils;
 using UnityEngine;
 
 public class MovementView : MonoBehaviour

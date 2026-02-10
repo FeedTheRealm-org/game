@@ -1,4 +1,4 @@
-using Game.Core.Client.Dialogue;
+using FTR.Core.Client.Dialogue;
 using Models;
 using UnityEngine;
 using UnityEngine.UIElements;
