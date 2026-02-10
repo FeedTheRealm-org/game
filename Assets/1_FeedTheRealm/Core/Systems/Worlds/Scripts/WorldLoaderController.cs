@@ -42,11 +42,11 @@ namespace Core.Systems.Worlds.Loader
         /// <summary>
         ///  Loads the world on the server side using command line arguments.
         /// </summary>
-        public Task LoadServer()
+        public Task<WorldData> LoadServer()
         {
 #if !DEBUG
-            worldId = GetParams.GetArgs("worldId");
-            accessToken = GetParams.GetArgs("accessToken");
+            worldId = ParamsSerializer.GetArgs("worldId");
+            accessToken = ParamsSerializer.GetArgs("accessToken");
 #endif
             logger.Log(
                 $"[SERVER] Server Loading World ID: {worldId} | Access Token Present: {!string.IsNullOrEmpty(accessToken)}",
@@ -60,7 +60,7 @@ namespace Core.Systems.Worlds.Loader
                     this,
                     Logging.LogType.Error
                 );
-                return Task.CompletedTask;
+                return Task.FromResult<WorldData>(null);
             }
 
             return LoadWorldServer(worldId, accessToken);

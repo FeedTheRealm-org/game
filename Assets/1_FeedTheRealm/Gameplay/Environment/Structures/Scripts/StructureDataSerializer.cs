@@ -16,6 +16,8 @@ public static class StructureDataSerializer
         writer.WriteVector3(data.offset);
         writer.WriteVector3(data.position);
         writer.WriteBool(data.isShop);
+        writer.WriteVector3(data.colliderSize);
+        writer.WriteVector3(data.colliderCenter);
     }
 
     public static StructureData ReadStructureData(this NetworkReader reader)
@@ -27,7 +29,9 @@ public static class StructureDataSerializer
             reader.ReadVector3(),
             reader.ReadVector3(),
             reader.ReadVector3(),
-            reader.ReadBool()
+            reader.ReadBool(),
+            reader.ReadVector3(),
+            reader.ReadVector3()
         );
     }
 }
