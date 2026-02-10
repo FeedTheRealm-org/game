@@ -121,20 +121,20 @@ public class LootDropper : MonoBehaviour
         GameObject lootInstance = Instantiate(lootPrefab, spawnPosition, Quaternion.identity);
 
         // Check components
-        LootItem lootItem = lootInstance.GetComponent<LootItem>();
-        if (lootItem == null)
-        {
-            logger?.Log(
-                $"[LootDropper] ERROR: Loot prefab does not have LootItem component!",
-                this,
-                Logging.LogType.Error
-            );
-            Destroy(lootInstance);
-            return;
-        }
+        // LootItem lootItem = lootInstance.GetComponent<LootItem>();
+        // if (lootItem == null)
+        // {
+        //     logger?.Log(
+        //         $"[LootDropper] ERROR: Loot prefab does not have LootItem component!",
+        //         this,
+        //         Logging.LogType.Error
+        //     );
+        //     Destroy(lootInstance);
+        //     return;
+        // }
 
-        // Initialize position (does not touch SyncList)
-        lootItem.Initialize(spawnPosition);
+        // // Initialize position (does not touch SyncList)
+        // lootItem.Initialize(spawnPosition);
 
         // Determine item IDs and gold amount for this loot bag
         List<string> lootItemIds = GetRandomLootItems();
@@ -163,11 +163,11 @@ public class LootDropper : MonoBehaviour
         // Configure items and gold AFTER the NetworkIdentity has been spawned
         if (lootItemIds != null && lootItemIds.Count > 0)
         {
-            lootItem.SetItemIds(lootItemIds);
-            logger?.Log(
-                $"[LootDropper] Configured loot with {lootItemIds.Count} item IDs: {string.Join(", ", lootItemIds)}",
-                this
-            );
+            // lootItem.SetItemIds(lootItemIds);
+            // logger?.Log(
+            //     $"[LootDropper] Configured loot with {lootItemIds.Count} item IDs: {string.Join(", ", lootItemIds)}",
+            //     this
+            // );
         }
         else
         {
@@ -180,7 +180,7 @@ public class LootDropper : MonoBehaviour
 
         if (goldAmount > 0)
         {
-            lootItem.SetGoldAmount(goldAmount);
+            // lootItem.SetGoldAmount(goldAmount);
             logger?.Log($"[LootDropper] Configured loot with {goldAmount} gold.", this);
         }
     }

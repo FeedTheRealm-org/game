@@ -5,7 +5,7 @@ using Mirror;
 using Models;
 using UnityEngine;
 
-namespace Core.Systems.Worlds.Loader
+namespace Gameplay.Client.Environment.Worlds.Loader
 {
     public class EnemySpawnerLoaderController : MonoBehaviour, IServerLoader
     {

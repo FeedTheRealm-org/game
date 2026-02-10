@@ -1,4 +1,4 @@
-using Game.Core.Common.Dialogue;
+using Game.Core.Client.Dialogue;
 using Models;
 using UnityEngine;
 using UnityEngine.UIElements;

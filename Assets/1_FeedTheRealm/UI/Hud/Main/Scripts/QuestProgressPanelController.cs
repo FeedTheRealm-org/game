@@ -1,6 +1,6 @@
 using System.Collections;
-using Game.Core.Common.Events;
-using Game.Core.Common.Quests;
+using Game.Core.Client.Events;
+using Game.Core.Client.Quests;
 using UnityEngine;
 using UnityEngine.UIElements;
 

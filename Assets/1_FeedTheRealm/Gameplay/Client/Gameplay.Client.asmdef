@@ -1,11 +1,14 @@
 {
-  "name": "UI.Client",
+  "name": "Gameplay.Client",
   "references": [
     "FeedTheRealm_Shared",
     "Core.Common",
     "Core.Client",
-    "Gameplay.Client",
-    "UnityEngine"
+    "UnityEngine",
+    "Unity.Cinemachine",
+    "Mirror",
+    "glTFast",
+    "VContainer"
   ],
   "includePlatforms": [
     "Editor",

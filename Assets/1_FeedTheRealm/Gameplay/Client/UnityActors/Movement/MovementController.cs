@@ -8,9 +8,6 @@ public class MovementController : MonoBehaviour
     private MovementView movementView;
 
     [SerializeField]
-    private MovementNetworkAdapter movementNetworkAdapter;
-
-    [SerializeField]
     private float moveSpeed = 5f; // TODO: move to config SO
 
     [Header("Debug")]
@@ -26,14 +23,14 @@ public class MovementController : MonoBehaviour
 
     private void OnEnable()
     {
-        movementNetworkAdapter.OnMovementReconcileSnapshot += OnReconcile;
-        movementNetworkAdapter.OnMovementCommandReceived += OnCommandReceived;
+        // movementNetworkAdapter.OnMovementReconcileSnapshot += OnReconcile;
+        // movementNetworkAdapter.OnMovementCommandReceived += OnCommandReceived;
     }
 
     private void OnDisable()
     {
-        movementNetworkAdapter.OnMovementReconcileSnapshot -= OnReconcile;
-        movementNetworkAdapter.OnMovementCommandReceived -= OnCommandReceived;
+        // movementNetworkAdapter.OnMovementReconcileSnapshot -= OnReconcile;
+        // movementNetworkAdapter.OnMovementCommandReceived -= OnCommandReceived;
     }
 
     // TODO: refactor camera make a camera manager!
@@ -60,7 +57,6 @@ public class MovementController : MonoBehaviour
         };
 
         prediction.Store(command);
-        movementNetworkAdapter.Tick(command);
 
         Vector3 nextPosition = MovementRules.CalculateNextPosition(
             movementView.transform.position,
