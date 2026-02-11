@@ -1,5 +1,5 @@
 using System;
-using FTR.Core.Client.Enum;
+using FTR.Core.Common.Enums;
 using UnityEngine;
 
 namespace FTR.Core.Client.Quests

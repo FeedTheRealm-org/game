@@ -1,14 +1,12 @@
-using UnityEngine;
-
 namespace FTR.Core.Server.Commands;
 
 public class EquipCommand : BaseServerCommand
 {
-    private Vector3 direction;
+    private string itemId;
 
-    public EquipCommand(Vector3 direction)
+    public EquipCommand(string itemId)
     {
-        this.direction = direction;
+        this.itemId = itemId;
     }
 
     public override void Apply(ICommandable commandable)

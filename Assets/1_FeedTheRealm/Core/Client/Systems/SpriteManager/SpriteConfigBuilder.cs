@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using FTR.Core.Client.Enum;
+using FTR.Core.Client.Enums;
 
 /// <summary>
 /// Builder class to build configurations based on the user needs.

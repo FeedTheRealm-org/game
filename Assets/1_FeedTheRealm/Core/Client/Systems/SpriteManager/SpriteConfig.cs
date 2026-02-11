@@ -1,4 +1,4 @@
-using FTR.Core.Client.Enum;
+using FTR.Core.Client.Enums;
 using UnityEngine;
 
 [System.Serializable]

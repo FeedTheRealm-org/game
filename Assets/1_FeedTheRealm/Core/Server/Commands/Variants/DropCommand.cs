@@ -1,14 +1,12 @@
-using UnityEngine;
-
 namespace FTR.Core.Server.Commands;
 
 public class DropCommand : BaseServerCommand
 {
-    private Vector3 direction;
+    private string itemId;
 
-    public DropCommand(Vector3 direction)
+    public DropCommand(string itemId)
     {
-        this.direction = direction;
+        this.itemId = itemId;
     }
 
     public override void Apply(ICommandable commandable)

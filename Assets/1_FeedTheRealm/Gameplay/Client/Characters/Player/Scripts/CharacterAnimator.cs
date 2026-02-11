@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using FTR.Core.Client.Enum;
+using FTR.Core.Client.Enums;
 using FTR.Core.Client.Exceptions;
 using UnityEngine;
 

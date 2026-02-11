@@ -1,4 +1,4 @@
-using FTR.Core.Client.Enum;
+using FTR.Core.Client.Enums;
 using FTR.Core.Client.Exceptions;
 using FTR.Core.Client.Utils;
 using UnityEngine;

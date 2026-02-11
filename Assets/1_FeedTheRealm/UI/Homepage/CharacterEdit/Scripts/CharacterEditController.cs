@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FTR.Core.Client.Enum;
+using FTR.Core.Client.Enums;
 using UnityEngine;
 using UnityEngine.UIElements;
 

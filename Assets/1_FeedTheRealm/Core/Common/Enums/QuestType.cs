@@ -1,11 +1,10 @@
-namespace FTR.Core.Client.Enum
+namespace FTR.Core.Common.Enums;
+
+/// <summary>
+/// Enum representing different types of quests.
+/// </summary>
+public enum QuestType
 {
-    /// <summary>
-    /// Enum representing different types of quests.
-    /// </summary>
-    public enum QuestType
-    {
-        EnemySlays,
-        NpcInteract,
-    }
+    EnemySlays,
+    NpcInteract,
 }

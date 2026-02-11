@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using FTR.Core.Client.Enum;
+using FTR.Core.Client.Enums;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SpriteManager", menuName = "Scriptable Objects/SpriteManager")]

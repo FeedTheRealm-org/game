@@ -4,6 +4,8 @@ public abstract class BaseCommandHandler : ICommandable
 {
     public virtual void OnMove() { }
 
+    public virtual void OnDash() { }
+
     public virtual void OnUse() { }
 
     public virtual void OnInteract() { }

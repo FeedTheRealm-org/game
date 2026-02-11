@@ -1,4 +1,4 @@
-using FTR.Core.Client.Enum;
+using FTR.Core.Common.Enums;
 using UnityEngine;
 
 namespace FTR.Core.Common.Protocol.RpcMessages;

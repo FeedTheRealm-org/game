@@ -1,5 +1,5 @@
-using FTR.Core.Client.Enum;
 using FTR.Core.Client.Events;
+using FTR.Core.Common.Enums;
 
 namespace FTR.Core.Client.Quests
 {
