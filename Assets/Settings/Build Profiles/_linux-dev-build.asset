@@ -34,21 +34,13 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Menus/LoginScene.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Menus/SignUpScene.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Common/World.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Menus/VerifyCodeScene.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Menus/Homepage.unity
-  - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Multiplayer/WorldServer.unity
-  - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Game/EntryPoints/ServerEntryPoint.unity
-  - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Game/World.unity
-  - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Game/EntryPoints/ClientEntryPoint.unity
+    m_path: Assets/1_FeedTheRealm/Scenes/Client/Menus/LoginScene.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
   - DEBUG

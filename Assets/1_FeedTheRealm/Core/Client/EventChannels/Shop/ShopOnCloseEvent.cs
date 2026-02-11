@@ -1,4 +1,3 @@
-using FTR.Core.Client.Interactions;
 using FTR.Core.Common.EventChannels;
 using UnityEngine;
 

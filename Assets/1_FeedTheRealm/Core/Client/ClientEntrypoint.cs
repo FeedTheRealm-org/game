@@ -3,25 +3,24 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
 
-public class ServerEntryPoint : IStartable
+public class ClientEntryPoint : IStartable
 {
     private readonly SceneReference mainScene;
 
-    public ServerEntryPoint(SceneReference worldScene)
+    public ClientEntryPoint(SceneReference worldScene)
     {
         this.mainScene = worldScene;
     }
 
     public async void Start()
     {
-        ConfigureUnityForServer();
+        ConfigureUnityForClient();
         await LoadMainScene();
     }
 
-    void ConfigureUnityForServer()
+    void ConfigureUnityForClient()
     {
-        // Turn off automatic physics simulation (FixedUpdate not called anymore)
-        Physics.simulationMode = SimulationMode.Script;
+        // TODO: Load client config
 
         // Cap Update & LateUpdate TPS
         QualitySettings.vSyncCount = 0;

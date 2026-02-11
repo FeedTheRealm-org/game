@@ -6,7 +6,8 @@
     "UnityEngine",
     "Mirror",
     "glTFast",
-    "VContainer"
+    "VContainer",
+    "UniTask"
   ],
   "includePlatforms": [
     "Editor",

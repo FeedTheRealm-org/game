@@ -1,5 +1,5 @@
+using FTR.Core.Common.Config;
 using FTR.Core.Common.EventChannels;
-using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -12,42 +12,17 @@ public class WorldInitiator : LifetimeScope
     [SerializeField]
     private ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
 
+    [SerializeField]
+    private Config config;
+
+    [SerializeField]
+    private Logging.Logger logger;
+
     protected override void Configure(IContainerBuilder builder)
     {
-        // Shared systems (exist on both)
-        // builder.Register<WorldState>(Lifetime.Singleton);
-        // builder.Register<Clock>(Lifetime.Singleton);
+        builder.RegisterInstance(receivedActionCommandEvent);
+        builder.RegisterInstance(receivedTransactionCommandEvent);
 
-        if (NetworkServer.active) // TODO: change to runtime role inside Config SO
-        {
-            RegisterServer(builder);
-        }
-        else
-        {
-            RegisterClient(builder);
-        }
-    }
-
-    void RegisterServer(IContainerBuilder builder)
-    {
-        // builder.RegisterInstance(receivedActionCommandEvent);
-        // builder.RegisterInstance(receivedTransactionCommandEvent);
-
-        // builder.Register<WorldMonitor>(Lifetime.Singleton);
-
-        // builder.Register<GameLoop>(Lifetime.Singleton);
-        // builder.Register<NetworkService>(Lifetime.Singleton);
-
-        // builder.Register<ServerTickDriver>(Lifetime.Singleton);
-        // builder.Register<NetworkTickDriver>(Lifetime.Singleton);
-        // builder.RegisterEntryPoint<CentralizedTickDriver>();
-    }
-
-    void RegisterClient(IContainerBuilder builder)
-    {
-        // builder.Register<ClientPresentation>(Lifetime.Singleton);
-        // builder.Register<ClientInput>(Lifetime.Singleton);
-
-        // builder.RegisterEntryPoint<ClientUpdateDriver>();
+        logger?.Log("WorldInitiator: Registered as Common", this);
     }
 }
