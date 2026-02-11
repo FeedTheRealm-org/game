@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using FTR.Core.Client.Events;
+using FTR.Core.Client.EventChannels;
 using UnityEngine;
 
 namespace FTR.Core.Client.Quests

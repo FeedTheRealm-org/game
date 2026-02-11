@@ -1,3 +1,5 @@
+using FTR.Core.Common.Utils;
+
 public class ServerTickDriver
 {
     readonly GameLoop gameLoop;
@@ -9,6 +11,6 @@ public class ServerTickDriver
 
     public void TickOnce(float dt)
     {
-        gameLoop.TickOnce(dt);
+        gameLoop.GameTick(dt);
     }
 }

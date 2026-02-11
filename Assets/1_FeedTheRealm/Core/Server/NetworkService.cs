@@ -1,4 +1,4 @@
-using FTR.Core.Common.Events;
+using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 
 /// <summary>

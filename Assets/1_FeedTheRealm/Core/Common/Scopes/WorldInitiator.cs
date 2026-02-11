@@ -1,4 +1,4 @@
-using FTR.Core.Common.Events;
+using FTR.Core.Common.EventChannels;
 using Mirror;
 using UnityEngine;
 using VContainer;

@@ -1,5 +1,5 @@
 using System;
-using FTR.Core.Common.Events;
+using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 using Mirror;
 using UnityEngine;
@@ -17,7 +17,7 @@ public class NetworkAdapter : NetworkBehaviour
     private Logging.Logger logger;
 
     // Client ONLY
-    public event Action<ServerResponseDTO> OnServerResponse;
+    public event Action<ServerEventDTO> OnServerResponse;
 
     // Server ONLY
     public event Action<ActionCommandDTO> OnActionRequest;
@@ -73,7 +73,7 @@ public class NetworkAdapter : NetworkBehaviour
     /// Server ONLY.
     /// </summary>
     [Server]
-    public void DispatchResponse(ServerResponseDTO response)
+    public void DispatchResponse(ServerEventDTO response)
     {
         if (!isServer)
             return;
@@ -105,7 +105,7 @@ public class NetworkAdapter : NetworkBehaviour
     /// RpcDispatchResponse is a client RPC method that dispatches a server response to all clients via event.
     /// </summary>
     [ClientRpc(channel = Channels.Reliable)]
-    private void RpcServerResponse(ServerResponseDTO response)
+    private void RpcServerResponse(ServerEventDTO response)
     {
         OnServerResponse?.Invoke(response);
     }

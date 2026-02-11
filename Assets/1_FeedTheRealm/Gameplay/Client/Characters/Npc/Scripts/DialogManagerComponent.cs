@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using FTR.Core.Client.Dialogue;
-using FTR.Core.Client.Events;
+using FTR.Core.Client.EventChannels;
 using Models;
 using UnityEngine;
 

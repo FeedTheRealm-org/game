@@ -1,4 +1,4 @@
-using FTR.Core.Client.Events;
+using FTR.Core.Client.EventChannels;
 using FTR.Core.Common.Enums;
 
 namespace FTR.Core.Client.Quests

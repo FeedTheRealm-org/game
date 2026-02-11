@@ -1,11 +1,12 @@
 using System.Diagnostics;
+using FTR.Core.Common.Utils;
 using UnityEngine;
 
 /// <summary>
 /// GameLoop is responsible for processing game logic,
 /// and should be called in a fixed update loop, **RUNS IN MAIN THREAD**.
 /// </summary>
-public class GameLoop
+public class GameLoop : IGameTickable
 {
     private readonly WorldMonitor worldMonitor;
 
@@ -17,7 +18,7 @@ public class GameLoop
         this.worldMonitor = worldMonitor;
     }
 
-    public void TickOnce(float dt)
+    public void GameTick(float dt)
     {
         // TODO: Get commands from CommandQueue, process game logic,
         // and push resulting events to NetworkQueue and update the LatestState for
@@ -27,6 +28,7 @@ public class GameLoop
         ProcessCommands();
 
         // Update/Tick entities such as rb.MovePosition, etc.
+        worldMonitor.Entities.Foreach(entity => entity.GameTickable.GameTick(dt));
 
         Physics.Simulate(dt);
 
