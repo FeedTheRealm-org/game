@@ -4,7 +4,8 @@ public class AcceptQuestCommand : BaseServerCommand
 {
     private string questId;
 
-    public AcceptQuestCommand(string questId)
+    public AcceptQuestCommand(uint netId, string questId)
+        : base(netId)
     {
         this.questId = questId;
     }

@@ -4,7 +4,8 @@ public class DropCommand : BaseServerCommand
 {
     private string itemId;
 
-    public DropCommand(string itemId)
+    public DropCommand(uint netId, string itemId)
+        : base(netId)
     {
         this.itemId = itemId;
     }

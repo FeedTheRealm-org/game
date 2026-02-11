@@ -4,7 +4,8 @@ public class PurchaseCommand : BaseServerCommand
 {
     private string itemId;
 
-    public PurchaseCommand(string itemId)
+    public PurchaseCommand(uint netId, string itemId)
+        : base(netId)
     {
         this.itemId = itemId;
     }

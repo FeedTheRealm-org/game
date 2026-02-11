@@ -8,18 +8,21 @@ namespace FTR.Core.Server.Commands;
 // </summary>
 public static class CommandsFactory
 {
-    public static BaseServerCommand FromActionCommandDTO(ActionCommandDTO actionCommandDTO)
+    public static BaseServerCommand FromActionCommandDTO(
+        uint netId,
+        ActionCommandDTO actionCommandDTO
+    )
     {
         switch (actionCommandDTO.Type)
         {
             case ActionType.Move:
-                return new MoveCommand(actionCommandDTO.Direction);
+                return new MoveCommand(netId, actionCommandDTO.Direction);
             case ActionType.Dash:
-                return new DashCommand(actionCommandDTO.Direction);
+                return new DashCommand(netId, actionCommandDTO.Direction);
             case ActionType.Use:
-                return new UseCommand(actionCommandDTO.Direction);
+                return new UseCommand(netId, actionCommandDTO.Direction);
             case ActionType.Interact:
-                return new InteractCommand(actionCommandDTO.Direction);
+                return new InteractCommand(netId, actionCommandDTO.Direction);
             default:
                 throw new System.ArgumentException(
                     $"Unsupported action type: {actionCommandDTO.Type}"
@@ -28,19 +31,20 @@ public static class CommandsFactory
     }
 
     public static BaseServerCommand FromActionCommandDTO(
+        uint netId,
         TransactionCommandDTO transactionCommandDTO
     )
     {
         switch (transactionCommandDTO.Type)
         {
             case TransactionType.Equip:
-                return new EquipCommand(transactionCommandDTO.Id);
+                return new EquipCommand(netId, transactionCommandDTO.Id);
             case TransactionType.Drop:
-                return new DropCommand(transactionCommandDTO.Id);
+                return new DropCommand(netId, transactionCommandDTO.Id);
             case TransactionType.Purchase:
-                return new PurchaseCommand(transactionCommandDTO.Id);
+                return new PurchaseCommand(netId, transactionCommandDTO.Id);
             case TransactionType.AcceptQuest:
-                return new AcceptQuestCommand(transactionCommandDTO.Id);
+                return new AcceptQuestCommand(netId, transactionCommandDTO.Id);
             default:
                 throw new System.ArgumentException(
                     $"Unsupported transaction type: {transactionCommandDTO.Type}"

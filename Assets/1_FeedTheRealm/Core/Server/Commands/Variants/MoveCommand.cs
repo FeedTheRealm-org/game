@@ -6,7 +6,8 @@ public class MoveCommand : BaseServerCommand
 {
     private Vector3 direction;
 
-    public MoveCommand(Vector3 direction)
+    public MoveCommand(uint netId, Vector3 direction)
+        : base(netId)
     {
         this.direction = direction;
     }

@@ -10,7 +10,7 @@ public sealed class ServerEntity
     public EntityState State;
 
     public NetworkAdapter NetworkAdapter { get; }
-    public ICommandable commandable { get; }
+    public ICommandable Commandable { get; }
 
     /// <summary>
     /// Creates a new ServerEntity with the given netId, networkAdapter, and entity commandable.
@@ -19,6 +19,6 @@ public sealed class ServerEntity
     {
         NetId = netId;
         NetworkAdapter = networkAdapter;
-        this.commandable = commandable;
+        this.Commandable = commandable;
     }
 }

@@ -6,7 +6,8 @@ public class DashCommand : BaseServerCommand
 {
     private Vector3 direction;
 
-    public DashCommand(Vector3 direction)
+    public DashCommand(uint netId, Vector3 direction)
+        : base(netId)
     {
         this.direction = direction;
     }

@@ -6,7 +6,8 @@ public class InteractCommand : BaseServerCommand
 {
     private Vector3 direction;
 
-    public InteractCommand(Vector3 direction)
+    public InteractCommand(uint netId, Vector3 direction)
+        : base(netId)
     {
         this.direction = direction;
     }
