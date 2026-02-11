@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server.Entities;
+using FTR.Core.Server.Events;
 using UnityEngine;
 
 /// <summary>
@@ -10,8 +12,10 @@ public class GameLoop : IGameTickable
 {
     private readonly WorldMonitor worldMonitor;
 
-    private readonly long maxCommandsTimePerTick = Stopwatch.Frequency / 1000 * 10;
+    private readonly long maxCommandsTimePerTick = Stopwatch.Frequency / 1000 * 10; // 10ms
     private readonly long maxCommandsPerTick = 100;
+
+    private readonly EventCollector eventCollector = new();
 
     public GameLoop(WorldMonitor worldMonitor)
     {
@@ -20,11 +24,6 @@ public class GameLoop : IGameTickable
 
     public void GameTick(float dt)
     {
-        // TODO: Get commands from CommandQueue, process game logic,
-        // and push resulting events to NetworkQueue and update the LatestState for
-        // corresponding networked entities.
-        // Call Physics.Simulate.
-
         ProcessCommands();
 
         // Update/Tick entities such as rb.MovePosition, etc.
@@ -32,9 +31,13 @@ public class GameLoop : IGameTickable
 
         Physics.Simulate(dt);
 
-        // Post simulation checks? e.g. ground check?
-        // Push events to NetworkQueue
-        // States will be updated by syncvars
+        // TODO: EVALUATE Post simulation checks? e.g. ground check?
+
+        // Push new events to NetworkQueue
+        eventCollector.ForEach(serverEvent => worldMonitor.Events.Enqueue(serverEvent));
+        eventCollector.Clear();
+
+        // TODO: States will be updated by syncvars
     }
 
     /// <summary>
@@ -52,9 +55,11 @@ public class GameLoop : IGameTickable
             && worldMonitor.Commands.TryDequeue(out var cmd)
         )
         {
-            var entity = worldMonitor.Entities.Get(cmd.NetId);
-            cmd.Apply(entity.Commandable);
-            processedThisTick++;
+            if (worldMonitor.Entities.TryGet(cmd.NetId, out ServerEntity entity))
+            {
+                cmd.Apply(entity.Commandable, eventCollector);
+                processedThisTick++;
+            }
         }
     }
 }

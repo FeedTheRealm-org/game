@@ -17,7 +17,7 @@ public class NetworkAdapter : NetworkBehaviour
     private Logging.Logger logger;
 
     // Client ONLY
-    public event Action<ServerEventDTO> OnServerResponse;
+    public event Action<ServerEventDTO> OnServerEvent;
 
     // Server ONLY
     public event Action<ActionCommandDTO> OnActionRequest;
@@ -73,12 +73,12 @@ public class NetworkAdapter : NetworkBehaviour
     /// Server ONLY.
     /// </summary>
     [Server]
-    public void DispatchResponse(ServerEventDTO response)
+    public void DispatchEvent(ServerEventDTO response)
     {
         if (!isServer)
             return;
 
-        RpcServerResponse(response);
+        RpcServerEvent(response);
     }
 
     /* --- RPCs --- */
@@ -105,8 +105,8 @@ public class NetworkAdapter : NetworkBehaviour
     /// RpcDispatchResponse is a client RPC method that dispatches a server response to all clients via event.
     /// </summary>
     [ClientRpc(channel = Channels.Reliable)]
-    private void RpcServerResponse(ServerEventDTO response)
+    private void RpcServerEvent(ServerEventDTO response)
     {
-        OnServerResponse?.Invoke(response);
+        OnServerEvent?.Invoke(response);
     }
 }

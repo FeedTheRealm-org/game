@@ -8,6 +8,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages;
 /// </summary>
 public struct ActionCommandDTO
 {
+    public uint NetId;
     public Vector3 Direction;
     public ActionType Type;
 }

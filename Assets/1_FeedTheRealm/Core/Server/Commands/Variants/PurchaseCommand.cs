@@ -1,3 +1,5 @@
+using FTR.Core.Server.Events;
+
 namespace FTR.Core.Server.Commands;
 
 public class PurchaseCommand : BaseServerCommand
@@ -10,7 +12,7 @@ public class PurchaseCommand : BaseServerCommand
         this.itemId = itemId;
     }
 
-    public override void Apply(ICommandable commandable)
+    public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
         commandable.OnPurchase();
     }

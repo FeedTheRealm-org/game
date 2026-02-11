@@ -1,3 +1,5 @@
+using FTR.Core.Server.Events;
+
 namespace FTR.Core.Server.Commands;
 
 public class AcceptQuestCommand : BaseServerCommand
@@ -10,7 +12,7 @@ public class AcceptQuestCommand : BaseServerCommand
         this.questId = questId;
     }
 
-    public override void Apply(ICommandable commandable)
+    public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
         commandable.OnQuestAccepted();
     }

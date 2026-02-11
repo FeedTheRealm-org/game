@@ -19,8 +19,8 @@ public sealed class CentralizedTickDriver : ITickable
     }
 
     /// <summary>
-    /// Tick method is called by the VContainer's TickableManager every frame, and it will call
-    /// ServerTickDriver and NetworkTickDriver.
+    /// Tick method is called by the VContainer's TickableManager every frame
+    /// (60 TPS or as stated in server entrypoint), and it will call ServerTickDriver and NetworkTickDriver.
     /// </summary
     public void Tick()
     {

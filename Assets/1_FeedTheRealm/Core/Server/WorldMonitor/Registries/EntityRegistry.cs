@@ -5,7 +5,10 @@ public sealed class EntityRegistry
 {
     private readonly Dictionary<uint, ServerEntity> entities = new();
 
-    public ServerEntity Get(uint netId) => entities[netId];
+    public bool TryGet(uint netId, out ServerEntity entity)
+    {
+        return entities.TryGetValue(netId, out entity);
+    }
 
     public void Register(uint netId, ServerEntity entity) => entities[netId] = entity;
 

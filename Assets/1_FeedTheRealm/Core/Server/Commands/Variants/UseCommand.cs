@@ -1,3 +1,4 @@
+using FTR.Core.Server.Events;
 using UnityEngine;
 
 namespace FTR.Core.Server.Commands;
@@ -12,7 +13,7 @@ public class UseCommand : BaseServerCommand
         this.direction = direction;
     }
 
-    public override void Apply(ICommandable commandable)
+    public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
         commandable.OnUse();
     }

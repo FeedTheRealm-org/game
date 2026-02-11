@@ -7,6 +7,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages;
 /// </summary>
 public struct TransactionCommandDTO
 {
+    public uint NetId;
     public string Id;
     public TransactionType Type;
 }

@@ -1,3 +1,5 @@
+using FTR.Core.Server.Events;
+
 namespace FTR.Core.Server.Commands;
 
 /// <summary>
@@ -13,5 +15,5 @@ public abstract class BaseServerCommand
         NetId = netId;
     }
 
-    public abstract void Apply(ICommandable commandable);
+    public abstract void Apply(ICommandable commandable, IEventCollectable eventCollector);
 }

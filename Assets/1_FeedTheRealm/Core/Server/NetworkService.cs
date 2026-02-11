@@ -1,5 +1,8 @@
+using System.Diagnostics;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.Commands;
+using FTR.Core.Server.Entities;
 
 /// <summary>
 /// NetworkService is responsible for receiving commands from NetworkAdapters, and sending events to them.
@@ -8,8 +11,12 @@ using FTR.Core.Common.Protocol.RpcMessages;
 public class NetworkService
 {
     private readonly WorldMonitor worldMonitor;
+
     private ReceivedActionCommandEvent receivedActionCommandEvent;
     private ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
+
+    private readonly long maxEventTimePerTick = Stopwatch.Frequency / 1000 * 3; // 3ms
+    private readonly long maxEventsPerTick = 100;
 
     public NetworkService(
         WorldMonitor worldMonitor,
@@ -27,14 +34,14 @@ public class NetworkService
 
     private void OnReceivedActionCommand(ActionCommandDTO actionCommand)
     {
-        // TODO: Receive packets from NetworkAdapter build Commands and
-        // send them to GameLoop via CommandQueue
+        var cmd = CommandsFactory.FromActionCommandDTO(actionCommand);
+        worldMonitor.Commands.Enqueue(cmd);
     }
 
     private void OnReceivedTransactionCommand(TransactionCommandDTO transactionCommand)
     {
-        // TODO: Receive packets from NetworkAdapter build Commands and
-        // send them to GameLoop via CommandQueue
+        var cmd = CommandsFactory.FromTransactionCommandDTO(transactionCommand);
+        worldMonitor.Commands.Enqueue(cmd);
     }
 
     // <summary>
@@ -43,7 +50,20 @@ public class NetworkService
     /// </summary>
     public void FlushEventsToClients()
     {
-        // TODO: Collect packets from GameLoop via NetworkQueue and
-        // send them to correspoinding NetworkAdapters
+        var start = Stopwatch.GetTimestamp();
+        int processedThisTick = 0;
+
+        while (
+            processedThisTick < maxEventsPerTick
+            && (Stopwatch.GetTimestamp() - start) < maxEventTimePerTick
+            && worldMonitor.Events.TryDequeue(out var serverEvent)
+        )
+        {
+            if (worldMonitor.Entities.TryGet(serverEvent.NetId, out ServerEntity entity))
+            {
+                entity.NetworkAdapter.DispatchEvent(serverEvent.ToDTO());
+                processedThisTick++;
+            }
+        }
     }
 }
