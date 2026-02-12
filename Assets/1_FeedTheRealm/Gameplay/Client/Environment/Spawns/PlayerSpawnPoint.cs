@@ -60,11 +60,14 @@ public class PlayerSpawnPoint : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets the spawn position for this point.
+    /// Gets a spawn position inside of the radius.
     /// </summary>
     public Vector3 GetSpawnPosition()
     {
-        return transform.position;
+        Vector2 randomCircle = Random.insideUnitCircle * radius;
+        Vector3 spawnPosition =
+            transform.position + new Vector3(randomCircle.x, 0f, randomCircle.y);
+        return spawnPosition;
     }
 
     /// <summary>
