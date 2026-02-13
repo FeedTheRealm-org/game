@@ -1,5 +1,5 @@
 using System.Collections;
-using FTR.Core.Client.EventChannels;
+using FTR.Core.Common.EventChannels;
 using UnityEngine;
 
 /// <summary>

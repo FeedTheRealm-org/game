@@ -1,5 +1,5 @@
-using FTR.Core.Client.EventChannels;
-using FTR.Core.Client.Quests;
+using FTR.Core.Common.EventChannels;
+using FTR.Core.Common.Quests;
 using UnityEngine;
 
 /// <summary>

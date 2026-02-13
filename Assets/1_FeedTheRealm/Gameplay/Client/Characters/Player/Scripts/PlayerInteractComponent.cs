@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using FTR.Core.Client.EventChannels;
-using FTR.Core.Client.Interactions;
+using FTR.Core.Common.EventChannels;
+using FTR.Core.Common.Interactions;
 using UnityEngine;
 
 public class PlayerInteractComponent : MonoBehaviour, IInteractor

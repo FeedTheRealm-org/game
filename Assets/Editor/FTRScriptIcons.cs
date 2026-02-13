@@ -26,14 +26,18 @@ public static class FolderScriptIconAssigner
         foreach (var guid in guids)
         {
             var path = AssetDatabase.GUIDToAssetPath(guid);
-            var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
+            var importer = AssetImporter.GetAtPath(path) as MonoImporter;
 
-            if (script != null)
+            if (importer != null)
             {
-                EditorGUIUtility.SetIconForObject(script, icon);
+                if (importer.GetIcon() != icon)
+                {
+                    importer.SetIcon(icon);
+                    importer.SaveAndReimport();
+                }
             }
         }
 
-        Debug.Log("Icons assigned to scripts in " + TargetFolder);
+        Debug.Log("Persistent icons assigned to scripts in " + TargetFolder);
     }
 }

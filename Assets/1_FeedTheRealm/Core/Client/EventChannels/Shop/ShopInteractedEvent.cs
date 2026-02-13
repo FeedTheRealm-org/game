@@ -1,5 +1,5 @@
-using FTR.Core.Client.Interactions;
 using FTR.Core.Common.EventChannels;
+using FTR.Core.Common.Interactions;
 using UnityEngine;
 
 namespace FTR.Core.Client.EventChannels

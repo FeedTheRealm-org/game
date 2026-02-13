@@ -284,7 +284,7 @@ public class EnemySpawn : MonoBehaviour
         }
 
         // Subscribe to death event to track kills
-        enemy.GetComponent<HealthComponent>().OnDeath += OnEnemyDeath;
+        // enemy.GetComponent<HealthComponent>().OnDeath += OnEnemyDeath; // TODO: fix
     }
 
     /// <summary>

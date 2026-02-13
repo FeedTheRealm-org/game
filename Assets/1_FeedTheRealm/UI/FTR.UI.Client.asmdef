@@ -4,6 +4,7 @@
     "FeedTheRealm_Shared",
     "FTR.Core.Common",
     "FTR.Core.Client",
+    "FTR.Gameplay.Common",
     "FTR.Gameplay.Client",
     "UnityEngine",
     "Unity.InputSystem"
