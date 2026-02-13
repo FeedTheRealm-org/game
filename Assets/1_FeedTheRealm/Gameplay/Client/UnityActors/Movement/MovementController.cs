@@ -1,4 +1,3 @@
-using FTR.Core.Common.Domain.Movement;
 using FTR.Core.Common.Protocol.RpcMessages.Movement;
 using UnityEngine;
 
@@ -13,8 +12,6 @@ public class MovementController : MonoBehaviour
     [Header("Debug")]
     [SerializeField]
     private Logging.Logger logger;
-
-    private readonly MovementPrediction prediction = new();
 
     private Vector2 inputDirection;
     private Vector3 currentDirection;
@@ -56,16 +53,7 @@ public class MovementController : MonoBehaviour
             z = currentDirection.z,
         };
 
-        prediction.Store(command);
-
-        Vector3 nextPosition = MovementRules.CalculateNextPosition(
-            movementView.transform.position,
-            currentDirection,
-            moveSpeed,
-            deltaTime
-        );
-
-        movementView.MoveToPosition(nextPosition);
+        // movementView.MoveToPosition(nextPosition);
         movementView.UpdateFacingDirection(currentDirection);
     }
 
@@ -90,7 +78,7 @@ public class MovementController : MonoBehaviour
 
     private void OnReconcile(MovementSnapshot snapshot)
     {
-        prediction.Reconcile(transform, snapshot, moveSpeed, Time.fixedDeltaTime);
+        // prediction.Reconcile(transform, snapshot, moveSpeed, Time.fixedDeltaTime);
     }
 
     private void OnCommandReceived(MovementSnapshot snapshot)

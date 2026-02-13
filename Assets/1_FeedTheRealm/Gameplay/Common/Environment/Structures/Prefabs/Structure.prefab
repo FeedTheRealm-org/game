@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3523201402029195381
+--- !u!1 &4012873288248038246
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,61 +8,64 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 550773161067111466}
-  - component: {fileID: 4167086982650930512}
-  - component: {fileID: -3888654375254562737}
+  - component: {fileID: 4813464661322870565}
+  - component: {fileID: 3239038791894270114}
+  - component: {fileID: 4147424214210121061}
   m_Layer: 0
-  m_Name: PlayerSpawn
+  m_Name: Structure
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &550773161067111466
+--- !u!4 &4813464661322870565
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3523201402029195381}
+  m_GameObject: {fileID: 4012873288248038246}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.44474, y: 1, z: -37.53746}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4167086982650930512
+--- !u!65 &3239038791894270114
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4012873288248038246}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4147424214210121061
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3523201402029195381}
+  m_GameObject: {fileID: 4012873288248038246}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823104dc450bb23fb9c27a6820bd4a07, type: 3}
+  m_Script: {fileID: 11500000, guid: c0966246341c5cfcb8175f48d3fe60d0, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawnPoint
-  radius: 1
-  adjustToGroundHeight: 1
-  heightOffset: 0
-  logger: {fileID: 11400000, guid: aee7d7782f2f76eaf8981e23d2e7d39c, type: 2}
---- !u!114 &-3888654375254562737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3523201402029195381}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
-  sceneId: 0
-  _assetId: 1796252159
-  serverOnly: 0
-  visibility: 0
-  hasSpawned: 0
+  m_EditorClassIdentifier: FTR.Gameplay.Client::StructureController
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0

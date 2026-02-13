@@ -4,9 +4,11 @@
     "FeedTheRealm_Shared",
     "FTR.Core.Common",
     "FTR.Core.Server",
+    "FTR.Gameplay.Common",
     "UnityEngine",
     "Mirror",
-    "VContainer"
+    "VContainer",
+    "UniTask"
   ],
   "includePlatforms": [
     "Editor",
