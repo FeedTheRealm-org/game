@@ -4,8 +4,10 @@
     "FeedTheRealm_Shared",
     "UnityEngine",
     "Mirror",
+    "Mirror.Transports",
     "kcp2k",
-    "VContainer"
+    "VContainer",
+    "UniTask"
   ],
   "includePlatforms": [
     "Editor",

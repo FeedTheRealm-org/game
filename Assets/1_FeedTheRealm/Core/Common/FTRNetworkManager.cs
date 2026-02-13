@@ -1,27 +1,31 @@
 using System;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Utils;
 // using Core.Systems.Worlds;
 // using Core.Systems.Worlds.Loader;
-using FTR.Core.Common.Utils;
 using kcp2k;
 using Mirror;
-using Models;
+// using Models;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using VContainer;
 
 /*
     Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
     API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
 */
 
-public class NewNetworkManager : NetworkManager
+public class FTRNetworkManager : NetworkManager
 {
+    // Overrides the base singleton so we don't
+    // have to cast to this type everywhere.
+    public static new FTRNetworkManager singleton => (FTRNetworkManager)NetworkManager.singleton;
+
     // [Header("World Initialization")]
     // [SerializeField]
     // private WorldLoaderController worldLoader; // TODO: Client-Server is coupled by this controller
 
-    // Overrides the base singleton so we don't
-    // have to cast to this type everywhere.
-    public static new NewNetworkManager singleton => (NewNetworkManager)NetworkManager.singleton;
+    [Inject]
+    Config config;
 
     /// <summary>
     /// Runs on both Server and Client
@@ -56,22 +60,25 @@ public class NewNetworkManager : NetworkManager
         // Mirror does not recognize build modes, so we have to manually start it here
         // by either starting a server or a client based on the builds Scripts Defines
         // (you can see these symbols in the proper build profiles).
-#if SERVER_BUILD
-        string portArg = ParamsSerializer.GetArgs("port");
-        Debug.Log($"[NetworkManager] Server build detected. Port argument: {portArg}");
-        if (!string.IsNullOrEmpty(portArg) && int.TryParse(portArg, out int port))
+        if (config.RuntimeRole == RuntimeRole.Server)
         {
-            var transport = GetComponent<KcpTransport>();
-            transport.Port = (ushort)port;
+            string portArg = ParamsSerializer.GetArgs("port");
+            Debug.Log($"[NetworkManager] Server build detected. Port argument: {portArg}");
+            if (!string.IsNullOrEmpty(portArg) && int.TryParse(portArg, out int port))
+            {
+                var transport = GetComponent<KcpTransport>();
+                transport.Port = (ushort)port;
+            }
+            else
+            {
+                Debug.LogWarning("[NetworkManager] No port argument provided, using default port.");
+            }
+            StartServer();
         }
-        else
+        else if (config.RuntimeRole == RuntimeRole.Client)
         {
-            Debug.LogWarning("[NetworkManager] No port argument provided, using default port.");
+            StartClient();
         }
-        StartServer();
-#elif CLIENT_BUILD
-        StartClient();
-#endif
     }
 
     /// <summary>
@@ -224,8 +231,8 @@ public class NewNetworkManager : NetworkManager
         //     return spawnPoint;
         // }
 
-        // // Fallback to default spawn (uses startPositions list or NetworkManager position)
-        // Debug.LogWarning("[NetworkManager] No WorldData spawn points, using default spawn");
+        // Fallback to default spawn (uses startPositions list or NetworkManager position)
+        Debug.LogWarning("[NetworkManager] No WorldData spawn points, using default spawn");
         return base.GetStartPosition();
     }
 
@@ -274,7 +281,7 @@ public class NewNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        // worldLoader.LoadClient();
+        // _ = worldLoader.LoadClient();
     }
 
     /// <summary>

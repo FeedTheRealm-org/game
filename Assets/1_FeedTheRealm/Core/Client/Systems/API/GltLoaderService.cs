@@ -25,6 +25,8 @@ namespace API
         private string GetBaseUrl() =>
             $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/models";
 
+        private GltfHandler gltfHandler = new();
+
         /// <summary>
         ///  Downloads a specific asset model for a given world.
         /// </summary>
@@ -34,34 +36,12 @@ namespace API
         /// <summary>
         /// Downloads and loads a GLB model from the API, instantiates it, and returns the GameObject.
         /// </summary>
-        public async Task<GameObject> DownloadModel(
-            string worldId,
-            string modelId,
-            GameObject targetObject,
-            bool addColliders = true
-        )
+        public async Task<GameObject> DownloadModel(string worldId, string modelId)
         {
-            try
-            {
-                string url = $"{GetBaseUrl().TrimEnd('/')}/{worldId}/{modelId}";
-                targetObject.name = modelId;
-                await GltfHandler.Load(
-                    targetObject,
-                    url,
-                    useLocalAsset: false,
-                    addColliders: addColliders
-                );
-                return targetObject;
-            }
-            catch (System.Exception ex)
-            {
-                logger.Log(
-                    $"Error loading model {modelId}: {ex.Message}",
-                    null,
-                    Logging.LogType.Error
-                );
-                return null;
-            }
+            var parentObject = new GameObject();
+            string url = $"{GetBaseUrl().TrimEnd('/')}/{worldId}/{modelId}";
+            await gltfHandler.Load(parentObject, url);
+            return parentObject;
         }
     }
 }

@@ -14,6 +14,7 @@ public class ServerEntryPoint : IStartable
 
     public async void Start()
     {
+        ServerMessage();
         ConfigureUnityForServer();
         await LoadMainScene();
     }
@@ -31,5 +32,19 @@ public class ServerEntryPoint : IStartable
     async UniTask LoadMainScene()
     {
         await SceneManager.LoadSceneAsync(mainScene.SceneName, LoadSceneMode.Single);
+    }
+
+    private void ServerMessage()
+    {
+        Debug.Log(
+            "------------------------------------------------------------------------------------------------\n"
+                + "________________________________   ._.    __________________________________   _________________________\n"
+                + "\\_   _____/\\__    ___/\\______   \\  | |   /   _____/\\_   _____/\\______   \\   \\ /   /\\_   _____/\\______   \\\n"
+                + " |    __)    |    |    |       _/  |_|   \\_____  \\  |    __)_  |       _/\\   Y   /  |    __)_  |       _/\n"
+                + " |     \\     |    |    |    |   \\  |-|   /        \\ |        \\ |    |   \\ \\     /   |        \\ |    |   \\\n"
+                + " \\___  /     |____|    |____|_  /  | |  /_______  //_______  / |____|_  /  \\___/   /_______  / |____|_  /\n"
+                + "     \\/                       \\/   |_|          \\/         \\/         \\/                   \\/         \\/ \n"
+                + "------------------------------------------------------------------------------------------------\n"
+        );
     }
 }

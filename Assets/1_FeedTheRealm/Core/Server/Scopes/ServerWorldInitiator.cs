@@ -6,6 +6,9 @@ using VContainer.Unity;
 public class ServerWorldInitiator : LifetimeScope
 {
     [SerializeField]
+    private GameObject networkManagerPrefab;
+
+    [SerializeField]
     private Config config;
 
     [SerializeField]

@@ -20,6 +20,7 @@ public class WorldInitiator : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
+        builder.RegisterInstance(config);
         builder.RegisterInstance(receivedActionCommandEvent);
         builder.RegisterInstance(receivedTransactionCommandEvent);
 
