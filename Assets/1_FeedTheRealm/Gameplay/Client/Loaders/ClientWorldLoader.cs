@@ -1,7 +1,7 @@
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
-using Models;
+using FTRShared.Runtime.Models;
 using Worlds;
 
 public class ClientWorldLoader : ILoader

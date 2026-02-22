@@ -3,8 +3,8 @@ using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Common.Environment.Structures;
+using FTRShared.Runtime.Models;
 using Mirror;
-using Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Client.Environment.Worlds.Loader;

@@ -8,7 +8,7 @@ namespace Worlds
     {
         public string name;
         public string id;
-        public List<Models.WorldMetadata> worlds = new();
+        public List<FTRShared.Runtime.Models.WorldMetadata> worlds = new();
     }
 
     [CreateAssetMenu(fileName = "WorldHandler", menuName = "Scriptable Objects/World/WorldHandler")]
@@ -44,7 +44,10 @@ namespace Worlds
             return true;
         }
 
-        public bool addWorldToCategory(string categoryName, Models.WorldMetadata world)
+        public bool addWorldToCategory(
+            string categoryName,
+            FTRShared.Runtime.Models.WorldMetadata world
+        )
         {
             if (
                 string.IsNullOrWhiteSpace(categoryName)

@@ -1,6 +1,6 @@
 using System;
 using FTR.Core.Common.Quests;
-using Models;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Core.Common.Dialogue

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using API;
 using FTR.Core.Client.Exceptions;
-using Models;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using Worlds;
 

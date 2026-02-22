@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.States;
-using Models;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
 

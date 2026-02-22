@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using FTRShared.Runtime.Models;
 using Mirror;
-using Models;
 using UnityEngine;
-using LootEntryData = Models.LootTableData.LootEntryData;
+using LootEntryData = FTRShared.Runtime.Models.LootTableData.LootEntryData;
 
 /// <summary>
 /// Component added to enemies to drop loot upon death.

@@ -1,6 +1,6 @@
 using System.Collections;
+using FTRShared.Runtime.Models;
 using Mirror;
-using Models;
 using UnityEngine;
 
 public class EnemySpawn : MonoBehaviour
@@ -323,7 +323,7 @@ public class EnemySpawn : MonoBehaviour
     /// Configures this spawn instance with data from EnemySpawnAreaData.
     /// Must be called after instantiation for dynamically placed spawns.
     /// </summary>
-    public void ConfigureFromSpawnData(Models.EnemySpawnerData spawnData)
+    public void ConfigureFromSpawnData(FTRShared.Runtime.Models.EnemySpawnerData spawnData)
     {
         if (spawnData == null)
         {

@@ -1,5 +1,5 @@
 using Cysharp.Threading.Tasks;
-using Models;
+using FTRShared.Runtime.Models;
 
 namespace FTR.Core.Common.Loaders;
 

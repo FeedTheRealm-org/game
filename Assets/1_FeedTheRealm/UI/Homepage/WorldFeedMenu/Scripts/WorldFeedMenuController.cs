@@ -164,7 +164,7 @@ public class WorldFeedMenuController : MonoBehaviour
         }
     }
 
-    private async Task OnWorldSelected(Models.WorldMetadata metadata)
+    private async Task OnWorldSelected(FTRShared.Runtime.Models.WorldMetadata metadata)
     {
         try
         {
@@ -222,7 +222,7 @@ public class WorldFeedMenuController : MonoBehaviour
         RenderCategories();
     }
 
-    private VisualElement CreateWorldElement(Models.WorldMetadata worldData)
+    private VisualElement CreateWorldElement(FTRShared.Runtime.Models.WorldMetadata worldData)
     {
         if (worldData == null || string.IsNullOrEmpty(worldData.name))
             return null;
@@ -257,7 +257,7 @@ public class WorldFeedMenuController : MonoBehaviour
         return worldElement;
     }
 
-    private void onClickAboutWorld(Models.WorldMetadata world)
+    private void onClickAboutWorld(FTRShared.Runtime.Models.WorldMetadata world)
     {
         logger.Log($"About world clicked: {world.name}", this);
         worldInfoHUD.SetActive(true);
@@ -321,7 +321,7 @@ public class WorldFeedMenuController : MonoBehaviour
 
     private VisualElement CreateCategoryContainer(
         Worlds.Category category,
-        List<Models.WorldMetadata> worlds
+        List<FTRShared.Runtime.Models.WorldMetadata> worlds
     )
     {
         var categoryContainer = new VisualElement();

@@ -4,6 +4,7 @@
     "FeedTheRealm_Shared",
     "FTR.Core.Common",
     "UnityEngine",
+    "Unity.InputSystem",
     "Mirror",
     "glTFast",
     "VContainer",

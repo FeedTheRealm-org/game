@@ -5,7 +5,7 @@ using UnityEngine;
 namespace API
 {
     /// <summary>
-    ///  This is a more streamlined handler for loading GLTF models. This come directly from the world editor client code.
+    ///  This is a more streamlined handler for loading GLTF FTRShared.Runtime.Models. This come directly from the world editor client code.
     ///  This could not be placed in the shared packaged due to dependency issues with GLTFast in the package context.
     /// </summary>
     public sealed class GltfHandler

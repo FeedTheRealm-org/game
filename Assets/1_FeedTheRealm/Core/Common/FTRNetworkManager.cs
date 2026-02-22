@@ -1,11 +1,10 @@
 using System;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.Utils;
 // using Core.Systems.Worlds;
 // using Core.Systems.Worlds.Loader;
 using kcp2k;
 using Mirror;
-// using Models;
+// using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
 
@@ -20,9 +19,15 @@ public class FTRNetworkManager : NetworkManager
     // have to cast to this type everywhere.
     public static new FTRNetworkManager singleton => (FTRNetworkManager)NetworkManager.singleton;
 
-    // [Header("World Initialization")]
     // [SerializeField]
     // private WorldLoaderController worldLoader; // TODO: Client-Server is coupled by this controller
+
+    [Header("--- Custom Fields ---")]
+    [SerializeField]
+    private Logging.Logger logger;
+
+    [SerializeField]
+    private KcpTransport kcpTransport;
 
     [Inject]
     Config config;
@@ -55,24 +60,16 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void Start()
     {
-        Debug.Log("[NetworkManager] Starting NetworkManager...");
+        logger.Log("[NetworkManager] Starting NetworkManager...", this);
         base.Start();
         // Mirror does not recognize build modes, so we have to manually start it here
         // by either starting a server or a client based on the builds Scripts Defines
         // (you can see these symbols in the proper build profiles).
         if (config.RuntimeRole == RuntimeRole.Server)
         {
-            string portArg = ParamsSerializer.GetArgs("port");
-            Debug.Log($"[NetworkManager] Server build detected. Port argument: {portArg}");
-            if (!string.IsNullOrEmpty(portArg) && int.TryParse(portArg, out int port))
-            {
-                var transport = GetComponent<KcpTransport>();
-                transport.Port = (ushort)port;
-            }
-            else
-            {
-                Debug.LogWarning("[NetworkManager] No port argument provided, using default port.");
-            }
+            KcpTransport kcp = Transport.active as KcpTransport;
+            if (kcp != null)
+                kcp.Port = config.Port;
             StartServer();
         }
         else if (config.RuntimeRole == RuntimeRole.Client)
@@ -205,8 +202,9 @@ public class FTRNetworkManager : NetworkManager
         // Spawn the player for this connection
         NetworkServer.AddPlayerForConnection(conn, player);
 
-        Debug.Log(
-            $"Player spawned for connection {conn.connectionId} at position {player.transform.position}"
+        logger.Log(
+            $"Player spawned for connection {conn.connectionId} at position {player.transform.position}",
+            this
         );
     }
 
@@ -225,14 +223,18 @@ public class FTRNetworkManager : NetworkManager
         //     int spawnIndex = (connectionCount - 1) % spawnPoints.Length;
 
         //     Transform spawnPoint = spawnPoints[spawnIndex].transform;
-        //     Debug.Log(
+        //     logger.Lo, thisg(
         //         $"[NetworkManager] Using WorldData spawn point {spawnIndex}: {spawnPoint.position}"
         //     );
         //     return spawnPoint;
         // }
 
         // Fallback to default spawn (uses startPositions list or NetworkManager position)
-        Debug.LogWarning("[NetworkManager] No WorldData spawn points, using default spawn");
+        logger.Log(
+            "[NetworkManager] No WorldData spawn points, using default spawn",
+            this,
+            Logging.LogType.Warning
+        );
         return base.GetStartPosition();
     }
 
@@ -329,7 +331,7 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void OnStartServer()
     {
-        Debug.Log("[NewNetworkManager] OnStartServer called");
+        logger.Log("[NewNetworkManager] OnStartServer called", this);
         // _ = worldLoader.LoadServer();
     }
 

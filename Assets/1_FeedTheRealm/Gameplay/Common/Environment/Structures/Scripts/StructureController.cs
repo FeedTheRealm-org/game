@@ -1,4 +1,4 @@
-using Models;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Common.Environment.Structures;

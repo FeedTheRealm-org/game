@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Common.Environment.Structures;
-using Models;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Environment.Loaders;

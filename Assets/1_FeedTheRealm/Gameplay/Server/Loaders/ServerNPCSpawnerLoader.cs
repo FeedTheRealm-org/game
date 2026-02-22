@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
+using FTRShared.Runtime.Models;
 using Mirror;
-using Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Environment.Loaders;

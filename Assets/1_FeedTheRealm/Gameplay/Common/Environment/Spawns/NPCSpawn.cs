@@ -1,7 +1,7 @@
 using System.Collections;
 using FTR.Core.Common.Dialogue;
+using FTRShared.Runtime.Models;
 using Mirror;
-using Models;
 using UnityEngine;
 
 public class NPCSpawns : MonoBehaviour

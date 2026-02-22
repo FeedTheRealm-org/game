@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using FTR.Core.Common.Dialogue;
 using FTR.Core.Common.EventChannels;
-using Models;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 /// <summary>
