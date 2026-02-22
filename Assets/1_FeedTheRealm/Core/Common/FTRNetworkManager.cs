@@ -26,9 +26,6 @@ public class FTRNetworkManager : NetworkManager
     [SerializeField]
     private Logging.Logger logger;
 
-    [SerializeField]
-    private KcpTransport kcpTransport;
-
     [Inject]
     Config config;
 

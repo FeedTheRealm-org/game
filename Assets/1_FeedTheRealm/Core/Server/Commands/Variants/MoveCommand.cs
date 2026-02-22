@@ -15,6 +15,6 @@ public class MoveCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnMove();
+        commandable.OnMove(eventCollector);
     }
 }

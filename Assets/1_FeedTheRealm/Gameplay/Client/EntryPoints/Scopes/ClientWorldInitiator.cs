@@ -1,4 +1,6 @@
 using FTR.Core.Common.Config;
+using FTR.Core.Common.Loaders;
+using FTR.Gameplay.Client.Characters;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -15,6 +17,8 @@ public class ClientWorldInitiator : LifetimeScope
     {
         if (config.RuntimeRole != RuntimeRole.Client)
             return;
+
+        builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
 
         logger?.Log("WorldInitiator: Registered as Client", this);
     }

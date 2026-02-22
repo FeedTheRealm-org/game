@@ -1,13 +1,12 @@
 using FTR.Core.Common.Config;
+using FTR.Core.Common.Loaders;
+using FTR.Gameplay.Server.Characters;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
 public class ServerWorldInitiator : LifetimeScope
 {
-    [SerializeField]
-    private GameObject networkManagerPrefab;
-
     [SerializeField]
     private Config config;
 
@@ -18,6 +17,8 @@ public class ServerWorldInitiator : LifetimeScope
     {
         if (config.RuntimeRole != RuntimeRole.Server)
             return;
+
+        builder.Register<ServerCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
 
         builder.Register<WorldMonitor>(Lifetime.Singleton);
 

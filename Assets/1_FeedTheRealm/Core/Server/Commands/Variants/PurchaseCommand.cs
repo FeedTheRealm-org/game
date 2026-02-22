@@ -14,6 +14,6 @@ public class PurchaseCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnPurchase();
+        commandable.OnPurchase(eventCollector);
     }
 }

@@ -15,6 +15,6 @@ public class DashCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnDash();
+        commandable.OnDash(eventCollector);
     }
 }
