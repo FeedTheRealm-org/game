@@ -15,8 +15,10 @@ namespace FTR.Gameplay.Server.Characters
         [Inject]
         private GameTickEvent gameTickEvent;
 
-        [SerializeField]
         private float moveSpeed = 5f;
+
+        private float positionCorrectionCounter = 15;
+        private float gameTickCounter = 0;
 
         private void OnEnable()
         {
@@ -45,7 +47,13 @@ namespace FTR.Gameplay.Server.Characters
                 return;
             Vector3 nextPosition = rb.position + dt * moveSpeed * direction;
             rb.MovePosition(nextPosition);
-            // SEND TO STATE STORAGE AND THEN TO CLIENTS
+
+            if (gameTickCounter % positionCorrectionCounter == 0)
+            {
+                // SEND POSITION TO STATE STORAGE
+            }
+
+            // SEND DIRECTION STATE STORAGE AND THEN TO CLIENTS
         }
     }
 }

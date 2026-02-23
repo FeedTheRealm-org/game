@@ -6,7 +6,17 @@ namespace FTR.Gameplay.Server.Characters;
 
 public class ServerCommandHandler : MonoBehaviour, ICommandable
 {
-    public void OnMove(IEventCollectable ec) { }
+    private MovementSystem movementSystem;
+
+    public void Initialize(MovementSystem movementSystem)
+    {
+        this.movementSystem = movementSystem;
+    }
+
+    public void OnMove(IEventCollectable ec, Vector3 direction)
+    {
+        movementSystem.OnMove(direction);
+    }
 
     public void OnDash(IEventCollectable ec) { }
 
