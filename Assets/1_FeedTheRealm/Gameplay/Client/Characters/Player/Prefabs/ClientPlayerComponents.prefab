@@ -3581,7 +3581,6 @@ GameObject:
   - component: {fileID: 2124911000678282174}
   - component: {fileID: 3772100352833835385}
   - component: {fileID: 3218634496288659472}
-  - component: {fileID: -4644941045307041541}
   m_Layer: 7
   m_Name: ClientPlayerComponents
   m_TagString: Player
@@ -3743,7 +3742,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 808bc30b7a55d36d499dcbc9bac3f6ad, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementView
-  rb: {fileID: 0}
   animator: {fileID: 4486304355727522199}
 --- !u!114 &3218634496288659472
 MonoBehaviour:
@@ -3760,18 +3758,6 @@ MonoBehaviour:
   movementView: {fileID: 3772100352833835385}
   moveSpeed: 5
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
---- !u!114 &-4644941045307041541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bfa26a00c7ed603cb6a5f53215eec07, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Characters.CharacterInitializer
 --- !u!1 &1424139500108680001
 GameObject:
   m_ObjectHideFlags: 0
