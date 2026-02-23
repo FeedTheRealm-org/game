@@ -7,10 +7,16 @@ public class ServerCharacterLinker : IScriptLinker
 {
     public void LinkDomainScripts(GameObject gameObject)
     {
+        // Add Serverside components
         var serverCommandHandler = gameObject.AddComponent<ServerCommandHandler>();
-        var rb = gameObject.GetComponent<Rigidbody>();
         var movementSystem = gameObject.AddComponent<MovementSystem>();
-        movementSystem.Initialize(rb);
+
+        // Get from common character components
+        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+        var rb = gameObject.GetComponent<Rigidbody>();
+
+        // Initialize components
+        movementSystem.Initialize(rb, stateStorage);
         serverCommandHandler.Initialize(movementSystem);
     }
 }

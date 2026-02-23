@@ -2,45 +2,48 @@ using System;
 using Mirror;
 using UnityEngine;
 
-public class CharacterStateStorage : NetworkBehaviour
+namespace FTR.Gameplay.Server.Characters
 {
-    [SyncVar(hook = nameof(OnPositionSync))]
-    private Vector3 position;
-
-    [SyncVar(hook = nameof(OnVelocitySync))]
-    private Vector3 velocity;
-
-    /* --- Getters --- */
-
-    public Vector3 Position => position;
-    public Vector3 Velocity => velocity;
-
-    public event Action<Vector3> OnPositionCorrected;
-    public event Action<Vector3> OnVelocityChanged;
-
-    /* --- Setters --- */
-
-    [Server]
-    public void SetVelocity(Vector3 newVelocity)
+    public class CharacterStateStorage : NetworkBehaviour
     {
-        velocity = newVelocity;
-    }
+        [SyncVar(hook = nameof(OnPositionSync))]
+        private Vector3 position;
 
-    [Server]
-    public void CorrectPosition(Vector3 newPosition)
-    {
-        position = newPosition;
-    }
+        [SyncVar(hook = nameof(OnVelocitySync))]
+        private Vector3 velocity;
 
-    /* --- Syncvar hooks --- */
+        /* --- Getters --- */
 
-    private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
-    {
-        OnPositionCorrected?.Invoke(newPosition);
-    }
+        public Vector3 Position => position;
+        public Vector3 Velocity => velocity;
 
-    private void OnVelocitySync(Vector3 oldVelocity, Vector3 newVelocity)
-    {
-        OnVelocityChanged?.Invoke(newVelocity);
+        public event Action<Vector3> OnPositionCorrected;
+        public event Action<Vector3> OnVelocityChanged;
+
+        /* --- Setters --- */
+
+        [Server]
+        public void SetVelocity(Vector3 newVelocity)
+        {
+            velocity = newVelocity;
+        }
+
+        [Server]
+        public void CorrectPosition(Vector3 newPosition)
+        {
+            position = newPosition;
+        }
+
+        /* --- Syncvar hooks --- */
+
+        private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
+        {
+            OnPositionCorrected?.Invoke(newPosition);
+        }
+
+        private void OnVelocitySync(Vector3 oldVelocity, Vector3 newVelocity)
+        {
+            OnVelocityChanged?.Invoke(newVelocity);
+        }
     }
 }

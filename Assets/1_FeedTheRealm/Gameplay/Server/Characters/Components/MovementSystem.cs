@@ -7,16 +7,13 @@ namespace FTR.Gameplay.Server.Characters
 {
     public class MovementSystem : MonoBehaviour, IGameTickable
     {
-        private Rigidbody rb;
-        private Vector3 direction = Vector3.zero;
-
-        private bool isInitialized = false;
-
         [Inject]
         private GameTickEvent gameTickEvent;
-
+        private bool isInitialized = false;
+        private Rigidbody rb;
+        private CharacterStateStorage stateStorage;
+        private Vector3 direction = Vector3.zero;
         private float moveSpeed = 5f;
-
         private float positionCorrectionCounter = 15;
         private float gameTickCounter = 0;
 
@@ -30,9 +27,10 @@ namespace FTR.Gameplay.Server.Characters
             gameTickEvent.OnRaised -= GameTick;
         }
 
-        public void Initialize(Rigidbody rb)
+        public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
         {
             this.rb = rb;
+            this.stateStorage = stateStorage;
             isInitialized = true;
         }
 
@@ -49,11 +47,10 @@ namespace FTR.Gameplay.Server.Characters
             rb.MovePosition(nextPosition);
 
             if (gameTickCounter % positionCorrectionCounter == 0)
-            {
-                // SEND POSITION TO STATE STORAGE
-            }
+                stateStorage.CorrectPosition(rb.position);
 
-            // SEND DIRECTION STATE STORAGE AND THEN TO CLIENTS
+            stateStorage.SetVelocity(rb.linearVelocity);
+            gameTickCounter++;
         }
     }
 }
