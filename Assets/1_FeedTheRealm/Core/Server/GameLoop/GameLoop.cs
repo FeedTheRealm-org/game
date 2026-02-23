@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Entities;
+using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using UnityEngine;
 
@@ -17,9 +18,12 @@ public class GameLoop : IGameTickable
 
     private readonly EventCollector eventCollector = new();
 
-    public GameLoop(WorldMonitor worldMonitor)
+    private readonly GameTickEvent gameTickEvent;
+
+    public GameLoop(WorldMonitor worldMonitor, GameTickEvent gameTickEvent)
     {
         this.worldMonitor = worldMonitor;
+        this.gameTickEvent = gameTickEvent;
     }
 
     public void GameTick(float dt)
@@ -30,8 +34,7 @@ public class GameLoop : IGameTickable
         worldMonitor.Entities.Foreach(entity => entity.GameTickable.GameTick(dt));
 
         Physics.Simulate(dt);
-
-        // TODO: EVALUATE Post simulation checks? e.g. ground check?
+        gameTickEvent.Raise(dt);
 
         // Push new events to NetworkQueue
         eventCollector.ForEach(serverEvent => worldMonitor.Events.Enqueue(serverEvent));

@@ -1,5 +1,6 @@
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
+using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Server.Characters;
 using UnityEngine;
 using VContainer;
@@ -13,6 +14,9 @@ public class ServerWorldInitiator : LifetimeScope
     [SerializeField]
     private Logging.Logger logger;
 
+    [SerializeField]
+    private GameTickEvent gameTickEvent;
+
     protected override void Configure(IContainerBuilder builder)
     {
         if (config.RuntimeRole != RuntimeRole.Server)
@@ -21,7 +25,7 @@ public class ServerWorldInitiator : LifetimeScope
         builder.Register<ServerCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
 
         builder.Register<WorldMonitor>(Lifetime.Singleton);
-
+        builder.RegisterInstance(gameTickEvent);
         builder.Register<GameLoop>(Lifetime.Singleton);
         builder.Register<NetworkService>(Lifetime.Singleton);
 
