@@ -22,9 +22,8 @@ public class ServerWorldInitiator : LifetimeScope
         if (config.RuntimeRole != RuntimeRole.Server)
             return;
 
-        builder.Register<ServerCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
-
         builder.Register<WorldMonitor>(Lifetime.Singleton);
+        builder.Register<ServerCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
         builder.RegisterInstance(gameTickEvent);
         builder.Register<GameLoop>(Lifetime.Singleton);
         builder.Register<NetworkService>(Lifetime.Singleton);

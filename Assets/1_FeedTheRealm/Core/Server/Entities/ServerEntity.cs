@@ -17,16 +17,10 @@ public sealed class ServerEntity
     /// <summary>
     /// Creates a new ServerEntity with the given netId, networkAdapter, and entity commandable.
     /// </summary>
-    public ServerEntity(
-        uint netId,
-        NetworkAdapter networkAdapter,
-        ICommandable commandable,
-        IGameTickable gameTickable
-    )
+    public ServerEntity(uint netId, NetworkAdapter networkAdapter, ICommandable commandable)
     {
         NetId = netId;
         NetworkAdapter = networkAdapter;
         this.Commandable = commandable;
-        this.GameTickable = gameTickable;
     }
 }

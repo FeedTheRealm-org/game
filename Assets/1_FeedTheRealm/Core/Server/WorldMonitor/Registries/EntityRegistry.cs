@@ -11,12 +11,4 @@ public sealed class EntityRegistry
     }
 
     public void Register(uint netId, ServerEntity entity) => entities[netId] = entity;
-
-    public void Foreach(System.Action<ServerEntity> action)
-    {
-        foreach (var entity in entities.Values)
-        {
-            action(entity);
-        }
-    }
 }

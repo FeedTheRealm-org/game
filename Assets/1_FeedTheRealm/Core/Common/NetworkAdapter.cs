@@ -29,17 +29,6 @@ public class NetworkAdapter : NetworkBehaviour
     [Inject]
     ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
 
-    // public override void OnStartServer()
-    // {
-    //     var entity = new ServerEntity(
-    //         netId,
-    //         this,
-    //         GetComponent<MovementController>()
-    //     );
-
-    //     world.Entities.Register(netId, entity);
-    // }
-
     /* --- DISPATCHERS --- */
 
     /// <summary>

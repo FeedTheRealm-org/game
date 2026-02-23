@@ -30,9 +30,6 @@ public class GameLoop : IGameTickable
     {
         ProcessCommands();
 
-        // Update/Tick entities such as rb.MovePosition, etc.
-        worldMonitor.Entities.Foreach(entity => entity.GameTickable.GameTick(dt));
-
         Physics.Simulate(dt);
         gameTickEvent.Raise(dt);
 
