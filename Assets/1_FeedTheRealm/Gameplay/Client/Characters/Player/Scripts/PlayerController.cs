@@ -2,33 +2,46 @@ using FTR.Core.Client.Exceptions;
 using Mirror;
 using Unity.Cinemachine;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// Connects local player input to the state machine.
 /// </summary>
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField]
+    [Inject]
     public PlayerInputReader inputReader;
 
-    [SerializeField]
-    private GameObject playerPrefab;
+    [Inject]
+    private Logging.Logger logger;
 
-    [SerializeField]
     private CharacterStateMachine characterStateMachine;
 
-    [SerializeField]
-    private Logging.Logger logger;
+    private bool isInitialized = false;
+    private bool isStarted = false;
+
+    public void Initialize(CharacterStateMachine characterStateMachine)
+    {
+        this.characterStateMachine = characterStateMachine;
+        isInitialized = true;
+        StartController();
+    }
 
     public override void OnStartAuthority()
     {
+        isStarted = true;
+        StartController();
+    }
+
+    public void StartController()
+    {
         if (!isLocalPlayer)
+            return;
+        else if (!isInitialized || !isStarted)
             return;
 
         if (inputReader == null)
             throw new MissingFieldException(nameof(inputReader), nameof(PlayerController));
-        if (playerPrefab == null)
-            throw new MissingFieldException(nameof(playerPrefab), nameof(PlayerController));
         if (characterStateMachine == null)
             throw new MissingFieldException(
                 nameof(characterStateMachine),

@@ -1,22 +1,21 @@
 using FTR.Core.Client.Enums;
-using FTR.Core.Client.Exceptions;
 using FTR.Core.Client.Utils;
 using UnityEngine;
 
 public class MovementView : MonoBehaviour
 {
     [SerializeField]
-    private Rigidbody rb;
-
-    [SerializeField]
     private CharacterAnimator animator;
 
-    private void Awake()
+    // Injected at Initialize
+    private Rigidbody rb;
+
+    private bool isInitialized = false;
+
+    public void Initialize(Rigidbody rb)
     {
-        if (rb == null)
-            throw new MissingFieldException(nameof(rb), nameof(MovementView));
-        if (animator == null)
-            throw new MissingFieldException(nameof(animator), nameof(MovementView));
+        this.rb = rb;
+        isInitialized = true;
     }
 
     /// <summary>
@@ -24,6 +23,11 @@ public class MovementView : MonoBehaviour
     /// </summary>
     public void MoveToPosition(Vector3 nextPosition)
     {
+        if (!isInitialized)
+            throw new MissingComponentException(
+                "MovementView must be initialized before calling MoveToPosition."
+            );
+
         rb.MovePosition(nextPosition);
 
         if (!animator.IsMoving())
@@ -38,6 +42,11 @@ public class MovementView : MonoBehaviour
     /// </summary>
     public void UpdateFacingDirection(Vector3 direction)
     {
+        if (!isInitialized)
+            throw new MissingComponentException(
+                "MovementView must be initialized before calling UpdateFacingDirection."
+            );
+
         if (direction == Vector3.zero)
         {
             animator.SetMoving(false);
