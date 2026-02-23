@@ -19,7 +19,7 @@ public class CharacterStateStorage : NetworkBehaviour
     public Vector3 Direction => direction;
     public Vector3 Velocity => velocity;
 
-    public event Action<Vector3> OnPositionChanged;
+    public event Action<Vector3> OnPositionCorrected;
 
     /* --- Setters --- */
 
@@ -31,7 +31,7 @@ public class CharacterStateStorage : NetworkBehaviour
     }
 
     [Server]
-    public void SetPosition(Vector3 newPosition)
+    public void CorrectPosition(Vector3 newPosition)
     {
         position = newPosition;
     }
@@ -40,6 +40,6 @@ public class CharacterStateStorage : NetworkBehaviour
 
     private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
     {
-        OnPositionChanged?.Invoke(newPosition);
+        OnPositionCorrected?.Invoke(newPosition);
     }
 }
