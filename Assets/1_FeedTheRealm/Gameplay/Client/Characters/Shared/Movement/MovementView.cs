@@ -1,11 +1,16 @@
 using FTR.Core.Client.Enums;
+using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
 using UnityEngine;
+using VContainer;
 
 public class MovementView : MonoBehaviour
 {
     [SerializeField]
     private CharacterAnimator animator;
+
+    [Inject]
+    private TickEvent tickEvent;
 
     // Injected at Initialize
     private Rigidbody rb;
@@ -17,6 +22,18 @@ public class MovementView : MonoBehaviour
         this.rb = rb;
         isInitialized = true;
     }
+
+    private void OnEnable()
+    {
+        tickEvent.OnRaised += Tick;
+    }
+
+    private void OnDisable()
+    {
+        tickEvent.OnRaised -= Tick;
+    }
+
+    private void Tick() { }
 
     /// <summary>
     /// Moves the Rigidbody to the specified position and starts the animation.

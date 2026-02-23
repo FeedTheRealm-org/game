@@ -16,6 +16,7 @@ public class ClientCharacterLinker : IScriptLinker
     public void LinkDomainScripts(GameObject gameObject)
     {
         var rb = gameObject.GetComponent<Rigidbody>();
+        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
         var playerComponents = UnityEngine.Object.Instantiate(
             prefabProvider.ClientPlayerComponents,
@@ -28,5 +29,8 @@ public class ClientCharacterLinker : IScriptLinker
 
         var playerController = gameObject.AddComponent<PlayerController>();
         playerController.Initialize(characterStateMachine);
+
+        var movementController = gameObject.AddComponent<MovementController>();
+        movementController.Initialize(networkAdapter);
     }
 }

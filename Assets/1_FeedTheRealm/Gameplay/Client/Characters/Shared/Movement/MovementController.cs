@@ -1,4 +1,5 @@
-using FTR.Core.Common.Protocol.RpcMessages.Movement;
+using FTR.Core.Common.Enums;
+using FTR.Core.Common.Protocol.RpcMessages;
 using UnityEngine;
 
 public class MovementController : MonoBehaviour
@@ -18,16 +19,14 @@ public class MovementController : MonoBehaviour
 
     private uint sequenceNumber = 0;
 
-    private void OnEnable()
-    {
-        // movementNetworkAdapter.OnMovementReconcileSnapshot += OnReconcile;
-        // movementNetworkAdapter.OnMovementCommandReceived += OnCommandReceived;
-    }
+    private NetworkAdapter networkAdapter;
 
-    private void OnDisable()
+    private bool isInitialized = false;
+
+    public void Initialize(NetworkAdapter networkAdapter)
     {
-        // movementNetworkAdapter.OnMovementReconcileSnapshot -= OnReconcile;
-        // movementNetworkAdapter.OnMovementCommandReceived -= OnCommandReceived;
+        isInitialized = true;
+        this.networkAdapter = networkAdapter;
     }
 
     // TODO: refactor camera make a camera manager!
@@ -39,22 +38,21 @@ public class MovementController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        sequenceNumber++;
+        if (!isInitialized)
+            return;
 
         float deltaTime = Time.fixedDeltaTime;
 
         UpdateCurrentDirectionWithCamera();
 
-        MovementCommand command = new MovementCommand
+        ActionCommandDTO command = new ActionCommandDTO
         {
-            sequenceNumber = sequenceNumber,
-            x = currentDirection.x,
-            y = currentDirection.y,
-            z = currentDirection.z,
+            Type = ActionType.Move,
+            Direction = currentDirection,
         };
 
-        // movementView.MoveToPosition(nextPosition);
         movementView.UpdateFacingDirection(currentDirection);
+        networkAdapter.DispatchAction(command);
     }
 
     private void UpdateCurrentDirectionWithCamera()
@@ -74,15 +72,5 @@ public class MovementController : MonoBehaviour
         ).normalized;
 
         currentDirection = (camRight * inputDirection.x + camForward * inputDirection.y).normalized;
-    }
-
-    private void OnReconcile(MovementSnapshot snapshot)
-    {
-        // prediction.Reconcile(transform, snapshot, moveSpeed, Time.fixedDeltaTime);
-    }
-
-    private void OnCommandReceived(MovementSnapshot snapshot)
-    {
-        movementView.MoveToPosition(new Vector3(snapshot.x, snapshot.y, snapshot.z));
     }
 }

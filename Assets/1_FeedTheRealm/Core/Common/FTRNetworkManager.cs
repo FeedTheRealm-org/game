@@ -190,10 +190,7 @@ public class FTRNetworkManager : NetworkManager
     {
         Transform startPos = GetStartPosition();
 
-        GameObject player =
-            startPos != null
-                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
-                : Instantiate(playerPrefab);
+        GameObject player = Instantiate(playerPrefab, startPos.position, startPos.rotation);
 
         // Spawn the player for this connection
         NetworkServer.AddPlayerForConnection(conn, player);

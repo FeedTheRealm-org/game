@@ -30,6 +30,7 @@ public class ClientWorldInitiator : LifetimeScope
         builder.RegisterInstance(prefabProvider);
         builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
         builder.Register<GltLoaderService>(Lifetime.Singleton);
+        builder.RegisterEntryPoint<ClientWorldEntryPoint>();
 
         logger?.Log("WorldInitiator: Registered as Client", this);
     }
