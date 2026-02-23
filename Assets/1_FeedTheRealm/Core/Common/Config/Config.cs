@@ -22,6 +22,8 @@ namespace FTR.Core.Common.Config
             get => GetRuntimeRole();
         }
 
+        public ApiConfig ApiConfig;
+
         public ushort Port = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
 
         /* HELPERS */

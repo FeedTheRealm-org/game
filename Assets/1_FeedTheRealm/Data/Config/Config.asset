@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
   editorRuntimeRole: 0
+  ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
+  Port: 7777

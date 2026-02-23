@@ -1,3 +1,4 @@
+using API;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
@@ -28,6 +29,7 @@ public class ClientWorldInitiator : LifetimeScope
         builder.RegisterInstance(playerInputReader);
         builder.RegisterInstance(prefabProvider);
         builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
+        builder.Register<GltLoaderService>(Lifetime.Singleton);
 
         logger?.Log("WorldInitiator: Registered as Client", this);
     }

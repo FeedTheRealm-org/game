@@ -6,7 +6,6 @@ using kcp2k;
 using Mirror;
 // using FTRShared.Runtime.Models;
 using UnityEngine;
-using VContainer;
 
 /*
     Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
@@ -26,8 +25,8 @@ public class FTRNetworkManager : NetworkManager
     [SerializeField]
     private Logging.Logger logger;
 
-    [Inject]
-    Config config;
+    [SerializeField]
+    private Config config;
 
     /// <summary>
     /// Runs on both Server and Client

@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using API;
-using GLTFast;
 using UnityEngine;
 
 namespace API
@@ -11,16 +9,14 @@ namespace API
     /// Route: /assets/sprites/items/{spriteId}?category={category}
     /// Separated from AssetsService (character editor sprites).
     /// </summary>
-    [CreateAssetMenu(fileName = "GltLoaderService", menuName = "Scriptable Objects/API/GltLoader")]
-    public class GltLoaderService : ScriptableObject
+    public class GltLoaderService
     {
-        [Header("API Config")]
-        [SerializeField]
         private ApiConfig apiConfig;
 
-        [Header("General settings")]
-        [SerializeField]
-        private Logging.Logger logger;
+        public GltLoaderService(ApiConfig config)
+        {
+            this.apiConfig = config;
+        }
 
         private string GetBaseUrl() =>
             $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/models";
