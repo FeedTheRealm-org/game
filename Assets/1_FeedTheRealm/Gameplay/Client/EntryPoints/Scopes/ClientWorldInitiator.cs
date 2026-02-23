@@ -1,5 +1,6 @@
 using API;
 using FTR.Core.Client;
+using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.Characters;
@@ -17,6 +18,15 @@ public class ClientWorldInitiator : LifetimeScope
 
     [SerializeField]
     private ClientPrefabProvider prefabProvider;
+
+    [SerializeField]
+    private TickEvent tickEvent;
+
+    [SerializeField]
+    private FixedTickEvent fixedTickEvent;
+
+    [SerializeField]
+    private LateTickEvent lateTickEvent;
 
     [SerializeField]
     private Logging.Logger logger;
