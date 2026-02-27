@@ -46,7 +46,8 @@ public class MovementController : MonoBehaviour
             Direction = currentDirection,
         };
 
-        movementView.UpdateFacingDirection(currentDirection);
+        // TODO: dont do this here, let the server tell us which direction to face based on the authoritative state
+        // movementView.UpdateFacingDirection(currentDirection);
         networkAdapter.DispatchAction(command);
     }
 

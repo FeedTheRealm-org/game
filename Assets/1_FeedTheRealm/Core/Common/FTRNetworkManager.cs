@@ -38,12 +38,6 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void Awake()
     {
-        {
-#if !DEBUG
-            var hud = GetComponent<NetworkManagerHUD>();
-            hud.enabled = false;
-#endif
-        }
         base.Awake();
     }
 

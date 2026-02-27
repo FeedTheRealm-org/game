@@ -37,8 +37,6 @@ MonoBehaviour:
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
-  - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Client/Menus/LoginScene.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
   - DEBUG

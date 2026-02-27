@@ -9,9 +9,6 @@ EditorBuildSettings:
     path: Assets/1_FeedTheRealm/Scenes/Client/Menus/LoginScene.unity
     guid: abd87fe87e8b55f40820f171267a39bc
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Testing/WorldLoaderTest.unity
-    guid: 27c5c4b95e037a72ebc7df0708252efe
-  - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Client/Menus/SignUpScene.unity
     guid: 3389029b3c1ee7f40bec33f792a7f184
   - enabled: 0
@@ -29,9 +26,21 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Testing/DebugWorld.unity
     guid: f22cd7a8ddd2cd20fa36b10cf899878d
-  - enabled: 1
+  - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Testing/NetworkRefactorSampleScene.unity
     guid: 5b99f95c2ef06d948b34300c5fc0c1f4
+  - enabled: 1
+    path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
+    guid: 6dcd719ab4493af08a3280356e946168
+  - enabled: 1
+    path: Assets/1_FeedTheRealm/Scenes/Client/ClientWorld.unity
+    guid: 701c4046fa42a621791231367c88fbc5
+  - enabled: 1
+    path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
+    guid: 6c61d5f10331d985e82f7ebdb16c47b3
+  - enabled: 1
+    path: Assets/1_FeedTheRealm/Scenes/Server/ServerWorld.unity
+    guid: 9b989502a097ef97fa769ea267e6a0a9
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
