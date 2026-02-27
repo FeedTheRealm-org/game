@@ -1,9 +1,10 @@
 using UnityEngine;
 
-namespace FTR.Core.Client;
-
-[CreateAssetMenu(menuName = "Scriptable Objects/Client/Prefab Provider")]
-public class ClientPrefabProvider : ScriptableObject
+namespace FTR.Core.Client
 {
-    public GameObject ClientPlayerComponents;
+    [CreateAssetMenu(menuName = "Scriptable Objects/Client/Prefab Provider")]
+    public class ClientPrefabProvider : ScriptableObject
+    {
+        public GameObject ClientPlayerComponents;
+    }
 }
