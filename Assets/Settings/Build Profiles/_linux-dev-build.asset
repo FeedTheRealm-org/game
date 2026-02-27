@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 15022, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: Multiplayer Role Data
   m_EditorClassIdentifier: UnityEditor.MultiplayerModule.dll::UnityEditor.Multiplayer.Internal.MultiplayerRoleData
-  multiplayerRole: 3
+  multiplayerRole: 2
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36,7 +36,11 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
   - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerWorld.unity
+  - m_enabled: 0
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
+  - m_enabled: 0
+    m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientWorld.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
   - DEBUG
