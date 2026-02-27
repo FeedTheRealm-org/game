@@ -3,6 +3,6 @@ using UnityEngine;
 
 namespace FTR.Core.Client.EventChannels.Ticks
 {
-    [CreateAssetMenu(menuName = "Events/Ticks/FixedTick")]
+    [CreateAssetMenu(menuName = "Events/Client/Ticks/FixedTick")]
     public class FixedTickEvent : EventChannelSO { }
 }

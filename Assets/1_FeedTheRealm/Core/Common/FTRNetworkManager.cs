@@ -6,6 +6,7 @@ using kcp2k;
 using Mirror;
 // using FTRShared.Runtime.Models;
 using UnityEngine;
+using VContainer.Unity;
 
 /*
     Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
@@ -22,6 +23,9 @@ public class FTRNetworkManager : NetworkManager
     // private WorldLoaderController worldLoader; // TODO: Client-Server is coupled by this controller
 
     [Header("--- Custom Fields ---")]
+    [SerializeField]
+    private LifetimeScope containerScope;
+
     [SerializeField]
     private Logging.Logger logger;
 
@@ -192,8 +196,10 @@ public class FTRNetworkManager : NetworkManager
 
         GameObject player = Instantiate(playerPrefab, startPos.position, startPos.rotation);
 
-        // Spawn the player for this connection
-        NetworkServer.AddPlayerForConnection(conn, player);
+        // Inject VContainer deps manually (since its a unity managed instantiation)
+        containerScope.Container.InjectGameObject(player);
+
+        NetworkServer.AddPlayerForConnection(conn, player); // Spawn
 
         logger.Log(
             $"Player spawned for connection {conn.connectionId} at position {player.transform.position}",

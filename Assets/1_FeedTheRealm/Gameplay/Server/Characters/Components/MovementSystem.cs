@@ -1,5 +1,6 @@
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.EventChannels;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 

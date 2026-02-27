@@ -219,6 +219,7 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
+  containerScope: {fileID: 1602583287}
   logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
 --- !u!114 &1491568309

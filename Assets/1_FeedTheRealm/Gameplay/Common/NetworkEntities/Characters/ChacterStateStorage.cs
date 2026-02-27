@@ -2,7 +2,7 @@ using System;
 using Mirror;
 using UnityEngine;
 
-namespace FTR.Gameplay.Server.Characters
+namespace FTR.Gameplay.Common.NetworkEntities.Characters
 {
     public class CharacterStateStorage : NetworkBehaviour
     {

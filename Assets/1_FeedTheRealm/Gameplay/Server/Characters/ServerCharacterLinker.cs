@@ -1,5 +1,6 @@
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server.Entities;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using Mirror;
 using UnityEngine;
 

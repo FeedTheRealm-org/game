@@ -3,6 +3,6 @@ using UnityEngine;
 
 namespace FTR.Core.Server.EventChannels
 {
-    [CreateAssetMenu(menuName = "Events/NetworkEvents/GameTick")]
+    [CreateAssetMenu(menuName = "Events/Server/Ticks/GameTick")]
     public class GameTickEvent : EventChannelSO<float> { }
 }

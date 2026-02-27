@@ -1,6 +1,7 @@
 using FTR.Core.Client.Enums;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 
@@ -14,12 +15,18 @@ public class MovementView : MonoBehaviour
 
     // Injected at Initialize
     private Rigidbody rb;
+    private CharacterStateStorage stateStorage;
 
     private bool isInitialized = false;
 
-    public void Initialize(Rigidbody rb)
+    public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
     {
         this.rb = rb;
+        this.stateStorage = stateStorage;
+
+        this.stateStorage.OnVelocityChanged += OnVelocityChanged;
+        this.stateStorage.OnPositionCorrected += OnPositionCorrected;
+
         isInitialized = true;
     }
 
@@ -34,6 +41,23 @@ public class MovementView : MonoBehaviour
     }
 
     private void Tick() { }
+
+    /// <summary>
+    /// OnVelocityChanged is used to update the animation parameters based on the current velocity when it changes.
+    /// </summary>
+    private void OnVelocityChanged(Vector3 velocity)
+    {
+        rb.linearVelocity = velocity;
+        UpdateFacingDirection(velocity);
+    }
+
+    /// <summary>
+    /// OnPositionCorrected is used for reconciliation and error correction, periodically.
+    /// </summary>
+    private void OnPositionCorrected(Vector3 position)
+    {
+        rb.position = position;
+    }
 
     /// <summary>
     /// Moves the Rigidbody to the specified position and starts the animation.

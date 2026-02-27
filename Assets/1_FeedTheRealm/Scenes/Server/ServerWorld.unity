@@ -219,8 +219,9 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
+  containerScope: {fileID: 2072178080}
   logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
 --- !u!114 &1491568309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -412,7 +413,7 @@ MonoBehaviour:
   autoInjectGameObjects: []
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
-  gameTickEvent: {fileID: 0}
+  gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
