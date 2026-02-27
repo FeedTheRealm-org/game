@@ -61,6 +61,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
             );
         }
 
+        // TODO: remove character animator from states as they will be handled by the Views
         movementStates.Add(
             typeof(CharacterIdleState),
             new CharacterIdleState(this, movementController, characterAnimator)

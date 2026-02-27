@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: ClientPrefabProvider
   m_EditorClassIdentifier: FTR.Core.Client:FTR.Core.Client:ClientPrefabProvider
-  ClientPlayerComponents: {fileID: 0}
+  ClientPlayerComponents: {fileID: 1418397613159891299, guid: 01e759bd5040d2b6c8b5ac682ad83611, type: 3}

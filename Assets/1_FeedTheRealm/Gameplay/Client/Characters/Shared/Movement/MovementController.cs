@@ -7,17 +7,12 @@ public class MovementController : MonoBehaviour
     [SerializeField]
     private MovementView movementView;
 
-    [SerializeField]
-    private float moveSpeed = 5f; // TODO: move to config SO
-
     [Header("Debug")]
     [SerializeField]
     private Logging.Logger logger;
 
     private Vector2 inputDirection;
     private Vector3 currentDirection;
-
-    private uint sequenceNumber = 0;
 
     private NetworkAdapter networkAdapter;
 
