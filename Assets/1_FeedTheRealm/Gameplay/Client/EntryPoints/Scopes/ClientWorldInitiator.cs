@@ -38,6 +38,9 @@ public class ClientWorldInitiator : LifetimeScope
 
         builder.RegisterInstance(playerInputReader);
         builder.RegisterInstance(prefabProvider);
+        builder.RegisterInstance(tickEvent);
+        builder.RegisterInstance(fixedTickEvent);
+        builder.RegisterInstance(lateTickEvent);
         builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
         builder.Register<GltLoaderService>(Lifetime.Singleton);
         builder.RegisterEntryPoint<ClientWorldEntryPoint>();
