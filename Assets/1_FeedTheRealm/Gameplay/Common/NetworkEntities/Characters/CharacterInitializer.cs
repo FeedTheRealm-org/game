@@ -11,6 +11,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
 
         private void Awake()
         {
+            if (scriptLinker == null)
+                Debug.Log("Script linker is null");
+
             scriptLinker.LinkDomainScripts(gameObject);
         }
     }

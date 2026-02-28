@@ -167,7 +167,14 @@ public class FTRNetworkManager : NetworkManager
     /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
     /// </summary>
     /// <param name="conn">Connection from client.</param>
-    public override void OnServerConnect(NetworkConnectionToClient conn) { }
+    public override void OnServerConnect(NetworkConnectionToClient conn)
+    {
+        base.OnServerConnect(conn);
+        logger.Log(
+            $"[NetworkManager] OnServerConnect called for connection {conn.connectionId}",
+            this
+        );
+    }
 
     /// <summary>
     /// Called on the server when a client is ready.
@@ -177,6 +184,10 @@ public class FTRNetworkManager : NetworkManager
     public override void OnServerReady(NetworkConnectionToClient conn)
     {
         base.OnServerReady(conn);
+        logger.Log(
+            $"[NetworkManager] OnServerReady called for connection {conn.connectionId}",
+            this
+        );
     }
 
     /// <summary>
@@ -186,19 +197,21 @@ public class FTRNetworkManager : NetworkManager
     /// <param name="conn">Connection from client.</param>
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
+        Debug.Log("OnServerAddPlayer START");
+
         Transform startPos = GetStartPosition();
+        Vector3 pos = startPos != null ? startPos.position : Vector3.one;
+        Vector3 rot = startPos != null ? startPos.rotation.eulerAngles : Vector3.zero;
 
-        GameObject player = Instantiate(playerPrefab, startPos.position, startPos.rotation);
+        Debug.Log($"playerPrefab is null? {playerPrefab == null}");
+        Debug.Log($"containerScope is null? {containerScope == null}");
 
-        // Inject VContainer deps manually (since its a unity managed instantiation)
-        containerScope.Container.InjectGameObject(player);
+        GameObject player = Instantiate(playerPrefab, pos, Quaternion.Euler(rot));
 
-        NetworkServer.AddPlayerForConnection(conn, player); // Spawn
+        if (containerScope != null && containerScope.Container != null)
+            containerScope.Container.InjectGameObject(player);
 
-        logger.Log(
-            $"Player spawned for connection {conn.connectionId} at position {player.transform.position}",
-            this
-        );
+        NetworkServer.AddPlayerForConnection(conn, player);
     }
 
     public override Transform GetStartPosition()
@@ -275,6 +288,7 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void OnClientConnect()
     {
+        Debug.Log("CLIENT CONNECTED");
         base.OnClientConnect();
         // _ = worldLoader.LoadClient();
     }
@@ -326,12 +340,17 @@ public class FTRNetworkManager : NetworkManager
     {
         logger.Log("[NewNetworkManager] OnStartServer called", this);
         // _ = worldLoader.LoadServer();
+        base.OnStartServer();
     }
 
     /// <summary>
     /// This is invoked when the client is started.
     /// </summary>
-    public override void OnStartClient() { }
+    public override void OnStartClient()
+    {
+        logger.Log("[NewNetworkManager] OnStartClient called", this);
+        base.OnStartClient();
+    }
 
     /// <summary>
     /// This is called when a host is stopped.

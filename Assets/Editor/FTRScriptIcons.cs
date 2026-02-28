@@ -37,7 +37,5 @@ public static class FolderScriptIconAssigner
                 }
             }
         }
-
-        Debug.Log("Persistent icons assigned to scripts in " + TargetFolder);
     }
 }
