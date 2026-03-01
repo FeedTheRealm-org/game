@@ -1,13 +1,13 @@
 using FTR.Core.Client.Exceptions;
-using Mirror;
 using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;
 
 /// <summary>
 /// Connects local player input to the state machine.
+/// Client-only, no networking needed.
 /// </summary>
-public class PlayerController : NetworkBehaviour
+public class PlayerController : MonoBehaviour
 {
     [Inject]
     public PlayerInputReader inputReader;
@@ -18,7 +18,6 @@ public class PlayerController : NetworkBehaviour
     private CharacterStateMachine characterStateMachine;
 
     private bool isInitialized = false;
-    private bool isStarted = false;
 
     public void Initialize(CharacterStateMachine characterStateMachine)
     {
@@ -27,17 +26,9 @@ public class PlayerController : NetworkBehaviour
         StartController();
     }
 
-    public override void OnStartAuthority()
-    {
-        isStarted = true;
-        StartController();
-    }
-
     public void StartController()
     {
-        if (!isLocalPlayer)
-            return;
-        else if (!isInitialized || !isStarted)
+        if (!isInitialized)
             return;
 
         if (inputReader == null)
@@ -52,11 +43,6 @@ public class PlayerController : NetworkBehaviour
         cinemachineCamera.Target.TrackingTarget = transform;
 
         ToggleRegisterInputs(true);
-    }
-
-    public override void OnStopAuthority()
-    {
-        ToggleRegisterInputs(false);
     }
 
     public void OnDestroy()

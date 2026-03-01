@@ -28,15 +28,20 @@ public class MovementView : MonoBehaviour
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
 
         isInitialized = true;
+        Debug.Log("tickEvent Injected: " + (tickEvent != null));
     }
 
     private void OnEnable()
     {
+        if (!isInitialized)
+            return;
         tickEvent.OnRaised += Tick;
     }
 
     private void OnDisable()
     {
+        if (!isInitialized)
+            return;
         tickEvent.OnRaised -= Tick;
     }
 

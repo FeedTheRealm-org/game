@@ -198,20 +198,12 @@ public class FTRNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         Debug.Log("OnServerAddPlayer START");
-
-        Transform startPos = GetStartPosition();
-        Vector3 pos = startPos != null ? startPos.position : Vector3.one;
-        Vector3 rot = startPos != null ? startPos.rotation.eulerAngles : Vector3.zero;
-
-        Debug.Log($"playerPrefab is null? {playerPrefab == null}");
-        Debug.Log($"containerScope is null? {containerScope == null}");
-
-        GameObject player = Instantiate(playerPrefab, pos, Quaternion.Euler(rot));
-
-        if (containerScope != null && containerScope.Container != null)
-            containerScope.Container.InjectGameObject(player);
-
+        GameObject player = AddPlayer();
         NetworkServer.AddPlayerForConnection(conn, player);
+        logger.Log(
+            $"[NetworkManager] OnServerAddPlayer called for connection {conn.connectionId}",
+            this
+        );
     }
 
     public override Transform GetStartPosition()
@@ -289,8 +281,8 @@ public class FTRNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         Debug.Log("CLIENT CONNECTED");
+        // TODO: review a way to get the instanicated connect client and inject it to the container
         base.OnClientConnect();
-        // _ = worldLoader.LoadClient();
     }
 
     /// <summary>
@@ -368,4 +360,36 @@ public class FTRNetworkManager : NetworkManager
     public override void OnStopClient() { }
 
     #endregion
+
+
+    /// <summary>
+    ///  Add a player for the given connection.
+    ///  This can be used on both the client and the server, but in different ways:
+    ///  On the server, this function is called when a client connects and is ready.
+    /// </summary>
+    /// <param name="conn"></param>
+    public GameObject AddPlayer()
+    {
+        if (playerPrefab == null)
+        {
+            logger.Log($"[NetworkManager] No player prefab found", this, Logging.LogType.Error);
+            return null;
+        }
+        Transform startPos = GetStartPosition();
+        // This is a workaround for the fact that Mirror's default implementation of
+        // GetStartPosition returns null if no start positions are set,
+        // which causes an error when trying to instantiate the player prefab.
+        // We should setup the start position when worldInitializer works correctly
+        Vector3 pos = startPos != null ? startPos.position : Vector3.zero;
+        pos.y = 3f;
+
+        Debug.Log($"Instantiating player prefab at position {pos}");
+        GameObject player = containerScope.Container.Instantiate(
+            playerPrefab,
+            pos,
+            Quaternion.Euler(Vector3.zero)
+        );
+        Debug.Log("Instantiated player prefab!");
+        return player;
+    }
 }

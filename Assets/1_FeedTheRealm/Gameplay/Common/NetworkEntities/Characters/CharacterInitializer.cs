@@ -13,7 +13,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         {
             if (scriptLinker == null)
                 Debug.Log("Script linker is null");
-
+            Debug.Log("Linking domain scripts for character");
             scriptLinker.LinkDomainScripts(gameObject);
         }
     }

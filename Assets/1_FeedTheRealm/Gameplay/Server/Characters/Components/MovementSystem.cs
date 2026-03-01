@@ -18,14 +18,10 @@ namespace FTR.Gameplay.Server.Characters
         private float positionCorrectionCounter = 15;
         private float gameTickCounter = 0;
 
-        private void OnEnable()
-        {
-            gameTickEvent.OnRaised += GameTick;
-        }
-
         private void OnDisable()
         {
-            gameTickEvent.OnRaised -= GameTick;
+            if (gameTickEvent != null)
+                gameTickEvent.OnRaised -= GameTick;
         }
 
         public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
@@ -33,6 +29,12 @@ namespace FTR.Gameplay.Server.Characters
             this.rb = rb;
             this.stateStorage = stateStorage;
             isInitialized = true;
+
+            // Subscribe after injection has occurred
+            if (gameTickEvent != null)
+                gameTickEvent.OnRaised += GameTick;
+
+            Debug.Log("MovementSystem initialized and subscribed to GameTickEvent");
         }
 
         public void OnMove(Vector3 direction)

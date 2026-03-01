@@ -2,6 +2,8 @@ using FTR.Core.Client;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.Characters;
 
@@ -9,9 +11,15 @@ public class ClientCharacterLinker : IScriptLinker
 {
     private readonly ClientPrefabProvider prefabProvider;
 
-    public ClientCharacterLinker(ClientPrefabProvider prefabProvider)
+    private readonly IObjectResolver resolver;
+
+    public ClientCharacterLinker(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
     {
         this.prefabProvider = prefabProvider;
+        this.resolver = resolver;
+
+        Debug.Log("ClientCharacterLinker created with prefabProvider: " + (prefabProvider != null));
+        Debug.Log("ClientCharacterLinker created with resolver: " + (resolver != null));
     }
 
     public void LinkDomainScripts(GameObject gameObject)
@@ -22,12 +30,13 @@ public class ClientCharacterLinker : IScriptLinker
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
         // Add client-side components
-        var playerComponents = UnityEngine.Object.Instantiate(
+        var playerComponents = Object.Instantiate(
             prefabProvider.ClientPlayerComponents,
             gameObject.transform
         );
 
-        // Initialize components
+        resolver.InjectGameObject(playerComponents);
+
         var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
         var movementView = playerComponents.GetComponent<MovementView>();
         movementView.Initialize(rb, stateStorage);

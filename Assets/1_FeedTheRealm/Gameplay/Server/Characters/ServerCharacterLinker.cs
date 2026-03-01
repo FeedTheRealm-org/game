@@ -33,6 +33,8 @@ public class ServerCharacterLinker : IScriptLinker
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netID = gameObject.GetComponent<NetworkIdentity>().netId;
         RegisterEntity(netID, networkAdapter, serverCommandHandler);
+
+        Debug.Log($"Linked domain scripts for character with netID {netID}");
     }
 
     public void RegisterEntity(
