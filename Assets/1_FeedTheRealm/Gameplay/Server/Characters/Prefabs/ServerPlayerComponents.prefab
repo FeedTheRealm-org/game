@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1607649542385950516}
-  - component: {fileID: 5256368487880246540}
+  - component: {fileID: 3631298942065249905}
+  - component: {fileID: 6682530117870127933}
   m_Layer: 0
   m_Name: ServerPlayerComponents
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5256368487880246540
+--- !u!114 &3631298942065249905
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,6 +42,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 2056940003155735034}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f57a3c752229b7b7895a767d3d33988d, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e2fb51349e87624dbcf89d0bb38f6c4, type: 3}
   m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.MovementComponentSystem
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.MovementSystem
+  gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
+--- !u!114 &6682530117870127933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056940003155735034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5e4a9ab1c4dbb75e90535c957573a1c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.ServerCommandHandler

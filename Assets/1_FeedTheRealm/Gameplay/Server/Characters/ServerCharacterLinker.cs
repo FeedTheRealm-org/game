@@ -1,38 +1,55 @@
 using FTR.Core.Common.Loaders;
+using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using Mirror;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Characters;
 
 public class ServerCharacterLinker : IScriptLinker
 {
     private readonly WorldMonitor world;
+    private readonly ServerPrefabProvider prefabProvider;
+    private readonly IObjectResolver resolver;
 
-    public ServerCharacterLinker(WorldMonitor world)
+    public ServerCharacterLinker(
+        WorldMonitor world,
+        ServerPrefabProvider prefabProvider,
+        IObjectResolver resolver
+    )
     {
         this.world = world;
+        this.prefabProvider = prefabProvider;
+        this.resolver = resolver;
     }
 
     public void LinkDomainScripts(GameObject gameObject)
     {
-        // Add Serverside components
-        var serverCommandHandler = gameObject.AddComponent<ServerCommandHandler>();
-        // TODO: move this to a Server character prefab and inject it here instead of creating it on the fly
-        var movementSystem = gameObject.AddComponent<MovementSystem>();
-
-        // Get from common character components
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
+        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
+
+        // Add server-side components
+        var serverComponents = Object.Instantiate(
+            prefabProvider.ServerPlayerComponents,
+            gameObject.transform
+        );
+
+        resolver.InjectGameObject(serverComponents);
+
+        var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
+        var movementSystem = serverComponents.GetComponent<MovementSystem>();
 
         // Initialize components
         movementSystem.Initialize(rb, stateStorage);
         serverCommandHandler.Initialize(movementSystem);
 
-        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netID = gameObject.GetComponent<NetworkIdentity>().netId;
         RegisterEntity(netID, networkAdapter, serverCommandHandler);
+        gameObject.name = $"Player-{netID}";
 
         Debug.Log($"Linked domain scripts for character with netID {netID}");
     }

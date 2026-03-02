@@ -40,7 +40,7 @@ public class NetworkAdapter : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
-
+        Debug.Log($"Dispatching Action Command: {command.Type} with direction {command.Direction}");
         CmdActionRequest(command);
     }
 

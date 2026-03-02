@@ -40,6 +40,7 @@ public class NetworkService
 
     private void OnReceivedTransactionCommand(TransactionCommandDTO transactionCommand)
     {
+        UnityEngine.Debug.Log($"Received Transaction Command: {transactionCommand.Type}");
         var cmd = CommandsFactory.FromTransactionCommandDTO(transactionCommand);
         worldMonitor.Commands.Enqueue(cmd);
     }

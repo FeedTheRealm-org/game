@@ -27,24 +27,15 @@ public class MovementController : MonoBehaviour
     // TODO: refactor camera make a camera manager!
     public void SetDirection(Vector2 direction)
     {
-        this.inputDirection = direction;
-        logger.Log($"SetDirection: {direction}", this);
-    }
-
-    private void FixedUpdate()
-    {
         if (!isInitialized)
             return;
 
-        float deltaTime = Time.fixedDeltaTime;
+        inputDirection = direction;
+        logger.Log($"SetDirection: {direction}", this);
 
         UpdateCurrentDirectionWithCamera();
 
-        ActionCommandDTO command = new ActionCommandDTO
-        {
-            Type = ActionType.Move,
-            Direction = currentDirection,
-        };
+        ActionCommandDTO command = new() { Type = ActionType.Move, Direction = currentDirection };
 
         // TODO: dont do this here, let the server tell us which direction to face based on the authoritative state
         // movementView.UpdateFacingDirection(currentDirection);

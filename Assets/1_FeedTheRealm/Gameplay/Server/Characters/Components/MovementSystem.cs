@@ -8,7 +8,7 @@ namespace FTR.Gameplay.Server.Characters
 {
     public class MovementSystem : MonoBehaviour, IGameTickable
     {
-        [Inject]
+        [SerializeField]
         private GameTickEvent gameTickEvent;
         private bool isInitialized = false;
         private Rigidbody rb;
@@ -31,8 +31,7 @@ namespace FTR.Gameplay.Server.Characters
             isInitialized = true;
 
             // Subscribe after injection has occurred
-            if (gameTickEvent != null)
-                gameTickEvent.OnRaised += GameTick;
+            gameTickEvent.OnRaised += GameTick;
 
             Debug.Log("MovementSystem initialized and subscribed to GameTickEvent");
         }
@@ -46,13 +45,18 @@ namespace FTR.Gameplay.Server.Characters
         {
             if (!isInitialized)
                 return;
-            Vector3 nextPosition = rb.position + dt * moveSpeed * direction;
-            rb.MovePosition(nextPosition);
 
+            if (gameTickCounter % 60 == 0)
+                Debug.Log($"GameTick: {dt}, Direction: {direction}");
+
+            Vector3 nextPosition = rb.position + dt * moveSpeed * direction;
+            Vector3 newVelocity = (nextPosition - rb.position) / dt;
+
+            rb.MovePosition(nextPosition);
             if (gameTickCounter % positionCorrectionCounter == 0)
                 stateStorage.CorrectPosition(rb.position);
+            stateStorage.SetVelocity(newVelocity);
 
-            stateStorage.SetVelocity(rb.linearVelocity);
             gameTickCounter++;
         }
     }

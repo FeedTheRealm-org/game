@@ -359,6 +359,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ServerWorldInitiator
       objectReference: {fileID: 0}
+    - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
+      propertyPath: prefabProvider
+      value: 
+      objectReference: {fileID: 11400000, guid: 4ccdd76aef3b99a93afaee9d9606a365, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

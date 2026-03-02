@@ -1,5 +1,6 @@
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
+using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Server.Characters;
 using UnityEngine;
@@ -17,12 +18,16 @@ public class ServerWorldInitiator : LifetimeScope
     [SerializeField]
     private GameTickEvent gameTickEvent;
 
+    [SerializeField]
+    private ServerPrefabProvider prefabProvider;
+
     protected override void Configure(IContainerBuilder builder)
     {
         if (config.RuntimeRole != RuntimeRole.Server)
             return;
 
         builder.Register<WorldMonitor>(Lifetime.Singleton);
+        builder.RegisterInstance(prefabProvider);
         builder.Register<ServerCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
         builder.RegisterInstance(gameTickEvent);
         builder.Register<GameLoop>(Lifetime.Singleton);

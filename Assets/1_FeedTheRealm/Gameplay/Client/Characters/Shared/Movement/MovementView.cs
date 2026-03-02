@@ -69,6 +69,7 @@ public class MovementView : MonoBehaviour
     /// </summary>
     public void MoveToPosition(Vector3 nextPosition)
     {
+        Debug.Log($"Moving to position: {nextPosition}");
         if (!isInitialized)
             throw new MissingComponentException(
                 "MovementView must be initialized before calling MoveToPosition."

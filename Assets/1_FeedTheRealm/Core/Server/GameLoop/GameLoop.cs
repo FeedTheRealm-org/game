@@ -57,6 +57,9 @@ public class GameLoop : IGameTickable
         {
             if (worldMonitor.Entities.TryGet(cmd.NetId, out ServerEntity entity))
             {
+                UnityEngine.Debug.Log(
+                    $"Processing Command: {cmd.GetType().Name} for Entity: {entity.NetId}"
+                );
                 cmd.Apply(entity.Commandable, eventCollector);
                 processedThisTick++;
             }

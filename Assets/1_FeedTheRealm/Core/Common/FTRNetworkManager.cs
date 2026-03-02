@@ -201,7 +201,6 @@ public class FTRNetworkManager : NetworkManager
     /// <param name="conn">Connection from client.</param>
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
-        Debug.Log("OnServerAddPlayer START");
         GameObject player = AddPlayer();
 
         // Add player to network - this will trigger OnStartServer on the player's NetworkBehaviour components
@@ -213,7 +212,6 @@ public class FTRNetworkManager : NetworkManager
             $"[NetworkManager] OnServerAddPlayer called for connection {conn.connectionId}",
             this
         );
-        Debug.Log("OnServerAddPlayer END");
     }
 
     public override Transform GetStartPosition()
@@ -391,14 +389,11 @@ public class FTRNetworkManager : NetworkManager
         Vector3 pos = startPos != null ? startPos.position : Vector3.zero;
         pos.y = 3f;
 
-        Debug.Log($"Instantiating player prefab at position {pos}");
         GameObject player = containerScope.Container.Instantiate(
             playerPrefab,
             pos,
             Quaternion.Euler(Vector3.zero)
         );
-        player.name = $"Player-{player.GetComponent<NetworkIdentity>().netId}";
-        Debug.Log("Instantiated player prefab!");
         return player;
     }
 }
