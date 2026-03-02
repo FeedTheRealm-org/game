@@ -1,5 +1,6 @@
 using System;
 using FTR.Core.Common.Config;
+using FTR.Core.Common.EventChannels;
 // using Core.Systems.Worlds;
 // using Core.Systems.Worlds.Loader;
 using kcp2k;
@@ -25,6 +26,9 @@ public class FTRNetworkManager : NetworkManager
     [Header("--- Custom Fields ---")]
     [SerializeField]
     private LifetimeScope containerScope;
+
+    [SerializeField]
+    private InitiatePlayerEvent initiatePlayerEvent;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -281,8 +285,34 @@ public class FTRNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         Debug.Log("CLIENT CONNECTED");
-        // TODO: review a way to get the instanicated connect client and inject it to the container
         base.OnClientConnect();
+
+        // Start coroutine to wait for local player to spawn and be ready
+        StartCoroutine(WaitForLocalPlayerAndInitialize());
+    }
+
+    private System.Collections.IEnumerator WaitForLocalPlayerAndInitialize()
+    {
+        Debug.Log("Waiting for local player to spawn...");
+
+        // Wait until the local player is spawned
+        while (NetworkClient.localPlayer == null)
+        {
+            yield return null;
+        }
+
+        Debug.Log("Local player spawned, waiting for GameObject to be fully enabled...");
+
+        // Wait one more frame to ensure OnEnable has been called on all components
+        yield return null;
+
+        Debug.Log("START Injecting local player gameobject to container");
+        containerScope.Container.InjectGameObject(NetworkClient.localPlayer.gameObject);
+        Debug.Log("DONE Injected local player gameobject to container!");
+
+        // Now raise the event - CharacterInitializer should be subscribed by now
+        initiatePlayerEvent.Raise();
+        Debug.Log("InitiatePlayerEvent raised");
     }
 
     /// <summary>

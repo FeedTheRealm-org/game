@@ -175,6 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bfa26a00c7ed603cb6a5f53215eec07, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Characters.CharacterInitializer
+  initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
 --- !u!114 &6115904368319544611
 MonoBehaviour:
   m_ObjectHideFlags: 0

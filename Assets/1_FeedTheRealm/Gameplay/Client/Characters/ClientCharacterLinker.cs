@@ -42,6 +42,7 @@ public class ClientCharacterLinker : IScriptLinker
         movementView.Initialize(rb, stateStorage);
 
         var playerController = gameObject.AddComponent<PlayerController>();
+        resolver.Inject(playerController);
         playerController.Initialize(characterStateMachine);
 
         var movementController = gameObject.AddComponent<MovementController>();

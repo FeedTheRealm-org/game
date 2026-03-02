@@ -2,6 +2,7 @@ using API;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Config;
+using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.Characters;
 using UnityEngine;
