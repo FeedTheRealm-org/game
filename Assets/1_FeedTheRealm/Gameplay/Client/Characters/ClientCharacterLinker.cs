@@ -5,47 +5,50 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace FTR.Gameplay.Client.Characters;
-
-public class ClientCharacterLinker : IScriptLinker
+namespace FTR.Gameplay.Client.Characters
 {
-    private readonly ClientPrefabProvider prefabProvider;
-
-    private readonly IObjectResolver resolver;
-
-    public ClientCharacterLinker(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
+    public class ClientCharacterLinker : IScriptLinker
     {
-        this.prefabProvider = prefabProvider;
-        this.resolver = resolver;
+        private readonly ClientPrefabProvider prefabProvider;
 
-        Debug.Log("ClientCharacterLinker created with prefabProvider: " + (prefabProvider != null));
-        Debug.Log("ClientCharacterLinker created with resolver: " + (resolver != null));
-    }
+        private readonly IObjectResolver resolver;
 
-    public void LinkDomainScripts(GameObject gameObject)
-    {
-        // Get from common character components
-        var rb = gameObject.GetComponent<Rigidbody>();
-        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
-        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
+        public ClientCharacterLinker(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
+        {
+            this.prefabProvider = prefabProvider;
+            this.resolver = resolver;
 
-        // Add client-side components
-        var playerComponents = Object.Instantiate(
-            prefabProvider.ClientPlayerComponents,
-            gameObject.transform
-        );
+            Debug.Log(
+                "ClientCharacterLinker created with prefabProvider: " + (prefabProvider != null)
+            );
+            Debug.Log("ClientCharacterLinker created with resolver: " + (resolver != null));
+        }
 
-        resolver.InjectGameObject(playerComponents);
+        public void LinkDomainScripts(GameObject gameObject)
+        {
+            // Get from common character components
+            var rb = gameObject.GetComponent<Rigidbody>();
+            var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+            var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
-        var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
-        var movementView = playerComponents.GetComponent<MovementView>();
-        movementView.Initialize(rb, stateStorage);
+            // Add client-side components
+            var playerComponents = Object.Instantiate(
+                prefabProvider.ClientPlayerComponents,
+                gameObject.transform
+            );
 
-        var playerController = gameObject.AddComponent<PlayerController>();
-        resolver.Inject(playerController);
-        playerController.Initialize(characterStateMachine);
+            resolver.InjectGameObject(playerComponents);
 
-        var movementController = gameObject.AddComponent<MovementController>();
-        movementController.Initialize(networkAdapter);
+            var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
+            var movementController = playerComponents.GetComponent<MovementController>();
+            var movementView = playerComponents.GetComponent<MovementView>();
+
+            var playerController = gameObject.AddComponent<PlayerController>();
+            resolver.Inject(playerController);
+
+            movementView.Initialize(rb, stateStorage);
+            playerController.Initialize(characterStateMachine);
+            movementController.Initialize(networkAdapter);
+        }
     }
 }

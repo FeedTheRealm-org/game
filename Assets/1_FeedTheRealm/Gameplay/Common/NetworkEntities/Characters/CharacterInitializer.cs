@@ -15,7 +15,6 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
 
         private void OnEnable()
         {
-            Debug.Log("CharacterInitializer: Subscribing to InitiatePlayerEvent");
             initiatePlayerEvent.OnRaised += Initialize;
         }
 
@@ -26,7 +25,6 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
 
         public void Initialize()
         {
-            Debug.Log("CharacterInitializer: Initialize called");
             if (scriptLinker == null)
                 Debug.Log("Script linker is null");
             Debug.Log("Linking domain scripts for character");

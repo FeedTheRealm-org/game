@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -4644941045307041541}
   - component: {fileID: 6115904368319544611}
   - component: {fileID: -3193778337751549948}
+  - component: {fileID: 5320877551239362344}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -207,3 +208,19 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+--- !u!114 &5320877551239362344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98ce1d8c7c556571f9e11daea15b9836, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Characters.CharacterNetworkInitializer
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}

@@ -294,6 +294,10 @@ PrefabInstance:
       propertyPath: containerScope
       value: 
       objectReference: {fileID: 791218658}
+    - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
+      propertyPath: initiatePlayerEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
     - target: {fileID: 7109652370809193073, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
       propertyPath: m_Name
       value: WorldInitiator

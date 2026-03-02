@@ -28,7 +28,7 @@ public class FTRNetworkManager : NetworkManager
     private LifetimeScope containerScope;
 
     [SerializeField]
-    private InitiatePlayerEvent initiatePlayerEvent;
+    InitiatePlayerEvent initiatePlayerEvent;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -203,11 +203,17 @@ public class FTRNetworkManager : NetworkManager
     {
         Debug.Log("OnServerAddPlayer START");
         GameObject player = AddPlayer();
+
+        // Add player to network - this will trigger OnStartServer on the player's NetworkBehaviour components
         NetworkServer.AddPlayerForConnection(conn, player);
+
+        initiatePlayerEvent.Raise();
+
         logger.Log(
             $"[NetworkManager] OnServerAddPlayer called for connection {conn.connectionId}",
             this
         );
+        Debug.Log("OnServerAddPlayer END");
     }
 
     public override Transform GetStartPosition()
@@ -284,35 +290,7 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void OnClientConnect()
     {
-        Debug.Log("CLIENT CONNECTED");
         base.OnClientConnect();
-
-        // Start coroutine to wait for local player to spawn and be ready
-        StartCoroutine(WaitForLocalPlayerAndInitialize());
-    }
-
-    private System.Collections.IEnumerator WaitForLocalPlayerAndInitialize()
-    {
-        Debug.Log("Waiting for local player to spawn...");
-
-        // Wait until the local player is spawned
-        while (NetworkClient.localPlayer == null)
-        {
-            yield return null;
-        }
-
-        Debug.Log("Local player spawned, waiting for GameObject to be fully enabled...");
-
-        // Wait one more frame to ensure OnEnable has been called on all components
-        yield return null;
-
-        Debug.Log("START Injecting local player gameobject to container");
-        containerScope.Container.InjectGameObject(NetworkClient.localPlayer.gameObject);
-        Debug.Log("DONE Injected local player gameobject to container!");
-
-        // Now raise the event - CharacterInitializer should be subscribed by now
-        initiatePlayerEvent.Raise();
-        Debug.Log("InitiatePlayerEvent raised");
     }
 
     /// <summary>
@@ -419,6 +397,7 @@ public class FTRNetworkManager : NetworkManager
             pos,
             Quaternion.Euler(Vector3.zero)
         );
+        player.name = $"Player-{player.GetComponent<NetworkIdentity>().netId}";
         Debug.Log("Instantiated player prefab!");
         return player;
     }
