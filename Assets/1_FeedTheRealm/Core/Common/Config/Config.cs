@@ -9,7 +9,7 @@ namespace FTR.Core.Common.Config
         Client,
     }
 
-    [CreateAssetMenu(menuName = "Scriptable Objects/Config")]
+    [CreateAssetMenu(menuName = "Scriptable Objects/Config/Config")]
     public class Config : ScriptableObject
     {
         /* PROPERTIES */

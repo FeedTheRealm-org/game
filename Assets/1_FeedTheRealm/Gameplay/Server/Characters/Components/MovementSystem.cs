@@ -1,4 +1,6 @@
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
@@ -10,12 +12,14 @@ namespace FTR.Gameplay.Server.Characters
     {
         [SerializeField]
         private GameTickEvent gameTickEvent;
+
+        [SerializeField]
+        private ServerConfig config;
         private bool isInitialized = false;
         private Rigidbody rb;
         private CharacterStateStorage stateStorage;
         private Vector3 direction = Vector3.zero;
 
-        // move to config later
         private float moveSpeed = 5f;
         private float positionCorrectionCounter = 3;
         private float gameTickCounter = 0;
@@ -31,7 +35,7 @@ namespace FTR.Gameplay.Server.Characters
             this.rb = rb;
             this.stateStorage = stateStorage;
             isInitialized = true;
-
+            moveSpeed = config.PlayerSpeed > 0 ? config.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
         }
 

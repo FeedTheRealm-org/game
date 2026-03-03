@@ -2,6 +2,7 @@ using System.Collections;
 using FTR.Core.Client.Enums;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
+using FTR.Core.Common.Config;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
@@ -19,6 +20,8 @@ public class MovementView : MonoBehaviour
     private CharacterStateStorage stateStorage;
 
     private bool isInitialized = false;
+
+    // TODO: moves these to a proper config or constants class later
     private const float errorMargin = 0.001f;
     private const float correctionSpeed = 10f;
     private bool correctingPosition = false;
