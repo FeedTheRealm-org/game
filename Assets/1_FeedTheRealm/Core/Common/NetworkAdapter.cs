@@ -78,6 +78,7 @@ public class NetworkAdapter : NetworkBehaviour
     [Command(channel = Channels.Reliable)]
     private void CmdActionRequest(ActionCommandDTO command)
     {
+        command.NetId = netId;
         receivedActionCommandEvent.Raise(command);
     }
 
@@ -87,6 +88,8 @@ public class NetworkAdapter : NetworkBehaviour
     [Command(channel = Channels.Reliable)]
     private void CmdTransactionRequest(TransactionCommandDTO command)
     {
+        command.NetId = netId;
+        Debug.Log($"Received Transaction Command from client: {command.NetId}");
         receivedTransactionCommandEvent.Raise(command);
     }
 

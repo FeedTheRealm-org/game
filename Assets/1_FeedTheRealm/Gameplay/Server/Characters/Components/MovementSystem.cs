@@ -33,11 +33,17 @@ namespace FTR.Gameplay.Server.Characters
             // Subscribe after injection has occurred
             gameTickEvent.OnRaised += GameTick;
 
-            Debug.Log("MovementSystem initialized and subscribed to GameTickEvent");
+            Debug.Log(
+                "MovementSystem initialized | rb: "
+                    + (rb != null)
+                    + " | stateStorage: "
+                    + (stateStorage != null)
+            );
         }
 
         public void OnMove(Vector3 direction)
         {
+            Debug.Log($"Received move command with direction: {direction}");
             this.direction = direction;
         }
 
@@ -45,9 +51,6 @@ namespace FTR.Gameplay.Server.Characters
         {
             if (!isInitialized)
                 return;
-
-            if (gameTickCounter % 60 == 0)
-                Debug.Log($"GameTick: {dt}, Direction: {direction}");
 
             Vector3 nextPosition = rb.position + dt * moveSpeed * direction;
             Vector3 newVelocity = (nextPosition - rb.position) / dt;

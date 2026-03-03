@@ -30,6 +30,10 @@ public class NetworkService
 
         this.receivedActionCommandEvent.OnRaised += OnReceivedActionCommand;
         this.receivedTransactionCommandEvent.OnRaised += OnReceivedTransactionCommand;
+
+        UnityEngine.Debug.Log(
+            $"NetworkService initialized and subscribed to command events | worldMonitor: {worldMonitor != null} | receivedActionCommandEvent: {receivedActionCommandEvent != null} | receivedTransactionCommandEvent: {receivedTransactionCommandEvent != null}"
+        );
     }
 
     private void OnReceivedActionCommand(ActionCommandDTO actionCommand)

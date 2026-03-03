@@ -36,6 +36,7 @@ public class MovementController : MonoBehaviour
         UpdateCurrentDirectionWithCamera();
 
         ActionCommandDTO command = new() { Type = ActionType.Move, Direction = currentDirection };
+        Debug.Log($"Dispatching Move Command: {command.NetId}");
 
         // TODO: dont do this here, let the server tell us which direction to face based on the authoritative state
         // movementView.UpdateFacingDirection(currentDirection);

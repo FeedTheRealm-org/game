@@ -55,6 +55,9 @@ public class GameLoop : IGameTickable
             && worldMonitor.Commands.TryDequeue(out var cmd)
         )
         {
+            UnityEngine.Debug.Log(
+                $"Processing Command: {cmd.GetType().Name} for Entity NetId: {cmd.NetId}"
+            );
             if (worldMonitor.Entities.TryGet(cmd.NetId, out ServerEntity entity))
             {
                 UnityEngine.Debug.Log(
