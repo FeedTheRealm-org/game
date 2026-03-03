@@ -11,8 +11,8 @@ public class MovementController : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
-    private Vector2 inputDirection;
-    private Vector3 currentDirection;
+    private Vector2 currentInputDirection;
+    private Vector3 currentRealDirection;
 
     private NetworkAdapter networkAdapter;
 
@@ -24,22 +24,22 @@ public class MovementController : MonoBehaviour
         this.networkAdapter = networkAdapter;
     }
 
-    // TODO: refactor camera make a camera manager!
     public void SetDirection(Vector2 direction)
     {
-        if (!isInitialized)
+        if (!isInitialized || direction == currentInputDirection)
             return;
 
-        inputDirection = direction;
-        logger.Log($"SetDirection: {direction}", this);
+        currentInputDirection = direction;
+        logger.Log($"Direction Changed to: {direction}", this);
 
         UpdateCurrentDirectionWithCamera();
 
-        ActionCommandDTO command = new() { Type = ActionType.Move, Direction = currentDirection };
-        Debug.Log($"Dispatching Move Command: {command.NetId}");
+        ActionCommandDTO command = new()
+        {
+            Type = ActionType.Move,
+            Direction = currentRealDirection,
+        };
 
-        // TODO: dont do this here, let the server tell us which direction to face based on the authoritative state
-        // movementView.UpdateFacingDirection(currentDirection);
         networkAdapter.DispatchAction(command);
     }
 
@@ -59,6 +59,8 @@ public class MovementController : MonoBehaviour
             cameraTransform.right.z
         ).normalized;
 
-        currentDirection = (camRight * inputDirection.x + camForward * inputDirection.y).normalized;
+        currentRealDirection = (
+            camRight * currentInputDirection.x + camForward * currentInputDirection.y
+        ).normalized;
     }
 }
