@@ -1,3 +1,4 @@
+using System.Collections;
 using FTR.Core.Client.Enums;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
@@ -11,77 +12,85 @@ public class MovementView : MonoBehaviour
     private CharacterAnimator animator;
 
     [Inject]
-    private TickEvent tickEvent;
+    private FixedTickEvent fixedTickEvent;
 
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
 
     private bool isInitialized = false;
+    private const float errorMargin = 0.001f;
+    private const float correctionSpeed = 10f;
+    private bool correctingPosition = false;
+    private Vector3 positionCorrectionTarget;
+
+    private Vector3 currentDirection = Vector3.zero;
 
     public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
     {
         this.rb = rb;
         this.stateStorage = stateStorage;
 
-        this.stateStorage.OnVelocityChanged += OnVelocityChanged;
+        this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
 
         isInitialized = true;
-        Debug.Log("tickEvent Injected: " + (tickEvent != null));
+        fixedTickEvent.OnRaised += FixedTick;
     }
 
-    private void OnEnable()
+    // TODO: review if we need to unsubscribe from events on disable/destroy,
+    // or if the lifetime of this component is guaranteed to be the same as the character's lifetime
+    private void OnDestroy()
+    {
+        fixedTickEvent.OnRaised -= FixedTick;
+        stateStorage.OnDirectionChanged -= OnDirectionChanged;
+        stateStorage.OnPositionCorrected -= OnPositionCorrected;
+    }
+
+    private void FixedTick()
     {
         if (!isInitialized)
             return;
-        tickEvent.OnRaised += Tick;
-    }
 
-    private void OnDisable()
-    {
-        if (!isInitialized)
-            return;
-        tickEvent.OnRaised -= Tick;
-    }
+        if (correctingPosition)
+        {
+            rb.position = Vector3.Lerp(
+                rb.position,
+                positionCorrectionTarget,
+                correctionSpeed * Time.fixedDeltaTime
+            );
 
-    private void Tick() { }
+            if (Vector3.Distance(rb.position, positionCorrectionTarget) < errorMargin)
+            {
+                rb.position = positionCorrectionTarget;
+                correctingPosition = false;
+            }
+        }
+        else
+        {
+            Vector3 newPosition = rb.position + currentDirection * Time.fixedDeltaTime;
+            rb.MovePosition(newPosition);
+        }
+    }
 
     /// <summary>
-    /// OnVelocityChanged is used to update the animation parameters based on the current velocity when it changes.
+    /// OnVelocityChanged receives the authoritative velocity from the server.
+    /// This is what actually moves the character.
     /// </summary>
-    private void OnVelocityChanged(Vector3 velocity)
+    private void OnDirectionChanged(Vector3 direction)
     {
-        rb.linearVelocity = velocity;
-        UpdateFacingDirection(velocity);
+        UpdateFacingDirection(direction);
+        AnimateMovement(direction);
+        currentDirection = direction;
     }
 
     /// <summary>
     /// OnPositionCorrected is used for reconciliation and error correction, periodically.
     /// </summary>
-    private void OnPositionCorrected(Vector3 position)
+    private void OnPositionCorrected(Vector3 targetPosition)
     {
-        rb.position = position;
-    }
-
-    /// <summary>
-    /// Moves the Rigidbody to the specified position and starts the animation.
-    /// </summary>
-    public void MoveToPosition(Vector3 nextPosition)
-    {
-        Debug.Log($"Moving to position: {nextPosition}");
-        if (!isInitialized)
-            throw new MissingComponentException(
-                "MovementView must be initialized before calling MoveToPosition."
-            );
-
-        rb.MovePosition(nextPosition);
-
-        if (!animator.IsMoving())
-        {
-            animator.SetMoving(true);
-            animator.SetDashing(false);
-        }
+        correctingPosition = true;
+        positionCorrectionTarget = targetPosition;
     }
 
     /// <summary>
@@ -135,5 +144,22 @@ public class MovementView : MonoBehaviour
             return forwardAmount > 0 ? FacingDirection.Back : FacingDirection.Front;
         else
             return rightAmount > 0 ? FacingDirection.Right : FacingDirection.Left;
+    }
+
+    private void AnimateMovement(Vector3 velocity)
+    {
+        if (velocity.sqrMagnitude > Vector3.zero.sqrMagnitude)
+        {
+            if (!animator.IsMoving())
+            {
+                animator.SetMoving(true);
+                animator.SetDashing(false);
+            }
+        }
+        else
+        {
+            animator.SetMoving(false);
+            animator.SetDashing(false);
+        }
     }
 }

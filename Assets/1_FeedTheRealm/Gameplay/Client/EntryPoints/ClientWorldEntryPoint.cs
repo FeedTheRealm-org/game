@@ -12,7 +12,8 @@ public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILat
 
     private bool isInitialized = false;
 
-    public void ClientWorldEntrypoint(
+    [Inject]
+    public ClientWorldEntryPoint(
         TickEvent tickEvent,
         FixedTickEvent fixedTickEvent,
         LateTickEvent lateTickEvent
@@ -22,6 +23,8 @@ public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILat
         this.fixedTickEvent = fixedTickEvent;
         this.lateTickEvent = lateTickEvent;
         isInitialized = true;
+
+        UnityEngine.Debug.Log("[ClientWorldEntryPoint] Constructor - Dependencies injected");
     }
 
     public void Start()
@@ -41,6 +44,7 @@ public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILat
         if (!isInitialized)
             return;
         fixedTickEvent.Raise();
+        UnityEngine.Debug.Log("[ClientWorldEntryPoint] FixedTick raised");
     }
 
     public void LateTick()

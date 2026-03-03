@@ -9,23 +9,23 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
 
-        [SyncVar(hook = nameof(OnVelocitySync))]
-        private Vector3 velocity;
+        [SyncVar(hook = nameof(OnDirectionSync))]
+        private Vector3 direction;
 
         /* --- Getters --- */
 
         public Vector3 Position => position;
-        public Vector3 Velocity => velocity;
+        public Vector3 Direction => direction;
 
         public event Action<Vector3> OnPositionCorrected;
-        public event Action<Vector3> OnVelocityChanged;
+        public event Action<Vector3> OnDirectionChanged;
 
         /* --- Setters --- */
 
         [Server]
-        public void SetVelocity(Vector3 newVelocity)
+        public void SetDirection(Vector3 newDirection)
         {
-            velocity = newVelocity;
+            direction = newDirection;
         }
 
         [Server]
@@ -41,9 +41,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnPositionCorrected?.Invoke(newPosition);
         }
 
-        private void OnVelocitySync(Vector3 oldVelocity, Vector3 newVelocity)
+        private void OnDirectionSync(Vector3 oldDirection, Vector3 newDirection)
         {
-            OnVelocityChanged?.Invoke(newVelocity);
+            OnDirectionChanged?.Invoke(newDirection);
         }
     }
 }

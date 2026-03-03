@@ -15,7 +15,6 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnMove(IEventCollectable ec, Vector3 direction)
         {
-            Debug.Log($"OnMove Command Received with direction: {direction}");
             movementSystem.OnMove(direction);
         }
 
