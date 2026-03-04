@@ -1,5 +1,5 @@
-using Game.Core.Events;
-using Game.Core.Quests;
+using FTR.Core.Common.EventChannels;
+using FTR.Core.Common.Quests;
 using UnityEngine;
 using UnityEngine.UIElements;
 

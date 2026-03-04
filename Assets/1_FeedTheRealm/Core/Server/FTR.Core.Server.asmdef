@@ -1,0 +1,19 @@
+{
+  "name": "FTR.Core.Server",
+  "references": [
+    "FeedTheRealm_Shared",
+    "FTR.Core.Common",
+    "UnityEngine",
+    "Mirror",
+    "VContainer",
+    "UniTask"
+  ],
+  "includePlatforms": [
+    "Editor",
+    "WindowsStandalone64",
+    "LinuxStandalone64"
+  ],
+  "autoReferenced": false,
+  "noEngineReferences": false,
+  "languageVersion": "10.0"
+}

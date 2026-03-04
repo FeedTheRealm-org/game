@@ -340,7 +340,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16d2654be8d25004b93449d13afcffd9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Core.Quests.QuestManager
+  m_EditorClassIdentifier: Assembly-CSharp::FTR.Core.Common.Quests.QuestManager
   questDecisionEvent: {fileID: 11400000, guid: 982c6ff128438cb20afe10947eb6ce40, type: 2}
   questProgressEvent: {fileID: 11400000, guid: 97500dbc39981e47795353313f9d5277, type: 2}
   questCompletedEvent: {fileID: 11400000, guid: b2755233a0e9e83729434441a96c878d, type: 2}

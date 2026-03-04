@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FeedTheRealm.UI;
-using Mirror;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -53,15 +52,6 @@ public class HudController : MonoBehaviour
 
     void Start()
     {
-        // Only run HUD on clients. If this instance is a dedicated server (server active
-        // but no client), disable early to avoid server-side UI lookups and warnings.
-        if (NetworkServer.active && !NetworkClient.active)
-        {
-            logger.Log("HUDController disabled: dedicated server (no client active)", this);
-            enabled = false;
-            return;
-        }
-
         var root = GetComponent<UIDocument>().rootVisualElement;
 
         _characterData = root.Q<VisualElement>("CharacterData");
@@ -161,23 +151,25 @@ public class HudController : MonoBehaviour
 
     private async Task StartBindingAsync(CancellationToken token)
     {
+        // TODO: UI SHOULD NOT USE NETWORKING
+        // Read TODO in HUDGoldBinder class!!
         const float timeout = 10f;
 
         float elapsed = 0f;
-        while (!NetworkClient.active && elapsed < timeout)
-        {
-            if (token.IsCancellationRequested)
-                return;
-            try
-            {
-                await Task.Delay(500, token);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-            elapsed += 0.5f;
-        }
+        // while (!NetworkClient.active && elapsed < timeout)
+        // {
+        //     if (token.IsCancellationRequested)
+        //         return;
+        //     try
+        //     {
+        //         await Task.Delay(500, token);
+        //     }
+        //     catch (OperationCanceledException)
+        //     {
+        //         return;
+        //     }
+        //     elapsed += 0.5f;
+        // }
 
         bool bound = false;
         try

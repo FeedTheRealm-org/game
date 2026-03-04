@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Game.Core.Events;
+using FTR.Core.Client.EventChannels;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -62,7 +62,7 @@ public class ShopMenuController : MonoBehaviour
         shopOnCloseEvent.Raise();
     }
 
-    private async Task AddProductToUI(Models.ProductData product)
+    private async Task AddProductToUI(FTRShared.Runtime.Models.ProductData product)
     {
         var item = new VisualElement();
         item.name = "ShopItem";

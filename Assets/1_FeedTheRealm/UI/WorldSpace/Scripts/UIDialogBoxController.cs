@@ -1,5 +1,5 @@
-using Game.Core.Dialogue;
-using Models;
+using FTR.Core.Common.Dialogue;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
 

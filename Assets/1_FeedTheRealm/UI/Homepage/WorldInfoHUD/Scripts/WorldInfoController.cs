@@ -24,7 +24,7 @@ public class WorldInfoController : MonoBehaviour
     private Coroutine sidebarAnimationCoroutine;
     private float sidebarWidthPx = 0f;
 
-    public void SetCurrentWorld(Models.WorldMetadata world)
+    public void SetCurrentWorld(FTRShared.Runtime.Models.WorldMetadata world)
     {
         logger.Log($"Setting current world info: {world.name}", this);
 
