@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write  # OIDC required
+      id-token: write # OIDC required
       contents: read
 
     outputs:
@@ -39,8 +39,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # token with access
-          submodules: recursive  # fetch submodules recursively
+          token: ${{ secrets.GITHUB_TOKEN }} # token with access
+          submodules: recursive # fetch submodules recursively
 
       - name: Set Image Tag
         id: tag
@@ -62,6 +62,12 @@ jobs:
         run: |
           git submodule foreach 'git fetch origin main &&
           git checkout main && git pull origin main'
+
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Packages/manifest.json') }}
 
       - name: Echo build output
         run: ls -la Packages/1_FeedTheRealm_Shared
