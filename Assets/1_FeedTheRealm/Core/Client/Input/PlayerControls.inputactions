@@ -7,6 +7,15 @@
             "id": "b21ebcfb-6122-4216-8a1b-108360f6b8cf",
             "actions": [
                 {
+                    "name": "Use",
+                    "type": "Button",
+                    "id": "8b7f9268-df1b-4459-87ca-4b3446f6f962",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Move",
                     "type": "Value",
                     "id": "e587afa2-f168-4fd1-83ac-9303dd3e7acf",
@@ -37,15 +46,6 @@
                     "name": "CursorToggle",
                     "type": "Button",
                     "id": "4a30be7f-62ac-4aea-90f9-bb9700c8ee07",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Attack",
-                    "type": "Button",
-                    "id": "8b7f9268-df1b-4459-87ca-4b3446f6f962",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -199,7 +199,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Attack",
+                    "action": "Use",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -210,7 +210,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Attack",
+                    "action": "Use",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

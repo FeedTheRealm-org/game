@@ -9,9 +9,6 @@ public class MovementController : MonoBehaviour
     [Inject]
     private FixedTickEvent fixedTickEvent;
 
-    [SerializeField]
-    private MovementView movementView;
-
     [Header("Debug")]
     [SerializeField]
     private Logging.Logger logger;
