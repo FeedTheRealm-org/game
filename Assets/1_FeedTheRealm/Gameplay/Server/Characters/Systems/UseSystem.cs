@@ -8,5 +8,8 @@ using VContainer;
 
 namespace FTR.Gameplay.Server.Characters
 {
-    public class UseSystem : MonoBehaviour, IGameTickable { }
+    public class UseSystem : MonoBehaviour, IGameTickable
+    {
+        public void GameTick(float dt) { }
+    }
 }

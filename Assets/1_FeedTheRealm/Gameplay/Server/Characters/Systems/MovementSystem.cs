@@ -56,7 +56,6 @@ namespace FTR.Gameplay.Server.Characters
                 stateStorage.CorrectPosition(rb.position);
 
             gameTickCounter++;
-            Debug.Log($"[MovSys] Position: {rb.position}, Direction: {direction}");
         }
     }
 }
