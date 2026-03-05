@@ -31,6 +31,8 @@ MonoBehaviour:
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
   - DEBUG
+  - SERVER_BUILD
+  - CLIENT_BUILD
   m_PlayerSettingsYaml:
     m_Settings:
     - line: '| PlayerSettings:'

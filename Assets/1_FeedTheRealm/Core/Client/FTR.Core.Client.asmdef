@@ -15,6 +15,9 @@
     "WindowsStandalone64",
     "LinuxStandalone64"
   ],
+  "defineConstraints": [
+    "CLIENT_BUILD"
+  ],
   "autoReferenced": false,
   "noEngineReferences": false,
   "languageVersion": "10.0"
