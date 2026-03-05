@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3510634143213262466}
   - component: {fileID: 1476354360855541057}
   m_Layer: 0
-  m_Name: ServerStructureLoader
+  m_Name: StructureLoader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -4,8 +4,9 @@ using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
+using FTR.Gameplay.Common.WorldLoader;
 using FTR.Gameplay.Server.Characters;
-using FTR.Gameplay.Server.WorldLoader;
+using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -22,10 +23,10 @@ public class ServerWorldInitiator : LifetimeScope
     private GameTickEvent gameTickEvent;
 
     [SerializeField]
-    private WorldReadyEvent worldReadyEvent;
+    private ServerPrefabProvider prefabProvider;
 
     [SerializeField]
-    private ServerPrefabProvider prefabProvider;
+    private LoaderProvider loaderProvider;
 
     [Header("Services")]
     [SerializeField]
@@ -47,7 +48,8 @@ public class ServerWorldInitiator : LifetimeScope
         builder.Register<NetworkTickDriver>(Lifetime.Singleton);
         builder.RegisterEntryPoint<CentralizedTickDriver>(Lifetime.Singleton);
 
-        builder.RegisterInstance(worldReadyEvent);
+        builder.RegisterInstance(logger);
+        builder.RegisterInstance(loaderProvider);
         builder.RegisterInstance(worldService);
         builder.RegisterEntryPoint<ServerWorldLoader>(Lifetime.Singleton);
     }

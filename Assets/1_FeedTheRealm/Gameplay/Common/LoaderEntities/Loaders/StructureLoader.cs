@@ -1,13 +1,17 @@
 using Cysharp.Threading.Tasks;
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
-namespace FTR.Gameplay.Server.WorldLoader.Loaders
+namespace FTR.Gameplay.Common.WorldLoader.Loaders
 {
-    public class ServerStructureLoader : MonoBehaviour, ILoader
+    public class StructureLoader : MonoBehaviour, ILoader
     {
+        [SerializeField]
+        private Config config;
+
         [SerializeField]
         private GameObject structurePrefab;
 
@@ -20,7 +24,11 @@ namespace FTR.Gameplay.Server.WorldLoader.Loaders
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
                 controller.Initialize(structureData);
+
+                RenderVisual(controller);
             }
         }
+
+        public virtual void RenderVisual(StructureController controller) { }
     }
 }

@@ -5,7 +5,8 @@
     "FTR.Core.Common",
     "UnityEngine",
     "Mirror",
-    "VContainer"
+    "VContainer",
+    "UniTask"
   ],
   "includePlatforms": [
     "Editor",

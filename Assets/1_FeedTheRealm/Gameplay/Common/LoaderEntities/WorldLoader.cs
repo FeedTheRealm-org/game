@@ -2,56 +2,42 @@ using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Loaders;
-using FTR.Core.Server;
 using FTR.Core.Server.Utils;
+using FTR.Gameplay.Common.WorldLoader;
 using FTRShared.Runtime.Models;
 using VContainer.Unity;
 
-namespace FTR.Gameplay.Server.WorldLoader
+namespace FTR.Gameplay.LoaderEntities
 {
-    public sealed class ServerWorldLoader : IStartable
+    public abstract class WorldLoader : IStartable
     {
-        private WorldService worldService;
-        private Logging.Logger logger;
-        private ServerLoaderComponents loaderComponents;
-        private WorldReadyEvent worldReadyEvent;
-        private Config config;
+        private readonly WorldService worldService;
+        private readonly Logging.Logger logger;
+        private readonly LoaderProvider loaderProvider;
 
-        public ServerWorldLoader(
+        public WorldLoader(
             WorldService worldService,
             Logging.Logger logger,
-            Config config,
-            ServerPrefabProvider prefabProvider,
-            WorldReadyEvent worldReadyEvent
+            LoaderProvider loaderProvider
         )
         {
             this.worldService = worldService;
             this.logger = logger;
-            this.config = config;
-            this.worldReadyEvent = worldReadyEvent;
-
-            loaderComponents =
-                prefabProvider.ServerLoaderComponents.GetComponent<ServerLoaderComponents>();
-            if (loaderComponents == null)
-                throw new System.InvalidOperationException(
-                    "ServerLoaderComponents not found in prefab provider"
-                );
+            this.loaderProvider = loaderProvider;
         }
+
+        public abstract string GetWorldId();
+        public abstract string GetAccessToken();
 
         public async void Start()
         {
             try
             {
-                (string worldId, string accessToken) = GetWorldArgs();
-                ValidateArgs(worldId);
-                ValidateArgs(accessToken);
+                (string worldId, string accessToken) = (GetWorldId(), GetAccessToken());
+                ValidateArgs(worldId, "worldId");
+                ValidateArgs(accessToken, "accessToken");
                 await Load(worldId, accessToken);
-
-                // TODO: make all connection related code wait for this event before allowing
-                // players to connect or interact with the world in any way
-                worldReadyEvent.Raise();
             }
             catch (System.Exception ex)
             {
@@ -70,7 +56,7 @@ namespace FTR.Gameplay.Server.WorldLoader
                 await LoadWorldData(worldId, accessToken)
                 ?? throw new System.InvalidOperationException("Failed to load world data");
             IReadOnlyList<ILoader> loaders =
-                loaderComponents.GetLoaders()
+                loaderProvider.GetLoaders()
                 ?? throw new System.InvalidOperationException(
                     "No loaders found in ServerLoaderComponents"
                 );
@@ -95,20 +81,11 @@ namespace FTR.Gameplay.Server.WorldLoader
             return data;
         }
 
-        private (string, string) GetWorldArgs()
-        {
-            if (config.IsDebugWorld)
-                return (config.WorldID, config.AccessToken);
-            string worldId = ParamsSerializer.GetArgs("worldId", null);
-            string accessToken = ParamsSerializer.GetArgs("accessToken", null);
-            return (worldId, accessToken);
-        }
-
-        private void ValidateArgs(string args)
+        private void ValidateArgs(string args, string argName)
         {
             if (args == null || string.IsNullOrEmpty(args))
             {
-                throw new System.ArgumentException("Invalid command line arguments");
+                throw new System.ArgumentException($"Empty or null value for: {argName}");
             }
         }
     }
