@@ -13,6 +13,8 @@ on:
         required: true
       # SUPABASE_CERT:
       #   required: true
+      GITHUB_TOKEN:
+        required: true
       UNITY_LICENSE:
         required: true
       UNITY_EMAIL:
@@ -52,16 +54,23 @@ jobs:
       # - name: Login to Amazon ECR
       #   uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Pull shared package
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # token with access
+          submodules: recursive  # fetch submodules recursively
+          fetch-depth: 0  # full history
+
+      # Make sure submodules are on main branch
+      - name: Force submodules to main
         run: |
-          cd Packages/1_FeedTheRealm_Shared && \
-          git checkout main && \
-          git pull origin main
+          git submodule foreach 'git fetch origin main &&
+          git checkout main && git pull origin main'
 
       - name: Echo build output
         run: ls -la Packages/1_FeedTheRealm_Shared
 
-      # - name: Build server
+        # - name: Build server
       #   uses: game-ci/unity-builder@v4
       #   env:
       #     UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -75,10 +84,10 @@ jobs:
       # - name: Echo build output
       #   run: ls -la build/StandaloneLinux64
 
-        # - name: Build & Push
-        #   run: |
-        #     IMAGE_URI=${{ secrets.ECR_REGISTRY }}/
-        #     ${{ secrets.ECR_REPOSITORY }}:
-        #     ${{ steps.tag.outputs.image_tag }}
-        #     docker build --target prod -t $IMAGE_URI .
-        #     docker push $IMAGE_URI
+      # - name: Build & Push
+      #   run: |
+      #     IMAGE_URI=${{ secrets.ECR_REGISTRY }}/
+      #     ${{ secrets.ECR_REPOSITORY }}:
+      #     ${{ steps.tag.outputs.image_tag }}
+      #     docker build --target prod -t $IMAGE_URI .
+      #     docker push $IMAGE_URI
