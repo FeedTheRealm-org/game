@@ -27,7 +27,7 @@ namespace FTR.Core.Common.Config
 
         public ushort Port = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
 
-#if !SERVER_BUILD
+#if DEBUG
         [Header("World Loading Debug")]
         [SerializeField]
         private bool isDebugWorld = false;

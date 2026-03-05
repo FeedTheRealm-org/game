@@ -50,7 +50,5 @@ public class ServerWorldInitiator : LifetimeScope
         builder.RegisterInstance(worldReadyEvent);
         builder.RegisterInstance(worldService);
         builder.RegisterEntryPoint<ServerWorldLoader>(Lifetime.Singleton);
-
-        logger?.Log("WorldInitiator: Registered as Server", this);
     }
 }

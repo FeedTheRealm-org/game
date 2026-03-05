@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 696600327873933447}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.43233, y: 0.5, z: 14.75392}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -46,3 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.WorldLoader.ServerLoaderRegistry
   loaders:
   - {fileID: 5313682852792535957, guid: f11ec0c9a8d6e0b548a2f4a7c875b7e1, type: 3}
+  - {fileID: 205439124647585389, guid: 6bdaab12bcfa9dd32b4b32a4a9c1967f, type: 3}

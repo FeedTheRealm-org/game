@@ -64,13 +64,17 @@ namespace FTR.Gameplay.Server.WorldLoader
 
         // --- Private methods --- //
 
-        private async UniTask<bool> Load(string worldId, string accessToken)
+        private async UniTask Load(string worldId, string accessToken)
         {
-            WorldData worldData = await LoadWorldData(worldId, accessToken);
-            if (worldData == null)
-                return false;
+            WorldData worldData =
+                await LoadWorldData(worldId, accessToken)
+                ?? throw new System.InvalidOperationException("Failed to load world data");
+            IReadOnlyList<ILoader> loaders =
+                loaderComponents.GetLoaders()
+                ?? throw new System.InvalidOperationException(
+                    "No loaders found in ServerLoaderComponents"
+                );
 
-            IReadOnlyList<ILoader> loaders = loaderComponents.GetLoaders();
             for (int i = 0; i < loaders.Count; i++)
             {
                 ILoader loader = loaders[i];
@@ -78,7 +82,6 @@ namespace FTR.Gameplay.Server.WorldLoader
                 await loader.Load(worldData);
             }
             logger.Log("World loading complete!");
-            return true;
         }
 
         private async UniTask<WorldData> LoadWorldData(string worldId, string accessToken)
@@ -86,13 +89,9 @@ namespace FTR.Gameplay.Server.WorldLoader
             (WorldData data, string errorMessage, long responseCode) =
                 await worldService.GetWorldData(worldId, accessToken);
             if (data == null || !string.IsNullOrEmpty(errorMessage))
-            {
-                logger.Log(
-                    $"Failed to load world '{worldId}': {errorMessage}, Code: {responseCode}",
-                    Logging.LogType.Error
+                throw new System.Exception(
+                    $"Failed to load world data: {errorMessage} (Response code: {responseCode})"
                 );
-                return null;
-            }
             return data;
         }
 

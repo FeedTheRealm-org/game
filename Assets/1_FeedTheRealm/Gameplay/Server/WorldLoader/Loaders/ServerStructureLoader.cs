@@ -13,7 +13,8 @@ namespace FTR.Gameplay.Server.WorldLoader.Loaders
 
         public async UniTask Load(WorldData worldData)
         {
-            foreach (StructureData structureData in worldData.objectPlacementData)
+            var structures = worldData.objectPlacementData;
+            foreach (StructureData structureData in structures)
             {
                 GameObject instance = Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
