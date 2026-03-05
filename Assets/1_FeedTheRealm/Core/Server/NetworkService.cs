@@ -66,7 +66,7 @@ public class NetworkService
         {
             if (worldMonitor.Entities.TryGet(serverEvent.NetId, out ServerEntity entity))
             {
-                entity.NetworkAdapter.DispatchEvent(serverEvent.ToDTO());
+                entity.NetworkAdapter.DispatchEvent(serverEvent.ToDTO()); // TODO: targeted RPC
                 processedThisTick++;
             }
         }

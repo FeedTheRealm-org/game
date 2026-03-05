@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using FTR.Core.Client.Enums;
-using FTR.Core.Client.Exceptions;
 using UnityEngine;
 
 /// <summary>
@@ -23,16 +23,20 @@ public class CharacterAnimator : MonoBehaviour
     [SerializeField]
     private GameObject left;
 
-    [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
 
     private Dictionary<FacingDirection, GameObject> spriteMap;
 
+    public event Action OnUseAnimationEnd;
+
     private void Start()
     {
         if (animator == null)
-            throw new MissingFieldException(nameof(animator), nameof(CharacterAnimator));
+            throw new FTR.Core.Client.Exceptions.MissingFieldException(
+                nameof(animator),
+                nameof(CharacterAnimator)
+            );
 
         spriteMap = new Dictionary<FacingDirection, GameObject>()
         {
@@ -92,5 +96,13 @@ public class CharacterAnimator : MonoBehaviour
     public void PlayDeath()
     {
         animator.SetTrigger("Death");
+    }
+
+    /* --- Animator Hooks --- */
+
+    public void PlayUseEndHook()
+    {
+        SetAction(false);
+        OnUseAnimationEnd?.Invoke();
     }
 }
