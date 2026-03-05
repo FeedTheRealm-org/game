@@ -11,7 +11,13 @@ on:
         required: true
       ECR_REPOSITORY:
         required: true
-      SUPABASE_CERT:
+      # SUPABASE_CERT:
+      #   required: true
+      UNITY_LICENSE:
+        required: true
+      UNITY_EMAIL:
+        required: true
+      UNITY_PASSWORD:
         required: true
     outputs:
       image_tag:
