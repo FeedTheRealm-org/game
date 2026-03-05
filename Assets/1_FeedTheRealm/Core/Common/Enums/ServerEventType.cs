@@ -5,6 +5,7 @@ namespace FTR.Core.Common.Enums;
 /// </summary>
 public enum ServerEventType
 {
+    AttackEvent,
     HitEvent,
     DashEvent,
 }
