@@ -13,6 +13,8 @@ on:
         required: true
       # SUPABASE_CERT:
       #   required: true
+      GH_PAT:
+        required: true
       UNITY_LICENSE:
         required: true
       UNITY_EMAIL:
