@@ -57,25 +57,25 @@ public class PlayerController : MonoBehaviour
         {
             inputReader.DashEvent += OnDashInput;
             inputReader.MoveEvent += OnMoveInput;
-            inputReader.AttackEvent += OnAttackInput;
+            inputReader.UseEvent += OnUseInput;
             inputReader.InteractEvent += OnInteractInput;
             return;
         }
 
         inputReader.DashEvent -= OnDashInput;
         inputReader.MoveEvent -= OnMoveInput;
-        inputReader.AttackEvent -= OnAttackInput;
+        inputReader.UseEvent -= OnUseInput;
         inputReader.InteractEvent -= OnInteractInput;
     }
 
-    private void OnAttackInput()
+    private void OnUseInput()
     {
         if (Cursor.visible)
         {
             return;
         }
 
-        characterStateMachine?.OnAttack();
+        characterStateMachine?.OnUse();
     }
 
     private void OnMoveInput(Vector2 vec)

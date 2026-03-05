@@ -23,13 +23,12 @@ public class CharacterAnimator : MonoBehaviour
     [SerializeField]
     private GameObject left;
 
-    [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
 
     private Dictionary<FacingDirection, GameObject> spriteMap;
 
-    public event Action OnPlayAttackEnd;
+    public event Action OnUseAnimationEnd;
 
     private void Start()
     {
@@ -101,9 +100,9 @@ public class CharacterAnimator : MonoBehaviour
 
     /* --- Animator Hooks --- */
 
-    public void PlayAttackEndHook()
+    public void PlayUseEndHook()
     {
         SetAction(false);
-        OnPlayAttackEnd?.Invoke();
+        OnUseAnimationEnd?.Invoke();
     }
 }

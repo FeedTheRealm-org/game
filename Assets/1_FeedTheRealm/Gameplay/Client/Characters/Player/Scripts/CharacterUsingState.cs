@@ -22,17 +22,17 @@ public class CharacterUsingState : IActionState
     }
 
     public void Enter()
-    { // TODO: rename to OnUseEnd
-        animator.OnPlayAttackEnd += OnPlayAttackEnd;
+    {
+        animator.OnUseAnimationEnd += OnUseAnimationEnd;
         useController.Use();
     }
 
     public void Exit()
     {
-        animator.OnPlayAttackEnd -= OnPlayAttackEnd;
+        animator.OnUseAnimationEnd -= OnUseAnimationEnd;
     }
 
-    private void OnPlayAttackEnd()
+    private void OnUseAnimationEnd()
     {
         stateMachine.SetActionState(null);
     }
