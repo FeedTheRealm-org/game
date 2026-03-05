@@ -16,10 +16,10 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     private MovementController movementController;
 
     [SerializeField]
-    private DashComponent dashComponent;
+    private UseController useController;
 
     [SerializeField]
-    private AttackComponent attackComponent;
+    private DashComponent dashComponent;
 
     [SerializeField]
     private GroundCheckComponent groundCheckComponent;
@@ -50,7 +50,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         if (
             movementController == null
             || dashComponent == null
-            || attackComponent == null
+            || useController == null
             || groundCheckComponent == null
             || interactComponent == null
             || characterAnimator == null
@@ -75,8 +75,8 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
             new CharacterDashingState(this, dashComponent, characterAnimator)
         );
         actionStates.Add(
-            typeof(CharacterAttackState),
-            new CharacterAttackState(this, attackComponent, characterAnimator)
+            typeof(CharacterUsingState),
+            new CharacterUsingState(this, useController, characterAnimator)
         );
         actionStates.Add(
             typeof(CharacterInteractingState),
@@ -176,7 +176,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         if (isActionBlocked)
             return;
 
-        SetActionState(actionStates[typeof(CharacterAttackState)]);
+        SetActionState(actionStates[typeof(CharacterUsingState)]);
     }
 
     /// <summary>
