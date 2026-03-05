@@ -1,8 +1,11 @@
+using API;
 using FTR.Core.Common.Config;
+using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Server.Characters;
+using FTR.Gameplay.Server.WorldLoader;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -19,7 +22,14 @@ public class ServerWorldInitiator : LifetimeScope
     private GameTickEvent gameTickEvent;
 
     [SerializeField]
+    private WorldReadyEvent worldReadyEvent;
+
+    [SerializeField]
     private ServerPrefabProvider prefabProvider;
+
+    [Header("Services")]
+    [SerializeField]
+    private WorldService worldService;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -35,7 +45,11 @@ public class ServerWorldInitiator : LifetimeScope
 
         builder.Register<ServerTickDriver>(Lifetime.Singleton);
         builder.Register<NetworkTickDriver>(Lifetime.Singleton);
-        builder.RegisterEntryPoint<CentralizedTickDriver>();
+        builder.RegisterEntryPoint<CentralizedTickDriver>(Lifetime.Singleton);
+
+        builder.RegisterInstance(worldReadyEvent);
+        builder.RegisterInstance(worldService);
+        builder.RegisterEntryPoint<ServerWorldLoader>(Lifetime.Singleton);
 
         logger?.Log("WorldInitiator: Registered as Server", this);
     }

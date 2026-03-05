@@ -4,7 +4,7 @@ using FTR.Core.Common.Loaders;
 using FTRShared.Runtime.Models;
 using Worlds;
 
-public class ClientWorldLoader : ILoader
+public class ClientWorldLoader
 {
     private string worldId;
 

@@ -32,7 +32,7 @@ public class ClientStructureLoader : ILoader
 
     private readonly Dictionary<string, GameObject> modelsMap = new();
 
-    public async UniTask<WorldData> Load()
+    public async UniTask Load(WorldData worldData)
     {
         logger.Log("[StructureLoader][Client] Loading structure visuals");
 
@@ -62,6 +62,5 @@ public class ClientStructureLoader : ILoader
         }
 
         logger.Log("[StructureLoader][Client] Structure visuals loaded");
-        return worldData;
     }
 }

@@ -1,40 +1,41 @@
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
-namespace FTR.Gameplay.Common.Environment.Structures;
-
-public class StructureController : MonoBehaviour
+namespace FTR.Gameplay.Common.Environment.Structures
 {
-    private StructureData data;
-
-    public void Initialize(StructureData data)
+    public class StructureController : MonoBehaviour
     {
-        this.data = data;
+        private StructureData data;
 
-        transform.position = data.position;
-        transform.rotation = Quaternion.Euler(data.rotation);
-        transform.localScale = Vector3.one;
+        public void Initialize(StructureData data)
+        {
+            this.data = data;
 
-        SetupCollider();
-    }
+            transform.position = data.position;
+            transform.rotation = Quaternion.Euler(data.rotation);
+            transform.localScale = Vector3.one;
 
-    public void RenderVisual(GameObject referenceModel)
-    {
-        GameObject structureModel = Instantiate(referenceModel);
-        structureModel.SetActive(true);
+            SetupCollider();
+        }
 
-        structureModel.transform.parent = gameObject.transform;
-        structureModel.transform.localPosition = Vector3.zero;
-        structureModel.transform.localRotation = Quaternion.identity;
-        structureModel.transform.localScale = data.size;
-        // TODO: check if scale is applied correctly, should it be applied to the parent object instead?
-    }
+        public void RenderVisual(GameObject referenceModel)
+        {
+            GameObject structureModel = Instantiate(referenceModel);
+            structureModel.SetActive(true);
 
-    private void SetupCollider()
-    {
-        BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
-        boxCollider.size = data.colliderSize;
-        boxCollider.center = data.colliderCenter;
-        boxCollider.isTrigger = false;
+            structureModel.transform.parent = gameObject.transform;
+            structureModel.transform.localPosition = Vector3.zero;
+            structureModel.transform.localRotation = Quaternion.identity;
+            structureModel.transform.localScale = data.size;
+            // TODO: check if scale is applied correctly, should it be applied to the parent object instead?
+        }
+
+        private void SetupCollider()
+        {
+            BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
+            boxCollider.size = data.colliderSize;
+            boxCollider.center = data.colliderCenter;
+            boxCollider.isTrigger = false;
+        }
     }
 }
