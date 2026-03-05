@@ -55,8 +55,7 @@ jobs:
       - name: Pull shared package
         run: |
           cd Packages/1_FeedTheRealm_Shared
-          git switch main
-          git pull
+          git branch
 
       - name: Echo build output
         run: ls -la Packages/1_FeedTheRealm_Shared
