@@ -13,8 +13,6 @@ on:
         required: true
       # SUPABASE_CERT:
       #   required: true
-      GITHUB_TOKEN:
-        required: true
       UNITY_LICENSE:
         required: true
       UNITY_EMAIL:
