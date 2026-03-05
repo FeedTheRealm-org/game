@@ -36,10 +36,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # token with access
-          submodules: recursive  # fetch submodules recursively
-          fetch-depth: 0  # full history
 
       - name: Set Image Tag
         id: tag
