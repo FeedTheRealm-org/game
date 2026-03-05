@@ -9,7 +9,7 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
     public event Action<Vector2> MoveEvent;
     public event Action DashEvent;
     public event Action InventoryEvent;
-    public event Action AttackEvent;
+    public event Action UseEvent;
     public event Action CursorToggleEvent;
     public event Action InteractEvent;
     public event Action<int> QuickSlotEvent;
@@ -29,6 +29,14 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
     private void OnDisable()
     {
         controls?.Player.Disable();
+    }
+
+    public void OnUse(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            UseEvent?.Invoke();
+        }
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -64,14 +72,6 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
         if (context.performed)
         {
             CursorToggleEvent?.Invoke();
-        }
-    }
-
-    public void OnAttack(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            AttackEvent?.Invoke();
         }
     }
 

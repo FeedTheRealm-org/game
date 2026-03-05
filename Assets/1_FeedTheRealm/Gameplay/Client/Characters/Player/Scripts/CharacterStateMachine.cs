@@ -171,7 +171,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     /// <summary>
     /// Handles attack down input (start charge or quick attack).
     /// </summary>
-    public void OnAttack()
+    public void OnUse()
     {
         if (isActionBlocked)
             return;
