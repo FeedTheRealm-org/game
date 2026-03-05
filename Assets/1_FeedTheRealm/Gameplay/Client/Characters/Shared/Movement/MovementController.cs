@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class MovementController : MonoBehaviour
 {
-    [SerializeField]
-    private MovementView movementView;
-
     [Header("Debug")]
     [SerializeField]
     private Logging.Logger logger;
