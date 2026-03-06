@@ -44,6 +44,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void OnUse(IEventCollectable ec)
         {
+            logger.Log("Use action triggered", this);
             if (isAttacking)
                 return;
             isAttacking = true;

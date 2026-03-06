@@ -32,11 +32,11 @@ public class NetworkEventRouter : MonoBehaviour
         {
             case ServerEventType.AttackEvent:
                 OnAttackEvent?.Invoke(serverEvent);
-                logger.Log($"Routed AttackEvent for netId", this);
+                logger.Log($"Routed AttackEvent", this);
                 break;
             case ServerEventType.HitEvent:
                 OnHitEvent?.Invoke(serverEvent);
-                logger.Log($"Routed HitEvent for netId", this);
+                logger.Log($"Routed HitEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);
