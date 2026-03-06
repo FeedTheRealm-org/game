@@ -46,16 +46,17 @@ public class ServerCharacterLinker : IScriptLinker
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
 
+        var netId = gameObject.GetComponent<NetworkIdentity>().netId;
+
         // Initialize components
         movementSystem.Initialize(rb, stateStorage);
-        useSystem.Initialize(rb);
+        useSystem.Initialize(netId, rb);
         serverCommandHandler.Initialize(movementSystem, useSystem);
 
-        var netID = gameObject.GetComponent<NetworkIdentity>().netId;
-        RegisterEntity(netID, networkAdapter, serverCommandHandler);
-        gameObject.name = $"Player-{netID}";
+        RegisterEntity(netId, networkAdapter, serverCommandHandler);
+        gameObject.name = $"Player-{netId}";
 
-        Debug.Log($"Linked domain scripts for character with netID {netID}");
+        Debug.Log($"Linked domain scripts for character with netID {netId}");
     }
 
     public void RegisterEntity(

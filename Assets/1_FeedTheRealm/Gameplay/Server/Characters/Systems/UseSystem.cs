@@ -3,8 +3,10 @@ using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
+using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
+using Mirror;
 using UnityEngine;
 using VContainer;
 
@@ -30,10 +32,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private bool isAttacking = false;
 
         private Vector3 hitPoint = Vector3.zero;
+        private uint netId;
 
-        public void Initialize(Rigidbody rb)
+        public void Initialize(uint netId, Rigidbody rb)
         {
             this.hitPoint = rb.worldCenterOfMass;
+            this.netId = netId;
         }
 
         public void GameTick(float dt) { }
@@ -45,11 +49,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
             isAttacking = true;
             StartCoroutine(resetAttackCooldown());
 
+            ec.Collect(new AttackEvent(netId));
+
             Collider[] hitTargets = Physics.OverlapSphere(hitPoint, hitRadius, targetLayer);
             foreach (Collider target in hitTargets)
             {
                 logger.Log($"Hit target: {target.name}", this);
                 var _ = target.GetComponent<HealthSystem>()?.TakeDamage(attackDamage);
+                var hitNetId = target.GetComponent<NetworkIdentity>()?.netId;
+                if (hitNetId.HasValue)
+                {
+                    ec.Collect(new HitEvent(hitNetId.Value));
+                }
                 // if (isDead.HasValue && isDead.Value)
                 //     enemySlayedEvent.Raise();
             }
