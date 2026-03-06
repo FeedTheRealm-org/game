@@ -444,6 +444,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 805f190945737dfdd82e6b04f6f82e9a, type: 2}
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+      propertyPath: playerInputReader
+      value: 
+      objectReference: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: initiatePlayerEvent
       value: 
       objectReference: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}

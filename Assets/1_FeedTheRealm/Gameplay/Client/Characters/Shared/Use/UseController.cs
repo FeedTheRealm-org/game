@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class UseController : MonoBehaviour
 {
+    [SerializeField]
+    private Logging.Logger logger;
+
     private NetworkAdapter networkAdapter;
 
     private bool isInitialized = false;

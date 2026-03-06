@@ -42,13 +42,15 @@ namespace FTR.Gameplay.Client.Characters
             var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
             var movementController = playerComponents.GetComponent<MovementController>();
             var movementView = playerComponents.GetComponent<MovementView>();
+            var useController = playerComponents.GetComponent<UseController>();
 
             var playerController = gameObject.AddComponent<PlayerController>();
             resolver.Inject(playerController);
 
-            movementView.Initialize(rb, stateStorage);
             playerController.Initialize(characterStateMachine);
             movementController.Initialize(networkAdapter);
+            movementView.Initialize(rb, stateStorage);
+            useController.Initialize(networkAdapter);
         }
     }
 }

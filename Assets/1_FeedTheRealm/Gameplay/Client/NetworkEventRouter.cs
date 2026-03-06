@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class NetworkEventRouter : MonoBehaviour
 {
+    [SerializeField]
+    private Logging.Logger logger;
+
     // List of subscribable ServerEvents
     public event Action<ServerEventDTO> OnAttackEvent;
     public event Action<ServerEventDTO> OnHitEvent;
@@ -29,12 +32,14 @@ public class NetworkEventRouter : MonoBehaviour
         {
             case ServerEventType.AttackEvent:
                 OnAttackEvent?.Invoke(serverEvent);
+                logger.Log($"Routed AttackEvent for netId", this);
                 break;
             case ServerEventType.HitEvent:
                 OnHitEvent?.Invoke(serverEvent);
+                logger.Log($"Routed HitEvent for netId", this);
                 break;
             default:
-                Debug.LogWarning($"Received unhandled server event type: {serverEvent.Type}");
+                logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);
                 break;
         }
     }
