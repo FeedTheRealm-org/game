@@ -254,7 +254,7 @@ PrefabInstance:
     - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
       propertyPath: 'spawnPrefabs.Array.data[0]'
       value: 
-      objectReference: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
+      objectReference: {fileID: 1418397613159891299, guid: 2f22313ba332299e9b09c2fcdc09952a, type: 3}
     - target: {fileID: 7109652370809193073, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
       propertyPath: m_Name
       value: WorldInitiator

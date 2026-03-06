@@ -16,10 +16,13 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
         [SerializeField]
         private GameObject structurePrefab;
 
-        protected List<StructureController> structureControllers = new();
+        private List<GameObject> instanciatedStructures;
+
+        protected IReadOnlyList<GameObject> InstanciatedStructures => instanciatedStructures;
 
         public virtual async UniTask Load(WorldData worldData)
         {
+            instanciatedStructures = new List<GameObject>();
             var structures = worldData.objectPlacementData;
             foreach (StructureData structureData in structures)
             {
@@ -27,7 +30,7 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
                 controller.Initialize(structureData);
-                structureControllers.Add(controller);
+                instanciatedStructures.Add(instance);
             }
         }
     }

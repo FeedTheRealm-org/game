@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: FeedTheRealm_Shared::ApiConfig
   Hostname: localhost
   Port: 8000
+  ModelsCDN: localhost:8081/worlds

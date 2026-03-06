@@ -42,6 +42,9 @@ public class ClientWorldInitiator : LifetimeScope
     [SerializeField]
     private LoaderProvider loaderProvider;
 
+    [SerializeField]
+    private Session.Session session;
+
     protected override void Configure(IContainerBuilder builder)
     {
         if (config.RuntimeRole != RuntimeRole.Client)
@@ -56,9 +59,8 @@ public class ClientWorldInitiator : LifetimeScope
         builder.RegisterInstance(worldSelector);
         builder.RegisterInstance(worldService);
         builder.RegisterInstance(loaderProvider);
+        builder.RegisterInstance(session);
         builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
-        builder.Register<GltLoaderService>(Lifetime.Singleton);
-        builder.Register<LoaderProvider>(Lifetime.Singleton);
 
         builder.RegisterEntryPoint<ClientWorldEntryPoint>();
     }

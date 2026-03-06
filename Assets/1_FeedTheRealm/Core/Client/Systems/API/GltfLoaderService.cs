@@ -6,15 +6,35 @@ using UnityEngine;
 namespace API
 {
     /// <summary>
-    ///  This is a more streamlined handler for loading GLTF FTRShared.Runtime.Models. This come directly from the world editor client code.
-    ///  This could not be placed in the shared packaged due to dependency issues with GLTFast in the package context.
+    /// Service to download item sprites from API.
+    /// Handles sprite downloads for items system.
+    /// Route: /assets/sprites/items/{spriteId}?category={category}
+    /// Separated from AssetsService (character editor sprites).
     /// </summary>
-    public sealed class GltfHandler
+    [CreateAssetMenu(
+        fileName = "GltLoaderService",
+        menuName = "Scriptable Objects/API/GltLoaderService"
+    )]
+    public class GltLoaderService : ScriptableObject
     {
+        [SerializeField]
+        private ApiConfig apiConfig;
+
         /// <summary>
-        /// Loads a GLTF model into the provided parent GameObject.
+        /// Downloads and loads a GLB model from the GLTF API, instantiates it, and returns the GameObject.
         /// </summary>
-        public async UniTask Load(GameObject parent, string modelUrl)
+        public async UniTask<GameObject> DownloadModel(string url)
+        {
+            string fullUrl = $"{apiConfig.ModelsCDN.TrimEnd('/')}/{url.TrimStart('/')}";
+            var parentObject = new GameObject("Model");
+            Debug.Log($"Downloading model from URL: {fullUrl}");
+            await LoadModel(parentObject, fullUrl);
+            return parentObject.transform.childCount > 0
+                ? parentObject.transform.GetChild(0).gameObject
+                : parentObject;
+        }
+
+        private async UniTask LoadModel(GameObject parent, string modelUrl)
         {
             if (string.IsNullOrEmpty(modelUrl))
             {

@@ -18,15 +18,12 @@ namespace FTR.Gameplay.Common.Environment.Structures
             SetupCollider();
         }
 
-        public void RenderVisual(GameObject referenceModel)
+        public void SetVisualModel(GameObject visualModel)
         {
-            GameObject structureModel = Instantiate(referenceModel);
-            structureModel.SetActive(true);
-
-            structureModel.transform.parent = gameObject.transform;
-            structureModel.transform.localPosition = Vector3.zero;
-            structureModel.transform.localRotation = Quaternion.identity;
-            structureModel.transform.localScale = structureData.size;
+            visualModel.transform.SetParent(gameObject.transform);
+            visualModel.SetActive(true);
+            visualModel.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            visualModel.transform.localScale = structureData.size;
         }
 
         private void SetupCollider()

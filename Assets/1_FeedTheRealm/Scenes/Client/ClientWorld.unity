@@ -310,6 +310,14 @@ PrefabInstance:
       propertyPath: exceptionsDisconnect
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
+      propertyPath: spawnPrefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
+      propertyPath: 'spawnPrefabs.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1418397613159891299, guid: 2f22313ba332299e9b09c2fcdc09952a, type: 3}
     - target: {fileID: 7109652370809193073, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
       propertyPath: m_Name
       value: WorldInitiator
@@ -382,6 +390,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: World
       objectReference: {fileID: 0}
+    - target: {fileID: 5180060565708909657, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -439,6 +451,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+      propertyPath: session
+      value: 
+      objectReference: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: worldService
       value: 

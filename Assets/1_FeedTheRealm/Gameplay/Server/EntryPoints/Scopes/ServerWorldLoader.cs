@@ -30,14 +30,14 @@ namespace FTR.Gameplay.Server.Scopes
         public override string GetWorldId()
         {
             if (config.IsDebugWorld)
-                return config.WorldID;
+                return ParamsSerializer.GetArgs("worldId", config.WorldID);
             return ParamsSerializer.GetArgs("worldId", null);
         }
 
         public override string GetAccessToken()
         {
             if (config.IsDebugWorld)
-                return config.AccessToken;
+                return ParamsSerializer.GetArgs("accessToken", config.AccessToken);
             return ParamsSerializer.GetArgs("accessToken", null);
         }
     }
