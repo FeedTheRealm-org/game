@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # **Runtime**
 FROM gcr.io/distroless/base-debian12
 
+LABEL org.opencontainers.image.source=https://github.com/FeedTheRealm-org/game
+
 WORKDIR /app
 
 COPY --from=deps /lib/x86_64-linux-gnu /lib/x86_64-linux-gnu
