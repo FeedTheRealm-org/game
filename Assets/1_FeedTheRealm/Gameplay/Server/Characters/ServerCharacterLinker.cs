@@ -2,6 +2,7 @@ using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -42,10 +43,13 @@ public class ServerCharacterLinker : IScriptLinker
 
         var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
+        var useSystem = serverComponents.GetComponent<UseSystem>();
+        var healthSystem = serverComponents.GetComponent<HealthSystem>();
 
         // Initialize components
         movementSystem.Initialize(rb, stateStorage);
-        serverCommandHandler.Initialize(movementSystem);
+        useSystem.Initialize(rb);
+        serverCommandHandler.Initialize(movementSystem, useSystem);
 
         var netID = gameObject.GetComponent<NetworkIdentity>().netId;
         RegisterEntity(netID, networkAdapter, serverCommandHandler);

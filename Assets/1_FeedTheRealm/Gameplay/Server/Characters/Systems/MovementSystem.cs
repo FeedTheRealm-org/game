@@ -6,7 +6,7 @@ using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 
-namespace FTR.Gameplay.Server.Characters
+namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class MovementSystem : MonoBehaviour, IGameTickable
     {
