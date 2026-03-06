@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FTR.Core.Common.EventChannels;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Core.Common.Quests
@@ -53,7 +54,7 @@ namespace FTR.Core.Common.Quests
         private void OnQuestDecision(QuestDecisionData decisionData)
         {
             logger.Log(
-                $"QUEST MANAGER: Quest decision received for quest '{decisionData.Quest.Title}'.",
+                $"QUEST MANAGER: Quest decision received for quest '{decisionData.Quest.title}'.",
                 this
             );
             if (decisionData.IsAccepted)
@@ -66,19 +67,19 @@ namespace FTR.Core.Common.Quests
                     questCompletedEvent
                 );
                 newQuest.Start();
-                activeQuests.Add(decisionData.Quest.Id, newQuest);
-                logger.Log($"Quest '{decisionData.Quest.Title}' accepted & started.", this);
+                activeQuests.Add(decisionData.Quest.id, newQuest);
+                logger.Log($"Quest '{decisionData.Quest.title}' accepted & started.", this);
             }
         }
 
         private void OnQuestCompleted(QuestData questData)
         {
-            if (activeQuests.ContainsKey(questData.Id))
+            if (activeQuests.ContainsKey(questData.id))
             {
-                activeQuests[questData.Id].Dispose();
-                activeQuests.Remove(questData.Id);
+                activeQuests[questData.id].Dispose();
+                activeQuests.Remove(questData.id);
                 logger.Log(
-                    $"Quest '{questData.Title}' completed and removed from active quests.",
+                    $"Quest '{questData.title}' completed and removed from active quests.",
                     this
                 );
             }

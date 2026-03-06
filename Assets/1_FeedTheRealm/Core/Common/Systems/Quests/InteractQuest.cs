@@ -1,5 +1,6 @@
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Interactions;
+using FTRShared.Runtime.Models;
 
 namespace FTR.Core.Common.Quests
 {
@@ -32,7 +33,7 @@ namespace FTR.Core.Common.Quests
 
             this.questProgressData = new QuestProgressData
             {
-                Id = questData.Id,
+                Id = questData.id,
                 TargetProgressAmount = targetProgressAmount,
                 CurrentProgressAmount = 0,
                 Quest = questData,
@@ -52,7 +53,7 @@ namespace FTR.Core.Common.Quests
 
         private void OnNpcInteracted(NpcInteractedData interactedData)
         {
-            if (interactedData.NpcId != questData.TargetInteractionId || interactedWithTarget)
+            if (interactedData.NpcId != questData.targetInteractionId || interactedWithTarget)
                 return;
 
             interactedWithTarget = true;

@@ -88,19 +88,19 @@ public class DialogManagerComponent : MonoBehaviour
             OpenDialog(); // Dialog started
         _currentDialogIndex++;
 
-        var hasQuest = dialog.Quest != null && !string.IsNullOrEmpty(dialog.Quest.Id);
-        if (hasQuest)
-        {
-            _questOffered = true;
-            logger.Log(
-                $"NPC '{NpcName}' is offering quest '{dialog.Quest.Title}' (ID: {dialog.Quest.Id}).",
-                this,
-                Logging.LogType.Info
-            );
-            OnDisable();
-            questOfferedEvent.Raise(dialog.Quest);
-            return true;
-        }
+        // var hasQuest = dialog.Quest != null && !string.IsNullOrEmpty(dialog.Quest.Id);
+        // if (hasQuest)
+        // {
+        //     _questOffered = true;
+        //     logger.Log(
+        //         $"NPC '{NpcName}' is offering quest '{dialog.Quest.Title}' (ID: {dialog.Quest.Id}).",
+        //         this,
+        //         Logging.LogType.Info
+        //     );
+        //     OnDisable();
+        //     questOfferedEvent.Raise(dialog.Quest);
+        //     return true;
+        // }
 
         RestartTimeout();
 
