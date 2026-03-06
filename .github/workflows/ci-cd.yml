@@ -13,7 +13,7 @@ jobs:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
       ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-      GH_PAT: ${{ secrets.GH_PAT }}
+      # GH_PAT: ${{ secrets.GH_PAT }}
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
       UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
       UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
