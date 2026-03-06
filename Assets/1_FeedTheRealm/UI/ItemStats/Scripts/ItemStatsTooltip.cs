@@ -182,7 +182,7 @@ public class ItemStatsTooltip : MonoBehaviour
     /// <summary>
     /// Populate common fields (name, description) shared by any item type.
     /// </summary>
-    private void PopulateCommonItemFields(Models.ItemData item)
+    private void PopulateCommonItemFields(FTRShared.Runtime.Models.ItemData item)
     {
         if (item == null)
         {

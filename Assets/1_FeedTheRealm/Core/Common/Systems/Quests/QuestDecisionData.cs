@@ -1,0 +1,17 @@
+using FTRShared.Runtime.Models;
+
+namespace FTR.Core.Common.Quests
+{
+    public class QuestDecisionData
+    {
+        public QuestData Quest;
+
+        public bool IsAccepted;
+
+        public QuestDecisionData(QuestData questData, bool isAccepted)
+        {
+            Quest = questData;
+            IsAccepted = isAccepted;
+        }
+    }
+}

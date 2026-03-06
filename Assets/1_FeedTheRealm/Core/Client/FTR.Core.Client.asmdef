@@ -1,0 +1,24 @@
+{
+  "name": "FTR.Core.Client",
+  "references": [
+    "FeedTheRealm_Shared",
+    "FTR.Core.Common",
+    "UnityEngine",
+    "Unity.InputSystem",
+    "Mirror",
+    "glTFast",
+    "VContainer",
+    "UniTask"
+  ],
+  "includePlatforms": [
+    "Editor",
+    "WindowsStandalone64",
+    "LinuxStandalone64"
+  ],
+  "defineConstraints": [
+    "CLIENT_BUILD"
+  ],
+  "autoReferenced": false,
+  "noEngineReferences": false,
+  "languageVersion": "10.0"
+}

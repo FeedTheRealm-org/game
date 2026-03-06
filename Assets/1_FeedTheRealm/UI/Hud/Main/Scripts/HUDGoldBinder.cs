@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Mirror;
 using UnityEngine;
 
 /// <summary>
@@ -11,6 +10,8 @@ using UnityEngine;
 /// </summary>
 namespace FeedTheRealm.UI
 {
+    // TODO: UPDATE THIS CLASS TO NOT NEED TO USE MIRROR! UI should not care about networking, only react to changes
+    // in states (for example scriptable objects, event channels or other events)
     public class HUDGoldBinder : MonoBehaviour
     {
         [SerializeField]
@@ -37,23 +38,23 @@ namespace FeedTheRealm.UI
             while (!token.IsCancellationRequested && elapsed < timeoutSeconds)
             {
                 // Prefer the network-local player when possible
-                if (NetworkClient.active && NetworkClient.localPlayer != null)
-                {
-                    var candidate = NetworkClient.localPlayer.GetComponent<PlayerGold>();
-                    if (candidate != null)
-                    {
-                        Attach(candidate);
-                        return true;
-                    }
-                }
+                // if (NetworkClient.active && NetworkClient.localPlayer != null)
+                // {
+                //     var candidate = NetworkClient.localPlayer.GetComponent<PlayerGold>();
+                //     if (candidate != null)
+                //     {
+                //         Attach(candidate);
+                //         return true;
+                //     }
+                // }
 
                 // find any PlayerGold in the scene
-                var any = UnityEngine.Object.FindFirstObjectByType<PlayerGold>();
-                if (any != null)
-                {
-                    Attach(any);
-                    return true;
-                }
+                // var any = UnityEngine.Object.FindFirstObjectByType<PlayerGold>();
+                // if (any != null)
+                // {
+                //     Attach(any);
+                //     return true;
+                // }
 
                 try
                 {
@@ -77,16 +78,16 @@ namespace FeedTheRealm.UI
 
         private void Attach(PlayerGold pg)
         {
-            if (_boundPlayerGold == pg)
-                return;
+            // if (_boundPlayerGold == pg)
+            //     return;
 
-            Unbind();
+            // Unbind();
 
-            _boundPlayerGold = pg;
-            _boundPlayerGold.OnGoldChanged += Bound_OnGoldChanged;
+            // _boundPlayerGold = pg;
+            // _boundPlayerGold.OnGoldChanged += Bound_OnGoldChanged;
 
-            // Push current value immediately
-            OnGoldChanged?.Invoke(_boundPlayerGold.Gold);
+            // // Push current value immediately
+            // OnGoldChanged?.Invoke(_boundPlayerGold.Gold);
 
             logger?.Log("HUDGoldBinder: Successfully bound to PlayerGold", this);
         }
@@ -98,11 +99,11 @@ namespace FeedTheRealm.UI
 
         public void Unbind()
         {
-            if (_boundPlayerGold != null)
-            {
-                _boundPlayerGold.OnGoldChanged -= Bound_OnGoldChanged;
-                _boundPlayerGold = null;
-            }
+            // if (_boundPlayerGold != null)
+            // {
+            //     _boundPlayerGold.OnGoldChanged -= Bound_OnGoldChanged;
+            //     _boundPlayerGold = null;
+            // }
         }
     }
 }

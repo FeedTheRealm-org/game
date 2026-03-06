@@ -1,5 +1,5 @@
-using Game.Core.Events;
-using Game.Core.Quests;
+using FTR.Core.Common.EventChannels;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 /// <summary>
@@ -88,7 +88,7 @@ public class HudManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
-    private void OnQuestDecision(QuestDecisionData _)
+    private void OnQuestDecision(FTR.Core.Common.Quests.QuestDecisionData _)
     {
         questPromptPanel.ToggleQuestPrompt(false);
         Cursor.visible = false;
