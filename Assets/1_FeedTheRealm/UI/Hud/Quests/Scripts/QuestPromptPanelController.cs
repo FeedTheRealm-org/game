@@ -1,5 +1,6 @@
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -71,20 +72,24 @@ public class QuestPromptController : MonoBehaviour
     /// </summary>
     public void OnQuestOffered(QuestData data)
     {
-        _titleLabel.text = data.Title;
-        _descriptionLabel.text = data.Content;
+        _titleLabel.text = data.title;
+        _descriptionLabel.text = data.content;
         _currentQuestData = data;
     }
 
     private void OnAcceptClicked()
     {
-        logger.Log($"Quest {_currentQuestData.Title} was accepted", this);
-        questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, true));
+        logger.Log($"Quest {_currentQuestData.title} was accepted", this);
+        questDecisionEvent.Raise(
+            new FTR.Core.Common.Quests.QuestDecisionData(_currentQuestData, true)
+        );
     }
 
     private void OnRejectClicked()
     {
-        logger.Log($"Quest {_currentQuestData.Title} was rejected", this);
-        questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, false));
+        logger.Log($"Quest {_currentQuestData.title} was rejected", this);
+        questDecisionEvent.Raise(
+            new FTR.Core.Common.Quests.QuestDecisionData(_currentQuestData, false)
+        );
     }
 }

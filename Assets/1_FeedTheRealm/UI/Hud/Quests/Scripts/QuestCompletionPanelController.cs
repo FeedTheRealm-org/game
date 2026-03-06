@@ -1,6 +1,7 @@
 using System.Collections;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -60,7 +61,7 @@ public class QuestCompletionPanelController : MonoBehaviour
     /// </summary>
     public void OnQuestCompleted(QuestData data)
     {
-        _titleLabel.text = data.Title;
+        _titleLabel.text = data.title;
     }
 
     /// <summary>

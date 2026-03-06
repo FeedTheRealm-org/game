@@ -1,5 +1,7 @@
+using Enums;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.EventChannels;
+using FTRShared.Runtime.Models;
 
 namespace FTR.Core.Common.Quests
 {
@@ -13,7 +15,7 @@ namespace FTR.Core.Common.Quests
             QuestCompletedEvent questCompletedEvent
         )
         {
-            switch (questData.Type)
+            switch (questData.type)
             {
                 case QuestType.EnemySlays:
                     return new SlayQuest(
@@ -30,7 +32,7 @@ namespace FTR.Core.Common.Quests
                         questCompletedEvent
                     );
                 default:
-                    throw new System.Exception("Unsupported quest type: " + questData.Type);
+                    throw new System.Exception("Unsupported quest type: " + questData.type);
             }
         }
     }
