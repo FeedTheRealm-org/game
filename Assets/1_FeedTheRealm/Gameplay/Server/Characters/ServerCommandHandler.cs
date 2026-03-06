@@ -23,7 +23,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnUse(IEventCollectable ec)
         {
-            useSystem.OnUse();
+            useSystem.OnUse(ec);
         }
 
         public void OnDash(IEventCollectable ec) { }

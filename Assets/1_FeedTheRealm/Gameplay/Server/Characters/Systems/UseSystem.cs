@@ -4,6 +4,7 @@ using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 using VContainer;
 
@@ -37,7 +38,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt) { }
 
-        public void OnUse()
+        public void OnUse(IEventCollectable ec)
         {
             if (isAttacking)
                 return;
