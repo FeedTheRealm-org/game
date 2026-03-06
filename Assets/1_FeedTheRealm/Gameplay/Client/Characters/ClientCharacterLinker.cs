@@ -36,20 +36,30 @@ namespace FTR.Gameplay.Client.Characters
                 prefabProvider.ClientPlayerComponents,
                 gameObject.transform
             );
-
             resolver.InjectGameObject(playerComponents);
 
             var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
-            var movementController = playerComponents.GetComponent<MovementController>();
+            var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
+            networkEventRouter.Initialize(networkAdapter);
+
+            // Views
             var movementView = playerComponents.GetComponent<MovementView>();
+            var attackView = playerComponents.GetComponent<AttackView>();
+
+            movementView.Initialize(rb, stateStorage);
+            attackView.Initialize(networkEventRouter);
+
+            // Controllers
+            if (networkAdapter.IsLocalPlayer)
+            {
+                var playerController = gameObject.AddComponent<PlayerController>();
+                resolver.Inject(playerController);
+                playerController.Initialize(characterStateMachine);
+            }
+            var movementController = playerComponents.GetComponent<MovementController>();
             var useController = playerComponents.GetComponent<UseController>();
 
-            var playerController = gameObject.AddComponent<PlayerController>();
-            resolver.Inject(playerController);
-
-            playerController.Initialize(characterStateMachine);
             movementController.Initialize(networkAdapter);
-            movementView.Initialize(rb, stateStorage);
             useController.Initialize(networkAdapter);
         }
     }
