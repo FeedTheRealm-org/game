@@ -9,19 +9,23 @@ namespace API
     /// Route: /assets/sprites/items/{spriteId}?category={category}
     /// Separated from AssetsService (character editor sprites).
     /// </summary>
-    public class GltLoaderService
+    [CreateAssetMenu(
+        fileName = "GltLoaderService",
+        menuName = "Scriptable Objects/API/GltLoaderService"
+    )]
+    public class GltLoaderService : ScriptableObject
     {
+        [SerializeField]
         private ApiConfig apiConfig;
+        private GltfHandler gltfHandler = new();
 
-        public GltLoaderService(ApiConfig config)
+        public GltLoaderService(ApiConfig apiConfig)
         {
-            this.apiConfig = config;
+            this.apiConfig = apiConfig;
         }
 
         private string GetBaseUrl() =>
             $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/models";
-
-        private GltfHandler gltfHandler = new();
 
         /// <summary>
         ///  Downloads a specific asset model for a given world.

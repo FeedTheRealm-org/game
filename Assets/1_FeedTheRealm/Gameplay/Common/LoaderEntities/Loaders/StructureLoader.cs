@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
@@ -15,7 +16,9 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
         [SerializeField]
         private GameObject structurePrefab;
 
-        public async UniTask Load(WorldData worldData)
+        protected List<StructureController> structureControllers = new();
+
+        public virtual async UniTask Load(WorldData worldData)
         {
             var structures = worldData.objectPlacementData;
             foreach (StructureData structureData in structures)
@@ -24,11 +27,8 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
                 controller.Initialize(structureData);
-
-                RenderVisual(controller);
+                structureControllers.Add(controller);
             }
         }
-
-        public virtual void RenderVisual(StructureController controller) { }
     }
 }

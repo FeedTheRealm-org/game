@@ -9,8 +9,8 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(UIDocument))]
 public class WorldFeedMenuController : MonoBehaviour
 {
-    [SerializeField]
-    private Worlds.WorldHandler worldHandler;
+    //[SerializeField]
+    //private Worlds.WorldHandler worldHandler;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -34,7 +34,8 @@ public class WorldFeedMenuController : MonoBehaviour
     private int currentOffset = 0;
     private int maxPageOffset = int.MaxValue;
     private const int PAGE_SIZE = 20;
-    private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
+
+    //private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
 
     private void Awake()
     {
@@ -70,7 +71,7 @@ public class WorldFeedMenuController : MonoBehaviour
 
     private void RenderWorldPage(int offset, string filter = null)
     {
-        worldHandler.Clear();
+        //worldHandler.Clear();
 
         StartCoroutine(
             worldService.GetWorldPage(
@@ -89,7 +90,7 @@ public class WorldFeedMenuController : MonoBehaviour
                     if (worlds == null || worlds.Count == 0)
                     {
                         logger.Log("No worlds received from server", this, Logging.LogType.Warning);
-                        worldHandler.Clear();
+                        //worldHandler.Clear();
 
                         if (offset > 0)
                         {
@@ -112,10 +113,10 @@ public class WorldFeedMenuController : MonoBehaviour
 
                     foreach (var world in worlds)
                     {
-                        worldHandler.addWorldToCategory(
-                            Worlds.WorldHandler.NULL_CATEGORY_NAME,
-                            world
-                        );
+                        // worldHandler.addWorldToCategory(
+                        //     Worlds.WorldHandler.NULL_CATEGORY_NAME,
+                        //     world
+                        // );
                     }
 
                     logger.Log($"Fetched and categorized {worlds.Count} worlds.", this);
@@ -127,7 +128,7 @@ public class WorldFeedMenuController : MonoBehaviour
 
     private void OnEnable()
     {
-        worldHandler.createACategory(Worlds.WorldHandler.NULL_CATEGORY_NAME);
+        // worldHandler.createACategory(Worlds.WorldHandler.NULL_CATEGORY_NAME);
         logger.Log("Worlds OnEnable called, fetching worlds...", this);
         RenderWorldPage(currentOffset);
     }
@@ -181,7 +182,7 @@ public class WorldFeedMenuController : MonoBehaviour
                 );
                 return;
             }
-            worldHandler.selectedWorldID = worldData.id;
+            //worldHandler.selectedWorldID = worldData.id;
             SceneManager.LoadScene(worldScene.SceneName);
         }
         catch (Exception ex)
@@ -192,32 +193,32 @@ public class WorldFeedMenuController : MonoBehaviour
 
     private void CreateCategories()
     {
-        allCategories.Clear();
+        //allCategories.Clear();
 
-        if (worldHandler == null)
-        {
-            logger.Log(
-                "listOfWorlds is null - cannot load categories",
-                this,
-                Logging.LogType.Error
-            );
-            RenderCategories();
-            return;
-        }
+        // if (worldHandler == null)
+        // {
+        //     logger.Log(
+        //         "listOfWorlds is null - cannot load categories",
+        //         this,
+        //         Logging.LogType.Error
+        //     );
+        //     RenderCategories();
+        //     return;
+        // }
 
-        List<Worlds.Category> categories = worldHandler.GetCategoryObjects();
-        if (categories == null || categories.Count == 0)
-        {
-            logger.Log("No categories found in listOfWorlds", this, Logging.LogType.Warning);
-            RenderCategories();
-            return;
-        }
+        //List<Worlds.Category> categories = worldHandler.GetCategoryObjects();
+        // if (categories == null || categories.Count == 0)
+        // {
+        //     logger.Log("No categories found in listOfWorlds", this, Logging.LogType.Warning);
+        //     RenderCategories();
+        //     return;
+        // }
 
-        allCategories.AddRange(categories);
-        logger.Log(
-            $"Loaded {allCategories.Count} categories with {allCategories.Sum(c => c.worlds?.Count ?? 0)} total worlds",
-            this
-        );
+        //llCategories.AddRange(categories);
+        // logger.Log(
+        //     $"Loaded {allCategories.Count} categories with {allCategories.Sum(c => c.worlds?.Count ?? 0)} total worlds",
+        //     this
+        // );
 
         RenderCategories();
     }
@@ -272,15 +273,15 @@ public class WorldFeedMenuController : MonoBehaviour
         int totalCategories = 0;
         int totalWorlds = 0;
 
-        foreach (var category in allCategories)
-        {
-            if (category == null || category.worlds == null || category.worlds.Count == 0)
-                continue;
+        // foreach (var category in allCategories)
+        // {
+        //     if (category == null || category.worlds == null || category.worlds.Count == 0)
+        //         continue;
 
-            totalCategories++;
-            totalWorlds += category.worlds.Count;
-            rootContainer.Add(CreateCategoryContainer(category, category.worlds));
-        }
+        //     totalCategories++;
+        //     totalWorlds += category.worlds.Count;
+        //     rootContainer.Add(CreateCategoryContainer(category, category.worlds));
+        // }
 
         if (totalWorlds == 0)
         {
@@ -320,16 +321,16 @@ public class WorldFeedMenuController : MonoBehaviour
     }
 
     private VisualElement CreateCategoryContainer(
-        Worlds.Category category,
+        //Worlds.Category category,
         List<FTRShared.Runtime.Models.WorldMetadata> worlds
     )
     {
         var categoryContainer = new VisualElement();
         categoryContainer.AddToClassList("categoryList");
 
-        var nameLabel = new Label(category.name);
-        nameLabel.AddToClassList("categoryName");
-        categoryContainer.Add(nameLabel);
+        //var nameLabel = new Label(category.name);
+        //nameLabel.AddToClassList("categoryName");
+        //categoryContainer.Add(nameLabel);
 
         foreach (var world in worlds)
         {

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &907924417351602107
+--- !u!1 &1662106833758918523
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,42 +8,42 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5183732892909399413}
-  - component: {fileID: 4342913170957727776}
+  - component: {fileID: 6336810948506589761}
+  - component: {fileID: 5395416181183926406}
   m_Layer: 0
-  m_Name: PlayerSpawnerLoader
+  m_Name: ClientStructureLoader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5183732892909399413
+--- !u!4 &6336810948506589761
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 907924417351602107}
+  m_GameObject: {fileID: 1662106833758918523}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.44474, y: 1, z: -37.53746}
+  m_LocalPosition: {x: 21.39718, y: 1, z: 39.96547}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4342913170957727776
+--- !u!114 &5395416181183926406
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 907924417351602107}
+  m_GameObject: {fileID: 1662106833758918523}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ca7939ce0c3c38129e11b691b9fa264, type: 3}
+  m_Script: {fileID: 11500000, guid: 1fe86876bafa2e60c9ef774c705413ff, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Core.Systems.Worlds.Loader.PlayerSpawnLoaderController
-  logger: {fileID: 11400000, guid: eeb9c36c9365c8d92b1a4e2d4b6b5d8a, type: 2}
-  playerSpawnPointPrefab: {fileID: 3523201402029195381, guid: 30f6f891ca5f2ba1db0f0e9dea9c49ed, type: 3}
-  groundReference: {fileID: 0}
+  m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Loaders.ClientStructureLoader
+  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
+  structurePrefab: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
+  gltfLoaderService: {fileID: 11400000, guid: 021be9f008c872d43b5753a0c733ad99, type: 2}
