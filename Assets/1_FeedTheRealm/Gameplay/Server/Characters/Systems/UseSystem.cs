@@ -1,5 +1,6 @@
 using System.Collections;
 using FTR.Core.Common.Config;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;

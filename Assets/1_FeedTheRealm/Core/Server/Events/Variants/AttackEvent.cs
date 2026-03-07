@@ -1,11 +1,17 @@
 using FTR.Core.Common.Protocol.RpcMessages;
+using Google.Protobuf;
 
 namespace FTR.Core.Server.Events;
 
 public class AttackEvent : BaseServerEvent
 {
+    private AttackEventContent content;
+
     public AttackEvent(uint netId, AttackEventContent content)
-        : base(netId, false) { }
+        : base(netId, false)
+    {
+        this.content = content;
+    }
 
     public override ServerEventDTO ToDTO()
     {

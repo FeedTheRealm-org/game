@@ -31,7 +31,9 @@ public class NetworkEventRouter : MonoBehaviour
         switch (serverEvent.Type)
         {
             case ServerEventType.AttackEvent:
-                AttackEventContent attackEvent = AttackEventContent.Parser.ParseFrom(data);
+                AttackEventContent attackEvent = AttackEventContent.Parser.ParseFrom(
+                    serverEvent.content
+                );
                 OnAttackEvent?.Invoke(attackEvent);
                 logger.Log($"Routed AttackEvent", this);
                 break;
