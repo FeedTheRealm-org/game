@@ -70,10 +70,10 @@ public class PlayerController : MonoBehaviour
 
     private void OnUseInput()
     {
-        if (Cursor.visible)
-        {
-            return;
-        }
+        // if (Cursor.visible)
+        // {
+        //     return;
+        // }
 
         characterStateMachine?.OnUse();
     }
