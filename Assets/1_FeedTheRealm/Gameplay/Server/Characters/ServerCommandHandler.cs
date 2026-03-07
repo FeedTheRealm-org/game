@@ -21,9 +21,9 @@ namespace FTR.Gameplay.Server.Characters
             movementSystem.OnMove(direction);
         }
 
-        public void OnUse(IEventCollectable ec)
+        public void OnDash(IEventCollectable ec, Vector3 direction)
         {
-            useSystem.OnUse(ec);
+            movementSystem.OnDash(direction);
         }
 
         public void OnDash(IEventCollectable ec) { }
