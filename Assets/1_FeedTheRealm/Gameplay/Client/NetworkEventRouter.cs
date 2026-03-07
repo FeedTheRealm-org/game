@@ -9,8 +9,8 @@ public class NetworkEventRouter : MonoBehaviour
     private Logging.Logger logger;
 
     // List of subscribable ServerEvents
-    public event Action<ServerEventDTO> OnAttackEvent;
-    public event Action<ServerEventDTO> OnHitEvent;
+    public event Action<AttackEventContent> OnAttackEvent;
+    public event Action OnHitEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -31,11 +31,12 @@ public class NetworkEventRouter : MonoBehaviour
         switch (serverEvent.Type)
         {
             case ServerEventType.AttackEvent:
-                OnAttackEvent?.Invoke(serverEvent);
+                AttackEventContent attackEvent = AttackEventContent.Parser.ParseFrom(data);
+                OnAttackEvent?.Invoke(attackEvent);
                 logger.Log($"Routed AttackEvent", this);
                 break;
             case ServerEventType.HitEvent:
-                OnHitEvent?.Invoke(serverEvent);
+                OnHitEvent?.Invoke();
                 logger.Log($"Routed HitEvent", this);
                 break;
             default:

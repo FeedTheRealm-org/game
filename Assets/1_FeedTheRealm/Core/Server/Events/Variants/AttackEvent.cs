@@ -4,7 +4,7 @@ namespace FTR.Core.Server.Events;
 
 public class AttackEvent : BaseServerEvent
 {
-    public AttackEvent(uint netId)
+    public AttackEvent(uint netId, AttackEventContent content)
         : base(netId, false) { }
 
     public override ServerEventDTO ToDTO()
@@ -12,7 +12,7 @@ public class AttackEvent : BaseServerEvent
         return new ServerEventDTO
         {
             Type = Common.Enums.ServerEventType.AttackEvent,
-            content = null,
+            content = content.ToByteArray(),
         };
     }
 }

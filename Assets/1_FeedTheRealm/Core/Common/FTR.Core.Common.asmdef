@@ -7,7 +7,8 @@
     "Mirror.Transports",
     "kcp2k",
     "VContainer",
-    "UniTask"
+    "UniTask",
+    "Google.Protobuf"
   ],
   "includePlatforms": [
     "Editor",

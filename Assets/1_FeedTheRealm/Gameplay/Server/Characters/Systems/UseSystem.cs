@@ -50,7 +50,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             isAttacking = true;
             StartCoroutine(resetAttackCooldown());
 
-            ec.Collect(new AttackEvent(netId));
+            ec.Collect(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
 
             Collider[] hitTargets = Physics.OverlapSphere(hitPoint, hitRadius, targetLayer);
             foreach (Collider target in hitTargets)
