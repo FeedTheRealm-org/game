@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 6878487654893383278}
   - component: {fileID: 1049393094490162525}
   - component: {fileID: 8113882516953622363}
+  - component: {fileID: 5535709811406022713}
   m_Layer: 7
   m_Name: ClientPlayerComponents
   m_TagString: Player
@@ -208,6 +209,18 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::DashView
   animator: {fileID: 4486304355727522199}
+--- !u!114 &5535709811406022713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be4ebc74e54412489fb9b7483149de2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::StaminaView
 --- !u!1001 &3728965444176374322
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -57,6 +57,10 @@ namespace FTR.Gameplay.Client.Characters
                 var playerController = gameObject.AddComponent<PlayerController>();
                 resolver.Inject(playerController);
                 playerController.Initialize(characterStateMachine);
+
+                var staminaView = playerComponents.GetComponent<StaminaView>();
+                if (staminaView != null)
+                    staminaView.Initialize(stateStorage);
             }
             var movementController = playerComponents.GetComponent<MovementController>();
             var useController = playerComponents.GetComponent<UseController>();
