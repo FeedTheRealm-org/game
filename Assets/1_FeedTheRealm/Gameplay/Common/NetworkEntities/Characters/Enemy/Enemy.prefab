@@ -13,12 +13,9 @@ GameObject:
   - component: {fileID: 4629284952826211309}
   - component: {fileID: 4885086532300312383}
   - component: {fileID: 3095535743837438187}
-  - component: {fileID: 5235632088287666841}
-  - component: {fileID: 137788444241368618}
-  - component: {fileID: 1253728121772926957}
   - component: {fileID: 5658635916378144872}
   m_Layer: 8
-  m_Name: BasicEnemy
+  m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -148,56 +145,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &5235632088287666841
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9e8e5dc05b9f7953bccecd79ff26176, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::GroundCheckComponent
-  rb: {fileID: 3095535743837438187}
-  col: {fileID: 4885086532300312383}
-  groundCheckDistance: 1
-  groundCheckSphereRadius: 0.4
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
---- !u!114 &137788444241368618
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76789a48ddc0210028a6676068b139f1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
-  MaxHealth: 100
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
---- !u!114 &1253728121772926957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c307c76f66660c896aa4617a8aadc4, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::LootDropper
-  lootPrefab: {fileID: 3221426771183678723, guid: 2252faf00cafd6d438bf4e2e0fed7ed4, type: 3}
-  alwaysDrop: 1
-  spawnOffset: {x: 0, y: 0, z: 0}
-  randomOffset: 0.1
-  logger: {fileID: 11400000, guid: 0ffc0e5a7caae4ecebc8d9368ad065c2, type: 2}
 --- !u!114 &5658635916378144872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403,10 +350,6 @@ PrefabInstance:
       propertyPath: target
       value:
       objectReference: {fileID: 4419354212146333340}
-    - target: {fileID: 925298929608913867, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
-      propertyPath: healthComponent
-      value:
-      objectReference: {fileID: 137788444241368618}
     - target: {fileID: 7208925596118356869, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.2
@@ -604,9 +547,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8717663361120014766, guid: 64359be8b124840d0bb4846426882691, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5030222630539144686}
-    - targetCorrespondingSourceObject: {fileID: 7979812900128732585, guid: 64359be8b124840d0bb4846426882691, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2452355598377935621}
   m_SourcePrefab: {fileID: 100100000, guid: 64359be8b124840d0bb4846426882691, type: 3}
 --- !u!1 &5708619978144037963 stripped
 GameObject:
@@ -628,27 +568,6 @@ MonoBehaviour:
   centeredBillboard: 0
   centerTransform: {fileID: 0}
   offset: {x: 0, y: 2, z: 0}
---- !u!1 &6449074065465841740 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7979812900128732585, guid: 64359be8b124840d0bb4846426882691, type: 3}
-  m_PrefabInstance: {fileID: 4017856540316151269}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2452355598377935621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6449074065465841740}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationAttackEvent
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
-  attackComponent: {fileID: 0}
-  healthComponent: {fileID: 137788444241368618}
-  networkAttackSynchronizer: {fileID: 0}
 --- !u!224 &9032614020885259526 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5375047960093657315, guid: 64359be8b124840d0bb4846426882691, type: 3}
