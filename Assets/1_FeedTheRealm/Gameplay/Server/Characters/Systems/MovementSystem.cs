@@ -42,7 +42,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void OnMove(Vector3 direction)
         {
             this.direction = direction.normalized;
-            stateStorage.SetDirection(direction * moveSpeed);
+            stateStorage.SetDirection(this.direction * moveSpeed);
         }
 
         public void GameTick(float dt)
