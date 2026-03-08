@@ -38,6 +38,13 @@ namespace FTR.Gameplay.Client.Characters
             );
             resolver.InjectGameObject(playerComponents);
 
+            // Add HUD component
+            var hudComponents = Object.Instantiate(
+                prefabProvider.hudComponent,
+                gameObject.transform
+            );
+            resolver.InjectGameObject(hudComponents);
+
             var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
             networkEventRouter.Initialize(networkAdapter);
