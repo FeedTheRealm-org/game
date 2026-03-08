@@ -8,8 +8,6 @@ public class CharacterUsingState : IActionState
 
     private CharacterAnimator animator;
 
-    private bool attackTriggered;
-
     public CharacterUsingState(
         IStateMachine sm,
         UseController useController,

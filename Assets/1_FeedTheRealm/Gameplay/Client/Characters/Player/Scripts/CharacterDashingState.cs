@@ -9,61 +9,38 @@ public class CharacterDashingState : IMovementState
 {
     private IStateMachine stateMachine;
 
-    private DashComponent dashComponent;
-    private CharacterAnimator animator;
-    private bool dashTriggered;
+    private MovementController movementController;
 
-    private Vector2 lastDirection;
-
-    public CharacterDashingState(
-        IStateMachine sm,
-        DashComponent dashComponent,
-        CharacterAnimator animator
-    )
+    public CharacterDashingState(IStateMachine sm, MovementController movementController)
     {
-        this.dashComponent = dashComponent;
-        this.animator = animator;
+        this.movementController = movementController;
         this.stateMachine = sm;
     }
 
     public void Enter()
     {
-        animator.SetMoving(false);
-        animator.SetDashing(true);
-        dashComponent.OnDashFinished += OnDashFinished;
-        dashComponent.OnDash();
+        movementController.OnDash();
     }
 
-    public void Exit()
-    {
-        animator.SetDashing(false);
-        dashComponent.OnDashFinished -= OnDashFinished;
-    }
+    public void Exit() { }
 
     public void SetDirection(Vector2 direction)
     {
-        lastDirection = direction;
-    }
-
-    private void OnDashFinished()
-    {
         IMovementState nextState;
-        if (VectorTransformations.IsMovementMagnitude(lastDirection))
+        if (VectorTransformations.IsMovementMagnitude(direction))
         {
             nextState = stateMachine.GetMovementStateByType(typeof(CharacterMovingState));
             stateMachine.SetMovementState(nextState);
-            stateMachine.CurrentMovementState.SetDirection(lastDirection);
+            stateMachine.CurrentMovementState.SetDirection(direction);
             return;
         }
         nextState = stateMachine.GetMovementStateByType(typeof(CharacterIdleState));
         stateMachine.SetMovementState(nextState);
-        return;
     }
 
     public void Dispose()
     {
         stateMachine = null;
-        dashComponent = null;
-        animator = null;
+        movementController = null;
     }
 }

@@ -299,6 +299,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1602583287}
     - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
+      propertyPath: networkAddress
+      value: localhost
+      objectReference: {fileID: 0}
+    - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
       propertyPath: autoCreatePlayer
       value: 1
       objectReference: {fileID: 0}

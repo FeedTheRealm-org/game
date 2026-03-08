@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+message Force {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message DashEventContent {
+  Force force = 1;
+  float duration = 2;
+}

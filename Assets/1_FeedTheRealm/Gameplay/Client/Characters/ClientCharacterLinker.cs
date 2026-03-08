@@ -45,9 +45,11 @@ namespace FTR.Gameplay.Client.Characters
             // Views
             var movementView = playerComponents.GetComponent<MovementView>();
             var attackView = playerComponents.GetComponent<AttackView>();
+            var dashView = playerComponents.GetComponent<DashView>();
 
             movementView.Initialize(rb, stateStorage);
             attackView.Initialize(networkEventRouter);
+            dashView.Initialize(rb, stateStorage, networkEventRouter);
 
             // Controllers
             if (networkAdapter.IsLocalPlayer)
