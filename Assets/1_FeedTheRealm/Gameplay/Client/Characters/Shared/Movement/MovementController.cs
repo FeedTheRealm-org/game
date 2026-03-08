@@ -96,7 +96,7 @@ public class MovementController : MonoBehaviour
     }
 
     /// <summary>
-    /// SendDashCommand called when a significant rotation change is detected or when the input direction changes.
+    /// Sends a dash command when a dash input event is raised (via OnDash).
     /// </summary>
     private void SendDashCommand()
     {
