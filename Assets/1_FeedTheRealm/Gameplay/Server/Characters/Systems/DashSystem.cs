@@ -28,27 +28,34 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private bool isDashing;
         private CharacterStateStorage stateStorage;
 
-        // TODO: Stamina
-        // private float currentStamina;
-        // private float staminaRecoveryTimer;
+        private float staminaRecoveryTimer = 0f;
+
+        private void OnDisable()
+        {
+            if (gameTickEvent != null)
+                gameTickEvent.OnRaised -= GameTick;
+        }
 
         public void Initialize(uint netId, Rigidbody rb, CharacterStateStorage stateStorage)
         {
             this.rb = rb;
             this.netId = netId;
             this.stateStorage = stateStorage;
+            stateStorage.SetStamina(config.MaxStamina);
             isInitialized = true;
+            gameTickEvent.OnRaised += GameTick;
         }
 
         public void OnDash(IEventCollectable ec, Vector3 direction)
         {
-            // TODO: Can dash again if stamina allows (Stamina system), when on ground (Ground check system)
             if (isDashing || !isInitialized)
-            {
                 return;
-            }
+
+            if (stateStorage.Stamina < config.DashStaminaCost)
+                return;
 
             Vector3 force = direction * config.DashSpeed;
+            stateStorage.SetStamina(stateStorage.Stamina - config.DashStaminaCost);
             stateStorage.IsMovementBlocked = true;
             StartCoroutine(DashRoutine(force));
 
@@ -90,6 +97,20 @@ namespace FTR.Gameplay.Server.Characters.Systems
             StopDash(); // stop dash instantly for "snappy" feel
         }
 
-        public void GameTick(float dt) { }
+        public void GameTick(float dt)
+        {
+            if (!isInitialized || isDashing)
+                return;
+
+            if (stateStorage.Stamina >= config.MaxStamina)
+                return;
+
+            staminaRecoveryTimer += dt;
+            if (staminaRecoveryTimer >= config.StaminaRecoveryRate)
+            {
+                staminaRecoveryTimer = 0f;
+                stateStorage.SetStamina(stateStorage.Stamina + config.StaminaRecoveryAmount);
+            }
+        }
     }
 }
