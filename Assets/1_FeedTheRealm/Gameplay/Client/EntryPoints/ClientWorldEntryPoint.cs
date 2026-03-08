@@ -1,8 +1,12 @@
+using API;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Gameplay.Common.WorldLoader;
+using FTR.Gameplay.LoaderEntities;
+using Logging;
 using VContainer;
 using VContainer.Unity;
 
-public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
+public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILateTickable
 {
     private TickEvent tickEvent;
 
@@ -12,22 +16,39 @@ public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILat
 
     private bool isInitialized = false;
 
+    private Session.Session session;
+
+    private WorldSelector worldSelector;
+
     [Inject]
     public ClientWorldEntryPoint(
         TickEvent tickEvent,
         FixedTickEvent fixedTickEvent,
-        LateTickEvent lateTickEvent
+        LateTickEvent lateTickEvent,
+        Session.Session session,
+        WorldService worldService,
+        Logger logger,
+        LoaderProvider loaderProvider,
+        WorldSelector worldSelector
     )
+        : base(worldService, logger, loaderProvider)
     {
         this.tickEvent = tickEvent;
         this.fixedTickEvent = fixedTickEvent;
         this.lateTickEvent = lateTickEvent;
+        this.session = session;
+        this.worldSelector = worldSelector;
         isInitialized = true;
     }
 
-    public void Start()
+    public override string GetWorldId()
     {
-        // Initialize client world here
+        return worldSelector.GetSelectedWorldId();
+    }
+
+    public override string GetAccessToken()
+    {
+        return session.APIToken;
     }
 
     public void Tick()
