@@ -20,6 +20,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public Vector3 Position => position;
         public Vector3 Direction => direction;
         public float Stamina => stamina;
+        public bool IsMovementBlocked { get; set; }
 
         public event Action<Vector3> OnPositionCorrected;
         public event Action<Vector3> OnDirectionChanged;

@@ -94,7 +94,6 @@ public class PlayerController : MonoBehaviour
     {
         // if (Cursor.visible)
         // {
-        //     Debug.Log("[PlayerController] OnDashInput blocked - cursor is visible", this);
         //     return;
         // }
 

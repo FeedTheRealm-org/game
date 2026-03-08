@@ -51,7 +51,7 @@ public class ServerCharacterLinker : IScriptLinker
 
         // Initialize components
         movementSystem.Initialize(rb, stateStorage);
-        dashSystem.Initialize(netId, rb);
+        dashSystem.Initialize(netId, rb, stateStorage);
         useSystem.Initialize(netId, rb);
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
 

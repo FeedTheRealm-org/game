@@ -49,7 +49,7 @@ namespace FTR.Gameplay.Client.Characters
 
             movementView.Initialize(rb, stateStorage);
             attackView.Initialize(networkEventRouter);
-            dashView.Initialize(rb, networkEventRouter);
+            dashView.Initialize(rb, stateStorage, networkEventRouter);
 
             // Controllers
             if (networkAdapter.IsLocalPlayer)

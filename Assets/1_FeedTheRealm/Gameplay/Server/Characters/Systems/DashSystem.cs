@@ -26,15 +26,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
 
         private bool isDashing;
+        private CharacterStateStorage stateStorage;
 
         // TODO: Stamina
         // private float currentStamina;
         // private float staminaRecoveryTimer;
 
-        public void Initialize(uint netId, Rigidbody rb)
+        public void Initialize(uint netId, Rigidbody rb, CharacterStateStorage stateStorage)
         {
             this.rb = rb;
             this.netId = netId;
+            this.stateStorage = stateStorage;
             isInitialized = true;
         }
 
@@ -47,6 +49,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             Vector3 force = direction * config.DashSpeed;
+            stateStorage.IsMovementBlocked = true;
             StartCoroutine(DashRoutine(force));
 
             ec.Collect(
@@ -76,6 +79,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             rb.linearVelocity = Vector3.zero;
             isDashing = false;
+            stateStorage.IsMovementBlocked = false;
         }
 
         private IEnumerator DashRoutine(Vector3 force)

@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 
 public class DashView : MonoBehaviour
@@ -8,12 +9,17 @@ public class DashView : MonoBehaviour
     private CharacterAnimator animator;
 
     private Rigidbody rb;
-
+    private CharacterStateStorage stateStorage;
     private NetworkEventRouter eventRouter;
 
-    public void Initialize(Rigidbody rb, NetworkEventRouter eventRouter)
+    public void Initialize(
+        Rigidbody rb,
+        CharacterStateStorage stateStorage,
+        NetworkEventRouter eventRouter
+    )
     {
         this.rb = rb;
+        this.stateStorage = stateStorage;
         this.eventRouter = eventRouter;
         eventRouter.OnDashEvent += OnDashEvent;
     }
@@ -27,11 +33,13 @@ public class DashView : MonoBehaviour
     private async void OnDashEvent(DashEventContent dashEvent)
     {
         Vector3 force = new Vector3(dashEvent.Force.X, dashEvent.Force.Y, dashEvent.Force.Z);
-        int duration = (int)dashEvent.Duration * 1000;
+        int duration = (int)(dashEvent.Duration * 1000);
 
-        ApplyDashing(force); // apply instant burst
+        stateStorage.IsMovementBlocked = true;
+        ApplyDashing(force);
         await UniTask.Delay(duration);
-        StopDash(); // stop dash instantly for "snappy" feel;
+        StopDash();
+        stateStorage.IsMovementBlocked = false;
     }
 
     private void ApplyDashing(Vector3 force)
