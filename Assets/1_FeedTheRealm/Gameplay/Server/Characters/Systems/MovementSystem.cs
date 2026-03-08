@@ -50,6 +50,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!isInitialized)
                 return;
 
+            if (stateStorage.IsMovementBlocked)
+                return;
+
             Vector3 nextPosition = rb.position + dt * moveSpeed * direction;
             rb.MovePosition(nextPosition);
             if (gameTickCounter % positionCorrectionCounter == 0)

@@ -19,9 +19,6 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     private UseController useController;
 
     [SerializeField]
-    private DashComponent dashComponent;
-
-    [SerializeField]
     private GroundCheckComponent groundCheckComponent;
 
     [SerializeField]
@@ -49,7 +46,6 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     {
         if (
             movementController == null
-            || dashComponent == null
             || useController == null
             || groundCheckComponent == null
             || interactComponent == null
@@ -68,11 +64,11 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         );
         movementStates.Add(
             typeof(CharacterMovingState),
-            new CharacterMovingState(this, movementController, characterAnimator)
+            new CharacterMovingState(this, movementController)
         );
         movementStates.Add(
             typeof(CharacterDashingState),
-            new CharacterDashingState(this, dashComponent, characterAnimator)
+            new CharacterDashingState(this, movementController)
         );
         actionStates.Add(
             typeof(CharacterUsingState),
