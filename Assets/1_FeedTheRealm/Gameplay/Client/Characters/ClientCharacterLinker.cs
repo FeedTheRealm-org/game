@@ -40,7 +40,7 @@ namespace FTR.Gameplay.Client.Characters
 
             // Add HUD component
             var hudComponents = Object.Instantiate(
-                prefabProvider.hudComponent,
+                prefabProvider.HudComponent,
                 gameObject.transform
             );
             resolver.InjectGameObject(hudComponents);

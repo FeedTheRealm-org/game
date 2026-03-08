@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,6 +7,9 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(UIDocument))]
 public class StaminaController : MonoBehaviour
 {
+    [SerializeField]
+    private Logging.Logger logger;
+
     private ProgressBar _staminaBar;
 
     private void Start()
@@ -15,15 +17,25 @@ public class StaminaController : MonoBehaviour
         var root = GetComponent<UIDocument>().rootVisualElement;
         var characterData = root.Q<VisualElement>("CharacterData");
         if (characterData == null)
-            throw new Exception(
-                "[StaminaController] CharacterData element not found in UIDocument."
+        {
+            logger.Log(
+                "[StaminaController] CharacterData element not found in UIDocument.",
+                this,
+                Logging.LogType.Error
             );
+            return;
+        }
 
         _staminaBar = characterData.Q<ProgressBar>("StaminaBar");
         if (_staminaBar == null)
-            throw new Exception(
-                "[StaminaController] StaminaBar element not found inside CharacterData."
+        {
+            logger.Log(
+                "[StaminaController] StaminaBar element not found inside CharacterData.",
+                this,
+                Logging.LogType.Error
             );
+            return;
+        }
 
         _staminaBar.value = _staminaBar.highValue;
     }

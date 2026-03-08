@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -726580152348399193}
   - component: {fileID: 4687081578167197889}
   m_Layer: 0
-  m_Name: HUD
+  m_Name: Hud
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -68,3 +68,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f9dc62a5b1e1484f984c05a0aeab2a6, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::StaminaController
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
