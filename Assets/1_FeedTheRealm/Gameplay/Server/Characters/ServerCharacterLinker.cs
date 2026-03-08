@@ -51,9 +51,9 @@ public class ServerCharacterLinker : IScriptLinker
 
         // Initialize components
         movementSystem.Initialize(rb, stateStorage);
-        dashSystem.Initialize(rb);
+        dashSystem.Initialize(netId, rb);
         useSystem.Initialize(netId, rb);
-        serverCommandHandler.Initialize(movementSystem, useSystem, dashSystem);
+        serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);
         gameObject.name = $"Player-{netId}";

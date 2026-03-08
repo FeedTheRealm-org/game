@@ -30,7 +30,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnDash(IEventCollectable ec, Vector3 direction)
         {
-            dashSystem.OnDash(direction);
+            dashSystem.OnDash(ec, direction);
         }
 
         public void OnUse(IEventCollectable ec)
