@@ -38,42 +38,37 @@ namespace FTR.Gameplay.Client.Characters
             );
             resolver.InjectGameObject(playerComponents);
 
-            // Add HUD component
-            var hudComponents = Object.Instantiate(
-                prefabProvider.HudComponent,
-                gameObject.transform
-            );
-            resolver.InjectGameObject(hudComponents);
-
             var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
-            networkEventRouter.Initialize(networkAdapter);
-
-            // Views
             var movementView = playerComponents.GetComponent<MovementView>();
             var attackView = playerComponents.GetComponent<AttackView>();
             var dashView = playerComponents.GetComponent<DashView>();
+            var staminaView = playerComponents.GetComponent<StaminaView>();
 
-            movementView.Initialize(rb, stateStorage);
-            attackView.Initialize(networkEventRouter);
-            dashView.Initialize(rb, stateStorage, networkEventRouter);
-
-            // Controllers
-            if (networkAdapter.IsLocalPlayer)
-            {
-                var playerController = gameObject.AddComponent<PlayerController>();
-                resolver.Inject(playerController);
-                playerController.Initialize(characterStateMachine);
-
-                var staminaView = playerComponents.GetComponent<StaminaView>();
-                if (staminaView != null)
-                    staminaView.Initialize(stateStorage);
-            }
             var movementController = playerComponents.GetComponent<MovementController>();
             var useController = playerComponents.GetComponent<UseController>();
 
+            networkEventRouter.Initialize(networkAdapter);
+            movementView.Initialize(rb, stateStorage);
+            attackView.Initialize(networkEventRouter);
+            dashView.Initialize(rb, stateStorage, networkEventRouter);
+            staminaView.Initialize(stateStorage);
+
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
+
+            if (networkAdapter.IsLocalPlayer)
+            {
+                var hudComponent = Object.Instantiate(
+                    prefabProvider.HudComponent,
+                    gameObject.transform
+                );
+                resolver.InjectGameObject(hudComponent);
+
+                var playerController = gameObject.AddComponent<PlayerController>();
+                resolver.Inject(playerController);
+                playerController.Initialize(characterStateMachine);
+            }
         }
     }
 }
