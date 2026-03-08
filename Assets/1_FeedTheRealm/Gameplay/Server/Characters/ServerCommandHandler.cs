@@ -11,7 +11,7 @@ namespace FTR.Gameplay.Server.Characters
         private DashSystem dashSystem;
         private UseSystem useSystem;
 
-        // TODO: Serialize field whatever posible
+        // TODO: Serialize field whatever possible
         public void Initialize(
             MovementSystem movementSystem,
             DashSystem dashSystem,
