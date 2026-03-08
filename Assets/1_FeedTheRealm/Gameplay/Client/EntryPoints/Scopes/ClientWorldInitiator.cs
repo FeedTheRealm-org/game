@@ -1,5 +1,6 @@
 using API;
 using FTR.Core.Client;
+using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.EventChannels;
@@ -21,6 +22,7 @@ public class ClientWorldInitiator : LifetimeScope
     [SerializeField]
     private ClientPrefabProvider prefabProvider;
 
+    [Header("Ticks")]
     [SerializeField]
     private TickEvent tickEvent;
 
@@ -29,6 +31,10 @@ public class ClientWorldInitiator : LifetimeScope
 
     [SerializeField]
     private LateTickEvent lateTickEvent;
+
+    [Header("Status")]
+    [SerializeField]
+    private StaminaChangedEvent staminaChangedEvent;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -55,6 +61,7 @@ public class ClientWorldInitiator : LifetimeScope
         builder.RegisterInstance(tickEvent);
         builder.RegisterInstance(fixedTickEvent);
         builder.RegisterInstance(lateTickEvent);
+        builder.RegisterInstance(staminaChangedEvent);
         builder.RegisterInstance(logger);
         builder.RegisterInstance(worldSelector);
         builder.RegisterInstance(worldService);

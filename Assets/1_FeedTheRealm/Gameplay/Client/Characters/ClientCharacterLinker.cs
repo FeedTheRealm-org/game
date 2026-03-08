@@ -59,11 +59,13 @@ namespace FTR.Gameplay.Client.Characters
 
             if (networkAdapter.IsLocalPlayer)
             {
+                prefabProvider.HudComponent.SetActive(false);
                 var hudComponent = Object.Instantiate(
                     prefabProvider.HudComponent,
                     gameObject.transform
                 );
                 resolver.InjectGameObject(hudComponent);
+                hudComponent.SetActive(true);
 
                 var playerController = gameObject.AddComponent<PlayerController>();
                 resolver.Inject(playerController);

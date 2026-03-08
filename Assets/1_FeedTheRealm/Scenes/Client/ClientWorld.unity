@@ -483,6 +483,10 @@ PrefabInstance:
       propertyPath: initiatePlayerEvent
       value: 
       objectReference: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
+    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+      propertyPath: staminaChangedEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 89582c7e8afc2cb4db5daece29a3d3be, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -1,13 +1,16 @@
 using System;
+using FTR.Core.Client.EventChannels.Status;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// Tracks the local player's stamina as a plain float and notifies the HUD via a static event.
 /// </summary>
 public class StaminaView : MonoBehaviour
 {
-    public static event Action<float> StaminaChangedEvent;
+    [Inject]
+    private StaminaChangedEvent staminaChangedEvent;
 
     private CharacterStateStorage stateStorage;
 
@@ -15,7 +18,7 @@ public class StaminaView : MonoBehaviour
     {
         this.stateStorage = stateStorage;
         stateStorage.OnStaminaChanged += OnStaminaChanged;
-        StaminaChangedEvent?.Invoke(stateStorage.Stamina);
+        staminaChangedEvent.Raise(this.stateStorage.Stamina);
     }
 
     private void OnDestroy()
@@ -26,6 +29,6 @@ public class StaminaView : MonoBehaviour
 
     private void OnStaminaChanged(float value)
     {
-        StaminaChangedEvent?.Invoke(value);
+        staminaChangedEvent.Raise(value);
     }
 }

@@ -1,16 +1,21 @@
+using FTR.Core.Client.EventChannels.Status;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 /// <summary>
 /// Handles stamina UI updates. Attach to the same GameObject as UIDocument.
 /// </summary>
 [RequireComponent(typeof(UIDocument))]
-public class StaminaController : MonoBehaviour
+public class StaminaUIController : MonoBehaviour
 {
     [SerializeField]
     private Logging.Logger logger;
 
     private ProgressBar _staminaBar;
+
+    [Inject]
+    private StaminaChangedEvent staminaChangedEvent;
 
     private void Start()
     {
@@ -42,12 +47,12 @@ public class StaminaController : MonoBehaviour
 
     private void OnEnable()
     {
-        StaminaView.StaminaChangedEvent += OnStaminaChanged;
+        staminaChangedEvent.OnRaised += OnStaminaChanged;
     }
 
     private void OnDisable()
     {
-        StaminaView.StaminaChangedEvent -= OnStaminaChanged;
+        staminaChangedEvent.OnRaised -= OnStaminaChanged;
     }
 
     private void OnStaminaChanged(float current)
