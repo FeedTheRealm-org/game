@@ -20,17 +20,21 @@ namespace FTR.Core.Server.Config
         private float dashDuration = 0.1f;
         public float DashDuration => dashDuration;
 
-        // [Header("Stamina")]
-        // [SerializeField]
-        // private float maxStamina = 100f;
-        // public float MaxStamina => maxStamina;
+        [Header("Stamina")]
+        [SerializeField]
+        private float maxStamina = 100f;
+        public float MaxStamina => maxStamina;
 
-        // [SerializeField]
-        // private float staminaRecoveryRate = 1f;
-        // public float StaminaRecoveryRate => staminaRecoveryRate;
+        [SerializeField]
+        private float dashStaminaCost = 25f;
+        public float DashStaminaCost => dashStaminaCost;
 
-        // [SerializeField]
-        // private float staminaRecoveryAmount = 5f;
-        // public float StaminaRecoveryAmount => staminaRecoveryAmount;
+        [SerializeField]
+        private float staminaRecoveryRate = 1f;
+        public float StaminaRecoveryRate => staminaRecoveryRate;
+
+        [SerializeField]
+        private float staminaRecoveryAmount = 5f;
+        public float StaminaRecoveryAmount => staminaRecoveryAmount;
     }
 }
