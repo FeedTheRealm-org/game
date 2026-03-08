@@ -182,6 +182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f231802e8a445c2ba8940e5a1cf9fbb7, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::NetworkEventRouter
+  logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
 --- !u!114 &3218634496288659472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,6 +196,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+  rotationMagnitudeToSend: 25
 --- !u!114 &3772100352833835385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,6 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b81eab80165d2a3391bcb2f433e8991, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::UseController
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!114 &1049393094490162525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,7 +292,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5342159936205048522, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

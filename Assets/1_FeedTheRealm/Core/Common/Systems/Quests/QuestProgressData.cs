@@ -1,3 +1,5 @@
+using FTRShared.Runtime.Models;
+
 namespace FTR.Core.Common.Quests
 {
     public class QuestProgressData

@@ -50,11 +50,11 @@ namespace FTR.Core.Common.Config
 
         private RuntimeRole GetRuntimeRole()
         {
-#if SERVER_BUILD
+#if SERVER_BUILD && !CLIENT_BUILD
             return RuntimeRole.Server;
-#elif CLIENT_BUILD
+#elif CLIENT_BUILD && !SERVER_BUILD
             return RuntimeRole.Client;
-#else
+#else // SERVER & CLIENT || None (debugging)
             return editorRuntimeRole;
 #endif
         }

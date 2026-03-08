@@ -12,7 +12,6 @@ public sealed class ServerEntity
 
     public NetworkAdapter NetworkAdapter { get; }
     public ICommandable Commandable { get; }
-    public IGameTickable GameTickable { get; }
 
     /// <summary>
     /// Creates a new ServerEntity with the given netId, networkAdapter, and entity commandable.

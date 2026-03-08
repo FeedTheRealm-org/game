@@ -1,6 +1,7 @@
 using System.Collections;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -67,7 +68,7 @@ public class QuestProgressPanelController : MonoBehaviour
     private void HandleQuestProgress(QuestProgressData questProgress)
     {
         logger.Log(
-            $"New progress for quest {questProgress.Quest.Title} with id {questProgress.Id}",
+            $"New progress for quest {questProgress.Quest.title} with id {questProgress.Id}",
             this
         );
 
@@ -103,10 +104,10 @@ public class QuestProgressPanelController : MonoBehaviour
 
     private VisualElement CreateQuestItem(QuestData questData)
     {
-        var questItem = new VisualElement { name = questData.Id };
+        var questItem = new VisualElement { name = questData.id };
         questItem.AddToClassList(_questItemClasses);
 
-        var titleLabel = new Label { text = questData.Title };
+        var titleLabel = new Label { text = questData.title };
         titleLabel.AddToClassList(_questTitleClasses);
         questItem.Add(titleLabel);
 
@@ -121,7 +122,7 @@ public class QuestProgressPanelController : MonoBehaviour
 
         _currentQuestsContainer.Add(questItem);
         logger.Log(
-            $"Created new quest item for quest {questData.Title} with id {questData.Id}",
+            $"Created new quest item for quest {questData.title} with id {questData.id}",
             this
         );
 

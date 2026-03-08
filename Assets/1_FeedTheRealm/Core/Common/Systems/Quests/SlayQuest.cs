@@ -1,4 +1,5 @@
 using FTR.Core.Common.EventChannels;
+using FTRShared.Runtime.Models;
 
 namespace FTR.Core.Common.Quests
 {
@@ -30,8 +31,8 @@ namespace FTR.Core.Common.Quests
 
             this.questProgressData = new QuestProgressData
             {
-                Id = questData.Id,
-                TargetProgressAmount = questData.TargetAmount,
+                Id = questData.id,
+                TargetProgressAmount = questData.targetAmount,
                 CurrentProgressAmount = currentSlayedCount,
                 Quest = questData,
             };
@@ -54,7 +55,7 @@ namespace FTR.Core.Common.Quests
 
             RaiseProgress();
 
-            if (currentSlayedCount >= questData.TargetAmount)
+            if (currentSlayedCount >= questData.targetAmount)
             {
                 questCompletedEvent.Raise(questData);
                 Dispose();
