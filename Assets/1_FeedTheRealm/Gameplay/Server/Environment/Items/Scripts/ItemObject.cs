@@ -1,5 +1,6 @@
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Common.Utils;
 using FTR.Core.Server.EventChannels;
 using Mirror;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace FTR.Gameplay.Client.Environment.Items
     /// ItemObject represents an item in the game world that can be interacted with by players.
     /// It is responsible for sending pickup commands to the server when a player interacts with it.
     /// </summary>
-    public class ItemObject : MonoBehaviour
+    public class ItemObject : MonoBehaviour, IGameTickable
     {
         private string id;
 
@@ -18,10 +19,13 @@ namespace FTR.Gameplay.Client.Environment.Items
         private string itemName;
 
         [SerializeField]
-        private Sprite sprite;
+        private string description;
 
         [SerializeField]
-        private string description;
+        private GameTickEvent gameTickEvent;
+
+        [SerializeField]
+        private uint despawnTime = 3600; // game rate is 30 ticks per second, so this is 2 minutes
 
         private NetworkAdapter networkAdapter;
 
@@ -29,11 +33,24 @@ namespace FTR.Gameplay.Client.Environment.Items
         public string Description => description;
         public string Id => id;
 
-        private void Start()
+        private void OnEnable()
         {
-            gameObject.SetActive(true);
             networkAdapter = GetComponent<NetworkAdapter>();
             id = GetComponent<NetworkIdentity>().netId.ToString();
+            gameTickEvent.OnRaised += GameTick;
+        }
+
+        private void OnDisable()
+        {
+            gameTickEvent.OnRaised -= GameTick;
+        }
+
+        public void GameTick(float dt)
+        {
+            if (despawnTime <= 0)
+                Destroy(gameObject);
+            else
+                despawnTime--;
         }
 
         private void OnTriggerEnter(Collider other)
