@@ -12,9 +12,6 @@ using UnityEngine.UIElements;
 public class HudController : MonoBehaviour
 {
     [SerializeField]
-    private Stamina staminaData;
-
-    [SerializeField]
     private Logging.Logger logger;
 
     [SerializeField]
@@ -206,18 +203,12 @@ public class HudController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (staminaData != null)
-        {
-            staminaData.OnStaminaChanged += handleStaminaChange;
-        }
+        StaminaView.StaminaChangedEvent += handleStaminaChange;
     }
 
     private void OnDisable()
     {
-        if (staminaData != null)
-        {
-            staminaData.OnStaminaChanged -= handleStaminaChange;
-        }
+        StaminaView.StaminaChangedEvent -= handleStaminaChange;
 
         if (_goldBinder != null)
         {
@@ -243,13 +234,10 @@ public class HudController : MonoBehaviour
     /// <summary>
     /// Handles changes in stamina and updates the HUD accordingly.
     /// </summary>
-    private void handleStaminaChange(float value)
+    private void handleStaminaChange(float current)
     {
         if (_staminaBar != null)
-        {
-            // Adjust for a stamina greater or lower than progress bar max (100).
-            _staminaBar.value = value * _staminaBar.highValue / staminaData.MaxStamina;
-        }
+            _staminaBar.value = current;
     }
 
     /// <summary>
