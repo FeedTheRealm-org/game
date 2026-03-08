@@ -171,6 +171,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: ServerInitiator
       objectReference: {fileID: 0}
+    - target: {fileID: 5892852019314354449, guid: da152773229f27029a30dde2d7da3002, type: 3}
+      propertyPath: mainScene.sceneName
+      value: ServerWorld
+      objectReference: {fileID: 0}
+    - target: {fileID: 5892852019314354449, guid: da152773229f27029a30dde2d7da3002, type: 3}
+      propertyPath: mainScene.sceneAsset
+      value: 
+      objectReference: {fileID: 102900000, guid: 9b989502a097ef97fa769ea267e6a0a9, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
