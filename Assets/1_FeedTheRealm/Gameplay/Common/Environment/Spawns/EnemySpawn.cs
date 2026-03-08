@@ -44,6 +44,8 @@ public class EnemySpawn : MonoBehaviour
 
     public void SetupSpawner(EnemySpawnerData data)
     {
+        Vector3 radiusScale = new Vector3(data.Radius, 1f, data.Radius);
+        spawnPointContainer.localScale = radiusScale;
         maxEnemies = data.MaxEnemies;
         spawnRate = data.SpawnRate;
         resetAfterKills = data.ResetAfterKills;
