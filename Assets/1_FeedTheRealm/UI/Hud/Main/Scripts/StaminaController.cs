@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 /// <summary>
 /// Handles stamina UI updates. Attach to the same GameObject as UIDocument.
 /// </summary>
+[RequireComponent(typeof(UIDocument))]
 public class StaminaController : MonoBehaviour
 {
     private ProgressBar _staminaBar;
