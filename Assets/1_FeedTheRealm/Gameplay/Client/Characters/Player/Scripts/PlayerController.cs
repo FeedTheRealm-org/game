@@ -92,10 +92,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnDashInput()
     {
-        if (Cursor.visible)
-        {
-            return;
-        }
+        // if (Cursor.visible)
+        // {
+        //     Debug.Log("[PlayerController] OnDashInput blocked - cursor is visible", this);
+        //     return;
+        // }
 
         characterStateMachine?.OnDash();
     }
