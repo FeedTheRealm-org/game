@@ -109,7 +109,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (staminaRecoveryTimer >= config.StaminaRecoveryRate)
             {
                 staminaRecoveryTimer = 0f;
-                stateStorage.SetStamina(stateStorage.Stamina + config.StaminaRecoveryAmount);
+                float newStamina = Mathf.Min(stateStorage.Stamina + config.StaminaRecoveryAmount, config.MaxStamina);
+                stateStorage.SetStamina(newStamina);
             }
         }
     }
