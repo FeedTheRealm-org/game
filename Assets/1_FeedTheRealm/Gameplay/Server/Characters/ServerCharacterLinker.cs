@@ -43,6 +43,7 @@ public class ServerCharacterLinker : IScriptLinker
 
         var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
+        var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
 
@@ -50,8 +51,9 @@ public class ServerCharacterLinker : IScriptLinker
 
         // Initialize components
         movementSystem.Initialize(rb, stateStorage);
+        dashSystem.Initialize(rb);
         useSystem.Initialize(netId, rb);
-        serverCommandHandler.Initialize(movementSystem, useSystem);
+        serverCommandHandler.Initialize(movementSystem, useSystem, dashSystem);
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);
         gameObject.name = $"Player-{netId}";

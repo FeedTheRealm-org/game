@@ -8,11 +8,18 @@ namespace FTR.Gameplay.Server.Characters
     public class ServerCommandHandler : MonoBehaviour, ICommandable
     {
         private MovementSystem movementSystem;
+        private DashSystem dashSystem;
         private UseSystem useSystem;
 
-        public void Initialize(MovementSystem movementSystem, UseSystem useSystem)
+        // TODO: Serialize field whatever posible
+        public void Initialize(
+            MovementSystem movementSystem,
+            DashSystem dashSystem,
+            UseSystem useSystem
+        )
         {
             this.movementSystem = movementSystem;
+            this.dashSystem = dashSystem;
             this.useSystem = useSystem;
         }
 
@@ -23,10 +30,13 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnDash(IEventCollectable ec, Vector3 direction)
         {
-            movementSystem.OnDash(direction);
+            dashSystem.OnDash(direction);
         }
 
-        public void OnDash(IEventCollectable ec) { }
+        public void OnUse(IEventCollectable ec)
+        {
+            useSystem.OnUse(ec);
+        }
 
         public void OnInteract(IEventCollectable ec) { }
 

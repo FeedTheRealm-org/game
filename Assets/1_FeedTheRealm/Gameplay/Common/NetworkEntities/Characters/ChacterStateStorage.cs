@@ -12,13 +12,18 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnDirectionSync))]
         private Vector3 direction;
 
+        [SyncVar(hook = nameof(OnStaminaSync))]
+        private float stamina;
+
         /* --- Getters --- */
 
         public Vector3 Position => position;
         public Vector3 Direction => direction;
+        public float Stamina => stamina;
 
         public event Action<Vector3> OnPositionCorrected;
         public event Action<Vector3> OnDirectionChanged;
+        public event Action<float> OnStaminaChanged;
 
         /* --- Setters --- */
 
@@ -34,6 +39,12 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             position = newPosition;
         }
 
+        [Server]
+        public void SetStamina(float newStamina)
+        {
+            stamina = newStamina;
+        }
+
         /* --- Syncvar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
@@ -44,6 +55,11 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private void OnDirectionSync(Vector3 oldDirection, Vector3 newDirection)
         {
             OnDirectionChanged?.Invoke(newDirection);
+        }
+
+        private void OnStaminaSync(float oldStamina, float newStamina)
+        {
+            OnStaminaChanged?.Invoke(newStamina);
         }
     }
 }

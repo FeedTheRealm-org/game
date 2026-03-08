@@ -65,6 +65,17 @@ public class MovementController : MonoBehaviour
     }
 
     /// <summary>
+    /// SetDirection called when an input event is raised (non continous).
+    /// </summary>
+    public void OnDash()
+    {
+        if (!isInitialized)
+            return;
+
+        SendDashCommand();
+    }
+
+    /// <summary>
     /// SendMoveCommand called when a significant rotation change is detected or when the input direction changes.
     /// </summary>
     private void SendMoveCommand()
@@ -82,6 +93,25 @@ public class MovementController : MonoBehaviour
 
         networkAdapter.DispatchAction(command);
         previousRotationSent = currentRotation;
+    }
+
+    /// <summary>
+    /// SendDashCommand called when a significant rotation change is detected or when the input direction changes.
+    /// </summary>
+    private void SendDashCommand()
+    {
+        if (!isInitialized)
+            return;
+
+        UpdateCurrentDirectionWithCamera();
+
+        ActionCommandDTO command = new()
+        {
+            Type = ActionType.Dash,
+            Direction = currentRealDirection,
+        };
+
+        networkAdapter.DispatchAction(command);
     }
 
     private void UpdateCurrentDirectionWithCamera()
