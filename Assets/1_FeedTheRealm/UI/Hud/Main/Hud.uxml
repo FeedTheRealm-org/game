@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/Hud/Main/Themes/Hud.uss?fileID=7433441132597879392&amp;guid=f2b110e8876311072b361748c42d217d&amp;type=3#Hud"/>
-    <ui:VisualElement name="FastUseSlotsContainer" class="fast-use-container">
+    <ui:VisualElement name="FastUseSlotsContainer" enabled="false" class="fast-use-container" style="display: none;">
         <ui:Button name="Slot1" class="fast-use-slot"/>
         <ui:Button name="Slot2" class="fast-use-slot"/>
         <ui:Button name="Slot3" class="fast-use-slot"/>
@@ -20,7 +20,7 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:ScrollView name="CurrentQuestsContainer" class="quest-list">
+        <ui:ScrollView name="CurrentQuestsContainer" enabled="false" class="quest-list" style="display: none;">
             <ui:VisualElement class="quest-item">
                 <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu" class="quest-title"/>
                 <ui:ProgressBar title="0%" class="quest-progress"/>
