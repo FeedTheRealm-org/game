@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0152e4cd065109215ae7d245d975f24d, type: 3}
-  m_Name: ApiConfig
-  m_EditorClassIdentifier: FeedTheRealm_Shared::ApiConfig
-  Hostname: localhost
-  Port: 8000
-  ModelsCDN: localhost:8081/worlds
+  m_Script: {fileID: 11500000, guid: 8541003cdc0217b6abdb728bf932ea9d, type: 3}
+  m_Name: WorldSelector
+  m_EditorClassIdentifier: FTR.Gameplay.Client::WorldSelector
+  SelectedWorldId: 88e5cfdf-9f66-4b07-b514-456c08643600

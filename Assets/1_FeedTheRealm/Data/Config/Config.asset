@@ -15,3 +15,6 @@ MonoBehaviour:
   editorRuntimeRole: 1
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   Port: 7777
+  isDebugWorld: 1
+  worldID: 88e5cfdf-9f66-4b07-b514-456c08643600
+  accessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
