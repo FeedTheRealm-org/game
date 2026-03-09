@@ -3,7 +3,6 @@ using FeedTheRealm.Core.Client.EventChannels;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
-using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.Characters;
 using FTR.Gameplay.Common.WorldLoader;
 using UnityEngine;
@@ -37,9 +36,6 @@ public class ClientWorldInitiator : LifetimeScope
     private LoaderProvider loaderProvider;
 
     [SerializeField]
-    private ObjectResolverContainer objectResolverContainer;
-
-    [SerializeField]
     private Session.Session session;
 
     protected override void Configure(IContainerBuilder builder)
@@ -55,7 +51,6 @@ public class ClientWorldInitiator : LifetimeScope
         builder.RegisterInstance(worldService);
         builder.RegisterInstance(loaderProvider);
         builder.RegisterInstance(session);
-        builder.RegisterInstance(objectResolverContainer);
         builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
 
         builder.RegisterEntryPoint<ClientWorldEntryPoint>();

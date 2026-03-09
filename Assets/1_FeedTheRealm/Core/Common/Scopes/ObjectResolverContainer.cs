@@ -4,6 +4,7 @@ using VContainer;
 
 namespace FTR.Core.Common.Scopes
 {
+    [CreateAssetMenu(menuName = "Scriptable Objects/Object Resolver Container")]
     public class ObjectResolverContainer : ScriptableObject
     {
         public event Action OnResolverSet;

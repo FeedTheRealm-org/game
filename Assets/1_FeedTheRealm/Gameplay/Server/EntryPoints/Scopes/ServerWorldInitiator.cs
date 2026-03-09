@@ -1,8 +1,6 @@
 using API;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Loaders;
-using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.WorldLoader;
@@ -32,9 +30,6 @@ public class ServerWorldInitiator : LifetimeScope
     [SerializeField]
     private WorldService worldService;
 
-    [SerializeField]
-    private ObjectResolverContainer objectResolverContainer;
-
     // This is only used for testing purposes,
     // to spawn objects in the world and test interactions
     // without needing to implement the full world loading logic.
@@ -51,7 +46,6 @@ public class ServerWorldInitiator : LifetimeScope
         builder.RegisterInstance(prefabProvider);
         builder.RegisterInstance(loaderProvider);
         builder.RegisterInstance(worldService);
-        builder.RegisterInstance(objectResolverContainer);
         builder.Register<WorldMonitor>(Lifetime.Singleton);
         builder.Register<ServerCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
         builder.Register<GameLoop>(Lifetime.Singleton);
