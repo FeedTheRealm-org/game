@@ -3,7 +3,7 @@ using FTR.Core.Common.Loaders;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
-namespace FTR.Gameplay.Common.WorldLoader.Loaders
+namespace FTR.Gameplay.Server.Loaders
 {
     public class EnemySpawnerLoader : MonoBehaviour, ILoader
     {
@@ -21,7 +21,7 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
                     Quaternion.identity
                 );
                 EnemySpawn enemySpawnData = instance.GetComponent<EnemySpawn>();
-                enemySpawnData.SetupSpawner(data);
+                enemySpawnData.Initialize(data);
                 instance.name = "EnemySpawner";
             }
         }

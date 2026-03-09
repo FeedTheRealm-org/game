@@ -42,12 +42,17 @@ public class EnemySpawn : MonoBehaviour
         new System.Collections.Generic.HashSet<uint>();
     private int totalKills;
 
-    public void SetupSpawner(EnemySpawnerData data)
+    private bool isInitialized = false;
+
+    public void Initialize(EnemySpawnerData data)
     {
+        // This is where you setup and configure the spawner based on the data from the loader
         maxEnemies = data.MaxEnemies;
         spawnRate = data.SpawnRate;
         resetAfterKills = data.ResetAfterKills;
         resetDelay = data.ResetDelay;
+
+        isInitialized = true;
     }
 
     private void Start()
