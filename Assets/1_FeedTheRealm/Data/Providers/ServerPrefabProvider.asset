@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd0a19c7826f29c2a4b8ea57d839fed, type: 3}
   m_Name: ServerPrefabProvider
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Client.ServerPrefabProvider
-  ServerPlayerComponents: {fileID: 2056940003155735034, guid: 9907a9bc79e277c47af508172cec712a, type: 3}
+  ServerCharacterComponents: {fileID: 2056940003155735034, guid: 9907a9bc79e277c47af508172cec712a, type: 3}
   ServerLoaderComponents: {fileID: 696600327873933447, guid: 63994e9e2095dba6692448e0cbb8e7d8, type: 3}

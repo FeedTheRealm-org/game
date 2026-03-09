@@ -27,7 +27,7 @@ public class ServerCharacterLinker : IScriptLinker
         this.resolver = resolver;
     }
 
-    public void LinkDomainScripts(GameObject gameObject)
+    public void LinkDomainScripts(GameObject gameObject, bool linkNPC)
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
@@ -35,7 +35,7 @@ public class ServerCharacterLinker : IScriptLinker
 
         // Add server-side components
         var serverComponents = Object.Instantiate(
-            prefabProvider.ServerPlayerComponents,
+            prefabProvider.ServerCharacterComponents,
             gameObject.transform
         );
 

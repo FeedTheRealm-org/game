@@ -24,7 +24,7 @@ namespace FTR.Gameplay.Client.Characters
             Debug.Log("ClientCharacterLinker created with resolver: " + (resolver != null));
         }
 
-        public void LinkDomainScripts(GameObject gameObject)
+        public void LinkDomainScripts(GameObject gameObject, bool linkNPC)
         {
             // Get from common character components
             var rb = gameObject.GetComponent<Rigidbody>();
@@ -33,7 +33,7 @@ namespace FTR.Gameplay.Client.Characters
 
             // Add client-side components
             var playerComponents = Object.Instantiate(
-                prefabProvider.ClientPlayerComponents,
+                prefabProvider.ClientCharacterComponents,
                 gameObject.transform
             );
             resolver.InjectGameObject(playerComponents);
@@ -57,7 +57,7 @@ namespace FTR.Gameplay.Client.Characters
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 
-            if (networkAdapter.IsLocalPlayer)
+            if (networkAdapter.IsLocalPlayer && linkNPC)
             {
                 prefabProvider.HudComponent.SetActive(false);
                 var hudComponent = Object.Instantiate(
