@@ -52,10 +52,7 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
   playerInputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
   prefabProvider: {fileID: 11400000, guid: 805f190945737dfdd82e6b04f6f82e9a, type: 2}
-  tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
-  fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
-  lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}
-  staminaChangedEvent: {fileID: 0}
+  clientEventRegistry: {fileID: 11400000, guid: 7b0314ec47ec120ae9b419a5265297fe, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   worldSelector: {fileID: 0}
   worldService: {fileID: 0}
@@ -73,6 +70,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19210c2eb31e342cf9b2ac953b1bef39, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.WorldLoader.LoaderProvider
-  disableLoaders: 0
   loaders:
   - {fileID: 1662106833758918523, guid: 0f2c061e3984db2bda636f51fe50fe9b, type: 3}

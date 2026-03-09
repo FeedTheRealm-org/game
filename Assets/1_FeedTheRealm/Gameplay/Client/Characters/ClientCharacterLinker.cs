@@ -44,6 +44,7 @@ namespace FTR.Gameplay.Client.Characters
             var attackView = playerComponents.GetComponent<AttackView>();
             var dashView = playerComponents.GetComponent<DashView>();
             var staminaView = playerComponents.GetComponent<StaminaView>();
+            var healthView = playerComponents.GetComponent<HealthView>();
 
             var movementController = playerComponents.GetComponent<MovementController>();
             var useController = playerComponents.GetComponent<UseController>();
@@ -53,6 +54,7 @@ namespace FTR.Gameplay.Client.Characters
             attackView.Initialize(networkEventRouter);
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             staminaView.Initialize(stateStorage);
+            healthView?.Initialize(stateStorage);
 
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
