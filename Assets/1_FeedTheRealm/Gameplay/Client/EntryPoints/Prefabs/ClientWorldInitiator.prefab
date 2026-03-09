@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3908815477959584697}
   - component: {fileID: 4535736261288449031}
+  - component: {fileID: 7357027031613840830}
   m_Layer: 0
   m_Name: ClientWorldInitiator
   m_TagString: Untagged
@@ -54,4 +55,24 @@ MonoBehaviour:
   tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
   fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
   lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}
+  staminaChangedEvent: {fileID: 0}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  worldSelector: {fileID: 0}
+  worldService: {fileID: 0}
+  loaderProvider: {fileID: 0}
+  session: {fileID: 0}
+--- !u!114 &7357027031613840830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 261950162667931583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19210c2eb31e342cf9b2ac953b1bef39, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.WorldLoader.LoaderProvider
+  disableLoaders: 0
+  loaders:
+  - {fileID: 1662106833758918523, guid: 0f2c061e3984db2bda636f51fe50fe9b, type: 3}

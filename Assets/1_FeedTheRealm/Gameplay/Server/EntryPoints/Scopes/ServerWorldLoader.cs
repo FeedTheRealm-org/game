@@ -8,6 +8,7 @@ using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Common.WorldLoader;
 using FTRShared.Runtime.Models;
 using Logging;
+using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -39,11 +40,14 @@ namespace FTR.Gameplay.Server.Scopes
         {
             base.Initialize();
             if (config.IsDebugWorld && debugObjectPrefab != null)
-                container.Instantiate(
+            {
+                GameObject debugObjectInstance = container.Instantiate(
                     debugObjectPrefab,
-                    new Vector3(20, 5f, 0),
+                    new Vector3(20, 5f, 0), // random position for testing
                     Quaternion.identity
                 );
+                NetworkServer.Spawn(debugObjectInstance);
+            }
         }
 
         public override string GetWorldId()

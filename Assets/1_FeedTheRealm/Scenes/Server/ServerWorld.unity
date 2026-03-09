@@ -389,6 +389,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 812305219253926133, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1133841175451336163, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
       propertyPath: m_Name
       value: ServerWorldInitiator
@@ -400,7 +404,7 @@ PrefabInstance:
     - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
       propertyPath: loaderProvider
       value: 
-      objectReference: {fileID: 662272126448601556, guid: 63994e9e2095dba6692448e0cbb8e7d8, type: 3}
+      objectReference: {fileID: 8456612910714803318}
     - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
       propertyPath: prefabProvider
       value: 
@@ -418,6 +422,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
+--- !u!114 &8456612910714803318 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3278589943590782736, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
+  m_PrefabInstance: {fileID: 8456612910714803316}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19210c2eb31e342cf9b2ac953b1bef39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.WorldLoader.LoaderProvider
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

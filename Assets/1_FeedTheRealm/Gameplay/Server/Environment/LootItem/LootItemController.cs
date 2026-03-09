@@ -1,6 +1,5 @@
-using System.Collections;
 using FTR.Core.Server.Commands;
-using FTR.Core.Server.Config;
+using FTR.Core.Server.EventChannels;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -13,47 +12,21 @@ namespace FTR.Gameplay.Server.Environment.Items
     /// </summary>
     public class LootItemController : MonoBehaviour
     {
-        private string id;
-
         [Inject]
         private WorldMonitor worldMonitor;
-
-        [SerializeField]
-        private ServerConfig config;
-
+        private string id;
         private bool isPickedUp = false;
-
-        private uint despawnTime = 5;
-
-        public string Id => id;
-
-        private void Awake()
-        {
-            gameObject.SetActive(true);
-        }
+        public bool IsPickedUp => isPickedUp;
 
         private void OnEnable()
         {
             id = GetComponent<NetworkIdentity>().netId.ToString();
-            despawnTime = config.ItemDespawnTime > 0 ? config.ItemDespawnTime : despawnTime;
-            StartCoroutine(DespawnObject());
-        }
-
-        private IEnumerator DespawnObject()
-        {
-            Debug.Log($"Despawning loot item {id} after {despawnTime} seconds");
-            yield return new WaitForSeconds(despawnTime);
-            if (!isPickedUp)
-                Destroy(gameObject);
         }
 
         // In the Physics2D settings,
         // The collision Player only collides with the LootItem layer,
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log(
-                $"Object {other.gameObject.name} entered trigger of loot item {id} with layer {other.gameObject.layer}"
-            );
             if (isPickedUp)
                 return;
             uint playerId = other.gameObject.GetComponent<NetworkIdentity>().netId;
@@ -66,14 +39,14 @@ namespace FTR.Gameplay.Server.Environment.Items
             if (!success)
                 isPickedUp = false;
             else
-                Destroy(gameObject);
+                Debug.Log($"Item {id} picked up successfully, despawning...");
+            Destroy(gameObject);
         }
 
         private void SendPickupCommand(uint playerId)
         {
             PickUpCommand command = new(playerId, id, AfterPickup);
             worldMonitor.Commands.Enqueue(command);
-            Debug.Log($"HELLO I GOT PICKED UP!!! {id} by player {playerId}");
         }
     }
 }

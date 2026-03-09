@@ -7,5 +7,6 @@ namespace FTR.Core.Client
     {
         public GameObject ClientPlayerComponents;
         public GameObject HudComponent;
+        public GameObject ClientLootItemPrefab;
     }
 }
