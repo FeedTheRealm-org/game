@@ -6,7 +6,7 @@ option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
 
 import "ProtoVector3.proto";
 
-message DashEventContent {
+message InitialForceEventContent {
   ProtoVector3 force = 1;
-  float duration = 2;
+  ProtoVector3 initial_position = 2;
 }

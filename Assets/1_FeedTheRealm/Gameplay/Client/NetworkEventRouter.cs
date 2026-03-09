@@ -12,6 +12,7 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<AttackEventContent> OnAttackEvent;
     public event Action OnHitEvent;
     public event Action<DashEventContent> OnDashEvent;
+    public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -46,6 +47,12 @@ public class NetworkEventRouter : MonoBehaviour
             case ServerEventType.HitEvent:
                 OnHitEvent?.Invoke();
                 logger.Log($"Routed HitEvent", this);
+                break;
+            case ServerEventType.InitialForceEvent:
+                InitialForceEventContent lootItemSpawnEvent =
+                    InitialForceEventContent.Parser.ParseFrom(serverEvent.content);
+                OnLootItemSpawnEvent?.Invoke(lootItemSpawnEvent);
+                logger.Log($"Routed LootItemSpawnEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);

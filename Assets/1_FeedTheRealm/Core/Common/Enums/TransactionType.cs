@@ -8,5 +8,6 @@ public enum TransactionType
     Equip,
     Drop,
     Purchase,
+    PickUp,
     AcceptQuest,
 }

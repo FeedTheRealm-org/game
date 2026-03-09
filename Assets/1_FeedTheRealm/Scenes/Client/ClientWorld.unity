@@ -377,7 +377,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
       propertyPath: spawnPrefabs.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1942418856020304535, guid: ec9ac99d09ad37d878283300765080e5, type: 3}
       propertyPath: 'spawnPrefabs.Array.data[0]'
@@ -535,7 +535,7 @@ PrefabInstance:
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: loaderProvider
       value: 
-      objectReference: {fileID: 1821876856177024691, guid: 9c0ce24a1cb6183488af4e5c3a9f5ad5, type: 3}
+      objectReference: {fileID: 6832595862004162407}
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: prefabProvider
       value: 
@@ -557,6 +557,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+--- !u!114 &6832595862004162407 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7357027031613840830, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+  m_PrefabInstance: {fileID: 6832595862004162406}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19210c2eb31e342cf9b2ac953b1bef39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.WorldLoader.LoaderProvider
 --- !u!1001 &8740526030383010082
 PrefabInstance:
   m_ObjectHideFlags: 0

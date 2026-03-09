@@ -1,7 +1,7 @@
 using API;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Common.WorldLoader;
-using FTR.Gameplay.LoaderEntities;
 using Logging;
 using VContainer;
 using VContainer.Unity;

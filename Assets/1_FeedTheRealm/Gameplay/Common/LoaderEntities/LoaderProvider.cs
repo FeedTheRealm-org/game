@@ -6,6 +6,7 @@ namespace FTR.Gameplay.Common.WorldLoader
 {
     public class LoaderProvider : MonoBehaviour
     {
+        [Header("Loaders")]
         [SerializeField]
         private List<GameObject> loaders;
 
