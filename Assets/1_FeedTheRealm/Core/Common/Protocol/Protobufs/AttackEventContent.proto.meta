@@ -1,10 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/1_FeedTheRealm/Gameplay/Common/LoaderEntities.meta
 guid: 90e6119254e77a60f89881badf1c4dda
-folderAsset: yes
-========
-guid: 5cd84e5bc55793a67871ea7b6c301451
->>>>>>>> 58a93302eed598703a2c3b0ef5a6aa4d72b430bc:Assets/1_FeedTheRealm/Core/Common/Protocol/Protobufs/AttackEventContent.proto.meta
 DefaultImporter:
   externalObjects: {}
   userData:
