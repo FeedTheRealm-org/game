@@ -1,6 +1,7 @@
 using FTR.Core.Server.Commands;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Environment.Items;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
@@ -9,6 +10,7 @@ namespace FTR.Gameplay.Server.Characters
     {
         private MovementSystem movementSystem;
         private UseSystem useSystem;
+        private InventorySystem inventorySystem;
 
         public void Initialize(MovementSystem movementSystem, UseSystem useSystem)
         {
@@ -37,5 +39,10 @@ namespace FTR.Gameplay.Server.Characters
         public void OnPurchase(IEventCollectable ec) { }
 
         public void OnQuestAccepted(IEventCollectable ec) { }
+
+        public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
+        {
+            inventorySystem.OnPickUp(ec, itemId, onComplete);
+        }
     }
 }

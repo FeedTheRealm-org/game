@@ -1,3 +1,4 @@
+using System;
 using FTR.Core.Server.Events;
 using UnityEngine;
 
@@ -13,4 +14,5 @@ public interface ICommandable
     void OnDrop(IEventCollectable ec);
     void OnPurchase(IEventCollectable ec);
     void OnQuestAccepted(IEventCollectable ec);
+    void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
 }

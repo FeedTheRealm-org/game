@@ -10,5 +10,9 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private float playerSpeed = 5f;
         public float PlayerSpeed => playerSpeed;
+
+        [SerializeField]
+        private uint itemDespawnTime = 120; // this is in seconds
+        public uint ItemDespawnTime => itemDespawnTime;
     }
 }
