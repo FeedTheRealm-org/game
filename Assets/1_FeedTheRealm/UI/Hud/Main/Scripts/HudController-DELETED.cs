@@ -12,9 +12,6 @@ using UnityEngine.UIElements;
 public class HudController : MonoBehaviour
 {
     [SerializeField]
-    private Stamina staminaData;
-
-    [SerializeField]
     private Logging.Logger logger;
 
     [SerializeField]
@@ -41,9 +38,6 @@ public class HudController : MonoBehaviour
 
     // Currency UI
     private Label _goldAmountLabel;
-
-    // Progress Bars
-    private ProgressBar _staminaBar;
 
     private HUDGoldBinder _goldBinder;
     private CancellationTokenSource _bindCts;
@@ -88,15 +82,6 @@ public class HudController : MonoBehaviour
         {
             hudFastSlotsRegistry.Register(_fastUseSlotsController);
         }
-
-        _staminaBar = _characterData.Q<ProgressBar>("StaminaBar");
-        if (_staminaBar == null)
-        {
-            logger.Log("StaminaBar not found in CharacterData.", this, Logging.LogType.Error);
-            return;
-        }
-
-        _staminaBar.value = _staminaBar.highValue;
 
         _nameLabel = _characterData.Q<Label>("Username");
         if (_nameLabel != null && session != null)
@@ -204,21 +189,10 @@ public class HudController : MonoBehaviour
         });
     }
 
-    private void OnEnable()
-    {
-        if (staminaData != null)
-        {
-            staminaData.OnStaminaChanged += handleStaminaChange;
-        }
-    }
+    private void OnEnable() { }
 
     private void OnDisable()
     {
-        if (staminaData != null)
-        {
-            staminaData.OnStaminaChanged -= handleStaminaChange;
-        }
-
         if (_goldBinder != null)
         {
             _goldBinder.OnGoldChanged -= HandleGoldChanged;
@@ -238,18 +212,6 @@ public class HudController : MonoBehaviour
         }
 
         SpriteLoader.OnSpriteLoaderReady -= HandleSpriteLoaderReady;
-    }
-
-    /// <summary>
-    /// Handles changes in stamina and updates the HUD accordingly.
-    /// </summary>
-    private void handleStaminaChange(float value)
-    {
-        if (_staminaBar != null)
-        {
-            // Adjust for a stamina greater or lower than progress bar max (100).
-            _staminaBar.value = value * _staminaBar.highValue / staminaData.MaxStamina;
-        }
     }
 
     /// <summary>

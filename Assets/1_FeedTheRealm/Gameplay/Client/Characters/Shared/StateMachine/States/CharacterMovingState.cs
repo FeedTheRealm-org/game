@@ -10,16 +10,10 @@ public class CharacterMovingState : IMovementState
     private IStateMachine stateMachine;
 
     private MovementController movementController;
-    private CharacterAnimator animator;
 
-    public CharacterMovingState(
-        IStateMachine sm,
-        MovementController movementController,
-        CharacterAnimator animator
-    )
+    public CharacterMovingState(IStateMachine sm, MovementController movementController)
     {
         this.movementController = movementController;
-        this.animator = animator;
         this.stateMachine = sm;
     }
 
@@ -43,6 +37,5 @@ public class CharacterMovingState : IMovementState
     {
         stateMachine = null;
         movementController = null;
-        animator = null;
     }
 }

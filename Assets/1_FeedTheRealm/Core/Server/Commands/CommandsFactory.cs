@@ -37,8 +37,6 @@ public static class CommandsFactory
                 return new PurchaseCommand(dto.NetId, dto.Id);
             case TransactionType.AcceptQuest:
                 return new AcceptQuestCommand(dto.NetId, dto.Id);
-            case TransactionType.PickUp:
-                return new PickUpCommand(dto.NetId, dto.Id);
             default:
                 throw new System.ArgumentException($"Unsupported transaction type: {dto.Type}");
         }

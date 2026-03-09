@@ -6,13 +6,40 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
-        [Header("Game Config")]
+        [Header("Movement")]
         [SerializeField]
         private float playerSpeed = 5f;
         public float PlayerSpeed => playerSpeed;
 
+        [Header("Items")]
         [SerializeField]
         private uint itemDespawnTime = 120; // this is in seconds
         public uint ItemDespawnTime => itemDespawnTime;
+
+        [Header("Dash")]
+        [SerializeField]
+        private float dashSpeed = 25f;
+        public float DashSpeed => dashSpeed;
+
+        [SerializeField]
+        private float dashDuration = 0.1f;
+        public float DashDuration => dashDuration;
+
+        [Header("Stamina")]
+        [SerializeField]
+        private float maxStamina = 100f;
+        public float MaxStamina => maxStamina;
+
+        [SerializeField]
+        private float dashStaminaCost = 25f;
+        public float DashStaminaCost => dashStaminaCost;
+
+        [SerializeField]
+        private float staminaRecoveryRate = 1f;
+        public float StaminaRecoveryRate => staminaRecoveryRate;
+
+        [SerializeField]
+        private float staminaRecoveryAmount = 5f;
+        public float StaminaRecoveryAmount => staminaRecoveryAmount;
     }
 }

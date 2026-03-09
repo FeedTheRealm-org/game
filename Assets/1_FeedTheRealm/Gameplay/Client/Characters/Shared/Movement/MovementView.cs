@@ -53,6 +53,12 @@ public class MovementView : MonoBehaviour
         if (!isInitialized)
             return;
 
+        if (stateStorage.IsMovementBlocked)
+        {
+            correctingPosition = false;
+            return;
+        }
+
         if (correctingPosition)
         {
             rb.position = Vector3.Lerp(

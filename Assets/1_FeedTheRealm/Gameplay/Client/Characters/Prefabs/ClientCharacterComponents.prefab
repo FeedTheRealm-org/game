@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 2124911000678282174}
   - component: {fileID: 4190128248899451067}
   - component: {fileID: 4180349157995795823}
-  - component: {fileID: 1534545483887044268}
-  - component: {fileID: 370332728856482138}
   - component: {fileID: 148068392588541952}
   - component: {fileID: 6970407581011094335}
   - component: {fileID: 8877544300867388926}
@@ -21,8 +19,10 @@ GameObject:
   - component: {fileID: 3772100352833835385}
   - component: {fileID: 6878487654893383278}
   - component: {fileID: 1049393094490162525}
+  - component: {fileID: 8113882516953622363}
+  - component: {fileID: 5535709811406022713}
   m_Layer: 7
-  m_Name: ClientPlayerComponents
+  m_Name: ClientCharacterComponents
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59,7 +59,6 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   movementController: {fileID: 3218634496288659472}
   useController: {fileID: 6878487654893383278}
-  dashComponent: {fileID: 1534545483887044268}
   groundCheckComponent: {fileID: 4180349157995795823}
   interactComponent: {fileID: 148068392588541952}
   characterAnimator: {fileID: 4486304355727522199}
@@ -99,45 +98,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &1534545483887044268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f468d29dd15b3e4581e99bed56c0fc9, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::DashComponent
-  rb: {fileID: 0}
-  groundCheck: {fileID: 4180349157995795823}
-  stamina: {fileID: 6970407581011094335}
-  dashSpeed: 50
-  dashDuration: 0.1
-  staminaConsumption: 20
---- !u!114 &370332728856482138
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 634832fcf61378f318ed48e4ea9376e4, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::AttackComponent
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
-  attackCooldown: 0.4
-  attackDamage: 40
-  hitPoint: {fileID: 7781983413904789521}
-  hitRadius: 1.5
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  enemySlayedEvent: {fileID: 11400000, guid: bc1931e5725e587d5b31e691f308799c, type: 2}
 --- !u!114 &148068392588541952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,6 +196,31 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::AttackView
   animator: {fileID: 4486304355727522199}
+--- !u!114 &8113882516953622363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffb6f6a2d0dfad94593a58da6399662a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::DashView
+  animator: {fileID: 4486304355727522199}
+--- !u!114 &5535709811406022713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be4ebc74e54412489fb9b7483149de2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::StaminaView
 --- !u!1001 &3728965444176374322
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -248,10 +233,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterBody
       objectReference: {fileID: 0}
-    - target: {fileID: 5342159936205048522, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
-      propertyPath: attackComponent
-      value:
-      objectReference: {fileID: 370332728856482138}
     - target: {fileID: 8848294552524135727, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.049
@@ -312,10 +293,5 @@ MonoBehaviour:
 --- !u!4 &5293004254245517085 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8848294552524135727, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
-  m_PrefabInstance: {fileID: 3728965444176374322}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &7781983413904789521 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6359323465518955043, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
   m_PrefabInstance: {fileID: 3728965444176374322}
   m_PrefabAsset: {fileID: 0}
