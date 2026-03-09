@@ -7,7 +7,6 @@ using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using Mirror;
 using UnityEngine;
-using VContainer;
 
 namespace FTR.Gameplay.Server.Environment.Items
 {

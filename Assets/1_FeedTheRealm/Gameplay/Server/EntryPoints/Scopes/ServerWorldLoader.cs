@@ -4,27 +4,46 @@ using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server.Utils;
+using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Common.WorldLoader;
-using FTR.Gameplay.LoaderEntities;
 using FTRShared.Runtime.Models;
 using Logging;
+using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Scopes
 {
     public class ServerWorldLoader : WorldLoader
     {
+        private readonly IObjectResolver container;
+        private readonly GameObject debugObjectPrefab;
         private readonly Config config;
 
         public ServerWorldLoader(
             WorldService worldService,
-            Logger logger,
+            Logging.Logger logger,
             Config config,
-            LoaderProvider loaderProvider
+            LoaderProvider loaderProvider,
+            GameObject debugObjectPrefab,
+            IObjectResolver container
         )
             : base(worldService, logger, loaderProvider)
         {
+            this.container = container;
+            this.debugObjectPrefab = debugObjectPrefab;
             this.config = config;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            if (config.IsDebugWorld && debugObjectPrefab != null)
+                container.Instantiate(
+                    debugObjectPrefab,
+                    new Vector3(20, 5f, 0),
+                    Quaternion.identity
+                );
         }
 
         public override string GetWorldId()

@@ -8,7 +8,7 @@ using FTR.Gameplay.Common.WorldLoader;
 using FTRShared.Runtime.Models;
 using VContainer.Unity;
 
-namespace FTR.Gameplay.LoaderEntities
+namespace FTR.Gameplay.Common.LoaderEntities
 {
     public abstract class WorldLoader : IStartable
     {
@@ -31,6 +31,11 @@ namespace FTR.Gameplay.LoaderEntities
         public abstract string GetAccessToken();
 
         public async void Start()
+        {
+            Initialize();
+        }
+
+        protected virtual async void Initialize()
         {
             try
             {

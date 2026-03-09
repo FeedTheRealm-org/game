@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1348769255217285894}
   - component: {fileID: 496677122266497076}
   - component: {fileID: 4326486391974809871}
-  m_Layer: 10
+  m_Layer: 11
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 5395560026337316485}
   - component: {fileID: 6360090296063372557}
   - component: {fileID: 1865374449699346354}
-  m_Layer: 10
+  m_Layer: 11
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -234,7 +234,7 @@ GameObject:
   - component: {fileID: 2430832714210475348}
   - component: {fileID: 4717729367754224815}
   - component: {fileID: 467581607982096440}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LootItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -316,10 +316,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
   sceneId: 0
-  _assetId: 3254225361
+  _assetId: 4001143158
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
@@ -372,7 +372,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7844ebee48e886a8ab44c66462b1cef, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Environment.Items.ItemObject
-  itemName: debug
-  description: this is a debug item, hi!
-  gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
-  despawnTime: 3600
+  config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}

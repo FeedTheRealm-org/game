@@ -1,10 +1,6 @@
 using System.Collections;
-using FTR.Core.Common.Enums;
-using FTR.Core.Common.Protocol.RpcMessages;
-using FTR.Core.Common.Utils;
 using FTR.Core.Server.Commands;
 using FTR.Core.Server.Config;
-using FTR.Core.Server.EventChannels;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -20,16 +16,21 @@ namespace FTR.Gameplay.Server.Environment.Items
         private string id;
 
         [Inject]
-        private readonly WorldMonitor worldMonitor;
+        private WorldMonitor worldMonitor;
 
-        [Inject]
-        private readonly ServerConfig config;
+        [SerializeField]
+        private ServerConfig config;
 
         private bool isPickedUp = false;
 
-        private uint despawnTime = 120;
+        private uint despawnTime = 5;
 
         public string Id => id;
+
+        private void Awake()
+        {
+            gameObject.SetActive(true);
+        }
 
         private void OnEnable()
         {
@@ -40,13 +41,19 @@ namespace FTR.Gameplay.Server.Environment.Items
 
         private IEnumerator DespawnObject()
         {
+            Debug.Log($"Despawning loot item {id} after {despawnTime} seconds");
             yield return new WaitForSeconds(despawnTime);
             if (!isPickedUp)
                 Destroy(gameObject);
         }
 
+        // In the Physics2D settings,
+        // The collision Player only collides with the LootItem layer,
         private void OnTriggerEnter(Collider other)
         {
+            Debug.Log(
+                $"Object {other.gameObject.name} entered trigger of loot item {id} with layer {other.gameObject.layer}"
+            );
             if (isPickedUp)
                 return;
             uint playerId = other.gameObject.GetComponent<NetworkIdentity>().netId;
