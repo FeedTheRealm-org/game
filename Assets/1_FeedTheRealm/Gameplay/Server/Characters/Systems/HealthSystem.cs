@@ -11,12 +11,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
     public class HealthSystem : MonoBehaviour, IGameTickable
     {
         [SerializeField]
-        public int MaxHealth = 100;
+        public float MaxHealth = 100;
 
         [SerializeField]
         private Logging.Logger logger;
 
-        private int currentHealth;
+        private float currentHealth;
+
+        public float CurrentHealth => currentHealth;
 
         private void Awake()
         {
@@ -25,7 +27,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt) { }
 
-        public bool TakeDamage(int damage)
+        public bool TakeDamage(float damage)
         {
             currentHealth -= damage;
             logger.Log($"Took {damage} damage, current health: {currentHealth}", this);

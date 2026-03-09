@@ -79,7 +79,7 @@ MonoBehaviour:
   hitRadius: 1.5
   targetLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 384
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!114 &159244127895327875
 MonoBehaviour:

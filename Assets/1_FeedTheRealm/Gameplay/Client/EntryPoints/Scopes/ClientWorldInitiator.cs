@@ -1,9 +1,7 @@
 using API;
+using FeedTheRealm.Core.Client.EventChannels;
 using FTR.Core.Client;
-using FTR.Core.Client.EventChannels.Status;
-using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.Characters;
 using FTR.Gameplay.Common.WorldLoader;
@@ -22,19 +20,8 @@ public class ClientWorldInitiator : LifetimeScope
     [SerializeField]
     private ClientPrefabProvider prefabProvider;
 
-    [Header("Ticks")]
     [SerializeField]
-    private TickEvent tickEvent;
-
-    [SerializeField]
-    private FixedTickEvent fixedTickEvent;
-
-    [SerializeField]
-    private LateTickEvent lateTickEvent;
-
-    [Header("Status")]
-    [SerializeField]
-    private StaminaChangedEvent staminaChangedEvent;
+    private ClientEventRegistry clientEventRegistry;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -56,12 +43,9 @@ public class ClientWorldInitiator : LifetimeScope
         if (config.RuntimeRole != RuntimeRole.Client)
             return;
 
+        clientEventRegistry.RegisterAll(builder);
         builder.RegisterInstance(playerInputReader);
         builder.RegisterInstance(prefabProvider);
-        builder.RegisterInstance(tickEvent);
-        builder.RegisterInstance(fixedTickEvent);
-        builder.RegisterInstance(lateTickEvent);
-        builder.RegisterInstance(staminaChangedEvent);
         builder.RegisterInstance(logger);
         builder.RegisterInstance(worldSelector);
         builder.RegisterInstance(worldService);
