@@ -8,5 +8,5 @@ namespace FTR.Core.Common.Loaders;
 /// </summary>
 public interface IScriptLinker
 {
-    void LinkDomainScripts(GameObject gameObject);
+    void LinkDomainScripts(GameObject gameObject, bool linkNPC);
 }
