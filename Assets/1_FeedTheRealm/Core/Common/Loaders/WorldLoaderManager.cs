@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using FTR.Core.Common.States;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
@@ -18,7 +17,7 @@ public class WorldLoaderManager
         throw new System.NotImplementedException();
     }
 
-    public PlayerState LoadPlayerState(string playerId)
+    public void LoadPlayerState(string playerId)
     {
         throw new System.NotImplementedException();
     }
