@@ -10,12 +10,6 @@ public class WorldInitiator : LifetimeScope
     private CommonEventRegistry commonEventRegistry;
 
     [SerializeField]
-    private ReceivedActionCommandEvent receivedActionCommandEvent;
-
-    [SerializeField]
-    private ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
-
-    [SerializeField]
     private Config config;
 
     [SerializeField]
@@ -26,8 +20,6 @@ public class WorldInitiator : LifetimeScope
         commonEventRegistry.RegisterAll(builder);
         builder.RegisterInstance(config);
         builder.RegisterInstance(logger); // Default logger
-        builder.RegisterInstance(receivedActionCommandEvent);
-        builder.RegisterInstance(receivedTransactionCommandEvent);
 
         logger?.Log("WorldInitiator: Registered as Common", this);
     }

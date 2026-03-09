@@ -32,13 +32,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool isAttacking = false;
 
-        private Vector3 hitPoint = Vector3.zero;
+        private Rigidbody _rb;
         private uint netId;
+
+        private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
         public void Initialize(uint netId, Rigidbody rb)
         {
-            this.hitPoint = rb.worldCenterOfMass;
             this.netId = netId;
+            _rb = rb;
         }
 
         public void GameTick(float dt) { }
@@ -53,25 +55,32 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             ec.Collect(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
 
-            Collider[] hitTargets = Physics.OverlapSphere(hitPoint, hitRadius, targetLayer);
+            var currentHitPoint = HitPoint;
+            logger.Log(
+                $"[UseSystem] Attack from netId={netId} | hitPoint={currentHitPoint} | radius={hitRadius} | layerMask={targetLayer.value}",
+                this
+            );
+
+            Collider[] hitTargets = Physics.OverlapSphere(currentHitPoint, hitRadius, targetLayer);
             foreach (Collider target in hitTargets)
             {
-                logger.Log($"Hit target: {target.name}", this);
-                var healthSystem = target.GetComponent<HealthSystem>();
-                if (healthSystem != null)
+                var targetNetId = target.GetComponent<NetworkIdentity>()?.netId;
+                if (targetNetId.HasValue && targetNetId.Value == netId)
                 {
-                    healthSystem.TakeDamage(attackDamage);
-                    var hitNetId = target.GetComponent<NetworkIdentity>()?.netId;
-                    if (hitNetId.HasValue)
-                    {
-                        ec.Collect(
-                            new HitEvent(
-                                hitNetId.Value,
-                                healthSystem.CurrentHealth,
-                                healthSystem.MaxHealth
-                            )
-                        );
-                    }
+                    continue;
+                }
+                var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
+
+                healthSystem.TakeDamage(attackDamage);
+                if (targetNetId.HasValue)
+                {
+                    ec.Collect(
+                        new HitEvent(
+                            targetNetId.Value,
+                            healthSystem.CurrentHealth,
+                            healthSystem.MaxHealth
+                        )
+                    );
                 }
             }
 
@@ -93,7 +102,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(hitPoint, hitRadius);
+            Gizmos.DrawWireSphere(HitPoint, hitRadius);
         }
     }
 }

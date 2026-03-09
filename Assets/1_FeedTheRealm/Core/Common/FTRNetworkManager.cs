@@ -206,8 +206,6 @@ public class FTRNetworkManager : NetworkManager
         // Add player to network - this will trigger OnStartServer on the player's NetworkBehaviour components
         NetworkServer.AddPlayerForConnection(conn, player);
 
-        initiatePlayerEvent.Raise();
-
         logger.Log(
             $"[NetworkManager] OnServerAddPlayer called for connection {conn.connectionId}",
             this

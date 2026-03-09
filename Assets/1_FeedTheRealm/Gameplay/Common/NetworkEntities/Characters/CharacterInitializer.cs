@@ -10,23 +10,15 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [Inject]
         private IScriptLinker scriptLinker;
 
-        [SerializeField]
-        InitiatePlayerEvent initiatePlayerEvent;
-
-        private void OnEnable()
-        {
-            initiatePlayerEvent.OnRaised += Initialize;
-        }
-
-        private void OnDisable()
-        {
-            initiatePlayerEvent.OnRaised -= Initialize;
-        }
-
         public void Initialize()
         {
             if (scriptLinker == null)
-                Debug.Log("Script linker is null");
+            {
+                Debug.LogWarning(
+                    $"[CharacterInitializer] scriptLinker not injected for '{gameObject.name}', skipping initialization."
+                );
+                return;
+            }
             Debug.Log("Linking domain scripts for character");
             scriptLinker.LinkDomainScripts(gameObject);
         }
