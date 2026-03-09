@@ -16,6 +16,7 @@ public class MovementView : MonoBehaviour
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
+    private Collider col;
 
     private bool isInitialized = false;
 
@@ -24,16 +25,19 @@ public class MovementView : MonoBehaviour
     private const float correctionSpeed = 10f;
     private bool correctingPosition = false;
     private Vector3 positionCorrectionTarget;
+    private bool isGrounded;
 
     private Vector3 currentDirection = Vector3.zero;
 
-    public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
+    public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage, Collider col)
     {
         this.rb = rb;
         this.stateStorage = stateStorage;
+        this.col = col;
 
         this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
+        this.stateStorage.OnIsGroundedChanged += OnIsGroundedChanged;
 
         isInitialized = true;
         fixedTickEvent.OnRaised += FixedTick;
@@ -46,6 +50,7 @@ public class MovementView : MonoBehaviour
         fixedTickEvent.OnRaised -= FixedTick;
         stateStorage.OnDirectionChanged -= OnDirectionChanged;
         stateStorage.OnPositionCorrected -= OnPositionCorrected;
+        stateStorage.OnIsGroundedChanged -= OnIsGroundedChanged;
     }
 
     private void FixedTick()
@@ -98,6 +103,14 @@ public class MovementView : MonoBehaviour
     {
         correctingPosition = true;
         positionCorrectionTarget = targetPosition;
+    }
+
+    /// <summary>
+    /// OnIsGrounded is used for set if the player is grounded or not
+    /// </summary>
+    private void OnIsGroundedChanged(bool isGrounded)
+    {
+        this.isGrounded = isGrounded;
     }
 
     /// <summary>
@@ -167,6 +180,31 @@ public class MovementView : MonoBehaviour
         {
             animator.SetMoving(false);
             animator.SetDashing(false);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying)
+            return;
+
+        Bounds bounds = col.bounds;
+        var groundCheckSphereOrigin = new Vector3(
+            bounds.center.x,
+            bounds.center.y,
+            bounds.center.z
+        );
+        Vector3 endPoint = groundCheckSphereOrigin + Vector3.down * 2f;
+
+        if (isGrounded)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(groundCheckSphereOrigin, 2f);
+        }
+        else
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(groundCheckSphereOrigin, endPoint);
         }
     }
 }
