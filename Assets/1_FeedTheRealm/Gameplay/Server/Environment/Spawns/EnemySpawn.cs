@@ -69,12 +69,12 @@ public class EnemySpawn : MonoBehaviour
     {
         if (playersInside == 0)
         {
-            spawnRoutine = StartCoroutine(SpawnEnemies());
             spawnerActive = true;
+            spawnRoutine = StartCoroutine(SpawnEnemies());
         }
 
-        logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
         playersInside++;
+        logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
     }
 
     private void OnTriggerExit(Collider other)
@@ -122,6 +122,7 @@ public class EnemySpawn : MonoBehaviour
     /// </summary>
     private void SpawnEnemy()
     {
+        logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
         Vector3 point = GetRandomPointInRadius();
         GameObject enemy = Instantiate(enemyPrefab, point, Quaternion.identity);
         // TODO: Initialize enemy with reference to spawner for death callback

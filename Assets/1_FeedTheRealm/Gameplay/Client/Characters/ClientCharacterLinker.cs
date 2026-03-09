@@ -57,7 +57,7 @@ namespace FTR.Gameplay.Client.Characters
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 
-            if (networkAdapter.IsLocalPlayer && linkNPC)
+            if (networkAdapter.IsLocalPlayer && !linkNPC)
             {
                 prefabProvider.HudComponent.SetActive(false);
                 var hudComponent = Object.Instantiate(
