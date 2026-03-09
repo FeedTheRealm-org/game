@@ -1,19 +1,32 @@
+using System;
+using FTR.Core.Client.EventChannels.Status;
+using Mirror;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+[RequireComponent(typeof(UIDocument))]
 public class UIHealthbar : MonoBehaviour
 {
     [SerializeField]
     private Logging.Logger logger;
 
+    /// <summary>
+    /// Assign the HealthChangedEvent SO asset from the ClientEventRegistry.
+    /// </summary>
     [SerializeField]
-    private HealthComponent healthComponent;
+    private HealthChangedEvent healthChangedEvent;
 
     // Containers
     private VisualElement _root;
 
     // Progress Bars
     private ProgressBar _healthBar;
+
+    // Use MonoBehaviour and reflection to avoid a hard compile-time dependency on Mirror's NetworkIdentity.
+    private MonoBehaviour _networkIdentity;
+
+    /// <summary>True when this bar belongs to the local player (who has a HUD instead).</summary>
+    private bool _isLocalPlayer;
 
     void Start()
     {
@@ -22,64 +35,107 @@ public class UIHealthbar : MonoBehaviour
         _healthBar = _root.Q<ProgressBar>("WorldHealthBar");
         if (_healthBar == null)
         {
-            logger.Log("WorldHealthBar not found in CharacterData.", this, Logging.LogType.Error);
+            logger.Log("WorldHealthBar not found in UIDocument.", this, Logging.LogType.Error);
             return;
         }
 
-        // Initialize values
+        // Resolve the owning NetworkIdentity (UIHealthbar lives on a child object).
+        // We find it by name and hold it as a MonoBehaviour to avoid requiring Mirror at compile time.
+        _networkIdentity = null;
+        var behaviours = GetComponentsInParent<MonoBehaviour>();
+        foreach (var b in behaviours)
+        {
+            if (b.GetType().Name == "NetworkIdentity")
+            {
+                _networkIdentity = b;
+                break;
+            }
+        }
+
+        // The local player already has a dedicated HUD; hide the floating bar for them.
+        _isLocalPlayer = false;
+        if (_networkIdentity != null)
+        {
+            var prop = _networkIdentity.GetType().GetProperty("isLocalPlayer");
+            if (prop != null)
+            {
+                var val = prop.GetValue(_networkIdentity);
+                _isLocalPlayer = val is bool && (bool)val;
+            }
+        }
+        if (_isLocalPlayer)
+        {
+            _root.style.display = DisplayStyle.None;
+            return;
+        }
+
+        // Start hidden; visibility is toggled by HandleHealthChange.
         _healthBar.value = _healthBar.highValue;
         _root.style.display = DisplayStyle.None;
     }
 
     private void OnEnable()
     {
-        if (healthComponent != null)
-        {
-            healthComponent.OnHealthChanged += handleHealthChange;
-        }
+        if (healthChangedEvent != null)
+            healthChangedEvent.OnRaised += HandleHealthChange;
     }
 
     private void OnDisable()
     {
-        if (healthComponent != null)
-        {
-            healthComponent.OnHealthChanged -= handleHealthChange;
-        }
+        if (healthChangedEvent != null)
+            healthChangedEvent.OnRaised -= HandleHealthChange;
     }
 
     /// <summary>
-    /// Handles changes in health and updates the HUD accordingly.
+    /// Handles a global HealthChangedEvent, filtering to only react when the
+    /// event belongs to the entity that owns this health bar.
     /// </summary>
-    private void handleHealthChange(float value)
+    private void HandleHealthChange(HealthChangedData data)
     {
-        if (_healthBar != null)
+        // Ignore events for other entities or when bar is not yet initialised.
+        if (_isLocalPlayer || _healthBar == null || _networkIdentity == null)
+            return;
+
+        // Compare NetId via reflection to avoid a direct compile-time dependency on Mirror's type.
+        if (_networkIdentity == null)
+            return;
+        ulong ownerNetId = 0;
         {
-            // Adjust for a health greater or lower than progress bar max (100).
-            _healthBar.value = value * _healthBar.highValue / healthComponent.MaxHealth;
-            if (value < 0)
+            var prop = _networkIdentity.GetType().GetProperty("netId");
+            if (prop != null)
             {
-                _healthBar.value = 0;
+                var val = prop.GetValue(_networkIdentity);
+                try
+                {
+                    ownerNetId = Convert.ToUInt64(val);
+                }
+                catch
+                {
+                    ownerNetId = 0;
+                }
             }
-            toggleUIVisibility();
         }
+        if (data.NetId != ownerNetId)
+            return;
+
+        // Map current health to the progress bar's 0-highValue range.
+        _healthBar.value =
+            data.MaxHealth > 0
+                ? data.CurrentHealth / (float)data.MaxHealth * _healthBar.highValue
+                : 0;
+
+        if (_healthBar.value < 0)
+            _healthBar.value = 0;
+
+        ToggleUIVisibility();
     }
 
     /// <summary>
-    /// Toggles the visibility of the health bar UI based on current health.
-    /// Off if full health, On otherwise.
+    /// Hidden when at full health, visible otherwise.
     /// </summary>
-    private void toggleUIVisibility()
+    private void ToggleUIVisibility()
     {
-        if (_root.style.display == DisplayStyle.None && _healthBar.value < _healthBar.highValue)
-        {
-            _root.style.display = DisplayStyle.Flex;
-        }
-        else if (
-            _root.style.display == DisplayStyle.Flex
-            && _healthBar.value == _healthBar.highValue
-        )
-        {
-            _root.style.display = DisplayStyle.None;
-        }
+        bool isFull = _healthBar.value >= _healthBar.highValue;
+        _root.style.display = isFull ? DisplayStyle.None : DisplayStyle.Flex;
     }
 }

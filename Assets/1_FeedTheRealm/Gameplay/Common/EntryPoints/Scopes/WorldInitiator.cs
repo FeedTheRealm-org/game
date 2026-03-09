@@ -7,6 +7,9 @@ using VContainer.Unity;
 public class WorldInitiator : LifetimeScope
 {
     [SerializeField]
+    private CommonEventRegistry commonEventRegistry;
+
+    [SerializeField]
     private ReceivedActionCommandEvent receivedActionCommandEvent;
 
     [SerializeField]
@@ -20,6 +23,7 @@ public class WorldInitiator : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
+        commonEventRegistry.RegisterAll(builder);
         builder.RegisterInstance(config);
         builder.RegisterInstance(logger); // Default logger
         builder.RegisterInstance(receivedActionCommandEvent);

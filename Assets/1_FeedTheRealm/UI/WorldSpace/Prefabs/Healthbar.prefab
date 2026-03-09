@@ -85,4 +85,4 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::UIHealthbar
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
-  healthComponent: {fileID: 0}
+  healthChangedEvent: {fileID: 11400000, guid: ebc7b4ec14e54b8dbb876afc2254d9e8, type: 2}

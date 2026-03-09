@@ -5,12 +5,12 @@ using UnityEngine;
 public class HealthComponent : MonoBehaviour
 {
     [SerializeField]
-    public int MaxHealth = 100;
+    private float maxHealth = 100f;
 
     [SerializeField]
     private Logging.Logger logger;
 
-    private int currentHealth;
+    private float currentHealth;
     private bool isInitialized = false;
 
     private Animator _animator;
@@ -21,7 +21,7 @@ public class HealthComponent : MonoBehaviour
     private void Awake()
     {
         // Initialize health early so NetworkHealthSynchronizer can access it
-        currentHealth = MaxHealth;
+        currentHealth = maxHealth;
         isInitialized = true;
     }
 
@@ -37,7 +37,7 @@ public class HealthComponent : MonoBehaviour
     /// <summary>
     /// Gets the current health value
     /// </summary>
-    public int GetCurrentHealth()
+    public float GetCurrentHealth()
     {
         return currentHealth;
     }
@@ -46,13 +46,18 @@ public class HealthComponent : MonoBehaviour
     /// Sets the current health directly (used for network synchronization)
     /// Does NOT trigger animations or events
     /// </summary>
-    public void SetCurrentHealth(int health)
+    public void SetCurrentHealth(float health)
     {
         currentHealth = health;
         OnHealthChanged?.Invoke(currentHealth);
     }
 
-    public bool TakeDamage(int damage)
+    public float GetMaxHealth()
+    {
+        return maxHealth;
+    }
+
+    public bool TakeDamage(float damage)
     {
         currentHealth -= damage;
         var isDead = currentHealth <= 0;

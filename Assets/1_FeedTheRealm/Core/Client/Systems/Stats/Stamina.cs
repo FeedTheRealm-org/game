@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Stamina", menuName = "Scriptable Objects/Stamina")]
+[CreateAssetMenu(fileName = "Stamina", menuName = "Scriptable Objects/Status/Stamina")]
 public class Stamina : ScriptableObject
 {
     [Header("Stamina Settings")]

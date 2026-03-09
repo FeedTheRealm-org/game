@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Shop;
 using UnityEngine;
 using UnityEngine.UIElements;
 

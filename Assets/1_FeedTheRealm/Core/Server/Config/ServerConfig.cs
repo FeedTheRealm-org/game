@@ -36,5 +36,10 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private float staminaRecoveryAmount = 5f;
         public float StaminaRecoveryAmount => staminaRecoveryAmount;
+
+        [Header("Stamina")]
+        [SerializeField]
+        private float maxHealth = 100f;
+        public float MaxHealth => maxHealth;
     }
 }

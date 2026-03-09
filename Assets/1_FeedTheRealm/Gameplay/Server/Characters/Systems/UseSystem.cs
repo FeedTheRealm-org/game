@@ -57,14 +57,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
             foreach (Collider target in hitTargets)
             {
                 logger.Log($"Hit target: {target.name}", this);
-                var _ = target.GetComponent<HealthSystem>()?.TakeDamage(attackDamage);
-                var hitNetId = target.GetComponent<NetworkIdentity>()?.netId;
-                if (hitNetId.HasValue)
+                var healthSystem = target.GetComponent<HealthSystem>();
+                if (healthSystem != null)
                 {
-                    ec.Collect(new HitEvent(hitNetId.Value));
+                    healthSystem.TakeDamage(attackDamage);
+                    var hitNetId = target.GetComponent<NetworkIdentity>()?.netId;
+                    if (hitNetId.HasValue)
+                    {
+                        ec.Collect(
+                            new HitEvent(
+                                hitNetId.Value,
+                                healthSystem.CurrentHealth,
+                                healthSystem.MaxHealth
+                            )
+                        );
+                    }
                 }
-                // if (isDead.HasValue && isDead.Value)
-                //     enemySlayedEvent.Raise();
             }
 
             if (hitTargets.Length == 0)

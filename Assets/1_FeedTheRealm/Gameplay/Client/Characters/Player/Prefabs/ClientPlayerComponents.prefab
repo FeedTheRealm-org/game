@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4190128248899451067}
   - component: {fileID: 4180349157995795823}
   - component: {fileID: 148068392588541952}
-  - component: {fileID: 6970407581011094335}
   - component: {fileID: 8877544300867388926}
   - component: {fileID: 3218634496288659472}
   - component: {fileID: 3772100352833835385}
@@ -115,20 +114,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
---- !u!114 &6970407581011094335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e31cc92a0afd21bebb5b679ca1c8c13d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::StaminaComponent
-  staminaData: {fileID: 11400000, guid: f0fb671dcedc8eb4887723633ce59ea4, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &8877544300867388926
 MonoBehaviour:
