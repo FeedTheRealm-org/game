@@ -19,9 +19,6 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     private UseController useController;
 
     [SerializeField]
-    private GroundCheckComponent groundCheckComponent;
-
-    [SerializeField]
     private PlayerInteractComponent interactComponent;
 
     [SerializeField]
@@ -47,7 +44,6 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         if (
             movementController == null
             || useController == null
-            || groundCheckComponent == null
             || interactComponent == null
             || characterAnimator == null
         )
