@@ -36,5 +36,18 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private float staminaRecoveryAmount = 5f;
         public float StaminaRecoveryAmount => staminaRecoveryAmount;
+
+        [Header("Ground Check")]
+        [SerializeField]
+        private float groundCheckDistance = 1f;
+        public float GroundCheckDistance => groundCheckDistance;
+
+        [SerializeField]
+        private float groundCheckSphereRadius = 0.4f;
+        public float GroundCheckSphereRadius => groundCheckSphereRadius;
+
+        [SerializeField]
+        private LayerMask groundLayer;
+        public LayerMask GroundLayer => groundLayer;
     }
 }
