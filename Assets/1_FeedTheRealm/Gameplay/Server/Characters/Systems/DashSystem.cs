@@ -51,7 +51,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (isDashing || !isInitialized)
                 return;
 
-            if (stateStorage.Stamina < config.DashStaminaCost)
+            if (stateStorage.Stamina < config.DashStaminaCost || !stateStorage.IsGrounded)
                 return;
 
             Vector3 force = direction.normalized * config.DashSpeed;
