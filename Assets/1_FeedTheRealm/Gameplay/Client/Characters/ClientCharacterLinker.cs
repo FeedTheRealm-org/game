@@ -28,7 +28,6 @@ namespace FTR.Gameplay.Client.Characters
         {
             // Get from common character components
             var rb = gameObject.GetComponent<Rigidbody>();
-            var col = gameObject.GetComponent<Collider>();
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
