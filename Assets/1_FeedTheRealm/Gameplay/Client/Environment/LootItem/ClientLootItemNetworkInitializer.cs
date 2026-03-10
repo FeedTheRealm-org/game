@@ -1,6 +1,6 @@
 using FTR.Core.Common.Scopes;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
-using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using FTR.Gameplay.Client.EntryPoints.Scopes;
+using FTR.Gameplay.Common.Linkers;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -36,7 +36,7 @@ namespace FTR.Gameplay.Client.Environment.LootItem
                     $"ClientLootItemNetworkInitializer: No NetworkIdentity found on '{gameObject.name}'."
                 );
 
-            GetComponent<LootItemInitializer>().Initialize();
+            GetComponent<GameObjectLinker>().Initialize();
         }
     }
 }

@@ -1,4 +1,5 @@
-using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Client.EntryPoints.Scopes;
+using FTR.Gameplay.Common.Linkers;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -23,7 +24,7 @@ namespace FTR.Gameplay.Client.Characters
             var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
             clientWorldInitiator.Container.InjectGameObject(gameObject);
 
-            GetComponent<CharacterInitializer>()?.Initialize();
+            GetComponent<GameObjectLinker>()?.Initialize();
         }
     }
 }

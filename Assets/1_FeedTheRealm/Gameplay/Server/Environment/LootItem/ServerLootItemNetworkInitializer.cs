@@ -1,5 +1,5 @@
-using FTR.Gameplay.Common.NetworkEntities.Characters;
-using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Server.EntryPoints.Scopes;
 using Mirror;
 using UnityEngine;
 using VContainer.Unity;
@@ -22,7 +22,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
             var serverWorldInitiator = FindFirstObjectByType<ServerWorldInitiator>();
             serverWorldInitiator.Container.InjectGameObject(gameObject);
-            GetComponent<LootItemInitializer>()?.Initialize();
+            GetComponent<GameObjectLinker>()?.Initialize();
         }
     }
 }

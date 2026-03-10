@@ -1,22 +1,23 @@
-using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
+using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace FTR.Gameplay.Server.Characters;
+namespace FTR.Gameplay.Server.Linkers;
 
-public class ServerCharacterLinker : IScriptLinker
+public class ServerPlayerLinker : PlayerLinker
 {
     private readonly WorldMonitor world;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
 
-    public ServerCharacterLinker(
+    public ServerPlayerLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
         IObjectResolver resolver
@@ -27,7 +28,7 @@ public class ServerCharacterLinker : IScriptLinker
         this.resolver = resolver;
     }
 
-    public void LinkDomainScripts(GameObject gameObject, bool linkNPC)
+    public override void Link(GameObject gameObject)
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
@@ -47,7 +48,6 @@ public class ServerCharacterLinker : IScriptLinker
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
-        var respawnSystem = serverComponents.GetComponent<RespawnSystem>();
         var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
@@ -59,21 +59,14 @@ public class ServerCharacterLinker : IScriptLinker
         groundCheckSystem.Initialize(col, stateStorage);
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
-        respawnSystem.Initialize(
-            netId,
-            networkAdapter,
-            serverCommandHandler,
-            stateStorage,
-            rb,
-            healthSystem
-        );
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);
+        gameObject.name = $"Player-{netId}";
 
         Debug.Log($"Linked domain scripts for character with netID {netId}");
     }
 
-    public void RegisterEntity(
+    private void RegisterEntity(
         uint netID,
         NetworkAdapter networkAdapter,
         ServerCommandHandler serverCommandHandler

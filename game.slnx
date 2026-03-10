@@ -11,13 +11,13 @@
   <Project Path="Mirror.csproj" />
   <Project Path="Unity.Mirror.CodeGen.csproj" />
   <Project Path="SimpleWebTransport.csproj" />
-  <Project Path="FTR.Gameplay.Common.csproj" />
   <Project Path="Mirror.Authenticators.csproj" />
   <Project Path="kcp2k.csproj" />
   <Project Path="Mirror.Transports.csproj" />
   <Project Path="FTR.Core.Common.csproj" />
   <Project Path="Telepathy.csproj" />
   <Project Path="FTR.Gameplay.Client.csproj" />
+  <Project Path="FTR.Gameplay.Common.csproj" />
   <Project Path="FTR.Core.Server.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Mirror.CompilerSymbols.csproj" />
