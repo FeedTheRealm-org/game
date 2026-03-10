@@ -40,10 +40,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 bounds.center.y,
                 bounds.center.z
             );
-            stateStorage.SetIsGrounded(IsColliedWithGround());
+            stateStorage.IsGrounded = IsCollidedWithGround();
         }
 
-        private bool IsColliedWithGround()
+        private bool IsCollidedWithGround()
         {
             bool result = Physics.SphereCast(
                 groundCheckSphereOrigin,

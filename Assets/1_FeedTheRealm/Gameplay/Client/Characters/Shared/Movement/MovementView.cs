@@ -37,7 +37,6 @@ public class MovementView : MonoBehaviour
 
         this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
-        this.stateStorage.OnIsGroundedChanged += OnIsGroundedChanged;
 
         isInitialized = true;
         fixedTickEvent.OnRaised += FixedTick;
@@ -50,7 +49,6 @@ public class MovementView : MonoBehaviour
         fixedTickEvent.OnRaised -= FixedTick;
         stateStorage.OnDirectionChanged -= OnDirectionChanged;
         stateStorage.OnPositionCorrected -= OnPositionCorrected;
-        stateStorage.OnIsGroundedChanged -= OnIsGroundedChanged;
     }
 
     private void FixedTick()
@@ -180,31 +178,6 @@ public class MovementView : MonoBehaviour
         {
             animator.SetMoving(false);
             animator.SetDashing(false);
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying)
-            return;
-
-        Bounds bounds = col.bounds;
-        var groundCheckSphereOrigin = new Vector3(
-            bounds.center.x,
-            bounds.center.y,
-            bounds.center.z
-        );
-        Vector3 endPoint = groundCheckSphereOrigin + Vector3.down * 2f;
-
-        if (isGrounded)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(groundCheckSphereOrigin, 2f);
-        }
-        else
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(groundCheckSphereOrigin, endPoint);
         }
     }
 }
