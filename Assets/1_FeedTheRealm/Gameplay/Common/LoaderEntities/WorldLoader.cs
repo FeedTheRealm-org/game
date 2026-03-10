@@ -12,16 +12,19 @@ namespace FTR.Gameplay.Common.LoaderEntities
 {
     public abstract class WorldLoader : IStartable
     {
+        private readonly Config config;
         private readonly WorldService worldService;
         private readonly Logging.Logger logger;
         private readonly LoaderProvider loaderProvider;
 
         public WorldLoader(
+            Config config,
             WorldService worldService,
             Logging.Logger logger,
             LoaderProvider loaderProvider
         )
         {
+            this.config = config;
             this.worldService = worldService;
             this.logger = logger;
             this.loaderProvider = loaderProvider;
@@ -32,7 +35,8 @@ namespace FTR.Gameplay.Common.LoaderEntities
 
         public async void Start()
         {
-            Initialize();
+            if (!config.DoNotLoadWorld)
+                Initialize();
         }
 
         protected virtual async void Initialize()

@@ -34,6 +34,10 @@ namespace FTR.Core.Common.Config
         public bool IsDebugWorld => isDebugWorld;
 
         [SerializeField]
+        private bool doNotLoadWorld = false;
+        public bool DoNotLoadWorld => doNotLoadWorld;
+
+        [SerializeField]
         private string worldID = "world_1";
         public string WorldID => worldID;
 

@@ -32,12 +32,6 @@ public class ServerWorldInitiator : LifetimeScope
     [SerializeField]
     private WorldService worldService;
 
-    // This is only used for testing purposes,
-    // to spawn objects in the world and test interactions
-    // without needing to implement the full world loading logic.
-    [Header("Testing / Debug")]
-    public GameObject debugObjectPrefab;
-
     protected override void Configure(IContainerBuilder builder)
     {
         if (config.RuntimeRole != RuntimeRole.Server)
@@ -64,8 +58,5 @@ public class ServerWorldInitiator : LifetimeScope
         builder.RegisterEntryPoint<CentralizedTickDriver>(Lifetime.Singleton);
 
         builder.RegisterEntryPoint<ServerWorldLoader>(Lifetime.Singleton);
-
-        if (config.IsDebugWorld && debugObjectPrefab != null)
-            builder.RegisterInstance(debugObjectPrefab);
     }
 }
