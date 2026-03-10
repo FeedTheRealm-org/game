@@ -202,6 +202,7 @@ public class FTRNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         GameObject player = AddPlayer();
+        player.name = $"Player_{conn.connectionId}";
 
         // Add player to network - this will trigger OnStartServer on the player's NetworkBehaviour components
         NetworkServer.AddPlayerForConnection(conn, player);
