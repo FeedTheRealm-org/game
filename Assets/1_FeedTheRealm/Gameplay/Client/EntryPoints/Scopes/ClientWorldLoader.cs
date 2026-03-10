@@ -22,7 +22,7 @@ namespace FTR.Gameplay.Server.Scopes
             Config config,
             LoaderProvider loaderProvider
         )
-            : base(worldService, logger, loaderProvider)
+            : base(config, worldService, logger, loaderProvider)
         {
             this.config = config;
         }
