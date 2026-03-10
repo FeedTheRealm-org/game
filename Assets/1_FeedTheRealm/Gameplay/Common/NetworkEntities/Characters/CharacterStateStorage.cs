@@ -15,21 +15,17 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnStaminaSync))]
         private float stamina;
 
-        [SyncVar(hook = nameof(OnIsGroundedSync))]
-        private bool isGrounded;
-
         /* --- Getters --- */
 
         public Vector3 Position => position;
         public Vector3 Direction => direction;
         public float Stamina => stamina;
-        public bool IsGrounded => isGrounded;
+        public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
 
         public event Action<Vector3> OnPositionCorrected;
         public event Action<Vector3> OnDirectionChanged;
         public event Action<float> OnStaminaChanged;
-        public event Action<bool> OnIsGroundedChanged;
 
         /* --- Setters --- */
 
@@ -51,12 +47,6 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             stamina = newStamina;
         }
 
-        [Server]
-        public void SetIsGrounded(bool newIsGrounded)
-        {
-            isGrounded = newIsGrounded;
-        }
-
         /* --- Syncvar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
@@ -72,11 +62,6 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private void OnStaminaSync(float oldStamina, float newStamina)
         {
             OnStaminaChanged?.Invoke(newStamina);
-        }
-
-        private void OnIsGroundedSync(bool oldIsGrounded, bool newIsGrounded)
-        {
-            OnIsGroundedChanged?.Invoke(newIsGrounded);
         }
     }
 }
