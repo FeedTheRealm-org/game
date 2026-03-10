@@ -50,7 +50,7 @@ namespace FTR.Gameplay.Client.Characters
             var useController = playerComponents.GetComponent<UseController>();
 
             networkEventRouter.Initialize(networkAdapter);
-            movementView.Initialize(rb, stateStorage, col);
+            movementView.Initialize(rb, stateStorage);
             attackView.Initialize(networkEventRouter);
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             staminaView.Initialize(stateStorage);
