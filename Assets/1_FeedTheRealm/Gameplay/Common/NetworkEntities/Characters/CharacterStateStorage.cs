@@ -24,6 +24,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public Vector3 Direction => direction;
         public float Stamina => stamina;
         public float Health => health;
+        public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
 
         public event Action<Vector3> OnPositionCorrected;

@@ -50,7 +50,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!isInitialized)
                 return;
 
-            if (stateStorage.IsMovementBlocked)
+            if (stateStorage.IsMovementBlocked || !stateStorage.IsGrounded)
                 return;
 
             Vector3 nextPosition = rb.position + dt * moveSpeed * direction;

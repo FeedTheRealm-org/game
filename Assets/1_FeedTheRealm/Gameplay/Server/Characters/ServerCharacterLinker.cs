@@ -31,6 +31,7 @@ public class ServerCharacterLinker : IScriptLinker
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
+        var col = gameObject.GetComponent<Collider>();
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
         // Add server-side components
@@ -47,6 +48,7 @@ public class ServerCharacterLinker : IScriptLinker
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var respawnSystem = serverComponents.GetComponent<RespawnSystem>();
+        var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
 
@@ -54,6 +56,8 @@ public class ServerCharacterLinker : IScriptLinker
         movementSystem.Initialize(rb, stateStorage);
         dashSystem.Initialize(netId, rb, stateStorage);
         useSystem.Initialize(netId, rb);
+        groundCheckSystem.Initialize(col, stateStorage);
+
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
         respawnSystem.Initialize(
             netId,
