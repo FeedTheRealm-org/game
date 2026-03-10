@@ -16,8 +16,6 @@ public class MovementView : MonoBehaviour
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
-    private Collider col;
-
     private bool isInitialized = false;
 
     // TODO: moves these to a proper config or constants class later
@@ -25,15 +23,13 @@ public class MovementView : MonoBehaviour
     private const float correctionSpeed = 10f;
     private bool correctingPosition = false;
     private Vector3 positionCorrectionTarget;
-    private bool isGrounded;
 
     private Vector3 currentDirection = Vector3.zero;
 
-    public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage, Collider col)
+    public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
     {
         this.rb = rb;
         this.stateStorage = stateStorage;
-        this.col = col;
 
         this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
@@ -101,14 +97,6 @@ public class MovementView : MonoBehaviour
     {
         correctingPosition = true;
         positionCorrectionTarget = targetPosition;
-    }
-
-    /// <summary>
-    /// OnIsGrounded is used for set if the player is grounded or not
-    /// </summary>
-    private void OnIsGroundedChanged(bool isGrounded)
-    {
-        this.isGrounded = isGrounded;
     }
 
     /// <summary>
