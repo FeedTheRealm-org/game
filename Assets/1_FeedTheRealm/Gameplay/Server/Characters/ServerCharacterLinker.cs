@@ -56,7 +56,6 @@ public class ServerCharacterLinker : IScriptLinker
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);
-        gameObject.name = $"Player-{netId}";
 
         Debug.Log($"Linked domain scripts for character with netID {netId}");
     }

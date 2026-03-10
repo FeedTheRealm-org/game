@@ -134,6 +134,7 @@ public class EnemySpawn : MonoBehaviour
             point,
             Quaternion.identity
         );
+        enemy.name = $"Enemy_{currentEnemies}";
         // TODO: Initialize enemy with reference to spawner for death callback
         NetworkServer.Spawn(enemy);
     }

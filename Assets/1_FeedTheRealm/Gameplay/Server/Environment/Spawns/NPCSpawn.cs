@@ -1,89 +1,74 @@
-using System.Collections;
 using FTR.Core.Common.Dialogue;
+using FTR.Core.Common.Scopes;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
+using VContainer.Unity;
 
 public class NPCSpawns : MonoBehaviour
 {
-    [Header("NPC settings")]
+    [Header("Spawn settings")]
     [SerializeField]
     private GameObject npcPrefab;
 
     [SerializeField]
-    private int maxNPCs = 1;
+    private string npcID;
 
-    [Header("Spawn points settings")]
     [SerializeField]
-    private Transform spawnPointContainer;
+    private DialogData dialogData;
+
+    [SerializeField]
+    private float radius = 5f;
+
+    [SerializeField]
+    private ObjectResolverContainer resolverContainer;
 
     [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
 
-    private DialogData dialogData;
-    private int currentNPCs;
-    private Vector3 spawnCenter;
-    private float spawnRadius = 1f;
+    private bool isInitialized = false;
 
-    private void Start()
+    /// <summary>
+    /// Initialize Configures this spawn instance with data from NPCSpawnerData.
+    /// Must be called after instantiation for dynamically placed spawns.
+    /// </summary>
+    public void Initialize(NPCSpawnerData spawnData, DialogData dialogData)
     {
-        // initialize spawn center and radius
-        spawnCenter = transform.position;
-        SphereCollider startSphere = GetComponent<SphereCollider>();
-        if (startSphere != null)
-            spawnRadius = startSphere.radius;
+        if (spawnData == null)
+            throw new System.ArgumentNullException(
+                nameof(spawnData),
+                "NPCSpawnerData cannot be null when initializing NPCSpawns."
+            );
 
-        SpawnAllNPCs();
+        this.npcID = spawnData.NpcId;
+        this.dialogData = dialogData;
+        this.radius = spawnData.Radius;
+
+        isInitialized = true;
+        SpawnNPC();
     }
 
-    private void SpawnAllNPCs()
+    private void SpawnNPC()
     {
-        for (int i = 0; i < maxNPCs; i++)
-        {
-            Vector3 pos = GetRandomSpawnPosition();
-            Quaternion rot = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
-            SpawnNPC(pos, rot);
-        }
-    }
-
-    private Vector3 GetRandomSpawnPosition()
-    {
-        Vector3 center = spawnCenter;
-        float radius = spawnRadius;
-
-        if (radius <= 0f)
-        {
-            radius = 1f;
-        }
-
-        Vector2 rand2 = Random.insideUnitCircle * radius;
-        Vector3 pos = new Vector3(center.x + rand2.x, 0.05f, center.z + rand2.y);
-        return pos;
-    }
-
-    private void SpawnNPC(Vector3 position, Quaternion rotation)
-    {
-        if (currentNPCs >= maxNPCs)
-            return;
-
         if (npcPrefab == null)
-        {
-            logger.Log("NPC prefab is not assigned!", this, Logging.LogType.Error);
-            return;
-        }
+            throw new System.Exception("NPC prefab not assigned on NPCSpawns!");
 
+        var position = GetRandomPointInRadius();
         logger.Log($"[NPCSpawns] Spawning NPC at {position}", this);
-        GameObject npc = Instantiate(npcPrefab, position, rotation);
+        GameObject npc = resolverContainer.Resolver.Instantiate(
+            npcPrefab,
+            position,
+            Quaternion.identity
+        );
+        npc.name = $"NPC_{npcID}";
+        NetworkServer.Spawn(npc);
 
-        npc.GetComponent<DialogManagerComponent>()
-            ?.SetDialogs(dialogData != null ? transformDialogDataToNpcMessages(dialogData) : null);
-
-        currentNPCs++;
-        logger.Log($"[NPCSpawns] NPC spawned at {position}. Total NPCs: {currentNPCs}", this);
+        var msgs = dialogData != null ? TransformDialogDataToNpcMessages(dialogData) : null;
+        npc.GetComponent<DialogManagerComponent>()?.SetDialogs(msgs);
     }
 
-    private NpcMessageData[] transformDialogDataToNpcMessages(DialogData dialogData)
+    private NpcMessageData[] TransformDialogDataToNpcMessages(DialogData dialogData)
     {
         NpcMessageData[] npcMessages = new NpcMessageData[dialogData.messages.Count];
 
@@ -96,31 +81,26 @@ public class NPCSpawns : MonoBehaviour
         return npcMessages;
     }
 
-    /// <summary>
-    /// Configures this spawn instance with data from NPCSpawnerData.
-    /// Must be called after instantiation for dynamically placed spawns.
-    /// </summary>
-    public void ConfigureFromSpawnData(NPCSpawnerData spawnData, DialogData dialogData)
+    private Vector3 GetRandomPointInRadius()
     {
-        if (spawnData == null)
-        {
-            logger?.Log(
-                "[NPCSpawns] ConfigureFromSpawnData called with null data!",
-                this,
-                Logging.LogType.Error
-            );
-            return;
-        }
+        Vector2 randomCircle = Random.insideUnitCircle * radius;
+        return transform.position
+            + new Vector3(randomCircle.x, transform.position.y, randomCircle.y);
+    }
 
-        transform.position = spawnData.Position;
-        spawnCenter = transform.position;
-        this.dialogData = dialogData;
+#if DEBUG
+    private System.Collections.IEnumerator Start()
+    {
+        yield return new WaitForSeconds(2f); // Give time for mirror to init Network
+        logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
+        SpawnNPC();
+    }
+#endif
 
-        logger?.Log($"[NPCSpawns] Configuring {dialogData}", this);
-
-        logger?.Log(
-            $"[NPCSpawns] Configured spawn: position={spawnData.Position}, radius={spawnData.Radius}, maxNPCs={maxNPCs}",
-            this
-        );
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, radius);
+        Gizmos.matrix = Matrix4x4.identity;
     }
 }

@@ -74,4 +74,5 @@ MonoBehaviour:
   resetAfterKills: 6
   resetDelay: 10
   spawnArea: {fileID: 4114071319946865724}
+  resolverContainer: {fileID: 11400000, guid: 516a84517789d9686ab929076a130e6f, type: 2}
   logger: {fileID: 11400000, guid: aee7d7782f2f76eaf8981e23d2e7d39c, type: 2}

@@ -21,7 +21,7 @@ namespace FTR.Gameplay.Server.Loaders
                     Quaternion.identity
                 );
                 NPCSpawns npcSpawnData = instance.GetComponent<NPCSpawns>();
-                npcSpawnData.ConfigureFromSpawnData(data, null); // TODO: dialog is missing, add later when ready
+                npcSpawnData.Initialize(data, null); // TODO: dialog is missing, add later when ready
                 instance.name = "NPCSpawner";
             }
         }
