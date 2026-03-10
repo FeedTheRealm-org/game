@@ -4,7 +4,7 @@ using Mirror;
 using UnityEngine;
 using VContainer;
 
-namespace FTR.Gameplay.Server.Environment.Items
+namespace FTR.Gameplay.Server.Environment.LootItem
 {
     /// <summary>
     /// LootItem represents an item in the game world that can be interacted with by players.
@@ -18,9 +18,9 @@ namespace FTR.Gameplay.Server.Environment.Items
         private bool isPickedUp = false;
         public bool IsPickedUp => isPickedUp;
 
-        private void OnEnable()
+        public void Initialize(uint netId)
         {
-            id = GetComponent<NetworkIdentity>().netId.ToString();
+            id = $"LootItem-{netId}";
         }
 
         // In the Physics2D settings,

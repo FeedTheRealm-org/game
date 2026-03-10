@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Runtime.InteropServices;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
@@ -6,8 +7,9 @@ using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using Mirror;
 using UnityEngine;
+using VContainer;
 
-namespace FTR.Gameplay.Server.Environment.Items
+namespace FTR.Gameplay.Server.Environment.LootItem
 {
     /// <summary>
     /// LootItem represents an item in the game world that can be interacted with by players.
@@ -15,6 +17,9 @@ namespace FTR.Gameplay.Server.Environment.Items
     /// </summary>
     public class LootItemSystem : MonoBehaviour, IGameTickable
     {
+        [Inject]
+        private WorldMonitor worldMonitor;
+
         [SerializeField]
         private GameTickEvent gameTickEvent;
 
@@ -22,18 +27,15 @@ namespace FTR.Gameplay.Server.Environment.Items
         private ServerConfig config;
         private Rigidbody rb;
         private LootItemController controller;
-        private NetworkAdapter networkAdapter;
-        private NetworkIdentity networkIdentity;
+        private uint netId;
         private uint despawnTime = 10; // default despawn time in seconds
         private ushort maxInitialForce = 5; // default max force applied to the item when spawned
 
-        public void Initialize()
+        public void Initialize(Rigidbody rb, LootItemController controller, uint netId)
         {
-            rb = GetComponent<Rigidbody>();
-            controller = GetComponent<LootItemController>();
-            networkAdapter = GetComponent<NetworkAdapter>();
-            networkIdentity = GetComponent<NetworkIdentity>();
-
+            this.rb = rb;
+            this.controller = controller;
+            this.netId = netId;
             despawnTime = config.ItemDespawnTime > 0 ? config.ItemDespawnTime : despawnTime;
             maxInitialForce = config.MaxInitialForce > 0 ? config.MaxInitialForce : maxInitialForce;
             SpawnItemWithForce();
@@ -49,15 +51,12 @@ namespace FTR.Gameplay.Server.Environment.Items
             );
             rb.AddForce(randomInitialForce, ForceMode.Impulse);
 
-            var initialForceEventDTO = SerializeInitialForceEvent(
-                randomInitialForce,
-                transform.position
-            );
+            var initialForceEvent = CreateInitialForceEvent(randomInitialForce, transform.position);
 
-            networkAdapter.DispatchEvent(initialForceEventDTO);
+            worldMonitor.Events.Enqueue(initialForceEvent);
         }
 
-        private ServerEventDTO SerializeInitialForceEvent(Vector3 force, Vector3 position)
+        private InitialForceEvent CreateInitialForceEvent(Vector3 force, Vector3 position)
         {
             var initialForceEventContent = new InitialForceEventContent
             {
@@ -74,11 +73,7 @@ namespace FTR.Gameplay.Server.Environment.Items
                     Z = force.z,
                 },
             };
-            var initialForceEvent = new InitialForceEvent(
-                networkIdentity.netId,
-                initialForceEventContent
-            );
-            return initialForceEvent.ToDTO();
+            return new InitialForceEvent(netId, initialForceEventContent);
         }
 
         private IEnumerator DespawnObject()
@@ -86,6 +81,7 @@ namespace FTR.Gameplay.Server.Environment.Items
             yield return new WaitForSeconds(despawnTime);
             if (!controller.IsPickedUp)
                 Destroy(gameObject);
+            NetworkServer.Destroy(gameObject);
         }
 
         public void GameTick(float dt) { }

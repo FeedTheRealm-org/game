@@ -1,10 +1,12 @@
 using API;
 using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.WorldLoader;
 using FTR.Gameplay.Server.Characters;
+using FTR.Gameplay.Server.Environment.LootItem;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
@@ -47,7 +49,14 @@ public class ServerWorldInitiator : LifetimeScope
         builder.RegisterInstance(loaderProvider);
         builder.RegisterInstance(worldService);
         builder.Register<WorldMonitor>(Lifetime.Singleton);
-        builder.Register<ServerCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
+
+        builder
+            .Register<IScriptLinker, ServerCharacterLinker>(Lifetime.Singleton)
+            .Keyed(RegisterTypes.Character);
+        builder
+            .Register<IScriptLinker, ServerLootItemLinker>(Lifetime.Singleton)
+            .Keyed(RegisterTypes.LootItem);
+
         builder.Register<GameLoop>(Lifetime.Singleton);
         builder.Register<NetworkService>(Lifetime.Singleton);
         builder.Register<ServerTickDriver>(Lifetime.Singleton);

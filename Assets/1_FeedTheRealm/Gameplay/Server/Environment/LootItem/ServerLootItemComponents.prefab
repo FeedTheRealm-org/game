@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4677681978273289691}
   - component: {fileID: 6455529643805704973}
   m_Layer: 0
-  m_Name: LootItemServerComponents
+  m_Name: ServerLootItemComponents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
