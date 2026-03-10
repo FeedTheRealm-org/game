@@ -1,6 +1,6 @@
 using System;
 using FTR.Core.Client.EventChannels.Status;
-using Mirror;
+using FTR.Core.Common.Systems.Status;
 using UnityEngine;
 using UnityEngine.UIElements;
 

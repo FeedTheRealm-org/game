@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class HealthComponent : MonoBehaviour
 {
-    [SerializeField]
+    /*[SerializeField]
     private float maxHealth = 100f;
 
     [SerializeField]
@@ -100,5 +100,5 @@ public class HealthComponent : MonoBehaviour
             // Singleplayer or non-networked object: Use normal Destroy
             Destroy(gameObject);
         }
-    }
+    }*/
 }

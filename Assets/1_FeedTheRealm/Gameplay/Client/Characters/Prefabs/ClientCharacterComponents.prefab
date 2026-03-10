@@ -20,6 +20,8 @@ GameObject:
   - component: {fileID: 1049393094490162525}
   - component: {fileID: 8113882516953622363}
   - component: {fileID: 5535709811406022713}
+  - component: {fileID: -4974415550214178087}
+  - component: {fileID: 7398143452449177882}
   m_Layer: 7
   m_Name: ClientCharacterComponents
   m_TagString: Player
@@ -207,6 +209,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3be4ebc74e54412489fb9b7483149de2, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::StaminaView
+--- !u!114 &-4974415550214178087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c96bc13f63a16baf8e23a598a796ad4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
+  maxHealth: 100
+--- !u!114 &7398143452449177882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c02f1dec74824ee7a5f38cd6774d20b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::HitView
+  animator: {fileID: 4486304355727522199}
 --- !u!1001 &3728965444176374322
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -219,6 +247,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterBody
       objectReference: {fileID: 0}
+    - target: {fileID: 6309870974530971492, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
+      propertyPath: m_Controller
+      value:
+      objectReference: {fileID: 9100000, guid: b932593c4f32ff8918ec3e08cbda1f6e, type: 2}
     - target: {fileID: 8848294552524135727, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.049
@@ -299,7 +331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7208925596118356869, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.97
+      value: 1.16
       objectReference: {fileID: 0}
     - target: {fileID: 7208925596118356869, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: m_LocalPosition.z
@@ -334,9 +366,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8350905116635297411, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
+      propertyPath: offset.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8350905116635297411, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8350905116635297411, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
+      propertyPath: centerTransform
+      value:
+      objectReference: {fileID: 5293004254245517085}
     - target: {fileID: 8544674612818321002, guid: a6f64ac6b0f17f4a09cbb5c19d3921aa, type: 3}
       propertyPath: m_Name
       value: Healthbar

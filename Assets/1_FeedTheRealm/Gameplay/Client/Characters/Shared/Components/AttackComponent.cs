@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class AttackComponent : MonoBehaviour
 {
-    [SerializeField]
+    /*[SerializeField]
     private Logging.Logger logger;
 
     [SerializeField]
@@ -111,5 +111,5 @@ public class AttackComponent : MonoBehaviour
     /// </summary>
     public LayerMask GetTargetLayer() => targetLayer;
 
-    #endregion
+    #endregion*/
 }

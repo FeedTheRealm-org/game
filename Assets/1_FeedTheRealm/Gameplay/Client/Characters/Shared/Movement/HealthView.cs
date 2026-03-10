@@ -1,10 +1,13 @@
 using FTR.Core.Client.EventChannels.Status;
+using FTR.Core.Common.Systems.Status;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 
 /// <summary>
-/// Tracks the local player's health and notifies the HUD via HealthChangedEvent.
+/// Propagates health changes from the CharacterStateStorage SyncVar to the
+/// HealthChangedEvent channel (HUD and world-space bars).
+/// Animation reactions (damaged / death) are handled by HitView.
 /// </summary>
 public class HealthView : MonoBehaviour
 {
@@ -23,7 +26,7 @@ public class HealthView : MonoBehaviour
     {
         this.stateStorage = stateStorage;
         stateStorage.OnHealthChanged += OnHealthChanged;
-        RaiseEvent(this.stateStorage.Health);
+        RaiseEvent(stateStorage.Health);
     }
 
     private void OnDestroy()

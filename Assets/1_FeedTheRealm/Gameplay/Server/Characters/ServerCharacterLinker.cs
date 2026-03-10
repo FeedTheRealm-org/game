@@ -46,6 +46,7 @@ public class ServerCharacterLinker : IScriptLinker
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
+        var respawnSystem = serverComponents.GetComponent<RespawnSystem>();
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
 
@@ -54,6 +55,14 @@ public class ServerCharacterLinker : IScriptLinker
         dashSystem.Initialize(netId, rb, stateStorage);
         useSystem.Initialize(netId, rb);
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
+        respawnSystem.Initialize(
+            netId,
+            networkAdapter,
+            serverCommandHandler,
+            stateStorage,
+            rb,
+            healthSystem
+        );
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);
         gameObject.name = $"Player-{netId}";
@@ -68,7 +77,6 @@ public class ServerCharacterLinker : IScriptLinker
     )
     {
         var entity = new ServerEntity(netID, networkAdapter, serverCommandHandler);
-
         world.Entities.Register(netID, entity);
     }
 }

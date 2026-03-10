@@ -1,4 +1,4 @@
-namespace FTR.Core.Client.EventChannels.Status
+namespace FTR.Core.Common.Systems.Status
 {
     /// <summary>
     /// Payload for HealthChangedEvent.

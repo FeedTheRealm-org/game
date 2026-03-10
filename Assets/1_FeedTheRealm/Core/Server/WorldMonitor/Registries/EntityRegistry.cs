@@ -11,4 +11,6 @@ public sealed class EntityRegistry
     }
 
     public void Register(uint netId, ServerEntity entity) => entities[netId] = entity;
+
+    public void Unregister(uint netId) => entities.Remove(netId);
 }

@@ -70,6 +70,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     continue;
                 }
                 var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
+                if (healthSystem == null)
+                {
+                    continue;
+                }
 
                 healthSystem.TakeDamage(attackDamage);
                 if (targetNetId.HasValue)
@@ -77,7 +81,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     ec.Collect(
                         new HitEvent(
                             targetNetId.Value,
-                            healthSystem.CurrentHealth,
+                            Mathf.Max(0f, healthSystem.CurrentHealth),
                             healthSystem.MaxHealth
                         )
                     );

@@ -1,4 +1,5 @@
 using FTR.Core.Common.Protocol.RpcMessages;
+using Google.Protobuf;
 
 namespace FTR.Core.Server.Events;
 
@@ -25,7 +26,7 @@ public class HitEvent : BaseServerEvent
         return new ServerEventDTO
         {
             Type = Common.Enums.ServerEventType.HitEvent,
-            content = content.ToBytes(),
+            content = content.ToByteArray(),
         };
     }
 }
