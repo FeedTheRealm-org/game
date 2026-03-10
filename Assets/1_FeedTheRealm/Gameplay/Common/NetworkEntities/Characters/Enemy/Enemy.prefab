@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 6259173304392665911}
   - component: {fileID: 437719961900656361}
   - component: {fileID: 6793359639051339193}
+  - component: {fileID: -2929070703676758666}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -207,7 +208,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bfa26a00c7ed603cb6a5f53215eec07, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Characters.CharacterInitializer
-  initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
   linkNPC: 1
 --- !u!114 &6793359639051339193
 MonoBehaviour:
@@ -224,4 +224,18 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
+--- !u!114 &-2929070703676758666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42867e44e2ee014f1adb2b825f3bcd91, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.ServerCharacterNetworkInitializer
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0

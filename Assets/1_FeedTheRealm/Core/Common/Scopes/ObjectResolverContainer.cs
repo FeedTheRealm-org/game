@@ -2,17 +2,21 @@ using System;
 using UnityEngine;
 using VContainer;
 
-public class ObjectResolverContainer : ScriptableObject
+namespace FTR.Core.Common.Scopes
 {
-    public event Action OnResolverSet;
-
-    private IObjectResolver resolver = null;
-
-    public IObjectResolver Resolver => resolver;
-
-    public void SetResolver(IObjectResolver resolver)
+    [CreateAssetMenu(menuName = "Scriptable Objects/Object Resolver Container")]
+    public class ObjectResolverContainer : ScriptableObject
     {
-        this.resolver = resolver;
-        OnResolverSet?.Invoke();
+        public event Action OnResolverSet;
+
+        private IObjectResolver resolver = null;
+
+        public IObjectResolver Resolver => resolver;
+
+        public void SetResolver(IObjectResolver resolver)
+        {
+            this.resolver = resolver;
+            OnResolverSet?.Invoke();
+        }
     }
 }

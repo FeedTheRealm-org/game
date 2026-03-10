@@ -22,17 +22,6 @@ namespace FTR.Gameplay.Client.Characters
 
             var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
             clientWorldInitiator.Container.InjectGameObject(gameObject);
-            var identity = netIdentity;
-            if (identity != null)
-            {
-                gameObject.name = $"Player-{identity.netId}";
-            }
-            else
-            {
-                Debug.LogWarning(
-                    $"ClientCharacterNetworkInitializer: No NetworkIdentity found on '{gameObject.name}'."
-                );
-            }
 
             GetComponent<CharacterInitializer>()?.Initialize();
         }

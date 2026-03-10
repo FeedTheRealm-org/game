@@ -1,5 +1,6 @@
 using API;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Common.WorldLoader;
 using Logging;
@@ -29,7 +30,9 @@ public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILa
         WorldService worldService,
         Logger logger,
         LoaderProvider loaderProvider,
-        WorldSelector worldSelector
+        WorldSelector worldSelector,
+        IObjectResolver resolver,
+        ObjectResolverContainer resolverContainer
     )
         : base(worldService, logger, loaderProvider)
     {
@@ -38,6 +41,7 @@ public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILa
         this.lateTickEvent = lateTickEvent;
         this.session = session;
         this.worldSelector = worldSelector;
+        resolverContainer.SetResolver(resolver);
         isInitialized = true;
     }
 

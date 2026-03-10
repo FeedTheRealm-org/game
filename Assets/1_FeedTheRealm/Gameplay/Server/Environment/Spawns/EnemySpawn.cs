@@ -1,7 +1,9 @@
 using System.Collections;
+using FTR.Core.Common.Scopes;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
+using VContainer.Unity;
 
 public class EnemySpawn : MonoBehaviour
 {
@@ -23,6 +25,9 @@ public class EnemySpawn : MonoBehaviour
 
     [SerializeField]
     private CapsuleCollider spawnArea;
+
+    [SerializeField]
+    private ObjectResolverContainer resolverContainer;
 
     [Header("General settings")]
     [SerializeField]
@@ -124,7 +129,12 @@ public class EnemySpawn : MonoBehaviour
     {
         logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
         Vector3 point = GetRandomPointInRadius();
-        GameObject enemy = Instantiate(enemyPrefab, point, Quaternion.identity);
+        GameObject enemy = resolverContainer.Resolver?.Instantiate(
+            enemyPrefab,
+            point,
+            Quaternion.identity
+        );
+        enemy.name = $"Enemy_{currentEnemies}";
         // TODO: Initialize enemy with reference to spawner for death callback
         NetworkServer.Spawn(enemy);
     }

@@ -1,6 +1,5 @@
 using API;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
