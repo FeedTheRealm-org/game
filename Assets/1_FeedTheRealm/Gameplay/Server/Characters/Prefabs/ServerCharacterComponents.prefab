@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8849227909655753052}
   - component: {fileID: 159244127895327875}
   - component: {fileID: 6862505364610922874}
+  - component: {fileID: 3710065203231640619}
   m_Layer: 0
   m_Name: ServerCharacterComponents
   m_TagString: Untagged
@@ -107,5 +108,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af36c71f6dc8b6f41a33ae056d23ecac, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.DashSystem
+  gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
+  config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
+--- !u!114 &3710065203231640619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056940003155735034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b18f34c3071c941a3592cebca2c96b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.GroundCheckSystem
   gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
   config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
