@@ -1,7 +1,4 @@
 using FTR.Core.Common.Enums;
-using FTR.Core.Common.Enums;
-using FTR.Core.Common.Loaders;
-using FTR.Gameplay.Common.Linkers;
 using UnityEngine;
 using VContainer;
 
