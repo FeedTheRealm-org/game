@@ -15,7 +15,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         {
             if (scriptLinker == null)
             {
-                Debug.LogWarning(
+                Debug.LogError(
                     $"[LootItemInitializer] scriptLinker not injected for '{gameObject.name}', skipping initialization."
                 );
                 return;

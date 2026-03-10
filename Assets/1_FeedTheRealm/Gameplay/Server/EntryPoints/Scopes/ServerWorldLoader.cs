@@ -1,17 +1,8 @@
-using System.Collections.Generic;
 using API;
-using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.Loaders;
 using FTR.Core.Server.Utils;
 using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Common.WorldLoader;
-using FTRShared.Runtime.Models;
-using Logging;
-using Mirror;
-using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Scopes
 {
