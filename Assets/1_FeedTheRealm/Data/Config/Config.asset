@@ -16,6 +16,6 @@ MonoBehaviour:
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   Port: 7777
   isDebugWorld: 1
-  doNotLoadWorld: 0
-  worldID: 0766db8b-0b59-4f3b-800a-1cc9a27b718b
+  doNotLoadWorld: 1
+  worldID: ed22f0a7-3704-42e1-a4e4-2b3d7036f70f
   accessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332

@@ -549,6 +549,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+      propertyPath: healthChangedEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: ebc7b4ec14e54b8dbb876afc2254d9e8, type: 2}
+    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: clientEventRegistry
       value: 
       objectReference: {fileID: 11400000, guid: 7b0314ec47ec120ae9b419a5265297fe, type: 2}
