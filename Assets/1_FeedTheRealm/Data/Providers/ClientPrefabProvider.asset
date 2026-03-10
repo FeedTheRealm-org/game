@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.ClientPrefabProvider
   ClientCharacterComponents: {fileID: 1418397613159891299, guid: 01e759bd5040d2b6c8b5ac682ad83611, type: 3}
   HudComponent: {fileID: 8198765365136042446, guid: 17712f529b334c64db2cde9364251857, type: 3}
+  LootItemVisual: {fileID: 5803050593894928880, guid: 92be4aa7024df945aae5d8f5a23c5c73, type: 3}

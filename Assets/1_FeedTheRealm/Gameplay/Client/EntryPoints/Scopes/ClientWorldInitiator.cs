@@ -2,8 +2,10 @@ using API;
 using FeedTheRealm.Core.Client.EventChannels;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.Characters;
+using FTR.Gameplay.Client.LootItem;
 using FTR.Gameplay.Common.WorldLoader;
 using UnityEngine;
 using VContainer;
@@ -51,7 +53,12 @@ public class ClientWorldInitiator : LifetimeScope
         builder.RegisterInstance(worldService);
         builder.RegisterInstance(loaderProvider);
         builder.RegisterInstance(session);
-        builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
+        builder
+            .Register<IScriptLinker, ClientCharacterLinker>(Lifetime.Singleton)
+            .Keyed(RegisterTypes.Character);
+        builder
+            .Register<IScriptLinker, ClientLootItemLinker>(Lifetime.Singleton)
+            .Keyed(RegisterTypes.LootItem);
 
         builder.RegisterEntryPoint<ClientWorldEntryPoint>();
     }
