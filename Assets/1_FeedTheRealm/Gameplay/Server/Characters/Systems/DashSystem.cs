@@ -55,6 +55,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
 
             Vector3 force = direction.normalized * config.DashSpeed;
+            if (force == Vector3.zero)
+                return;
+
             stateStorage.SetStamina(stateStorage.Stamina - config.DashStaminaCost);
             stateStorage.IsMovementBlocked = true;
             StartCoroutine(DashRoutine(force));
