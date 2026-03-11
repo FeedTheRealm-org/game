@@ -12,6 +12,9 @@ namespace FTR.Gameplay.Server.Environment.LootItem
     /// </summary>
     public class LootItemController : MonoBehaviour
     {
+        [SerializeField]
+        Logging.Logger logger;
+
         [Inject]
         private WorldMonitor worldMonitor;
         private string id;
@@ -21,12 +24,12 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         public void Initialize(uint netId)
         {
             id = $"LootItem-{netId}";
+            logger.Log($"Initialized LootItemController with ID: {id}", this);
         }
 
-        // In the Physics2D settings,
-        // The collision Player only collides with the LootItem layer,
         private void OnTriggerEnter(Collider other)
         {
+            logger.Log($"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {id}).");
             if (isPickedUp)
                 return;
             uint playerId = other.gameObject.GetComponent<NetworkIdentity>().netId;
@@ -39,7 +42,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             if (!success)
                 isPickedUp = false;
             else
-                Debug.Log($"Item {id} picked up successfully, despawning...");
+                logger.Log($"{gameObject.name} (ID: {id}) picked up successfully, despawning...");
             Destroy(gameObject);
         }
 
@@ -47,6 +50,14 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         {
             PickUpCommand command = new(playerId, id, AfterPickup);
             worldMonitor.Commands.Enqueue(command);
+        }
+
+        private void OnDrawGizmos()
+        {
+            var radius = GetComponentInParent<SphereCollider>().radius;
+            Gizmos.color = Color.chocolate;
+            Gizmos.DrawWireSphere(transform.position, radius);
+            Gizmos.matrix = Matrix4x4.identity;
         }
     }
 }

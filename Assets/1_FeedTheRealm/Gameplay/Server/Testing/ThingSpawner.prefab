@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6818979681133519008}
   - component: {fileID: 1247304618364279643}
   m_Layer: 0
-  m_Name: LootItemSpawner
+  m_Name: ThingSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,8 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6242177c6058fb2380856259bab4d15, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Testing.ThingSpawner
-  thingPrefab: {fileID: 5803050593894928880, guid: fdd7ce362fcd83eee996fe2464eebbb4, type: 3}
-  maxThings: 1
-  spawnRate: 2
+  lootPrefab: {fileID: 0}
+  maxLoots: 3
+  spawnRate: 5
   resolverContainer: {fileID: 11400000, guid: 516a84517789d9686ab929076a130e6f, type: 2}
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  logger: {fileID: 11400000, guid: 1b1c76477efaa0f58882421429bf3376, type: 2}

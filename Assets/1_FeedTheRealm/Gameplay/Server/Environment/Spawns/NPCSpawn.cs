@@ -91,7 +91,7 @@ public class NPCSpawns : MonoBehaviour
 #if DEBUG
     private System.Collections.IEnumerator Start()
     {
-        yield return new WaitForSeconds(2f); // Give time for mirror to init Network
+        yield return new WaitUntil(() => NetworkServer.active);
         logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
         SpawnNPC();
     }

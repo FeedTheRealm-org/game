@@ -194,9 +194,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
-  centeredBillboard: 1
-  centerTransform: {fileID: 0}
-  offset: {x: -0.2, y: 0, z: 0.2}
 --- !u!1 &5803050593894928880
 GameObject:
   m_ObjectHideFlags: 0
@@ -207,6 +204,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4432689288250494313}
   - component: {fileID: 8813765521054950624}
+  - component: {fileID: 4350104524518116898}
   m_Layer: 11
   m_Name: ClientLootItemComponents
   m_TagString: Untagged
@@ -223,7 +221,7 @@ Transform:
   m_GameObject: {fileID: 5803050593894928880}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.8823235, y: 3.24, z: -8.011708}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -244,3 +242,15 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::NetworkEventRouter
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+--- !u!114 &4350104524518116898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5803050593894928880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baadce255255835ad99978fa92b2936c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::LootItemView
