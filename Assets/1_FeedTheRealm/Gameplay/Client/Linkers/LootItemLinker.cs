@@ -47,6 +47,7 @@ public class ClientLootItemLinker : LootItemLinker
             prefabProvider.LootItemVisual,
             gameObject.transform
         );
+        clientLootItemComponents.layer = gameObject.layer;
 
         if (clientLootItemComponents == null)
             throw new System.NullReferenceException(
