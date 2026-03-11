@@ -1,168 +1,208 @@
 using System.Collections;
+using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
+using FTR.Gameplay.Server.Characters.Systems;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
 using VContainer.Unity;
 
-public class EnemySpawn : MonoBehaviour
+namespace FTR.Gameplay.Server.Environment.Spawns
 {
-    [Header("Spawn settings")]
-    [SerializeField]
-    private GameObject enemyPrefab;
-
-    [SerializeField]
-    private int maxEnemies = 3;
-
-    [SerializeField]
-    private float spawnRate = 2f;
-
-    [SerializeField]
-    private int resetAfterKills = 6;
-
-    [SerializeField]
-    private float resetDelay = 10f;
-
-    [SerializeField]
-    private CapsuleCollider spawnArea;
-
-    [SerializeField]
-    private ObjectResolverContainer resolverContainer;
-
-    [Header("General settings")]
-    [SerializeField]
-    private Logging.Logger logger;
-
-    private Coroutine spawnRoutine;
-    private bool spawnerActive;
-    private int currentEnemies;
-    private int playersInside;
-    private int totalKills;
-
-    private bool isInitialized = false;
-
-    public void Initialize(EnemySpawnerData data)
+    public class EnemySpawn : MonoBehaviour
     {
-        maxEnemies = data.MaxEnemies;
-        spawnRate = data.SpawnRate;
-        resetAfterKills = data.ResetAfterKills;
-        resetDelay = data.ResetDelay;
-        spawnArea.radius = data.Radius;
+        [Header("Spawn settings")]
+        [SerializeField]
+        private GameObject enemyPrefab;
 
-        isInitialized = true;
-    }
+        [SerializeField]
+        private int maxEnemies = 3;
 
-    private void OnEnable()
-    {
-        if (enemyPrefab == null)
-            throw new System.Exception("Enemy prefab not assigned on EnemySpawn!");
-    }
+        [SerializeField]
+        private float enemyDestroyDelay = 3f;
 
-    private void OnDisable()
-    {
-        spawnerActive = false;
-        playersInside = 0;
-        totalKills = 0;
-        if (spawnRoutine != null)
+        [SerializeField]
+        private float spawnRate = 2f;
+
+        [SerializeField]
+        private int resetAfterKills = 6;
+
+        [SerializeField]
+        private float resetDelay = 10f;
+
+        [SerializeField]
+        private CapsuleCollider spawnArea;
+
+        [SerializeField]
+        private ObjectResolverContainer resolverContainer;
+
+        [Header("General settings")]
+        [SerializeField]
+        private Logging.Logger logger;
+
+        private Coroutine spawnRoutine;
+        private bool spawnerActive;
+        private int currentEnemies;
+        private int playersInside;
+        private int totalKills;
+        private Dictionary<uint, GameObject> spawnedEnemies = new Dictionary<uint, GameObject>();
+
+        private bool isInitialized = false;
+
+        public void Initialize(EnemySpawnerData data)
         {
-            StopCoroutine(spawnRoutine);
-            spawnRoutine = null;
-        }
-    }
+            maxEnemies = data.MaxEnemies;
+            spawnRate = data.SpawnRate;
+            resetAfterKills = data.ResetAfterKills;
+            resetDelay = data.ResetDelay;
+            spawnArea.radius = data.Radius;
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (playersInside == 0)
-        {
-            spawnerActive = true;
-            spawnRoutine = StartCoroutine(SpawnEnemies());
+            isInitialized = true;
         }
 
-        playersInside++;
-        logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
-    }
+        private void OnEnable()
+        {
+            if (enemyPrefab == null)
+                throw new System.Exception("Enemy prefab not assigned on EnemySpawn!");
+        }
 
-    private void OnTriggerExit(Collider other)
-    {
-        logger.Log($"[EnemySpawn] Player exited. Total unique players: {playersInside - 1}", this);
-        playersInside = Mathf.Max(0, playersInside - 1);
-
-        if (playersInside == 0)
+        private void OnDisable()
         {
             spawnerActive = false;
+            playersInside = 0;
+            totalKills = 0;
             if (spawnRoutine != null)
             {
                 StopCoroutine(spawnRoutine);
                 spawnRoutine = null;
             }
-        }
-    }
 
-    /// <summary>
-    /// Spawns enemies at defined intervals while the spawner is active.
-    /// </summary>
-    private IEnumerator SpawnEnemies()
-    {
-        while (spawnerActive)
-        {
-            // Resetting (kill threshold reached)
-            if (totalKills >= resetAfterKills)
+            foreach (var kvp in spawnedEnemies)
             {
-                logger.Log($"[EnemySpawn] Spawner is resetting, pausing spawns...", this);
-                totalKills = 0;
-                yield return new WaitForSeconds(resetDelay);
+                if (kvp.Value == null)
+                    continue;
+                var healthSystem = kvp.Value.GetComponent<HealthSystem>();
+                if (healthSystem != null)
+                    healthSystem.OnDeath -= OnEnemyDeath;
+            }
+            spawnedEnemies.Clear();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (playersInside == 0)
+            {
+                spawnerActive = true;
+                spawnRoutine = StartCoroutine(SpawnEnemies());
             }
 
-            if (currentEnemies < maxEnemies)
-                SpawnEnemy();
-            currentEnemies++;
-
-            yield return new WaitForSeconds(spawnRate);
+            playersInside++;
+            logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
         }
-        logger.Log("[EnemySpawn] Spawn routine stopped.", this);
-    }
 
-    /// <summary>
-    /// Handles enemy instantiation and listens on death event.
-    /// </summary>
-    private void SpawnEnemy()
-    {
-        logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
-        Vector3 point = GetRandomPointInRadius();
-        GameObject enemy = resolverContainer.Resolver?.Instantiate(
-            enemyPrefab,
-            point,
-            Quaternion.identity
-        );
-        enemy.name = $"Enemy_{currentEnemies}";
-        // TODO: Initialize enemy with reference to spawner for death callback
-        NetworkServer.Spawn(enemy);
-    }
+        private void OnTriggerExit(Collider other)
+        {
+            logger.Log(
+                $"[EnemySpawn] Player exited. Total unique players: {playersInside - 1}",
+                this
+            );
+            playersInside = Mathf.Max(0, playersInside - 1);
 
-    /// <summary>
-    /// Callback for enemy death event to decrement current enemy count.
-    /// </summary>
-    private void OnEnemyDeath()
-    {
-        currentEnemies = Mathf.Max(0, currentEnemies - 1);
-        totalKills++;
-        logger.Log(
-            $"[EnemySpawn] Enemy died. Enemies: {currentEnemies}, Kills: {totalKills}",
-            this
-        );
-    }
+            if (playersInside == 0)
+            {
+                spawnerActive = false;
+                if (spawnRoutine != null)
+                {
+                    StopCoroutine(spawnRoutine);
+                    spawnRoutine = null;
+                }
+            }
+        }
 
-    private Vector3 GetRandomPointInRadius()
-    {
-        Vector2 randomCircle = Random.insideUnitCircle * spawnArea.radius;
-        return transform.position + new Vector3(randomCircle.x, spawnArea.center.y, randomCircle.y);
-    }
+        /// <summary>
+        /// Spawns enemies at defined intervals while the spawner is active.
+        /// </summary>
+        private IEnumerator SpawnEnemies()
+        {
+            while (spawnerActive)
+            {
+                // Resetting (kill threshold reached)
+                if (totalKills >= resetAfterKills)
+                {
+                    logger.Log($"[EnemySpawn] Spawner is resetting, pausing spawns...", this);
+                    totalKills = 0;
+                    yield return new WaitForSeconds(resetDelay);
+                }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = spawnerActive ? Color.green : Color.red;
-        Gizmos.matrix = transform.localToWorldMatrix; // Needed to translate to scene pos
-        Gizmos.DrawWireSphere(spawnArea.center, spawnArea.radius);
-        Gizmos.matrix = Matrix4x4.identity;
+                if (currentEnemies < maxEnemies)
+                {
+                    SpawnEnemy();
+                    currentEnemies++;
+                }
+
+                yield return new WaitForSeconds(spawnRate);
+            }
+            logger.Log("[EnemySpawn] Spawn routine stopped.", this);
+        }
+
+        /// <summary>
+        /// Handles enemy instantiation and listens on death event.
+        /// </summary>
+        private void SpawnEnemy()
+        {
+            logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
+            Vector3 point = GetRandomPointInRadius();
+            GameObject enemy = resolverContainer.Resolver?.Instantiate(
+                enemyPrefab,
+                point,
+                Quaternion.identity
+            );
+            NetworkServer.Spawn(enemy);
+
+            enemy.name = $"Enemy_{currentEnemies}";
+            var netId = enemy.GetComponent<NetworkIdentity>().netId;
+            spawnedEnemies[netId] = enemy;
+            var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+            healthSystem.OnDeath += OnEnemyDeath;
+        }
+
+        /// <summary>
+        /// Callback for enemy death event to decrement current enemy count.
+        /// </summary>
+        private void OnEnemyDeath(uint netId)
+        {
+            var enemy = spawnedEnemies[netId];
+            spawnedEnemies.Remove(netId);
+            StartCoroutine(DestroyEnemyAfterDelay(enemy, enemyDestroyDelay));
+
+            currentEnemies = Mathf.Max(0, currentEnemies - 1);
+            totalKills++;
+            logger.Log(
+                $"[EnemySpawn] Enemy died. Enemies: {currentEnemies}, Kills: {totalKills}",
+                this
+            );
+        }
+
+        private IEnumerator DestroyEnemyAfterDelay(GameObject enemy, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            if (enemy != null)
+                Destroy(enemy);
+        }
+
+        private Vector3 GetRandomPointInRadius()
+        {
+            Vector2 randomCircle = Random.insideUnitCircle * spawnArea.radius;
+            return transform.position
+                + new Vector3(randomCircle.x, spawnArea.center.y, randomCircle.y);
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = spawnerActive ? Color.green : Color.red;
+            Gizmos.matrix = transform.localToWorldMatrix; // Needed to translate to scene pos
+            Gizmos.DrawWireSphere(spawnArea.center, spawnArea.radius);
+            Gizmos.matrix = Matrix4x4.identity;
+        }
     }
 }

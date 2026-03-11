@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
+using FTR.Gameplay.Server.Environment.Spawns;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 

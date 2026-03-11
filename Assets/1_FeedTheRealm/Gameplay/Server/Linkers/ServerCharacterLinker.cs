@@ -1,6 +1,5 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
-using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
@@ -55,6 +54,7 @@ public class ServerCharacterLinker
         dashSystem.Initialize(netId, rb, stateStorage);
         useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
+        healthSystem.Initialize(netId);
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
 
