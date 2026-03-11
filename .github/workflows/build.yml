@@ -15,7 +15,7 @@ on:
 permissions:
   contents: read
   packages: read
-  id-token: write # OIDC required
+  id-token: write
 
 env:
   IMAGE_NAME: ftr-server
@@ -30,39 +30,135 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # -----------------------------
+      # DEBUG: GitHub Context
+      # -----------------------------
+      - name: Debug GitHub Context
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Repository Owner: ${{ github.repository_owner }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Ref Name: ${{ github.ref_name }}"
+          echo "Event Name: ${{ github.event_name }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+
+      # -----------------------------
+      # Prepare Docker variables
+      # -----------------------------
       - name: Prepare image variables
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}:latest"
 
+          echo "OWNER=$OWNER"
+          echo "GHCR_IMAGE=$GHCR_IMAGE"
+
           echo "OWNER=$OWNER" >> $GITHUB_ENV
           echo "GHCR_IMAGE=$GHCR_IMAGE" >> $GITHUB_ENV
 
+      # -----------------------------
+      # DEBUG: Environment
+      # -----------------------------
+      - name: Debug Environment Variables
+        run: |
+          echo "IMAGE_NAME=$IMAGE_NAME"
+          echo "OWNER=$OWNER"
+          echo "GHCR_IMAGE=$GHCR_IMAGE"
+
+      # -----------------------------
+      # Login to GHCR
+      # -----------------------------
       - name: Login to GHCR
         run: |
           GHCR_USER="${{ github.actor }}"
+          echo "Logging into GHCR as $GHCR_USER"
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
+      # -----------------------------
+      # DEBUG: Check image exists
+      # -----------------------------
+      - name: Debug Docker Image Manifest
+        run: |
+          echo "Inspecting Docker image: $GHCR_IMAGE"
+          docker manifest inspect "$GHCR_IMAGE" || echo "Image not found in GHCR"
+
+      # -----------------------------
+      # Pull image
+      # -----------------------------
       - name: Pull image from GHCR
         run: |
+          echo "Pulling $GHCR_IMAGE"
           docker pull "$GHCR_IMAGE"
 
+      # -----------------------------
+      # Generate ECR tag
+      # -----------------------------
       - name: Set Image Tag for ECR
         id: tag
-        run: echo "image_tag=$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: |
+          TAG="$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)"
+          echo "Generated tag: $TAG"
+          echo "image_tag=$TAG" >> $GITHUB_OUTPUT
 
+      # -----------------------------
+      # DEBUG: AWS Inputs
+      # -----------------------------
+      - name: Debug AWS Inputs
+        run: |
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}"
+          echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}"
+          echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}"
+          echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN }}"
+
+      # -----------------------------
+      # DEBUG: Print OIDC Token Claims
+      # -----------------------------
+      - name: Debug OIDC Token
+        run: |
+          echo "Requesting OIDC token..."
+
+          TOKEN=$(curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r '.value')
+
+          echo "Decoded OIDC Claims:"
+          echo "$TOKEN" | cut -d '.' -f2 | base64 -d | jq
+
+      # -----------------------------
+      # Configure AWS credentials
+      # -----------------------------
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # -----------------------------
+      # DEBUG: Verify AWS identity
+      # -----------------------------
+      - name: Verify AWS Identity
+        run: |
+          echo "Caller identity:"
+          aws sts get-caller-identity
+
+      # -----------------------------
+      # Login to ECR
+      # -----------------------------
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      # -----------------------------
+      # Tag and push
+      # -----------------------------
       - name: Tag & Push to ECR
         run: |
           IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.tag.outputs.image_tag }}
 
+          echo "Tagging image:"
+          echo "$GHCR_IMAGE -> $IMAGE_URI"
+
           docker tag "$GHCR_IMAGE" "$IMAGE_URI"
+
+          echo "Pushing image to ECR"
           docker push "$IMAGE_URI"
