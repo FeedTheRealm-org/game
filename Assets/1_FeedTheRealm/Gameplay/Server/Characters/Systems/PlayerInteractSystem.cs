@@ -4,7 +4,7 @@ using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Interactions;
 using UnityEngine;
 
-public class PlayerInteractComponent : MonoBehaviour, IInteractor
+public class PlayerInteractSystem : MonoBehaviour, IInteractor
 {
     [Header("Interaction Settings")]
     [SerializeField]
@@ -13,9 +13,6 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
     [SerializeField]
     private LayerMask interactableLayerMask;
 
-    [SerializeField]
-    private NpcInteractedEvent npcInteractedEvent;
-
     [Header("Logging Settings")]
     [SerializeField]
     private Logging.Logger logger;
@@ -23,7 +20,7 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
     public GameObject GameObject => this.gameObject;
     public Transform Transform => this.transform;
 
-    public event Action OnInteractFinished;
+    // public event Action OnInteractFinished; // TODO: adapt to new way -> this was used to unblock the player movement and actions
 
     /// <summary>
     /// Attempts to interact with the closest interactable object within range.
@@ -32,7 +29,7 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
     public void OnInteract()
     {
         logger.Log("Player interaction triggered.", this);
-        StartCoroutine(CheckClosestInteractable()); // Start the check in a coroutine to avoid blocking
+        StartCoroutine(CheckClosestInteractable());
     }
 
     /// <summary>
@@ -74,20 +71,18 @@ public class PlayerInteractComponent : MonoBehaviour, IInteractor
 
         logger.Log("Interacting with: " + closestInteractable, this);
         var interactedId = closestInteractable.Interact(this);
-        npcInteractedEvent.Raise(new NpcInteractedData { PlayerId = "0", NpcId = interactedId });
+        // npcInteractedEvent.Raise(new NpcInteractedData { PlayerId = "0", NpcId = interactedId });
     }
 
     public void FinishInteracting()
     {
         logger.Log("Finished interacting.", this);
-        OnInteractFinished?.Invoke();
+        // OnInteractFinished?.Invoke();
     }
 
-#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
-#endif
 }
