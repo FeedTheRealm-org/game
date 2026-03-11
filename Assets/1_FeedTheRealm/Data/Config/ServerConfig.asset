@@ -13,3 +13,14 @@ MonoBehaviour:
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   playerSpeed: 5
+  dashSpeed: 25
+  dashDuration: 0.1
+  maxStamina: 100
+  dashStaminaCost: 25
+  staminaRecoveryRate: 1
+  staminaRecoveryAmount: 5
+  groundCheckDistance: 1
+  groundCheckSphereRadius: 0.4
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64

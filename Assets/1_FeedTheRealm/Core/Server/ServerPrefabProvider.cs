@@ -6,5 +6,7 @@ namespace FTR.Core.Server
     public class ServerPrefabProvider : ScriptableObject
     {
         public GameObject ServerPlayerComponents;
+
+        public GameObject ServerLoaderComponents;
     }
 }

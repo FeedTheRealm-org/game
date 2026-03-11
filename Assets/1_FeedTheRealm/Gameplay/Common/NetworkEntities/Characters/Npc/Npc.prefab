@@ -9026,41 +9026,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogManagerComponent
   shouldResetOnComplete: 1
   inactivityTimeout: 5
-  npcName: Hatsu
-  npcId: 1
+  NpcName:
+  NpcId:
   dialogs:
   - _msg:
+      id:
       _sender:
       _content: Let's sing together! Music connects everyone's hearts!
     _quest:
-      Id:
-      Title:
-      Content:
-      TargetAmount: 0
-      TargetInteractionId:
-      Type: 0
+      id:
+      title:
+      content:
+      targetAmount: 0
+      targetId:
+      targetInteractionId:
+      type: 0
   - _msg:
+      id:
       _sender:
       _content: I'm the virtual diva of the future! Nice to meet you!
     _quest:
-      Id:
-      Title:
-      Content:
-      TargetAmount: 0
-      TargetInteractionId:
-      Type: 0
+      id:
+      title:
+      content:
+      targetAmount: 0
+      targetId:
+      targetInteractionId:
+      type: 0
   - _msg:
+      id:
       _sender:
       _content: Practice makes perfect! Let's keep trying until we shine!
     _quest:
-      Id: 1
-      Title: Slay them skullies!
-      Content: Clear the crypt by slaying the Skullies rattling skeletons that haunt
-        the old halls, rise from shattered tombs, and guard forgotten secrets, clashing
-        bones and cursed blades as they defend their dusty domain from intruders.
-      TargetAmount: 4
-      TargetInteractionId:
-      Type: 0
+      id:
+      title:
+      content:
+      targetAmount: 0
+      targetId:
+      targetInteractionId:
+      type: 0
   questOfferedEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!1 &3297521188069314544
@@ -13586,7 +13590,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4326106316448945377}
   - component: {fileID: 3406799357663311798}
-  - component: {fileID: 5270607926597686370}
   - component: {fileID: 7776057024902750502}
   m_Layer: 0
   m_Name: Body
@@ -13636,22 +13639,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5270607926597686370
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4951989201308572016}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationEvents
-  logger: {fileID: 11400000, guid: e566741b31fec873c94b2868946ab81d, type: 2}
-  attackComponent: {fileID: 0}
-  healthComponent: {fileID: 0}
-  networkAttackSynchronizer: {fileID: 0}
 --- !u!114 &7776057024902750502
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18262,7 +18249,6 @@ GameObject:
   - component: {fileID: 4134582031003066537}
   - component: {fileID: 2420022291792682891}
   - component: {fileID: 7271523147755283482}
-  - component: {fileID: 6469840788528912734}
   m_Layer: 0
   m_Name: UnitRoot
   m_TagString: Untagged
@@ -18321,22 +18307,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6469840788528912734
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7118198476929643662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationEvents
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
-  attackComponent: {fileID: 0}
-  healthComponent: {fileID: 0}
-  networkAttackSynchronizer: {fileID: 0}
 --- !u!1 &7126350980069475510
 GameObject:
   m_ObjectHideFlags: 0

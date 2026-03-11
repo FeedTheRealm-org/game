@@ -23,6 +23,8 @@ public class NetworkAdapter : NetworkBehaviour
     public event Action<ActionCommandDTO> OnActionRequest;
     public event Action<TransactionCommandDTO> OnTransactionRequest;
 
+    public bool IsLocalPlayer => isLocalPlayer;
+
     [Inject]
     ReceivedActionCommandEvent receivedActionCommandEvent;
 
@@ -40,7 +42,12 @@ public class NetworkAdapter : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
-        Debug.Log($"Dispatching Action Command: {command.Type} with direction {command.Direction}");
+
+        logger.Log(
+            $"Dispatching Action Command: {command.Type} with direction {command.Direction}",
+            this
+        );
+
         CmdActionRequest(command);
     }
 
@@ -67,6 +74,8 @@ public class NetworkAdapter : NetworkBehaviour
         if (!isServer)
             return;
 
+        logger.Log($"Dispatching Server Event: {response.Type} for NetId: {netId}", this);
+
         RpcServerEvent(response);
     }
 
@@ -89,7 +98,7 @@ public class NetworkAdapter : NetworkBehaviour
     private void CmdTransactionRequest(TransactionCommandDTO command)
     {
         command.NetId = netId;
-        Debug.Log($"Received Transaction Command from client: {command.NetId}");
+        logger.Log($"Received Transaction Command from client: {command.NetId}", this);
         receivedTransactionCommandEvent.Raise(command);
     }
 

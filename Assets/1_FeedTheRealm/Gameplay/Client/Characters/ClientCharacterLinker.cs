@@ -36,19 +36,41 @@ namespace FTR.Gameplay.Client.Characters
                 prefabProvider.ClientPlayerComponents,
                 gameObject.transform
             );
-
             resolver.InjectGameObject(playerComponents);
 
             var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
-            var movementController = playerComponents.GetComponent<MovementController>();
+            var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
             var movementView = playerComponents.GetComponent<MovementView>();
+            var attackView = playerComponents.GetComponent<AttackView>();
+            var dashView = playerComponents.GetComponent<DashView>();
+            var staminaView = playerComponents.GetComponent<StaminaView>();
 
-            var playerController = gameObject.AddComponent<PlayerController>();
-            resolver.Inject(playerController);
+            var movementController = playerComponents.GetComponent<MovementController>();
+            var useController = playerComponents.GetComponent<UseController>();
 
+            networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
-            playerController.Initialize(characterStateMachine);
+            attackView.Initialize(networkEventRouter);
+            dashView.Initialize(rb, stateStorage, networkEventRouter);
+            staminaView.Initialize(stateStorage);
+
             movementController.Initialize(networkAdapter);
+            useController.Initialize(networkAdapter);
+
+            if (networkAdapter.IsLocalPlayer)
+            {
+                prefabProvider.HudComponent.SetActive(false);
+                var hudComponent = Object.Instantiate(
+                    prefabProvider.HudComponent,
+                    gameObject.transform
+                );
+                resolver.InjectGameObject(hudComponent);
+                hudComponent.SetActive(true);
+
+                var playerController = gameObject.AddComponent<PlayerController>();
+                resolver.Inject(playerController);
+                playerController.Initialize(characterStateMachine);
+            }
         }
     }
 }

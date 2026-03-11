@@ -5,9 +5,13 @@ using UnityEngine;
 
 public class NetworkEventRouter : MonoBehaviour
 {
+    [SerializeField]
+    private Logging.Logger logger;
+
     // List of subscribable ServerEvents
-    public event Action<ServerEventDTO> OnAttackEvent;
-    public event Action<ServerEventDTO> OnHitEvent;
+    public event Action<AttackEventContent> OnAttackEvent;
+    public event Action OnHitEvent;
+    public event Action<DashEventContent> OnDashEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -28,13 +32,23 @@ public class NetworkEventRouter : MonoBehaviour
         switch (serverEvent.Type)
         {
             case ServerEventType.AttackEvent:
-                OnAttackEvent?.Invoke(serverEvent);
+                AttackEventContent attackEvent = AttackEventContent.Parser.ParseFrom(
+                    serverEvent.content
+                );
+                OnAttackEvent?.Invoke(attackEvent);
+                logger.Log($"Routed AttackEvent", this);
+                break;
+            case ServerEventType.DashEvent:
+                DashEventContent dashEvent = DashEventContent.Parser.ParseFrom(serverEvent.content);
+                logger.Log($"Routed DashEvent", this);
+                OnDashEvent?.Invoke(dashEvent);
                 break;
             case ServerEventType.HitEvent:
-                OnHitEvent?.Invoke(serverEvent);
+                OnHitEvent?.Invoke();
+                logger.Log($"Routed HitEvent", this);
                 break;
             default:
-                Debug.LogWarning($"Received unhandled server event type: {serverEvent.Type}");
+                logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);
                 break;
         }
     }

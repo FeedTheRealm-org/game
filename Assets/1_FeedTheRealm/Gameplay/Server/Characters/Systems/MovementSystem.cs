@@ -6,7 +6,7 @@ using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 
-namespace FTR.Gameplay.Server.Characters
+namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class MovementSystem : MonoBehaviour, IGameTickable
     {
@@ -41,13 +41,16 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnMove(Vector3 direction)
         {
-            this.direction = direction;
-            stateStorage.SetDirection(direction * moveSpeed);
+            this.direction = direction.normalized;
+            stateStorage.SetDirection(this.direction * moveSpeed);
         }
 
         public void GameTick(float dt)
         {
             if (!isInitialized)
+                return;
+
+            if (stateStorage.IsMovementBlocked || !stateStorage.IsGrounded)
                 return;
 
             Vector3 nextPosition = rb.position + dt * moveSpeed * direction;

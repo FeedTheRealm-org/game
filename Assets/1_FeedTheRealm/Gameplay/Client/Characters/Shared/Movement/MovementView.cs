@@ -16,7 +16,6 @@ public class MovementView : MonoBehaviour
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
-
     private bool isInitialized = false;
 
     // TODO: moves these to a proper config or constants class later
@@ -52,6 +51,12 @@ public class MovementView : MonoBehaviour
     {
         if (!isInitialized)
             return;
+
+        if (stateStorage.IsMovementBlocked)
+        {
+            correctingPosition = false;
+            return;
+        }
 
         if (correctingPosition)
         {

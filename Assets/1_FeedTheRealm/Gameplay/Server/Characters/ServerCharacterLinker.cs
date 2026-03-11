@@ -2,6 +2,7 @@ using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -30,6 +31,7 @@ public class ServerCharacterLinker : IScriptLinker
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
+        var col = gameObject.GetComponent<Collider>();
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
         // Add server-side components
@@ -42,16 +44,25 @@ public class ServerCharacterLinker : IScriptLinker
 
         var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
+        var dashSystem = serverComponents.GetComponent<DashSystem>();
+        var useSystem = serverComponents.GetComponent<UseSystem>();
+        var healthSystem = serverComponents.GetComponent<HealthSystem>();
+        var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
+
+        var netId = gameObject.GetComponent<NetworkIdentity>().netId;
 
         // Initialize components
         movementSystem.Initialize(rb, stateStorage);
-        serverCommandHandler.Initialize(movementSystem);
+        dashSystem.Initialize(netId, rb, stateStorage);
+        useSystem.Initialize(netId, rb);
+        groundCheckSystem.Initialize(col, stateStorage);
 
-        var netID = gameObject.GetComponent<NetworkIdentity>().netId;
-        RegisterEntity(netID, networkAdapter, serverCommandHandler);
-        gameObject.name = $"Player-{netID}";
+        serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
 
-        Debug.Log($"Linked domain scripts for character with netID {netID}");
+        RegisterEntity(netId, networkAdapter, serverCommandHandler);
+        gameObject.name = $"Player-{netId}";
+
+        Debug.Log($"Linked domain scripts for character with netID {netId}");
     }
 
     public void RegisterEntity(

@@ -1,40 +1,37 @@
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
-namespace FTR.Gameplay.Common.Environment.Structures;
-
-public class StructureController : MonoBehaviour
+namespace FTR.Gameplay.Common.Environment.Structures
 {
-    private StructureData data;
-
-    public void Initialize(StructureData data)
+    public class StructureController : MonoBehaviour
     {
-        this.data = data;
+        private StructureData structureData;
+        public StructureData Data => structureData;
 
-        transform.position = data.position;
-        transform.rotation = Quaternion.Euler(data.rotation);
-        transform.localScale = Vector3.one;
+        public void Initialize(StructureData structureData)
+        {
+            this.structureData = structureData;
+            transform.position = this.structureData.position;
+            transform.rotation = Quaternion.Euler(this.structureData.rotation);
+            transform.localScale = Vector3.one;
 
-        SetupCollider();
-    }
+            SetupCollider();
+        }
 
-    public void RenderVisual(GameObject referenceModel)
-    {
-        GameObject structureModel = Instantiate(referenceModel);
-        structureModel.SetActive(true);
+        public void SetVisualModel(GameObject visualModel)
+        {
+            visualModel.transform.SetParent(gameObject.transform);
+            visualModel.SetActive(true);
+            visualModel.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            visualModel.transform.localScale = structureData.size;
+        }
 
-        structureModel.transform.parent = gameObject.transform;
-        structureModel.transform.localPosition = Vector3.zero;
-        structureModel.transform.localRotation = Quaternion.identity;
-        structureModel.transform.localScale = data.size;
-        // TODO: check if scale is applied correctly, should it be applied to the parent object instead?
-    }
-
-    private void SetupCollider()
-    {
-        BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
-        boxCollider.size = data.colliderSize;
-        boxCollider.center = data.colliderCenter;
-        boxCollider.isTrigger = false;
+        private void SetupCollider()
+        {
+            BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
+            boxCollider.size = structureData.colliderSize;
+            boxCollider.center = structureData.colliderCenter;
+            boxCollider.isTrigger = false;
+        }
     }
 }

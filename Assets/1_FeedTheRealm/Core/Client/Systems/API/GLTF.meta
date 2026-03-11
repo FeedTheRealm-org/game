@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/1_FeedTheRealm/Core/Client/Systems/API/GLTF.meta
+guid: b2d089a446ae1b3e6a842b8f117e3e76
+========
+guid: 9315e01e9c4a42af9bde522fbb790f62
+>>>>>>>> 58a93302eed598703a2c3b0ef5a6aa4d72b430bc:Assets/1_FeedTheRealm/Core/Common/Protocol/Protobufs.meta
+folderAsset: yes
+DefaultImporter:
+  externalObjects: {}
+  userData:
+  assetBundleName:
+  assetBundleVariant:

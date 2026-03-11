@@ -9,8 +9,8 @@ public class DashComponent : MonoBehaviour
     [SerializeField]
     private Rigidbody rb;
 
-    [SerializeField]
-    private GroundCheckComponent groundCheck;
+    // [SerializeField]
+    // private GroundCheckComponent groundCheck;
 
     // [SerializeField]
     // private MovementComponent movement;
@@ -39,8 +39,8 @@ public class DashComponent : MonoBehaviour
     {
         if (rb == null)
             rb = GetComponent<Rigidbody>();
-        if (groundCheck == null)
-            groundCheck = GetComponent<GroundCheckComponent>();
+        // if (groundCheck == null)
+        //     groundCheck = GetComponent<GroundCheckComponent>();
         // if (movement == null)
         //     movement = GetComponent<MovementComponent>();
 
@@ -53,7 +53,7 @@ public class DashComponent : MonoBehaviour
     /// </summary>
     public void OnDash()
     {
-        if (isDashing || !groundCheck.IsGrounded || !consumeStamina())
+        // if (isDashing || !groundCheck.IsGrounded || !consumeStamina())
         {
             OnDashFinished?.Invoke();
             return;

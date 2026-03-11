@@ -6,7 +6,7 @@ namespace FTR.Core.Server.Commands;
 public interface ICommandable
 {
     void OnMove(IEventCollectable ec, Vector3 direction);
-    void OnDash(IEventCollectable ec);
+    void OnDash(IEventCollectable ec, Vector3 direction);
     void OnUse(IEventCollectable ec);
     void OnInteract(IEventCollectable ec);
     void OnEquip(IEventCollectable ec);

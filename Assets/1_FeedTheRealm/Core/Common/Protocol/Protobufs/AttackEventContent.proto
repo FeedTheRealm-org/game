@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+message AttackEventContent {
+  int32 attack_type = 1;
+}
