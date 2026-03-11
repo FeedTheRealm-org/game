@@ -1,3 +1,4 @@
+using System;
 using FTR.Core.Common.Utils;
 using UnityEngine;
 
@@ -11,11 +12,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private Logging.Logger logger;
 
-        private float currentHealth;
-
+        public event Action<uint> OnDeath;
         public float CurrentHealth => currentHealth;
 
-        public event System.Action OnDeath;
+        private float currentHealth;
+        private uint netId;
+
+        private bool isInitialized = false;
+
+        public void Initialize(uint netId)
+        {
+            this.netId = netId;
+            isInitialized = true;
+        }
 
         private void Awake()
         {
@@ -46,8 +55,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void Die()
         {
+            if (!isInitialized)
+                return;
             logger.Log("Character has died.", this);
-            OnDeath?.Invoke();
+            OnDeath?.Invoke(netId);
         }
     }
 }

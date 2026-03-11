@@ -63,7 +63,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         // ── Death / Respawn ──────────────────────────────────────────────────
 
-        private void OnDeath()
+        private void OnDeath(uint _)
         {
             // Sync the 0 health to all clients immediately so UIs update.
             stateStorage.SetHealth(0);

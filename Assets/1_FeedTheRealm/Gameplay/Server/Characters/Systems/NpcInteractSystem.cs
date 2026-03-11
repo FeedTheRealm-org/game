@@ -19,7 +19,8 @@ public class NpcInteractSystem : MonoBehaviour, IInteractable
         // if (!dialogManager.IsQuestOffer())
         //     interactor.FinishInteracting();
         interactor.FinishInteracting();
-        return dialogManager.NpcId;
+        // return dialogManager.NpcId;
+        return "";
     }
 
     public bool CanInteract(IInteractor interactor)
