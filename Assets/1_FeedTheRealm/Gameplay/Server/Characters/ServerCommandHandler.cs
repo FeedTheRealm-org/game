@@ -1,7 +1,6 @@
 using FTR.Core.Server.Commands;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Characters.Systems;
-using FTR.Gameplay.Server.Environment.Items;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
