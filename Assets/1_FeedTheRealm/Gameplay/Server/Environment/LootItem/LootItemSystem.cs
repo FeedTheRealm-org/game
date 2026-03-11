@@ -80,8 +80,11 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         {
             yield return new WaitForSeconds(despawnTime);
             if (!controller.IsPickedUp)
-                Destroy(gameObject);
-            NetworkServer.Destroy(gameObject);
+            {
+                Transform parent = transform.parent;
+                GameObject targetToDestroy = parent != null ? parent.gameObject : gameObject;
+                NetworkServer.Destroy(targetToDestroy);
+            }
         }
 
         public void GameTick(float dt) { }
