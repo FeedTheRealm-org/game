@@ -82,6 +82,10 @@ public class CharacterAnimator : MonoBehaviour
     }
 
     /* --- Players --- */
+    public void PlayIdle()
+    {
+        animator.SetInteger("State", 0);
+    }
 
     public void PlayAttack()
     {
@@ -95,7 +99,7 @@ public class CharacterAnimator : MonoBehaviour
 
     public void PlayDeath()
     {
-        animator.SetTrigger("Death");
+        animator.SetInteger("State", 9);
     }
 
     /* --- Animator Hooks --- */

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5042418126011354294}
   - component: {fileID: -726580152348399193}
   - component: {fileID: 4687081578167197889}
+  - component: {fileID: 5715744494289441919}
   m_Layer: 0
   m_Name: Hud
   m_TagString: Untagged
@@ -68,4 +69,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f9dc62a5b1e1484f984c05a0aeab2a6, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::StaminaController
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+--- !u!114 &5715744494289441919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8198765365136042446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e08d4ee7d5877c6d8a2ffec8874e59f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::HealthUIController
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}

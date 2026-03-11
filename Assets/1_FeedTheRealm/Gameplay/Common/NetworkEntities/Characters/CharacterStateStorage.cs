@@ -79,5 +79,17 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         {
             OnHealthChanged?.Invoke(newHealth);
         }
+
+        public override void OnStartClient()
+        {
+            Debug.Log(
+                $"[CharacterStateStorage] Initial sync: position={position}, direction={direction}, stamina={stamina}, health={health}",
+                this
+            );
+            OnPositionSync(Vector3.zero, position);
+            OnDirectionSync(Vector3.zero, direction);
+            OnStaminaSync(0, stamina);
+            OnHealthSync(0, health);
+        }
     }
 }

@@ -35,5 +35,7 @@ public class HitView : MonoBehaviour
             animator.PlayDeath();
         else if (hitContent.CurrentHealth < hitContent.MaxHealth)
             animator.PlayDamaged();
+        else
+            animator.PlayIdle();
     }
 }

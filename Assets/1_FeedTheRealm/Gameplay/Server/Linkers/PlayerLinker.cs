@@ -48,6 +48,7 @@ public class ServerPlayerLinker : PlayerLinker
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
+        var respawnSystem = serverComponents.GetComponent<RespawnSystem>();
         var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
@@ -57,7 +58,14 @@ public class ServerPlayerLinker : PlayerLinker
         dashSystem.Initialize(netId, rb, stateStorage);
         useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
-
+        respawnSystem.Initialize(
+            netId,
+            networkAdapter,
+            serverCommandHandler,
+            stateStorage,
+            rb,
+            healthSystem
+        );
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);
