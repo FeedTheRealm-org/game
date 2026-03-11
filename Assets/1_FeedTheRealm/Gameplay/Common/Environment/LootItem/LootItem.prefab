@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 3374010425153001196}
   - component: {fileID: 2430832714210475348}
   - component: {fileID: 4717729367754224815}
-  - component: {fileID: 5028717533021138359}
   - component: {fileID: 158186220675152356}
   - component: {fileID: 6268784177090603133}
   - component: {fileID: 2226334990740266481}
@@ -120,19 +119,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
---- !u!114 &5028717533021138359
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5803050593894928880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f231802e8a445c2ba8940e5a1cf9fbb7, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Client::NetworkEventRouter
   logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
 --- !u!114 &158186220675152356
 MonoBehaviour:

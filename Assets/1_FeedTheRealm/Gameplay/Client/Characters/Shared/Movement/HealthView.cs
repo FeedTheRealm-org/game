@@ -42,7 +42,7 @@ public class HealthView : MonoBehaviour
 
     private void RaiseEvent(float currentHealth)
     {
-        healthChangedEvent.Raise(
+        healthChangedEvent?.Raise(
             new HealthChangedData(stateStorage.netId, currentHealth, maxHealth)
         );
     }

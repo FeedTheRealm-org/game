@@ -1,6 +1,5 @@
 using FTR.Core.Client;
 using FTR.Gameplay.Common.Linkers;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -11,54 +10,23 @@ public class ClientPlayerLinker : PlayerLinker
 {
     private readonly ClientPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private ClientCharacterLinker characterLinker;
 
     public ClientPlayerLinker(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
     {
+        this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
-
-        Debug.Log("ClientCharacterLinker created with prefabProvider: " + (prefabProvider != null));
-        Debug.Log("ClientCharacterLinker created with resolver: " + (resolver != null));
     }
 
     public override void Link(GameObject gameObject)
     {
-        // Get from common character components
-        var rb = gameObject.GetComponent<Rigidbody>();
-        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+        var playerComponents = characterLinker.Link(gameObject);
+
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
-
-        // Add client-side components
-        var playerComponents = Object.Instantiate(
-            prefabProvider.ClientCharacterComponents,
-            gameObject.transform
-        );
-        resolver.InjectGameObject(playerComponents);
-
         var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
-        var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
-        var movementView = playerComponents.GetComponent<MovementView>();
-        var attackView = playerComponents.GetComponent<AttackView>();
-        var hitView = playerComponents.GetComponent<HitView>();
-        var dashView = playerComponents.GetComponent<DashView>();
-        var staminaView = playerComponents.GetComponent<StaminaView>();
-        var healthView = playerComponents.GetComponent<HealthView>();
 
-        var movementController = playerComponents.GetComponent<MovementController>();
-        var useController = playerComponents.GetComponent<UseController>();
-
-        networkEventRouter.Initialize(networkAdapter);
-        movementView.Initialize(rb, stateStorage);
-        attackView.Initialize(networkEventRouter);
-        hitView.Initialize(networkEventRouter);
-        dashView.Initialize(rb, stateStorage, networkEventRouter);
-        staminaView.Initialize(stateStorage);
-        healthView?.Initialize(stateStorage);
-
-        movementController.Initialize(networkAdapter);
-        useController.Initialize(networkAdapter);
-
-        if (networkAdapter.IsLocalPlayer) // TODO: && type == LinkerType.Playeable
+        if (networkAdapter.IsLocalPlayer)
         {
             prefabProvider.HudComponent.SetActive(false);
             var hudComponent = Object.Instantiate(

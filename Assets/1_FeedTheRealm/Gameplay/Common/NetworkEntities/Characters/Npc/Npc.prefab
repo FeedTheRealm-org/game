@@ -16,9 +16,9 @@ GameObject:
   - component: {fileID: 3680305885869211772}
   - component: {fileID: 8296436982081668311}
   - component: {fileID: 5727485716493610579}
-  - component: {fileID: 4283759610155832681}
   - component: {fileID: 7781193415436150992}
   - component: {fileID: 1304933063733738357}
+  - component: {fileID: 5288681758117497085}
   m_Layer: 10
   m_Name: Npc
   m_TagString: Untagged
@@ -210,19 +210,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
---- !u!114 &4283759610155832681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3227871909907725305}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bfa26a00c7ed603cb6a5f53215eec07, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Characters.CharacterInitializer
-  linkNPC: 1
 --- !u!114 &7781193415436150992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,6 +240,19 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+--- !u!114 &5288681758117497085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3227871909907725305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76981e5a927d4ee3ea4df54936378c64, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
+  linkerType: 2
 --- !u!1 &6815400209941880697
 GameObject:
   m_ObjectHideFlags: 0

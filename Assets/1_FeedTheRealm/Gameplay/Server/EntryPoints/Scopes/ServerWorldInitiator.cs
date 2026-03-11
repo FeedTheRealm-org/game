@@ -63,6 +63,11 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
 
             builder.RegisterEntryPoint<ServerWorldLoader>(Lifetime.Singleton);
 
+            builder.RegisterBuildCallback(container =>
+            {
+                Debug.Log("Container built: " + container);
+            });
+
             if (config.IsDebugWorld && debugObjectPrefab != null)
                 builder.RegisterInstance(debugObjectPrefab);
         }
