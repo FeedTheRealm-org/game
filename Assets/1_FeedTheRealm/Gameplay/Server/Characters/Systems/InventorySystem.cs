@@ -8,7 +8,7 @@ using FTR.Core.Server.Events;
 using Mirror;
 using UnityEngine;
 
-namespace FTR.Gameplay.Server.Environment.Items
+namespace FTR.Gameplay.Server.Characters.Systems
 {
     /// <summary>
     /// LootItem represents an item in the game world that can be interacted with by players.
