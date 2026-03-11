@@ -46,6 +46,7 @@ namespace FTR.Core.Common.Config
         public string AccessToken => accessToken;
 #else
         public bool IsDebugWorld => false;
+        public bool DoNotLoadWorld => false;
         public string WorldID => string.Empty;
         public string AccessToken => string.Empty;
 #endif
