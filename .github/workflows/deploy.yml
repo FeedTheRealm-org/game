@@ -48,6 +48,6 @@ jobs:
               "docker image prune -af || true",
               "docker pull $IMAGE",
               "aws ssm get-parameters-by-path --path \"/ftr-server/\" --with-decryption --region ${{ secrets.AWS_REGION }} --query \"Parameters[*].[Name,Value]\" --output text | sed \"s#/ftr-server/##g; s#\\t#=#g\" > /tmp/ftr_server_env",
-              "docker run -d --restart always --name $SERVICE -p 37777:7777/udp --env-file /tmp/ftr_server_env $IMAGE",
+              "docker run -d --restart always --name $SERVICE -p 10000:7777/udp --env-file /tmp/ftr_server_env $IMAGE",
               "rm /tmp/ftr_server_env"
             ]}'
