@@ -52,16 +52,18 @@ public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILa
     public override string GetWorldId()
     {
         if (config.IsDebugWorld)
-            return !string.IsNullOrEmpty(worldSelector.GetSelectedWorldId())
-                ? worldSelector.GetSelectedWorldId()
-                : config.WorldID;
+            return !string.IsNullOrEmpty(config.WorldID)
+                ? config.WorldID
+                : worldSelector.GetSelectedWorldId();
         return worldSelector.GetSelectedWorldId();
     }
 
     public override string GetAccessToken()
     {
         if (config.IsDebugWorld)
-            return !string.IsNullOrEmpty(session.APIToken) ? session.APIToken : config.AccessToken;
+            return !string.IsNullOrEmpty(config.AccessToken)
+                ? config.AccessToken
+                : session.APIToken;
         return session.APIToken;
     }
 

@@ -479,6 +479,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1247304618364279643, guid: 334ffb846920fac09835f118a568db3c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1247304618364279643, guid: 334ffb846920fac09835f118a568db3c, type: 3}
+      propertyPath: lootPrefab
+      value: 
+      objectReference: {fileID: 5803050593894928880, guid: fdd7ce362fcd83eee996fe2464eebbb4, type: 3}
     - target: {fileID: 1384672184248248698, guid: 334ffb846920fac09835f118a568db3c, type: 3}
       propertyPath: m_Name
       value: LootItemSpawner

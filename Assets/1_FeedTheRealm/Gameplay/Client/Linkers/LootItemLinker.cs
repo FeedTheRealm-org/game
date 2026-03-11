@@ -24,18 +24,18 @@ public class ClientLootItemLinker : LootItemLinker
     {
         // Get from common character components
         var rb = gameObject.GetComponent<Rigidbody>();
-        var networkEventRouter = gameObject.GetComponent<NetworkEventRouter>();
+        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
         // Add client-side components
-        var lootItemVIsualComponent = Object.Instantiate(
+        var clientLootItemComponents = Object.Instantiate(
             prefabProvider.LootItemVisual,
             gameObject.transform
         );
-        resolver.InjectGameObject(lootItemVIsualComponent);
+        resolver.InjectGameObject(clientLootItemComponents);
 
-        var lootItemView = lootItemVIsualComponent.GetComponent<LootItemView>();
+        var networkEventRouter = clientLootItemComponents.GetComponent<NetworkEventRouter>();
+        var lootItemView = clientLootItemComponents.GetComponent<LootItemView>();
         lootItemView.Initialize(rb, networkEventRouter);
-
-        lootItemVIsualComponent.transform.SetParent(gameObject.transform);
+        networkEventRouter.Initialize(networkAdapter);
     }
 }

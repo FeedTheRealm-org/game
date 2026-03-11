@@ -10,10 +10,10 @@ namespace FTR.Gameplay.Server.Testing
     {
         [Header("Spawn settings")]
         [SerializeField]
-        private GameObject thingPrefab;
+        private GameObject lootPrefab;
 
         [SerializeField]
-        private int maxThings = 3;
+        private int maxLoots = 3;
 
         [SerializeField]
         private float spawnRate = 2f;
@@ -26,16 +26,17 @@ namespace FTR.Gameplay.Server.Testing
         private Logging.Logger logger;
         private Coroutine spawnRoutine;
 
-        private void Start()
+        private IEnumerator Start()
         {
-            logger.Log("[ThingSpawn] Spawner enabled.", this);
-            if (thingPrefab == null)
-                throw new System.Exception("Thing prefab not assigned on ThingSpawner!");
+            yield return new WaitUntil(() => NetworkServer.active);
+            logger.Log("[LootSpawn] Spawner Started.", this);
+            if (lootPrefab == null)
+                throw new System.Exception("Loot prefab not assigned on LootSpawner!");
 
             if (resolverContainer.Resolver == null)
             {
                 resolverContainer.OnResolverSet += awaitResolverInitialization;
-                return;
+                yield break;
             }
             spawnRoutine = StartCoroutine(SpawnLoots());
         }
@@ -60,12 +61,12 @@ namespace FTR.Gameplay.Server.Testing
         private IEnumerator SpawnLoots()
         {
             logger.Log("[LootSpawn] Spawn routine started.", this);
-            int currentThings = 0;
-            while (currentThings < maxThings)
+            int currentLoots = 0;
+            while (currentLoots < maxLoots)
             {
-                SpawnLoot();
-                currentThings++;
-                logger.Log($"[LootSpawn] Spawning loot. Current loot: {currentThings}", this);
+                SpawnLoot(currentLoots);
+                currentLoots++;
+                logger.Log($"[LootSpawn] Spawning loot. Current loot: {currentLoots}", this);
                 yield return new WaitForSeconds(spawnRate);
             }
             logger.Log("[LootSpawn] Spawn routine stopped.", this);
@@ -74,15 +75,16 @@ namespace FTR.Gameplay.Server.Testing
         /// <summary>
         /// Handles loot instantiation and listens on death event.
         /// </summary>
-        private void SpawnLoot()
+        private void SpawnLoot(int lootIndex = 0)
         {
             Vector3 point = transform.position;
-            GameObject thing = resolverContainer.Resolver?.Instantiate(
-                thingPrefab,
+            GameObject Loot = resolverContainer.Resolver?.Instantiate(
+                lootPrefab,
                 point,
                 Quaternion.identity
             );
-            NetworkServer.Spawn(thing);
+            Loot.name = $"LootItem-{lootIndex}";
+            NetworkServer.Spawn(Loot);
         }
     }
 }

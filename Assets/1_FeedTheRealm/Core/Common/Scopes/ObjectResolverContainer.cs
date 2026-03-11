@@ -11,6 +11,11 @@ namespace FTR.Core.Common.Scopes
 
         private IObjectResolver resolver = null;
 
+        private void OnEnable()
+        {
+            resolver = null;
+        }
+
         public IObjectResolver Resolver => resolver;
 
         public void SetResolver(IObjectResolver resolver)

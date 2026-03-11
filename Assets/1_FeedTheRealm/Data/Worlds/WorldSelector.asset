@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8541003cdc0217b6abdb728bf932ea9d, type: 3}
   m_Name: WorldSelector
   m_EditorClassIdentifier: FTR.Gameplay.Client::WorldSelector
-  SelectedWorldId: 0766db8b-0b59-4f3b-800a-1cc9a27b718b
+  SelectedWorldId: ed22f0a7-3704-42e1-a4e4-2b3d7036f70f
