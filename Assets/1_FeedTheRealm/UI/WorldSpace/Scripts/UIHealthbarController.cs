@@ -30,48 +30,48 @@ public class UIHealthbar : MonoBehaviour
 
     void Start()
     {
-        _root = GetComponent<UIDocument>().rootVisualElement;
+        // _root = GetComponent<UIDocument>().rootVisualElement;
 
-        _healthBar = _root.Q<ProgressBar>("WorldHealthBar");
-        if (_healthBar == null)
-        {
-            logger.Log("WorldHealthBar not found in UIDocument.", this, Logging.LogType.Error);
-            return;
-        }
+        // _healthBar = _root.Q<ProgressBar>("WorldHealthBar");
+        // if (_healthBar == null)
+        // {
+        //     logger.Log("WorldHealthBar not found in UIDocument.", this, Logging.LogType.Error);
+        //     return;
+        // }
 
-        // Resolve the owning NetworkIdentity (UIHealthbar lives on a child object).
-        // We find it by name and hold it as a MonoBehaviour to avoid requiring Mirror at compile time.
-        _networkIdentity = null;
-        var behaviours = GetComponentsInParent<MonoBehaviour>();
-        foreach (var b in behaviours)
-        {
-            if (b.GetType().Name == "NetworkIdentity")
-            {
-                _networkIdentity = b;
-                break;
-            }
-        }
+        // // Resolve the owning NetworkIdentity (UIHealthbar lives on a child object).
+        // // We find it by name and hold it as a MonoBehaviour to avoid requiring Mirror at compile time.
+        // _networkIdentity = null;
+        // var behaviours = GetComponentsInParent<MonoBehaviour>();
+        // foreach (var b in behaviours)
+        // {
+        //     if (b.GetType().Name == "NetworkIdentity")
+        //     {
+        //         _networkIdentity = b;
+        //         break;
+        //     }
+        // }
 
-        // The local player already has a dedicated HUD; hide the floating bar for them.
-        _isLocalPlayer = false;
-        if (_networkIdentity != null)
-        {
-            var prop = _networkIdentity.GetType().GetProperty("isLocalPlayer");
-            if (prop != null)
-            {
-                var val = prop.GetValue(_networkIdentity);
-                _isLocalPlayer = val is bool && (bool)val;
-            }
-        }
-        if (_isLocalPlayer)
-        {
-            _root.style.display = DisplayStyle.None;
-            return;
-        }
+        // // The local player already has a dedicated HUD; hide the floating bar for them.
+        // _isLocalPlayer = false;
+        // if (_networkIdentity != null)
+        // {
+        //     var prop = _networkIdentity.GetType().GetProperty("isLocalPlayer");
+        //     if (prop != null)
+        //     {
+        //         var val = prop.GetValue(_networkIdentity);
+        //         _isLocalPlayer = val is bool && (bool)val;
+        //     }
+        // }
+        // if (_isLocalPlayer)
+        // {
+        //     _root.style.display = DisplayStyle.None;
+        //     return;
+        // }
 
-        // Start hidden; visibility is toggled by HandleHealthChange.
-        _healthBar.value = _healthBar.highValue;
-        _root.style.display = DisplayStyle.None;
+        // // Start hidden; visibility is toggled by HandleHealthChange.
+        // _healthBar.value = _healthBar.highValue;
+        // _root.style.display = DisplayStyle.None;
     }
 
     private void OnEnable()

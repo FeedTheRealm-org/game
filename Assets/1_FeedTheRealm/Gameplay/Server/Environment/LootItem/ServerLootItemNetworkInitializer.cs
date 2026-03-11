@@ -16,10 +16,6 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         public override void OnStartServer()
         {
             base.OnStartServer();
-            Debug.Log(
-                $"ServerLootItemNetworkInitializer: OnStartServer - Injecting {gameObject.name}"
-            );
-
             var serverWorldInitiator = FindFirstObjectByType<ServerWorldInitiator>();
             serverWorldInitiator.Container.InjectGameObject(gameObject);
             GetComponent<GameObjectLinker>()?.Initialize();

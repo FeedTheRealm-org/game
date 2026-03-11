@@ -28,8 +28,6 @@ public class ServerLootItemLinker : LootItemLinker
 
     public override void Link(GameObject gameObject)
     {
-        Debug.Log($"Linking domain scripts for loot item {gameObject.name}");
-
         var rb = gameObject.GetComponent<Rigidbody>();
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
@@ -39,6 +37,7 @@ public class ServerLootItemLinker : LootItemLinker
             prefabProvider.ServerLootItemComponents,
             gameObject.transform
         );
+        serverComponents.layer = gameObject.layer;
 
         resolver.InjectGameObject(serverComponents);
 
@@ -47,11 +46,9 @@ public class ServerLootItemLinker : LootItemLinker
 
         // Initialize components
         lootItemController.Initialize(netId);
-        lootItemSystem.Initialize(rb, lootItemController, netId);
+        lootItemSystem.Initialize(rb, netId);
 
         RegisterEntity(netId, networkAdapter);
-
-        Debug.Log($"Linked domain scripts for loot item with netID {netId}");
     }
 
     public void RegisterEntity(uint netID, NetworkAdapter networkAdapter)
