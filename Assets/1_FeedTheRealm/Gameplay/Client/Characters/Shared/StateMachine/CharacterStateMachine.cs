@@ -18,8 +18,8 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
     [SerializeField]
     private UseController useController;
 
-    [SerializeField]
-    private PlayerInteractComponent interactComponent;
+    // [SerializeField]
+    // private PlayerInteractComponent interactComponent;
 
     [SerializeField]
     private CharacterAnimator characterAnimator;
@@ -44,7 +44,7 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
         if (
             movementController == null
             || useController == null
-            || interactComponent == null
+            // || interactComponent == null
             || characterAnimator == null
         )
         {
@@ -70,10 +70,10 @@ public class CharacterStateMachine : MonoBehaviour, IStateMachine
             typeof(CharacterUsingState),
             new CharacterUsingState(this, useController, characterAnimator)
         );
-        actionStates.Add(
-            typeof(CharacterInteractingState),
-            new CharacterInteractingState(this, interactComponent, characterAnimator)
-        );
+        // actionStates.Add(
+        //     typeof(CharacterInteractingState),
+        //     new CharacterInteractingState(this, interactComponent, characterAnimator)
+        // );
 
         SetMovementState(movementStates[typeof(CharacterIdleState)]);
     }
