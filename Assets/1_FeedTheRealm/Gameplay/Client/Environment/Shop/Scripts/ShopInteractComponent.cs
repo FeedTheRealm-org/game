@@ -1,4 +1,4 @@
-using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Common.Interactions;
 using UnityEngine;
 

@@ -1,0 +1,62 @@
+using FTR.Core.Server;
+using FTR.Core.Server.Entities;
+using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Server.Environment.LootItem;
+using Mirror;
+using UnityEngine;
+using VContainer;
+using VContainer.Unity;
+
+namespace FTR.Gameplay.Server.Linkers;
+
+public class ServerLootItemLinker : LootItemLinker
+{
+    private readonly WorldMonitor world;
+    private readonly ServerPrefabProvider prefabProvider;
+    private readonly IObjectResolver resolver;
+
+    public ServerLootItemLinker(
+        WorldMonitor world,
+        ServerPrefabProvider prefabProvider,
+        IObjectResolver resolver
+    )
+    {
+        this.world = world;
+        this.prefabProvider = prefabProvider;
+        this.resolver = resolver;
+    }
+
+    public override void Link(GameObject gameObject)
+    {
+        Debug.Log($"Linking domain scripts for loot item {gameObject.name}");
+
+        var rb = gameObject.GetComponent<Rigidbody>();
+        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
+        var netId = gameObject.GetComponent<NetworkIdentity>().netId;
+
+        // Add server-side components
+        var serverComponents = Object.Instantiate(
+            prefabProvider.ServerLootItemComponents,
+            gameObject.transform
+        );
+
+        resolver.InjectGameObject(serverComponents);
+
+        var lootItemSystem = serverComponents.GetComponent<LootItemSystem>();
+        var lootItemController = serverComponents.GetComponent<LootItemController>();
+
+        // Initialize components
+        lootItemController.Initialize(netId);
+        lootItemSystem.Initialize(rb, lootItemController, netId);
+
+        RegisterEntity(netId, networkAdapter);
+
+        Debug.Log($"Linked domain scripts for loot item with netID {netId}");
+    }
+
+    public void RegisterEntity(uint netID, NetworkAdapter networkAdapter)
+    {
+        var entity = new ServerEntity(netID, networkAdapter, null);
+        world.Entities.Register(netID, entity);
+    }
+}

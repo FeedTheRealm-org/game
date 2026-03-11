@@ -28,10 +28,14 @@ namespace FTR.Core.Common.Config
         public ushort Port = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
 
 #if DEBUG
-        [Header("World Loading Debug")]
+        [Header("Debug Settings")]
         [SerializeField]
         private bool isDebugWorld = false;
         public bool IsDebugWorld => isDebugWorld;
+
+        [SerializeField]
+        private bool doNotLoadWorld = false;
+        public bool DoNotLoadWorld => doNotLoadWorld;
 
         [SerializeField]
         private string worldID = "world_1";
@@ -42,6 +46,7 @@ namespace FTR.Core.Common.Config
         public string AccessToken => accessToken;
 #else
         public bool IsDebugWorld => false;
+        public bool DoNotLoadWorld => false;
         public string WorldID => string.Empty;
         public string AccessToken => string.Empty;
 #endif

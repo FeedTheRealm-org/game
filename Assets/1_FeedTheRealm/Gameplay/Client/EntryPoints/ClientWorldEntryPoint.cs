@@ -1,13 +1,16 @@
 using API;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Scopes;
+using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Common.WorldLoader;
-using FTR.Gameplay.LoaderEntities;
 using Logging;
 using VContainer;
 using VContainer.Unity;
 
 public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILateTickable
 {
+    private Config config;
     private TickEvent tickEvent;
 
     private FixedTickEvent fixedTickEvent;
@@ -22,6 +25,7 @@ public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILa
 
     [Inject]
     public ClientWorldEntryPoint(
+        Config config,
         TickEvent tickEvent,
         FixedTickEvent fixedTickEvent,
         LateTickEvent lateTickEvent,
@@ -29,25 +33,37 @@ public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILa
         WorldService worldService,
         Logger logger,
         LoaderProvider loaderProvider,
-        WorldSelector worldSelector
+        WorldSelector worldSelector,
+        IObjectResolver resolver,
+        ObjectResolverContainer resolverContainer
     )
-        : base(worldService, logger, loaderProvider)
+        : base(config, worldService, logger, loaderProvider)
     {
+        this.config = config;
         this.tickEvent = tickEvent;
         this.fixedTickEvent = fixedTickEvent;
         this.lateTickEvent = lateTickEvent;
         this.session = session;
         this.worldSelector = worldSelector;
+        resolverContainer.SetResolver(resolver);
         isInitialized = true;
     }
 
     public override string GetWorldId()
     {
+        if (config.IsDebugWorld)
+            return !string.IsNullOrEmpty(config.WorldID)
+                ? config.WorldID
+                : worldSelector.GetSelectedWorldId();
         return worldSelector.GetSelectedWorldId();
     }
 
     public override string GetAccessToken()
     {
+        if (config.IsDebugWorld)
+            return !string.IsNullOrEmpty(config.AccessToken)
+                ? config.AccessToken
+                : session.APIToken;
         return session.APIToken;
     }
 

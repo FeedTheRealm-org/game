@@ -1,74 +1,64 @@
 using API;
+using FeedTheRealm.Core.Client.EventChannels;
 using FTR.Core.Client;
-using FTR.Core.Client.EventChannels.Status;
-using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.EventChannels;
-using FTR.Core.Common.Loaders;
-using FTR.Gameplay.Client.Characters;
+using FTR.Gameplay.Client.Linkers;
+using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.WorldLoader;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class ClientWorldInitiator : LifetimeScope
+namespace FTR.Gameplay.Client.EntryPoints.Scopes
 {
-    [SerializeField]
-    private Config config;
-
-    [SerializeField]
-    private PlayerInputReader playerInputReader;
-
-    [SerializeField]
-    private ClientPrefabProvider prefabProvider;
-
-    [Header("Ticks")]
-    [SerializeField]
-    private TickEvent tickEvent;
-
-    [SerializeField]
-    private FixedTickEvent fixedTickEvent;
-
-    [SerializeField]
-    private LateTickEvent lateTickEvent;
-
-    [Header("Status")]
-    [SerializeField]
-    private StaminaChangedEvent staminaChangedEvent;
-
-    [SerializeField]
-    private Logging.Logger logger;
-
-    [SerializeField]
-    private WorldSelector worldSelector;
-
-    [SerializeField]
-    private WorldService worldService;
-
-    [SerializeField]
-    private LoaderProvider loaderProvider;
-
-    [SerializeField]
-    private Session.Session session;
-
-    protected override void Configure(IContainerBuilder builder)
+    public class ClientWorldInitiator : LifetimeScope
     {
-        if (config.RuntimeRole != RuntimeRole.Client)
-            return;
+        [SerializeField]
+        private Config config;
 
-        builder.RegisterInstance(playerInputReader);
-        builder.RegisterInstance(prefabProvider);
-        builder.RegisterInstance(tickEvent);
-        builder.RegisterInstance(fixedTickEvent);
-        builder.RegisterInstance(lateTickEvent);
-        builder.RegisterInstance(staminaChangedEvent);
-        builder.RegisterInstance(logger);
-        builder.RegisterInstance(worldSelector);
-        builder.RegisterInstance(worldService);
-        builder.RegisterInstance(loaderProvider);
-        builder.RegisterInstance(session);
-        builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
+        [SerializeField]
+        private PlayerInputReader playerInputReader;
 
-        builder.RegisterEntryPoint<ClientWorldEntryPoint>();
+        [SerializeField]
+        private ClientPrefabProvider prefabProvider;
+
+        [SerializeField]
+        private ClientEventRegistry clientEventRegistry;
+
+        [SerializeField]
+        private Logging.Logger logger;
+
+        [SerializeField]
+        private WorldSelector worldSelector;
+
+        [SerializeField]
+        private WorldService worldService;
+
+        [SerializeField]
+        private LoaderProvider loaderProvider;
+
+        [SerializeField]
+        private Session.Session session;
+
+        protected override void Configure(IContainerBuilder builder)
+        {
+            if (config.RuntimeRole != RuntimeRole.Client)
+                return;
+
+            clientEventRegistry.RegisterAll(builder);
+            builder.RegisterInstance(playerInputReader);
+            builder.RegisterInstance(prefabProvider);
+            builder.RegisterInstance(logger);
+            builder.RegisterInstance(worldSelector);
+            builder.RegisterInstance(worldService);
+            builder.RegisterInstance(loaderProvider);
+            builder.RegisterInstance(session);
+            builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
+            builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
+            builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
+            builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
+
+            builder.RegisterEntryPoint<ClientWorldEntryPoint>();
+        }
     }
 }

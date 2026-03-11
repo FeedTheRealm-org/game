@@ -8,33 +8,33 @@ public class CharacterInteractingState : IActionState
 {
     private IStateMachine stateMachine;
 
-    private PlayerInteractComponent interactComponent;
+    // private PlayerInteractComponent interactComponent;
     private CharacterAnimator animator;
 
     public CharacterInteractingState(
         IStateMachine sm,
-        PlayerInteractComponent interactComponent,
+        // PlayerInteractComponent interactComponent,
         CharacterAnimator animator
     )
     {
-        this.interactComponent = interactComponent;
+        // this.interactComponent = interactComponent;
         this.animator = animator;
         this.stateMachine = sm;
     }
 
     public void Enter()
     {
-        interactComponent.OnInteractFinished += OnInteractFinished;
-        stateMachine.ToggleBlockMovement(true);
-        stateMachine.ToggleBlockAction(true);
-        interactComponent.OnInteract();
+        // interactComponent.OnInteractFinished += OnInteractFinished;
+        // stateMachine.ToggleBlockMovement(true);
+        // stateMachine.ToggleBlockAction(true);
+        // interactComponent.OnInteract();
     }
 
     public void Exit()
     {
-        interactComponent.OnInteractFinished -= OnInteractFinished;
-        stateMachine.ToggleBlockMovement(false);
-        stateMachine.ToggleBlockAction(false);
+        // interactComponent.OnInteractFinished -= OnInteractFinished;
+        // stateMachine.ToggleBlockMovement(false);
+        // stateMachine.ToggleBlockAction(false);
     }
 
     private void OnInteractFinished()
@@ -45,7 +45,7 @@ public class CharacterInteractingState : IActionState
     public void Dispose()
     {
         stateMachine = null;
-        interactComponent = null;
+        // interactComponent = null;
         animator = null;
     }
 }

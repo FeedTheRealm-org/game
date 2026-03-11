@@ -1,17 +1,24 @@
 using System;
+using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Common.Systems.Status;
 using UnityEngine;
+using VContainer;
 
 public class NetworkEventRouter : MonoBehaviour
 {
     [SerializeField]
     private Logging.Logger logger;
 
+    [Inject]
+    private HealthChangedEvent healthChangedEvent;
+
     // List of subscribable ServerEvents
     public event Action<AttackEventContent> OnAttackEvent;
-    public event Action OnHitEvent;
+    public event Action<HitEventContent> OnHitEvent;
     public event Action<DashEventContent> OnDashEvent;
+    public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -44,8 +51,25 @@ public class NetworkEventRouter : MonoBehaviour
                 OnDashEvent?.Invoke(dashEvent);
                 break;
             case ServerEventType.HitEvent:
-                OnHitEvent?.Invoke();
+                if (serverEvent.content != null)
+                {
+                    var hitContent = HitEventContent.Parser.ParseFrom(serverEvent.content);
+                    healthChangedEvent?.Raise(
+                        new HealthChangedData(
+                            hitContent.TargetNetId,
+                            hitContent.CurrentHealth,
+                            hitContent.MaxHealth
+                        )
+                    );
+                    OnHitEvent?.Invoke(hitContent);
+                }
                 logger.Log($"Routed HitEvent", this);
+                break;
+            case ServerEventType.InitialForceEvent:
+                InitialForceEventContent lootItemSpawnEvent =
+                    InitialForceEventContent.Parser.ParseFrom(serverEvent.content);
+                OnLootItemSpawnEvent?.Invoke(lootItemSpawnEvent);
+                logger.Log($"Routed LootItemSpawnEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);

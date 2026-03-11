@@ -1,3 +1,4 @@
+using FTR.Core.Common.Enums;
 using UnityEngine;
 
 namespace FTR.Core.Common.Loaders;
@@ -8,5 +9,5 @@ namespace FTR.Core.Common.Loaders;
 /// </summary>
 public interface IScriptLinker
 {
-    void LinkDomainScripts(GameObject gameObject);
+    void Link(GameObject gameObject);
 }

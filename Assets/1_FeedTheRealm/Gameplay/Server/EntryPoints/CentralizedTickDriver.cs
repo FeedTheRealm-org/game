@@ -1,7 +1,9 @@
+using FTR.Core.Common.Scopes;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
-public sealed class CentralizedTickDriver : ITickable
+public sealed class CentralizedTickDriver : IStartable, ITickable
 {
     private readonly ServerTickDriver serverTickDriver;
     private readonly NetworkTickDriver networkTickDriver;
@@ -11,12 +13,17 @@ public sealed class CentralizedTickDriver : ITickable
 
     public CentralizedTickDriver(
         ServerTickDriver serverTickDriver,
-        NetworkTickDriver networkTickDriver
+        NetworkTickDriver networkTickDriver,
+        IObjectResolver resolver,
+        ObjectResolverContainer resolverContainer
     )
     {
         this.serverTickDriver = serverTickDriver;
         this.networkTickDriver = networkTickDriver;
+        resolverContainer.SetResolver(resolver);
     }
+
+    public void Start() { }
 
     /// <summary>
     /// Tick method is called by the VContainer's TickableManager every frame

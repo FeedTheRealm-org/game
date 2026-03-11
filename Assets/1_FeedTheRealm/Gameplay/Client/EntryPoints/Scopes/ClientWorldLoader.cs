@@ -4,25 +4,25 @@ using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server.Utils;
+using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Common.WorldLoader;
-using FTR.Gameplay.LoaderEntities;
 using FTRShared.Runtime.Models;
 using Logging;
 using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Scopes
 {
-    public class ServerWorldLoader : WorldLoader
+    public class ClientWorldLoader : WorldLoader
     {
         private readonly Config config;
 
-        public ServerWorldLoader(
+        public ClientWorldLoader(
             WorldService worldService,
             Logger logger,
             Config config,
             LoaderProvider loaderProvider
         )
-            : base(worldService, logger, loaderProvider)
+            : base(config, worldService, logger, loaderProvider)
         {
             this.config = config;
         }

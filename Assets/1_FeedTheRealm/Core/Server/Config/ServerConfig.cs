@@ -11,6 +11,15 @@ namespace FTR.Core.Server.Config
         private float playerSpeed = 5f;
         public float PlayerSpeed => playerSpeed;
 
+        [Header("Items")]
+        [SerializeField]
+        private uint itemDespawnTime = 120; // this is in seconds
+
+        [SerializeField]
+        private ushort maxInitialForce = 5; // default max force applied to the item when spawned
+        public uint ItemDespawnTime => itemDespawnTime;
+        public ushort MaxInitialForce => maxInitialForce;
+
         [Header("Dash")]
         [SerializeField]
         private float dashSpeed = 25f;

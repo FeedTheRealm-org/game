@@ -10,6 +10,7 @@ namespace FTR.Gameplay.Server.Characters
         private MovementSystem movementSystem;
         private DashSystem dashSystem;
         private UseSystem useSystem;
+        private InventorySystem inventorySystem;
 
         // TODO: Serialize field whatever possible
         public void Initialize(
@@ -47,5 +48,10 @@ namespace FTR.Gameplay.Server.Characters
         public void OnPurchase(IEventCollectable ec) { }
 
         public void OnQuestAccepted(IEventCollectable ec) { }
+
+        public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
+        {
+            inventorySystem.OnPickUp(ec, itemId, onComplete);
+        }
     }
 }

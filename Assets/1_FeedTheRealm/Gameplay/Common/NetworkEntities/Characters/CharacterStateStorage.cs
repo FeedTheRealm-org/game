@@ -15,17 +15,22 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnStaminaSync))]
         private float stamina;
 
+        [SyncVar(hook = nameof(OnHealthSync))]
+        private float health;
+
         /* --- Getters --- */
 
         public Vector3 Position => position;
         public Vector3 Direction => direction;
         public float Stamina => stamina;
+        public float Health => health;
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
 
         public event Action<Vector3> OnPositionCorrected;
         public event Action<Vector3> OnDirectionChanged;
         public event Action<float> OnStaminaChanged;
+        public event Action<float> OnHealthChanged;
 
         /* --- Setters --- */
 
@@ -47,6 +52,12 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             stamina = newStamina;
         }
 
+        [Server]
+        public void SetHealth(float newHealth)
+        {
+            health = newHealth;
+        }
+
         /* --- Syncvar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
@@ -62,6 +73,23 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private void OnStaminaSync(float oldStamina, float newStamina)
         {
             OnStaminaChanged?.Invoke(newStamina);
+        }
+
+        private void OnHealthSync(float oldHealth, float newHealth)
+        {
+            OnHealthChanged?.Invoke(newHealth);
+        }
+
+        public override void OnStartClient()
+        {
+            Debug.Log(
+                $"[CharacterStateStorage] Initial sync: position={position}, direction={direction}, stamina={stamina}, health={health}",
+                this
+            );
+            OnPositionSync(Vector3.zero, position);
+            OnDirectionSync(Vector3.zero, direction);
+            OnStaminaSync(0, stamina);
+            OnHealthSync(0, health);
         }
     }
 }

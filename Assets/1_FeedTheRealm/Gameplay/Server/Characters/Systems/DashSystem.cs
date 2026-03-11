@@ -55,6 +55,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
 
             Vector3 force = direction.normalized * config.DashSpeed;
+            if (force == Vector3.zero)
+                return;
+
             stateStorage.SetStamina(stateStorage.Stamina - config.DashStaminaCost);
             stateStorage.IsMovementBlocked = true;
             StartCoroutine(DashRoutine(force));
@@ -64,7 +67,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     netId,
                     new DashEventContent
                     {
-                        Force = new Force
+                        Force = new ProtoVector3
                         {
                             X = force.x,
                             Y = force.y,
