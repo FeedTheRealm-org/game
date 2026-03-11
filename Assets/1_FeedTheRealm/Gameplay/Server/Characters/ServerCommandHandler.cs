@@ -16,12 +16,14 @@ namespace FTR.Gameplay.Server.Characters
         public void Initialize(
             MovementSystem movementSystem,
             DashSystem dashSystem,
-            UseSystem useSystem
+            UseSystem useSystem,
+            InventorySystem inventorySystem
         )
         {
             this.movementSystem = movementSystem;
             this.dashSystem = dashSystem;
             this.useSystem = useSystem;
+            this.inventorySystem = inventorySystem;
         }
 
         public void OnMove(IEventCollectable ec, Vector3 direction)

@@ -1,4 +1,6 @@
+using System.Collections;
 using FTR.Core.Server.Commands;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using Mirror;
 using UnityEngine;
@@ -15,8 +17,12 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         [SerializeField]
         Logging.Logger logger;
 
+        [SerializeField]
+        private ServerConfig config;
+
         [Inject]
         private WorldMonitor worldMonitor;
+        private uint despawnTime = 10; // default despawn time in seconds
         private string id;
         private bool isPickedUp = false;
         public bool IsPickedUp => isPickedUp;
@@ -24,11 +30,14 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         public void Initialize(uint netId)
         {
             id = $"LootItem-{netId}";
+            despawnTime = config.ItemDespawnTime > 0 ? config.ItemDespawnTime : despawnTime;
             logger.Log($"Initialized LootItemController with ID: {id}", this);
+            StartCoroutine(DespawnAfterTimeout());
         }
 
         private void OnTriggerEnter(Collider other)
         {
+            Gizmos.color = Color.crimson;
             logger.Log($"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {id}).");
             if (isPickedUp)
                 return;
@@ -37,19 +46,38 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             isPickedUp = true;
         }
 
-        private void AfterPickup(bool success)
+        private void OnTriggerExit(Collider other)
         {
-            if (!success)
-                isPickedUp = false;
-            else
-                logger.Log($"{gameObject.name} (ID: {id}) picked up successfully, despawning...");
-            Destroy(gameObject);
+            Gizmos.color = Color.chocolate;
         }
 
         private void SendPickupCommand(uint playerId)
         {
             PickUpCommand command = new(playerId, id, AfterPickup);
             worldMonitor.Commands.Enqueue(command);
+        }
+
+        private void AfterPickup(bool success)
+        {
+            if (!success)
+                isPickedUp = false;
+            else
+                Despawn();
+        }
+
+        private IEnumerator DespawnAfterTimeout()
+        {
+            yield return new WaitForSeconds(despawnTime);
+            if (!isPickedUp)
+                Despawn();
+        }
+
+        private void Despawn()
+        {
+            logger.Log(
+                $"{gameObject.name} (ID: {id}) picked up status: {isPickedUp}, despawning..."
+            );
+            NetworkServer.Destroy(transform.parent.gameObject);
         }
 
         private void OnDrawGizmos()

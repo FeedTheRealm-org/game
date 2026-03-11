@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2082028261007521408}
   - component: {fileID: 159244127895327875}
   - component: {fileID: 5121831121043531446}
+  - component: {fileID: 4951664805709151255}
   m_Layer: 0
   m_Name: ServerCharacterComponents
   m_TagString: Untagged
@@ -138,4 +139,17 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.RespawnSystem
   respawnDelay: 3
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+--- !u!114 &4951664805709151255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056940003155735034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 790f1da818909d1e982f793433cf8ef2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.InventorySystem
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}

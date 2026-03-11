@@ -1,11 +1,6 @@
 using System;
-using FTR.Core.Common.Enums;
-using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
-using FTR.Core.Server.Commands;
-using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
-using Mirror;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
@@ -16,13 +11,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
     /// </summary>
     public class InventorySystem : MonoBehaviour, IGameTickable
     {
-        public void GameTick(float dt) { }
+        [SerializeField]
+        private Logging.Logger logger;
+        private uint netId;
+
+        public void Initialize(uint netId)
+        {
+            this.netId = netId;
+            logger.Log($"Initializing InventorySystem for player {netId}", this);
+        }
 
         internal void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete)
         {
-            var playerId = GetComponent<NetworkIdentity>().netId;
-            Debug.Log($"Attempting to pick up item {itemId} for player {playerId}");
+            logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
             onComplete(true);
         }
+
+        public void GameTick(float dt) { }
     }
 }

@@ -20,13 +20,13 @@ MonoBehaviour:
     rid: 1052504701295132739
   m_OverrideGlobalSceneList: 1
   m_Scenes:
-  - m_enabled: 1
+  - m_enabled: 0
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
-  - m_enabled: 1
+  - m_enabled: 0
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerWorld.unity
-  - m_enabled: 0
+  - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
-  - m_enabled: 0
+  - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientWorld.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
@@ -143,7 +143,7 @@ MonoBehaviour:
     - line: '|   xboxEnableFitness: 0'
     - line: '|   visibleInBackground: 1'
     - line: '|   allowFullscreenSwitch: 1'
-    - line: '|   fullscreenMode: 1'
+    - line: '|   fullscreenMode: 3'
     - line: '|   xboxSpeechDB: 0'
     - line: '|   xboxEnableHeadOrientation: 0'
     - line: '|   xboxEnableGuest: 0'

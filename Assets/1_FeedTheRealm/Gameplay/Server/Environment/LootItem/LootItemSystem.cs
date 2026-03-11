@@ -26,20 +26,15 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         [SerializeField]
         private ServerConfig config;
         private Rigidbody rb;
-        private LootItemController controller;
         private uint netId;
-        private uint despawnTime = 10; // default despawn time in seconds
         private ushort maxInitialForce = 5; // default max force applied to the item when spawned
 
-        public void Initialize(Rigidbody rb, LootItemController controller, uint netId)
+        public void Initialize(Rigidbody rb, uint netId)
         {
             this.rb = rb;
-            this.controller = controller;
             this.netId = netId;
-            despawnTime = config.ItemDespawnTime > 0 ? config.ItemDespawnTime : despawnTime;
             maxInitialForce = config.MaxInitialForce > 0 ? config.MaxInitialForce : maxInitialForce;
             SpawnItemWithForce();
-            StartCoroutine(DespawnObject());
         }
 
         private void SpawnItemWithForce()
@@ -74,17 +69,6 @@ namespace FTR.Gameplay.Server.Environment.LootItem
                 },
             };
             return new InitialForceEvent(netId, initialForceEventContent);
-        }
-
-        private IEnumerator DespawnObject()
-        {
-            yield return new WaitForSeconds(despawnTime);
-            if (!controller.IsPickedUp)
-            {
-                Transform parent = transform.parent;
-                GameObject targetToDestroy = parent != null ? parent.gameObject : gameObject;
-                NetworkServer.Destroy(targetToDestroy);
-            }
         }
 
         public void GameTick(float dt) { }
