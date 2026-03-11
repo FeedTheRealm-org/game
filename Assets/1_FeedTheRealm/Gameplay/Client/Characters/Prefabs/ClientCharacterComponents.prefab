@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5951985247975804607}
   - component: {fileID: 2124911000678282174}
   - component: {fileID: 4190128248899451067}
-  - component: {fileID: 148068392588541952}
   - component: {fileID: 8877544300867388926}
   - component: {fileID: 3218634496288659472}
   - component: {fileID: 3772100352833835385}
@@ -20,7 +19,6 @@ GameObject:
   - component: {fileID: 8113882516953622363}
   - component: {fileID: 5535709811406022713}
   - component: {fileID: -4974415550214178087}
-  - component: {fileID: 7398143452449177882}
   m_Layer: 7
   m_Name: ClientCharacterComponents
   m_TagString: Player
@@ -59,7 +57,6 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   movementController: {fileID: 3218634496288659472}
   useController: {fileID: 6878487654893383278}
-  interactComponent: {fileID: 148068392588541952}
   characterAnimator: {fileID: 4486304355727522199}
 --- !u!114 &4190128248899451067
 MonoBehaviour:
@@ -77,24 +74,6 @@ MonoBehaviour:
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   itemAssetsService: {fileID: 0}
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
---- !u!114 &148068392588541952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27cb3e8d20e333bf08767c2f29f0e3b1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractComponent
-  interactionRadius: 2
-  interactableLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &8877544300867388926
 MonoBehaviour:
@@ -200,18 +179,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
   maxHealth: 100
---- !u!114 &7398143452449177882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c02f1dec74824ee7a5f38cd6774d20b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Client::HitView
   animator: {fileID: 4486304355727522199}
 --- !u!1001 &3728965444176374322
 PrefabInstance:

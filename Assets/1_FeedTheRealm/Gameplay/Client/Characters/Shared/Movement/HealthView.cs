@@ -5,20 +5,21 @@ using UnityEngine;
 using VContainer;
 
 /// <summary>
-/// Propagates health changes from the CharacterStateStorage SyncVar to the
-/// HealthChangedEvent channel (HUD and world-space bars).
-/// Animation reactions (damaged / death) are handled by HitView.
+/// Propagates health changes from CharacterStateStorage to the HealthChangedEvent
+/// channel (local player HUD) and drives character animations for all characters.
 /// </summary>
 public class HealthView : MonoBehaviour
 {
     [Inject]
     private HealthChangedEvent healthChangedEvent;
 
-    /// <summary>
-    /// Maximum health for this character. Should match the server-side HealthSystem.MaxHealth.
-    /// </summary>
     [SerializeField]
     private float maxHealth = 100f;
+
+    [SerializeField]
+    private CharacterAnimator animator;
+
+    public float MaxHealth => maxHealth;
 
     private CharacterStateStorage stateStorage;
 
@@ -26,7 +27,7 @@ public class HealthView : MonoBehaviour
     {
         this.stateStorage = stateStorage;
         stateStorage.OnHealthChanged += OnHealthChanged;
-        RaiseEvent(stateStorage.Health);
+        RaiseHudEvent(stateStorage.Health);
     }
 
     private void OnDestroy()
@@ -37,13 +38,28 @@ public class HealthView : MonoBehaviour
 
     private void OnHealthChanged(float value)
     {
-        RaiseEvent(value);
+        RaiseHudEvent(value);
+        UpdateAnimation(value);
     }
 
-    private void RaiseEvent(float currentHealth)
+    private void RaiseHudEvent(float currentHealth)
     {
-        healthChangedEvent?.Raise(
-            new HealthChangedData(stateStorage.netId, currentHealth, maxHealth)
-        );
+        if (!stateStorage.isLocalPlayer)
+            return;
+
+        healthChangedEvent?.Raise(new HealthChangedData(currentHealth, maxHealth));
+    }
+
+    private void UpdateAnimation(float currentHealth)
+    {
+        if (animator == null)
+            return;
+
+        if (currentHealth <= 0f)
+            animator.PlayDeath();
+        else if (currentHealth < maxHealth)
+            animator.PlayDamaged();
+        else
+            animator.PlayIdle();
     }
 }

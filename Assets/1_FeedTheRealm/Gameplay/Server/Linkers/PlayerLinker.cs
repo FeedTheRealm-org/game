@@ -1,6 +1,5 @@
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Linkers;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
@@ -30,18 +29,10 @@ public class ServerPlayerLinker : PlayerLinker
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
-        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var respawnSystem = serverComponents.GetComponent<RespawnSystem>();
 
-        respawnSystem.Initialize(
-            netId,
-            networkAdapter,
-            serverCommandHandler,
-            stateStorage,
-            rb,
-            healthSystem
-        );
+        respawnSystem.Initialize(netId, networkAdapter, serverCommandHandler, rb, healthSystem);
     }
 }

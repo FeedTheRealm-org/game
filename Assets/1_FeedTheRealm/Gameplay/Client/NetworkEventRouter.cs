@@ -1,22 +1,15 @@
 using System;
-using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
-using FTR.Core.Common.Systems.Status;
 using UnityEngine;
-using VContainer;
 
 public class NetworkEventRouter : MonoBehaviour
 {
     [SerializeField]
     private Logging.Logger logger;
 
-    [Inject]
-    private HealthChangedEvent healthChangedEvent;
-
     // List of subscribable ServerEvents
     public event Action<AttackEventContent> OnAttackEvent;
-    public event Action<HitEventContent> OnHitEvent;
     public event Action<DashEventContent> OnDashEvent;
     public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
 
@@ -49,21 +42,6 @@ public class NetworkEventRouter : MonoBehaviour
                 DashEventContent dashEvent = DashEventContent.Parser.ParseFrom(serverEvent.content);
                 logger.Log($"Routed DashEvent", this);
                 OnDashEvent?.Invoke(dashEvent);
-                break;
-            case ServerEventType.HitEvent:
-                if (serverEvent.content != null)
-                {
-                    var hitContent = HitEventContent.Parser.ParseFrom(serverEvent.content);
-                    healthChangedEvent?.Raise(
-                        new HealthChangedData(
-                            hitContent.TargetNetId,
-                            hitContent.CurrentHealth,
-                            hitContent.MaxHealth
-                        )
-                    );
-                    OnHitEvent?.Invoke(hitContent);
-                }
-                logger.Log($"Routed HitEvent", this);
                 break;
             case ServerEventType.InitialForceEvent:
                 InitialForceEventContent lootItemSpawnEvent =

@@ -55,7 +55,7 @@ public class ServerCharacterLinker
         dashSystem.Initialize(netId, rb, stateStorage);
         useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
-        healthSystem.Initialize(netId);
+        healthSystem.Initialize(netId, stateStorage);
         inventorySystem.Initialize(netId);
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, inventorySystem);
