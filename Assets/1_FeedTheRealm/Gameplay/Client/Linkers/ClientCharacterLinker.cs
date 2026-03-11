@@ -38,7 +38,6 @@ public class ClientCharacterLinker
         var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
         var movementView = playerComponents.GetComponent<MovementView>();
         var attackView = playerComponents.GetComponent<AttackView>();
-        var hitView = playerComponents.GetComponent<HitView>();
         var dashView = playerComponents.GetComponent<DashView>();
         var staminaView = playerComponents.GetComponent<StaminaView>();
         var healthView = playerComponents.GetComponent<HealthView>();
@@ -49,7 +48,6 @@ public class ClientCharacterLinker
         networkEventRouter.Initialize(networkAdapter);
         movementView.Initialize(rb, stateStorage);
         attackView.Initialize(networkEventRouter);
-        hitView.Initialize(networkEventRouter);
         dashView.Initialize(rb, stateStorage, networkEventRouter);
         staminaView.Initialize(stateStorage);
         healthView?.Initialize(stateStorage);

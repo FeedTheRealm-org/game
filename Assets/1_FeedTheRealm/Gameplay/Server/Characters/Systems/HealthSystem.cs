@@ -1,5 +1,6 @@
 using System;
 using FTR.Core.Common.Utils;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
@@ -17,13 +18,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private float currentHealth;
         private uint netId;
+        private CharacterStateStorage stateStorage;
 
         private bool isInitialized = false;
 
-        public void Initialize(uint netId)
+        public void Initialize(uint netId, CharacterStateStorage stateStorage)
         {
             this.netId = netId;
+            this.stateStorage = stateStorage;
             isInitialized = true;
+            stateStorage.SetHealth(currentHealth);
         }
 
         private void Awake()
@@ -39,6 +43,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return true;
 
             currentHealth -= damage;
+            stateStorage.SetHealth(Mathf.Max(0f, currentHealth));
             logger.Log($"Took {damage} damage, current health: {currentHealth}", this);
             var isDead = currentHealth <= 0;
             if (isDead)
@@ -50,6 +55,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void ResetHealth()
         {
             currentHealth = MaxHealth;
+            stateStorage.SetHealth(MaxHealth);
             logger.Log($"Health reset to {MaxHealth}", this);
         }
 

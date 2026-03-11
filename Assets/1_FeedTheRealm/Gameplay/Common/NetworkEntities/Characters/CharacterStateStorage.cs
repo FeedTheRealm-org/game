@@ -1,10 +1,11 @@
 using System;
+using FTR.Core.Common.Characters;
 using Mirror;
 using UnityEngine;
 
 namespace FTR.Gameplay.Common.NetworkEntities.Characters
 {
-    public class CharacterStateStorage : NetworkBehaviour
+    public class CharacterStateStorage : NetworkBehaviour, ICharacterHealthSource
     {
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
@@ -24,6 +25,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public Vector3 Direction => direction;
         public float Stamina => stamina;
         public float Health => health;
+        public bool IsLocalPlayer => isLocalPlayer;
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
 

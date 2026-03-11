@@ -2,7 +2,6 @@ using System.Collections;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Entities;
 using FTR.Core.Server.Events;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 
@@ -30,7 +29,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
         private NetworkAdapter networkAdapter;
         private ServerCommandHandler commandHandler;
-        private CharacterStateStorage stateStorage;
         private Rigidbody rb;
         private HealthSystem healthSystem;
 
@@ -38,7 +36,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             uint netId,
             NetworkAdapter networkAdapter,
             ServerCommandHandler commandHandler,
-            CharacterStateStorage stateStorage,
             Rigidbody rb,
             HealthSystem healthSystem
         )
@@ -46,7 +43,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.netId = netId;
             this.networkAdapter = networkAdapter;
             this.commandHandler = commandHandler;
-            this.stateStorage = stateStorage;
             this.rb = rb;
             this.healthSystem = healthSystem;
 
@@ -65,9 +61,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnDeath(uint _)
         {
-            // Sync the 0 health to all clients immediately so UIs update.
-            stateStorage.SetHealth(0);
-
             logger.Log(
                 $"[RespawnSystem] Player {netId} died. Respawning in {respawnDelay}s.",
                 this
@@ -86,7 +79,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             yield return new WaitForSeconds(respawnDelay);
 
             healthSystem.ResetHealth();
-            stateStorage.SetHealth(healthSystem.MaxHealth);
 
             // TODO: Replace with a spawn-point lookup (spawner provider could help, but need
             // spawn loading system to be implemented first).

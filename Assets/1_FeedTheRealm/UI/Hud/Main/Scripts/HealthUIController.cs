@@ -1,4 +1,3 @@
-using System;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Common.Systems.Status;
 using UnityEngine;
@@ -6,7 +5,9 @@ using UnityEngine.UIElements;
 using VContainer;
 
 /// <summary>
-/// Handles health UI updates. Attach to the same GameObject as UIDocument.
+/// Handles health UI updates for the local player's HUD.
+/// HealthView only raises HealthChangedEvent for the local player,
+/// so no netId filtering or networking logic is needed here.
 /// </summary>
 [RequireComponent(typeof(UIDocument))]
 public class HealthUIController : MonoBehaviour
@@ -15,12 +16,9 @@ public class HealthUIController : MonoBehaviour
     private Logging.Logger logger;
 
     private ProgressBar _healthBar;
-    private ulong _ownerNetId = 0;
 
     [Inject]
     private HealthChangedEvent healthChangedEvent;
-    private bool _isLocalPlayer;
-    private MonoBehaviour _networkIdentity;
 
     private void Start()
     {
@@ -48,40 +46,6 @@ public class HealthUIController : MonoBehaviour
         }
 
         _healthBar.value = _healthBar.highValue;
-        var behaviours = GetComponentsInParent<MonoBehaviour>();
-        foreach (var b in behaviours)
-        {
-            if (b.GetType().Name == "NetworkIdentity")
-            {
-                _networkIdentity = b;
-                break;
-            }
-        }
-
-        _isLocalPlayer = false;
-
-        if (_networkIdentity != null)
-        {
-            var prop = _networkIdentity.GetType().GetProperty("isLocalPlayer");
-            _isLocalPlayer = prop != null && (bool)prop.GetValue(_networkIdentity);
-        }
-
-        if (_networkIdentity != null)
-        {
-            var propNetId = _networkIdentity.GetType().GetProperty("netId");
-            if (propNetId != null)
-            {
-                var val = propNetId.GetValue(_networkIdentity);
-                try
-                {
-                    _ownerNetId = Convert.ToUInt64(val);
-                }
-                catch
-                {
-                    _ownerNetId = 0;
-                }
-            }
-        }
     }
 
     private void OnEnable()
@@ -96,44 +60,11 @@ public class HealthUIController : MonoBehaviour
 
     private void OnHealthChanged(HealthChangedData data)
     {
-        // Ignore events for other entities or when bar is not yet initialised.
-        if (_healthBar == null || _networkIdentity == null)
+        if (_healthBar == null)
             return;
 
-        // Ensure this UI belongs to the local player and matches the event's NetId.
-        if (!_isLocalPlayer)
-            return;
-
-        ulong ownerNetId = _ownerNetId;
-        if (ownerNetId == 0)
-        {
-            var prop = _networkIdentity.GetType().GetProperty("netId");
-            if (prop != null)
-            {
-                var val = prop.GetValue(_networkIdentity);
-                try
-                {
-                    ownerNetId = Convert.ToUInt64(val);
-                }
-                catch
-                {
-                    ownerNetId = 0;
-                }
-            }
-            _ownerNetId = ownerNetId;
-        }
-
-        if (data.NetId != ownerNetId)
-        {
-            //Debug.Log($"[HealthUIController] Ignoring health event for NetId={data.NetId}, ownerNetId={ownerNetId}");
-            return;
-        }
-
-        // Map current health to the progress bar's 0-highValue range.
         _healthBar.value =
-            data.MaxHealth > 0
-                ? data.CurrentHealth / (float)data.MaxHealth * _healthBar.highValue
-                : 0;
+            data.MaxHealth > 0 ? data.CurrentHealth / data.MaxHealth * _healthBar.highValue : 0;
 
         if (_healthBar.value < 0)
             _healthBar.value = 0;
