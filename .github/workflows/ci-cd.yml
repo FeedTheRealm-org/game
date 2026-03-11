@@ -3,9 +3,7 @@ name: CI/CD
 on:
   push:
     tags:
-      - "*"
-    branches:
-      - devops-16/node-agent
+      - "v*"
 
 jobs:
   build:

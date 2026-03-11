@@ -1,7 +1,7 @@
 ---
-name: Mirror GHCR image to AWS ECR
+name: Build
 
-"on":
+on:
   workflow_call:
     secrets:
       AWS_ROLE_ARN:
@@ -16,7 +16,7 @@ name: Mirror GHCR image to AWS ECR
 permissions:
   contents: read
   packages: read
-  id-token: write
+  id-token: write # OIDC required
 
 env:
   IMAGE_NAME: ftr-server
@@ -25,70 +25,47 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
+
     steps:
-      - name: Extract tag
-        id: vars
+      - uses: actions/checkout@v4
+
+      - name: Prepare image variables
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          REPO_OWNER="${{ github.repository_owner }}"
-          OWNER=$(echo "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          TAG="${{ github.ref_name }}"
+          GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}:${TAG}"
 
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "owner=$OWNER" >> $GITHUB_OUTPUT
-
-          echo "Tag: $TAG"
-          echo "Owner: $OWNER"
+          echo "OWNER=$OWNER" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "GHCR_IMAGE=$GHCR_IMAGE" >> $GITHUB_ENV
 
       - name: Login to GHCR
         run: |
           GHCR_USER="${{ github.actor }}"
-          echo "${{ secrets.GITHUB_TOKEN }}" |
-            docker login ghcr.io -u "$GHCR_USER" --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
       - name: Pull image from GHCR
         run: |
-          OWNER="${{ steps.vars.outputs.owner }}"
-          GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}"
-          GHCR_IMAGE="${GHCR_IMAGE}:${{ steps.vars.outputs.tag }}"
-          echo "Pulling $GHCR_IMAGE"
           docker pull "$GHCR_IMAGE"
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
-      # - name: Login to Amazon ECR
-      #   uses: aws-actions/amazon-ecr-login@v2
-      - name: List Docker images after pull
-        run: docker images
+      - name: Set Image Tag for ECR
+        id: tag
+        run: echo "image_tag=$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-        # - name: Tag image for ECR
-        #   run: |
-        #     OWNER="${{ steps.vars.outputs.owner }}"
-        #     GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}"
-        #     GHCR_IMAGE="${GHCR_IMAGE}:${{ steps.vars.outputs.tag }}"
-        #     ECR_REGISTRY="${{ secrets.ECR_REGISTRY }}"
-        #     ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
-        #     ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}"
-        #     ECR_IMAGE="${ECR_IMAGE}:${{ steps.vars.outputs.tag }}"
-        #     docker tag "$GHCR_IMAGE" "$ECR_IMAGE"
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Push image to ECR
-      #   run: |
-      #     ECR_REGISTRY="${{ secrets.ECR_REGISTRY }}"
-      #     ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
-      #     ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}"
-      #     ECR_IMAGE="${ECR_IMAGE}:${{ steps.vars.outputs.tag }}"
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-      #     echo "Pushing $ECR_IMAGE"
-      #     docker push "$ECR_IMAGE"
+      - name: Tag & Push to ECR
+        run: |
+          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.tag.outputs.image_tag }}
 
-      # - name: Show pushed image
-      #   run: |
-      #     echo "Image published to AWS ECR:"
-      #     ECR_REGISTRY="${{ secrets.ECR_REGISTRY }}"
-      #     ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
-      #     ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}"
-      #     ECR_IMAGE="${ECR_IMAGE}:${{ steps.vars.outputs.tag }}"
-      #     echo "$ECR_IMAGE"
+          docker tag "$GHCR_IMAGE" "$IMAGE_URI"
+          docker push "$IMAGE_URI"
