@@ -7460,7 +7460,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4206263688755458190}
   - component: {fileID: 6309870974530971492}
-  - component: {fileID: 5342159936205048522}
   - component: {fileID: 1008098618709365669}
   m_Layer: 0
   m_Name: Body
@@ -7510,21 +7509,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5342159936205048522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3539730328510245114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3317660f7c9fd0d448ff848edde4bc1b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationEvents
-  logger: {fileID: 11400000, guid: e566741b31fec873c94b2868946ab81d, type: 2}
-  attackComponent: {fileID: 0}
-  healthComponent: {fileID: 0}
 --- !u!114 &1008098618709365669
 MonoBehaviour:
   m_ObjectHideFlags: 0
