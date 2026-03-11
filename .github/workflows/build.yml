@@ -33,11 +33,9 @@ jobs:
       - name: Prepare image variables
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          TAG="${{ github.ref_name }}"
-          GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}:${TAG}"
+          GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}:latest"
 
           echo "OWNER=$OWNER" >> $GITHUB_ENV
-          echo "TAG=$TAG" >> $GITHUB_ENV
           echo "GHCR_IMAGE=$GHCR_IMAGE" >> $GITHUB_ENV
 
       - name: Login to GHCR
