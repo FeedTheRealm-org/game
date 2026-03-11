@@ -1,20 +1,25 @@
 using FTR.Core.Server;
+using FTR.Gameplay.Common.Linkers;
 using UnityEngine;
 using VContainer;
 
 namespace FTR.Gameplay.Server.Linkers;
 
-public class ServerAggresiveNpcLinker : BaseServerPlayerLinker
+public class ServerAggresiveNpcLinker : AggresiveNpcLinker
 {
+    private ServerCharacterLinker characterLinker;
+
     public ServerAggresiveNpcLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
         IObjectResolver resolver
     )
-        : base(world, prefabProvider, resolver) { }
+    {
+        this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
+    }
 
     public override void Link(GameObject gameObject)
     {
-        base.Link(gameObject);
+        characterLinker.Link(gameObject);
     }
 }

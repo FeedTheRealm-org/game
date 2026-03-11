@@ -11,13 +11,13 @@ using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Linkers;
 
-public class BaseServerPlayerLinker : PlayerLinker
+public class ServerCharacterLinker
 {
     private readonly WorldMonitor world;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
 
-    public BaseServerPlayerLinker(
+    public ServerCharacterLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
         IObjectResolver resolver
@@ -28,7 +28,7 @@ public class BaseServerPlayerLinker : PlayerLinker
         this.resolver = resolver;
     }
 
-    public override void Link(GameObject gameObject)
+    public void Link(GameObject gameObject)
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
@@ -36,12 +36,10 @@ public class BaseServerPlayerLinker : PlayerLinker
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
         // Add server-side components
-        var serverComponents = Object.Instantiate(
+        var serverComponents = resolver.Instantiate(
             prefabProvider.ServerCharacterComponents,
             gameObject.transform
         );
-
-        resolver.InjectGameObject(serverComponents);
 
         var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
@@ -61,7 +59,6 @@ public class BaseServerPlayerLinker : PlayerLinker
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem);
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);
-        gameObject.name = $"Player-{netId}";
 
         Debug.Log($"Linked domain scripts for character with netID {netId}");
     }
