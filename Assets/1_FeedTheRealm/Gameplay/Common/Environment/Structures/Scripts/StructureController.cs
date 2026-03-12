@@ -26,6 +26,7 @@ namespace FTR.Gameplay.Common.Environment.Structures
         private void SetupMesh(GameObject visualPrefab)
         {
             visualInstance = Instantiate(visualPrefab, transform);
+            visualInstance.SetActive(true);
             visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             visualInstance.transform.localScale = structureData.size;
         }

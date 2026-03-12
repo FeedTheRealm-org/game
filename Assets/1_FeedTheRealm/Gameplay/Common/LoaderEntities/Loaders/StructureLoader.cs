@@ -26,6 +26,8 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
         [SerializeField]
         private GameObject structurePrefab;
 
+        private Dictionary<string, GameObject> modelCache = new();
+
         public async UniTask Load(WorldData worldData)
         {
             Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(
@@ -37,7 +39,7 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
             foreach (StructureData structureData in structures)
             {
                 string modelUrl = modelsInfo[structureData.id].url;
-                GameObject visual = await gltfLoaderService.DownloadModel(modelUrl);
+                GameObject visual = await GetModel(modelUrl);
 
                 GameObject instance = Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
@@ -48,6 +50,19 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
                 if (config.RuntimeRole == RuntimeRole.Server)
                     controller.RemoveVisual();
             }
+            modelCache.Clear();
+            modelsInfo.Clear();
+        }
+
+        private async UniTask<GameObject> GetModel(string modelUrl)
+        {
+            if (modelCache.ContainsKey(modelUrl))
+                return modelCache[modelUrl];
+
+            GameObject visual = await gltfLoaderService.DownloadModel(modelUrl);
+            visual.SetActive(false);
+            modelCache[modelUrl] = visual;
+            return visual;
         }
     }
 }
