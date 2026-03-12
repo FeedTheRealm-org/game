@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2196047904509115693}
   - component: {fileID: 6267335180071075295}
   m_Layer: 0
-  m_Name: EnemySpawnerLoader
+  m_Name: AggresiveNpcSpawnerLoader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

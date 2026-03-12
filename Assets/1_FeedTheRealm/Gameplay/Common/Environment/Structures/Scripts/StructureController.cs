@@ -8,30 +8,40 @@ namespace FTR.Gameplay.Common.Environment.Structures
         private StructureData structureData;
         public StructureData Data => structureData;
 
-        public void Initialize(StructureData structureData)
+        private GameObject visualInstance;
+
+        public void Initialize(StructureData structureData, GameObject visualPrefab)
         {
             this.structureData = structureData;
-            transform.position = this.structureData.position;
-            transform.rotation = Quaternion.Euler(this.structureData.rotation);
+
+            transform.position = structureData.position;
+            transform.rotation = Quaternion.Euler(structureData.rotation);
             transform.localScale = Vector3.one;
 
+            SetupVisual(visualPrefab);
             SetupCollider();
         }
 
-        public void SetVisualModel(GameObject visualModel)
+        private void SetupVisual(GameObject visualPrefab)
         {
-            visualModel.transform.SetParent(gameObject.transform);
-            visualModel.SetActive(true);
-            visualModel.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            visualModel.transform.localScale = structureData.size;
+            visualInstance = Instantiate(visualPrefab, transform);
+            visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            visualInstance.transform.localScale = structureData.size;
         }
 
         private void SetupCollider()
         {
-            BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
-            boxCollider.size = structureData.colliderSize;
-            boxCollider.center = structureData.colliderCenter;
-            boxCollider.isTrigger = false;
+            MeshFilter meshFilter = visualInstance.GetComponentInChildren<MeshFilter>();
+
+            if (meshFilter == null)
+            {
+                Debug.LogWarning("No MeshFilter found for collider.");
+                return;
+            }
+
+            MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
+            meshCollider.sharedMesh = meshFilter.sharedMesh;
+            meshCollider.convex = false;
         }
     }
 }
