@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using FTR.Core.Client.EventChannels.Status;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 [RequireComponent(typeof(UIDocument))]
 public class InventoryUIController : MonoBehaviour
@@ -9,15 +11,21 @@ public class InventoryUIController : MonoBehaviour
     private const int InventoryColumns = 4;
     private const int InventorySlotCount = InventoryRows * InventoryColumns;
 
-    [SerializeField]
+    [Inject]
     private LastItemChangedEvent lastItemChangedEvent;
 
+    [SerializeField]
+    private PlayerInputReader inputReader;
+
     private UIDocument uiDocument;
+
     private readonly VisualElement[] slots = new VisualElement[InventorySlotCount];
 
     private void OnEnable()
     {
         CacheSlots();
+
+        inputReader.InventoryEvent += OnInventoryInput;
 
         if (lastItemChangedEvent != null)
             lastItemChangedEvent.OnRaised += OnLastItemChanged;
@@ -25,8 +33,19 @@ public class InventoryUIController : MonoBehaviour
 
     private void OnDisable()
     {
+        inputReader.InventoryEvent -= OnInventoryInput;
+
         if (lastItemChangedEvent != null)
             lastItemChangedEvent.OnRaised -= OnLastItemChanged;
+    }
+
+    private void OnInventoryInput()
+    {
+        Debug.Log("Inventory input received. Toggling inventory UI.");
+        var panel = uiDocument.rootVisualElement.Q<VisualElement>("Panel");
+
+        if (panel != null)
+            panel.visible = !panel.visible;
     }
 
     private void OnLastItemChanged((string, int) data)

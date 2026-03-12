@@ -8,5 +8,6 @@ namespace FTR.Core.Client
         public GameObject ClientCharacterComponents;
         public GameObject HudComponent;
         public GameObject LootItemVisual;
+        public GameObject InventoryHudComponent;
     }
 }

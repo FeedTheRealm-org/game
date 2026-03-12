@@ -36,6 +36,14 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.InjectGameObject(hudComponent);
             hudComponent.SetActive(true);
 
+            prefabProvider.InventoryHudComponent.SetActive(false);
+            var inventoryHudComponent = Object.Instantiate(
+                prefabProvider.InventoryHudComponent,
+                gameObject.transform
+            );
+            resolver.InjectGameObject(inventoryHudComponent);
+            inventoryHudComponent.SetActive(true);
+
             var playerController = gameObject.AddComponent<PlayerController>();
             resolver.Inject(playerController);
             playerController.Initialize(characterStateMachine);
