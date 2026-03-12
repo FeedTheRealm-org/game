@@ -60,18 +60,23 @@ public class FTRNetworkManager : NetworkManager
     {
         logger.Log("[NetworkManager] Starting NetworkManager...", this);
         base.Start();
-        // Mirror does not recognize build modes, so we have to manually start it here
-        // by either starting a server or a client based on the builds Scripts Defines
-        // (you can see these symbols in the proper build profiles).
+
+        KcpTransport kcp = Transport.active as KcpTransport;
         if (config.RuntimeRole == RuntimeRole.Server)
         {
-            KcpTransport kcp = Transport.active as KcpTransport;
-            if (kcp != null)
-                kcp.Port = config.Port;
+            networkAddress = "0.0.0.0";
+            kcp.Port = config.ListeningPort;
+            logger.Log($"[NetworkManager] Starting server on port {kcp.Port}", this);
             StartServer();
         }
         else if (config.RuntimeRole == RuntimeRole.Client)
         {
+            networkAddress = config.CurrentServerAddress;
+            kcp.Port = config.CurrentServerPort;
+            logger.Log(
+                $"[NetworkManager] Starting client, connecting to {networkAddress}:{kcp.Port}",
+                this
+            );
             StartClient();
         }
     }
@@ -250,6 +255,11 @@ public class FTRNetworkManager : NetworkManager
     /// <param name="conn">Connection from client.</param>
     public override void OnServerDisconnect(NetworkConnectionToClient conn)
     {
+        logger.Log(
+            $"[NetworkManager] Client disconnected: connectionId={conn.connectionId}, address={conn.address}",
+            this,
+            Logging.LogType.Warning
+        );
         base.OnServerDisconnect(conn);
     }
 
@@ -264,7 +274,14 @@ public class FTRNetworkManager : NetworkManager
         NetworkConnectionToClient conn,
         TransportError transportError,
         string message
-    ) { }
+    )
+    {
+        logger.Log(
+            $"[NetworkManager] Server transport error: {transportError}, connectionId={conn?.connectionId}, message={message}",
+            this,
+            Logging.LogType.Error
+        );
+    }
 
     /// <summary>
     /// Called on server when transport raises an exception.
@@ -275,7 +292,14 @@ public class FTRNetworkManager : NetworkManager
     public override void OnServerTransportException(
         NetworkConnectionToClient conn,
         Exception exception
-    ) { }
+    )
+    {
+        logger.Log(
+            $"[NetworkManager] Server transport exception: connectionId={conn?.connectionId}, exception={exception}",
+            this,
+            Logging.LogType.Error
+        );
+    }
 
     #endregion
 
@@ -287,6 +311,7 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void OnClientConnect()
     {
+        logger.Log("[NetworkManager] Client connected to server", this);
         base.OnClientConnect();
     }
 
@@ -294,26 +319,54 @@ public class FTRNetworkManager : NetworkManager
     /// Called on clients when disconnected from a server.
     /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
     /// </summary>
-    public override void OnClientDisconnect() { }
+    public override void OnClientDisconnect()
+    {
+        logger.Log(
+            $"[NetworkManager] Client disconnected from server. NetworkAddress={networkAddress}",
+            this,
+            Logging.LogType.Warning
+        );
+    }
 
     /// <summary>
     /// Called on clients when a servers tells the client it is no longer ready.
     /// <para>This is commonly used when switching scenes.</para>
     /// </summary>
-    public override void OnClientNotReady() { }
+    public override void OnClientNotReady()
+    {
+        logger.Log(
+            "[NetworkManager] Client is no longer ready (server notified)",
+            this,
+            Logging.LogType.Warning
+        );
+    }
 
     /// <summary>
     /// Called on client when transport raises an error.</summary>
     /// </summary>
     /// <param name="transportError">TransportError enum.</param>
     /// <param name="message">String message of the error.</param>
-    public override void OnClientError(TransportError transportError, string message) { }
+    public override void OnClientError(TransportError transportError, string message)
+    {
+        logger.Log(
+            $"[NetworkManager] Client transport error: {transportError}, message={message}",
+            this,
+            Logging.LogType.Error
+        );
+    }
 
     /// <summary>
     /// Called on client when transport raises an exception.</summary>
     /// </summary>
     /// <param name="exception">Exception thrown from the Transport.</param>
-    public override void OnClientTransportException(Exception exception) { }
+    public override void OnClientTransportException(Exception exception)
+    {
+        logger.Log(
+            $"[NetworkManager] Client transport exception: {exception}",
+            this,
+            Logging.LogType.Error
+        );
+    }
 
     #endregion
 

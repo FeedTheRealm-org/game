@@ -25,7 +25,10 @@ namespace FTR.Core.Common.Config
 
         public ApiConfig ApiConfig;
 
-        public ushort Port = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
+        public ushort ListeningPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
+
+        public string CurrentServerAddress = "";
+        public ushort CurrentServerPort = 10000;
 
 #if DEBUG
         [Header("Debug Settings")]

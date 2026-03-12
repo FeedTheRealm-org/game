@@ -75,7 +75,7 @@ MonoBehaviour:
   onlineScene:
   offlineSceneLoadDelay: 0
   transport: {fileID: 304146126141291582}
-  networkAddress: localhost
+  networkAddress:
   maxConnections: 100
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
@@ -118,7 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
   m_Name:
   m_EditorClassIdentifier: Mirror.Transports::kcp2k.KcpTransport
-  port: 7777
+  port: 0
   DualMode: 1
   NoDelay: 1
   Interval: 10
