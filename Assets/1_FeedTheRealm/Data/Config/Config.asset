@@ -15,8 +15,8 @@ MonoBehaviour:
   editorRuntimeRole: 1
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   ListeningPort: 7777
-  CurrentServerAddress: ec2-3-147-128-29.us-east-2.compute.amazonaws.com
-  CurrentServerPort: 10000
+  CurrentServerAddress: localhost
+  CurrentServerPort: 7777
   isDebugWorld: 1
   doNotLoadWorld: 1
   worldID: ed22f0a7-3704-42e1-a4e4-2b3d7036f70f
