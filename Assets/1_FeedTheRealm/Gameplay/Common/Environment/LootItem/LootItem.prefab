@@ -76,7 +76,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
   sceneId: 0
   _assetId: 4001143158
@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6bf2504e4b1dafd5d996d2e9b35c690d, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Core.Common::NetworkAdapter
   syncDirection: 0
   syncMode: 0
@@ -109,7 +109,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 791c7c2a647f0f5c3ab80af499cb95e2, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Environment.LootItem.ClientLootItemNetworkInitializer
   syncDirection: 0
   syncMode: 0
@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f487e6b5009318af9f4bb7b6fbbd7ef, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Environment.LootItem.ServerLootItemNetworkInitializer
   syncDirection: 0
   syncMode: 0
@@ -139,7 +139,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76981e5a927d4ee3ea4df54936378c64, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
   linkerType: 3
 --- !u!114 &4365257383209874522
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37c1bdad5dc72206d8cdc49ebdd00cfd, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.LootItem.LootItemStateStorage
   syncDirection: 0
   syncMode: 0

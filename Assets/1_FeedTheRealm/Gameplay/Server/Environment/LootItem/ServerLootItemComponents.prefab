@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03413f362a3093f9e85bd16464f5216a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Environment.Items.LootItemSystem
   gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
   config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7844ebee48e886a8ab44c66462b1cef, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Environment.Items.LootItemController
   logger: {fileID: 11400000, guid: 1b1c76477efaa0f58882421429bf3376, type: 2}
   config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
@@ -73,7 +73,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2b18f34c3071c941a3592cebca2c96b, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.GroundCheckSystem
   gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
   config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
