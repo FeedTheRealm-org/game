@@ -44,4 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0076eb90197801bb3d1f95777b9d8a, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.WorldLoader.Loaders.ServerStructureLoader
+  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
   structurePrefab: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}

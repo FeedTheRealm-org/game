@@ -72,3 +72,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.WorldLoader.LoaderProvider
   loaders:
   - {fileID: 1662106833758918523, guid: 0f2c061e3984db2bda636f51fe50fe9b, type: 3}
+  - {fileID: 205439124647585389, guid: 6bdaab12bcfa9dd32b4b32a4a9c1967f, type: 3}
