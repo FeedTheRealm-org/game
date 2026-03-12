@@ -10,9 +10,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
 
-        /* --- Getters --- */
-
-        public Vector3 Position => position;
+        /* --- Callbacks --- */
         public event Action<Vector3> OnPositionCorrected;
 
         /* --- Setters --- */
