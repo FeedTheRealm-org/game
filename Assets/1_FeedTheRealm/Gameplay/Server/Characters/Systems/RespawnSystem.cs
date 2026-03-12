@@ -1,7 +1,6 @@
 using System.Collections;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Entities;
-using FTR.Core.Server.Events;
 using UnityEngine;
 using VContainer;
 
@@ -71,8 +70,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private IEnumerator RespawnCoroutine()
         {
-            // Wait one frame so the current tick's FlushEventsToClients() can dispatch
-            // the HitEvent(health=0) collected by UseSystem before we remove the entity.
+            // Wait one frame before unregistering so the current tick finishes cleanly.
             yield return null;
             world.Entities.Unregister(netId);
 
@@ -86,10 +84,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             rb.linearVelocity = Vector3.zero;
 
             world.Entities.Register(netId, new ServerEntity(netId, networkAdapter, commandHandler));
-
-            world.Events.Enqueue(
-                new HitEvent(netId, healthSystem.MaxHealth, healthSystem.MaxHealth)
-            );
 
             logger.Log($"[RespawnSystem] Player {netId} respawned.", this);
         }

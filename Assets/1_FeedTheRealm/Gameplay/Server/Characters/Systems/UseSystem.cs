@@ -76,16 +76,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 }
 
                 healthSystem.TakeDamage(attackDamage);
-                if (targetNetId.HasValue)
-                {
-                    ec.Collect(
-                        new HitEvent(
-                            targetNetId.Value,
-                            Mathf.Max(0f, healthSystem.CurrentHealth),
-                            healthSystem.MaxHealth
-                        )
-                    );
-                }
             }
 
             if (hitTargets.Length == 0)
