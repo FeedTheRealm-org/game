@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   playerSpeed: 5
   itemDespawnTime: 60
-  maxInitialForce: 50
+  maxInitialForce: 10
   dashSpeed: 25
   dashDuration: 0.1
   maxStamina: 100

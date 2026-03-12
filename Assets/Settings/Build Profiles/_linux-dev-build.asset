@@ -20,13 +20,13 @@ MonoBehaviour:
     rid: 1052504701295132739
   m_OverrideGlobalSceneList: 1
   m_Scenes:
-  - m_enabled: 1
+  - m_enabled: 0
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
-  - m_enabled: 1
+  - m_enabled: 0
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerWorld.unity
-  - m_enabled: 0
+  - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
-  - m_enabled: 0
+  - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientWorld.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
@@ -1012,7 +1012,7 @@ MonoBehaviour:
         m_RemoteDeviceUsername: 
         m_RemoteDeviceExports: 
         m_PathOnRemoteDevice: 
---- !u!114 &4266890019711155625
+--- !u!114 &4504619214682853450
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}

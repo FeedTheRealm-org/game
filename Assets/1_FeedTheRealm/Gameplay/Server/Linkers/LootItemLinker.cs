@@ -33,7 +33,6 @@ public class ServerLootItemLinker : LootItemLinker
         var rb = gameObject.GetComponent<Rigidbody>();
         var col = gameObject.GetComponent<Collider>();
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
-        var lootStateStorage = gameObject.GetComponent<LootItemStateStorage>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var stateStorage = gameObject.GetComponent<LootItemStateStorage>();
 

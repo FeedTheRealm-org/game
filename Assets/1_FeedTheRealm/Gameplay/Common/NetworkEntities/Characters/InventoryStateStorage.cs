@@ -7,9 +7,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
     public struct LastItemData
     {
         public string itemId;
-        public byte itemPosition;
+        public int itemPosition;
 
-        public LastItemData(string itemId, byte itemPosition)
+        public LastItemData(string itemId, int itemPosition)
         {
             this.itemId = itemId;
             this.itemPosition = itemPosition;
@@ -30,7 +30,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         /* --- Setters --- */
 
         [Server]
-        public void AddItem(string itemId, byte position)
+        public void AddItem(string itemId, int position)
         {
             lastItemData = new LastItemData(itemId, position);
         }
