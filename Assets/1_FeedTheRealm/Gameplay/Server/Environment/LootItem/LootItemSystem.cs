@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Runtime.InteropServices;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Common.Systems.Status;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -15,7 +17,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
     /// LootItem represents an item in the game world that can be interacted with by players.
     /// It is responsible for sending pickup commands to the server when a player interacts with it.
     /// </summary>
-    public class LootItemSystem : MonoBehaviour, IGameTickable
+    public class LootItemSystem : MonoBehaviour, IGameTickable, IGroundable
     {
         [Inject]
         private WorldMonitor worldMonitor;
@@ -25,14 +27,21 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
         [SerializeField]
         private ServerConfig config;
+
+        // Injected dependencies
         private Rigidbody rb;
         private uint netId;
+        private LootItemStateStorage stateStorage;
+        public bool IsGrounded { get; set; }
+
+        // Configurable parameters
         private ushort maxInitialForce = 5; // default max force applied to the item when spawned
 
-        public void Initialize(Rigidbody rb, uint netId)
+        public void Initialize(Rigidbody rb, uint netId, LootItemStateStorage stateStorage)
         {
             this.rb = rb;
             this.netId = netId;
+            this.stateStorage = stateStorage;
             maxInitialForce = config.MaxInitialForce > 0 ? config.MaxInitialForce : maxInitialForce;
             SpawnItemWithForce();
         }
