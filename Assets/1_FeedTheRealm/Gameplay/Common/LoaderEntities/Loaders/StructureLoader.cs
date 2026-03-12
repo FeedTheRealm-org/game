@@ -44,6 +44,9 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
                 var controller = instance.GetComponent<StructureController>();
 
                 controller.Initialize(structureData, visual);
+
+                if (config.RuntimeRole == RuntimeRole.Server)
+                    controller.RemoveVisual();
             }
         }
     }

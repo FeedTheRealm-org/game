@@ -9,6 +9,7 @@ namespace FTR.Gameplay.Common.Environment.Structures
         public StructureData Data => structureData;
 
         private GameObject visualInstance;
+        private MeshCollider meshCollider;
 
         public void Initialize(StructureData structureData, GameObject visualPrefab)
         {
@@ -18,11 +19,11 @@ namespace FTR.Gameplay.Common.Environment.Structures
             transform.rotation = Quaternion.Euler(structureData.rotation);
             transform.localScale = Vector3.one;
 
-            SetupVisual(visualPrefab);
+            SetupMesh(visualPrefab);
             SetupCollider();
         }
 
-        private void SetupVisual(GameObject visualPrefab)
+        private void SetupMesh(GameObject visualPrefab)
         {
             visualInstance = Instantiate(visualPrefab, transform);
             visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -42,6 +43,26 @@ namespace FTR.Gameplay.Common.Environment.Structures
             MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
             meshCollider.sharedMesh = meshFilter.sharedMesh;
             meshCollider.convex = false;
+        }
+
+        public void RemoveVisual()
+        {
+            if (visualInstance != null)
+                Destroy(visualInstance);
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (meshCollider == null || meshCollider.sharedMesh == null)
+                return;
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireMesh(
+                meshCollider.sharedMesh,
+                transform.position,
+                transform.rotation,
+                transform.lossyScale
+            );
         }
     }
 }
