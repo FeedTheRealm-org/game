@@ -1,5 +1,7 @@
 using FTR.Core.Client;
+using FTR.Core.Common.Utils;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -22,26 +24,10 @@ public class ClientLootItemLinker : LootItemLinker
 
     public override void Link(GameObject gameObject)
     {
-        if (gameObject == null)
-            throw new System.ArgumentNullException(nameof(gameObject));
-        if (prefabProvider == null)
-            throw new System.NullReferenceException("prefabProvider is null.");
-        if (prefabProvider.LootItemVisual == null)
-            throw new System.NullReferenceException("prefabProvider.LootItemVisual is null.");
-        if (resolver == null)
-            throw new System.NullReferenceException("resolver is null.");
-
+        // Get references to required components
         var rb = gameObject.GetComponent<Rigidbody>();
-        if (rb == null)
-            throw new MissingComponentException(
-                $"Missing {nameof(Rigidbody)} on '{gameObject.name}'."
-            );
-
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
-        if (networkAdapter == null)
-            throw new MissingComponentException(
-                $"Missing {nameof(NetworkAdapter)} on '{gameObject.name}'."
-            );
+        var stateStorage = gameObject.GetComponent<LootItemStateStorage>();
 
         var clientLootItemComponents = Object.Instantiate(
             prefabProvider.LootItemVisual,
@@ -49,26 +35,14 @@ public class ClientLootItemLinker : LootItemLinker
         );
         clientLootItemComponents.layer = gameObject.layer;
 
-        if (clientLootItemComponents == null)
-            throw new System.NullReferenceException(
-                "Instantiate returned null for LootItemVisual."
-            );
-
         resolver.InjectGameObject(clientLootItemComponents);
 
+        // Get references to the client-side components
         var networkEventRouter = clientLootItemComponents.GetComponent<NetworkEventRouter>();
-        if (networkEventRouter == null)
-            throw new MissingComponentException(
-                $"Missing {nameof(NetworkEventRouter)} on instantiated LootItemVisual '{clientLootItemComponents.name}'."
-            );
-
         var lootItemView = clientLootItemComponents.GetComponent<LootItemView>();
-        if (lootItemView == null)
-            throw new MissingComponentException(
-                $"Missing {nameof(LootItemView)} on instantiated LootItemVisual '{clientLootItemComponents.name}'."
-            );
 
-        lootItemView.Initialize(rb, networkEventRouter);
+        // Initialize components
+        lootItemView.Initialize(rb, networkEventRouter, stateStorage);
         networkEventRouter.Initialize(networkAdapter);
     }
 }
