@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a9b5f3caeffc93a99f9f1b26ccaf73, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
-  editorRuntimeRole: 0
+  editorRuntimeRole: 1
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
-  Port: 7777
+  ListeningPort: 7777
+  CurrentServerAddress: ec2-3-147-128-29.us-east-2.compute.amazonaws.com
+  CurrentServerPort: 10000
   isDebugWorld: 1
   doNotLoadWorld: 1
   worldID: ed22f0a7-3704-42e1-a4e4-2b3d7036f70f
