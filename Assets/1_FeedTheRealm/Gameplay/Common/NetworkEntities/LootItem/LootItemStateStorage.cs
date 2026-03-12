@@ -1,4 +1,5 @@
 using System;
+using FTR.Core.Common.Systems.Status;
 using Mirror;
 using UnityEngine;
 
@@ -12,13 +13,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         /* --- Getters --- */
 
         public Vector3 Position => position;
-        public bool IsGrounded { get; set; }
-        public bool IsMovementBlocked { get; set; }
-
         public event Action<Vector3> OnPositionCorrected;
-        public event Action<Vector3> OnDirectionChanged;
-        public event Action<float> OnStaminaChanged;
-        public event Action<float> OnHealthChanged;
 
         /* --- Setters --- */
 
@@ -35,14 +30,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             OnPositionCorrected?.Invoke(newPosition);
         }
 
-        private void OnInitialForceSync(Vector3 oldInitialForce, Vector3 newInitialForce)
-        {
-            OnPositionCorrected?.Invoke(newInitialForce);
-        }
-
         public override void OnStartClient()
         {
-            Debug.Log($"[LootStateStorage] Initial sync: position={position}", this);
+            Debug.Log($"[LootItemStateStorage] Initial sync: position={position}", this);
             OnPositionSync(Vector3.zero, position);
         }
     }
