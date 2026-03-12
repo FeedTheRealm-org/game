@@ -1,6 +1,7 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Environment.LootItem;
 using Mirror;
 using UnityEngine;
@@ -30,6 +31,7 @@ public class ServerLootItemLinker : LootItemLinker
     {
         var rb = gameObject.GetComponent<Rigidbody>();
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
+        var lootStateStorage = gameObject.GetComponent<LootItemStateStorage>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
 
         // Add server-side components
@@ -46,7 +48,7 @@ public class ServerLootItemLinker : LootItemLinker
 
         // Initialize components
         lootItemController.Initialize(netId);
-        lootItemSystem.Initialize(rb, netId);
+        lootItemSystem.Initialize(rb, netId, lootStateStorage);
 
         RegisterEntity(netId, networkAdapter);
     }

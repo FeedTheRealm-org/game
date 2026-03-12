@@ -17,6 +17,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public HealthChangedEvent healthChangedEvent;
         public StaminaChangedEvent staminaChangedEvent;
 
+        [Header("Inventory Events")]
+        public LastItemChangedEvent lastItemChangedEvent;
+
         [Header("Tick Events")]
         public TickEvent tickEvent;
         public FixedTickEvent fixedTickEvent;
@@ -30,6 +33,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(shopOnCloseEvent);
             builder.RegisterInstance(healthChangedEvent);
             builder.RegisterInstance(staminaChangedEvent);
+            builder.RegisterInstance(lastItemChangedEvent);
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
             builder.RegisterInstance(lateTickEvent);
@@ -41,6 +45,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(shopOnCloseEvent, nameof(shopOnCloseEvent));
             ValidateField(healthChangedEvent, nameof(healthChangedEvent));
             ValidateField(staminaChangedEvent, nameof(staminaChangedEvent));
+            ValidateField(lastItemChangedEvent, nameof(lastItemChangedEvent));
             ValidateField(tickEvent, nameof(tickEvent));
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));
             ValidateField(lateTickEvent, nameof(lateTickEvent));

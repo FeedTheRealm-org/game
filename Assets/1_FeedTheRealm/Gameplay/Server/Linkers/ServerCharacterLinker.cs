@@ -1,6 +1,7 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
@@ -30,6 +31,7 @@ public class ServerCharacterLinker
     public GameObject Link(GameObject gameObject)
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+        var inventoryStateStorage = gameObject.GetComponent<InventoryStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
         var col = gameObject.GetComponent<Collider>();
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
@@ -56,7 +58,7 @@ public class ServerCharacterLinker
         useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
         healthSystem.Initialize(netId, stateStorage);
-        inventorySystem.Initialize(netId);
+        inventorySystem.Initialize(netId, inventoryStateStorage);
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, inventorySystem);
 

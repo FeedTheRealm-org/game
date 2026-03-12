@@ -58,5 +58,14 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private LayerMask groundLayer;
         public LayerMask GroundLayer => groundLayer;
+
+        [Header("Inventory")]
+        [SerializeField]
+        private byte hotbarSize = 5;
+        public byte HotbarSize => hotbarSize;
+
+        [SerializeField]
+        private byte inventorySize = 20;
+        public byte InventorySize => inventorySize;
     }
 }

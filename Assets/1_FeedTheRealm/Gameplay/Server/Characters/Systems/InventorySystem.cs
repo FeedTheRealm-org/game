@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
@@ -13,18 +16,58 @@ namespace FTR.Gameplay.Server.Characters.Systems
     {
         [SerializeField]
         private Logging.Logger logger;
-        private uint netId;
 
-        public void Initialize(uint netId)
+        [SerializeField]
+        private ServerConfig config;
+        private uint netId;
+        private InventoryStateStorage inventoryState;
+        private byte inventorySize = 20;
+        private byte hotbarSize = 5;
+        private string[] inventorySlots = new string[20];
+        private string[] hotbarSlots = new string[5];
+
+        private void InitEmptyInventory()
         {
-            this.netId = netId;
-            logger.Log($"Initializing InventorySystem for player {netId}", this);
+            for (int i = 0; i < inventorySize; i++)
+            {
+                inventorySlots[i] = string.Empty;
+            }
+
+            for (int i = 0; i < hotbarSize; i++)
+            {
+                hotbarSlots[i] = string.Empty;
+            }
         }
 
-        internal void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete)
+        public void Initialize(uint netId, InventoryStateStorage inventoryState)
+        {
+            this.netId = netId;
+            this.inventoryState = inventoryState;
+            logger.Log($"Initializing InventorySystem for player {netId}", this);
+            inventorySize = (byte)(config.InventorySize > 0 ? config.InventorySize : 20);
+            hotbarSize = (byte)(config.HotbarSize > 0 ? config.HotbarSize : 5);
+
+            InitEmptyInventory();
+        }
+
+        public void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete)
         {
             logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
-            onComplete(true);
+
+            for (int i = 0; i < inventorySize; i++)
+            {
+                if (string.IsNullOrEmpty(inventorySlots[i]))
+                {
+                    inventorySlots[i] = itemId;
+                    logger.Log($"Item {itemId} added to inventory at slot {i}", this);
+                    inventoryState.AddItem(itemId, (byte)i);
+                    onComplete(true);
+                    return;
+                }
+            }
+
+            logger.Log($"Inventory full, cannot pick up item {itemId}", this);
+            onComplete(false);
         }
 
         public void GameTick(float dt) { }
