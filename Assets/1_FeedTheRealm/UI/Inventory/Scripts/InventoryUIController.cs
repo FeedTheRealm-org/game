@@ -29,7 +29,7 @@ public class InventoryUIController : MonoBehaviour
             lastItemChangedEvent.OnRaised -= OnLastItemChanged;
     }
 
-    private void OnLastItemChanged((string, byte) data)
+    private void OnLastItemChanged((string, int) data)
     {
         int slotNumber = ResolveSlotNumber(data.Item2);
         if (slotNumber < 1 || slotNumber > InventorySlotCount)
@@ -78,7 +78,7 @@ public class InventoryUIController : MonoBehaviour
         }
     }
 
-    private int ResolveSlotNumber(byte position)
+    private int ResolveSlotNumber(int position)
     {
         if (position >= InventorySlotCount)
             return -1;

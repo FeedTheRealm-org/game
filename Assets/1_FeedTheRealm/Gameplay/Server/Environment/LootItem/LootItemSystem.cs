@@ -32,10 +32,21 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         private Rigidbody rb;
         private uint netId;
         private LootItemStateStorage stateStorage;
-        public bool IsGrounded { get; set; }
 
         // Configurable parameters
         private ushort maxInitialForce = 5; // default max force applied to the item when spawned
+
+        private bool isGrounded;
+        public bool IsGrounded
+        {
+            get => isGrounded;
+            set
+            {
+                isGrounded = value;
+                if (value)
+                    GroundItem();
+            }
+        }
 
         public void Initialize(Rigidbody rb, uint netId, LootItemStateStorage stateStorage)
         {
@@ -48,7 +59,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
         private void SpawnItemWithForce()
         {
-            Vector3 randomInitialForce = new Vector3(
+            Vector3 randomInitialForce = new(
                 Random.Range(-maxInitialForce, maxInitialForce),
                 Random.Range(0, maxInitialForce),
                 Random.Range(-maxInitialForce, maxInitialForce)
@@ -78,6 +89,12 @@ namespace FTR.Gameplay.Server.Environment.LootItem
                 },
             };
             return new InitialForceEvent(netId, initialForceEventContent);
+        }
+
+        public void GroundItem()
+        {
+            stateStorage.CorrectPosition(rb.position);
+            rb.constraints = RigidbodyConstraints.FreezeAll;
         }
 
         public void GameTick(float dt) { }

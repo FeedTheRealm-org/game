@@ -1,16 +1,32 @@
+using System;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 
 public class LootItemView : MonoBehaviour
 {
     private Rigidbody rb;
     private NetworkEventRouter eventRouter;
+    private LootItemStateStorage stateStorage;
 
-    public void Initialize(Rigidbody rb, NetworkEventRouter eventRouter)
+    public void Initialize(
+        Rigidbody rb,
+        NetworkEventRouter eventRouter,
+        LootItemStateStorage stateStorage
+    )
     {
         this.rb = rb;
         this.eventRouter = eventRouter;
+        this.stateStorage = stateStorage;
         this.eventRouter.OnLootItemSpawnEvent += OnInitialForceCorrection;
+        this.stateStorage.OnPositionCorrected += OnPositionCorrected;
+    }
+
+    private void OnPositionCorrected(Vector3 targetPosition)
+    {
+        Debug.Log($"[LootItemView] Position corrected to {targetPosition}", this);
+        rb.position = targetPosition;
+        rb.constraints = RigidbodyConstraints.FreezePosition;
     }
 
     private void OnDisable()
@@ -34,6 +50,6 @@ public class LootItemView : MonoBehaviour
             initialForceEventContent.Force.Y,
             initialForceEventContent.Force.Z
         );
-        rb.AddForce(force, ForceMode.VelocityChange);
+        rb.AddForce(force, ForceMode.Impulse);
     }
 }

@@ -21,8 +21,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private ServerConfig config;
         private uint netId;
         private InventoryStateStorage inventoryState;
-        private byte inventorySize = 20;
-        private byte hotbarSize = 5;
+        private int inventorySize = 20;
+        private int hotbarSize = 5;
         private string[] inventorySlots = new string[20];
         private string[] hotbarSlots = new string[5];
 
@@ -44,8 +44,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.netId = netId;
             this.inventoryState = inventoryState;
             logger.Log($"Initializing InventorySystem for player {netId}", this);
-            inventorySize = (byte)(config.InventorySize > 0 ? config.InventorySize : 20);
-            hotbarSize = (byte)(config.HotbarSize > 0 ? config.HotbarSize : 5);
+            inventorySize = config.InventorySize > 0 ? config.InventorySize : 20;
+            hotbarSize = config.HotbarSize > 0 ? config.HotbarSize : 5;
 
             InitEmptyInventory();
         }
@@ -60,7 +60,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 {
                     inventorySlots[i] = itemId;
                     logger.Log($"Item {itemId} added to inventory at slot {i}", this);
-                    inventoryState.AddItem(itemId, (byte)i);
+                    inventoryState.AddItem(itemId, i);
                     onComplete(true);
                     return;
                 }

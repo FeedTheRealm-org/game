@@ -61,11 +61,11 @@ namespace FTR.Core.Server.Config
 
         [Header("Inventory")]
         [SerializeField]
-        private byte hotbarSize = 5;
-        public byte HotbarSize => hotbarSize;
+        private int hotbarSize = 5;
+        public int HotbarSize => hotbarSize;
 
         [SerializeField]
-        private byte inventorySize = 20;
-        public byte InventorySize => inventorySize;
+        private int inventorySize = 20;
+        public int InventorySize => inventorySize;
     }
 }
