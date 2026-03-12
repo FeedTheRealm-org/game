@@ -278,7 +278,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1247304618364279643, guid: 334ffb846920fac09835f118a568db3c, type: 3}
       propertyPath: spawnRate
-      value: 1
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1247304618364279643, guid: 334ffb846920fac09835f118a568db3c, type: 3}
       propertyPath: thingPrefab
