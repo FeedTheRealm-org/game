@@ -26,6 +26,7 @@ public class LootItemView : MonoBehaviour
     {
         Debug.Log($"[LootItemView] Position corrected to {targetPosition}", this);
         rb.position = targetPosition;
+        rb.constraints = RigidbodyConstraints.FreezePosition;
     }
 
     private void OnDisable()
@@ -49,6 +50,6 @@ public class LootItemView : MonoBehaviour
             initialForceEventContent.Force.Y,
             initialForceEventContent.Force.Z
         );
-        rb.AddForce(force, ForceMode.VelocityChange);
+        rb.AddForce(force, ForceMode.Impulse);
     }
 }

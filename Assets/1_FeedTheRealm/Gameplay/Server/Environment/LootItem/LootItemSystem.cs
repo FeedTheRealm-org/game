@@ -59,7 +59,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
         private void SpawnItemWithForce()
         {
-            Vector3 randomInitialForce = new Vector3(
+            Vector3 randomInitialForce = new(
                 Random.Range(-maxInitialForce, maxInitialForce),
                 Random.Range(0, maxInitialForce),
                 Random.Range(-maxInitialForce, maxInitialForce)
