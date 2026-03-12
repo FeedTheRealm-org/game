@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-public class NavbarController : MonoBehaviour
+public class NavbarController : MonoBehaviour, INavbarController
 {
     [SerializeField]
     private Session.Session session;
@@ -17,11 +17,9 @@ public class NavbarController : MonoBehaviour
     private GameObject profileMenuPrefab;
 
     [SerializeField]
-    private SceneReference gameplayScene;
-
-    [SerializeField]
     private string sectionName = "Section";
 
+    private GameObject profileMenuInstance;
     private VisualElement _root;
     private Button playerProfileButton;
     private Label sectionLabel;
@@ -87,11 +85,16 @@ public class NavbarController : MonoBehaviour
 
     private void onProfileButtonClicked()
     {
-        if (profileMenuPrefab == null)
+        if (profileMenuInstance == null)
         {
-            logger.Log("ProfileMenuPrefab is not assigned.", this, Logging.LogType.Error);
+            logger.Log("ProfileMenu instance is not set.", this, Logging.LogType.Error);
             return;
         }
-        profileMenuPrefab.SetActive(!profileMenuPrefab.activeSelf);
+        profileMenuInstance.SetActive(!profileMenuInstance.activeSelf);
+    }
+
+    public void SetProfileMenuInstance(GameObject instance)
+    {
+        profileMenuInstance = instance;
     }
 }
