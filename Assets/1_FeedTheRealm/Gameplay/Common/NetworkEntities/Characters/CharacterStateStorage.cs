@@ -1,11 +1,12 @@
 using System;
 using FTR.Core.Common.Characters;
+using FTR.Core.Common.Systems.Status;
 using Mirror;
 using UnityEngine;
 
 namespace FTR.Gameplay.Common.NetworkEntities.Characters
 {
-    public class CharacterStateStorage : NetworkBehaviour, ICharacterHealthSource
+    public class CharacterStateStorage : NetworkBehaviour, ICharacterHealthSource, IGroundable
     {
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
