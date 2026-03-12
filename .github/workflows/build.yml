@@ -11,6 +11,9 @@ on:
         required: true
       ECR_REPOSITORY:
         required: true
+    outputs:
+      image_tag:
+        value: ${{ jobs.build.outputs.image_tag }}
 
 permissions:
   contents: read
