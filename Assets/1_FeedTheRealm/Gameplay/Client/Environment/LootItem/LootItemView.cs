@@ -39,17 +39,17 @@ public class LootItemView : MonoBehaviour
     /// </summary>
     private void OnInitialForceCorrection(InitialForceEventContent initialForceEventContent)
     {
-        Vector3 initialPosition = new Vector3(
+        Vector3 initialPosition = new(
             initialForceEventContent.InitialPosition.X,
             initialForceEventContent.InitialPosition.Y,
             initialForceEventContent.InitialPosition.Z
         );
-        rb.MovePosition(initialPosition);
-        Vector3 force = new Vector3(
+        Vector3 force = new(
             initialForceEventContent.Force.X,
             initialForceEventContent.Force.Y,
             initialForceEventContent.Force.Z
         );
+        rb.MovePosition(initialPosition);
         rb.AddForce(force, ForceMode.Impulse);
     }
 }

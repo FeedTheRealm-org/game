@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
@@ -14,23 +15,38 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
         private Config config;
 
         [SerializeField]
+        private ModelService modelService;
+
+        [SerializeField]
+        private Session.Session session;
+
+        [SerializeField]
+        private GltLoaderService gltfLoaderService;
+
+        [SerializeField]
         private GameObject structurePrefab;
 
-        private List<GameObject> instanciatedStructures;
-
-        protected IReadOnlyList<GameObject> InstanciatedStructures => instanciatedStructures;
-
-        public virtual async UniTask Load(WorldData worldData)
+        public async UniTask Load(WorldData worldData)
         {
-            instanciatedStructures = new List<GameObject>();
+            Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(
+                worldData.id,
+                session.APIToken
+            );
+
             var structures = worldData.objectPlacementData;
             foreach (StructureData structureData in structures)
             {
+                string modelUrl = modelsInfo[structureData.id].url;
+                GameObject visual = await gltfLoaderService.DownloadModel(modelUrl);
+
                 GameObject instance = Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
-                controller.Initialize(structureData);
-                instanciatedStructures.Add(instance);
+
+                controller.Initialize(structureData, visual);
+
+                if (config.RuntimeRole == RuntimeRole.Server)
+                    controller.RemoveVisual();
             }
         }
     }
