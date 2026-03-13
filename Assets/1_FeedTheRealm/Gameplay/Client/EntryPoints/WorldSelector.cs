@@ -1,12 +1,18 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WorldSelector", menuName = "Scriptable Objects/WorldSelector")]
-public class WorldSelector : ScriptableObject
+namespace FTR.Gameplay.Client.EntryPoints
 {
-    [SerializeField]
-    private string SelectedWorldId = "";
+    /// <summary>
+    /// ScriptableObject used to store the selected world ID across different scenes and components in the client application.
+    /// </summary>
+    [CreateAssetMenu(fileName = "WorldSelector", menuName = "Scriptable Objects/WorldSelector")]
+    public class WorldSelector : ScriptableObject
+    {
+        [SerializeField]
+        private string SelectedWorldId = "";
 
-    public string GetSelectedWorldId() => SelectedWorldId;
+        public string GetSelectedWorldId() => SelectedWorldId;
 
-    public void SetSelectedWorldId(string worldId) => SelectedWorldId = worldId;
+        public void SetSelectedWorldId(string worldId) => SelectedWorldId = worldId;
+    }
 }

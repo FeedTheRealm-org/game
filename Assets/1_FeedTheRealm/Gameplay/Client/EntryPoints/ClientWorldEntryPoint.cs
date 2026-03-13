@@ -8,83 +8,89 @@ using Logging;
 using VContainer;
 using VContainer.Unity;
 
-public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILateTickable
+namespace FTR.Gameplay.Client.EntryPoints
 {
-    private Config config;
-    private TickEvent tickEvent;
-
-    private FixedTickEvent fixedTickEvent;
-
-    private LateTickEvent lateTickEvent;
-
-    private bool isInitialized = false;
-
-    private Session.Session session;
-
-    private WorldSelector worldSelector;
-
-    [Inject]
-    public ClientWorldEntryPoint(
-        Config config,
-        TickEvent tickEvent,
-        FixedTickEvent fixedTickEvent,
-        LateTickEvent lateTickEvent,
-        Session.Session session,
-        WorldService worldService,
-        Logger logger,
-        LoaderProvider loaderProvider,
-        WorldSelector worldSelector,
-        IObjectResolver resolver,
-        ObjectResolverContainer resolverContainer
-    )
-        : base(config, worldService, logger, loaderProvider)
+    /// <summary>
+    /// Entry point for the client application, responsible for initializing the application flow, including authentication and main menu navigation.
+    /// </summary>
+    public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILateTickable
     {
-        this.config = config;
-        this.tickEvent = tickEvent;
-        this.fixedTickEvent = fixedTickEvent;
-        this.lateTickEvent = lateTickEvent;
-        this.session = session;
-        this.worldSelector = worldSelector;
-        resolverContainer.SetResolver(resolver);
-        isInitialized = true;
-    }
+        private Config config;
+        private TickEvent tickEvent;
 
-    public override string GetWorldId()
-    {
-        if (config.IsDebugWorld)
-            return !string.IsNullOrEmpty(config.WorldID)
-                ? config.WorldID
-                : worldSelector.GetSelectedWorldId();
-        return worldSelector.GetSelectedWorldId();
-    }
+        private FixedTickEvent fixedTickEvent;
 
-    public override string GetAccessToken()
-    {
-        if (config.IsDebugWorld)
-            return !string.IsNullOrEmpty(config.AccessToken)
-                ? config.AccessToken
-                : session.APIToken;
-        return session.APIToken;
-    }
+        private LateTickEvent lateTickEvent;
 
-    public void Tick()
-    {
-        if (!isInitialized)
-            return;
-        tickEvent.Raise();
-    }
+        private bool isInitialized = false;
 
-    public void FixedTick()
-    {
-        if (!isInitialized)
-            return;
-        fixedTickEvent.Raise();
-    }
+        private Session.Session session;
 
-    public void LateTick()
-    {
-        if (!isInitialized)
-            return;
-        lateTickEvent.Raise();
+        private WorldSelector worldSelector;
+
+        [Inject]
+        public ClientWorldEntryPoint(
+            Config config,
+            TickEvent tickEvent,
+            FixedTickEvent fixedTickEvent,
+            LateTickEvent lateTickEvent,
+            Session.Session session,
+            WorldService worldService,
+            Logger logger,
+            LoaderProvider loaderProvider,
+            WorldSelector worldSelector,
+            IObjectResolver resolver,
+            ObjectResolverContainer resolverContainer
+        )
+            : base(config, worldService, logger, loaderProvider)
+        {
+            this.config = config;
+            this.tickEvent = tickEvent;
+            this.fixedTickEvent = fixedTickEvent;
+            this.lateTickEvent = lateTickEvent;
+            this.session = session;
+            this.worldSelector = worldSelector;
+            resolverContainer.SetResolver(resolver);
+            isInitialized = true;
+        }
+
+        public override string GetWorldId()
+        {
+            if (config.IsDebugWorld)
+                return !string.IsNullOrEmpty(config.WorldID)
+                    ? config.WorldID
+                    : worldSelector.GetSelectedWorldId();
+            return worldSelector.GetSelectedWorldId();
+        }
+
+        public override string GetAccessToken()
+        {
+            if (config.IsDebugWorld)
+                return !string.IsNullOrEmpty(config.AccessToken)
+                    ? config.AccessToken
+                    : session.APIToken;
+            return session.APIToken;
+        }
+
+        public void Tick()
+        {
+            if (!isInitialized)
+                return;
+            tickEvent.Raise();
+        }
+
+        public void FixedTick()
+        {
+            if (!isInitialized)
+                return;
+            fixedTickEvent.Raise();
+        }
+
+        public void LateTick()
+        {
+            if (!isInitialized)
+                return;
+            lateTickEvent.Raise();
+        }
     }
 }

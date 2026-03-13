@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
-public class WorldFeedMenuController : MonoBehaviour
+public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 {
     //[SerializeField]
     //private Worlds.WorldHandler worldHandler;
@@ -27,6 +27,8 @@ public class WorldFeedMenuController : MonoBehaviour
     [SerializeField]
     private GameObject worldInfoHUD;
 
+    public event Action OnNavigateToWorld;
+
     private VisualElement ui;
     private TextField searchField;
     private Button backButton;
@@ -36,6 +38,8 @@ public class WorldFeedMenuController : MonoBehaviour
     private const int PAGE_SIZE = 20;
 
     //private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
+    private List<FTRShared.Runtime.Models.WorldMetadata> currentWorlds =
+        new List<FTRShared.Runtime.Models.WorldMetadata>();
 
     private void Awake()
     {
@@ -111,8 +115,12 @@ public class WorldFeedMenuController : MonoBehaviour
                         maxPageOffset = offset;
                     }
 
+                    currentWorlds.Clear();
                     foreach (var world in worlds)
                     {
+                        currentWorlds.Add(world);
+
+                        //logger.Log($"Fetched world: {world.name} (ID: {world.id})",
                         // worldHandler.addWorldToCategory(
                         //     Worlds.WorldHandler.NULL_CATEGORY_NAME,
                         //     world
@@ -182,8 +190,10 @@ public class WorldFeedMenuController : MonoBehaviour
                 );
                 return;
             }
-            //worldHandler.selectedWorldID = worldData.id;
-            SceneManager.LoadScene(worldScene.SceneName);
+            if (OnNavigateToWorld != null)
+                OnNavigateToWorld.Invoke();
+            else
+                SceneManager.LoadScene(worldScene.SceneName);
         }
         catch (Exception ex)
         {
@@ -271,7 +281,7 @@ public class WorldFeedMenuController : MonoBehaviour
         rootContainer.Clear();
 
         int totalCategories = 0;
-        int totalWorlds = 0;
+        int totalWorlds = currentWorlds.Count;
 
         // foreach (var category in allCategories)
         // {
@@ -282,6 +292,8 @@ public class WorldFeedMenuController : MonoBehaviour
         //     totalWorlds += category.worlds.Count;
         //     rootContainer.Add(CreateCategoryContainer(category, category.worlds));
         // }
+
+        rootContainer.Add(CreateCategoryContainer(currentWorlds));
 
         if (totalWorlds == 0)
         {
