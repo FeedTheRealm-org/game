@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using FTR.Core.Client.EventChannels.Status;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 [RequireComponent(typeof(UIDocument))]
 public class InventoryUIController : MonoBehaviour
@@ -9,36 +11,20 @@ public class InventoryUIController : MonoBehaviour
     private const int InventoryColumns = 4;
     private const int InventorySlotCount = InventoryRows * InventoryColumns;
 
-    [SerializeField]
+    [Inject]
     private LastItemChangedEvent lastItemChangedEvent;
 
+    [SerializeField]
+    private PlayerInputReader inputReader;
+
+    [SerializeField]
+    private Sprite itemObtainedSprite;
+
     private UIDocument uiDocument;
-    private readonly VisualElement[] slots = new VisualElement[InventorySlotCount];
+
+    private readonly List<VisualElement> slots = new List<VisualElement>(InventorySlotCount);
 
     private void OnEnable()
-    {
-        CacheSlots();
-
-        if (lastItemChangedEvent != null)
-            lastItemChangedEvent.OnRaised += OnLastItemChanged;
-    }
-
-    private void OnDisable()
-    {
-        if (lastItemChangedEvent != null)
-            lastItemChangedEvent.OnRaised -= OnLastItemChanged;
-    }
-
-    private void OnLastItemChanged((string, int) data)
-    {
-        int slotNumber = ResolveSlotNumber(data.Item2);
-        if (slotNumber < 1 || slotNumber > InventorySlotCount)
-            return;
-
-        HighlightSlot(slotNumber);
-    }
-
-    private void CacheSlots()
     {
         if (uiDocument == null)
             uiDocument = GetComponent<UIDocument>();
@@ -47,35 +33,42 @@ public class InventoryUIController : MonoBehaviour
         if (root == null)
             return;
 
+        slots.Clear();
         for (int i = 0; i < InventorySlotCount; i++)
         {
-            slots[i] = root.Q<VisualElement>($"Slot{i + 1}");
+            slots.Add(root.Q<VisualElement>($"Slot{i + 1}"));
         }
+
+        inputReader.InventoryEvent += OnInventoryInput;
+
+        if (lastItemChangedEvent != null)
+            lastItemChangedEvent.OnRaised += OnLastItemChanged;
     }
 
-    private void HighlightSlot(int slotNumber)
+    private void OnDisable()
     {
-        for (int i = 0; i < slots.Length; i++)
-        {
-            if (slots[i] == null)
-                continue;
+        inputReader.InventoryEvent -= OnInventoryInput;
 
-            bool isSelected = i == slotNumber - 1;
-            slots[i].style.borderTopWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderRightWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderBottomWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderLeftWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderTopColor = isSelected ? Color.yellow : new Color(1f, 1f, 1f, 0.5f);
-            slots[i].style.borderRightColor = isSelected
-                ? Color.yellow
-                : new Color(1f, 1f, 1f, 0.5f);
-            slots[i].style.borderBottomColor = isSelected
-                ? Color.yellow
-                : new Color(1f, 1f, 1f, 0.5f);
-            slots[i].style.borderLeftColor = isSelected
-                ? Color.yellow
-                : new Color(1f, 1f, 1f, 0.5f);
-        }
+        if (lastItemChangedEvent != null)
+            lastItemChangedEvent.OnRaised -= OnLastItemChanged;
+    }
+
+    private void OnInventoryInput()
+    {
+        Debug.Log("Inventory input received. Toggling inventory UI.");
+        var panel = uiDocument.rootVisualElement.Q<VisualElement>("Panel");
+
+        if (panel != null)
+            panel.visible = !panel.visible;
+    }
+
+    private void OnLastItemChanged((string, int) data)
+    {
+        int slotNumber = ResolveSlotNumber(data.Item2);
+        if (slotNumber < 1 || slotNumber > InventorySlotCount)
+            return;
+
+        ShowItemObtained(slotNumber);
     }
 
     private int ResolveSlotNumber(int position)
@@ -88,5 +81,41 @@ public class InventoryUIController : MonoBehaviour
         int slotIndex = (row * InventoryColumns) + column;
 
         return slotIndex + 1;
+    }
+
+    private void ShowItemObtained(int slotNumber)
+    {
+        if (itemObtainedSprite == null)
+            return;
+
+        int index = slotNumber - 1;
+        if (index < 0 || index >= slots.Count || slots[index] == null)
+            return;
+
+        var slot = slots[index];
+        var icon = slot.Q<VisualElement>("ItemIcon");
+
+        Debug.Log(
+            $"Showing item obtained in slot {slotNumber} with sprite {itemObtainedSprite.name}"
+        );
+
+        if (icon == null)
+        {
+            icon = new VisualElement { name = "ItemIcon" };
+
+            // Setting position absolute to fill the parent slot correctly
+            icon.style.position = Position.Absolute;
+            icon.style.top = 0;
+            icon.style.bottom = 0;
+            icon.style.left = 0;
+            icon.style.right = 0;
+            icon.style.width = Length.Pixels(200);
+            icon.style.height = Length.Pixels(200);
+
+            slot.Add(icon);
+        }
+
+        icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
+        icon.style.display = DisplayStyle.Flex;
     }
 }

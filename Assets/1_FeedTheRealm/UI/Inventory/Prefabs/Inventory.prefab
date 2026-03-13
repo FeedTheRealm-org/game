@@ -68,4 +68,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b8f3d08c2ea3de2eb9e34eb6f74ae02, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::InventoryUIController
-  lastItemChangedEvent: {fileID: 11400000, guid: c0dd9ad5800d74b969386dab2bfc9073, type: 2}
+  inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}

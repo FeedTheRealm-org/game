@@ -2,6 +2,7 @@ using FTR.Core.Client;
 using FTR.Gameplay.Client.Characters;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -25,6 +26,7 @@ public class ClientCharacterLinker
         // Get from common character components
         var rb = gameObject.GetComponent<Rigidbody>();
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+        var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
         // Add client-side components
@@ -41,6 +43,7 @@ public class ClientCharacterLinker
         var dashView = playerComponents.GetComponent<DashView>();
         var staminaView = playerComponents.GetComponent<StaminaView>();
         var healthView = playerComponents.GetComponent<HealthView>();
+        var inventoryView = playerComponents.GetComponent<InventoryView>();
 
         var movementController = playerComponents.GetComponent<MovementController>();
         var useController = playerComponents.GetComponent<UseController>();
@@ -51,6 +54,7 @@ public class ClientCharacterLinker
         dashView.Initialize(rb, stateStorage, networkEventRouter);
         staminaView.Initialize(stateStorage);
         healthView?.Initialize(stateStorage);
+        inventoryView?.Initialize(inventoryState);
 
         movementController.Initialize(networkAdapter);
         useController.Initialize(networkAdapter);

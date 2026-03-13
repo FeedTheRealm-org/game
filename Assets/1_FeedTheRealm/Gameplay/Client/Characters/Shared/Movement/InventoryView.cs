@@ -29,6 +29,9 @@ public class InventoryView : MonoBehaviour
 
     private void OnInventoryChanged(LastItemData value)
     {
+        Debug.Log(
+            $"InventoryView detected item change: {value.itemId} at position {value.itemPosition}"
+        );
         lastItemChangedEvent.Raise((value.itemId, value.itemPosition));
     }
 }
