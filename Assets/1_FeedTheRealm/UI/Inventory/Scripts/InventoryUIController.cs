@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using FTR.Core.Client.EventChannels.Status;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,13 +17,27 @@ public class InventoryUIController : MonoBehaviour
     [SerializeField]
     private PlayerInputReader inputReader;
 
+    [SerializeField]
+    private Sprite itemObtainedSprite;
+
     private UIDocument uiDocument;
 
-    private readonly VisualElement[] slots = new VisualElement[InventorySlotCount];
+    private readonly List<VisualElement> slots = new List<VisualElement>(InventorySlotCount);
 
     private void OnEnable()
     {
-        CacheSlots();
+        if (uiDocument == null)
+            uiDocument = GetComponent<UIDocument>();
+
+        var root = uiDocument != null ? uiDocument.rootVisualElement : null;
+        if (root == null)
+            return;
+
+        slots.Clear();
+        for (int i = 0; i < InventorySlotCount; i++)
+        {
+            slots.Add(root.Q<VisualElement>($"Slot{i + 1}"));
+        }
 
         inputReader.InventoryEvent += OnInventoryInput;
 
@@ -54,47 +68,7 @@ public class InventoryUIController : MonoBehaviour
         if (slotNumber < 1 || slotNumber > InventorySlotCount)
             return;
 
-        HighlightSlot(slotNumber);
-    }
-
-    private void CacheSlots()
-    {
-        if (uiDocument == null)
-            uiDocument = GetComponent<UIDocument>();
-
-        var root = uiDocument != null ? uiDocument.rootVisualElement : null;
-        if (root == null)
-            return;
-
-        for (int i = 0; i < InventorySlotCount; i++)
-        {
-            slots[i] = root.Q<VisualElement>($"Slot{i + 1}");
-        }
-    }
-
-    private void HighlightSlot(int slotNumber)
-    {
-        for (int i = 0; i < slots.Length; i++)
-        {
-            if (slots[i] == null)
-                continue;
-
-            bool isSelected = i == slotNumber - 1;
-            slots[i].style.borderTopWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderRightWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderBottomWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderLeftWidth = isSelected ? 3f : 1f;
-            slots[i].style.borderTopColor = isSelected ? Color.yellow : new Color(1f, 1f, 1f, 0.5f);
-            slots[i].style.borderRightColor = isSelected
-                ? Color.yellow
-                : new Color(1f, 1f, 1f, 0.5f);
-            slots[i].style.borderBottomColor = isSelected
-                ? Color.yellow
-                : new Color(1f, 1f, 1f, 0.5f);
-            slots[i].style.borderLeftColor = isSelected
-                ? Color.yellow
-                : new Color(1f, 1f, 1f, 0.5f);
-        }
+        ShowItemObtained(slotNumber);
     }
 
     private int ResolveSlotNumber(int position)
@@ -107,5 +81,41 @@ public class InventoryUIController : MonoBehaviour
         int slotIndex = (row * InventoryColumns) + column;
 
         return slotIndex + 1;
+    }
+
+    private void ShowItemObtained(int slotNumber)
+    {
+        if (itemObtainedSprite == null)
+            return;
+
+        int index = slotNumber - 1;
+        if (index < 0 || index >= slots.Count || slots[index] == null)
+            return;
+
+        var slot = slots[index];
+        var icon = slot.Q<VisualElement>("ItemIcon");
+
+        Debug.Log(
+            $"Showing item obtained in slot {slotNumber} with sprite {itemObtainedSprite.name}"
+        );
+
+        if (icon == null)
+        {
+            icon = new VisualElement { name = "ItemIcon" };
+
+            // Setting position absolute to fill the parent slot correctly
+            icon.style.position = Position.Absolute;
+            icon.style.top = 0;
+            icon.style.bottom = 0;
+            icon.style.left = 0;
+            icon.style.right = 0;
+            icon.style.width = Length.Pixels(200);
+            icon.style.height = Length.Pixels(200);
+
+            slot.Add(icon);
+        }
+
+        icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
+        icon.style.display = DisplayStyle.Flex;
     }
 }
