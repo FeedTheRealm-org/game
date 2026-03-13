@@ -1,9 +1,12 @@
 using UnityEngine;
 
-/// <summary>
-/// Allows to inject menu profile instance without circular dependencies.
-/// </summary>
-public interface INavbarController
+namespace FTR.Gameplay.Client.EntryPoints
 {
-    void SetProfileMenuInstance(GameObject instance);
+    /// <summary>
+    /// Allows to inject menu profile instance without circular dependencies.
+    /// </summary>
+    public interface INavbarController
+    {
+        void SetProfileMenuInstance(GameObject instance);
+    }
 }

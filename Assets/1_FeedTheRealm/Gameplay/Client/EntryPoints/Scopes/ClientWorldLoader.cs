@@ -10,7 +10,7 @@ using FTRShared.Runtime.Models;
 using Logging;
 using VContainer.Unity;
 
-namespace FTR.Gameplay.Server.Scopes
+namespace FTR.Gameplay.Client.EntryPoints.Scopes
 {
     public class ClientWorldLoader : WorldLoader
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
