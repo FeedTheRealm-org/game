@@ -68,6 +68,8 @@ public class InventoryUIController : MonoBehaviour
         if (slotNumber < 1 || slotNumber > InventorySlotCount)
             return;
 
+        Debug.Log($"Last item changed: {data.Item1} in slot {slotNumber}");
+
         ShowItemObtained(slotNumber);
     }
 
@@ -99,23 +101,9 @@ public class InventoryUIController : MonoBehaviour
             $"Showing item obtained in slot {slotNumber} with sprite {itemObtainedSprite.name}"
         );
 
-        if (icon == null)
+        if (icon != null)
         {
-            icon = new VisualElement { name = "ItemIcon" };
-
-            // Setting position absolute to fill the parent slot correctly
-            icon.style.position = Position.Absolute;
-            icon.style.top = 0;
-            icon.style.bottom = 0;
-            icon.style.left = 0;
-            icon.style.right = 0;
-            icon.style.width = Length.Pixels(200);
-            icon.style.height = Length.Pixels(200);
-
-            slot.Add(icon);
+            icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
         }
-
-        icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
-        icon.style.display = DisplayStyle.Flex;
     }
 }
