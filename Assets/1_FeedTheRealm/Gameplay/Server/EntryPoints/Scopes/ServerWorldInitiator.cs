@@ -53,8 +53,8 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<NetworkService>(Lifetime.Singleton);
             builder.Register<ServerTickDriver>(Lifetime.Singleton);
             builder.Register<NetworkTickDriver>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<CentralizedTickDriver>(Lifetime.Singleton);
 
+            builder.RegisterEntryPoint<ServerWorldEntryPoint>(Lifetime.Singleton);
             builder.RegisterEntryPoint<ServerWorldLoader>(Lifetime.Singleton);
 
             builder.RegisterBuildCallback(container =>

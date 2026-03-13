@@ -3,7 +3,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public sealed class CentralizedTickDriver : IStartable, ITickable
+public sealed class ServerWorldEntryPoint : IStartable, ITickable
 {
     private readonly ServerTickDriver serverTickDriver;
     private readonly NetworkTickDriver networkTickDriver;
@@ -11,7 +11,7 @@ public sealed class CentralizedTickDriver : IStartable, ITickable
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
 
-    public CentralizedTickDriver(
+    public ServerWorldEntryPoint(
         ServerTickDriver serverTickDriver,
         NetworkTickDriver networkTickDriver,
         IObjectResolver resolver,
