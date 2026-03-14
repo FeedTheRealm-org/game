@@ -10,6 +10,9 @@ public class InventoryController : MonoBehaviour
     [Inject]
     private InventorySlotSwapRequestEvent swapRequestEvent;
 
+    [Inject]
+    private InventorySlotDropRequestEvent dropRequestEvent;
+
     private NetworkAdapter networkAdapter;
     private bool isInitialized = false;
 
@@ -20,12 +23,18 @@ public class InventoryController : MonoBehaviour
 
         if (swapRequestEvent != null)
             swapRequestEvent.OnRaised += OnSwapRequest;
+
+        if (dropRequestEvent != null)
+            dropRequestEvent.OnRaised += OnDropRequest;
     }
 
     private void OnDestroy()
     {
         if (swapRequestEvent != null)
             swapRequestEvent.OnRaised -= OnSwapRequest;
+
+        if (dropRequestEvent != null)
+            dropRequestEvent.OnRaised -= OnDropRequest;
     }
 
     private void OnSwapRequest((int sourceSlot, int targetSlot) data)
@@ -46,6 +55,23 @@ public class InventoryController : MonoBehaviour
                 SourcePosition = data.sourceSlot,
                 TargetPosition = data.targetSlot,
             }.ToByteArray(),
+        };
+
+        networkAdapter.DispatchTransaction(command);
+    }
+
+    private void OnDropRequest(int slot)
+    {
+        if (!isInitialized)
+            return;
+
+        Debug.Log($"InventoryController sending Drop command for slot {slot}");
+
+        TransactionCommandDTO command = new()
+        {
+            Type = TransactionType.DropItem,
+            Id = string.Empty,
+            content = new DropItemCommandContent { Position = slot }.ToByteArray(),
         };
 
         networkAdapter.DispatchTransaction(command);

@@ -18,7 +18,13 @@ public class InventoryUIController : MonoBehaviour
     private LastSwappedItemChangedEvent lastSwappedItemChangedEvent;
 
     [Inject]
+    private LastDroppedItemChangedEvent lastDroppedItemChangedEvent;
+
+    [Inject]
     private InventorySlotSwapRequestEvent swapRequestEvent;
+
+    [Inject]
+    private InventorySlotDropRequestEvent dropRequestEvent;
 
     [Inject]
     private InventoryToggleEvent inventoryToggleEvent;
@@ -61,6 +67,12 @@ public class InventoryUIController : MonoBehaviour
             }
         }
 
+        var dropButton = root.Q<VisualElement>("Drop");
+        if (dropButton != null)
+        {
+            dropButton.RegisterCallback<ClickEvent>(evt => OnDropClicked());
+        }
+
         inputReader.InventoryEvent += OnInventoryInput;
 
         if (lastItemChangedEvent != null)
@@ -68,6 +80,9 @@ public class InventoryUIController : MonoBehaviour
 
         if (lastSwappedItemChangedEvent != null)
             lastSwappedItemChangedEvent.OnRaised += OnLastSwappedItemChanged;
+
+        if (lastDroppedItemChangedEvent != null)
+            lastDroppedItemChangedEvent.OnRaised += OnLastDroppedItemChanged;
     }
 
     private void OnDisable()
@@ -79,6 +94,9 @@ public class InventoryUIController : MonoBehaviour
 
         if (lastSwappedItemChangedEvent != null)
             lastSwappedItemChangedEvent.OnRaised -= OnLastSwappedItemChanged;
+
+        if (lastDroppedItemChangedEvent != null)
+            lastDroppedItemChangedEvent.OnRaised -= OnLastDroppedItemChanged;
     }
 
     private void OnInventoryInput()
@@ -123,6 +141,26 @@ public class InventoryUIController : MonoBehaviour
         }
     }
 
+    private void OnDropClicked()
+    {
+        if (selectedSlotIndex != -1)
+        {
+            if (dropRequestEvent != null)
+            {
+                dropRequestEvent.Raise(selectedSlotIndex);
+                Debug.Log($"Requested drop from UI for slot: {selectedSlotIndex}");
+            }
+
+            // Revert visual selection
+            UpdateSlotSprite(selectedSlotIndex, false);
+            selectedSlotIndex = -1;
+        }
+        else
+        {
+            Debug.Log("Drop clicked but no item is selected. Ignoring.");
+        }
+    }
+
     private void UpdateSlotSprite(int index, bool isSelected)
     {
         if (index < 0 || index >= slots.Count)
@@ -143,6 +181,17 @@ public class InventoryUIController : MonoBehaviour
         Debug.Log($"Last item changed: {data.Item1} in slot {slotNumber}");
 
         ShowItemObtained(slotNumber, data.Item1);
+    }
+
+    private void OnLastDroppedItemChanged((string, int) data)
+    {
+        int slotNumber = ResolveSlotNumber(data.Item2);
+        if (slotNumber < 1 || slotNumber > InventorySlotCount)
+            return;
+
+        Debug.Log($"Last item dropped: {data.Item1} from slot {slotNumber}");
+
+        ShowItemObtained(slotNumber, string.Empty);
     }
 
     private void OnLastSwappedItemChanged((int source, int target) data)
