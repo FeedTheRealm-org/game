@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb1db6d5251e31c4994bd6e1ebf9f633, type: 3}
-  m_Name: LastDroppedItemChangedEvent
-  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Status.LastDroppedItemChangedEvent
+  m_Script: {fileID: 11500000, guid: 8fdf6af22450fae4682f94973aaed227, type: 3}
+  m_Name: SlotEquipRequestEvent
+  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Inventory.SlotEquipRequestEvent

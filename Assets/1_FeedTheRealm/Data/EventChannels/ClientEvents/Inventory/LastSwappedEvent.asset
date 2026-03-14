@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8c7b152ab8ac0541b6ac4ec121ebb53, type: 3}
-  m_Name: LastSwappedItemChangedEvent
-  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Status.LastSwappedItemChangedEvent
+  m_Name: LastSwappedEvent
+  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Inventory.LastSwappedEvent

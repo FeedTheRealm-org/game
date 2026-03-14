@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 108f2b06f1cbb8e4ca31ad775673f054, type: 3}
-  m_Name: InventorySlotDropRequestEvent
-  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Status.InventorySlotDropRequestEvent
+  m_Script: {fileID: 11500000, guid: 11b157be7731e0c4baecc41ade621810, type: 3}
+  m_Name: SlotUnequipRequestEvent
+  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Inventory.SlotUnequipRequestEvent

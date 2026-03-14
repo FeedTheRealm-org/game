@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 344f728bf3083be4887ebfb107a92c82, type: 3}
-  m_Name: InventorySlotSwapRequestEvent
-  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Status.InventorySlotSwapRequestEvent
+  m_Script: {fileID: 11500000, guid: 3a11d8be6bc18e1488b91446d51f5594, type: 3}
+  m_Name: InventoryToggleEvent
+  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Inventory.InventoryToggleEvent
