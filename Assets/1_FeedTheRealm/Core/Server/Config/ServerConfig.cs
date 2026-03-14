@@ -61,8 +61,8 @@ namespace FTR.Core.Server.Config
 
         [Header("Inventory")]
         [SerializeField]
-        private int hotbarSize = 5;
-        public int HotbarSize => hotbarSize;
+        private int fastSlotSize = 5;
+        public int FastSlotSize => fastSlotSize;
 
         [SerializeField]
         private int inventorySize = 20;
