@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   playerSpeed: 5
   itemDespawnTime: 60
-  maxInitialForce: 10
+  maxInitialForce: 2
   dashSpeed: 25
   dashDuration: 0.1
   maxStamina: 100
@@ -26,5 +26,5 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  hotbarSize: 5
+  fastSlotSize: 5
   inventorySize: 20
