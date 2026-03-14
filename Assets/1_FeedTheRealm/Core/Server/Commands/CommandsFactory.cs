@@ -1,6 +1,7 @@
 using System;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using UnityEditor;
 
 namespace FTR.Core.Server.Commands;
 
@@ -22,7 +23,7 @@ public static class CommandsFactory
             case ActionType.Interact:
                 return new InteractCommand(dto.NetId, dto.Direction);
             default:
-                throw new System.ArgumentException($"Unsupported action type: {dto.Type}");
+                throw new ArgumentException($"Unsupported action type: {dto.Type}");
         }
     }
 
@@ -32,8 +33,22 @@ public static class CommandsFactory
         {
             case TransactionType.Equip:
                 return new EquipCommand(dto.NetId, dto.Id);
-            case TransactionType.Drop:
-                return new DropCommand(dto.NetId, dto.Id);
+            case TransactionType.DropItem:
+                try
+                {
+                    DropItemCommandContent content = DropItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new DropItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    DropItemCommandContent defaultContent = new DropItemCommandContent
+                    {
+                        Position = -1,
+                    };
+                    return new DropItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
             case TransactionType.Purchase:
                 return new PurchaseCommand(dto.NetId, dto.Id);
             case TransactionType.AcceptQuest:

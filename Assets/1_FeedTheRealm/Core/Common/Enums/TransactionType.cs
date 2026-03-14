@@ -6,7 +6,7 @@ namespace FTR.Core.Common.Enums;
 public enum TransactionType
 {
     Equip,
-    Drop,
+    DropItem,
     Purchase,
     PickUp,
     AcceptQuest,
