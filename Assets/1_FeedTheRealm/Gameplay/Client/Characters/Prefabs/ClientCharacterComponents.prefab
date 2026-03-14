@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 5535709811406022713}
   - component: {fileID: -4974415550214178087}
   - component: {fileID: 2500156731348154592}
+  - component: {fileID: 1900034730975915711}
   m_Layer: 7
   m_Name: ClientCharacterComponents
   m_TagString: Player
@@ -193,6 +194,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0c32a89b7339a0cb879b8748260e4cb, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::InventoryView
+--- !u!114 &1900034730975915711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7e9508a698f3549b1c9f06c952b8ab, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::InventoryController
 --- !u!1001 &3728965444176374322
 PrefabInstance:
   m_ObjectHideFlags: 0
