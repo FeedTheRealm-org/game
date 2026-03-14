@@ -69,4 +69,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::InventoryUIController
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+  defaultSlotSprite: {fileID: 21300000, guid: 4b3d2095baccc2041b973b66b786b9d0, type: 3}
+  selectedSlotSprite: {fileID: 21300000, guid: 6b8728d20b5d4c540b335c3789517218, type: 3}
   itemObtainedSprite: {fileID: 21300000, guid: d60c0a942499c1c47a154df28b63e029, type: 3}
