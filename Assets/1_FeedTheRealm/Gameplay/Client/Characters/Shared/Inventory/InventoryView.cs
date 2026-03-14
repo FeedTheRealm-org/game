@@ -1,5 +1,6 @@
 using System;
-using FTR.Core.Client.EventChannels.Status;
+using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
@@ -11,13 +12,13 @@ using VContainer;
 public class InventoryView : MonoBehaviour
 {
     [Inject]
-    private LastItemChangedEvent lastItemChangedEvent;
+    private LastAddedEvent lastAddedEvent;
 
     [Inject]
-    private LastSwappedItemChangedEvent lastSwappedItemChangedEvent;
+    private LastSwappedEvent lastSwappedEvent;
 
     [Inject]
-    private LastDroppedItemChangedEvent lastDroppedItemChangedEvent;
+    private LastRemovedEvent lastRemovedEvent;
 
     private InventoryStateStorage stateStorage;
 
@@ -44,7 +45,7 @@ public class InventoryView : MonoBehaviour
         Debug.Log(
             $"InventoryView detected item change: {value.itemId} at position {value.itemPosition}"
         );
-        lastItemChangedEvent.Raise((value.itemId, value.itemPosition));
+        lastAddedEvent.Raise((StorageType.Inventory, value.itemId, value.itemPosition));
     }
 
     private void OnInventorySwapped(LastSwappedItemData value)
@@ -52,7 +53,7 @@ public class InventoryView : MonoBehaviour
         Debug.Log(
             $"InventoryView detected item swap: from position {value.sourcePosition} to position {value.targetPosition}"
         );
-        lastSwappedItemChangedEvent.Raise((value.sourcePosition, value.targetPosition));
+        lastSwappedEvent.Raise((StorageType.Inventory, value.sourcePosition, value.targetPosition));
     }
 
     private void OnInventoryDropped(LastItemData value)
@@ -60,6 +61,6 @@ public class InventoryView : MonoBehaviour
         Debug.Log(
             $"InventoryView detected item drop: {value.itemId} from position {value.itemPosition}"
         );
-        lastDroppedItemChangedEvent.Raise((value.itemId, value.itemPosition));
+        lastRemovedEvent.Raise((StorageType.Inventory, value.itemId, value.itemPosition));
     }
 }
