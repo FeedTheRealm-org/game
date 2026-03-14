@@ -52,7 +52,7 @@ jobs:
 
       - name: Set Image Tag for ECR
         id: tag
-        run: echo "image_tag=$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "image_tag=latest" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
