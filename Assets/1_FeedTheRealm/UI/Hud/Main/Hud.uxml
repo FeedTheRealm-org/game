@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/Hud/Main/Themes/Hud.uss?fileID=7433441132597879392&amp;guid=f2b110e8876311072b361748c42d217d&amp;type=3#Hud"/>
-    <ui:VisualElement name="FastUseSlotsContainer" enabled="false" class="fast-use-container" style="display: none;">
+    <ui:VisualElement name="FastUseSlotsContainer" enabled="false" class="fast-use-container" style="display: flex; visibility: visible;">
         <ui:Button name="Slot1" class="fast-use-slot"/>
         <ui:Button name="Slot2" class="fast-use-slot"/>
         <ui:Button name="Slot3" class="fast-use-slot"/>
