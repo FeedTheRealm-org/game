@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
@@ -25,6 +24,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private int hotbarSize = 5;
         private string[] inventorySlots = new string[20];
         private string[] hotbarSlots = new string[5];
+        private Dictionary<string, bool> itemsDropped = new Dictionary<string, bool>();
 
         private void InitEmptyInventory()
         {
@@ -50,8 +50,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
             InitEmptyInventory();
         }
 
-        public void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete)
+        public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
         {
+            if (itemId.StartsWith("Dropped-Item"))
+            {
+                if (!itemsDropped.ContainsKey(itemId) || !itemsDropped[itemId])
+                {
+                    itemsDropped[itemId] = true;
+                    return;
+                }
+                else
+                {
+                    itemsDropped.Remove(itemId);
+                }
+            }
+
             logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
 
             for (int i = 0; i < inventorySize; i++)
@@ -89,6 +102,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
             inventorySlots[sourceSlot] = targetItemId;
 
             inventoryState.SwapItems(sourceSlot, targetSlot);
+        }
+
+        public string OnDropItem(IEventCollectable ec, int slotIndex)
+        {
+            if (slotIndex < 0 || slotIndex >= inventorySize)
+                return null;
+
+            string itemId = inventorySlots[slotIndex];
+            if (string.IsNullOrEmpty(itemId))
+                return null;
+
+            logger.Log($"Dropping item {itemId} for player {netId} from slot {slotIndex}", this);
+
+            inventorySlots[slotIndex] = string.Empty;
+            inventoryState.DropItem(slotIndex);
+
+            return itemId;
         }
 
         public void GameTick(float dt) { }

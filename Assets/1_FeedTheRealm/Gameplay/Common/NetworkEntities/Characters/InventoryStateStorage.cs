@@ -36,13 +36,18 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         [SyncVar(hook = nameof(OnLastSwappedItemSync))]
         private LastSwappedItemData lastSwappedItemData;
 
+        [SyncVar(hook = nameof(OnLastDroppedItemSync))]
+        private LastItemData lastDroppedItemData;
+
         /* --- Getters --- */
 
         public LastItemData LastItem => lastItemData;
         public LastSwappedItemData LastSwappedItem => lastSwappedItemData;
+        public LastItemData LastDroppedItem => lastDroppedItemData;
 
         public event Action<LastItemData> OnLastItemChanged;
         public event Action<LastSwappedItemData> OnLastSwappedItemChanged;
+        public event Action<LastItemData> OnLastDroppedItemChanged;
 
         /* --- Setters --- */
 
@@ -58,6 +63,12 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             lastSwappedItemData = new LastSwappedItemData(sourcePosition, targetPosition);
         }
 
+        [Server]
+        public void DropItem(int position)
+        {
+            lastDroppedItemData = new LastItemData(string.Empty, position);
+        }
+
         private void OnLastItemSync(LastItemData oldLastItemData, LastItemData newLastItemData)
         {
             OnLastItemChanged?.Invoke(newLastItemData);
@@ -66,6 +77,11 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         private void OnLastSwappedItemSync(LastSwappedItemData oldData, LastSwappedItemData newData)
         {
             OnLastSwappedItemChanged?.Invoke(newData);
+        }
+
+        private void OnLastDroppedItemSync(LastItemData oldData, LastItemData newData)
+        {
+            OnLastDroppedItemChanged?.Invoke(newData);
         }
     }
 }
