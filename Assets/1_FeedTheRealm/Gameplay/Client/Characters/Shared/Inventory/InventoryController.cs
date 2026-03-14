@@ -1,6 +1,7 @@
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using Google.Protobuf;
 using UnityEngine;
 using VContainer;
 
@@ -39,9 +40,12 @@ public class InventoryController : MonoBehaviour
         TransactionCommandDTO command = new()
         {
             Type = TransactionType.MoveItem,
-            SourcePosition = data.sourceSlot,
-            TargetPosition = data.targetSlot,
             Id = string.Empty,
+            content = new MoveItemCommandContent
+            {
+                SourcePosition = data.sourceSlot,
+                TargetPosition = data.targetSlot,
+            }.ToByteArray(),
         };
 
         networkAdapter.DispatchTransaction(command);
