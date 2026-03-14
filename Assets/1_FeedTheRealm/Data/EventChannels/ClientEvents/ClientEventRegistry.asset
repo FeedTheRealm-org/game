@@ -16,12 +16,14 @@ MonoBehaviour:
   shopOnCloseEvent: {fileID: 11400000, guid: d66e0a54a3c06be4a909b5b6b63e40c0, type: 2}
   healthChangedEvent: {fileID: 11400000, guid: ebc7b4ec14e54b8dbb876afc2254d9e8, type: 2}
   staminaChangedEvent: {fileID: 11400000, guid: 89582c7e8afc2cb4db5daece29a3d3be, type: 2}
-  lastItemChangedEvent: {fileID: 11400000, guid: c0dd9ad5800d74b969386dab2bfc9073, type: 2}
-  lastSwappedItemChangedEvent: {fileID: 11400000, guid: db51a5521f2e775428b074010f59b9a4, type: 2}
-  lastDroppedItemChangedEvent: {fileID: 11400000, guid: ca536fab8ed3c924db3a4141304896ba, type: 2}
-  inventorySlotSwapRequestEvent: {fileID: 11400000, guid: c5352d594353c754b9c61b36c4ca610b, type: 2}
-  inventorySlotDropRequestEvent: {fileID: 11400000, guid: ea09025850d36dc46b1d417cf8844132, type: 2}
-  inventoryToggleEvent: {fileID: 11400000, guid: e16f1f560138bf948b68fb907437fcb1, type: 2}
+  lastAddedEvent: {fileID: 11400000, guid: 2e1f564ad5c2eee4998aafc82ee7194a, type: 2}
+  lastSwappedEvent: {fileID: 11400000, guid: bf3939e36fcaf324f9a058512960901d, type: 2}
+  lastRemovedEvent: {fileID: 11400000, guid: 0f5368480f9c49746876cfa5badab65b, type: 2}
+  slotEquipRequestEvent: {fileID: 11400000, guid: ff1e9a109c515c344b2758af74d024c5, type: 2}
+  slotUnequipRequestEvent: {fileID: 11400000, guid: 196b337dfca104144942425cdf4a73bc, type: 2}
+  slotSwapRequestEvent: {fileID: 11400000, guid: c3cc1d0603aa70c49aab396de7ebd0b5, type: 2}
+  slotDropRequestEvent: {fileID: 11400000, guid: 84a2eb51e3076e8409032523460beef8, type: 2}
+  inventoryToggleEvent: {fileID: 11400000, guid: 71845091c26c22049b862e665acb63b0, type: 2}
   tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
   fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
   lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}
