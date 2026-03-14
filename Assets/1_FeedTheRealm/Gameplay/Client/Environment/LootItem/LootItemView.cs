@@ -50,6 +50,6 @@ public class LootItemView : MonoBehaviour
             initialForceEventContent.Force.Z
         );
         rb.MovePosition(initialPosition);
-        rb.AddForce(force, ForceMode.Impulse);
+        rb.AddForce(force, ForceMode.VelocityChange);
     }
 }

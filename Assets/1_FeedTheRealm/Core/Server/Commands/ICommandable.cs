@@ -11,8 +11,9 @@ public interface ICommandable
     void OnUse(IEventCollectable ec);
     void OnInteract(IEventCollectable ec);
     void OnEquip(IEventCollectable ec);
-    void OnDrop(IEventCollectable ec);
+    void OnDropItem(IEventCollectable ec, int slotIndex);
     void OnPurchase(IEventCollectable ec);
     void OnQuestAccepted(IEventCollectable ec);
     void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
+    void OnMoveItem(IEventCollectable ec, int sourceSlot, int targetSlot);
 }

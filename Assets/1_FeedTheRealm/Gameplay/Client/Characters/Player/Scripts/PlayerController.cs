@@ -1,3 +1,4 @@
+using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.Exceptions;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -13,17 +14,30 @@ public class PlayerController : MonoBehaviour
     public PlayerInputReader inputReader;
 
     [Inject]
+    private InventoryToggleEvent inventoryToggleEvent;
+
+    [Inject]
     private Logging.Logger logger;
 
     private CharacterStateMachine characterStateMachine;
 
     private bool isInitialized = false;
+    private bool isInventoryOpen = false;
 
     public void Initialize(CharacterStateMachine characterStateMachine)
     {
         this.characterStateMachine = characterStateMachine;
         isInitialized = true;
+
+        if (inventoryToggleEvent != null)
+            inventoryToggleEvent.OnRaised += OnInventoryToggled;
+
         StartController();
+    }
+
+    private void OnInventoryToggled(bool isOpen)
+    {
+        isInventoryOpen = isOpen;
     }
 
     public void StartController()
@@ -48,6 +62,9 @@ public class PlayerController : MonoBehaviour
     public void OnDestroy()
     {
         ToggleRegisterInputs(false);
+
+        if (inventoryToggleEvent != null)
+            inventoryToggleEvent.OnRaised -= OnInventoryToggled;
     }
 
     private void ToggleRegisterInputs(bool register)
@@ -73,6 +90,11 @@ public class PlayerController : MonoBehaviour
         // if (Cursor.visible)
         // {
         //     return;
+        if (isInventoryOpen)
+        {
+            return;
+        }
+
         // }
 
         characterStateMachine?.OnUse();

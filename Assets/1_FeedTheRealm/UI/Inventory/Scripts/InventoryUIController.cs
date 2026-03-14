@@ -14,8 +14,29 @@ public class InventoryUIController : MonoBehaviour
     [Inject]
     private LastItemChangedEvent lastItemChangedEvent;
 
+    [Inject]
+    private LastSwappedItemChangedEvent lastSwappedItemChangedEvent;
+
+    [Inject]
+    private LastDroppedItemChangedEvent lastDroppedItemChangedEvent;
+
+    [Inject]
+    private InventorySlotSwapRequestEvent swapRequestEvent;
+
+    [Inject]
+    private InventorySlotDropRequestEvent dropRequestEvent;
+
+    [Inject]
+    private InventoryToggleEvent inventoryToggleEvent;
+
     [SerializeField]
     private PlayerInputReader inputReader;
+
+    [SerializeField]
+    private Sprite defaultSlotSprite;
+
+    [SerializeField]
+    private Sprite selectedSlotSprite;
 
     [SerializeField]
     private Sprite itemObtainedSprite;
@@ -23,6 +44,7 @@ public class InventoryUIController : MonoBehaviour
     private UIDocument uiDocument;
 
     private readonly List<VisualElement> slots = new List<VisualElement>(InventorySlotCount);
+    private int selectedSlotIndex = -1;
 
     private void OnEnable()
     {
@@ -36,13 +58,31 @@ public class InventoryUIController : MonoBehaviour
         slots.Clear();
         for (int i = 0; i < InventorySlotCount; i++)
         {
-            slots.Add(root.Q<VisualElement>($"Slot{i + 1}"));
+            var slot = root.Q<VisualElement>($"Slot{i + 1}");
+            if (slot != null)
+            {
+                int capturedIndex = i; // capture for the closure
+                slot.RegisterCallback<ClickEvent>(evt => OnSlotClicked(capturedIndex));
+                slots.Add(slot);
+            }
+        }
+
+        var dropButton = root.Q<VisualElement>("Drop");
+        if (dropButton != null)
+        {
+            dropButton.RegisterCallback<ClickEvent>(evt => OnDropClicked());
         }
 
         inputReader.InventoryEvent += OnInventoryInput;
 
         if (lastItemChangedEvent != null)
             lastItemChangedEvent.OnRaised += OnLastItemChanged;
+
+        if (lastSwappedItemChangedEvent != null)
+            lastSwappedItemChangedEvent.OnRaised += OnLastSwappedItemChanged;
+
+        if (lastDroppedItemChangedEvent != null)
+            lastDroppedItemChangedEvent.OnRaised += OnLastDroppedItemChanged;
     }
 
     private void OnDisable()
@@ -51,6 +91,12 @@ public class InventoryUIController : MonoBehaviour
 
         if (lastItemChangedEvent != null)
             lastItemChangedEvent.OnRaised -= OnLastItemChanged;
+
+        if (lastSwappedItemChangedEvent != null)
+            lastSwappedItemChangedEvent.OnRaised -= OnLastSwappedItemChanged;
+
+        if (lastDroppedItemChangedEvent != null)
+            lastDroppedItemChangedEvent.OnRaised -= OnLastDroppedItemChanged;
     }
 
     private void OnInventoryInput()
@@ -59,7 +105,71 @@ public class InventoryUIController : MonoBehaviour
         var panel = uiDocument.rootVisualElement.Q<VisualElement>("Panel");
 
         if (panel != null)
+        {
             panel.visible = !panel.visible;
+            if (inventoryToggleEvent != null)
+            {
+                inventoryToggleEvent.Raise(panel.visible);
+            }
+        }
+    }
+
+    private void OnSlotClicked(int index)
+    {
+        if (selectedSlotIndex == -1)
+        {
+            selectedSlotIndex = index;
+            UpdateSlotSprite(index, true);
+        }
+        else
+        {
+            if (selectedSlotIndex == index)
+            {
+                UpdateSlotSprite(index, false);
+                selectedSlotIndex = -1;
+            }
+            else
+            {
+                if (swapRequestEvent != null)
+                {
+                    swapRequestEvent.Raise((selectedSlotIndex, index));
+                    Debug.Log($"Requested swap from UI: {selectedSlotIndex} to {index}");
+                }
+                UpdateSlotSprite(selectedSlotIndex, false);
+                selectedSlotIndex = -1;
+            }
+        }
+    }
+
+    private void OnDropClicked()
+    {
+        if (selectedSlotIndex != -1)
+        {
+            if (dropRequestEvent != null)
+            {
+                dropRequestEvent.Raise(selectedSlotIndex);
+                Debug.Log($"Requested drop from UI for slot: {selectedSlotIndex}");
+            }
+
+            // Revert visual selection
+            UpdateSlotSprite(selectedSlotIndex, false);
+            selectedSlotIndex = -1;
+        }
+        else
+        {
+            Debug.Log("Drop clicked but no item is selected. Ignoring.");
+        }
+    }
+
+    private void UpdateSlotSprite(int index, bool isSelected)
+    {
+        if (index < 0 || index >= slots.Count)
+            return;
+        var sprite = isSelected ? selectedSlotSprite : defaultSlotSprite;
+        if (sprite != null)
+        {
+            slots[index].style.backgroundImage = new StyleBackground(sprite);
+        }
     }
 
     private void OnLastItemChanged((string, int) data)
@@ -68,7 +178,54 @@ public class InventoryUIController : MonoBehaviour
         if (slotNumber < 1 || slotNumber > InventorySlotCount)
             return;
 
-        ShowItemObtained(slotNumber);
+        Debug.Log($"Last item changed: {data.Item1} in slot {slotNumber}");
+
+        ShowItemObtained(slotNumber, data.Item1);
+    }
+
+    private void OnLastDroppedItemChanged((string, int) data)
+    {
+        int slotNumber = ResolveSlotNumber(data.Item2);
+        if (slotNumber < 1 || slotNumber > InventorySlotCount)
+            return;
+
+        Debug.Log($"Last item dropped: {data.Item1} from slot {slotNumber}");
+
+        ShowItemObtained(slotNumber, string.Empty);
+    }
+
+    private void OnLastSwappedItemChanged((int source, int target) data)
+    {
+        Debug.Log($"Last swapped item changed: from {data.source} to {data.target}");
+
+        int sourceSlotIndex = data.source;
+        int targetSlotIndex = data.target;
+
+        if (
+            sourceSlotIndex < 0
+            || sourceSlotIndex >= slots.Count
+            || targetSlotIndex < 0
+            || targetSlotIndex >= slots.Count
+        )
+            return;
+
+        var sourceIcon = slots[sourceSlotIndex].Q<VisualElement>("ItemIcon");
+        var targetIcon = slots[targetSlotIndex].Q<VisualElement>("ItemIcon");
+
+        if (sourceIcon != null && targetIcon != null)
+        {
+            var tempBackground = sourceIcon.style.backgroundImage;
+            var tempTint = sourceIcon.style.unityBackgroundImageTintColor;
+
+            sourceIcon.style.backgroundImage = targetIcon.style.backgroundImage;
+            sourceIcon.style.unityBackgroundImageTintColor = targetIcon
+                .style
+                .unityBackgroundImageTintColor;
+
+            targetIcon.style.backgroundImage = tempBackground;
+            targetIcon.style.unityBackgroundImageTintColor = tempTint;
+            Debug.Log($"Swapped backgrounds between slot {sourceSlotIndex} and {targetSlotIndex}");
+        }
     }
 
     private int ResolveSlotNumber(int position)
@@ -83,11 +240,8 @@ public class InventoryUIController : MonoBehaviour
         return slotIndex + 1;
     }
 
-    private void ShowItemObtained(int slotNumber)
+    private void ShowItemObtained(int slotNumber, string itemId)
     {
-        if (itemObtainedSprite == null)
-            return;
-
         int index = slotNumber - 1;
         if (index < 0 || index >= slots.Count || slots[index] == null)
             return;
@@ -95,27 +249,36 @@ public class InventoryUIController : MonoBehaviour
         var slot = slots[index];
         var icon = slot.Q<VisualElement>("ItemIcon");
 
-        Debug.Log(
-            $"Showing item obtained in slot {slotNumber} with sprite {itemObtainedSprite.name}"
-        );
-
-        if (icon == null)
+        if (icon != null)
         {
-            icon = new VisualElement { name = "ItemIcon" };
-
-            // Setting position absolute to fill the parent slot correctly
-            icon.style.position = Position.Absolute;
-            icon.style.top = 0;
-            icon.style.bottom = 0;
-            icon.style.left = 0;
-            icon.style.right = 0;
-            icon.style.width = Length.Pixels(200);
-            icon.style.height = Length.Pixels(200);
-
-            slot.Add(icon);
+            if (string.IsNullOrEmpty(itemId))
+            {
+                icon.style.backgroundImage = null;
+                icon.style.unityBackgroundImageTintColor = Color.white;
+                Debug.Log($"Cleared item from slot {slotNumber}");
+            }
+            else if (itemObtainedSprite != null)
+            {
+                icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
+                icon.style.unityBackgroundImageTintColor = GetColorFromItemId(itemId);
+                Debug.Log(
+                    $"Showing item obtained in slot {slotNumber} with sprite {itemObtainedSprite.name}"
+                );
+            }
         }
+    }
 
-        icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
-        icon.style.display = DisplayStyle.Flex;
+    private Color GetColorFromItemId(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId))
+            return Color.white;
+        var rand = new System.Random(System.DateTime.Now.Millisecond);
+
+        return new Color(
+            (float)rand.NextDouble() * 0.7f + 0.3f,
+            (float)rand.NextDouble() * 0.7f + 0.3f,
+            (float)rand.NextDouble() * 0.7f + 0.3f,
+            1f
+        );
     }
 }
