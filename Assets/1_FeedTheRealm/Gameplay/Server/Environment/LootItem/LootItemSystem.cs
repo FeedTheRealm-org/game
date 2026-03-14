@@ -64,7 +64,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
                 Random.Range(0, maxInitialForce),
                 Random.Range(-maxInitialForce, maxInitialForce)
             );
-            rb.AddForce(randomInitialForce, ForceMode.Impulse);
+            rb.AddForce(randomInitialForce, ForceMode.VelocityChange);
 
             var initialForceEvent = CreateInitialForceEvent(randomInitialForce, transform.position);
 
