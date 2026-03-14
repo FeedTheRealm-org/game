@@ -45,7 +45,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.inventoryState = inventoryState;
             logger.Log($"Initializing InventorySystem for player {netId}", this);
             inventorySize = config.InventorySize > 0 ? config.InventorySize : 20;
-            hotbarSize = config.HotbarSize > 0 ? config.HotbarSize : 5;
+            hotbarSize = 0; //config.HotbarSize > 0 ? config.HotbarSize : 5;
 
             InitEmptyInventory();
         }
