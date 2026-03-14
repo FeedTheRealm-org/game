@@ -47,6 +47,7 @@ public class ClientCharacterLinker
 
         var movementController = playerComponents.GetComponent<MovementController>();
         var useController = playerComponents.GetComponent<UseController>();
+        var inventoryController = playerComponents.GetComponent<InventoryController>();
 
         networkEventRouter.Initialize(networkAdapter);
         movementView.Initialize(rb, stateStorage);
@@ -58,6 +59,7 @@ public class ClientCharacterLinker
 
         movementController.Initialize(networkAdapter);
         useController.Initialize(networkAdapter);
+        inventoryController.Initialize(networkAdapter);
 
         return playerComponents;
     }
