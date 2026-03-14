@@ -481,6 +481,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+      propertyPath: loaderProvider
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+      propertyPath: clientWorldLoader
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7357027031613840830, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: loaders.Array.size
       value: 1
@@ -488,7 +496,7 @@ PrefabInstance:
     - target: {fileID: 7357027031613840830, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: 'loaders.Array.data[0]'
       value: 
-      objectReference: {fileID: 5313682852792535957, guid: f11ec0c9a8d6e0b548a2f4a7c875b7e1, type: 3}
+      objectReference: {fileID: 6720121156185692885, guid: 06f3718f24c57ac309a12f1367a23e05, type: 3}
     - target: {fileID: 7357027031613840830, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: 'loaders.Array.data[1]'
       value: 

@@ -1,4 +1,6 @@
 using FTR.Core.Common.Scopes;
+using FTR.Core.Server;
+using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -7,6 +9,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable
 {
     private readonly ServerTickDriver serverTickDriver;
     private readonly NetworkTickDriver networkTickDriver;
+    private readonly ServerWorldLoader worldLoader;
 
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
@@ -15,15 +18,20 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable
         ServerTickDriver serverTickDriver,
         NetworkTickDriver networkTickDriver,
         IObjectResolver resolver,
-        ObjectResolverContainer resolverContainer
+        ObjectResolverContainer resolverContainer,
+        ServerPrefabProvider prefabProvider
     )
     {
         this.serverTickDriver = serverTickDriver;
         this.networkTickDriver = networkTickDriver;
+        worldLoader = prefabProvider.ServerWorldLoader.GetComponent<ServerWorldLoader>();
         resolverContainer.SetResolver(resolver);
     }
 
-    public void Start() { }
+    public void Start()
+    {
+        worldLoader.LoadWorld();
+    }
 
     /// <summary>
     /// Tick method is called by the VContainer's TickableManager every frame

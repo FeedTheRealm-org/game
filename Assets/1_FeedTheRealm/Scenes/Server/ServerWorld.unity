@@ -604,26 +604,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ServerWorldInitiator
       objectReference: {fileID: 0}
-    - target: {fileID: 3278589943590782736, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
-      propertyPath: loaders.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3278589943590782736, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
-      propertyPath: 'loaders.Array.data[2]'
-      value: 
-      objectReference: {fileID: 6155336600019281755, guid: 4f9ff053726e36d70aad60525d580bfb, type: 3}
-    - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
-      propertyPath: worldService
-      value: 
-      objectReference: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
     - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
       propertyPath: loaderProvider
       value: 
-      objectReference: {fileID: 8456612910714803318}
-    - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
-      propertyPath: prefabProvider
-      value: 
-      objectReference: {fileID: 11400000, guid: 4ccdd76aef3b99a93afaee9d9606a365, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
       propertyPath: worldReadyEvent
       value: 
@@ -637,17 +621,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
---- !u!114 &8456612910714803318 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3278589943590782736, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
-  m_PrefabInstance: {fileID: 8456612910714803316}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19210c2eb31e342cf9b2ac953b1bef39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.WorldLoader.LoaderProvider
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

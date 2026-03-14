@@ -3,6 +3,7 @@ using FeedTheRealm.Core.Client.EventChannels;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Linkers;
+using FTR.Gameplay.Client.Loaders;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.WorldLoader;
 using UnityEngine;
@@ -29,16 +30,13 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private Logging.Logger logger;
 
         [SerializeField]
+        private Session.Session session;
+
+        [SerializeField]
         private WorldSelector worldSelector;
 
         [SerializeField]
         private WorldService worldService;
-
-        [SerializeField]
-        private LoaderProvider loaderProvider;
-
-        [SerializeField]
-        private Session.Session session;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -51,7 +49,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(logger);
             builder.RegisterInstance(worldSelector);
             builder.RegisterInstance(worldService);
-            builder.RegisterInstance(loaderProvider);
             builder.RegisterInstance(session);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();

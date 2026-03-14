@@ -5,7 +5,6 @@ using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.WorldLoader;
 using FTR.Gameplay.Server.Linkers;
-using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -27,9 +26,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private ServerPrefabProvider prefabProvider;
 
         [SerializeField]
-        private LoaderProvider loaderProvider;
-
-        [SerializeField]
         private WorldService worldService;
 
         protected override void Configure(IContainerBuilder builder)
@@ -40,7 +36,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(logger);
             builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);
-            builder.RegisterInstance(loaderProvider);
             builder.RegisterInstance(worldService);
             builder.Register<WorldMonitor>(Lifetime.Singleton);
 
@@ -55,12 +50,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<NetworkTickDriver>(Lifetime.Singleton);
 
             builder.RegisterEntryPoint<ServerWorldEntryPoint>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<ServerWorldLoader>(Lifetime.Singleton);
-
-            builder.RegisterBuildCallback(container =>
-            {
-                Debug.Log("Container built: " + container);
-            });
         }
     }
 }

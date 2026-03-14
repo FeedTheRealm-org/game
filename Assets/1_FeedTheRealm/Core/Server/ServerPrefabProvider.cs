@@ -7,5 +7,6 @@ namespace FTR.Core.Server
     {
         public GameObject ServerCharacterComponents;
         public GameObject ServerLootItemComponents;
+        public GameObject ServerWorldLoader;
     }
 }

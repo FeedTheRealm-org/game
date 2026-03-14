@@ -3,44 +3,38 @@ using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
-using FTR.Core.Server.Utils;
 using FTR.Gameplay.Common.WorldLoader;
 using FTRShared.Runtime.Models;
-using VContainer.Unity;
+using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Common.LoaderEntities
 {
-    public abstract class WorldLoader : IStartable
+    [RequireComponent(typeof(LoaderProvider))]
+    public abstract class WorldLoaderManager : MonoBehaviour
     {
-        private readonly Config config;
-        private readonly WorldService worldService;
-        private readonly Logging.Logger logger;
-        private readonly LoaderProvider loaderProvider;
+        [Header("General Dependencies")]
+        [SerializeField]
+        protected Config config;
 
-        public WorldLoader(
-            Config config,
-            WorldService worldService,
-            Logging.Logger logger,
-            LoaderProvider loaderProvider
-        )
-        {
-            this.config = config;
-            this.worldService = worldService;
-            this.logger = logger;
-            this.loaderProvider = loaderProvider;
-        }
+        [SerializeField]
+        private WorldService worldService;
 
+        [SerializeField]
+        private Logging.Logger logger;
+        private LoaderProvider loaderProvider;
         public abstract string GetWorldId();
         public abstract string GetAccessToken();
 
-        public async void Start()
+        public async void LoadWorld()
         {
             if (!config.DoNotLoadWorld)
                 Initialize();
         }
 
-        protected virtual async void Initialize()
+        private async void Initialize()
         {
+            loaderProvider = GetComponent<LoaderProvider>();
             try
             {
                 (string worldId, string accessToken) = (GetWorldId(), GetAccessToken());

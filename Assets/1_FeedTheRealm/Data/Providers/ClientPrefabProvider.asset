@@ -16,3 +16,4 @@ MonoBehaviour:
   HudComponent: {fileID: 8198765365136042446, guid: 17712f529b334c64db2cde9364251857, type: 3}
   LootItemVisual: {fileID: 5803050593894928880, guid: 92be4aa7024df945aae5d8f5a23c5c73, type: 3}
   InventoryHudComponent: {fileID: 1688747805032981907, guid: 1b35de2543c4668eaac40686c3ea0e5c, type: 3}
+  ClientWorldLoader: {fileID: 2039614330040931769, guid: dcc4c08f66568d4809253b73c5f2c7f3, type: 3}

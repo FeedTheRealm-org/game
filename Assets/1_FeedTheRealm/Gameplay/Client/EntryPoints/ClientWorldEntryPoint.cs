@@ -1,10 +1,7 @@
-using API;
+using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
-using FTR.Core.Common.Config;
 using FTR.Core.Common.Scopes;
-using FTR.Gameplay.Common.LoaderEntities;
-using FTR.Gameplay.Common.WorldLoader;
-using Logging;
+using FTR.Gameplay.Client.Loaders;
 using VContainer;
 using VContainer.Unity;
 
@@ -13,9 +10,8 @@ namespace FTR.Gameplay.Client.EntryPoints
     /// <summary>
     /// Entry point for the client application, responsible for initializing the application flow, including authentication and main menu navigation.
     /// </summary>
-    public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILateTickable
+    public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
     {
-        private Config config;
         private TickEvent tickEvent;
 
         private FixedTickEvent fixedTickEvent;
@@ -24,52 +20,29 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         private bool isInitialized = false;
 
-        private Session.Session session;
-
-        private WorldSelector worldSelector;
+        private readonly ClientWorldLoader worldLoader;
 
         [Inject]
         public ClientWorldEntryPoint(
-            Config config,
             TickEvent tickEvent,
             FixedTickEvent fixedTickEvent,
             LateTickEvent lateTickEvent,
-            Session.Session session,
-            WorldService worldService,
-            Logger logger,
-            LoaderProvider loaderProvider,
-            WorldSelector worldSelector,
             IObjectResolver resolver,
-            ObjectResolverContainer resolverContainer
+            ObjectResolverContainer resolverContainer,
+            ClientPrefabProvider prefabProvider
         )
-            : base(config, worldService, logger, loaderProvider)
         {
-            this.config = config;
             this.tickEvent = tickEvent;
             this.fixedTickEvent = fixedTickEvent;
             this.lateTickEvent = lateTickEvent;
-            this.session = session;
-            this.worldSelector = worldSelector;
             resolverContainer.SetResolver(resolver);
+            worldLoader = prefabProvider.ClientWorldLoader.GetComponent<ClientWorldLoader>();
             isInitialized = true;
         }
 
-        public override string GetWorldId()
+        public void Start()
         {
-            if (config.IsDebugWorld)
-                return !string.IsNullOrEmpty(config.WorldID)
-                    ? config.WorldID
-                    : worldSelector.GetSelectedWorldId();
-            return worldSelector.GetSelectedWorldId();
-        }
-
-        public override string GetAccessToken()
-        {
-            if (config.IsDebugWorld)
-                return !string.IsNullOrEmpty(config.AccessToken)
-                    ? config.AccessToken
-                    : session.APIToken;
-            return session.APIToken;
+            worldLoader.LoadWorld();
         }
 
         public void Tick()
