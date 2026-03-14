@@ -1,3 +1,4 @@
+using System;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 
@@ -37,8 +38,25 @@ public static class CommandsFactory
                 return new PurchaseCommand(dto.NetId, dto.Id);
             case TransactionType.AcceptQuest:
                 return new AcceptQuestCommand(dto.NetId, dto.Id);
+            case TransactionType.MoveItem:
+                try
+                {
+                    MoveItemCommandContent content = MoveItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new MoveItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    MoveItemCommandContent defaultContent = new MoveItemCommandContent
+                    {
+                        SourcePosition = -1,
+                        TargetPosition = -1,
+                    };
+                    return new MoveItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
             default:
-                throw new System.ArgumentException($"Unsupported transaction type: {dto.Type}");
+                throw new ArgumentException($"Unsupported transaction type: {dto.Type}");
         }
     }
 }

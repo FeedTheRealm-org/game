@@ -15,4 +15,5 @@ public interface ICommandable
     void OnPurchase(IEventCollectable ec);
     void OnQuestAccepted(IEventCollectable ec);
     void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
+    void OnMoveItem(IEventCollectable ec, int sourceSlot, int targetSlot);
 }
