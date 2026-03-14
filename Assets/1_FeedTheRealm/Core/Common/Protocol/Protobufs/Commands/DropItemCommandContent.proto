@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+message DropItemCommandContent {
+  int32 position = 1;
+}
