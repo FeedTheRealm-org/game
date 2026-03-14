@@ -70,6 +70,27 @@ namespace FTR.Gameplay.Server.Characters.Systems
             onComplete(false);
         }
 
+        public void OnMoveItem(IEventCollectable ec, int sourceSlot, int targetSlot)
+        {
+            if (sourceSlot < 0 || sourceSlot >= inventorySize)
+                return;
+            if (targetSlot < 0 || targetSlot >= inventorySize)
+                return;
+
+            logger.Log(
+                $"Swapping item for player {netId} from slot {sourceSlot} to {targetSlot}",
+                this
+            );
+
+            string sourceItemId = inventorySlots[sourceSlot];
+            string targetItemId = inventorySlots[targetSlot];
+
+            inventorySlots[targetSlot] = sourceItemId;
+            inventorySlots[sourceSlot] = targetItemId;
+
+            inventoryState.SwapItems(sourceSlot, targetSlot);
+        }
+
         public void GameTick(float dt) { }
     }
 }

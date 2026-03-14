@@ -51,6 +51,11 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnQuestAccepted(IEventCollectable ec) { }
 
+        public void OnMoveItem(IEventCollectable ec, int sourceSlot, int targetSlot)
+        {
+            inventorySystem.OnMoveItem(ec, sourceSlot, targetSlot);
+        }
+
         public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
         {
             inventorySystem.OnPickUp(ec, itemId, onComplete);
