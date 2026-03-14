@@ -20,7 +20,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         [Header("Inventory Events")]
         public LastItemChangedEvent lastItemChangedEvent;
         public LastSwappedItemChangedEvent lastSwappedItemChangedEvent;
+        public LastDroppedItemChangedEvent lastDroppedItemChangedEvent;
         public InventorySlotSwapRequestEvent inventorySlotSwapRequestEvent;
+        public InventorySlotDropRequestEvent inventorySlotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
 
         [Header("Tick Events")]
@@ -38,7 +40,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(staminaChangedEvent);
             builder.RegisterInstance(lastItemChangedEvent);
             builder.RegisterInstance(lastSwappedItemChangedEvent);
+            builder.RegisterInstance(lastDroppedItemChangedEvent);
             builder.RegisterInstance(inventorySlotSwapRequestEvent);
+            builder.RegisterInstance(inventorySlotDropRequestEvent);
             builder.RegisterInstance(inventoryToggleEvent);
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
@@ -53,7 +57,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(staminaChangedEvent, nameof(staminaChangedEvent));
             ValidateField(lastItemChangedEvent, nameof(lastItemChangedEvent));
             ValidateField(lastSwappedItemChangedEvent, nameof(lastSwappedItemChangedEvent));
+            ValidateField(lastDroppedItemChangedEvent, nameof(lastDroppedItemChangedEvent));
             ValidateField(inventorySlotSwapRequestEvent, nameof(inventorySlotSwapRequestEvent));
+            ValidateField(inventorySlotDropRequestEvent, nameof(inventorySlotDropRequestEvent));
             ValidateField(inventoryToggleEvent, nameof(inventoryToggleEvent));
             ValidateField(tickEvent, nameof(tickEvent));
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));
