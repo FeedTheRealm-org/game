@@ -17,6 +17,6 @@ public class DropItemCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnDropItem(eventCollector, Content.Position);
+        commandable.OnDropItem(eventCollector, Content.Type, Content.Position, Id);
     }
 }

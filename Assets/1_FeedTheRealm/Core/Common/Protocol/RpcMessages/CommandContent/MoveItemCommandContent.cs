@@ -25,13 +25,15 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiVDb21tYW5kcy9Nb3ZlSXRlbUNvbW1hbmRDb250ZW50LnByb3RvEghwcm90",
-            "b2NvbCJKChZNb3ZlSXRlbUNvbW1hbmRDb250ZW50EhcKD3NvdXJjZV9wb3Np",
-            "dGlvbhgBIAEoBRIXCg90YXJnZXRfcG9zaXRpb24YAiABKAVCJ6oCJEZUUi5D",
-            "b3JlLkNvbW1vbi5Qcm90b2NvbC5ScGNNZXNzYWdlc2IGcHJvdG8z"));
+            "b2NvbBoRU3RvcmFnZVR5cGUucHJvdG8ibwoWTW92ZUl0ZW1Db21tYW5kQ29u",
+            "dGVudBIjCgR0eXBlGAEgASgOMhUucHJvdG9jb2wuU3RvcmFnZVR5cGUSFwoP",
+            "c291cmNlX3Bvc2l0aW9uGAIgASgFEhcKD3RhcmdldF9wb3NpdGlvbhgDIAEo",
+            "BUInqgIkRlRSLkNvcmUuQ29tbW9uLlByb3RvY29sLlJwY01lc3NhZ2VzYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::FTR.Core.Common.Protocol.RpcMessages.StorageTypeReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.MoveItemCommandContent), global::FTR.Core.Common.Protocol.RpcMessages.MoveItemCommandContent.Parser, new[]{ "SourcePosition", "TargetPosition" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.MoveItemCommandContent), global::FTR.Core.Common.Protocol.RpcMessages.MoveItemCommandContent.Parser, new[]{ "Type", "SourcePosition", "TargetPosition" }, null, null, null, null)
           }));
     }
     #endregion
@@ -73,6 +75,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MoveItemCommandContent(MoveItemCommandContent other) : this() {
+      type_ = other.type_;
       sourcePosition_ = other.sourcePosition_;
       targetPosition_ = other.targetPosition_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -84,8 +87,20 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       return new MoveItemCommandContent(this);
     }
 
+    /// <summary>Field number for the "type" field.</summary>
+    public const int TypeFieldNumber = 1;
+    private global::FTR.Core.Common.Protocol.RpcMessages.StorageType type_ = global::FTR.Core.Common.Protocol.RpcMessages.StorageType.Null;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::FTR.Core.Common.Protocol.RpcMessages.StorageType Type {
+      get { return type_; }
+      set {
+        type_ = value;
+      }
+    }
+
     /// <summary>Field number for the "source_position" field.</summary>
-    public const int SourcePositionFieldNumber = 1;
+    public const int SourcePositionFieldNumber = 2;
     private int sourcePosition_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -97,7 +112,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     }
 
     /// <summary>Field number for the "target_position" field.</summary>
-    public const int TargetPositionFieldNumber = 2;
+    public const int TargetPositionFieldNumber = 3;
     private int targetPosition_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -123,6 +138,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (Type != other.Type) return false;
       if (SourcePosition != other.SourcePosition) return false;
       if (TargetPosition != other.TargetPosition) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -132,6 +148,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (Type != global::FTR.Core.Common.Protocol.RpcMessages.StorageType.Null) hash ^= Type.GetHashCode();
       if (SourcePosition != 0) hash ^= SourcePosition.GetHashCode();
       if (TargetPosition != 0) hash ^= TargetPosition.GetHashCode();
       if (_unknownFields != null) {
@@ -152,12 +169,16 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (SourcePosition != 0) {
+      if (Type != global::FTR.Core.Common.Protocol.RpcMessages.StorageType.Null) {
         output.WriteRawTag(8);
+        output.WriteEnum((int) Type);
+      }
+      if (SourcePosition != 0) {
+        output.WriteRawTag(16);
         output.WriteInt32(SourcePosition);
       }
       if (TargetPosition != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(24);
         output.WriteInt32(TargetPosition);
       }
       if (_unknownFields != null) {
@@ -170,12 +191,16 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (SourcePosition != 0) {
+      if (Type != global::FTR.Core.Common.Protocol.RpcMessages.StorageType.Null) {
         output.WriteRawTag(8);
+        output.WriteEnum((int) Type);
+      }
+      if (SourcePosition != 0) {
+        output.WriteRawTag(16);
         output.WriteInt32(SourcePosition);
       }
       if (TargetPosition != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(24);
         output.WriteInt32(TargetPosition);
       }
       if (_unknownFields != null) {
@@ -188,6 +213,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (Type != global::FTR.Core.Common.Protocol.RpcMessages.StorageType.Null) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
+      }
       if (SourcePosition != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(SourcePosition);
       }
@@ -205,6 +233,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     public void MergeFrom(MoveItemCommandContent other) {
       if (other == null) {
         return;
+      }
+      if (other.Type != global::FTR.Core.Common.Protocol.RpcMessages.StorageType.Null) {
+        Type = other.Type;
       }
       if (other.SourcePosition != 0) {
         SourcePosition = other.SourcePosition;
@@ -232,10 +263,14 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            SourcePosition = input.ReadInt32();
+            Type = (global::FTR.Core.Common.Protocol.RpcMessages.StorageType) input.ReadEnum();
             break;
           }
           case 16: {
+            SourcePosition = input.ReadInt32();
+            break;
+          }
+          case 24: {
             TargetPosition = input.ReadInt32();
             break;
           }
@@ -259,10 +294,14 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            SourcePosition = input.ReadInt32();
+            Type = (global::FTR.Core.Common.Protocol.RpcMessages.StorageType) input.ReadEnum();
             break;
           }
           case 16: {
+            SourcePosition = input.ReadInt32();
+            break;
+          }
+          case 24: {
             TargetPosition = input.ReadInt32();
             break;
           }

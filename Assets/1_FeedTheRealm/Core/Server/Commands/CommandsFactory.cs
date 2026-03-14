@@ -31,8 +31,42 @@ public static class CommandsFactory
     {
         switch (dto.Type)
         {
-            case TransactionType.Equip:
-                return new EquipCommand(dto.NetId, dto.Id);
+            case TransactionType.EquipItem:
+                try
+                {
+                    MoveItemCommandContent content = MoveItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new EquipItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    MoveItemCommandContent defaultContent = new MoveItemCommandContent
+                    {
+                        Type = StorageType.Inventory,
+                        SourcePosition = -1,
+                        TargetPosition = -1,
+                    };
+                    return new EquipItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
+            case TransactionType.UnequipItem:
+                try
+                {
+                    MoveItemCommandContent content = MoveItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new UnequipItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    MoveItemCommandContent defaultContent = new MoveItemCommandContent
+                    {
+                        Type = StorageType.FastSlot,
+                        SourcePosition = -1,
+                        TargetPosition = -1,
+                    };
+                    return new UnequipItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
             case TransactionType.DropItem:
                 try
                 {
@@ -45,6 +79,7 @@ public static class CommandsFactory
                 {
                     DropItemCommandContent defaultContent = new DropItemCommandContent
                     {
+                        Type = StorageType.Null,
                         Position = -1,
                     };
                     return new DropItemCommand(dto.NetId, dto.Id, defaultContent);
@@ -65,6 +100,7 @@ public static class CommandsFactory
                 {
                     MoveItemCommandContent defaultContent = new MoveItemCommandContent
                     {
+                        Type = StorageType.Null,
                         SourcePosition = -1,
                         TargetPosition = -1,
                     };

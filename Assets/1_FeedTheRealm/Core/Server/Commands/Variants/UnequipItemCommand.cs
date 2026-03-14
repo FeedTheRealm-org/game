@@ -3,12 +3,12 @@ using FTR.Core.Server.Events;
 
 namespace FTR.Core.Server.Commands;
 
-public class EquipItemCommand : BaseServerCommand
+public class UnequipItemCommand : BaseServerCommand
 {
     private readonly string itemId;
     private readonly MoveItemCommandContent content;
 
-    public EquipItemCommand(uint netId, string itemId, MoveItemCommandContent content)
+    public UnequipItemCommand(uint netId, string itemId, MoveItemCommandContent content)
         : base(netId)
     {
         this.itemId = itemId;
@@ -17,7 +17,7 @@ public class EquipItemCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnEquipItem(
+        commandable.OnUnequipItem(
             eventCollector,
             content.SourcePosition,
             content.TargetPosition,
