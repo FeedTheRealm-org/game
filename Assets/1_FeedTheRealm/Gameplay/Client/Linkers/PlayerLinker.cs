@@ -30,19 +30,19 @@ public class ClientPlayerLinker : PlayerLinker
         if (networkAdapter.IsLocalPlayer)
         {
             var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
-            //var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
+            var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
 
             var inventoryView = playerComponents.GetComponent<InventoryView>();
-            // var fastSlotView = playerComponents.GetComponent<FastSlotView>();
+            var fastSlotView = playerComponents.GetComponent<FastSlotView>();
 
             var inventoryController = playerComponents.GetComponent<InventoryController>();
-            //var fastSlotController = playerComponents.GetComponent<FastSlotController>();
+            var fastSlotController = playerComponents.GetComponent<FastSlotController>();
 
             inventoryView?.Initialize(inventoryState);
-            // fastSlotView?.Initialize(fastSlotState);
+            fastSlotView?.Initialize(fastSlotState);
 
             inventoryController.Initialize(networkAdapter);
-            // fastSlotController.Initialize(networkAdapter);
+            fastSlotController.Initialize(networkAdapter);
 
             prefabProvider.HudComponent.SetActive(false);
             var hudComponent = Object.Instantiate(
