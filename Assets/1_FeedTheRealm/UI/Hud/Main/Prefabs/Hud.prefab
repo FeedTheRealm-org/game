@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: -726580152348399193}
   - component: {fileID: 4687081578167197889}
   - component: {fileID: 5715744494289441919}
+  - component: {fileID: -4012475295093347594}
   m_Layer: 0
   m_Name: Hud
   m_TagString: Untagged
@@ -83,3 +84,17 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::HealthUIController
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+--- !u!114 &-4012475295093347594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8198765365136042446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5ae6e4ba116676479326852a215ab55, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::FastSlotUIController
+  defaultSlotSprite: {fileID: 21300000, guid: 711fb7a2b8e1ff54da609e52c3e729b8, type: 3}
+  itemObtainedSprite: {fileID: 21300000, guid: d60c0a942499c1c47a154df28b63e029, type: 3}
