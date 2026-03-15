@@ -4,7 +4,10 @@ package protocol;
 
 option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
 
+import "StorageType.proto";
+
 message MoveItemCommandContent {
-  int32 source_position = 1;
-  int32 target_position = 2;
+  StorageType type = 1;
+  int32 source_position = 2;
+  int32 target_position = 3;
 }

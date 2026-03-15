@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6115904368319544611}
   - component: {fileID: -3193778337751549948}
   - component: {fileID: -4764275599500317385}
+  - component: {fileID: -7618811260492084839}
   - component: {fileID: 5320877551239362344}
   - component: {fileID: 6489399200151354170}
   - component: {fileID: 6809830748454114207}
@@ -209,6 +210,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d278e53f076907ffaa80f9c8a85b8b6, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.LootItem.InventoryStateStorage
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &-7618811260492084839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a06c06f87e78c5140b49a9f3c8fcc075, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.LootItem.FastSlotStateStorage
   syncDirection: 0
   syncMode: 0
   syncInterval: 0

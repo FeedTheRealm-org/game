@@ -4,6 +4,9 @@ package protocol;
 
 option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
 
+import "StorageType.proto";
+
 message DropItemCommandContent {
-  int32 position = 1;
+  StorageType type = 1;
+  int32 position = 2;
 }

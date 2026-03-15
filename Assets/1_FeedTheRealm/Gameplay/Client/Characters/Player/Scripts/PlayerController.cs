@@ -1,4 +1,4 @@
-using FTR.Core.Client.EventChannels.Status;
+using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.Exceptions;
 using Unity.Cinemachine;
 using UnityEngine;

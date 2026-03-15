@@ -18,6 +18,11 @@ public class MoveItemCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnMoveItem(eventCollector, Content.SourcePosition, Content.TargetPosition);
+        commandable.OnMoveItem(
+            eventCollector,
+            Content.Type,
+            Content.SourcePosition,
+            Content.TargetPosition
+        );
     }
 }

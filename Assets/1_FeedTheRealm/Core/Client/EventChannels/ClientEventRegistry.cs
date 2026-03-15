@@ -1,3 +1,4 @@
+using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
@@ -18,11 +19,13 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public StaminaChangedEvent staminaChangedEvent;
 
         [Header("Inventory Events")]
-        public LastItemChangedEvent lastItemChangedEvent;
-        public LastSwappedItemChangedEvent lastSwappedItemChangedEvent;
-        public LastDroppedItemChangedEvent lastDroppedItemChangedEvent;
-        public InventorySlotSwapRequestEvent inventorySlotSwapRequestEvent;
-        public InventorySlotDropRequestEvent inventorySlotDropRequestEvent;
+        public LastAddedEvent lastAddedEvent;
+        public LastSwappedEvent lastSwappedEvent;
+        public LastRemovedEvent lastRemovedEvent;
+        public SlotEquipRequestEvent slotEquipRequestEvent;
+        public SlotUnequipRequestEvent slotUnequipRequestEvent;
+        public SlotSwapRequestEvent slotSwapRequestEvent;
+        public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
 
         [Header("Tick Events")]
@@ -38,11 +41,13 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(shopOnCloseEvent);
             builder.RegisterInstance(healthChangedEvent);
             builder.RegisterInstance(staminaChangedEvent);
-            builder.RegisterInstance(lastItemChangedEvent);
-            builder.RegisterInstance(lastSwappedItemChangedEvent);
-            builder.RegisterInstance(lastDroppedItemChangedEvent);
-            builder.RegisterInstance(inventorySlotSwapRequestEvent);
-            builder.RegisterInstance(inventorySlotDropRequestEvent);
+            builder.RegisterInstance(lastAddedEvent);
+            builder.RegisterInstance(lastSwappedEvent);
+            builder.RegisterInstance(lastRemovedEvent);
+            builder.RegisterInstance(slotEquipRequestEvent);
+            builder.RegisterInstance(slotUnequipRequestEvent);
+            builder.RegisterInstance(slotSwapRequestEvent);
+            builder.RegisterInstance(slotDropRequestEvent);
             builder.RegisterInstance(inventoryToggleEvent);
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
@@ -55,11 +60,13 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(shopOnCloseEvent, nameof(shopOnCloseEvent));
             ValidateField(healthChangedEvent, nameof(healthChangedEvent));
             ValidateField(staminaChangedEvent, nameof(staminaChangedEvent));
-            ValidateField(lastItemChangedEvent, nameof(lastItemChangedEvent));
-            ValidateField(lastSwappedItemChangedEvent, nameof(lastSwappedItemChangedEvent));
-            ValidateField(lastDroppedItemChangedEvent, nameof(lastDroppedItemChangedEvent));
-            ValidateField(inventorySlotSwapRequestEvent, nameof(inventorySlotSwapRequestEvent));
-            ValidateField(inventorySlotDropRequestEvent, nameof(inventorySlotDropRequestEvent));
+            ValidateField(lastAddedEvent, nameof(lastAddedEvent));
+            ValidateField(lastSwappedEvent, nameof(lastSwappedEvent));
+            ValidateField(lastRemovedEvent, nameof(lastRemovedEvent));
+            ValidateField(slotEquipRequestEvent, nameof(slotEquipRequestEvent));
+            ValidateField(slotUnequipRequestEvent, nameof(slotUnequipRequestEvent));
+            ValidateField(slotSwapRequestEvent, nameof(slotSwapRequestEvent));
+            ValidateField(slotDropRequestEvent, nameof(slotDropRequestEvent));
             ValidateField(inventoryToggleEvent, nameof(inventoryToggleEvent));
             ValidateField(tickEvent, nameof(tickEvent));
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));

@@ -21,21 +21,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
         private InventoryStateStorage inventoryState;
         private int inventorySize = 20;
-        private int hotbarSize = 5;
         private string[] inventorySlots = new string[20];
-        private string[] hotbarSlots = new string[5];
-        private Dictionary<string, bool> itemsDropped = new Dictionary<string, bool>();
 
         private void InitEmptyInventory()
         {
             for (int i = 0; i < inventorySize; i++)
             {
                 inventorySlots[i] = string.Empty;
-            }
-
-            for (int i = 0; i < hotbarSize; i++)
-            {
-                hotbarSlots[i] = string.Empty;
             }
         }
 
@@ -45,26 +37,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.inventoryState = inventoryState;
             logger.Log($"Initializing InventorySystem for player {netId}", this);
             inventorySize = config.InventorySize > 0 ? config.InventorySize : 20;
-            hotbarSize = 0; //config.HotbarSize > 0 ? config.HotbarSize : 5;
 
             InitEmptyInventory();
         }
 
         public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
         {
-            if (itemId.StartsWith("Dropped-Item"))
-            {
-                if (!itemsDropped.ContainsKey(itemId) || !itemsDropped[itemId])
-                {
-                    itemsDropped[itemId] = true;
-                    return;
-                }
-                else
-                {
-                    itemsDropped.Remove(itemId);
-                }
-            }
-
             logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
 
             for (int i = 0; i < inventorySize; i++)
@@ -102,6 +80,84 @@ namespace FTR.Gameplay.Server.Characters.Systems
             inventorySlots[sourceSlot] = targetItemId;
 
             inventoryState.SwapItems(sourceSlot, targetSlot);
+        }
+
+        public bool TryRemoveItemAt(int slotIndex, out string itemId)
+        {
+            itemId = null;
+
+            if (slotIndex < 0 || slotIndex >= inventorySize)
+                return false;
+
+            itemId = inventorySlots[slotIndex];
+            if (string.IsNullOrEmpty(itemId))
+                return false;
+
+            inventorySlots[slotIndex] = string.Empty;
+            inventoryState.DropItem(slotIndex);
+            return true;
+        }
+
+        public bool TryAddItemAt(int slotIndex, string itemId)
+        {
+            if (slotIndex < 0 || slotIndex >= inventorySize)
+                return false;
+            if (string.IsNullOrEmpty(itemId))
+                return false;
+            if (!string.IsNullOrEmpty(inventorySlots[slotIndex]))
+                return false;
+
+            inventorySlots[slotIndex] = itemId;
+            inventoryState.AddItem(itemId, slotIndex);
+            return true;
+        }
+
+        public bool TryGetItemAt(int slotIndex, out string itemId)
+        {
+            itemId = null;
+
+            if (slotIndex < 0 || slotIndex >= inventorySize)
+                return false;
+
+            itemId = inventorySlots[slotIndex];
+            return !string.IsNullOrEmpty(itemId);
+        }
+
+        public bool TryReplaceItemAt(int slotIndex, string itemId)
+        {
+            if (slotIndex < 0 || slotIndex >= inventorySize)
+                return false;
+            if (string.IsNullOrEmpty(itemId))
+                return false;
+
+            inventorySlots[slotIndex] = itemId;
+            inventoryState.AddItem(itemId, slotIndex);
+            return true;
+        }
+
+        public bool RemoveItemById(string itemId, out int removedSlot)
+        {
+            removedSlot = -1;
+
+            if (string.IsNullOrEmpty(itemId))
+                return false;
+
+            for (int i = 0; i < inventorySize; i++)
+            {
+                if (inventorySlots[i] == itemId)
+                {
+                    inventorySlots[i] = string.Empty;
+                    inventoryState.DropItem(i);
+                    removedSlot = i;
+                    logger.Log(
+                        $"Removed item {itemId} from inventory slot {i} for player {netId}",
+                        this
+                    );
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public string OnDropItem(IEventCollectable ec, int slotIndex)
