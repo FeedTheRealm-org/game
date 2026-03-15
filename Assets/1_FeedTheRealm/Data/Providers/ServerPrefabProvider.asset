@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Client.ServerPrefabProvider
   ServerCharacterComponents: {fileID: 2056940003155735034, guid: 9907a9bc79e277c47af508172cec712a, type: 3}
   ServerLootItemComponents: {fileID: 3012644098720053192, guid: 6ac8d2d7f505404cfb2984e23953ff21, type: 3}
+  ServerWorldLoader: {fileID: 8011707318326606070, guid: 90e7dfc18bc4e08efa2861399a3f283f, type: 3}

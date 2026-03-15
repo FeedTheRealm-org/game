@@ -7,12 +7,12 @@ using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
-namespace FTR.Gameplay.Common.WorldLoader.Loaders
+namespace FTR.Gameplay.Client.Loaders
 {
-    public class StructureLoader : MonoBehaviour, ILoader
+    public class ClientStructureLoader : MonoBehaviour, ILoader
     {
         [SerializeField]
-        private Config config;
+        Config config;
 
         [SerializeField]
         private ModelService modelService;
@@ -32,7 +32,7 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
         {
             Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(
                 worldData.id,
-                session.APIToken
+                GetSessionToken()
             );
 
             var structures = worldData.objectPlacementData;
@@ -45,10 +45,8 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
 
-                controller.Initialize(structureData, visual);
-
-                if (config.RuntimeRole == RuntimeRole.Server)
-                    controller.RemoveVisual();
+                controller.Initialize(structureData);
+                controller.SetupMesh(visual);
             }
             modelCache.Clear();
             modelsInfo.Clear();
@@ -63,6 +61,11 @@ namespace FTR.Gameplay.Common.WorldLoader.Loaders
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return visual;
+        }
+
+        private string GetSessionToken()
+        {
+            return config.IsDebugWorld ? config.ServerAccessToken : session.APIToken;
         }
     }
 }

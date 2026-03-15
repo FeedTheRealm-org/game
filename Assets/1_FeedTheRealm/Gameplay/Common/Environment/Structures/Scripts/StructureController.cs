@@ -8,62 +8,41 @@ namespace FTR.Gameplay.Common.Environment.Structures
         private StructureData structureData;
         public StructureData Data => structureData;
 
-        private GameObject visualInstance;
-        private MeshCollider meshCollider;
-
-        public void Initialize(StructureData structureData, GameObject visualPrefab)
+        public void Initialize(StructureData structureData)
         {
             this.structureData = structureData;
 
             transform.position = structureData.position;
             transform.rotation = Quaternion.Euler(structureData.rotation);
             transform.localScale = Vector3.one;
-
-            SetupMesh(visualPrefab);
             SetupCollider();
         }
 
-        private void SetupMesh(GameObject visualPrefab)
+        private void SetupCollider()
         {
-            visualInstance = Instantiate(visualPrefab, transform);
+            var boxCollider = gameObject.AddComponent<BoxCollider>();
+            boxCollider.size = structureData.colliderSize;
+            boxCollider.center = structureData.colliderCenter;
+        }
+
+        public void SetupMesh(GameObject visualPrefab)
+        {
+            var visualInstance = Instantiate(visualPrefab, transform);
             visualInstance.SetActive(true);
             visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             visualInstance.transform.localScale = structureData.size;
         }
 
-        private void SetupCollider()
-        {
-            MeshFilter meshFilter = visualInstance.GetComponentInChildren<MeshFilter>();
-
-            if (meshFilter == null)
-            {
-                Debug.LogWarning("No MeshFilter found for collider.");
-                return;
-            }
-
-            MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
-            meshCollider.sharedMesh = meshFilter.sharedMesh;
-            meshCollider.convex = false;
-        }
-
-        public void RemoveVisual()
-        {
-            if (visualInstance != null)
-                Destroy(visualInstance);
-        }
-
         private void OnDrawGizmos()
         {
-            if (meshCollider == null || meshCollider.sharedMesh == null)
-                return;
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireMesh(
-                meshCollider.sharedMesh,
+            Gizmos.color = Color.silver;
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(
                 transform.position,
                 transform.rotation,
-                transform.lossyScale
+                Vector3.one
             );
+            Gizmos.matrix = rotationMatrix;
+            Gizmos.DrawWireCube(structureData.colliderCenter, structureData.colliderSize);
         }
     }
 }

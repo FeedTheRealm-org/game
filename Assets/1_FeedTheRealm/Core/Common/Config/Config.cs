@@ -23,10 +23,21 @@ namespace FTR.Core.Common.Config
             get => GetRuntimeRole();
         }
 
+        [Header("API Settings")]
         public ApiConfig ApiConfig;
 
+        [Header("Server Settings")]
         public ushort ListeningPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
 
+#if SERVER_BUILD || DEBUG
+        [SerializeField]
+        private string serverAccessToken = "test_token";
+        public string ServerAccessToken => serverAccessToken;
+#else
+        public string ServerAccessToken => string.Empty;
+#endif
+
+        [Header("Client Connection Settings")]
         public string CurrentServerAddress = "";
         public ushort CurrentServerPort = 10000;
 
@@ -43,15 +54,10 @@ namespace FTR.Core.Common.Config
         [SerializeField]
         private string worldID = "world_1";
         public string WorldID => worldID;
-
-        [SerializeField]
-        private string accessToken = "test_token";
-        public string AccessToken => accessToken;
 #else
         public bool IsDebugWorld => false;
         public bool DoNotLoadWorld => false;
         public string WorldID => string.Empty;
-        public string AccessToken => string.Empty;
 #endif
 
         /* HELPERS */
