@@ -1,30 +1,36 @@
 using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Models;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Client.Loaders
 {
-    public class ClientStructureLoader : MonoBehaviour, ILoader
+    public class ClientStructureLoader : ILoader
     {
-        [SerializeField]
-        Config config;
+        [Inject]
+        readonly Config config;
 
-        [SerializeField]
-        private ModelService modelService;
+        [Inject]
+        private readonly Session.Session session;
 
-        [SerializeField]
-        private Session.Session session;
+        [Inject]
+        private readonly ModelService modelService;
 
-        [SerializeField]
-        private GltLoaderService gltfLoaderService;
+        [Inject]
+        private readonly GltLoaderService gltfLoaderService;
 
-        [SerializeField]
-        private GameObject structurePrefab;
+        private readonly GameObject structurePrefab;
+
+        public ClientStructureLoader(ClientPrefabProvider prefabProvider)
+        {
+            structurePrefab = prefabProvider.StructurePrefab;
+        }
 
         private Dictionary<string, GameObject> modelCache = new();
 
@@ -41,7 +47,7 @@ namespace FTR.Gameplay.Client.Loaders
                 string modelUrl = modelsInfo[structureData.id].url;
                 GameObject visual = await GetModel(modelUrl);
 
-                GameObject instance = Instantiate(structurePrefab);
+                GameObject instance = Object.Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
 

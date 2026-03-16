@@ -3,26 +3,24 @@ using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
-using FTR.Gameplay.Common.WorldLoader;
 using FTRShared.Runtime.Models;
-using UnityEngine;
 using VContainer;
 
 namespace FTR.Gameplay.Common.LoaderEntities
 {
-    [RequireComponent(typeof(LoaderProvider))]
-    public abstract class WorldLoaderManager : MonoBehaviour
+    public abstract class WorldLoaderManager
     {
-        [Header("General Dependencies")]
-        [SerializeField]
+        [Inject]
         protected Config config;
 
-        [SerializeField]
-        private WorldService worldService;
+        [Inject]
+        private readonly WorldService worldService;
 
-        [SerializeField]
-        private Logging.Logger logger;
-        private LoaderProvider loaderProvider;
+        [Inject]
+        private readonly Logging.Logger logger;
+
+        public List<ILoader> loaders;
+
         public abstract string GetWorldId();
         public abstract string GetAccessToken();
 
@@ -32,9 +30,9 @@ namespace FTR.Gameplay.Common.LoaderEntities
                 Initialize();
         }
 
+        // --- Private methods --- //
         private async void Initialize()
         {
-            loaderProvider = GetComponent<LoaderProvider>();
             try
             {
                 (string worldId, string accessToken) = (GetWorldId(), GetAccessToken());
@@ -51,19 +49,14 @@ namespace FTR.Gameplay.Common.LoaderEntities
             }
         }
 
-        // --- Private methods --- //
-
         private async UniTask Load(string worldId, string accessToken)
         {
+            if (loaders == null || loaders.Count == 0)
+                return;
+
             WorldData worldData =
                 await LoadWorldData(worldId, accessToken)
                 ?? throw new System.InvalidOperationException("Failed to load world data");
-            IReadOnlyList<ILoader> loaders =
-                loaderProvider.GetLoaders()
-                ?? throw new System.InvalidOperationException(
-                    "No loaders found in ServerLoaderComponents"
-                );
-
             for (int i = 0; i < loaders.Count; i++)
             {
                 ILoader loader = loaders[i];

@@ -49,8 +49,11 @@ public class NPCSpawns : MonoBehaviour
         this.npcData = npcData;
         this.radius = spawnData.Radius;
 
-        isInitialized = true;
-        SpawnNPC();
+        if (!isInitialized)
+        {
+            SpawnNPC();
+            isInitialized = true;
+        }
     }
 
     private void SpawnNPC()
@@ -90,13 +93,11 @@ public class NPCSpawns : MonoBehaviour
     private System.Collections.IEnumerator Start()
     {
         yield return new WaitUntil(() => NetworkServer.active);
+        logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
         if (!isInitialized)
         {
-            logger.Log(
-                "[NPCSpawns] DEBUG: spawning NPC without world data (Inspector values).",
-                this
-            );
             SpawnNPC();
+            isInitialized = true;
         }
     }
 #endif

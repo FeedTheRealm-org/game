@@ -1,16 +1,21 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
+using FTR.Core.Server;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Loaders
 {
-    public class FriendlyNpcSpawnerLoader : MonoBehaviour, ILoader
+    public class FriendlyNpcSpawnerLoader : ILoader
     {
-        [SerializeField]
-        private GameObject spawnerPrefab;
+        private readonly GameObject spawnerPrefab;
+
+        public FriendlyNpcSpawnerLoader(ServerPrefabProvider prefabProvider)
+        {
+            spawnerPrefab = prefabProvider.FriendlyNpcSpawnerComponent;
+        }
 
         [SerializeField]
         private NpcDialogRegistry npcDialogRegistry;
@@ -47,7 +52,7 @@ namespace FTR.Gameplay.Server.Loaders
                     }
                 }
 
-                var instance = Instantiate(
+                var instance = Object.Instantiate(
                     spawnerPrefab,
                     new Vector3(spawnData.Position.x, spawnData.Position.y, spawnData.Position.z),
                     Quaternion.identity

@@ -220,31 +220,6 @@ public class FTRNetworkManager : NetworkManager
 
     public override Transform GetStartPosition()
     {
-        // TODO: Dont use find objects by type here and dont make the NetworkManager depend on Gameplay
-        // Find all PlayerSpawnPoint instances created by loaders
-        // PlayerSpawnPoint[] spawnPoints = FindObjectsByType<PlayerSpawnPoint>(
-        //     FindObjectsSortMode.None
-        // );
-
-        // // Use PlayerSpawnPoint if available
-        // if (spawnPoints != null && spawnPoints.Length > 0)
-        // {
-        //     int connectionCount = NetworkServer.connections.Count;
-        //     int spawnIndex = (connectionCount - 1) % spawnPoints.Length;
-
-        //     Transform spawnPoint = spawnPoints[spawnIndex].transform;
-        //     logger.Lo, thisg(
-        //         $"[NetworkManager] Using WorldData spawn point {spawnIndex}: {spawnPoint.position}"
-        //     );
-        //     return spawnPoint;
-        // }
-
-        // Fallback to default spawn (uses startPositions list or NetworkManager position)
-        logger.Log(
-            "[NetworkManager] No WorldData spawn points, using default spawn",
-            this,
-            Logging.LogType.Warning
-        );
         return base.GetStartPosition();
     }
 

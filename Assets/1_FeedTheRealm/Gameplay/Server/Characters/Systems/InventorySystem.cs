@@ -178,5 +178,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
         }
 
         public void GameTick(float dt) { }
+
+        public void LoadInventory(string[] inventoryData, string[] hotbarData)
+        {
+            // TODO: implement inventory loading logic, currently just logs the loaded inventory
+            logger.Log($"Loaded inventory for player {netId}", this);
+        }
     }
 }

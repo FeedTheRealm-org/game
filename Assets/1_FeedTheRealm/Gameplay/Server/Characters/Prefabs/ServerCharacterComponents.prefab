@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 4951664805709151255}
   - component: {fileID: -7943367885201108921}
   - component: {fileID: 201781994314340835}
+  - component: {fileID: 3143189486675115970}
   m_Layer: 0
   m_Name: ServerCharacterComponents
   m_TagString: Untagged
@@ -170,7 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.FastSlotSystem
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
---- !u!114 &201781994314340835
+--- !u!114 &3143189486675115970
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -183,3 +184,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.InteractSystem
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  m_Script: {fileID: 11500000, guid: 782bd7c8f4aa59195bc6a89cbb414789, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.PersistenceSystem

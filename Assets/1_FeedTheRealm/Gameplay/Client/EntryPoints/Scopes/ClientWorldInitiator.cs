@@ -6,7 +6,6 @@ using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
-using FTR.Gameplay.Common.WorldLoader;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -42,6 +41,12 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private NpcDialogRegistry npcDialogRegistry;
 
+        [SerializeField]
+        private ModelService modelService;
+
+        [SerializeField]
+        private GltLoaderService gltfLoaderService;
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Client)
@@ -55,8 +60,12 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(logger);
             builder.RegisterInstance(worldSelector);
             builder.RegisterInstance(worldService);
+            builder.RegisterInstance(config);
             builder.RegisterInstance(session);
             builder.RegisterInstance(npcDialogRegistry);
+            builder.RegisterInstance(modelService);
+            builder.RegisterInstance(gltfLoaderService);
+            builder.Register<ClientWorldLoader>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();

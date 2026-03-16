@@ -28,11 +28,15 @@ public class ServerPlayerLinker : PlayerLinker
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
-        var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
         var rb = gameObject.GetComponent<Rigidbody>();
+
+        var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var respawnSystem = serverComponents.GetComponent<RespawnSystem>();
-
+        var persistenceSystem = serverComponents.GetComponent<PersistenceSystem>();
+        var movementSystem = serverComponents.GetComponent<MovementSystem>();
+        var inventorySystem = serverComponents.GetComponent<InventorySystem>();
         respawnSystem.Initialize(netId, networkAdapter, serverCommandHandler, rb, healthSystem);
+        persistenceSystem.Initialize(movementSystem, inventorySystem);
     }
 }
