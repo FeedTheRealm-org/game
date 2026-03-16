@@ -24,6 +24,8 @@ MonoBehaviour:
   slotSwapRequestEvent: {fileID: 11400000, guid: c3cc1d0603aa70c49aab396de7ebd0b5, type: 2}
   slotDropRequestEvent: {fileID: 11400000, guid: 84a2eb51e3076e8409032523460beef8, type: 2}
   inventoryToggleEvent: {fileID: 11400000, guid: 71845091c26c22049b862e665acb63b0, type: 2}
+  npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
+  npcDialogClosedEvent: {fileID: 11400000, guid: e7146b22aa5022befbf1d4ab8487c9a8, type: 2}
   tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
   fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
   lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}

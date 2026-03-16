@@ -1,11 +1,5 @@
 using FTR.Core.Client;
-using FTR.Gameplay.Client.Characters;
-using FTR.Gameplay.Client.Characters.Shared.StateMachine;
-using FTR.Gameplay.Common.Environment.Dialogs;
-using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
-using FTR.Gameplay.Common.NetworkEntities.LootItem;
-using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -16,7 +10,6 @@ namespace FTR.Gameplay.Client.Linkers
     {
         private readonly ClientPrefabProvider prefabProvider;
         private readonly IObjectResolver resolver;
-        private readonly NpcDialogRegistry npcDialogRegistry;
 
         public ClientCharacterLinker(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
         {
@@ -38,7 +31,6 @@ namespace FTR.Gameplay.Client.Linkers
             );
             resolver.InjectGameObject(playerComponents);
 
-            var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
             var movementView = playerComponents.GetComponent<MovementView>();
             var attackView = playerComponents.GetComponent<AttackView>();
@@ -47,8 +39,6 @@ namespace FTR.Gameplay.Client.Linkers
             var healthView = playerComponents.GetComponent<HealthView>();
             var movementController = playerComponents.GetComponent<MovementController>();
             var useController = playerComponents.GetComponent<UseController>();
-            var interactController = playerComponents.GetComponent<InteractController>();
-            var interactView = playerComponents.GetComponent<InteractView>();
 
             networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
@@ -59,8 +49,6 @@ namespace FTR.Gameplay.Client.Linkers
 
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
-            interactController.Initialize(networkAdapter);
-            interactView.Initialize(networkEventRouter, npcDialogRegistry, stateStorage);
 
             return playerComponents;
         }

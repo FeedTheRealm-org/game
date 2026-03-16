@@ -5,20 +5,21 @@ using FTR.Core.Server;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Loaders
 {
     public class FriendlyNpcSpawnerLoader : ILoader
     {
+        [Inject]
+        private readonly NpcDialogRegistry npcDialogRegistry;
+
         private readonly GameObject spawnerPrefab;
 
         public FriendlyNpcSpawnerLoader(ServerPrefabProvider prefabProvider)
         {
             spawnerPrefab = prefabProvider.FriendlyNpcSpawnerComponent;
         }
-
-        [SerializeField]
-        private NpcDialogRegistry npcDialogRegistry;
 
         public async UniTask Load(WorldData worldData)
         {

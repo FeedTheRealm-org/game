@@ -28,6 +28,9 @@ public class ServerCharacterLinker
         this.resolver = resolver;
     }
 
+    //TODO: delete inventory and fastslot from initialization here,
+    // but need to separate command handlers (NPC/PLAYER/ENEMY)
+    // now every entity has inventory and fastslot systems initialized
     public GameObject Link(GameObject gameObject)
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
@@ -61,8 +64,6 @@ public class ServerCharacterLinker
         useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
         healthSystem.Initialize(netId, stateStorage);
-        inventorySystem.Initialize(netId, inventoryStateStorage);
-        fastSlotSystem.Initialize(netId, fastSlotStateStorage);
         interactSystem.Initialize(netId, stateStorage);
 
         serverCommandHandler.Initialize(

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.EventChannels.CommonEventRegistry
   initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
   npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
+  npcDialogClosedEvent: {fileID: 11400000, guid: e7146b22aa5022befbf1d4ab8487c9a8, type: 2}
   enemySlayedEvent: {fileID: 11400000, guid: bc1931e5725e587d5b31e691f308799c, type: 2}
   questOfferedEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
   questProgressEvent: {fileID: 11400000, guid: 97500dbc39981e47795353313f9d5277, type: 2}

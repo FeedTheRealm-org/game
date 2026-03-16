@@ -44,7 +44,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(npcDialogRegistry);
-            builder.Register<WorldMonitor>(Lifetime.Singleton);
 
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
             builder.Register<ServerWorldLoader>(Lifetime.Singleton);

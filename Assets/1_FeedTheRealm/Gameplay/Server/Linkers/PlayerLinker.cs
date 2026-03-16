@@ -21,6 +21,8 @@ public class ServerPlayerLinker : PlayerLinker
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
     }
 
+    //TODO: add inventory and fastslot initialization here,
+    // but need to separate command handlers (NPC/PLAYER/ENEMY)
     public override void Link(GameObject gameObject)
     {
         var serverComponents = characterLinker.Link(gameObject);

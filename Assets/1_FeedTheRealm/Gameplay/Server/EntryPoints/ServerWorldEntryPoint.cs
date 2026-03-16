@@ -11,7 +11,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable
     private readonly ServerTickDriver serverTickDriver;
     private readonly NetworkTickDriver networkTickDriver;
 
-    //private readonly ServerWorldLoader worldLoader;
+    private readonly ServerWorldLoader worldLoader;
 
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
@@ -32,7 +32,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable
 
     public void Start()
     {
-        //worldLoader.LoadWorld();
+        worldLoader.LoadWorld();
     }
 
     /// <summary>

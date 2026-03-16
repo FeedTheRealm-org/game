@@ -1,6 +1,7 @@
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// Client-side controller that dispatches interact-related action commands to the server.
@@ -9,10 +10,8 @@ using UnityEngine;
 /// </summary>
 public class InteractController : MonoBehaviour
 {
-    [Header("Logging")]
-    [SerializeField]
-    private Logging.Logger logger;
-
+    [Inject]
+    PlayerInputReader inputReader;
     private NetworkAdapter networkAdapter;
     private bool isInitialized;
 
@@ -20,6 +19,13 @@ public class InteractController : MonoBehaviour
     {
         this.networkAdapter = networkAdapter;
         isInitialized = true;
+        inputReader.InteractEvent += OnInteract;
+    }
+
+    private void OnDestroy()
+    {
+        if (inputReader != null)
+            inputReader.InteractEvent -= OnInteract;
     }
 
     /// <summary>
@@ -34,7 +40,7 @@ public class InteractController : MonoBehaviour
             return;
         }
 
-        logger.Log("Dispatching Interact.", this);
+        Debug.Log("Dispatching Interact.");
         networkAdapter.DispatchAction(new ActionCommandDTO { Type = ActionType.Interact });
     }
 
@@ -50,7 +56,7 @@ public class InteractController : MonoBehaviour
             return;
         }
 
-        logger.Log("Dispatching DialogNext.", this);
+        Debug.Log("Dispatching DialogNext.");
         networkAdapter.DispatchAction(new ActionCommandDTO { Type = ActionType.DialogNext });
     }
 }

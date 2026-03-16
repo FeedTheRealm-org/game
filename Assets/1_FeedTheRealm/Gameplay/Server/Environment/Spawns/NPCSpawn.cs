@@ -51,9 +51,27 @@ public class NPCSpawns : MonoBehaviour
 
         if (!isInitialized)
         {
-            SpawnNPC();
             isInitialized = true;
+            TrySpawnNPC();
         }
+    }
+
+    private void TrySpawnNPC()
+    {
+        if (NetworkServer.active)
+        {
+            SpawnNPC();
+            return;
+        }
+
+        logger.Log("[NPCSpawns] NetworkServer not active yet, waiting to spawn NPC.", this);
+        StartCoroutine(SpawnWhenServerActive());
+    }
+
+    private System.Collections.IEnumerator SpawnWhenServerActive()
+    {
+        yield return new WaitUntil(() => NetworkServer.active);
+        SpawnNPC();
     }
 
     private void SpawnNPC()

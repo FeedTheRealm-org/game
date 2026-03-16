@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6835838351028568930}
   - component: {fileID: 3822863961782869944}
   - component: {fileID: 6948560733854560613}
-  - component: {fileID: 4396716251003102700}
   - component: {fileID: 3680305885869211772}
   - component: {fileID: 8296436982081668311}
   - component: {fileID: 5727485716493610579}
@@ -92,18 +91,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &4396716251003102700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3227871909907725305}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ce6499b381b5a671aac2f6eca6d43ce, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::DialogManagerComponent
 --- !u!114 &3680305885869211772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,10 +248,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1400195153593936078}
     m_Modifications:
-    - target: {fileID: 283696448335698891, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
-      propertyPath: dialogManager
-      value:
-      objectReference: {fileID: 4396716251003102700}
     - target: {fileID: 2891291210302814029, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
       propertyPath: m_Pivot
       value: 0
