@@ -29,4 +29,5 @@ COPY Build/Server/ /app/
 EXPOSE 7777/tcp
 EXPOSE 7777/udp
 
-ENTRYPOINT ["./server.x86_64", "-batchmode", "-nographics"]
+ENTRYPOINT ["./server.x86_64"]
+CMD ["-batchmode", "-nographics"]
