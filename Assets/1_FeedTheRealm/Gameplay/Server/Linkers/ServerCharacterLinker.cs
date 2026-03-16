@@ -51,6 +51,7 @@ public class ServerCharacterLinker
         var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
         var inventorySystem = serverComponents.GetComponent<InventorySystem>();
         var fastSlotSystem = serverComponents.GetComponent<FastSlotSystem>();
+        var interactSystem = serverComponents.GetComponent<InteractSystem>();
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
 
@@ -62,13 +63,15 @@ public class ServerCharacterLinker
         healthSystem.Initialize(netId, stateStorage);
         inventorySystem.Initialize(netId, inventoryStateStorage);
         fastSlotSystem.Initialize(netId, fastSlotStateStorage);
+        interactSystem.Initialize(netId, stateStorage);
 
         serverCommandHandler.Initialize(
             movementSystem,
             dashSystem,
             useSystem,
             inventorySystem,
-            fastSlotSystem
+            fastSlotSystem,
+            interactSystem
         );
 
         RegisterEntity(netId, networkAdapter, serverCommandHandler);

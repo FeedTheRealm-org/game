@@ -1,5 +1,5 @@
-using FTR.Core.Common.Dialogue;
 using FTR.Core.Common.Scopes;
+using FTR.Gameplay.Common.Environment.Npcs;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
@@ -15,9 +15,6 @@ public class NPCSpawns : MonoBehaviour
     private string npcID;
 
     [SerializeField]
-    private DialogData dialogData;
-
-    [SerializeField]
     private float radius = 5f;
 
     [SerializeField]
@@ -27,13 +24,14 @@ public class NPCSpawns : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
+    private NPCData npcData;
     private bool isInitialized = false;
 
     /// <summary>
-    /// Initialize Configures this spawn instance with data from NPCSpawnerData.
-    /// Must be called after instantiation for dynamically placed spawns.
+    /// Configures this spawner with data from the world loader.
+    /// npcData provides the id and name for NpcIdentity.
     /// </summary>
-    public void Initialize(NPCSpawnerData spawnData, DialogData dialogData)
+    public void Initialize(NPCSpawnerData spawnData, NPCData npcData, DialogData dialogData = null)
     {
         if (spawnData == null)
             throw new System.ArgumentNullException(
@@ -41,8 +39,14 @@ public class NPCSpawns : MonoBehaviour
                 "NPCSpawnerData cannot be null when initializing NPCSpawns."
             );
 
+        if (npcData == null)
+            throw new System.ArgumentNullException(
+                nameof(npcData),
+                "NPCData cannot be null when initializing NPCSpawns."
+            );
+
         this.npcID = spawnData.NpcId;
-        this.dialogData = dialogData;
+        this.npcData = npcData;
         this.radius = spawnData.Radius;
 
         isInitialized = true;
@@ -52,33 +56,27 @@ public class NPCSpawns : MonoBehaviour
     private void SpawnNPC()
     {
         if (npcPrefab == null)
-            throw new System.Exception("NPC prefab not assigned on NPCSpawns!");
+            throw new System.Exception("[NPCSpawns] NPC prefab not assigned!");
 
         var position = GetRandomPointInRadius();
-        logger.Log($"[NPCSpawns] Spawning NPC at {position}", this);
+        logger.Log($"[NPCSpawns] Spawning NPC '{npcID}' at {position}", this);
+
         GameObject npc = resolverContainer.Resolver.Instantiate(
             npcPrefab,
             position,
             Quaternion.identity
         );
         npc.name = $"NPC_{npcID}";
+
+        var identity = npc.GetComponent<NpcIdentity>();
+        if (identity != null)
+            identity.Initialize(npcData);
+        else
+            Debug.LogWarning(
+                $"[NPCSpawns] NpcIdentity component not found on prefab for NPC '{npcID}'."
+            );
+
         NetworkServer.Spawn(npc);
-
-        var msgs = dialogData != null ? TransformDialogDataToNpcMessages(dialogData) : null;
-        npc.GetComponent<DialogManagerComponent>()?.SetDialogs(msgs);
-    }
-
-    private NpcMessageData[] TransformDialogDataToNpcMessages(DialogData dialogData)
-    {
-        NpcMessageData[] npcMessages = new NpcMessageData[dialogData.messages.Count];
-
-        for (int i = 0; i < dialogData.messages.Count; i++)
-        {
-            var msg = dialogData.messages[i];
-            npcMessages[i] = new NpcMessageData(msg.Content, null);
-        }
-
-        return npcMessages;
     }
 
     private Vector3 GetRandomPointInRadius()
@@ -92,8 +90,14 @@ public class NPCSpawns : MonoBehaviour
     private System.Collections.IEnumerator Start()
     {
         yield return new WaitUntil(() => NetworkServer.active);
-        logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
-        SpawnNPC();
+        if (!isInitialized)
+        {
+            logger.Log(
+                "[NPCSpawns] DEBUG: spawning NPC without world data (Inspector values).",
+                this
+            );
+            SpawnNPC();
+        }
     }
 #endif
 

@@ -61,7 +61,7 @@ namespace FTR.Core.Common.EventChannels
         private void ValidateField(Object field, string fieldName)
         {
             if (field == null)
-                Debug.LogError($"[CommonEventRegistry] {fieldName} is not assigned.");
+                throw new System.Exception($"[CommonEventRegistry] {fieldName} is not assigned.");
         }
     }
 }

@@ -4,6 +4,7 @@ using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
+using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.WorldLoader;
 using UnityEngine;
@@ -38,10 +39,15 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private WorldService worldService;
 
+        [SerializeField]
+        private NpcDialogRegistry npcDialogRegistry;
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Client)
                 return;
+
+            Validate();
 
             clientEventRegistry.RegisterAll(builder);
             builder.RegisterInstance(playerInputReader);
@@ -50,12 +56,32 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(worldSelector);
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(session);
+            builder.RegisterInstance(npcDialogRegistry);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
 
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
+        }
+
+        private void Validate()
+        {
+            ValidateField(config, nameof(config));
+            ValidateField(playerInputReader, nameof(playerInputReader));
+            ValidateField(prefabProvider, nameof(prefabProvider));
+            ValidateField(clientEventRegistry, nameof(clientEventRegistry));
+            ValidateField(logger, nameof(logger));
+            ValidateField(session, nameof(session));
+            ValidateField(worldSelector, nameof(worldSelector));
+            ValidateField(worldService, nameof(worldService));
+            ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
+        }
+
+        private void ValidateField(Object field, string fieldName)
+        {
+            if (field == null)
+                throw new System.Exception($"[ClientWorldInitiator] {fieldName} is not assigned.");
         }
     }
 }

@@ -1,5 +1,6 @@
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.Exceptions;
+using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;

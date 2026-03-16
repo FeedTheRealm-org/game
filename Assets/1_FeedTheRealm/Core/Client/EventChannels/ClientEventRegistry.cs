@@ -2,6 +2,7 @@ using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Common.EventChannels;
 using UnityEngine;
 using VContainer;
 
@@ -27,6 +28,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public SlotSwapRequestEvent slotSwapRequestEvent;
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
+        public NpcInteractedEvent npcInteractedEvent;
+        public NpcDialogClosedEvent npcDialogClosedEvent;
 
         [Header("Tick Events")]
         public TickEvent tickEvent;
@@ -52,6 +55,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
             builder.RegisterInstance(lateTickEvent);
+            builder.RegisterInstance(npcInteractedEvent);
+            builder.RegisterInstance(npcDialogClosedEvent);
         }
 
         private void Validate()
@@ -71,6 +76,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(tickEvent, nameof(tickEvent));
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));
             ValidateField(lateTickEvent, nameof(lateTickEvent));
+            ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

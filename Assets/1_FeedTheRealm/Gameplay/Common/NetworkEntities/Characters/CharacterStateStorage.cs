@@ -20,6 +20,15 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnHealthSync))]
         private float health;
 
+        [SyncVar(hook = nameof(OnIsInteractingSync))]
+        private bool isInteracting;
+
+        [SyncVar]
+        private string currentNpcId;
+
+        [SyncVar]
+        private int currentDialogIndex;
+
         /* --- Getters --- */
 
         public Vector3 Position => position;
@@ -29,11 +38,17 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public bool IsLocalPlayer => isLocalPlayer;
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
+        public bool IsInteracting => isInteracting;
+        public string CurrentNpcId => currentNpcId;
+        public int CurrentDialogIndex => currentDialogIndex;
+
+        /* --- Events --- */
 
         public event Action<Vector3> OnPositionCorrected;
         public event Action<Vector3> OnDirectionChanged;
         public event Action<float> OnStaminaChanged;
         public event Action<float> OnHealthChanged;
+        public event Action<bool> OnIsInteractingChanged;
 
         /* --- Setters --- */
 
@@ -61,6 +76,18 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             health = newHealth;
         }
 
+        [Server]
+        public void SetInteracting(bool value, string npcId = "")
+        {
+            isInteracting = value;
+            currentNpcId = npcId;
+            if (!value)
+                currentDialogIndex = 0;
+        }
+
+        [Server]
+        public void SetDialogIndex(int index) => currentDialogIndex = index;
+
         /* --- Syncvar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
@@ -83,6 +110,11 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnHealthChanged?.Invoke(newHealth);
         }
 
+        private void OnIsInteractingSync(bool _, bool v)
+        {
+            OnIsInteractingChanged?.Invoke(v);
+        }
+
         public override void OnStartClient()
         {
             Debug.Log(
@@ -93,6 +125,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnDirectionSync(Vector3.zero, direction);
             OnStaminaSync(0, stamina);
             OnHealthSync(0, health);
+            OnIsInteractingSync(false, isInteracting);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace FTR.Gameplay.Server.Characters
         private UseSystem useSystem;
         private InventorySystem inventorySystem;
         private FastSlotSystem fastSlotSystem;
+        private InteractSystem interactSystem;
 
         // TODO: Serialize field whatever possible
         public void Initialize(
@@ -20,7 +21,8 @@ namespace FTR.Gameplay.Server.Characters
             DashSystem dashSystem,
             UseSystem useSystem,
             InventorySystem inventorySystem,
-            FastSlotSystem fastSlotSystem
+            FastSlotSystem fastSlotSystem,
+            InteractSystem interactSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -28,6 +30,7 @@ namespace FTR.Gameplay.Server.Characters
             this.useSystem = useSystem;
             this.inventorySystem = inventorySystem;
             this.fastSlotSystem = fastSlotSystem;
+            this.interactSystem = interactSystem;
         }
 
         public void OnMove(IEventCollectable ec, Vector3 direction)
@@ -45,7 +48,15 @@ namespace FTR.Gameplay.Server.Characters
             useSystem.OnUse(ec);
         }
 
-        public void OnInteract(IEventCollectable ec) { }
+        public void OnInteract(IEventCollectable ec)
+        {
+            interactSystem.OnInteract(ec);
+        }
+
+        public void OnDialogNext(IEventCollectable ec)
+        {
+            interactSystem.OnDialogNext(ec);
+        }
 
         public void OnEquipItem(IEventCollectable ec, int sourceSlot, int targetSlot, string itemId)
         {

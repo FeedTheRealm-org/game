@@ -2,6 +2,7 @@ using API;
 using FTR.Core.Common.Config;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
+using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.WorldLoader;
 using FTR.Gameplay.Server.Linkers;
@@ -26,6 +27,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private ServerPrefabProvider prefabProvider;
 
         [SerializeField]
+        private NpcDialogRegistry npcDialogRegistry;
+
+        [SerializeField]
         private WorldService worldService;
 
         protected override void Configure(IContainerBuilder builder)
@@ -33,10 +37,13 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             if (config.RuntimeRole != RuntimeRole.Server)
                 return;
 
+            Validate();
+
             builder.RegisterInstance(logger);
             builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
+            builder.RegisterInstance(npcDialogRegistry);
             builder.Register<WorldMonitor>(Lifetime.Singleton);
 
             builder.Register<ServerPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
@@ -50,6 +57,22 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<NetworkTickDriver>(Lifetime.Singleton);
 
             builder.RegisterEntryPoint<ServerWorldEntryPoint>(Lifetime.Singleton);
+        }
+
+        private void Validate()
+        {
+            ValidateField(config, nameof(config));
+            ValidateField(logger, nameof(logger));
+            ValidateField(gameTickEvent, nameof(gameTickEvent));
+            ValidateField(prefabProvider, nameof(prefabProvider));
+            ValidateField(worldService, nameof(worldService));
+            ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
+        }
+
+        private void ValidateField(Object field, string fieldName)
+        {
+            if (field == null)
+                throw new System.Exception($"[ServerWorldInitiator] {fieldName} is not assigned.");
         }
     }
 }

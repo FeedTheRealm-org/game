@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 5121831121043531446}
   - component: {fileID: 4951664805709151255}
   - component: {fileID: -7943367885201108921}
+  - component: {fileID: 201781994314340835}
   m_Layer: 0
   m_Name: ServerCharacterComponents
   m_TagString: Untagged
@@ -169,3 +170,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.FastSlotSystem
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
+--- !u!114 &201781994314340835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056940003155735034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 445f376cdfe827986a4555ccc86e53a3, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.InteractSystem
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}

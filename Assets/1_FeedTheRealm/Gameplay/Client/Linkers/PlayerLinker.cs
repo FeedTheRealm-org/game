@@ -1,4 +1,5 @@
 using FTR.Core.Client;
+using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;

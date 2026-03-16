@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 7781193415436150992}
   - component: {fileID: 1304933063733738357}
   - component: {fileID: 5288681758117497085}
+  - component: {fileID: 8171009014256287797}
   m_Layer: 10
   m_Name: Npc
   m_TagString: Untagged
@@ -103,49 +104,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ce6499b381b5a671aac2f6eca6d43ce, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogManagerComponent
-  shouldResetOnComplete: 1
-  inactivityTimeout: 5
-  NpcName:
-  NpcId:
-  dialogs:
-  - _msg:
-      id:
-      _sender:
-      _content: Let's sing together! Music connects everyone's hearts!
-    _quest:
-      id:
-      title:
-      content:
-      targetAmount: 0
-      targetId:
-      targetInteractionId:
-      type: 0
-  - _msg:
-      id:
-      _sender:
-      _content: I'm the virtual diva of the future! Nice to meet you!
-    _quest:
-      id:
-      title:
-      content:
-      targetAmount: 0
-      targetId:
-      targetInteractionId:
-      type: 0
-  - _msg:
-      id:
-      _sender:
-      _content: Practice makes perfect! Let's keep trying until we shine!
-    _quest:
-      id:
-      title:
-      content:
-      targetAmount: 0
-      targetId:
-      targetInteractionId:
-      type: 0
-  questOfferedEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
 --- !u!114 &3680305885869211772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +195,19 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
   linkerType: 2
+--- !u!114 &8171009014256287797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3227871909907725305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 787b9c3f7adbe6861ab44cea65d1a635, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Environment.Npcs.NpcIdentity
+  npcId:
 --- !u!1 &6815400209941880697
 GameObject:
   m_ObjectHideFlags: 0

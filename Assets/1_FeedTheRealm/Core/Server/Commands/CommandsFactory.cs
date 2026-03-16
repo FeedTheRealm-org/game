@@ -1,6 +1,7 @@
 using System;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.Commands;
 using UnityEditor;
 
 namespace FTR.Core.Server.Commands;
@@ -21,7 +22,9 @@ public static class CommandsFactory
             case ActionType.Use:
                 return new UseCommand(dto.NetId, dto.Direction);
             case ActionType.Interact:
-                return new InteractCommand(dto.NetId, dto.Direction);
+                return new InteractCommand(dto.NetId);
+            case ActionType.DialogNext:
+                return new DialogNextCommand(dto.NetId);
             default:
                 throw new ArgumentException($"Unsupported action type: {dto.Type}");
         }

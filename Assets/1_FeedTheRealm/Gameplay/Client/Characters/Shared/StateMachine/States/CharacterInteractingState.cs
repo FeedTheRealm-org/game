@@ -1,51 +1,58 @@
 using FTR.Core.Client.StateMachine;
-using UnityEngine;
+using FTR.Core.Common.EventChannels;
 
-/// <summary>
-/// State for when the character is interacting with an object or npc.
-/// </summary>
-public class CharacterInteractingState : IActionState
+namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
 {
-    private IStateMachine stateMachine;
-
-    // private PlayerInteractComponent interactComponent;
-    private CharacterAnimator animator;
-
-    public CharacterInteractingState(
-        IStateMachine sm,
-        // PlayerInteractComponent interactComponent,
-        CharacterAnimator animator
-    )
+    /// <summary>
+    /// State for when the character is interacting with an NPC.
+    /// </summary>
+    public class CharacterInteractingState : IActionState
     {
-        // this.interactComponent = interactComponent;
-        this.animator = animator;
-        this.stateMachine = sm;
-    }
+        private IStateMachine stateMachine;
+        private InteractController interactController;
+        private NpcDialogClosedEvent npcDialogClosedEvent;
+        private CharacterAnimator animator;
 
-    public void Enter()
-    {
-        // interactComponent.OnInteractFinished += OnInteractFinished;
-        // stateMachine.ToggleBlockMovement(true);
-        // stateMachine.ToggleBlockAction(true);
-        // interactComponent.OnInteract();
-    }
+        public CharacterInteractingState(
+            IStateMachine stateMachine,
+            InteractController interactController,
+            CharacterAnimator animator
+        )
+        {
+            this.stateMachine = stateMachine;
+            this.interactController = interactController;
+            this.animator = animator;
+        }
 
-    public void Exit()
-    {
-        // interactComponent.OnInteractFinished -= OnInteractFinished;
-        // stateMachine.ToggleBlockMovement(false);
-        // stateMachine.ToggleBlockAction(false);
-    }
+        public void Enter()
+        {
+            stateMachine.ToggleBlockMovement(true);
+            stateMachine.ToggleBlockAction(true);
 
-    private void OnInteractFinished()
-    {
-        stateMachine.SetActionState(null);
-    }
+            npcDialogClosedEvent.OnRaised += OnDialogClosed;
 
-    public void Dispose()
-    {
-        stateMachine = null;
-        // interactComponent = null;
-        animator = null;
+            interactController.OnInteract();
+        }
+
+        public void Exit()
+        {
+            npcDialogClosedEvent.OnRaised -= OnDialogClosed;
+
+            stateMachine.ToggleBlockMovement(false);
+            stateMachine.ToggleBlockAction(false);
+        }
+
+        private void OnDialogClosed()
+        {
+            stateMachine.SetActionState(null);
+        }
+
+        public void Dispose()
+        {
+            stateMachine = null;
+            interactController = null;
+            npcDialogClosedEvent = null;
+            animator = null;
+        }
     }
 }
