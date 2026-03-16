@@ -1,21 +1,26 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
+using FTR.Core.Server;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Loaders
 {
-    public class FriendlyNpcSpawnerLoader : MonoBehaviour, ILoader
+    public class FriendlyNpcSpawnerLoader : ILoader
     {
-        [SerializeField]
-        private GameObject spawnerPrefab;
+        private readonly GameObject spawnerPrefab;
+
+        public FriendlyNpcSpawnerLoader(ServerPrefabProvider prefabProvider)
+        {
+            spawnerPrefab = prefabProvider.FriendlyNpcSpawnerComponent;
+        }
 
         public async UniTask Load(WorldData worldData)
         {
             var spawnAreas = worldData.npcSpawnAreas;
             foreach (NPCSpawnerData data in spawnAreas)
             {
-                GameObject instance = Instantiate(
+                GameObject instance = Object.Instantiate(
                     spawnerPrefab,
                     new Vector3(data.Position.x, data.Position.y, data.Position.z),
                     Quaternion.identity

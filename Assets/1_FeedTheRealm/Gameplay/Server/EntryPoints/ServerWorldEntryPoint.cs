@@ -1,5 +1,6 @@
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
+using FTR.Gameplay.Server.Loaders;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
@@ -19,12 +20,12 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable
         NetworkTickDriver networkTickDriver,
         IObjectResolver resolver,
         ObjectResolverContainer resolverContainer,
-        ServerPrefabProvider prefabProvider
+        ServerWorldLoader worldLoader
     )
     {
         this.serverTickDriver = serverTickDriver;
         this.networkTickDriver = networkTickDriver;
-        worldLoader = prefabProvider.ServerWorldLoader.GetComponent<ServerWorldLoader>();
+        this.worldLoader = worldLoader;
         resolverContainer.SetResolver(resolver);
     }
 

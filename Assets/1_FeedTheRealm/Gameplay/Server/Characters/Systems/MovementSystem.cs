@@ -34,9 +34,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             this.rb = rb;
             this.stateStorage = stateStorage;
-            isInitialized = true;
             moveSpeed = config.PlayerSpeed > 0 ? config.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
+            isInitialized = true;
         }
 
         public void OnMove(Vector3 direction)
@@ -62,6 +62,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.CorrectPosition(rb.position);
 
             gameTickCounter++;
+        }
+
+        public void LoadPosition(Vector3 position)
+        {
+            rb.position = position;
+            stateStorage.CorrectPosition(rb.position);
         }
     }
 }

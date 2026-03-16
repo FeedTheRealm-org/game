@@ -45,8 +45,11 @@ public class NPCSpawns : MonoBehaviour
         this.dialogData = dialogData;
         this.radius = spawnData.Radius;
 
-        isInitialized = true;
-        SpawnNPC();
+        if (!isInitialized)
+        {
+            SpawnNPC();
+            isInitialized = true;
+        }
     }
 
     private void SpawnNPC()
@@ -93,7 +96,11 @@ public class NPCSpawns : MonoBehaviour
     {
         yield return new WaitUntil(() => NetworkServer.active);
         logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
-        SpawnNPC();
+        if (!isInitialized)
+        {
+            SpawnNPC();
+            isInitialized = true;
+        }
     }
 #endif
 

@@ -1,16 +1,31 @@
+using System.Collections.Generic;
+using FTR.Core.Client;
+using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.LoaderEntities;
-using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Client.Loaders
 {
     public class ClientWorldLoader : WorldLoaderManager
     {
-        [SerializeField]
-        private Session.Session session;
+        [Inject]
+        private readonly Session.Session session;
 
-        [SerializeField]
-        private WorldSelector worldSelector;
+        [Inject]
+        private readonly WorldSelector worldSelector;
+
+        public ClientWorldLoader(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
+        {
+            var clientStructureLoader = new ClientStructureLoader(prefabProvider);
+
+            loaders = new List<ILoader> { clientStructureLoader };
+
+            foreach (var loader in loaders)
+            {
+                resolver.Inject(loader);
+            }
+        }
 
         public override string GetWorldId()
         {

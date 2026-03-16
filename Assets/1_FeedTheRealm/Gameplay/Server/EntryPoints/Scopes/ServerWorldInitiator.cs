@@ -3,8 +3,8 @@ using FTR.Core.Common.Config;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.Linkers;
-using FTR.Gameplay.Common.WorldLoader;
 using FTR.Gameplay.Server.Linkers;
+using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -37,8 +37,10 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
-            builder.Register<WorldMonitor>(Lifetime.Singleton);
 
+            builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
+            builder.Register<ServerWorldLoader>(Lifetime.Singleton);
+            builder.Register<WorldMonitor>(Lifetime.Singleton);
             builder.Register<ServerPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ServerAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ServerPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();

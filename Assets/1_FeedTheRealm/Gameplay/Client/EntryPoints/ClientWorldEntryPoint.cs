@@ -29,14 +29,14 @@ namespace FTR.Gameplay.Client.EntryPoints
             LateTickEvent lateTickEvent,
             IObjectResolver resolver,
             ObjectResolverContainer resolverContainer,
-            ClientPrefabProvider prefabProvider
+            ClientWorldLoader worldLoader
         )
         {
             this.tickEvent = tickEvent;
             this.fixedTickEvent = fixedTickEvent;
             this.lateTickEvent = lateTickEvent;
             resolverContainer.SetResolver(resolver);
-            worldLoader = prefabProvider.ClientWorldLoader.GetComponent<ClientWorldLoader>();
+            this.worldLoader = worldLoader;
             isInitialized = true;
         }
 
