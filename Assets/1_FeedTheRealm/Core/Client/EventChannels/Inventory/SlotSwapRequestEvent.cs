@@ -5,5 +5,5 @@ using UnityEngine;
 namespace FTR.Core.Client.EventChannels.Inventory
 {
     [CreateAssetMenu(menuName = "Events/Client/Inventory/SlotSwapRequest")]
-    public class SlotSwapRequestEvent : EventChannelSO<(StorageType, int, int)> { }
+    public class SlotSwapRequestEvent : EventChannelSO<(StorageType, int, StorageType, int)> { }
 }

@@ -17,6 +17,12 @@ public interface ICommandable
     void OnPurchase(IEventCollectable ec);
     void OnQuestAccepted(IEventCollectable ec);
     void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
-    void OnMoveItem(IEventCollectable ec, StorageType type, int sourceSlot, int targetSlot);
+    void OnMoveItem(
+        IEventCollectable ec,
+        StorageType sourceType,
+        int sourceSlot,
+        StorageType targetType,
+        int targetSlot
+    );
     void OnDialogNext(IEventCollectable ec);
 }

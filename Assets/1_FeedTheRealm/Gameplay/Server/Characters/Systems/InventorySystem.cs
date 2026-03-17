@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Events;
@@ -7,10 +7,6 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
-    /// <summary>
-    /// LootItem represents an item in the game world that can be interacted with by players.
-    /// It is responsible for sending pickup commands to the server when a player interacts with it.
-    /// </summary>
     public class InventorySystem : MonoBehaviour, IGameTickable
     {
         [SerializeField]
@@ -18,27 +14,46 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private ServerConfig config;
+
         private uint netId;
         private InventoryStateStorage inventoryState;
-        private int inventorySize = 20;
-        private string[] inventorySlots = new string[20];
 
-        private void InitEmptyInventory()
-        {
-            for (int i = 0; i < inventorySize; i++)
-            {
-                inventorySlots[i] = string.Empty;
-            }
-        }
+        private int inventorySize = 12;
+        private int fastSlotSize = 5;
+
+        private string[] inventorySlots;
+        private string[] fastSlots;
 
         public void Initialize(uint netId, InventoryStateStorage inventoryState)
         {
             this.netId = netId;
             this.inventoryState = inventoryState;
-            logger.Log($"Initializing InventorySystem for player {netId}", this);
-            inventorySize = config.InventorySize > 0 ? config.InventorySize : 20;
 
-            InitEmptyInventory();
+            inventorySize = config.InventorySize > 0 ? config.InventorySize : 12;
+            fastSlotSize = config.FastSlotSize > 0 ? config.FastSlotSize : 5;
+
+            inventorySlots = new string[inventorySize];
+            fastSlots = new string[fastSlotSize];
+
+            for (int i = 0; i < inventorySize; i++)
+                inventorySlots[i] = string.Empty;
+            for (int i = 0; i < fastSlotSize; i++)
+                fastSlots[i] = string.Empty;
+        }
+
+        private string[] GetStorage(StorageType type)
+        {
+            return type == StorageType.FastSlot ? fastSlots : inventorySlots;
+        }
+
+        private int GetStorageSize(StorageType type)
+        {
+            return type == StorageType.FastSlot ? fastSlotSize : inventorySize;
+        }
+
+        private bool IsValidSlot(StorageType type, int slot)
+        {
+            return slot >= 0 && slot < GetStorageSize(type);
         }
 
         public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
@@ -50,8 +65,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 if (string.IsNullOrEmpty(inventorySlots[i]))
                 {
                     inventorySlots[i] = itemId;
-                    logger.Log($"Item {itemId} added to inventory at slot {i}", this);
-                    inventoryState.AddItem(itemId, i);
+                    inventoryState.AddItem(StorageType.Inventory, i, itemId);
+                    logger.Log($"Item {itemId} added to inventory slot {i}", this);
                     onComplete(true);
                     return;
                 }
@@ -61,128 +76,69 @@ namespace FTR.Gameplay.Server.Characters.Systems
             onComplete(false);
         }
 
-        public void OnMoveItem(IEventCollectable ec, int sourceSlot, int targetSlot)
+        public void OnMoveItem(
+            IEventCollectable ec,
+            StorageType sourceType,
+            int sourceSlot,
+            StorageType targetType,
+            int targetSlot
+        )
         {
-            if (sourceSlot < 0 || sourceSlot >= inventorySize)
+            if (!IsValidSlot(sourceType, sourceSlot) || !IsValidSlot(targetType, targetSlot))
+            {
+                logger.Log(
+                    $"OnMoveItem: invalid slot indices "
+                        + $"src={sourceSlot}({sourceType}) tgt={targetSlot}({targetType})",
+                    this
+                );
                 return;
-            if (targetSlot < 0 || targetSlot >= inventorySize)
-                return;
+            }
+
+            string[] src = GetStorage(sourceType);
+            string[] tgt = GetStorage(targetType);
+
+            string sourceItemId = src[sourceSlot];
+            string targetItemId = tgt[targetSlot];
+
+            src[sourceSlot] = targetItemId;
+            tgt[targetSlot] = sourceItemId;
 
             logger.Log(
-                $"Swapping item for player {netId} from slot {sourceSlot} to {targetSlot}",
+                $"Swapped player {netId}: "
+                    + $"{sourceType}[{sourceSlot}]({sourceItemId}) <-> "
+                    + $"{targetType}[{targetSlot}]({targetItemId})",
                 this
             );
 
-            string sourceItemId = inventorySlots[sourceSlot];
-            string targetItemId = inventorySlots[targetSlot];
-
-            inventorySlots[targetSlot] = sourceItemId;
-            inventorySlots[sourceSlot] = targetItemId;
-
-            inventoryState.SwapItems(sourceSlot, targetSlot);
+            inventoryState.SwapItems(sourceType, sourceSlot, targetType, targetSlot);
         }
 
-        public bool TryRemoveItemAt(int slotIndex, out string itemId)
+        public string OnDropItem(IEventCollectable ec, int slotIndex, StorageType storageType)
         {
-            itemId = null;
-
-            if (slotIndex < 0 || slotIndex >= inventorySize)
-                return false;
-
-            itemId = inventorySlots[slotIndex];
-            if (string.IsNullOrEmpty(itemId))
-                return false;
-
-            inventorySlots[slotIndex] = string.Empty;
-            inventoryState.DropItem(slotIndex);
-            return true;
-        }
-
-        public bool TryAddItemAt(int slotIndex, string itemId)
-        {
-            if (slotIndex < 0 || slotIndex >= inventorySize)
-                return false;
-            if (string.IsNullOrEmpty(itemId))
-                return false;
-            if (!string.IsNullOrEmpty(inventorySlots[slotIndex]))
-                return false;
-
-            inventorySlots[slotIndex] = itemId;
-            inventoryState.AddItem(itemId, slotIndex);
-            return true;
-        }
-
-        public bool TryGetItemAt(int slotIndex, out string itemId)
-        {
-            itemId = null;
-
-            if (slotIndex < 0 || slotIndex >= inventorySize)
-                return false;
-
-            itemId = inventorySlots[slotIndex];
-            return !string.IsNullOrEmpty(itemId);
-        }
-
-        public bool TryReplaceItemAt(int slotIndex, string itemId)
-        {
-            if (slotIndex < 0 || slotIndex >= inventorySize)
-                return false;
-            if (string.IsNullOrEmpty(itemId))
-                return false;
-
-            inventorySlots[slotIndex] = itemId;
-            inventoryState.AddItem(itemId, slotIndex);
-            return true;
-        }
-
-        public bool RemoveItemById(string itemId, out int removedSlot)
-        {
-            removedSlot = -1;
-
-            if (string.IsNullOrEmpty(itemId))
-                return false;
-
-            for (int i = 0; i < inventorySize; i++)
-            {
-                if (inventorySlots[i] == itemId)
-                {
-                    inventorySlots[i] = string.Empty;
-                    inventoryState.DropItem(i);
-                    removedSlot = i;
-                    logger.Log(
-                        $"Removed item {itemId} from inventory slot {i} for player {netId}",
-                        this
-                    );
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public string OnDropItem(IEventCollectable ec, int slotIndex)
-        {
-            if (slotIndex < 0 || slotIndex >= inventorySize)
+            if (!IsValidSlot(storageType, slotIndex))
                 return null;
 
-            string itemId = inventorySlots[slotIndex];
+            string[] storage = GetStorage(storageType);
+            string itemId = storage[slotIndex];
             if (string.IsNullOrEmpty(itemId))
                 return null;
 
-            logger.Log($"Dropping item {itemId} for player {netId} from slot {slotIndex}", this);
+            storage[slotIndex] = string.Empty;
+            inventoryState.DropItem(storageType, slotIndex);
 
-            inventorySlots[slotIndex] = string.Empty;
-            inventoryState.DropItem(slotIndex);
-
+            logger.Log(
+                $"Dropped item {itemId} from {storageType}[{slotIndex}] for player {netId}",
+                this
+            );
             return itemId;
         }
 
-        public void GameTick(float dt) { }
-
-        public void LoadInventory(string[] inventoryData, string[] hotbarData)
+        public void LoadInventory(string[] inventoryData, string[] fastSlotData)
         {
-            // TODO: implement inventory loading logic, currently just logs the loaded inventory
+            // TODO: populate inventorySlots / fastSlots from saved data
             logger.Log($"Loaded inventory for player {netId}", this);
         }
+
+        public void GameTick(float dt) { }
     }
 }
