@@ -46,8 +46,7 @@ public class ClientPlayerLinker : PlayerLinker
 
         if (networkAdapter.IsLocalPlayer)
         {
-            var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
-            var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
+            // var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
@@ -68,18 +67,25 @@ public class ClientPlayerLinker : PlayerLinker
             inventoryHudComponent.SetActive(true);
 
             var playerController = gameObject.AddComponent<PlayerController>();
-            var inventoryController = gameObject.AddComponent<InventoryController>();
-            var fastSlotController = gameObject.AddComponent<FastSlotController>();
-            var inventoryView = inventoryHudComponent.AddComponent<InventoryView>();
-            var fastSlotView = inventoryHudComponent.AddComponent<FastSlotView>();
+
+            var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
+            var inventoryController = playerComponents.AddComponent<InventoryController>();
+            var inventoryView = playerComponents.AddComponent<InventoryView>();
+            // var fastSlotController = gameObject.AddComponent<FastSlotController>();
+            // var fastSlotView = inventoryHudComponent.AddComponent<FastSlotView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
+
             resolver.Inject(playerController);
             resolver.Inject(interactController);
-            inventoryView?.Initialize(inventoryState);
-            fastSlotView?.Initialize(fastSlotState);
+
+            resolver.Inject(inventoryController);
+            resolver.Inject(inventoryView);
+
             inventoryController.Initialize(networkAdapter);
-            fastSlotController.Initialize(networkAdapter);
+            inventoryView?.Initialize(inventoryState);
+            // fastSlotView?.Initialize(fastSlotState);
+            // fastSlotController.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry, stateStorage);
             playerController.Initialize(characterStateMachine);
