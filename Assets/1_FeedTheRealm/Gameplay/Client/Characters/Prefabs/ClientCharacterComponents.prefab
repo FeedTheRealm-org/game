@@ -194,7 +194,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20806c353aafd88bd9367ea97d39276d, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::InteractController
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!1001 &3728965444176374322
 PrefabInstance:
   m_ObjectHideFlags: 0
