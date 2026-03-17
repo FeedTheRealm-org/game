@@ -51,6 +51,8 @@ public class ClientPlayerLinker : PlayerLinker
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
+            /* -- Instantiate and inject UI components -- */
+
             prefabProvider.HudComponent.SetActive(false);
             var hudComponent = Object.Instantiate(
                 prefabProvider.HudComponent,
@@ -67,6 +69,8 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.InjectGameObject(inventoryHudComponent);
             inventoryHudComponent.SetActive(true);
 
+            /* -- Instantiate and initialize controllers and views -- */
+
             var playerController = gameObject.AddComponent<PlayerController>();
             var inventoryController = gameObject.AddComponent<InventoryController>();
             var fastSlotController = gameObject.AddComponent<FastSlotController>();
@@ -74,8 +78,10 @@ public class ClientPlayerLinker : PlayerLinker
             var fastSlotView = inventoryHudComponent.AddComponent<FastSlotView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
+
             resolver.Inject(playerController);
             resolver.Inject(interactController);
+            resolver.Inject(interactView);
             inventoryView?.Initialize(inventoryState);
             fastSlotView?.Initialize(fastSlotState);
             inventoryController.Initialize(networkAdapter);

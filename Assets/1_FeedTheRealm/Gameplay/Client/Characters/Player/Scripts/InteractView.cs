@@ -1,4 +1,3 @@
-using System;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -8,19 +7,24 @@ using UnityEngine;
 using VContainer;
 
 /// <summary>
-/// Client-side view that reacts to dialog state changes from the server.
+/// Client-side view that lives on the local player and reacts to dialog state
+/// changes synced from the server. Fires EventChannel SOs so the NPC's
+/// UIDialogController can react without a direct reference.
 /// </summary>
 public class InteractView : MonoBehaviour
 {
     [Inject]
     private NpcDialogClosedEvent npcDialogClosedEvent;
 
+    [Inject]
+    private NpcDialogMessageEvent npcDialogMessageEvent;
+
+    [Inject]
+    private NpcDialogToggledEvent npcDialogToggledEvent;
+
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
     private CharacterStateStorage stateStorage;
-
-    public event Action<MessageData> OnDialogMessageChanged;
-    public event Action<bool> OnDialogToggled;
 
     public void Initialize(
         NetworkEventRouter eventRouter,
@@ -44,20 +48,16 @@ public class InteractView : MonoBehaviour
             eventRouter.OnDialogEvent -= HandleDialogEvent;
     }
 
-    /// <summary>
-    /// On true: shows the first line.
-    /// On false: hides the dialog and raises NpcDialogClosedEvent so the state machine exits.
-    /// </summary>
     private void HandleIsInteractingChanged(bool isInteracting)
     {
         if (isInteracting)
         {
             ShowDialogLine(stateStorage.CurrentNpcId, stateStorage.CurrentDialogIndex);
-            OnDialogToggled?.Invoke(true);
+            npcDialogToggledEvent.Raise((true, stateStorage.CurrentNpcId));
         }
         else
         {
-            OnDialogToggled?.Invoke(false);
+            npcDialogToggledEvent.Raise((false, stateStorage.CurrentNpcId));
             npcDialogClosedEvent.Raise();
         }
     }
@@ -71,7 +71,7 @@ public class InteractView : MonoBehaviour
     private void ShowDialogLine(string npcId, int index)
     {
         if (TryGetMessage(npcId, index, out MessageData message))
-            OnDialogMessageChanged?.Invoke(message);
+            npcDialogMessageEvent.Raise((npcId, message));
     }
 
     private bool TryGetMessage(string npcId, int index, out MessageData message)

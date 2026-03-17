@@ -49,6 +49,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             string npcId = FindClosestNpcId();
+            Debug.Log(
+                $"[InteractSystem] Found npcId: '{npcId}', messageCount: {npcDialogRegistry.GetMessageCount(npcId)}"
+            );
             if (string.IsNullOrEmpty(npcId))
             {
                 logger.Log("[InteractSystem] No NPC found within interaction range.", this);
@@ -127,6 +130,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private string FindClosestNpcId()
         {
             var playerPos = stateStorage.Position;
+            Debug.Log($"[InteractSystem] Player position: {stateStorage.Position}");
 
             Collider[] hits = Physics.OverlapSphere(playerPos, interactionRadius, npcLayerMask);
 

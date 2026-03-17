@@ -44,12 +44,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
 
         private void Awake()
         {
-            if (
-                movementController == null
-                || useController == null
-                // || interactComponent == null
-                || characterAnimator == null
-            )
+            if (movementController == null || useController == null || characterAnimator == null)
             {
                 throw new MissingFieldException(
                     "One or more required components are missing in CharacterStateMachine."

@@ -30,8 +30,19 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
 
         public bool TryGetMessages(string npcId, out List<MessageData> messages)
         {
+            messages = null;
+
+            if (string.IsNullOrEmpty(npcId))
+            {
+                Debug.LogWarning(
+                    "[NpcDialogRegistry] TryGetMessages called with null or empty npcId."
+                );
+                return false;
+            }
+
             if (_lookup == null)
                 BuildLookup(npcs, dialogs);
+
             return _lookup.TryGetValue(npcId, out messages);
         }
 
@@ -49,17 +60,22 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
             if (npcList == null || dialogList == null)
                 return;
 
-            var messageById = new Dictionary<string, MessageData>();
+            var dialogById = new Dictionary<string, DialogData>();
             foreach (var dialog in dialogList)
             {
-                if (dialog?.messages == null)
+                if (dialog == null || string.IsNullOrEmpty(dialog.id))
                     continue;
-                foreach (var msg in dialog.messages)
+
+                if (dialogById.ContainsKey(dialog.id))
                 {
-                    if (msg == null || string.IsNullOrEmpty(msg.id))
-                        continue;
-                    messageById[msg.id] = msg;
+                    Debug.LogWarning(
+                        $"[NpcDialogRegistry] Duplicate dialog id '{dialog.id}', skipping.",
+                        this
+                    );
+                    continue;
                 }
+
+                dialogById[dialog.id] = dialog;
             }
 
             foreach (var npc in npcList)
@@ -82,14 +98,32 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                     continue;
                 }
 
-                if (
-                    npc.npcDialog == null
-                    || npc.npcDialog.messageIds == null
-                    || npc.npcDialog.messageIds.Count == 0
-                )
+                var dialogId = npc.npcDialog?.dialogId;
+
+                if (string.IsNullOrEmpty(dialogId))
                 {
                     Debug.LogWarning(
-                        $"[NpcDialogRegistry] NPC '{npc.id}' has no dialog data.",
+                        $"[NpcDialogRegistry] NPC '{npc.id}' has no dialogId assigned.",
+                        this
+                    );
+                    _lookup[npc.id] = new List<MessageData>();
+                    continue;
+                }
+
+                if (!dialogById.TryGetValue(dialogId, out var dialogMatch))
+                {
+                    Debug.LogWarning(
+                        $"[NpcDialogRegistry] NPC '{npc.id}' references dialogId '{dialogId}' which was not found in the dialog list.",
+                        this
+                    );
+                    _lookup[npc.id] = new List<MessageData>();
+                    continue;
+                }
+
+                if (dialogMatch.messages == null || dialogMatch.messages.Count == 0)
+                {
+                    Debug.LogWarning(
+                        $"[NpcDialogRegistry] Dialog '{dialogId}' for NPC '{npc.id}' has no messages.",
                         this
                     );
                     _lookup[npc.id] = new List<MessageData>();
@@ -97,21 +131,15 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                 }
 
                 var messages = new List<MessageData>();
-                foreach (var msgId in npc.npcDialog.messageIds)
+                foreach (var msg in dialogMatch.messages)
                 {
-                    if (messageById.TryGetValue(msgId, out var msg))
-                    {
-                        if (string.IsNullOrEmpty(msg.Sender))
-                            msg.Sender = npc.name;
-                        messages.Add(msg);
-                    }
-                    else
-                    {
-                        Debug.LogWarning(
-                            $"[NpcDialogRegistry] MessageId '{msgId}' not found for NPC '{npc.id}'.",
-                            this
-                        );
-                    }
+                    if (msg == null)
+                        continue;
+
+                    if (string.IsNullOrEmpty(msg.Sender))
+                        msg.Sender = npc.name;
+
+                    messages.Add(msg);
                 }
 
                 _lookup[npc.id] = messages;
