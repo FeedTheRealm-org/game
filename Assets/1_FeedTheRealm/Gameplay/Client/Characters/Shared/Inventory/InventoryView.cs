@@ -1,13 +1,10 @@
-using System;
 using FTR.Core.Client.EventChannels.Inventory;
-using FTR.Core.Common.Protocol.RpcMessages;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;
 
 /// <summary>
-/// Tracks updates on the local player's inventory and notifies the HUD via a static event.
+/// Tracks updates on the local player's inventory and notifies the HUD via event channels.
 /// </summary>
 public class InventoryView : MonoBehaviour
 {
@@ -32,35 +29,34 @@ public class InventoryView : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (stateStorage != null)
-            stateStorage.OnLastItemChanged -= OnInventoryChanged;
-        if (stateStorage != null)
-            stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
-        if (stateStorage != null)
-            stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
+        if (stateStorage == null)
+            return;
+        stateStorage.OnLastItemChanged -= OnInventoryChanged;
+        stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
+        stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
     }
 
     private void OnInventoryChanged(LastItemData value)
     {
         Debug.Log(
-            $"InventoryView detected item change: {value.itemId} at position {value.itemPosition}"
+            $"InventoryView item added: {value.itemId} at {value.storageType}[{value.itemPosition}]"
         );
-        lastAddedEvent.Raise((StorageType.Inventory, value.itemId, value.itemPosition));
+        lastAddedEvent.Raise((value.storageType, value.itemId, value.itemPosition));
     }
 
     private void OnInventorySwapped(LastSwappedItemData value)
     {
         Debug.Log(
-            $"InventoryView detected item swap: from position {value.sourcePosition} to position {value.targetPosition}"
+            $"InventoryView item swapped: {value.sourceType}[{value.sourcePosition}] <-> {value.targetType}[{value.targetPosition}]"
         );
-        lastSwappedEvent.Raise((StorageType.Inventory, value.sourcePosition, value.targetPosition));
+        lastSwappedEvent.Raise(
+            (value.sourceType, value.sourcePosition, value.targetType, value.targetPosition)
+        );
     }
 
     private void OnInventoryDropped(LastItemData value)
     {
-        Debug.Log(
-            $"InventoryView detected item drop: {value.itemId} from position {value.itemPosition}"
-        );
-        lastRemovedEvent.Raise((StorageType.Inventory, value.itemId, value.itemPosition));
+        Debug.Log($"InventoryView item dropped: {value.storageType}[{value.itemPosition}]");
+        lastRemovedEvent.Raise((value.storageType, value.itemId, value.itemPosition));
     }
 }

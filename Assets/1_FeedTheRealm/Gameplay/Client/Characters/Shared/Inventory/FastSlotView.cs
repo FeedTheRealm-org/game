@@ -12,56 +12,56 @@ using VContainer;
 /// </summary>
 public class FastSlotView : MonoBehaviour
 {
-    [Inject]
-    private LastAddedEvent lastAddedEvent;
+    // [Inject]
+    // private LastAddedEvent lastAddedEvent;
 
-    [Inject]
-    private LastSwappedEvent lastSwappedEvent;
+    // [Inject]
+    // private LastSwappedEvent lastSwappedEvent;
 
-    [Inject]
-    private LastRemovedEvent lastRemovedEvent;
+    // [Inject]
+    // private LastRemovedEvent lastRemovedEvent;
 
-    private FastSlotStateStorage stateStorage;
+    // private FastSlotStateStorage stateStorage;
 
-    public void Initialize(FastSlotStateStorage stateStorage)
-    {
-        this.stateStorage = stateStorage;
-        stateStorage.OnLastItemChanged += OnFastSlotChanged;
-        stateStorage.OnLastSwappedItemChanged += OnFastSlotSwapped;
-        stateStorage.OnLastDroppedItemChanged += OnFastSlotDropped;
-    }
+    // public void Initialize(FastSlotStateStorage stateStorage)
+    // {
+    //     this.stateStorage = stateStorage;
+    //     stateStorage.OnLastItemChanged += OnFastSlotChanged;
+    //     stateStorage.OnLastSwappedItemChanged += OnFastSlotSwapped;
+    //     stateStorage.OnLastDroppedItemChanged += OnFastSlotDropped;
+    // }
 
-    private void OnDestroy()
-    {
-        if (stateStorage != null)
-            stateStorage.OnLastItemChanged -= OnFastSlotChanged;
-        if (stateStorage != null)
-            stateStorage.OnLastSwappedItemChanged -= OnFastSlotSwapped;
-        if (stateStorage != null)
-            stateStorage.OnLastDroppedItemChanged -= OnFastSlotDropped;
-    }
+    // private void OnDestroy()
+    // {
+    //     if (stateStorage != null)
+    //         stateStorage.OnLastItemChanged -= OnFastSlotChanged;
+    //     if (stateStorage != null)
+    //         stateStorage.OnLastSwappedItemChanged -= OnFastSlotSwapped;
+    //     if (stateStorage != null)
+    //         stateStorage.OnLastDroppedItemChanged -= OnFastSlotDropped;
+    // }
 
-    private void OnFastSlotChanged(LastItemData value)
-    {
-        Debug.Log(
-            $"FastSlotView detected item change: {value.itemId} at position {value.itemPosition}"
-        );
-        lastAddedEvent.Raise((StorageType.FastSlot, value.itemId, value.itemPosition));
-    }
+    // private void OnFastSlotChanged(LastItemData value)
+    // {
+    //     Debug.Log(
+    //         $"FastSlotView detected item change: {value.itemId} at position {value.itemPosition}"
+    //     );
+    //     lastAddedEvent.Raise((StorageType.FastSlot, value.itemId, value.itemPosition));
+    // }
 
-    private void OnFastSlotSwapped(LastSwappedItemData value)
-    {
-        Debug.Log(
-            $"FastSlotView detected item swap: from position {value.sourcePosition} to position {value.targetPosition}"
-        );
-        lastSwappedEvent.Raise((StorageType.FastSlot, value.sourcePosition, value.targetPosition));
-    }
+    // private void OnFastSlotSwapped(LastSwappedItemData value)
+    // {
+    //     Debug.Log(
+    //         $"FastSlotView detected item swap: from position {value.sourcePosition} to position {value.targetPosition}"
+    //     );
+    //     lastSwappedEvent.Raise((StorageType.FastSlot, value.sourcePosition, value.targetPosition));
+    // }
 
-    private void OnFastSlotDropped(LastItemData value)
-    {
-        Debug.Log(
-            $"FastSlotView detected item drop: {value.itemId} from position {value.itemPosition}"
-        );
-        lastRemovedEvent.Raise((StorageType.FastSlot, value.itemId, value.itemPosition));
-    }
+    // private void OnFastSlotDropped(LastItemData value)
+    // {
+    //     Debug.Log(
+    //         $"FastSlotView detected item drop: {value.itemId} from position {value.itemPosition}"
+    //     );
+    //     lastRemovedEvent.Raise((StorageType.FastSlot, value.itemId, value.itemPosition));
+    // }
 }
