@@ -52,12 +52,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     return;
                 }
 
-                logger.Log(
-                    $"[InteractSystem] Switching from '{stateStorage.CurrentNpcId}' to '{closestNpcId}'.",
-                    this
-                );
                 StopInactivityTimer();
-                stateStorage.SetInteracting(false);
+                stateStorage.SwitchInteractingNpc(closestNpcId);
+                stateStorage.SetDialogIndex(0);
+                RestartInactivityTimer();
+                return;
             }
 
             if (string.IsNullOrEmpty(closestNpcId))
@@ -183,10 +182,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             if (stateStorage.IsInteracting)
             {
-                logger.Log(
+                /*logger.Log(
                     $"[InteractSystem] Inactivity timeout — closing dialog for NPC '{stateStorage.CurrentNpcId}'.",
                     this
-                );
+                );*/
                 stateStorage.SetInteracting(false);
             }
         }

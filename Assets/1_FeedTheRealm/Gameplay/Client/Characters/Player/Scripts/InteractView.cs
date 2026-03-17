@@ -38,6 +38,7 @@ public class InteractView : MonoBehaviour
         this.stateStorage = stateStorage;
 
         stateStorage.OnIsInteractingChanged += HandleIsInteractingChanged;
+        stateStorage.OnCurrentNpcIdChanged += HandleNpcSwitched;
         eventRouter.OnDialogEvent += HandleDialogEvent;
     }
 
@@ -45,6 +46,7 @@ public class InteractView : MonoBehaviour
     {
         if (stateStorage != null)
             stateStorage.OnIsInteractingChanged -= HandleIsInteractingChanged;
+        stateStorage.OnCurrentNpcIdChanged -= HandleNpcSwitched;
         if (eventRouter != null)
             eventRouter.OnDialogEvent -= HandleDialogEvent;
     }
@@ -53,12 +55,7 @@ public class InteractView : MonoBehaviour
     {
         if (isInteracting)
         {
-            var incomingNpcId = stateStorage.CurrentNpcId;
-
-            if (!string.IsNullOrEmpty(_activeNpcId) && _activeNpcId != incomingNpcId)
-                npcDialogToggledEvent.Raise((false, _activeNpcId));
-
-            _activeNpcId = incomingNpcId;
+            _activeNpcId = stateStorage.CurrentNpcId;
             ShowDialogLine(_activeNpcId, stateStorage.CurrentDialogIndex);
             npcDialogToggledEvent.Raise((true, _activeNpcId));
         }
@@ -105,5 +102,15 @@ public class InteractView : MonoBehaviour
 
         message = messages[index];
         return true;
+    }
+
+    private void HandleNpcSwitched(string newNpcId)
+    {
+        if (!string.IsNullOrEmpty(_activeNpcId))
+            npcDialogToggledEvent.Raise((false, _activeNpcId));
+
+        _activeNpcId = newNpcId;
+        ShowDialogLine(_activeNpcId, stateStorage.CurrentDialogIndex);
+        npcDialogToggledEvent.Raise((true, _activeNpcId));
     }
 }

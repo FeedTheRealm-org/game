@@ -20,12 +20,10 @@ namespace FTR.Gameplay.Client.Linkers
 
         public GameObject Link(GameObject gameObject)
         {
-            // Get from common character components
             var rb = gameObject.GetComponent<Rigidbody>();
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
-            // Add client-side components
             var playerComponents = Object.Instantiate(
                 prefabProvider.ClientCharacterComponents,
                 gameObject.transform

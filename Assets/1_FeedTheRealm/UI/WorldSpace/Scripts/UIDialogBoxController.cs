@@ -60,9 +60,6 @@ namespace FTR.UI.WorldSpace
         private void OnEnable()
         {
             ui = GetComponent<UIDocument>().rootVisualElement;
-            Debug.Log(
-                $"[UIDialogController] OnEnable - npcIdentity: {(npcIdentity != null ? npcIdentity.NpcId : "NULL")}"
-            );
             npcDialogMessageEvent.OnRaised += HandleDialogChanged;
             npcDialogToggledEvent.OnRaised += HandleToggleDialog;
         }
@@ -78,16 +75,13 @@ namespace FTR.UI.WorldSpace
             if (!IsMyNpc(data.npcId))
                 return;
 
-            logger.Log($"[UIDialogController] Dialog changed: {data.message.Content}", this);
+            //logger.Log($"[UIDialogController] Dialog changed: {data.message.Content}", this);
             _msgLabel.text = data.message.Content;
             _senderLabel.text = SenderPrefix + data.message.Sender;
         }
 
         private void HandleToggleDialog((bool isOpen, string npcId) data)
         {
-            Debug.Log(
-                $"[UIDialogController] HandleToggleDialog: isOpen={data.isOpen}, npcId={data.npcId}, myNpcId={npcIdentity?.NpcId}"
-            );
             if (!IsMyNpc(data.npcId))
                 return;
             _root.style.display = data.isOpen ? DisplayStyle.Flex : DisplayStyle.None;

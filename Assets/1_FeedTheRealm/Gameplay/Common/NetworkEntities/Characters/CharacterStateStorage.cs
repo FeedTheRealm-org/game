@@ -21,10 +21,10 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private float health;
 
         [SyncVar]
-        private string _currentNpcId;
-
-        [SyncVar]
         private int _currentDialogIndex;
+
+        [SyncVar(hook = nameof(OnCurrentNpcIdSync))]
+        private string _currentNpcId;
 
         [SyncVar(hook = nameof(OnIsInteractingSync))]
         private bool _isInteracting;
@@ -49,6 +49,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public event Action<float> OnStaminaChanged;
         public event Action<float> OnHealthChanged;
         public event Action<bool> OnIsInteractingChanged;
+        public event Action<string> OnCurrentNpcIdChanged;
 
         /* --- Setters --- */
 
@@ -88,6 +89,13 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [Server]
         public void SetDialogIndex(int index) => _currentDialogIndex = index;
 
+        [Server]
+        public void SwitchInteractingNpc(string newNpcId)
+        {
+            _currentNpcId = newNpcId;
+            _currentDialogIndex = 0;
+        }
+
         /* --- SyncVar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
@@ -113,6 +121,12 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private void OnIsInteractingSync(bool _, bool v)
         {
             OnIsInteractingChanged?.Invoke(v);
+        }
+
+        private void OnCurrentNpcIdSync(string oldId, string newId)
+        {
+            if (_isInteracting)
+                OnCurrentNpcIdChanged?.Invoke(newId);
         }
 
         public override void OnStartClient()
