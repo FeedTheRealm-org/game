@@ -1,4 +1,5 @@
 using FTR.Core.Client;
+using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
@@ -30,6 +31,7 @@ namespace FTR.Gameplay.Client.Linkers
                 gameObject.transform
             );
             resolver.InjectGameObject(playerComponents);
+            playerComponents.GetComponent<CharacterStateMachine>()?.Initialize();
 
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
             var movementView = playerComponents.GetComponent<MovementView>();

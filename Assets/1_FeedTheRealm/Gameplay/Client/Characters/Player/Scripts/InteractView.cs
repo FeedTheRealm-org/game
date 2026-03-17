@@ -25,6 +25,7 @@ public class InteractView : MonoBehaviour
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
     private CharacterStateStorage stateStorage;
+    private string _activeNpcId;
 
     public void Initialize(
         NetworkEventRouter eventRouter,
@@ -52,20 +53,30 @@ public class InteractView : MonoBehaviour
     {
         if (isInteracting)
         {
-            ShowDialogLine(stateStorage.CurrentNpcId, stateStorage.CurrentDialogIndex);
-            npcDialogToggledEvent.Raise((true, stateStorage.CurrentNpcId));
+            var incomingNpcId = stateStorage.CurrentNpcId;
+
+            if (!string.IsNullOrEmpty(_activeNpcId) && _activeNpcId != incomingNpcId)
+                npcDialogToggledEvent.Raise((false, _activeNpcId));
+
+            _activeNpcId = incomingNpcId;
+            ShowDialogLine(_activeNpcId, stateStorage.CurrentDialogIndex);
+            npcDialogToggledEvent.Raise((true, _activeNpcId));
         }
         else
         {
-            npcDialogToggledEvent.Raise((false, stateStorage.CurrentNpcId));
+            npcDialogToggledEvent.Raise((false, _activeNpcId));
             npcDialogClosedEvent.Raise();
+            _activeNpcId = null;
         }
     }
 
     private void HandleDialogEvent(DialogEventContent content)
     {
         if ((DialogState)content.DialogState == DialogState.Advanced)
+        {
+            _activeNpcId = content.NpcId;
             ShowDialogLine(content.NpcId, content.DialogIndex);
+        }
     }
 
     private void ShowDialogLine(string npcId, int index)

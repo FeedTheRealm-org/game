@@ -43,10 +43,10 @@ public class NetworkAdapter : NetworkBehaviour
         if (!isLocalPlayer)
             return;
 
-        logger.Log(
+        /*logger.Log(
             $"Dispatching Action Command: {command.Type} with direction {command.Direction}",
             this
-        );
+        );*/
 
         CmdActionRequest(command);
     }
