@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using FTR.Core.Client.Exceptions;
 using FTR.Core.Client.StateMachine;
+using FTR.Core.Common.EventChannels;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine.States;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
 {
@@ -27,36 +29,36 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         [SerializeField]
         private CharacterAnimator characterAnimator;
 
+        [Inject]
+        private NpcDialogClosedEvent npcDialogClosedEvent;
+
         /* States */
         public readonly Dictionary<System.Type, IMovementState> movementStates =
             new Dictionary<System.Type, IMovementState>();
         public readonly Dictionary<System.Type, IActionState> actionStates =
             new Dictionary<System.Type, IActionState>();
 
-        /* State Layers - accessible by states */
+        /* State Layers */
         public IMovementState CurrentMovementState { get; private set; }
         public IActionState CurrentActionState { get; private set; }
 
         private Vector2 lastDirection;
-
         private bool isMovementBlocked;
         private bool isActionBlocked;
+        private float _interactCooldownUntil;
 
         private void Awake()
         {
-            if (
-                movementController == null
-                || useController == null
-                // || interactComponent == null
-                || characterAnimator == null
-            )
+            if (movementController == null || useController == null || characterAnimator == null)
             {
                 throw new MissingFieldException(
                     "One or more required components are missing in CharacterStateMachine."
                 );
             }
+        }
 
-            // TODO: remove character animator from states as they will be handled by the Views
+        public void Initialize()
+        {
             movementStates.Add(
                 typeof(CharacterIdleState),
                 new CharacterIdleState(this, movementController, characterAnimator)
@@ -73,10 +75,18 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
                 typeof(CharacterUsingState),
                 new CharacterUsingState(this, useController, characterAnimator)
             );
-            actionStates.Add(
-                typeof(CharacterInteractingState),
-                new CharacterInteractingState(this, interactController, characterAnimator)
-            );
+            if (npcDialogClosedEvent != null)
+            {
+                actionStates.Add(
+                    typeof(CharacterInteractingState),
+                    new CharacterInteractingState(
+                        this,
+                        interactController,
+                        npcDialogClosedEvent,
+                        characterAnimator
+                    )
+                );
+            }
 
             SetMovementState(movementStates[typeof(CharacterIdleState)]);
         }
@@ -84,15 +94,11 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         private void OnDestroy()
         {
             foreach (var state in movementStates.Values)
-            {
                 state.Dispose();
-            }
             movementStates.Clear();
 
             foreach (var state in actionStates.Values)
-            {
                 state.Dispose();
-            }
             actionStates.Clear();
         }
 
@@ -126,66 +132,68 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
 
         public IMovementState GetMovementStateByType(System.Type type)
         {
-            var ok = movementStates.TryGetValue(type, out IMovementState state);
-            if (!ok)
-                return null;
+            movementStates.TryGetValue(type, out IMovementState state);
             return state;
         }
 
         public IActionState GetActionStateByType(System.Type type)
         {
-            var ok = actionStates.TryGetValue(type, out IActionState state);
-            if (!ok)
-                return null;
+            actionStates.TryGetValue(type, out IActionState state);
             return state;
         }
 
-        /// <summary>
-        /// Handles movement input.
-        /// </summary>
         public void OnMove(Vector2 direction)
         {
             if (isMovementBlocked)
                 return;
-
             lastDirection = direction;
             CurrentMovementState.SetDirection(direction);
         }
 
-        /// <summary>
-        /// Handles dash input.
-        /// </summary>
         public void OnDash()
         {
             if (isMovementBlocked)
                 return;
-
             SetMovementState(movementStates[typeof(CharacterDashingState)]);
         }
 
-        /// <summary>
-        /// Handles attack down input (start charge or quick attack).
-        /// </summary>
         public void OnUse()
         {
             if (isActionBlocked)
                 return;
-
             SetActionState(actionStates[typeof(CharacterUsingState)]);
         }
 
         /// <summary>
-        /// Handles interaction input.
+        /// Always dispatches Interact to the server.
+        /// The server authoritatively decides whether to start, advance, switch, or close dialog.
+        /// A short cooldown prevents re-opening a dialog immediately after closing it.
         /// </summary>
         public void OnInteract()
         {
             if (isActionBlocked)
                 return;
-            SetActionState(actionStates[typeof(CharacterInteractingState)]);
+
+            if (UnityEngine.Time.time < _interactCooldownUntil)
+                return;
+
+            interactController.OnInteract();
+
+            if (CurrentActionState is not CharacterInteractingState)
+                SetActionState(actionStates[typeof(CharacterInteractingState)]);
         }
 
         /// <summary>
-        /// Only forwards the command if the character is currently interacting.
+        /// Called by CharacterInteractingState when the dialog closes,
+        /// to set a cooldown that prevents immediately re-opening it.
+        /// </summary>
+        public void OnDialogClosed()
+        {
+            _interactCooldownUntil = UnityEngine.Time.time + 0.3f;
+        }
+
+        /// <summary>
+        /// Only forwards DialogNext if currently interacting (kept for external callers).
         /// </summary>
         public void OnDialogNext()
         {

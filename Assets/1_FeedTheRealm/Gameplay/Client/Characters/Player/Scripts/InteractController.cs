@@ -40,7 +40,6 @@ public class InteractController : MonoBehaviour
             return;
         }
 
-        Debug.Log("Dispatching Interact.");
         networkAdapter.DispatchAction(new ActionCommandDTO { Type = ActionType.Interact });
     }
 
@@ -56,7 +55,6 @@ public class InteractController : MonoBehaviour
             return;
         }
 
-        Debug.Log("Dispatching DialogNext.");
         networkAdapter.DispatchAction(new ActionCommandDTO { Type = ActionType.DialogNext });
     }
 }

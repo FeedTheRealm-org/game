@@ -1,4 +1,3 @@
-using System;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -8,19 +7,25 @@ using UnityEngine;
 using VContainer;
 
 /// <summary>
-/// Client-side view that reacts to dialog state changes from the server.
+/// Client-side view that lives on the local player and reacts to dialog state
+/// changes synced from the server. Fires EventChannel SOs so the NPC's
+/// UIDialogController can react without a direct reference.
 /// </summary>
 public class InteractView : MonoBehaviour
 {
     [Inject]
     private NpcDialogClosedEvent npcDialogClosedEvent;
 
+    [Inject]
+    private NpcDialogMessageEvent npcDialogMessageEvent;
+
+    [Inject]
+    private NpcDialogToggledEvent npcDialogToggledEvent;
+
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
     private CharacterStateStorage stateStorage;
-
-    public event Action<MessageData> OnDialogMessageChanged;
-    public event Action<bool> OnDialogToggled;
+    private string _activeNpcId;
 
     public void Initialize(
         NetworkEventRouter eventRouter,
@@ -33,6 +38,7 @@ public class InteractView : MonoBehaviour
         this.stateStorage = stateStorage;
 
         stateStorage.OnIsInteractingChanged += HandleIsInteractingChanged;
+        stateStorage.OnCurrentNpcIdChanged += HandleNpcSwitched;
         eventRouter.OnDialogEvent += HandleDialogEvent;
     }
 
@@ -40,38 +46,40 @@ public class InteractView : MonoBehaviour
     {
         if (stateStorage != null)
             stateStorage.OnIsInteractingChanged -= HandleIsInteractingChanged;
+        stateStorage.OnCurrentNpcIdChanged -= HandleNpcSwitched;
         if (eventRouter != null)
             eventRouter.OnDialogEvent -= HandleDialogEvent;
     }
 
-    /// <summary>
-    /// On true: shows the first line.
-    /// On false: hides the dialog and raises NpcDialogClosedEvent so the state machine exits.
-    /// </summary>
     private void HandleIsInteractingChanged(bool isInteracting)
     {
         if (isInteracting)
         {
-            ShowDialogLine(stateStorage.CurrentNpcId, stateStorage.CurrentDialogIndex);
-            OnDialogToggled?.Invoke(true);
+            _activeNpcId = stateStorage.CurrentNpcId;
+            ShowDialogLine(_activeNpcId, stateStorage.CurrentDialogIndex);
+            npcDialogToggledEvent.Raise((true, _activeNpcId));
         }
         else
         {
-            OnDialogToggled?.Invoke(false);
+            npcDialogToggledEvent.Raise((false, _activeNpcId));
             npcDialogClosedEvent.Raise();
+            _activeNpcId = null;
         }
     }
 
     private void HandleDialogEvent(DialogEventContent content)
     {
         if ((DialogState)content.DialogState == DialogState.Advanced)
+        {
+            _activeNpcId = content.NpcId;
             ShowDialogLine(content.NpcId, content.DialogIndex);
+        }
     }
 
     private void ShowDialogLine(string npcId, int index)
     {
         if (TryGetMessage(npcId, index, out MessageData message))
-            OnDialogMessageChanged?.Invoke(message);
+            npcDialogMessageEvent.Raise((npcId, message));
     }
 
     private bool TryGetMessage(string npcId, int index, out MessageData message)
@@ -94,5 +102,15 @@ public class InteractView : MonoBehaviour
 
         message = messages[index];
         return true;
+    }
+
+    private void HandleNpcSwitched(string newNpcId)
+    {
+        if (!string.IsNullOrEmpty(_activeNpcId))
+            npcDialogToggledEvent.Raise((false, _activeNpcId));
+
+        _activeNpcId = newNpcId;
+        ShowDialogLine(_activeNpcId, stateStorage.CurrentDialogIndex);
+        npcDialogToggledEvent.Raise((true, _activeNpcId));
     }
 }

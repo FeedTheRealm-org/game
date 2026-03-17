@@ -1,10 +1,13 @@
 using FTR.Core.Client.StateMachine;
 using FTR.Core.Common.EventChannels;
+using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 
 namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
 {
     /// <summary>
     /// State for when the character is interacting with an NPC.
+    /// Pressing Interact again dispatches DialogNext to the server, which either
+    /// advances to the next message or closes the dialog.
     /// </summary>
     public class CharacterInteractingState : IActionState
     {
@@ -16,34 +19,38 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
         public CharacterInteractingState(
             IStateMachine stateMachine,
             InteractController interactController,
+            NpcDialogClosedEvent npcDialogClosedEvent,
             CharacterAnimator animator
         )
         {
             this.stateMachine = stateMachine;
             this.interactController = interactController;
+            this.npcDialogClosedEvent = npcDialogClosedEvent;
             this.animator = animator;
         }
 
         public void Enter()
         {
-            stateMachine.ToggleBlockMovement(true);
-            stateMachine.ToggleBlockAction(true);
-
             npcDialogClosedEvent.OnRaised += OnDialogClosed;
+        }
 
-            interactController.OnInteract();
+        /// <summary>
+        /// Dispatches DialogNext so the server advances or closes the dialog.
+        /// </summary>
+        public void OnInteractWhileActive()
+        {
+            interactController.OnDialogNext();
         }
 
         public void Exit()
         {
             npcDialogClosedEvent.OnRaised -= OnDialogClosed;
-
-            stateMachine.ToggleBlockMovement(false);
-            stateMachine.ToggleBlockAction(false);
         }
 
         private void OnDialogClosed()
         {
+            if (stateMachine is CharacterStateMachine csm)
+                csm.OnDialogClosed();
             stateMachine.SetActionState(null);
         }
 

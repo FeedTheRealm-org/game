@@ -1,67 +1,105 @@
+using FTR.Core.Common.EventChannels;
+using FTR.Gameplay.Common.Environment.Npcs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
-/// <summary>
-/// UI controller for the NPC dialog box.
-/// Subscribes to InteractView events and updates visual elements accordingly.
-/// </summary>
-public class UIDialogController : MonoBehaviour
+namespace FTR.UI.WorldSpace
 {
-    [Header("Dependencies")]
-    [SerializeField]
-    private InteractView interactView;
-
-    [Header("General settings")]
-    [SerializeField]
-    private Logging.Logger logger;
-
-    private VisualElement _root;
-    private Label _msgLabel;
-    private Label _senderLabel;
-
-    private const string SenderPrefix = " - ";
-
-    private void Start()
+    /// <summary>
+    /// World-space UI controller for the NPC dialog box.
+    /// Lives on the DialogBox prefab which is instantiated as a child of each NPC.
+    /// Listens to dialog EventChannel SOs and filters by NpcIdentity.NpcId so only
+    /// the correct NPC's box reacts to dialog events raised by the local player's InteractView.
+    /// </summary>
+    public class UIDialogController : MonoBehaviour
     {
-        _root = GetComponent<UIDocument>().rootVisualElement;
+        [Header("General settings")]
+        [SerializeField]
+        private Logging.Logger logger;
 
-        _msgLabel = _root.Q<Label>("DialogText");
-        _senderLabel = _root.Q<Label>("DialogSender");
+        [Inject]
+        private NpcDialogMessageEvent npcDialogMessageEvent;
 
-        if (_msgLabel == null || _senderLabel == null)
+        [Inject]
+        private NpcDialogToggledEvent npcDialogToggledEvent;
+        private VisualElement ui;
+
+        private INpcIdentity npcIdentity;
+        private VisualElement _root;
+        private Label _msgLabel;
+        private Label _senderLabel;
+
+        private const string SenderPrefix = " - ";
+
+        private void Awake()
         {
-            logger.Log(
-                "Could not find required UI elements in UIDialogController.",
-                this,
-                Logging.LogType.Error
-            );
+            npcIdentity = GetComponentInParent<INpcIdentity>();
+            ui = GetComponent<UIDocument>().rootVisualElement;
         }
 
-        _root.style.display = DisplayStyle.None;
-    }
+        private void Start()
+        {
+            _root = GetComponent<UIDocument>().rootVisualElement;
+            _msgLabel = _root.Q<Label>("DialogText");
+            _senderLabel = _root.Q<Label>("DialogSender");
 
-    private void OnEnable()
-    {
-        interactView.OnDialogMessageChanged += HandleDialogChanged;
-        interactView.OnDialogToggled += HandleToggleDialog;
-    }
+            if (_msgLabel == null || _senderLabel == null)
+            {
+                logger.Log(
+                    "Could not find required UI elements (DialogText / DialogSender) in UIDialogController.",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
 
-    private void OnDisable()
-    {
-        interactView.OnDialogMessageChanged -= HandleDialogChanged;
-        interactView.OnDialogToggled -= HandleToggleDialog;
-    }
+            _root.style.display = DisplayStyle.None;
+        }
 
-    private void HandleDialogChanged(MessageData message)
-    {
-        logger.Log($"Dialog changed: {message.Content}", this);
-        _msgLabel.text = message.Content;
-        _senderLabel.text = SenderPrefix + message.Sender;
-    }
+        private void OnEnable()
+        {
+            ui = GetComponent<UIDocument>().rootVisualElement;
+            npcDialogMessageEvent.OnRaised += HandleDialogChanged;
+            npcDialogToggledEvent.OnRaised += HandleToggleDialog;
+        }
 
-    private void HandleToggleDialog(bool isOpen)
-    {
-        _root.style.display = isOpen ? DisplayStyle.Flex : DisplayStyle.None;
+        private void OnDisable()
+        {
+            npcDialogMessageEvent.OnRaised -= HandleDialogChanged;
+            npcDialogToggledEvent.OnRaised -= HandleToggleDialog;
+        }
+
+        private void HandleDialogChanged((string npcId, MessageData message) data)
+        {
+            if (!IsMyNpc(data.npcId))
+                return;
+
+            //logger.Log($"[UIDialogController] Dialog changed: {data.message.Content}", this);
+            _msgLabel.text = data.message.Content;
+            _senderLabel.text = SenderPrefix + data.message.Sender;
+        }
+
+        private void HandleToggleDialog((bool isOpen, string npcId) data)
+        {
+            if (!IsMyNpc(data.npcId))
+                return;
+            _root.style.display = data.isOpen ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private bool IsMyNpc(string npcId)
+        {
+            if (npcIdentity == null)
+            {
+                logger.Log(
+                    "[UIDialogController] NpcIdentity not found in parent.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return false;
+            }
+
+            return !string.IsNullOrEmpty(npcIdentity.NpcId) && npcIdentity.NpcId == npcId;
+        }
     }
 }

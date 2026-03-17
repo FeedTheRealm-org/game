@@ -50,6 +50,8 @@ public class ClientPlayerLinker : PlayerLinker
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
+            /* -- Instantiate and inject UI components -- */
+
             prefabProvider.HudComponent.SetActive(false);
             var hudComponent = Object.Instantiate(
                 prefabProvider.HudComponent,
@@ -65,6 +67,8 @@ public class ClientPlayerLinker : PlayerLinker
             );
             resolver.InjectGameObject(inventoryHudComponent);
             inventoryHudComponent.SetActive(true);
+
+            /* -- Instantiate and initialize controllers and views -- */
 
             var playerController = gameObject.AddComponent<PlayerController>();
 

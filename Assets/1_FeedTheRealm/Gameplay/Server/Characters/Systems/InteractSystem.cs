@@ -1,3 +1,4 @@
+using System.Collections;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -10,9 +11,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     /// <summary>
     /// Server-side system that authoritatively manages NPC dialog interactions.
-    ///
-    /// This system finds the closest NpcIdentity within range from the player's
-    /// authoritative position.
+    /// Handles starting, advancing, switching, and closing dialog sequences.
     /// </summary>
     public class InteractSystem : MonoBehaviour
     {
@@ -28,8 +27,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private LayerMask npcLayerMask;
 
+        [SerializeField]
+        private float inactivityTimeout = 10f;
+
         private CharacterStateStorage stateStorage;
         private uint netId;
+        private Coroutine _inactivityCoroutine;
 
         public void Initialize(uint netId, CharacterStateStorage stateStorage)
         {
@@ -39,31 +42,42 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void OnInteract(IEventCollectable ec)
         {
+            string closestNpcId = FindClosestNpcId();
+
             if (stateStorage.IsInteracting)
             {
-                logger.Log(
-                    $"[InteractSystem] Already interacting with '{stateStorage.CurrentNpcId}'.",
-                    this
-                );
+                if (stateStorage.CurrentNpcId == closestNpcId)
+                {
+                    OnDialogNext(ec);
+                    return;
+                }
+
+                StopInactivityTimer();
+                stateStorage.SwitchInteractingNpc(closestNpcId);
+                stateStorage.SetDialogIndex(0);
+                RestartInactivityTimer();
                 return;
             }
 
-            string npcId = FindClosestNpcId();
-            if (string.IsNullOrEmpty(npcId))
+            if (string.IsNullOrEmpty(closestNpcId))
             {
                 logger.Log("[InteractSystem] No NPC found within interaction range.", this);
                 return;
             }
 
-            int count = npcDialogRegistry.GetMessageCount(npcId);
+            int count = npcDialogRegistry.GetMessageCount(closestNpcId);
             if (count == 0)
             {
-                logger.Log($"[InteractSystem] No messages registered for NpcId '{npcId}'.", this);
+                logger.Log(
+                    $"[InteractSystem] No messages registered for NpcId '{closestNpcId}'.",
+                    this
+                );
                 return;
             }
 
-            stateStorage.SetInteracting(true, npcId);
+            stateStorage.SetInteracting(true, closestNpcId);
             stateStorage.SetDialogIndex(0);
+            RestartInactivityTimer();
         }
 
         /// <summary>
@@ -95,6 +109,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             stateStorage.SetDialogIndex(nextIndex);
+            RestartInactivityTimer();
 
             ec.Collect(
                 new DialogEvent(
@@ -117,17 +132,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!stateStorage.IsInteracting)
                 return;
 
+            StopInactivityTimer();
             stateStorage.SetInteracting(false);
         }
 
-        /// <summary>
-        /// Finds the closest NpcIdentity within interactionRadius using the player's
-        /// authoritative position from CharacterStateStorage.
-        /// </summary>
         private string FindClosestNpcId()
         {
             var playerPos = stateStorage.Position;
-
             Collider[] hits = Physics.OverlapSphere(playerPos, interactionRadius, npcLayerMask);
 
             NpcIdentity closest = null;
@@ -148,6 +159,35 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             return closest != null ? closest.NpcId : null;
+        }
+
+        private void RestartInactivityTimer()
+        {
+            StopInactivityTimer();
+            _inactivityCoroutine = StartCoroutine(InactivityCoroutine());
+        }
+
+        private void StopInactivityTimer()
+        {
+            if (_inactivityCoroutine != null)
+            {
+                StopCoroutine(_inactivityCoroutine);
+                _inactivityCoroutine = null;
+            }
+        }
+
+        private IEnumerator InactivityCoroutine()
+        {
+            yield return new WaitForSeconds(inactivityTimeout);
+
+            if (stateStorage.IsInteracting)
+            {
+                /*logger.Log(
+                    $"[InteractSystem] Inactivity timeout — closing dialog for NPC '{stateStorage.CurrentNpcId}'.",
+                    this
+                );*/
+                stateStorage.SetInteracting(false);
+            }
         }
     }
 }
