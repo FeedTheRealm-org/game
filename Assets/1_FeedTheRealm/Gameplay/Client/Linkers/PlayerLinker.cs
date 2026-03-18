@@ -75,8 +75,6 @@ public class ClientPlayerLinker : PlayerLinker
             var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
             var inventoryController = playerComponents.AddComponent<InventoryController>();
             var inventoryView = playerComponents.AddComponent<InventoryView>();
-            // var fastSlotController = gameObject.AddComponent<FastSlotController>();
-            // var fastSlotView = inventoryHudComponent.AddComponent<FastSlotView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
 
@@ -88,8 +86,6 @@ public class ClientPlayerLinker : PlayerLinker
 
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
-            // fastSlotView?.Initialize(fastSlotState);
-            // fastSlotController.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry, stateStorage);
             playerController.Initialize(characterStateMachine);
