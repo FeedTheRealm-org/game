@@ -106,6 +106,9 @@ public class InteractView : MonoBehaviour
 
     private void HandleNpcSwitched(string newNpcId)
     {
+        if (string.IsNullOrEmpty(newNpcId))
+            return;
+
         if (!string.IsNullOrEmpty(_activeNpcId))
             npcDialogToggledEvent.Raise((false, _activeNpcId));
 

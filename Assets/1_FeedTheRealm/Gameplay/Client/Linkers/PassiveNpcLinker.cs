@@ -23,11 +23,17 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
     public override void Link(GameObject gameObject)
     {
         characterLinker.Link(gameObject);
+        // if name changes or location this won't work, temporary solution until we do NPC with own characterBody
+        var characterBody = gameObject.transform.Find(
+            "ClientCharacterComponents(Clone)/CharacterBody"
+        );
+
+        var dialogParent = characterBody != null ? characterBody : gameObject.transform;
 
         prefabProvider.DialogBox.SetActive(false);
-        var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, gameObject.transform);
-        dialogBoxComponent.transform.localPosition = new Vector3(0, 2.5f, 0);
-        dialogBoxComponent.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+        var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, dialogParent);
+        dialogBoxComponent.transform.localPosition = new Vector3(1f, -0.2f, 0);
+        dialogBoxComponent.transform.localScale = new Vector3(0.4f, 0.4f, 0);
         resolver.InjectGameObject(dialogBoxComponent);
         dialogBoxComponent.SetActive(true);
     }

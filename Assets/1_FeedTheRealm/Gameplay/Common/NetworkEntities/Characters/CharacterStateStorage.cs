@@ -125,7 +125,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
 
         private void OnCurrentNpcIdSync(string oldId, string newId)
         {
-            if (_isInteracting)
+            if (_isInteracting && !string.IsNullOrEmpty(newId))
                 OnCurrentNpcIdChanged?.Invoke(newId);
         }
 
