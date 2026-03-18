@@ -13,6 +13,9 @@ public class InventoryController : MonoBehaviour
     [Inject]
     private SlotDropRequestEvent dropRequestEvent;
 
+    [Inject]
+    private SlotEquipRequestEvent equipRequestEvent;
+
     private NetworkAdapter networkAdapter;
     private bool isInitialized = false;
 
@@ -26,6 +29,9 @@ public class InventoryController : MonoBehaviour
 
         if (dropRequestEvent != null)
             dropRequestEvent.OnRaised += OnDropRequest;
+
+        if (equipRequestEvent != null)
+            equipRequestEvent.OnRaised += OnEquipRequest;
     }
 
     private void OnDestroy()
@@ -35,6 +41,9 @@ public class InventoryController : MonoBehaviour
 
         if (dropRequestEvent != null)
             dropRequestEvent.OnRaised -= OnDropRequest;
+
+        if (equipRequestEvent != null)
+            equipRequestEvent.OnRaised -= OnEquipRequest;
     }
 
     private void OnSwapRequest(
@@ -84,5 +93,22 @@ public class InventoryController : MonoBehaviour
         };
 
         networkAdapter.DispatchTransaction(command);
+    }
+
+    private void OnEquipRequest(int slotIndex)
+    {
+        if (!isInitialized)
+            return;
+
+        Debug.Log($"FastSlotController equipping item from fast slot {slotIndex}");
+
+        networkAdapter.DispatchTransaction(
+            new TransactionCommandDTO
+            {
+                Type = TransactionType.EquipItem,
+                Id = string.Empty,
+                content = new EquipItemCommandContent { Position = slotIndex }.ToByteArray(),
+            }
+        );
     }
 }

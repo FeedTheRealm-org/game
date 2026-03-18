@@ -17,6 +17,9 @@ public class InventoryView : MonoBehaviour
     [Inject]
     private LastRemovedEvent lastRemovedEvent;
 
+    [Inject]
+    private ActiveSlotChangedEvent ActiveSlotChangedEvent;
+
     private InventoryStateStorage stateStorage;
 
     public void Initialize(InventoryStateStorage stateStorage)
@@ -25,6 +28,7 @@ public class InventoryView : MonoBehaviour
         stateStorage.OnLastItemChanged += OnInventoryChanged;
         stateStorage.OnLastSwappedItemChanged += OnInventorySwapped;
         stateStorage.OnLastDroppedItemChanged += OnInventoryDropped;
+        stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
     }
 
     private void OnDestroy()
@@ -34,6 +38,7 @@ public class InventoryView : MonoBehaviour
         stateStorage.OnLastItemChanged -= OnInventoryChanged;
         stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
         stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
+        stateStorage.OnActiveSlotChanged -= OnActiveSlotChanged;
     }
 
     private void OnInventoryChanged(LastItemData value)
@@ -50,7 +55,14 @@ public class InventoryView : MonoBehaviour
             $"InventoryView item swapped: {value.sourceType}[{value.sourcePosition}] <-> {value.targetType}[{value.targetPosition}]"
         );
         lastSwappedEvent.Raise(
-            (value.sourceType, value.sourcePosition, value.targetType, value.targetPosition)
+            (
+                value.sourceType,
+                value.sourcePosition,
+                value.sourceItemId,
+                value.targetType,
+                value.targetPosition,
+                value.targetItemId
+            )
         );
     }
 
@@ -58,5 +70,11 @@ public class InventoryView : MonoBehaviour
     {
         Debug.Log($"InventoryView item dropped: {value.storageType}[{value.itemPosition}]");
         lastRemovedEvent.Raise((value.storageType, value.itemId, value.itemPosition));
+    }
+
+    private void OnActiveSlotChanged(int slotIndex)
+    {
+        Debug.Log($"InventoryView active slot changed: {slotIndex}");
+        ActiveSlotChangedEvent.Raise(slotIndex);
     }
 }
