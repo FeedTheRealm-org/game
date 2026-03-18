@@ -4,9 +4,11 @@ package protocol;
 
 option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
 
+import "DialogStateType.proto";
+
 // DialogOpened=0, DialogAdvanced=1, DialogClosed=2.
 message DialogEventContent {
-  int32 dialog_state = 1;  // DialogState enum value
+  DialogStateType dialog_state = 1;  // DialogState enum value
   string npc_id      = 2;  // Empty when dialog_state = DialogClosed
   int32 dialog_index = 3;  // Ignored when dialog_state = DialogClosed
 }

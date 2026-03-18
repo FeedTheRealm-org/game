@@ -69,7 +69,7 @@ public class InteractView : MonoBehaviour
 
     private void HandleDialogEvent(DialogEventContent content)
     {
-        if ((DialogState)content.DialogState == DialogState.Advanced)
+        if (content.DialogState == DialogStateType.DialogTypeAdvanced)
         {
             _activeNpcId = content.NpcId;
             ShowDialogLine(content.NpcId, content.DialogIndex);

@@ -4,7 +4,6 @@ using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Environment.Npcs;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
-using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
@@ -116,7 +115,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     netId,
                     new DialogEventContent
                     {
-                        DialogState = (int)DialogState.Advanced,
+                        DialogState = DialogStateType.DialogTypeAdvanced,
                         NpcId = npcId,
                         DialogIndex = nextIndex,
                     }

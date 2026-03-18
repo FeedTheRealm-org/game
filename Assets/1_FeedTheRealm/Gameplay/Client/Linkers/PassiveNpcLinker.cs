@@ -22,11 +22,8 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
 
     public override void Link(GameObject gameObject)
     {
-        characterLinker.Link(gameObject);
-        // if name changes or location this won't work, temporary solution until we do NPC with own characterBody
-        var characterBody = gameObject.transform.Find(
-            "ClientCharacterComponents(Clone)/CharacterBody"
-        );
+        var characterComponent = characterLinker.Link(gameObject);
+        var characterBody = characterComponent.transform.Find("CharacterBody");
 
         var dialogParent = characterBody != null ? characterBody : gameObject.transform;
 

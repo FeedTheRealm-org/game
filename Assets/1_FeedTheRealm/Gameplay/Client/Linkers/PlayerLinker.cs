@@ -80,6 +80,7 @@ public class ClientPlayerLinker : PlayerLinker
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);
+            resolver.Inject(interactView);
 
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);

@@ -24,12 +24,13 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     static DialogEventContentReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Ch9FdmVudHMvRGlhbG9nRXZlbnRDb250ZW50LnByb3RvEghwcm90b2NvbCJQ",
-            "ChJEaWFsb2dFdmVudENvbnRlbnQSFAoMZGlhbG9nX3N0YXRlGAEgASgFEg4K",
-            "Bm5wY19pZBgCIAEoCRIUCgxkaWFsb2dfaW5kZXgYAyABKAVCJ6oCJEZUUi5D",
-            "b3JlLkNvbW1vbi5Qcm90b2NvbC5ScGNNZXNzYWdlc2IGcHJvdG8z"));
+            "Ch9FdmVudHMvRGlhbG9nRXZlbnRDb250ZW50LnByb3RvEghwcm90b2NvbBoV",
+            "RGlhbG9nU3RhdGVUeXBlLnByb3RvImsKEkRpYWxvZ0V2ZW50Q29udGVudBIv",
+            "CgxkaWFsb2dfc3RhdGUYASABKA4yGS5wcm90b2NvbC5EaWFsb2dTdGF0ZVR5",
+            "cGUSDgoGbnBjX2lkGAIgASgJEhQKDGRpYWxvZ19pbmRleBgDIAEoBUInqgIk",
+            "RlRSLkNvcmUuQ29tbW9uLlByb3RvY29sLlJwY01lc3NhZ2VzYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::FTR.Core.Common.Protocol.RpcMessages.DialogStateTypeReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent), global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent.Parser, new[]{ "DialogState", "NpcId", "DialogIndex" }, null, null, null, null)
           }));
@@ -41,7 +42,6 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
   /// <summary>
   /// DialogOpened=0, DialogAdvanced=1, DialogClosed=2.
   /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class DialogEventContent : pb::IMessage<DialogEventContent>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -90,13 +90,13 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
 
     /// <summary>Field number for the "dialog_state" field.</summary>
     public const int DialogStateFieldNumber = 1;
-    private int dialogState_;
+    private global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType dialogState_ = global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType.DialogTypeStarted;
     /// <summary>
     /// DialogState enum value
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int DialogState {
+    public global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType DialogState {
       get { return dialogState_; }
       set {
         dialogState_ = value;
@@ -158,7 +158,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (DialogState != 0) hash ^= DialogState.GetHashCode();
+      if (DialogState != global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType.DialogTypeStarted) hash ^= DialogState.GetHashCode();
       if (NpcId.Length != 0) hash ^= NpcId.GetHashCode();
       if (DialogIndex != 0) hash ^= DialogIndex.GetHashCode();
       if (_unknownFields != null) {
@@ -179,9 +179,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (DialogState != 0) {
+      if (DialogState != global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType.DialogTypeStarted) {
         output.WriteRawTag(8);
-        output.WriteInt32(DialogState);
+        output.WriteEnum((int) DialogState);
       }
       if (NpcId.Length != 0) {
         output.WriteRawTag(18);
@@ -201,9 +201,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (DialogState != 0) {
+      if (DialogState != global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType.DialogTypeStarted) {
         output.WriteRawTag(8);
-        output.WriteInt32(DialogState);
+        output.WriteEnum((int) DialogState);
       }
       if (NpcId.Length != 0) {
         output.WriteRawTag(18);
@@ -223,8 +223,8 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (DialogState != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DialogState);
+      if (DialogState != global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType.DialogTypeStarted) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) DialogState);
       }
       if (NpcId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(NpcId);
@@ -244,7 +244,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (other == null) {
         return;
       }
-      if (other.DialogState != 0) {
+      if (other.DialogState != global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType.DialogTypeStarted) {
         DialogState = other.DialogState;
       }
       if (other.NpcId.Length != 0) {
@@ -264,16 +264,12 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            DialogState = input.ReadInt32();
+            DialogState = (global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType) input.ReadEnum();
             break;
           }
           case 18: {
@@ -295,16 +291,12 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            DialogState = input.ReadInt32();
+            DialogState = (global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType) input.ReadEnum();
             break;
           }
           case 18: {
