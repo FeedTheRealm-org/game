@@ -22,6 +22,9 @@ public class FastSlotUIController : MonoBehaviour
     [Inject]
     private SlotEquipRequestEvent equipRequestEvent;
 
+    [Inject]
+    private InventoryToggleEvent inventoryToggleEvent;
+
     [SerializeField]
     private PlayerInputReader inputReader;
 
@@ -32,11 +35,15 @@ public class FastSlotUIController : MonoBehaviour
     private Sprite selectedSlotSprite;
 
     [SerializeField]
+    private Sprite hiddenHUDSlotSprite;
+
+    [SerializeField]
     private Sprite itemObtainedSprite;
 
     private UIDocument uiDocument;
     private readonly List<VisualElement> slots = new(FastSlotCount);
     private int activeSlot = 0;
+    private bool isInventoryOpen = false;
 
     private void OnEnable()
     {
@@ -57,6 +64,7 @@ public class FastSlotUIController : MonoBehaviour
         lastSwappedEvent.OnRaised += OnLastSwapped;
         lastRemovedEvent.OnRaised += OnLastRemoved;
         activeSlotChangedEvent.OnRaised += OnActiveSlotChanged;
+        inventoryToggleEvent.OnRaised += OnInventoryToggled;
         inputReader.FastSlotEvent += OnFastSlotInput;
 
         SetActiveSlot(activeSlot);
@@ -67,11 +75,14 @@ public class FastSlotUIController : MonoBehaviour
         lastSwappedEvent.OnRaised -= OnLastSwapped;
         lastRemovedEvent.OnRaised -= OnLastRemoved;
         activeSlotChangedEvent.OnRaised -= OnActiveSlotChanged;
+        inventoryToggleEvent.OnRaised -= OnInventoryToggled;
         inputReader.FastSlotEvent -= OnFastSlotInput;
     }
 
     private void OnFastSlotInput(int inputPad)
     {
+        if (isInventoryOpen)
+            return;
         if (inputPad <= 0 || inputPad > FastSlotCount)
             return;
         equipRequestEvent.Raise(inputPad - 1);
@@ -104,6 +115,18 @@ public class FastSlotUIController : MonoBehaviour
     private void OnActiveSlotChanged(int slotIndex)
     {
         SetActiveSlot(slotIndex);
+    }
+
+    private void OnInventoryToggled(bool status)
+    {
+        isInventoryOpen = status;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (i == activeSlot)
+                SetSlotBackground(i, status ? hiddenHUDSlotSprite : selectedSlotSprite);
+            else
+                SetSlotBackground(i, status ? hiddenHUDSlotSprite : defaultSlotSprite);
+        }
     }
 
     private void SetActiveSlot(int slotIndex)
