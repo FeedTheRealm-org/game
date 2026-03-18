@@ -5,5 +5,6 @@ using UnityEngine;
 namespace FTR.Core.Client.EventChannels.Inventory
 {
     [CreateAssetMenu(menuName = "Events/Client/Inventory/LastSwapped")]
-    public class LastSwappedEvent : EventChannelSO<(StorageType, int, StorageType, int)> { }
+    public class LastSwappedEvent
+        : EventChannelSO<(StorageType, int, string, StorageType, int, string)> { }
 }

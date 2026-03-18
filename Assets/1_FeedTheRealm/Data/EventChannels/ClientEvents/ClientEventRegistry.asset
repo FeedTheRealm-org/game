@@ -19,8 +19,8 @@ MonoBehaviour:
   lastAddedEvent: {fileID: 11400000, guid: 2e1f564ad5c2eee4998aafc82ee7194a, type: 2}
   lastSwappedEvent: {fileID: 11400000, guid: bf3939e36fcaf324f9a058512960901d, type: 2}
   lastRemovedEvent: {fileID: 11400000, guid: 0f5368480f9c49746876cfa5badab65b, type: 2}
+  ActiveSlotChangedEvent: {fileID: 11400000, guid: 3260ffbf7c8d6184096030b3a3f71905, type: 2}
   slotEquipRequestEvent: {fileID: 11400000, guid: ff1e9a109c515c344b2758af74d024c5, type: 2}
-  slotUnequipRequestEvent: {fileID: 11400000, guid: 196b337dfca104144942425cdf4a73bc, type: 2}
   slotSwapRequestEvent: {fileID: 11400000, guid: c3cc1d0603aa70c49aab396de7ebd0b5, type: 2}
   slotDropRequestEvent: {fileID: 11400000, guid: 84a2eb51e3076e8409032523460beef8, type: 2}
   inventoryToggleEvent: {fileID: 11400000, guid: 71845091c26c22049b862e665acb63b0, type: 2}

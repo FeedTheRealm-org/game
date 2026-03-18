@@ -23,11 +23,13 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public LastAddedEvent lastAddedEvent;
         public LastSwappedEvent lastSwappedEvent;
         public LastRemovedEvent lastRemovedEvent;
+        public ActiveSlotChangedEvent ActiveSlotChangedEvent;
         public SlotEquipRequestEvent slotEquipRequestEvent;
-        public SlotUnequipRequestEvent slotUnequipRequestEvent;
         public SlotSwapRequestEvent slotSwapRequestEvent;
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
+
+        [Header("NPC Events")]
         public NpcInteractedEvent npcInteractedEvent;
         public NpcDialogClosedEvent npcDialogClosedEvent;
 
@@ -47,8 +49,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(lastAddedEvent);
             builder.RegisterInstance(lastSwappedEvent);
             builder.RegisterInstance(lastRemovedEvent);
+            builder.RegisterInstance(ActiveSlotChangedEvent);
             builder.RegisterInstance(slotEquipRequestEvent);
-            builder.RegisterInstance(slotUnequipRequestEvent);
             builder.RegisterInstance(slotSwapRequestEvent);
             builder.RegisterInstance(slotDropRequestEvent);
             builder.RegisterInstance(inventoryToggleEvent);
@@ -68,8 +70,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(lastAddedEvent, nameof(lastAddedEvent));
             ValidateField(lastSwappedEvent, nameof(lastSwappedEvent));
             ValidateField(lastRemovedEvent, nameof(lastRemovedEvent));
+            ValidateField(ActiveSlotChangedEvent, nameof(ActiveSlotChangedEvent));
             ValidateField(slotEquipRequestEvent, nameof(slotEquipRequestEvent));
-            ValidateField(slotUnequipRequestEvent, nameof(slotUnequipRequestEvent));
             ValidateField(slotSwapRequestEvent, nameof(slotSwapRequestEvent));
             ValidateField(slotDropRequestEvent, nameof(slotDropRequestEvent));
             ValidateField(inventoryToggleEvent, nameof(inventoryToggleEvent));
