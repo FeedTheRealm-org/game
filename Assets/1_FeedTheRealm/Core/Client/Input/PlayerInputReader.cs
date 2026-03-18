@@ -12,7 +12,7 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
     public event Action UseEvent;
     public event Action CursorToggleEvent;
     public event Action InteractEvent;
-    public event Action<int> QuickSlotEvent;
+    public event Action<int> FastSlotEvent;
 
     private PlayerControls controls;
 
@@ -83,19 +83,19 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
         }
     }
 
-    public void OnQuickSlots(InputAction.CallbackContext context)
+    public void OnFastSlots(InputAction.CallbackContext context)
     {
         if (!context.performed)
             return;
 
-        int slotIndex = GetQuickSlotIndex(context);
+        int slotIndex = GetFastSlotIndex(context);
         if (slotIndex <= 0)
             return;
 
-        QuickSlotEvent?.Invoke(slotIndex);
+        FastSlotEvent?.Invoke(slotIndex);
     }
 
-    private static int GetQuickSlotIndex(InputAction.CallbackContext context)
+    private static int GetFastSlotIndex(InputAction.CallbackContext context)
     {
         if (context.control is KeyControl keyControl)
         {
