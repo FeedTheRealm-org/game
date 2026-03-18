@@ -35,16 +35,7 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
-        var healthSystem = serverComponents.GetComponent<HealthSystem>();
-        var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
         var interactSystem = serverComponents.GetComponent<InteractSystem>();
-
-        movementSystem.Initialize(rb, null);
-        dashSystem.Initialize(netId, rb, null);
-        useSystem.Initialize(netId, rb);
-        groundCheckSystem.Initialize(gameObject.GetComponent<Collider>(), null);
-        healthSystem.Initialize(netId, null);
-        interactSystem.Initialize(netId, null);
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
 

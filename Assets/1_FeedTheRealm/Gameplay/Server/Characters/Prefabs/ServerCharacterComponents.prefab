@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1607649542385950516}
   - component: {fileID: 6682530117870127933}
-  - component: {fileID: 7347748970413494612}
   - component: {fileID: 3631298942065249905}
   - component: {fileID: 8849227909655753052}
   - component: {fileID: 6862505364610922874}
@@ -51,18 +50,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5e4a9ab1c4dbb75e90535c957573a1c, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.ServerCommandHandler
---- !u!114 &7347748970413494612
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2056940003155735034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97d7c64b54ab68a4c8eb379f097d6bca, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.ServerPlayerCommandHandler
 --- !u!114 &3631298942065249905
 MonoBehaviour:
   m_ObjectHideFlags: 0
