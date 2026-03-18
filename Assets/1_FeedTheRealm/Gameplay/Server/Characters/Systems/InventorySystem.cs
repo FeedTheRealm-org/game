@@ -20,6 +20,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private int inventorySize = 12;
         private int fastSlotSize = 5;
+        private int activeSlot = 0;
 
         private string[] inventorySlots;
         private string[] fastSlots;
@@ -110,7 +111,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 this
             );
 
-            inventoryState.SwapItems(sourceType, sourceSlot, targetType, targetSlot);
+            inventoryState.SwapItems(
+                sourceType,
+                sourceSlot,
+                sourceItemId,
+                targetType,
+                targetSlot,
+                targetItemId
+            );
         }
 
         public string OnDropItem(IEventCollectable ec, int slotIndex, StorageType storageType)
@@ -131,6 +139,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 this
             );
             return itemId;
+        }
+
+        public void OnEquipItem(IEventCollectable ec, int slotIndex)
+        {
+            if (!IsValidSlot(StorageType.FastSlot, slotIndex))
+            {
+                logger.Log($"OnEquipItem: invalid fast slot {slotIndex} for player {netId}", this);
+                return;
+            }
+
+            activeSlot = slotIndex;
+            logger.Log($"Player {netId} equipped fast slot {slotIndex}", this);
+            inventoryState.SetActiveSlot(slotIndex);
         }
 
         public void LoadInventory(string[] inventoryData, string[] fastSlotData)

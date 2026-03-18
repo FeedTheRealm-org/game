@@ -35,7 +35,21 @@ public static class CommandsFactory
         switch (dto.Type)
         {
             case TransactionType.EquipItem:
-            // TODO
+                try
+                {
+                    EquipItemCommandContent content = EquipItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new EquipItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    EquipItemCommandContent defaultContent = new EquipItemCommandContent
+                    {
+                        Position = -1,
+                    };
+                    return new EquipItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
             case TransactionType.DropItem:
                 try
                 {

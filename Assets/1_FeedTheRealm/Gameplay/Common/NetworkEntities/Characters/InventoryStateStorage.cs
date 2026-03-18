@@ -22,22 +22,28 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
 
     public struct LastSwappedItemData
     {
-        public int sourcePosition;
         public StorageType sourceType;
-        public int targetPosition;
+        public int sourcePosition;
+        public string sourceItemId;
         public StorageType targetType;
+        public int targetPosition;
+        public string targetItemId;
 
         public LastSwappedItemData(
-            int sourcePosition,
             StorageType sourceType,
+            int sourcePosition,
+            string sourceItemId,
+            StorageType targetType,
             int targetPosition,
-            StorageType targetType
+            string targetItemId
         )
         {
-            this.sourcePosition = sourcePosition;
             this.sourceType = sourceType;
-            this.targetPosition = targetPosition;
+            this.sourcePosition = sourcePosition;
+            this.sourceItemId = sourceItemId;
             this.targetType = targetType;
+            this.targetPosition = targetPosition;
+            this.targetItemId = targetItemId;
         }
     }
 
@@ -54,15 +60,20 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         [SyncVar(hook = nameof(OnLastDroppedItemSync))]
         private LastItemData lastDroppedItemData;
 
+        [SyncVar(hook = nameof(OnActiveSlotSync))]
+        private int activeSlot = 0;
+
         /* --- Getters --- */
 
         public LastItemData LastItem => lastItemData;
         public LastSwappedItemData LastSwappedItem => lastSwappedItemData;
         public LastItemData LastDroppedItem => lastDroppedItemData;
+        public int ActiveSlot => activeSlot;
 
         public event Action<LastItemData> OnLastItemChanged;
         public event Action<LastSwappedItemData> OnLastSwappedItemChanged;
         public event Action<LastItemData> OnLastDroppedItemChanged;
+        public event Action<int> OnActiveSlotChanged;
 
         /* --- Setters (server only) --- */
 
@@ -76,15 +87,19 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public void SwapItems(
             StorageType sourceType,
             int sourcePosition,
+            string sourceItemId,
             StorageType targetType,
-            int targetPosition
+            int targetPosition,
+            string targetItemId
         )
         {
             lastSwappedItemData = new LastSwappedItemData(
-                sourcePosition,
                 sourceType,
+                sourcePosition,
+                sourceItemId,
+                targetType,
                 targetPosition,
-                targetType
+                targetItemId
             );
         }
 
@@ -94,17 +109,32 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             lastDroppedItemData = new LastItemData(storageType, position, string.Empty);
         }
 
+        [Server]
+        public void SetActiveSlot(int slotIndex)
+        {
+            activeSlot = slotIndex;
+        }
+
         /* --- SyncVar hooks (client) --- */
 
-        private void OnLastItemSync(LastItemData oldData, LastItemData newData) =>
+        private void OnLastItemSync(LastItemData oldData, LastItemData newData)
+        {
             OnLastItemChanged?.Invoke(newData);
+        }
 
-        private void OnLastSwappedItemSync(
-            LastSwappedItemData oldData,
-            LastSwappedItemData newData
-        ) => OnLastSwappedItemChanged?.Invoke(newData);
+        private void OnLastSwappedItemSync(LastSwappedItemData oldData, LastSwappedItemData newData)
+        {
+            OnLastSwappedItemChanged?.Invoke(newData);
+        }
 
-        private void OnLastDroppedItemSync(LastItemData oldData, LastItemData newData) =>
+        private void OnLastDroppedItemSync(LastItemData oldData, LastItemData newData)
+        {
             OnLastDroppedItemChanged?.Invoke(newData);
+        }
+
+        private void OnActiveSlotSync(int oldSlot, int newSlot)
+        {
+            OnActiveSlotChanged?.Invoke(newSlot);
+        }
     }
 }

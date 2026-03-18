@@ -33,6 +33,11 @@ namespace FTR.Gameplay.Server.Characters
             inventorySystem.OnMoveItem(ec, sourceType, sourceSlot, targetType, targetSlot);
         }
 
+        public override void OnEquipItem(IEventCollectable ec, int slotIndex)
+        {
+            inventorySystem.OnEquipItem(ec, slotIndex);
+        }
+
         public override void OnMove(IEventCollectable ec, Vector3 direction)
         {
             movementSystem.OnMove(direction);
