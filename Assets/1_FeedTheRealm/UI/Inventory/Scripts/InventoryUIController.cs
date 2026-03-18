@@ -161,7 +161,9 @@ public class InventoryUIController : MonoBehaviour
     private void OnLastRemoved((StorageType t, string id, int pos) data) =>
         SetSlotItem(data.t, data.pos, null);
 
-    private void OnLastSwapped((StorageType srcT, int srcI, StorageType tgtT, int tgtI) data)
+    private void OnLastSwapped(
+        (StorageType srcT, int srcI, string srcId, StorageType tgtT, int tgtI, string tgtId) data
+    )
     {
         var srcIcon = Icon(data.srcT, data.srcI);
         var tgtIcon = Icon(data.tgtT, data.tgtI);
