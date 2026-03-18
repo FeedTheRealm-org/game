@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 using VContainer;
 
 [RequireComponent(typeof(UIDocument))]
+[RequireComponent(typeof(AnimationInventoryUIController))]
 public class InventoryUIController : MonoBehaviour
 {
     private const int InventorySlotCount = 12;
@@ -49,12 +50,18 @@ public class InventoryUIController : MonoBehaviour
     private int selectedSlotIndex = -1;
     private StorageType selectedStorage;
 
+    private AnimationInventoryUIController animationController;
+
     private void OnEnable()
     {
         uiDocument = GetComponent<UIDocument>();
+        animationController = GetComponent<AnimationInventoryUIController>();
+
         var root = uiDocument.rootVisualElement;
         if (root == null)
             return;
+
+        animationController.Initialize(root);
 
         RegisterSlots(root, inventorySlots, InventorySlotCount, "Slot", OnInventorySlotClicked);
         RegisterSlots(root, fastSlots, FastSlotCount, "FastEquipSlot", OnFastSlotClicked);
@@ -96,11 +103,8 @@ public class InventoryUIController : MonoBehaviour
 
     private void OnInventoryInput()
     {
-        var inventory = uiDocument.rootVisualElement.Q("Inventory");
-        if (inventory == null)
-            return;
-        bool show = inventory.resolvedStyle.display == DisplayStyle.None;
-        inventory.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+        bool show = !animationController.IsVisible;
+        animationController.Toggle();
         inventoryToggleEvent?.Raise(show);
     }
 
