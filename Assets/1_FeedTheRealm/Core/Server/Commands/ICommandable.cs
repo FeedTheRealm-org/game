@@ -11,8 +11,7 @@ public interface ICommandable
     void OnDash(IEventCollectable ec, Vector3 direction);
     void OnUse(IEventCollectable ec);
     void OnInteract(IEventCollectable ec);
-    void OnEquipItem(IEventCollectable ec, int sourceSlot, int targetSlot, string itemId);
-    void OnUnequipItem(IEventCollectable ec, int sourceSlot, int targetSlot, string itemId);
+    void OnEquipItem(IEventCollectable ec, int slotIndex);
     void OnDropItem(IEventCollectable ec, StorageType type, int slotIndex, string itemId);
     void OnPurchase(IEventCollectable ec);
     void OnQuestAccepted(IEventCollectable ec);

@@ -52,19 +52,7 @@ namespace FTR.Gameplay.Server.Characters
             interactSystem.OnDialogNext(ec);
         }
 
-        public virtual void OnEquipItem(
-            IEventCollectable ec,
-            int sourceSlot,
-            int targetSlot,
-            string itemId
-        ) { }
-
-        public virtual void OnUnequipItem(
-            IEventCollectable ec,
-            int sourceSlot,
-            int targetSlot,
-            string itemId
-        ) { }
+        public virtual void OnEquipItem(IEventCollectable ec, int slotIndex) { }
 
         public virtual void OnDropItem(
             IEventCollectable ec,

@@ -36,8 +36,6 @@ public static class CommandsFactory
         {
             case TransactionType.EquipItem:
             // TODO
-            case TransactionType.UnequipItem:
-            // TODO
             case TransactionType.DropItem:
                 try
                 {
