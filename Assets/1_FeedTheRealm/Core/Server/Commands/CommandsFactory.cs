@@ -35,41 +35,9 @@ public static class CommandsFactory
         switch (dto.Type)
         {
             case TransactionType.EquipItem:
-                try
-                {
-                    MoveItemCommandContent content = MoveItemCommandContent.Parser.ParseFrom(
-                        dto.content
-                    );
-                    return new EquipItemCommand(dto.NetId, dto.Id, content);
-                }
-                catch
-                {
-                    MoveItemCommandContent defaultContent = new MoveItemCommandContent
-                    {
-                        Type = StorageType.Inventory,
-                        SourcePosition = -1,
-                        TargetPosition = -1,
-                    };
-                    return new EquipItemCommand(dto.NetId, dto.Id, defaultContent);
-                }
+            // TODO
             case TransactionType.UnequipItem:
-                try
-                {
-                    MoveItemCommandContent content = MoveItemCommandContent.Parser.ParseFrom(
-                        dto.content
-                    );
-                    return new UnequipItemCommand(dto.NetId, dto.Id, content);
-                }
-                catch
-                {
-                    MoveItemCommandContent defaultContent = new MoveItemCommandContent
-                    {
-                        Type = StorageType.FastSlot,
-                        SourcePosition = -1,
-                        TargetPosition = -1,
-                    };
-                    return new UnequipItemCommand(dto.NetId, dto.Id, defaultContent);
-                }
+            // TODO
             case TransactionType.DropItem:
                 try
                 {
@@ -103,8 +71,9 @@ public static class CommandsFactory
                 {
                     MoveItemCommandContent defaultContent = new MoveItemCommandContent
                     {
-                        Type = StorageType.Null,
+                        SourceType = StorageType.Null,
                         SourcePosition = -1,
+                        TargetType = StorageType.Null,
                         TargetPosition = -1,
                     };
                     return new MoveItemCommand(dto.NetId, dto.Id, defaultContent);

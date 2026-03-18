@@ -1,32 +1,47 @@
 using System;
+using FTR.Core.Common.Protocol.RpcMessages;
 using Mirror;
-using UnityEngine;
 
 namespace FTR.Gameplay.Common.NetworkEntities.LootItem
 {
+    // ── Shared structs ────────────────────────────────────────────────────────
+
     public struct LastItemData
     {
-        public string itemId;
+        public StorageType storageType;
         public int itemPosition;
+        public string itemId;
 
-        public LastItemData(string itemId, int itemPosition)
+        public LastItemData(StorageType storageType, int itemPosition, string itemId)
         {
-            this.itemId = itemId;
+            this.storageType = storageType;
             this.itemPosition = itemPosition;
+            this.itemId = itemId;
         }
     }
 
     public struct LastSwappedItemData
     {
         public int sourcePosition;
+        public StorageType sourceType;
         public int targetPosition;
+        public StorageType targetType;
 
-        public LastSwappedItemData(int sourcePosition, int targetPosition)
+        public LastSwappedItemData(
+            int sourcePosition,
+            StorageType sourceType,
+            int targetPosition,
+            StorageType targetType
+        )
         {
             this.sourcePosition = sourcePosition;
+            this.sourceType = sourceType;
             this.targetPosition = targetPosition;
+            this.targetType = targetType;
         }
     }
+
+    // ── NetworkBehaviour ──────────────────────────────────────────────────────
 
     public class InventoryStateStorage : NetworkBehaviour
     {
@@ -49,39 +64,47 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public event Action<LastSwappedItemData> OnLastSwappedItemChanged;
         public event Action<LastItemData> OnLastDroppedItemChanged;
 
-        /* --- Setters --- */
+        /* --- Setters (server only) --- */
 
         [Server]
-        public void AddItem(string itemId, int position)
+        public void AddItem(StorageType storageType, int position, string itemId)
         {
-            lastItemData = new LastItemData(itemId, position);
-        }
-
-        [Server]
-        public void SwapItems(int sourcePosition, int targetPosition)
-        {
-            lastSwappedItemData = new LastSwappedItemData(sourcePosition, targetPosition);
+            lastItemData = new LastItemData(storageType, position, itemId);
         }
 
         [Server]
-        public void DropItem(int position)
+        public void SwapItems(
+            StorageType sourceType,
+            int sourcePosition,
+            StorageType targetType,
+            int targetPosition
+        )
         {
-            lastDroppedItemData = new LastItemData(string.Empty, position);
+            lastSwappedItemData = new LastSwappedItemData(
+                sourcePosition,
+                sourceType,
+                targetPosition,
+                targetType
+            );
         }
 
-        private void OnLastItemSync(LastItemData oldLastItemData, LastItemData newLastItemData)
+        [Server]
+        public void DropItem(StorageType storageType, int position)
         {
-            OnLastItemChanged?.Invoke(newLastItemData);
+            lastDroppedItemData = new LastItemData(storageType, position, string.Empty);
         }
 
-        private void OnLastSwappedItemSync(LastSwappedItemData oldData, LastSwappedItemData newData)
-        {
-            OnLastSwappedItemChanged?.Invoke(newData);
-        }
+        /* --- SyncVar hooks (client) --- */
 
-        private void OnLastDroppedItemSync(LastItemData oldData, LastItemData newData)
-        {
+        private void OnLastItemSync(LastItemData oldData, LastItemData newData) =>
+            OnLastItemChanged?.Invoke(newData);
+
+        private void OnLastSwappedItemSync(
+            LastSwappedItemData oldData,
+            LastSwappedItemData newData
+        ) => OnLastSwappedItemChanged?.Invoke(newData);
+
+        private void OnLastDroppedItemSync(LastItemData oldData, LastItemData newData) =>
             OnLastDroppedItemChanged?.Invoke(newData);
-        }
     }
 }

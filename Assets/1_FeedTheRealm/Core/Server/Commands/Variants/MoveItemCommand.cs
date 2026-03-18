@@ -20,8 +20,9 @@ public class MoveItemCommand : BaseServerCommand
     {
         commandable.OnMoveItem(
             eventCollector,
-            Content.Type,
+            Content.SourceType,
             Content.SourcePosition,
+            Content.TargetType,
             Content.TargetPosition
         );
     }

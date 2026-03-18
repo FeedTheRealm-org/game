@@ -1,4 +1,3 @@
-using System.Data.SqlTypes;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
@@ -14,12 +13,6 @@ public class InventoryController : MonoBehaviour
     [Inject]
     private SlotDropRequestEvent dropRequestEvent;
 
-    [Inject]
-    private SlotEquipRequestEvent equipRequestEvent;
-
-    [Inject]
-    private SlotUnequipRequestEvent unequipRequestEvent;
-
     private NetworkAdapter networkAdapter;
     private bool isInitialized = false;
 
@@ -33,12 +26,6 @@ public class InventoryController : MonoBehaviour
 
         if (dropRequestEvent != null)
             dropRequestEvent.OnRaised += OnDropRequest;
-
-        if (equipRequestEvent != null)
-            equipRequestEvent.OnRaised += OnEquipRequest;
-
-        if (unequipRequestEvent != null)
-            unequipRequestEvent.OnRaised += OnUnEquipRequest;
     }
 
     private void OnDestroy()
@@ -48,21 +35,18 @@ public class InventoryController : MonoBehaviour
 
         if (dropRequestEvent != null)
             dropRequestEvent.OnRaised -= OnDropRequest;
-
-        if (equipRequestEvent != null)
-            equipRequestEvent.OnRaised -= OnEquipRequest;
-
-        if (unequipRequestEvent != null)
-            unequipRequestEvent.OnRaised -= OnUnEquipRequest;
     }
 
-    private void OnSwapRequest((StorageType type, int sourceSlot, int targetSlot) data)
+    private void OnSwapRequest(
+        (StorageType sourceType, int sourceSlot, StorageType targetType, int targetSlot) data
+    )
     {
-        if (!isInitialized || data.type != StorageType.Inventory)
+        if (!isInitialized)
             return;
 
         Debug.Log(
-            $"InventoryController sending MoveItem command from {data.sourceSlot} to {data.targetSlot}"
+            $"InventoryController sending MoveItem: "
+                + $"{data.sourceType}[{data.sourceSlot}] -> {data.targetType}[{data.targetSlot}]"
         );
 
         TransactionCommandDTO command = new()
@@ -71,8 +55,9 @@ public class InventoryController : MonoBehaviour
             Id = string.Empty,
             content = new MoveItemCommandContent
             {
-                Type = StorageType.Inventory,
+                SourceType = data.sourceType,
                 SourcePosition = data.sourceSlot,
+                TargetType = data.targetType,
                 TargetPosition = data.targetSlot,
             }.ToByteArray(),
         };
@@ -80,12 +65,12 @@ public class InventoryController : MonoBehaviour
         networkAdapter.DispatchTransaction(command);
     }
 
-    private void OnDropRequest((StorageType type, int slot) data)
+    private void OnDropRequest((StorageType storageType, int slot) data)
     {
-        if (!isInitialized || data.type != StorageType.Inventory)
+        if (!isInitialized)
             return;
 
-        Debug.Log($"InventoryController sending Drop command for slot {data.slot}");
+        Debug.Log($"InventoryController sending DropItem: {data.storageType}[{data.slot}]");
 
         TransactionCommandDTO command = new()
         {
@@ -93,56 +78,8 @@ public class InventoryController : MonoBehaviour
             Id = string.Empty,
             content = new DropItemCommandContent
             {
-                Type = StorageType.Inventory,
+                Type = data.storageType,
                 Position = data.slot,
-            }.ToByteArray(),
-        };
-
-        networkAdapter.DispatchTransaction(command);
-    }
-
-    private void OnEquipRequest((int sourceSlot, int targetSlot) data)
-    {
-        if (!isInitialized)
-            return;
-
-        Debug.Log(
-            $"InventoryController sending EquipItem command for slot {data.sourceSlot} to {data.targetSlot}"
-        );
-
-        TransactionCommandDTO command = new()
-        {
-            Type = TransactionType.EquipItem,
-            Id = string.Empty,
-            content = new MoveItemCommandContent
-            {
-                Type = StorageType.Inventory,
-                SourcePosition = data.sourceSlot,
-                TargetPosition = data.targetSlot,
-            }.ToByteArray(),
-        };
-
-        networkAdapter.DispatchTransaction(command);
-    }
-
-    private void OnUnEquipRequest((int sourceSlot, int targetSlot) data)
-    {
-        if (!isInitialized)
-            return;
-
-        Debug.Log(
-            $"InventoryController sending UnequipItem command for slot {data.sourceSlot} to {data.targetSlot}"
-        );
-
-        TransactionCommandDTO command = new()
-        {
-            Type = TransactionType.UnequipItem,
-            Id = string.Empty,
-            content = new MoveItemCommandContent
-            {
-                Type = StorageType.Inventory,
-                SourcePosition = data.sourceSlot,
-                TargetPosition = data.targetSlot,
             }.ToByteArray(),
         };
 

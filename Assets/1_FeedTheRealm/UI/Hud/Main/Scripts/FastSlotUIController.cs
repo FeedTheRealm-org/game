@@ -56,23 +56,23 @@ public class FastSlotUIController : MonoBehaviour
         if (lastAddedEvent != null)
             lastAddedEvent.OnRaised += OnLastAdded;
 
-        if (lastSwappedEvent != null)
-            lastSwappedEvent.OnRaised += OnLastSwappedItemChanged;
+        // if (lastSwappedEvent != null)
+        //     lastSwappedEvent.OnRaised += OnLastSwappedItemChanged;
 
-        if (lastRemovedEvent != null)
-            lastRemovedEvent.OnRaised += OnLastDroppedItemChanged;
+        // if (lastRemovedEvent != null)
+        //     lastRemovedEvent.OnRaised += OnLastDroppedItemChanged;
     }
 
     private void OnDisable()
     {
-        if (lastAddedEvent != null)
-            lastAddedEvent.OnRaised -= OnLastAdded;
+        // if (lastAddedEvent != null)
+        //     lastAddedEvent.OnRaised -= OnLastAdded;
 
-        if (lastSwappedEvent != null)
-            lastSwappedEvent.OnRaised -= OnLastSwappedItemChanged;
+        // if (lastSwappedEvent != null)
+        //     lastSwappedEvent.OnRaised -= OnLastSwappedItemChanged;
 
-        if (lastRemovedEvent != null)
-            lastRemovedEvent.OnRaised -= OnLastDroppedItemChanged;
+        // if (lastRemovedEvent != null)
+        //     lastRemovedEvent.OnRaised -= OnLastDroppedItemChanged;
     }
 
     private void OnLastAdded((StorageType, string, int) data)
