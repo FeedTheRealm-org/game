@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace FTR.Core.Server.Healthcheck;
 
@@ -23,6 +24,8 @@ public class HealthcheckServer
         _cts = new CancellationTokenSource();
         _listener = new TcpListener(IPAddress.Any, _port);
         _listener.Start();
+
+        Debug.Log($"Healthcheck server started on port {_port}");
 
         _listenerTask = Task.Run(async () =>
         {

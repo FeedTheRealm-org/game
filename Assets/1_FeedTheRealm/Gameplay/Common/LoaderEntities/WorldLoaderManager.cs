@@ -38,6 +38,9 @@ namespace FTR.Gameplay.Common.LoaderEntities
                 (string worldId, string accessToken) = (GetWorldId(), GetAccessToken());
                 ValidateArgs(worldId, "worldId");
                 ValidateArgs(accessToken, "accessToken");
+                logger.Log(
+                    $"[WORLD-LOAD] Starting world loading with World ID: {worldId} | Access Token: {accessToken}"
+                );
                 await Load(worldId, accessToken);
             }
             catch (System.Exception ex)
