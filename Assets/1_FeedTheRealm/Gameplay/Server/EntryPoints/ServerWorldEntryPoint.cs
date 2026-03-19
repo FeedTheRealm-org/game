@@ -1,16 +1,19 @@
+using System;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
+using FTR.Core.Server.Healthcheck;
 using FTR.Gameplay.Server.Loaders;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public sealed class ServerWorldEntryPoint : IStartable, ITickable
+public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 {
     private readonly ServerTickDriver serverTickDriver;
     private readonly NetworkTickDriver networkTickDriver;
     private readonly ServerWorldLoader worldLoader;
+    private readonly HealthcheckServer healthcheckServer;
 
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
@@ -20,7 +23,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable
         NetworkTickDriver networkTickDriver,
         IObjectResolver resolver,
         ObjectResolverContainer resolverContainer,
-        ServerWorldLoader worldLoader
+        ServerWorldLoader worldLoader,
+        HealthcheckServer healthcheckServer
     )
     {
         this.serverTickDriver = serverTickDriver;
@@ -29,9 +33,15 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable
         resolverContainer.SetResolver(resolver);
     }
 
-    public void Start()
+    public async void Start()
     {
-        worldLoader.LoadWorld();
+        await worldLoader.LoadWorld();
+        healthcheckServer.Start();
+    }
+
+    public async void Dispose()
+    {
+        await healthcheckServer.CloseAsync();
     }
 
     /// <summary>

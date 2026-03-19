@@ -40,9 +40,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             isInitialized = true;
         }
 
-        public void Start()
+        public async void Start()
         {
-            worldLoader.LoadWorld();
+            await worldLoader.LoadWorld();
         }
 
         public void Tick()

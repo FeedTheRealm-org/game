@@ -2,6 +2,7 @@ using API;
 using FTR.Core.Common.Config;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
+using FTR.Core.Server.Healthcheck;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Linkers;
 using FTR.Gameplay.Server.Scopes;
@@ -38,6 +39,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
 
+            builder.Register<HealthcheckServer>(Lifetime.Singleton);
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
             builder.Register<ServerWorldLoader>(Lifetime.Singleton);
             builder.Register<WorldMonitor>(Lifetime.Singleton);

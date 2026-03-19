@@ -24,14 +24,14 @@ namespace FTR.Gameplay.Common.LoaderEntities
         public abstract string GetWorldId();
         public abstract string GetAccessToken();
 
-        public async void LoadWorld()
+        public async UniTask LoadWorld()
         {
             if (!config.DoNotLoadWorld)
-                Initialize();
+                await Initialize();
         }
 
         // --- Private methods --- //
-        private async void Initialize()
+        private async UniTask Initialize()
         {
             try
             {
