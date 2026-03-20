@@ -29,6 +29,8 @@ public class StaminaView : MonoBehaviour
 
     private void OnStaminaChanged(float value)
     {
+        if (!stateStorage.isLocalPlayer)
+            return;
         staminaChangedEvent.Raise(value);
     }
 }
