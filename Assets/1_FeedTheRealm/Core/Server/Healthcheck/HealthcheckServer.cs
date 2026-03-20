@@ -50,6 +50,7 @@ public class HealthcheckServer
 
     public async Task CloseAsync()
     {
+        Debug.Log("Shutting down healthcheck server...");
         _cts?.Cancel();
         _listener?.Stop();
 

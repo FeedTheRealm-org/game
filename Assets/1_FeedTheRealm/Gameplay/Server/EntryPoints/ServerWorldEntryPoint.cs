@@ -30,6 +30,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         this.serverTickDriver = serverTickDriver;
         this.networkTickDriver = networkTickDriver;
         this.worldLoader = worldLoader;
+        this.healthcheckServer = healthcheckServer;
         resolverContainer.SetResolver(resolver);
     }
 
