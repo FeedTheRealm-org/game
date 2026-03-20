@@ -9,6 +9,7 @@ namespace FTR.Core.Client
         public GameObject HudComponent;
         public GameObject LootItemVisual;
         public GameObject InventoryHudComponent;
+        public GameObject SettingMenuComponent;
 
         [Header("Loader Components")]
         public GameObject StructurePrefab;

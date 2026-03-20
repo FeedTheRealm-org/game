@@ -1,6 +1,6 @@
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Interactions;
-using FTR.Core.Common.Quests;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 public class NpcInteractSystem : MonoBehaviour, IInteractable

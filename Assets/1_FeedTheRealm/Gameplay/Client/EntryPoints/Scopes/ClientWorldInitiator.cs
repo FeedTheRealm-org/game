@@ -1,5 +1,6 @@
 using API;
 using FeedTheRealm.Core.Client.EventChannels;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Linkers;
@@ -43,12 +44,17 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private GltLoaderService gltfLoaderService;
 
+        private readonly SetupServices setupServices = new();
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Client)
                 return;
 
+            ValidateSerializeFields();
+
             clientEventRegistry.RegisterAll(builder);
+            setupServices.RegisterAll(builder);
             builder.RegisterInstance(playerInputReader);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(logger);
@@ -65,6 +71,28 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
 
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
+        }
+
+        private void ValidateSerializeFields()
+        {
+            ValidateField(playerInputReader, "PlayerInputReader");
+            ValidateField(prefabProvider, "PrefabProvider");
+            ValidateField(clientEventRegistry, "ClientEventRegistry");
+            ValidateField(logger, "Logger");
+            ValidateField(worldSelector, "WorldSelector");
+            ValidateField(worldService, "WorldService");
+            ValidateField(config, "Config");
+            ValidateField(session, "Session");
+            ValidateField(modelService, "ModelService");
+            ValidateField(gltfLoaderService, "GLTFLoaderService");
+        }
+
+        private void ValidateField(object field, string fieldName)
+        {
+            if (field == null)
+                throw new System.NullReferenceException(
+                    $"{fieldName} is not assigned in the Inspector."
+                );
         }
     }
 }

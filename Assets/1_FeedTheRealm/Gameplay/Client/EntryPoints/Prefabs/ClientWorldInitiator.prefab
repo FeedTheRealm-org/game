@@ -56,3 +56,5 @@ MonoBehaviour:
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   worldSelector: {fileID: 11400000, guid: faed404c8f2d5282c8f1b73ca17c2f00, type: 2}
   worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
+  modelService: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
+  gltfLoaderService: {fileID: 11400000, guid: 021be9f008c872d43b5753a0c733ad99, type: 2}
