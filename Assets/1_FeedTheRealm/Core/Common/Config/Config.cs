@@ -28,6 +28,7 @@ namespace FTR.Core.Common.Config
 
         [Header("Server Settings")]
         public ushort ListeningPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
+        public ushort HealthcheckPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7778"));
 
 #if SERVER_BUILD || DEBUG
         [SerializeField]
