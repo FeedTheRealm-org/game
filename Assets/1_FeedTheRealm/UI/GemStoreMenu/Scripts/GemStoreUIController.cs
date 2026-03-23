@@ -60,7 +60,6 @@ public class GemStoreController : MonoBehaviour
 
     private async void LoadPacks()
     {
-        SetStatus("Loading packs...", visible: true);
         packList.Clear();
 
         (bool success, string message, List<API.GemPackResponse> packs) =
@@ -68,17 +67,9 @@ public class GemStoreController : MonoBehaviour
 
         if (!success)
         {
-            SetStatus(message, visible: true);
+            SetStatus(message, isError: true);
             return;
         }
-
-        if (packs == null || packs.Count == 0)
-        {
-            SetStatus("No gem packs available.", visible: true);
-            return;
-        }
-
-        SetStatus("", visible: false);
 
         int bestGemPack = 0;
         float bestRatioPack = float.MaxValue;
@@ -141,7 +132,7 @@ public class GemStoreController : MonoBehaviour
 
         if (!success)
         {
-            SetStatus(message, visible: true);
+            SetStatus(message, isError: true);
             return;
         }
 
@@ -163,14 +154,14 @@ public class GemStoreController : MonoBehaviour
     private void OnPaymentSuccess()
     {
         UnsubscribeCallbackServer();
-        SetStatus("Payment successful! Gems added to your balance.", visible: true);
+        SetStatus("Payment successful! Gems added to your balance.");
         LoadBalance();
     }
 
     private void OnPaymentCancelled()
     {
         UnsubscribeCallbackServer();
-        SetStatus("Payment cancelled.", visible: true);
+        SetStatus("Payment cancelled.", isError: true);
     }
 
     private void UnsubscribeCallbackServer()
@@ -179,27 +170,12 @@ public class GemStoreController : MonoBehaviour
         callbackServer.OnCancelledEvent -= OnPaymentCancelled;
     }
 
-    private void SetStatus(string text, bool visible)
+    private void SetStatus(string text, bool isError = false)
     {
-        statusCts?.Cancel();
-        statusCts?.Dispose();
-        statusCts = null;
-
-        statusLabel.text = text;
-        statusLabel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
-
-        statusCts = new CancellationTokenSource();
-        Task.Run(() => HideStatusAfterDelayAsync(statusCts.Token), statusCts.Token);
-    }
-
-    private async Task HideStatusAfterDelayAsync(CancellationToken token)
-    {
-        try
-        {
-            await Task.Delay(5000, token);
-            statusLabel.style.display = DisplayStyle.None;
-        }
-        catch (OperationCanceledException) { }
+        if (!isError)
+            ToastNotification.Show($"{text}", "success", Color.green);
+        else
+            ToastNotification.Show($"{text}", "error", Color.red);
     }
 
     private void OnBackClicked()
