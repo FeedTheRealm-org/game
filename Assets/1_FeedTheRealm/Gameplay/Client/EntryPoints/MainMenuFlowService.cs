@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Client.EntryPoints
 {
-    /// <summary>
-    /// Service responsible for managing the flow of the client application, including authentication and main menu navigation.
-    /// </summary>
     public class MainMenuFlowService
     {
         readonly GameObject loginPrefab;
@@ -15,6 +12,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject worldFeedMenuPrefab;
         readonly GameObject navBarPrefab;
         readonly GameObject profileMenuPrefab;
+        readonly GameObject gemStorePrefab;
 
         public MainMenuFlowService(
             GameObject loginPrefab,
@@ -22,7 +20,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject verifyCodePrefab,
             GameObject worldFeedMenuPrefab,
             GameObject navBarPrefab,
-            GameObject profileMenuPrefab
+            GameObject profileMenuPrefab,
+            GameObject gemStorePrefab
         )
         {
             this.loginPrefab = loginPrefab;
@@ -31,6 +30,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
+            this.gemStorePrefab = gemStorePrefab;
         }
 
         public async UniTask ShowAuthFlow()
@@ -53,13 +53,22 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public async UniTask ShowMainMenuFlow()
         {
+            // Profile menu
             var profileMenuObj = Object.Instantiate(profileMenuPrefab);
             profileMenuObj.SetActive(false);
 
+            // Gem Store
+            var gemStoreObj = Object.Instantiate(gemStorePrefab);
+            gemStoreObj.SetActive(false);
+
+            // NavBar — wire both instances
             var navBarObj = Object.Instantiate(navBarPrefab);
             var navBarController = navBarObj.GetComponent<INavbarController>();
             if (navBarController != null)
+            {
                 navBarController.SetProfileMenuInstance(profileMenuObj);
+                navBarController.SetGemStoreInstance(gemStoreObj);
+            }
 
             var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
             var worldFeedMenu = worldFeedMenuObj.GetComponent<IMainMenuController>();
@@ -70,6 +79,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             await completionSource.Task;
 
             Object.Destroy(profileMenuObj);
+            Object.Destroy(gemStoreObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
         }

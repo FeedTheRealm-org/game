@@ -256,11 +256,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!1 &1137216438 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
-  m_PrefabInstance: {fileID: 1940222258}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1162488092
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -547,7 +542,7 @@ PrefabInstance:
       objectReference: {fileID: 9197481963319205126, guid: 8c45a7eb06088c9d787c37ae3a50a380, type: 3}
     - target: {fileID: 3411038651431154064, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
       propertyPath: m_SortingOrder
-      value: 1
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 6415553132047525761, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
       propertyPath: m_Name
@@ -560,36 +555,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6415553132047525761, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7132251871539531272}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
---- !u!1 &7132251871539531271 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6415553132047525761, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
-  m_PrefabInstance: {fileID: 7132251871539531270}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7132251871539531272
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7132251871539531271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85a19dd0d53862e5c9d403bf349af4ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NavbarController
-  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
-  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
-  profileMenuPrefab: {fileID: 1137216438}
-  gameplayScene:
-    sceneName: MultiplayerScene
-    sceneAsset: {fileID: 102900000, guid: f6ac62a72a7875ffab304152e68e376a, type: 3}
-  sectionName: Worlds Feed
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

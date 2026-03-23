@@ -144,6 +144,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7671274207003174485, guid: 8ab8f64f05ce5d9449d04f0b58f000a4, type: 3}
     - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
+      propertyPath: gemStorePrefab
+      value: 
+      objectReference: {fileID: 1348964074043700, guid: 442b277acc9586448ba5baa9f54327d5, type: 3}
+    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
       propertyPath: mainMenuPrefab
       value: 
       objectReference: {fileID: 7463538350467974155, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
