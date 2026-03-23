@@ -1,3 +1,4 @@
+using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
@@ -11,6 +12,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
     [CreateAssetMenu(fileName = "ClientEventRegistry", menuName = "Events/ClientEventRegistry")]
     public class ClientEventRegistry : ScriptableObject
     {
+        [Header("Setup Events")]
+        public WorldSetupEvent worldSetupEvent;
+
         [Header("Shop Events")]
         public ShopInteractedEvent shopInteractedEvent;
         public ShopOnCloseEvent shopOnCloseEvent;
@@ -59,6 +63,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(lateTickEvent);
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
+            builder.RegisterInstance(worldSetupEvent);
         }
 
         private void Validate()
@@ -79,6 +84,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));
             ValidateField(lateTickEvent, nameof(lateTickEvent));
             ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
+            ValidateField(worldSetupEvent, nameof(worldSetupEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

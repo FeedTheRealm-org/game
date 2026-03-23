@@ -36,8 +36,8 @@ namespace FTR.Gameplay.Server.Scopes
         public override string GetWorldId()
         {
             if (config.IsDebugWorld)
-                return ParamsSerializer.GetArgs("worldId", config.WorldID);
-            return ParamsSerializer.GetArgs("worldId", null);
+                return ParamsSerializer.GetArgs("world-id", config.WorldID);
+            return ParamsSerializer.GetArgs("world-id", null);
         }
 
         public override string GetAccessToken()
