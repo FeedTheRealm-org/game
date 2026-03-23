@@ -30,10 +30,7 @@ public class PaymentCallbackServer : MonoBehaviour
     private HttpListener listener;
     private CancellationTokenSource cts;
 
-    private readonly Queue<Action> mainThreadQueue = new Queue<Action>();
-    private readonly object queueLock = new object();
-
-    public void StartServer(PaymentData data)
+    public async Task StartServer(PaymentData data)
     {
         StopServer();
 
@@ -43,7 +40,11 @@ public class PaymentCallbackServer : MonoBehaviour
         listener.Start();
 
         Debug.Log($"[PaymentCallbackServer] Listening on port {Port}");
-        Task.Run(() => ListenAsync(cts.Token, data), cts.Token);
+        bool isSuccess = await ListenAsync(cts.Token, data);
+        if (isSuccess)
+            OnSuccessEvent?.Invoke();
+        else
+            OnCancelledEvent?.Invoke();
     }
 
     public void StopServer()
@@ -59,21 +60,12 @@ public class PaymentCallbackServer : MonoBehaviour
         Debug.Log("[PaymentCallbackServer] Stopped.");
     }
 
-    private void Update()
-    {
-        lock (queueLock)
-        {
-            while (mainThreadQueue.Count > 0)
-                mainThreadQueue.Dequeue().Invoke();
-        }
-    }
-
     private void OnDestroy()
     {
         StopServer();
     }
 
-    private async Task ListenAsync(CancellationToken token, PaymentData data)
+    private async Task<bool> ListenAsync(CancellationToken token, PaymentData data)
     {
         try
         {
@@ -88,28 +80,16 @@ public class PaymentCallbackServer : MonoBehaviour
 
                 await RespondAsync(ctx, html, token);
 
-                Enqueue(() =>
-                {
-                    if (isSuccess)
-                        OnSuccessEvent?.Invoke();
-                    else
-                        OnCancelledEvent?.Invoke();
-                });
-
                 StopServer();
-                break;
+
+                return true;
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            Debug.LogError($"[PaymentCallbackServer] Error: {ex.Message}");
+            return false;
         }
-    }
-
-    private void Enqueue(Action action)
-    {
-        lock (queueLock)
-            mainThreadQueue.Enqueue(action);
+        return false;
     }
 
     private static async Task RespondAsync(
@@ -135,16 +115,10 @@ public class PaymentCallbackServer : MonoBehaviour
 
     private static async Task<string> GetHTMLAsync(bool isSuccess)
     {
-        string path;
-        if (isSuccess)
-            path = Path.Combine(
-                Application.streamingAssetsPath,
-                "Templates",
-                "PaymentSuccess.html"
-            );
-        else
-            path = Path.Combine(Application.streamingAssetsPath, "Templates", "PaymentCancel.html");
-        string html = await File.ReadAllTextAsync(path);
-        return html;
+        string path = isSuccess
+            ? Path.Combine(Application.streamingAssetsPath, "Templates", "PaymentSuccess.html")
+            : Path.Combine(Application.streamingAssetsPath, "Templates", "PaymentCancel.html");
+
+        return await File.ReadAllTextAsync(path);
     }
 }
