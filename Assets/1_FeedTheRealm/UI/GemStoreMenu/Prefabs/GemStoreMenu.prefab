@@ -81,7 +81,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8aa4076a0b1afb47b2ba3bc299497e7, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::GemStoreController
-  uiDocument: {fileID: 0}
   packCardTemplate: {fileID: 9197481963319205126, guid: d001ecdcb7221fb498bcf760b1f53e37, type: 3}
   paymentService: {fileID: 11400000, guid: 7f720fc83b6b8b3468a9f54d9c933e7f, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}

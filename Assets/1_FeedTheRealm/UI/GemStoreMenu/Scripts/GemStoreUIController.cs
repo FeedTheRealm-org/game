@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +16,9 @@ public class GemStoreController : MonoBehaviour
     [SerializeField]
     private Session.Session session;
 
+    [SerializeField]
+    private Logging.Logger logger;
+
     private UIDocument uiDocument;
     private PaymentCallbackServer callbackServer;
 
@@ -20,6 +26,7 @@ public class GemStoreController : MonoBehaviour
     private Label statusLabel;
     private Label balanceLabel;
     private Button backButton;
+    private CancellationTokenSource statusCts;
 
     private void OnEnable()
     {
@@ -40,8 +47,6 @@ public class GemStoreController : MonoBehaviour
     private void OnDisable()
     {
         backButton.clicked -= OnBackClicked;
-        UnsubscribeCallbackServer();
-        callbackServer.StopServer();
     }
 
     private async void LoadBalance()
@@ -75,13 +80,20 @@ public class GemStoreController : MonoBehaviour
 
         SetStatus("", visible: false);
 
-        int maxGems = 0;
+        int bestGemPack = 0;
+        float bestRatioPack = float.MaxValue;
         foreach (API.GemPackResponse p in packs)
-            if (p.gems > maxGems)
-                maxGems = p.gems;
+        {
+            float currentRatioPack = (float)p.price / p.gems;
+            if (currentRatioPack < bestRatioPack)
+            {
+                bestRatioPack = currentRatioPack;
+                bestGemPack = p.gems;
+            }
+        }
 
         foreach (API.GemPackResponse pack in packs)
-            BuildCard(pack, isFeatured: pack.gems == maxGems);
+            BuildCard(pack, isFeatured: pack.gems == bestGemPack);
     }
 
     private void BuildCard(API.GemPackResponse pack, bool isFeatured)
@@ -169,12 +181,30 @@ public class GemStoreController : MonoBehaviour
 
     private void SetStatus(string text, bool visible)
     {
+        statusCts?.Cancel();
+        statusCts?.Dispose();
+        statusCts = null;
+
         statusLabel.text = text;
         statusLabel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+
+        statusCts = new CancellationTokenSource();
+        Task.Run(() => HideStatusAfterDelayAsync(statusCts.Token), statusCts.Token);
+    }
+
+    private async Task HideStatusAfterDelayAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(5000, token);
+            statusLabel.style.display = DisplayStyle.None;
+        }
+        catch (OperationCanceledException) { }
     }
 
     private void OnBackClicked()
     {
-        // TODO: navigate back to previous screen
+        logger.Log("Back Button Clicked", this);
+        gameObject.SetActive(false);
     }
 }
