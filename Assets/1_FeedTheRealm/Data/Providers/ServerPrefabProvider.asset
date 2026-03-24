@@ -15,6 +15,7 @@ MonoBehaviour:
   ServerCharacterComponents: {fileID: 2056940003155735034, guid: 9907a9bc79e277c47af508172cec712a, type: 3}
   ServerPlayerComponents: {fileID: 2056940003155735034, guid: 44150e80c46cdbf409b740d7be244ff5, type: 3}
   ServerLootItemComponents: {fileID: 3012644098720053192, guid: 6ac8d2d7f505404cfb2984e23953ff21, type: 3}
+  LootItemPrefab: {fileID: 5803050593894928880, guid: fdd7ce362fcd83eee996fe2464eebbb4, type: 3}
   StructureComponent: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
   AggresiveNpcSpawnerComponent: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
   FriendlyNpcSpawnerComponent: {fileID: 7265489834613234143, guid: 92a6d90bb86a46146bd725128e92e36d, type: 3}

@@ -50,7 +50,7 @@ public class ServerLootItemLinker : LootItemLinker
         var groundCheck = serverComponents.GetComponent<GroundCheckSystem>();
 
         // Initialize components
-        lootItemController.Initialize(netId);
+        lootItemController.Initialize(netId, stateStorage.ItemId);
         lootItemSystem.Initialize(rb, netId, stateStorage);
         groundCheck.Initialize(col, lootItemSystem);
 

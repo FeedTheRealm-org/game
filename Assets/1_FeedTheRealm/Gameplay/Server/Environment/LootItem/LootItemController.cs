@@ -23,25 +23,41 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         [Inject]
         private WorldMonitor worldMonitor;
         private uint despawnTime = 10; // default despawn time in seconds
-        private string id;
+        private string itemId;
         private bool isPickedUp = false;
         public bool IsPickedUp => isPickedUp;
 
-        public void Initialize(uint netId)
+        public void Initialize(uint netId, string actualItemId)
         {
-            id = $"LootItem-{netId}";
+            itemId = $"LootItem-{netId}";
+            this.itemId = actualItemId;
             despawnTime = config.ItemDespawnTime > 0 ? config.ItemDespawnTime : despawnTime;
-            logger.Log($"Initialized LootItemController with ID: {id}", this);
+            logger.Log($"Initialized LootItemController with ID: {itemId}, ItemID: {itemId}", this);
             StartCoroutine(DespawnAfterTimeout());
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            Gizmos.color = Color.crimson;
-            logger.Log($"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {id}).");
+            Gizmos.color = Color.green;
+
+            logger.Log(
+                $"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {itemId}, ItemID: {itemId})."
+            );
             if (isPickedUp)
                 return;
-            uint playerId = other.gameObject.GetComponent<NetworkIdentity>().netId;
+
+            var networkIdentity = other.gameObject.GetComponentInParent<NetworkIdentity>();
+            if (networkIdentity == null)
+            {
+                logger.Log(
+                    $"[LootItemController] {other.gameObject.name} does not have a NetworkIdentity.",
+                    this
+                );
+                return;
+            }
+
+            uint playerId = networkIdentity.netId;
+            logger.Log($"[LootItemController] Target PlayerId for PickUpCommand: {playerId}", this);
             SendPickupCommand(playerId);
             isPickedUp = true;
         }
@@ -53,7 +69,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
         private void SendPickupCommand(uint playerId)
         {
-            PickUpCommand command = new(playerId, id, AfterPickup);
+            PickUpCommand command = new(playerId, itemId, AfterPickup);
             worldMonitor.Commands.Enqueue(command);
         }
 
@@ -75,7 +91,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         private void Despawn()
         {
             logger.Log(
-                $"{gameObject.name} (ID: {id}) picked up status: {isPickedUp}, despawning..."
+                $"{gameObject.name} (ID: {itemId}) picked up status: {isPickedUp}, despawning..."
             );
             NetworkServer.Destroy(transform.parent.gameObject);
         }

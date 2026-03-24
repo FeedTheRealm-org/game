@@ -69,7 +69,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawn
   enemyPrefab: {fileID: 1418397613159891299, guid: 2f22313ba332299e9b09c2fcdc09952a, type: 3}
+  lootItemPrefab: {fileID: 5803050593894928880, guid: fdd7ce362fcd83eee996fe2464eebbb4, type: 3}
   maxEnemies: 3
+  enemyDestroyDelay: 3
   spawnRate: 2
   resetAfterKills: 6
   resetDelay: 10
