@@ -29,6 +29,7 @@ public class NPCSpawns : MonoBehaviour
 
     private NPCData npcData;
     private bool isInitialized = false;
+    private bool navMeshReady = false;
 
     /// <summary>
     /// Configures this spawner with data from the world loader.
@@ -109,7 +110,7 @@ public class NPCSpawns : MonoBehaviour
         var sources = new List<NavMeshBuildSource>();
         NavMeshBuilder.CollectSources(
             bounds,
-            LayerMask.GetMask("Default"),
+            ~0,
             NavMeshCollectGeometry.PhysicsColliders,
             0,
             new List<NavMeshBuildMarkup>(),
@@ -137,6 +138,8 @@ public class NPCSpawns : MonoBehaviour
     {
         while (!buildOp.isDone)
             yield return null;
+
+        navMeshReady = true;
     }
 
 #if DEBUG
@@ -157,6 +160,27 @@ public class NPCSpawns : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, radius);
-        Gizmos.matrix = Matrix4x4.identity;
+
+        if (!Application.isPlaying || !navMeshReady)
+            logger.Log(
+                "[NPCSpawns] NavMesh not ready, skipping NavMesh visualization in Gizmos.",
+                this,
+                Logging.LogType.Warning
+            );
+
+        Gizmos.color = Color.blue;
+
+        var triangulation = NavMesh.CalculateTriangulation();
+
+        for (int i = 0; i < triangulation.indices.Length; i += 3)
+        {
+            Vector3 v0 = triangulation.vertices[triangulation.indices[i]];
+            Vector3 v1 = triangulation.vertices[triangulation.indices[i + 1]];
+            Vector3 v2 = triangulation.vertices[triangulation.indices[i + 2]];
+
+            Gizmos.DrawLine(v0, v1);
+            Gizmos.DrawLine(v1, v2);
+            Gizmos.DrawLine(v2, v0);
+        }
     }
 }
