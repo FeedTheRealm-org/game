@@ -1,5 +1,5 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/Gemstore/Themes/GemStoreStyle.uss?fileID=7433441132597879392&amp;guid=c3b13b722385e584698c4cd3e578d44d&amp;type=3#GemStoreStyle"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/GemStoreMenu/Themes/GemStoreStyle.uss?fileID=7433441132597879392&amp;guid=c3b13b722385e584698c4cd3e578d44d&amp;type=3#GemStoreStyle"/>
     <ui:VisualElement name="PackCard" class="pack-card">
         <ui:VisualElement name="CardGlow" class="card-glow"/>
         <ui:Label text="" name="PackGemIcon" class="pack-gem-icon"/>
