@@ -57,6 +57,13 @@ namespace API
         private readonly System.Collections.Generic.Dictionary<string, Texture2D> spriteCache =
             new System.Collections.Generic.Dictionary<string, Texture2D>();
 
+        private void OnEnable()
+        {
+            currentWorldId = string.Empty;
+            categoriesMap.Clear();
+            spriteCache.Clear();
+        }
+
         /// <summary>
         /// Download sprite by spriteId.
         /// Full URL: /assets/items/{spriteId}
@@ -89,6 +96,10 @@ namespace API
             if (categoriesMap.TryGetValue(categoryName, out var mappedId))
             {
                 categoryId = mappedId;
+            }
+            else if (categoriesMap.ContainsValue(categoryName))
+            {
+                categoryId = categoryName;
             }
             else if (categoriesMap.Count > 0)
             {

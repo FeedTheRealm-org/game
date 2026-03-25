@@ -535,7 +535,7 @@ public class SpriteLoader : MonoBehaviour
 
     private System.Collections.IEnumerator EquipWeaponCoroutine(string spriteId)
     {
-        var downloadTask = itemAssetsService.DownloadItemSpriteAsync(spriteId);
+        var downloadTask = itemAssetsService.DownloadItemSpriteAsync(spriteId, "weapons");
 
         while (!downloadTask.IsCompleted)
         {

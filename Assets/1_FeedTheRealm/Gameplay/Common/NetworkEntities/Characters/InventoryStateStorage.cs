@@ -56,8 +56,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
 
     public class InventoryStateStorage : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(OnLastItemSync))]
-        private LastItemData lastItemData;
+        public readonly SyncList<LastItemData> addedItems = new SyncList<LastItemData>();
 
         [SyncVar(hook = nameof(OnLastSwappedItemSync))]
         private LastSwappedItemData lastSwappedItemData;
@@ -74,7 +73,6 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
 
         /* --- Getters --- */
 
-        public LastItemData LastItem => lastItemData;
         public LastSwappedItemData LastSwappedItem => lastSwappedItemData;
         public LastItemData LastDroppedItem => lastDroppedItemData;
         public int ActiveSlot => activeSlot;
@@ -84,12 +82,40 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public event Action<LastItemData> OnLastDroppedItemChanged;
         public event Action<int> OnActiveSlotChanged;
 
+        public override void OnStartClient()
+        {
+            addedItems.Callback += OnAddedItemsCallback;
+
+            for (int i = 0; i < addedItems.Count; i++)
+                OnLastItemChanged?.Invoke(addedItems[i]);
+        }
+
+        private void OnDestroy()
+        {
+            addedItems.Callback -= OnAddedItemsCallback;
+        }
+
+        private void OnAddedItemsCallback(
+            SyncList<LastItemData>.Operation op,
+            int index,
+            LastItemData oldItem,
+            LastItemData newItem
+        )
+        {
+            if (op == SyncList<LastItemData>.Operation.OP_ADD)
+                OnLastItemChanged?.Invoke(newItem);
+        }
+
         /* --- Setters (server only) --- */
 
         [Server]
         public void AddItem(StorageType storageType, int position, string itemId)
         {
-            lastItemData = new LastItemData(storageType, position, itemId, ++_itemVersion);
+            var data = new LastItemData(storageType, position, itemId, ++_itemVersion);
+            addedItems.Add(data);
+
+            while (addedItems.Count > 50)
+                addedItems.RemoveAt(0);
         }
 
         [Server]
@@ -131,11 +157,6 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         }
 
         /* --- SyncVar hooks (client) --- */
-
-        private void OnLastItemSync(LastItemData oldData, LastItemData newData)
-        {
-            OnLastItemChanged?.Invoke(newData);
-        }
 
         private void OnLastSwappedItemSync(LastSwappedItemData oldData, LastSwappedItemData newData)
         {

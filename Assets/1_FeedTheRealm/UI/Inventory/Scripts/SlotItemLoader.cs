@@ -1,63 +1,80 @@
+using System;
 using FTR.Gameplay.Client.Registry;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-/// <summary>
-/// Shared async loader for inventory slot item textures.
-/// Handles stale-call cancellation via a callMarker stored in icon.userData.
-/// Used by both InventoryUIController and FastSlotUIController.
-/// </summary>
-public static class SlotItemLoader
+namespace FTR.UI.Inventory
 {
     /// <summary>
-    /// Clears the slot if itemId is null/empty, otherwise downloads and applies
-    /// the item texture. Cancels automatically if the slot is reassigned before
-    /// the download completes.
+    /// Shared async loader for inventory slot item textures.
+    /// Handles stale-call cancellation via a callMarker stored in icon.userData.
+    /// Used by both InventoryUIController and FastSlotUIController.
     /// </summary>
-    public static async void LoadItem(
-        VisualElement icon,
-        string itemId,
-        API.ItemAssetsService itemAssetsService
-    )
+    public static class SlotItemLoader
     {
-        if (icon == null)
-            return;
-
-        string callMarker = System.Guid.NewGuid().ToString();
-        icon.userData = callMarker;
-        icon.Clear();
-        icon.style.backgroundImage = null;
-
-        if (string.IsNullOrEmpty(itemId))
+        /// <summary>
+        /// Clears the slot if itemId is null/empty, otherwise downloads and applies
+        /// the item texture. Cancels automatically if the slot is reassigned before
+        /// the download completes.
+        /// </summary>
+        public static async void LoadItem(
+            VisualElement icon,
+            string itemId,
+            API.ItemAssetsService itemAssetsService
+        )
         {
-            icon.userData = null;
-            return;
+            if (icon == null)
+                return;
+
+            string callMarker = System.Guid.NewGuid().ToString();
+            string short_ = callMarker.Substring(0, 6);
+            Debug.Log(
+                $"[SlotItemLoader] START icon={icon.name} itemId={itemId ?? "NULL"} marker={short_}"
+            );
+
+            icon.userData = callMarker;
+            icon.Clear();
+            icon.style.backgroundImage = null;
+
+            if (string.IsNullOrEmpty(itemId))
+            {
+                icon.userData = null;
+                return;
+            }
+
+            var itemElement = InventoryItemVisualController.CreateItemElement(null, itemId);
+            icon.Add(itemElement);
+
+            if (itemAssetsService == null)
+                return;
+
+            var itemData = ClientItemsRegistry.GetItemById(itemId);
+            string spriteId =
+                itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
+                    ? itemData.spriteFilePath
+                    : itemId;
+            string categoryName =
+                ClientItemsRegistry.GetWeaponById(itemId) != null ? "weapons" : "consumables";
+
+            var texture = await itemAssetsService.DownloadItemSpriteAsync(spriteId, categoryName);
+
+            string currentMarker = icon.userData as string;
+            Debug.Log(
+                $"[SlotItemLoader] POST-AWAIT icon={icon.name} itemId={itemId} marker={short_} "
+                    + $"currentMarker={currentMarker?.Substring(0, Math.Min(6, currentMarker?.Length ?? 0)) ?? "NULL"} "
+                    + $"match={currentMarker == callMarker} contains={icon.Contains(itemElement)}"
+            );
+
+            if (currentMarker != callMarker)
+                return;
+            if (!icon.Contains(itemElement))
+                return;
+            if (texture == null)
+                return;
+
+            itemElement.style.backgroundImage = new StyleBackground(texture);
+            itemElement.userData = new InventoryItemUIData(itemId, texture);
+            Debug.Log($"[SlotItemLoader] SUCCESS icon={icon.name} itemId={itemId}");
         }
-
-        var itemElement = InventoryItemVisualController.CreateItemElement(null, itemId);
-        icon.Add(itemElement);
-
-        if (itemAssetsService == null)
-            return;
-
-        var itemData = ClientItemsRegistry.GetItemById(itemId);
-        string spriteId =
-            itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
-                ? itemData.spriteFilePath
-                : itemId;
-        string categoryName =
-            ClientItemsRegistry.GetWeaponById(itemId) != null ? "weapons" : "consumables";
-
-        var texture = await itemAssetsService.DownloadItemSpriteAsync(spriteId, categoryName);
-
-        if (icon.userData as string != callMarker)
-            return;
-        if (!icon.Contains(itemElement))
-            return;
-        if (texture == null)
-            return;
-
-        itemElement.style.backgroundImage = new StyleBackground(texture);
-        itemElement.userData = new InventoryItemUIData(itemId, texture);
     }
 }
