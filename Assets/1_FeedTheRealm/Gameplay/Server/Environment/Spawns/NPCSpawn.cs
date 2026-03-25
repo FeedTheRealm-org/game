@@ -96,8 +96,7 @@ public class NPCSpawns : MonoBehaviour
     private Vector3 GetRandomPointInRadius()
     {
         Vector2 randomCircle = Random.insideUnitCircle * radius;
-        return transform.position
-            + new Vector3(randomCircle.x, transform.position.y, randomCircle.y);
+        return transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
     }
 
     /// <summary>
@@ -150,7 +149,7 @@ public class NPCSpawns : MonoBehaviour
         if (!isInitialized)
         {
             BuildNavMesh(radius + 5f);
-            SpawnNPC();
+            StartCoroutine(SpawnWhenServerActive());
             isInitialized = true;
         }
     }
