@@ -15,6 +15,10 @@ public class SettingsMenuController : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
+    [Header("Input")]
+    [SerializeField]
+    private PlayerInputReader playerInputReader;
+
     /* General settings */
     private Button _homeButton;
     private Button _exitButton;
@@ -27,6 +31,22 @@ public class SettingsMenuController : MonoBehaviour
 
     private List<Resolution> _availableResolutions;
     private const float baseHeight = 800f;
+
+    private void Awake()
+    {
+        if (playerInputReader != null)
+        {
+            playerInputReader.CursorToggleEvent += ToggleSettings;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (playerInputReader != null)
+        {
+            playerInputReader.CursorToggleEvent -= ToggleSettings;
+        }
+    }
 
     private void OnEnable()
     {
@@ -65,6 +85,8 @@ public class SettingsMenuController : MonoBehaviour
             );
             return;
         }
+
+        logger.Log("Settings menu UI elements initialized successfully.", this);
 
         initializeDisplaySettings();
         adjustUIToScreenSize();
