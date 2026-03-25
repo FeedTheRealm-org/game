@@ -139,6 +139,10 @@ public class GemStoreController : MonoBehaviour
         callbackServer.OnSuccessEvent += OnPaymentSuccess;
         callbackServer.OnCancelledEvent += OnPaymentCancelled;
 
+        int currentBalance = 0;
+        if (!int.TryParse(balanceLabel.text, out currentBalance))
+            currentBalance = 0;
+
         _ = callbackServer
             .StartServer(
                 new PaymentData
@@ -146,7 +150,7 @@ public class GemStoreController : MonoBehaviour
                     PackName = pack.name,
                     GemAmount = pack.gems,
                     Price = $"{pack.price:F2}",
-                    NewBalance = int.Parse(balanceLabel.text) + pack.gems,
+                    NewBalance = currentBalance + pack.gems,
                 }
             )
             .ContinueWith(task =>
