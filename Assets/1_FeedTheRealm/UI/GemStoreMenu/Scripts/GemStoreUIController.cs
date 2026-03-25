@@ -138,15 +138,26 @@ public class GemStoreController : MonoBehaviour
 
         callbackServer.OnSuccessEvent += OnPaymentSuccess;
         callbackServer.OnCancelledEvent += OnPaymentCancelled;
-        await callbackServer.StartServer(
-            new PaymentData
+
+        _ = callbackServer
+            .StartServer(
+                new PaymentData
+                {
+                    PackName = pack.name,
+                    GemAmount = pack.gems,
+                    Price = $"{pack.price:F2}",
+                    NewBalance = int.Parse(balanceLabel.text) + pack.gems,
+                }
+            )
+            .ContinueWith(task =>
             {
-                PackName = pack.name,
-                GemAmount = pack.gems,
-                Price = $"{pack.price:F2}",
-                NewBalance = int.Parse(balanceLabel.text) + pack.gems,
-            }
-        );
+                if (task.IsFaulted)
+                    logger.Log(
+                        $"Payment server error: {task.Exception?.Message}",
+                        this,
+                        Logging.LogType.Error
+                    );
+            });
 
         Application.OpenURL(checkout.checkout_url);
     }
