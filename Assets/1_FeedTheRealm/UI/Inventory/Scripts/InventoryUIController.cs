@@ -46,11 +46,16 @@ namespace FTR.UI.Inventory
         [SerializeField]
         private API.ItemAssetsService itemAssetsService;
 
+        [SerializeField]
+        private ItemStatsTooltip itemStatsTooltipPrefab;
+
         private UIDocument uiDocument;
         private AnimationInventoryUIController animationController;
+        private ItemStatsTooltip itemStatsTooltip;
 
         private readonly List<VisualElement> inventorySlots = new(InventorySlotCount);
         private readonly List<VisualElement> fastSlots = new(FastSlotCount);
+        private readonly Dictionary<VisualElement, string> slotItemIds = new();
 
         private int selectedSlotIndex = -1;
         private StorageType selectedStorage;
@@ -61,6 +66,9 @@ namespace FTR.UI.Inventory
         {
             uiDocument = GetComponent<UIDocument>();
             animationController = GetComponent<AnimationInventoryUIController>();
+
+            if (itemStatsTooltip == null && itemStatsTooltipPrefab != null)
+                itemStatsTooltip = Instantiate(itemStatsTooltipPrefab);
 
             var root = uiDocument.rootVisualElement;
             if (root == null)
@@ -118,15 +126,24 @@ namespace FTR.UI.Inventory
 
                 int idx = i;
                 slot.RegisterCallback<ClickEvent>(_ => onClick(idx));
+
                 slot.RegisterCallback<PointerEnterEvent>(_ =>
-                    ghost.OnHoverEnter(selectedStorage, selectedSlotIndex, storage, idx, Icon)
-                );
-                slot.RegisterCallback<PointerLeaveEvent>(_ => ghost.OnHoverLeave());
+                {
+                    ghost.OnHoverEnter(selectedStorage, selectedSlotIndex, storage, idx, Icon);
+
+                    if (slotItemIds.TryGetValue(slot, out var itemId))
+                        itemStatsTooltip?.ShowTooltip(itemId, slot);
+                });
+
+                slot.RegisterCallback<PointerLeaveEvent>(_ =>
+                {
+                    ghost.OnHoverLeave();
+                    itemStatsTooltip?.HideTooltip();
+                });
+
                 list.Add(slot);
             }
         }
-
-        // ──────────────────────────────────── Input ─────────────────────────────────────────
 
         private void OnInventoryInput()
         {
@@ -134,8 +151,6 @@ namespace FTR.UI.Inventory
             animationController.Toggle();
             inventoryToggleEvent?.Raise(show);
         }
-
-        // ───────────────────────────────── Slot click ───────────────────────────────────────
 
         private void OnInventorySlotClicked(int i) => HandleSlotClick(StorageType.Inventory, i);
 
@@ -190,13 +205,19 @@ namespace FTR.UI.Inventory
                 slots[index].style.backgroundImage = new StyleBackground(sprite);
         }
 
-        // ─────────────────────── Inventory events ──────────────────────────────────
+        private void OnLastAdded((StorageType t, string id, int pos) data)
+        {
+            var icon = Icon(data.t, data.pos);
+            SlotItemLoader.LoadItem(icon, data.id, itemAssetsService);
+            TrackSlotItem(Slots(data.t), data.pos, data.id);
+        }
 
-        private void OnLastAdded((StorageType t, string id, int pos) data) =>
-            SlotItemLoader.LoadItem(Icon(data.t, data.pos), data.id, itemAssetsService);
-
-        private void OnLastRemoved((StorageType t, string id, int pos) data) =>
-            SlotItemLoader.LoadItem(Icon(data.t, data.pos), null, itemAssetsService);
+        private void OnLastRemoved((StorageType t, string id, int pos) data)
+        {
+            var icon = Icon(data.t, data.pos);
+            SlotItemLoader.LoadItem(icon, null, itemAssetsService);
+            TrackSlotItem(Slots(data.t), data.pos, null);
+        }
 
         private void OnLastSwapped(
             (
@@ -211,9 +232,20 @@ namespace FTR.UI.Inventory
         {
             SlotItemLoader.LoadItem(Icon(data.srcT, data.srcI), data.tgtId, itemAssetsService);
             SlotItemLoader.LoadItem(Icon(data.tgtT, data.tgtI), data.srcId, itemAssetsService);
+            TrackSlotItem(Slots(data.srcT), data.srcI, data.tgtId);
+            TrackSlotItem(Slots(data.tgtT), data.tgtI, data.srcId);
         }
 
-        // ────────────────────────────── Helpers ──────────────────────────────────────────────────────
+        private void TrackSlotItem(List<VisualElement> slots, int index, string itemId)
+        {
+            if (index < 0 || index >= slots.Count)
+                return;
+            var slot = slots[index];
+            if (string.IsNullOrEmpty(itemId))
+                slotItemIds.Remove(slot);
+            else
+                slotItemIds[slot] = itemId;
+        }
 
         private List<VisualElement> Slots(StorageType t) =>
             t == StorageType.FastSlot ? fastSlots : inventorySlots;
