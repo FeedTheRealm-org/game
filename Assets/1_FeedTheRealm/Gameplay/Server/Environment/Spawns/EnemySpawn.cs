@@ -8,6 +8,7 @@ using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
+using UnityEngine.AI;
 using VContainer;
 using VContainer.Unity;
 
@@ -62,6 +63,8 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             resetDelay = data.ResetDelay;
             spawnArea.radius = data.Radius;
             enemyId = data.EnemyId;
+
+            BuildNavMesh(data.Radius + 5f);
 
             isInitialized = true;
         }
@@ -249,6 +252,59 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             return transform.position
                 + new Vector3(randomCircle.x, spawnArea.center.y, randomCircle.y);
         }
+
+        /// <summary>
+        /// Builds a NavMesh around the spawn area to ensure enemies can navigate properly.
+        /// </summary>
+        private void BuildNavMesh(float navMeshRadius)
+        {
+            Bounds bounds = new Bounds(transform.position, Vector3.one * navMeshRadius * 2);
+
+            var sources = new List<NavMeshBuildSource>();
+            NavMeshBuilder.CollectSources(
+                bounds,
+                LayerMask.GetMask("Default"),
+                NavMeshCollectGeometry.PhysicsColliders,
+                0,
+                new List<NavMeshBuildMarkup>(),
+                sources
+            );
+
+            var navMeshData = new NavMeshData();
+
+            var buildOp = NavMeshBuilder.UpdateNavMeshDataAsync(
+                navMeshData,
+                UnityEngine.AI.NavMesh.GetSettingsByID(0),
+                sources,
+                bounds
+            );
+
+            NavMesh.AddNavMeshData(navMeshData);
+
+            StartCoroutine(WaitForNavMesh(buildOp));
+        }
+
+        /// <summary>
+        /// Waits for the NavMesh to be built before allowing enemy spawns.
+        /// </summary>
+        IEnumerator WaitForNavMesh(AsyncOperation buildOp)
+        {
+            while (!buildOp.isDone)
+                yield return null;
+        }
+
+#if DEBUG
+        private IEnumerator Start()
+        {
+            yield return new WaitUntil(() => NetworkServer.active);
+            logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
+            if (!isInitialized)
+            {
+                BuildNavMesh(spawnArea.radius + 5f);
+                isInitialized = true;
+            }
+        }
+#endif
 
         private void OnDrawGizmos()
         {

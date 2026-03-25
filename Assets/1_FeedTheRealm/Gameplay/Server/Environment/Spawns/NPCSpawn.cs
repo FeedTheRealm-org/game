@@ -1,8 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Common.Environment.Npcs;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
+using UnityEngine.AI;
 using VContainer.Unity;
 
 public class NPCSpawns : MonoBehaviour
@@ -49,26 +52,16 @@ public class NPCSpawns : MonoBehaviour
         this.npcData = npcData;
         this.radius = spawnData.Radius;
 
+        BuildNavMesh(radius + 5f);
+
         if (!isInitialized)
         {
             isInitialized = true;
-            TrySpawnNPC();
+            StartCoroutine(SpawnWhenServerActive());
         }
     }
 
-    private void TrySpawnNPC()
-    {
-        if (NetworkServer.active)
-        {
-            SpawnNPC();
-            return;
-        }
-
-        logger.Log("[NPCSpawns] NetworkServer not active yet, waiting to spawn NPC.", this);
-        StartCoroutine(SpawnWhenServerActive());
-    }
-
-    private System.Collections.IEnumerator SpawnWhenServerActive()
+    private IEnumerator SpawnWhenServerActive()
     {
         yield return new WaitUntil(() => NetworkServer.active);
         SpawnNPC();
@@ -107,13 +100,54 @@ public class NPCSpawns : MonoBehaviour
             + new Vector3(randomCircle.x, transform.position.y, randomCircle.y);
     }
 
+    /// <summary>
+    /// Builds a NavMesh around the spawn area to ensure enemies can navigate properly.
+    /// </summary>
+    private void BuildNavMesh(float navMeshRadius)
+    {
+        Bounds bounds = new Bounds(transform.position, Vector3.one * navMeshRadius * 2);
+
+        var sources = new List<NavMeshBuildSource>();
+        NavMeshBuilder.CollectSources(
+            bounds,
+            LayerMask.GetMask("Default"),
+            NavMeshCollectGeometry.PhysicsColliders,
+            0,
+            new List<NavMeshBuildMarkup>(),
+            sources
+        );
+
+        var navMeshData = new NavMeshData();
+
+        var buildOp = NavMeshBuilder.UpdateNavMeshDataAsync(
+            navMeshData,
+            UnityEngine.AI.NavMesh.GetSettingsByID(0),
+            sources,
+            bounds
+        );
+
+        UnityEngine.AI.NavMesh.AddNavMeshData(navMeshData);
+
+        StartCoroutine(WaitForNavMesh(buildOp));
+    }
+
+    /// <summary>
+    /// Waits for the NavMesh to be built before allowing enemy spawns.
+    /// </summary>
+    IEnumerator WaitForNavMesh(AsyncOperation buildOp)
+    {
+        while (!buildOp.isDone)
+            yield return null;
+    }
+
 #if DEBUG
-    private System.Collections.IEnumerator Start()
+    private IEnumerator Start()
     {
         yield return new WaitUntil(() => NetworkServer.active);
         logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
         if (!isInitialized)
         {
+            BuildNavMesh(radius + 5f);
             SpawnNPC();
             isInitialized = true;
         }
