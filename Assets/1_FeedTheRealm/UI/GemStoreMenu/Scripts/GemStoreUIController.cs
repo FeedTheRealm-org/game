@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,10 +20,8 @@ public class GemStoreController : MonoBehaviour
     private PaymentCallbackServer callbackServer;
 
     private VisualElement packList;
-    private Label statusLabel;
     private Label balanceLabel;
     private Button backButton;
-    private CancellationTokenSource statusCts;
 
     private void OnEnable()
     {
@@ -34,7 +29,6 @@ public class GemStoreController : MonoBehaviour
         VisualElement root = uiDocument.rootVisualElement;
 
         packList = root.Q<VisualElement>("PackList");
-        statusLabel = root.Q<Label>("StatusLabel");
         balanceLabel = root.Q<Label>("GemBalanceLabel");
         backButton = root.Q<Button>("BackButton");
 
@@ -51,7 +45,7 @@ public class GemStoreController : MonoBehaviour
 
     private async void LoadBalance()
     {
-        (bool success, string message, API.GemBalanceResponse balance) =
+        (bool success, string _, API.GemBalanceResponse balance) =
             await paymentService.GetGemBalance(session.APIToken);
 
         if (success)
@@ -115,7 +109,13 @@ public class GemStoreController : MonoBehaviour
 
     private void InitCallbackServer()
     {
-        callbackServer = new PaymentCallbackServer();
+        callbackServer = gameObject.GetComponent<PaymentCallbackServer>();
+        if (callbackServer == null)
+            logger.Log(
+                "PaymentCallbackServer component is missing on GemStoreController GameObject.",
+                this,
+                Logging.LogType.Error
+            );
     }
 
     private async void OnBuyClicked(API.GemPackResponse pack)
@@ -138,7 +138,7 @@ public class GemStoreController : MonoBehaviour
 
         callbackServer.OnSuccessEvent += OnPaymentSuccess;
         callbackServer.OnCancelledEvent += OnPaymentCancelled;
-        callbackServer.StartServer(
+        await callbackServer.StartServer(
             new PaymentData
             {
                 PackName = pack.name,
