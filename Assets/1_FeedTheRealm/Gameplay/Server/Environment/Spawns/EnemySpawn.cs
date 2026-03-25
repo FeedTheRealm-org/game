@@ -64,9 +64,11 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             spawnArea.radius = data.Radius;
             enemyId = data.EnemyId;
 
-            BuildNavMesh(data.Radius + 5f);
-
-            isInitialized = true;
+            if (!isInitialized)
+            {
+                BuildNavMesh(data.Radius + 5f);
+                isInitialized = true;
+            }
         }
 
         private void OnEnable()

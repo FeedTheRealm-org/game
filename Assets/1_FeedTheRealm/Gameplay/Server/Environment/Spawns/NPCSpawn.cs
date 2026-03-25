@@ -52,12 +52,11 @@ public class NPCSpawns : MonoBehaviour
         this.npcData = npcData;
         this.radius = spawnData.Radius;
 
-        BuildNavMesh(radius + 5f);
-
         if (!isInitialized)
         {
-            isInitialized = true;
+            BuildNavMesh(radius + 5f);
             StartCoroutine(SpawnWhenServerActive());
+            isInitialized = true;
         }
     }
 
