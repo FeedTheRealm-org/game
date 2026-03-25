@@ -41,16 +41,18 @@ public class InventoryUIController : MonoBehaviour
     private Sprite selectedSlotSprite;
 
     [SerializeField]
-    private Sprite itemObtainedSprite;
+    private API.ItemAssetsService itemAssetsService;
 
     private UIDocument uiDocument;
+    private AnimationInventoryUIController animationController;
+
     private readonly List<VisualElement> inventorySlots = new(InventorySlotCount);
     private readonly List<VisualElement> fastSlots = new(FastSlotCount);
 
     private int selectedSlotIndex = -1;
     private StorageType selectedStorage;
 
-    private AnimationInventoryUIController animationController;
+    private readonly InventorySlotGhostController ghost = new();
 
     private void OnEnable()
     {
@@ -63,8 +65,22 @@ public class InventoryUIController : MonoBehaviour
 
         animationController.Initialize(root);
 
-        RegisterSlots(root, inventorySlots, InventorySlotCount, "Slot", OnInventorySlotClicked);
-        RegisterSlots(root, fastSlots, FastSlotCount, "FastEquipSlot", OnFastSlotClicked);
+        RegisterSlots(
+            root,
+            inventorySlots,
+            InventorySlotCount,
+            "Slot",
+            OnInventorySlotClicked,
+            StorageType.Inventory
+        );
+        RegisterSlots(
+            root,
+            fastSlots,
+            FastSlotCount,
+            "FastEquipSlot",
+            OnFastSlotClicked,
+            StorageType.FastSlot
+        );
         root.Q("Drop")?.RegisterCallback<ClickEvent>(_ => OnDropClicked());
 
         inputReader.InventoryEvent += OnInventoryInput;
@@ -86,7 +102,8 @@ public class InventoryUIController : MonoBehaviour
         List<VisualElement> list,
         int count,
         string prefix,
-        Action<int> onClick
+        Action<int> onClick,
+        StorageType storage
     )
     {
         list.Clear();
@@ -95,11 +112,18 @@ public class InventoryUIController : MonoBehaviour
             var slot = root.Q($"{prefix}{i + 1}");
             if (slot == null)
                 continue;
+
             int idx = i;
             slot.RegisterCallback<ClickEvent>(_ => onClick(idx));
+            slot.RegisterCallback<PointerEnterEvent>(_ =>
+                ghost.OnHoverEnter(selectedStorage, selectedSlotIndex, storage, idx, Icon)
+            );
+            slot.RegisterCallback<PointerLeaveEvent>(_ => ghost.OnHoverLeave());
             list.Add(slot);
         }
     }
+
+    // ──────────────────────────────────── Input ─────────────────────────────────────────
 
     private void OnInventoryInput()
     {
@@ -107,6 +131,8 @@ public class InventoryUIController : MonoBehaviour
         animationController.Toggle();
         inventoryToggleEvent?.Raise(show);
     }
+
+    // ───────────────────────────────── Slot click ───────────────────────────────────────
 
     private void OnInventorySlotClicked(int i) => HandleSlotClick(StorageType.Inventory, i);
 
@@ -149,8 +175,10 @@ public class InventoryUIController : MonoBehaviour
     {
         if (selectedStorage != StorageType.Null)
             SetSlotSprite(Slots(selectedStorage), selectedSlotIndex, defaultSlotSprite);
+
         selectedStorage = StorageType.Null;
         selectedSlotIndex = -1;
+        ghost.OnHoverLeave();
     }
 
     private void SetSlotSprite(List<VisualElement> slots, int index, Sprite sprite)
@@ -159,42 +187,23 @@ public class InventoryUIController : MonoBehaviour
             slots[index].style.backgroundImage = new StyleBackground(sprite);
     }
 
+    // ─────────────────────── Inventory events ──────────────────────────────────
+
     private void OnLastAdded((StorageType t, string id, int pos) data) =>
-        SetSlotItem(data.t, data.pos, data.id);
+        SlotItemLoader.LoadItem(Icon(data.t, data.pos), data.id, itemAssetsService);
 
     private void OnLastRemoved((StorageType t, string id, int pos) data) =>
-        SetSlotItem(data.t, data.pos, null);
+        SlotItemLoader.LoadItem(Icon(data.t, data.pos), null, itemAssetsService);
 
     private void OnLastSwapped(
         (StorageType srcT, int srcI, string srcId, StorageType tgtT, int tgtI, string tgtId) data
     )
     {
-        var srcIcon = Icon(data.srcT, data.srcI);
-        var tgtIcon = Icon(data.tgtT, data.tgtI);
-        if (srcIcon == null || tgtIcon == null)
-            return;
-
-        (srcIcon.style.backgroundImage, tgtIcon.style.backgroundImage) = (
-            tgtIcon.style.backgroundImage,
-            srcIcon.style.backgroundImage
-        );
-        (srcIcon.style.unityBackgroundImageTintColor, tgtIcon.style.unityBackgroundImageTintColor) =
-            (
-                tgtIcon.style.unityBackgroundImageTintColor,
-                srcIcon.style.unityBackgroundImageTintColor
-            );
+        SlotItemLoader.LoadItem(Icon(data.srcT, data.srcI), data.tgtId, itemAssetsService);
+        SlotItemLoader.LoadItem(Icon(data.tgtT, data.tgtI), data.srcId, itemAssetsService);
     }
 
-    private void SetSlotItem(StorageType storage, int index, string itemId)
-    {
-        var icon = Icon(storage, index);
-        if (icon == null)
-            return;
-
-        bool empty = string.IsNullOrEmpty(itemId);
-        icon.style.backgroundImage = empty ? null : new StyleBackground(itemObtainedSprite);
-        icon.style.unityBackgroundImageTintColor = empty ? Color.white : ItemColor(itemId);
-    }
+    // ────────────────────────────── Helpers ──────────────────────────────────────────────────────
 
     private List<VisualElement> Slots(StorageType t) =>
         t == StorageType.FastSlot ? fastSlots : inventorySlots;
@@ -206,15 +215,5 @@ public class InventoryUIController : MonoBehaviour
             return null;
         string iconName = t == StorageType.FastSlot ? "FastEquipIcon" : "ItemIcon";
         return slots[index].Q(iconName) ?? slots[index];
-    }
-
-    private Color ItemColor(string itemId)
-    {
-        var r = new System.Random(itemId.GetHashCode());
-        return new Color(
-            (float)r.NextDouble() * 0.7f + 0.3f,
-            (float)r.NextDouble() * 0.7f + 0.3f,
-            (float)r.NextDouble() * 0.7f + 0.3f
-        );
     }
 }

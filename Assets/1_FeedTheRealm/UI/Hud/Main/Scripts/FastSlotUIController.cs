@@ -11,6 +11,9 @@ public class FastSlotUIController : MonoBehaviour
     private const int FastSlotCount = 5;
 
     [Inject]
+    private LastAddedEvent lastAddedEvent;
+
+    [Inject]
     private LastSwappedEvent lastSwappedEvent;
 
     [Inject]
@@ -38,7 +41,7 @@ public class FastSlotUIController : MonoBehaviour
     private Sprite hiddenHUDSlotSprite;
 
     [SerializeField]
-    private Sprite itemObtainedSprite;
+    private API.ItemAssetsService itemAssetsService;
 
     private UIDocument uiDocument;
     private readonly List<VisualElement> slots = new(FastSlotCount);
@@ -56,11 +59,11 @@ public class FastSlotUIController : MonoBehaviour
         for (int i = 0; i < FastSlotCount; i++)
         {
             var slot = root.Q($"FastEquipSlot{i + 1}");
-            if (slot == null)
-                continue;
-            slots.Add(slot);
+            if (slot != null)
+                slots.Add(slot);
         }
 
+        lastAddedEvent.OnRaised += OnLastAdded;
         lastSwappedEvent.OnRaised += OnLastSwapped;
         lastRemovedEvent.OnRaised += OnLastRemoved;
         activeSlotChangedEvent.OnRaised += OnActiveSlotChanged;
@@ -72,12 +75,15 @@ public class FastSlotUIController : MonoBehaviour
 
     private void OnDisable()
     {
+        lastAddedEvent.OnRaised -= OnLastAdded;
         lastSwappedEvent.OnRaised -= OnLastSwapped;
         lastRemovedEvent.OnRaised -= OnLastRemoved;
         activeSlotChangedEvent.OnRaised -= OnActiveSlotChanged;
         inventoryToggleEvent.OnRaised -= OnInventoryToggled;
         inputReader.FastSlotEvent -= OnFastSlotInput;
     }
+
+    // ────────────────────────── Input ─────────────────────────────────────────────
 
     private void OnFastSlotInput(int inputPad)
     {
@@ -88,11 +94,19 @@ public class FastSlotUIController : MonoBehaviour
         equipRequestEvent.Raise(inputPad - 1);
     }
 
+    // ────────────────────────── Inventory events ─────────────────────────────────────
+    private void OnLastAdded((StorageType storageType, string itemId, int position) data)
+    {
+        if (data.storageType != StorageType.FastSlot)
+            return;
+        SlotItemLoader.LoadItem(Icon(data.position), data.itemId, itemAssetsService);
+    }
+
     private void OnLastRemoved((StorageType storageType, string itemId, int position) data)
     {
         if (data.storageType != StorageType.FastSlot)
             return;
-        SetSlotItem(data.position, null);
+        SlotItemLoader.LoadItem(Icon(data.position), null, itemAssetsService);
     }
 
     private void OnLastSwapped(
@@ -107,25 +121,25 @@ public class FastSlotUIController : MonoBehaviour
     )
     {
         if (data.targetType == StorageType.FastSlot)
-            SetSlotItem(data.targetSlot, data.sourceItemId);
+            SlotItemLoader.LoadItem(Icon(data.targetSlot), data.sourceItemId, itemAssetsService);
         if (data.sourceType == StorageType.FastSlot)
-            SetSlotItem(data.sourceSlot, data.targetItemId);
+            SlotItemLoader.LoadItem(Icon(data.sourceSlot), data.targetItemId, itemAssetsService);
     }
 
-    private void OnActiveSlotChanged(int slotIndex)
-    {
-        SetActiveSlot(slotIndex);
-    }
+    // ────────────────────────── Active slot & visibility ──────────────────────────────────
+
+    private void OnActiveSlotChanged(int slotIndex) => SetActiveSlot(slotIndex);
 
     private void OnInventoryToggled(bool status)
     {
         isInventoryOpen = status;
         for (int i = 0; i < slots.Count; i++)
         {
-            if (i == activeSlot)
-                SetSlotBackground(i, status ? hiddenHUDSlotSprite : selectedSlotSprite);
-            else
-                SetSlotBackground(i, status ? hiddenHUDSlotSprite : defaultSlotSprite);
+            Sprite sprite =
+                status ? hiddenHUDSlotSprite
+                : i == activeSlot ? selectedSlotSprite
+                : defaultSlotSprite;
+            SetSlotBackground(i, sprite);
         }
     }
 
@@ -136,16 +150,7 @@ public class FastSlotUIController : MonoBehaviour
         SetSlotBackground(activeSlot, selectedSlotSprite);
     }
 
-    private void SetSlotItem(int index, string itemId)
-    {
-        var icon = Icon(index);
-        if (icon == null)
-            return;
-
-        bool empty = string.IsNullOrEmpty(itemId);
-        icon.style.backgroundImage = empty ? null : new StyleBackground(itemObtainedSprite);
-        icon.style.unityBackgroundImageTintColor = Color.white;
-    }
+    // ────────────────────────── Helpers ──────────────────────────────────────
 
     private void SetSlotBackground(int index, Sprite sprite)
     {

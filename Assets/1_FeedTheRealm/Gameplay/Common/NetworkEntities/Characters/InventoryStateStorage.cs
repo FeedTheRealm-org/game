@@ -11,12 +11,14 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public StorageType storageType;
         public int itemPosition;
         public string itemId;
+        public uint version;
 
-        public LastItemData(StorageType storageType, int itemPosition, string itemId)
+        public LastItemData(StorageType storageType, int itemPosition, string itemId, uint version)
         {
             this.storageType = storageType;
             this.itemPosition = itemPosition;
             this.itemId = itemId;
+            this.version = version;
         }
     }
 
@@ -28,6 +30,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public StorageType targetType;
         public int targetPosition;
         public string targetItemId;
+        public uint version;
 
         public LastSwappedItemData(
             StorageType sourceType,
@@ -35,7 +38,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             string sourceItemId,
             StorageType targetType,
             int targetPosition,
-            string targetItemId
+            string targetItemId,
+            uint version
         )
         {
             this.sourceType = sourceType;
@@ -44,6 +48,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             this.targetType = targetType;
             this.targetPosition = targetPosition;
             this.targetItemId = targetItemId;
+            this.version = version;
         }
     }
 
@@ -63,6 +68,10 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         [SyncVar(hook = nameof(OnActiveSlotSync))]
         private int activeSlot = 0;
 
+        private uint _itemVersion = 0;
+        private uint _swapVersion = 0;
+        private uint _dropVersion = 0;
+
         /* --- Getters --- */
 
         public LastItemData LastItem => lastItemData;
@@ -80,7 +89,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         [Server]
         public void AddItem(StorageType storageType, int position, string itemId)
         {
-            lastItemData = new LastItemData(storageType, position, itemId);
+            lastItemData = new LastItemData(storageType, position, itemId, ++_itemVersion);
         }
 
         [Server]
@@ -99,14 +108,20 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
                 sourceItemId,
                 targetType,
                 targetPosition,
-                targetItemId
+                targetItemId,
+                ++_swapVersion
             );
         }
 
         [Server]
         public void DropItem(StorageType storageType, int position)
         {
-            lastDroppedItemData = new LastItemData(storageType, position, string.Empty);
+            lastDroppedItemData = new LastItemData(
+                storageType,
+                position,
+                string.Empty,
+                ++_dropVersion
+            );
         }
 
         [Server]
