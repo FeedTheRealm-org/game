@@ -74,6 +74,10 @@ public class PaymentCallbackServer : MonoBehaviour
                 HttpListenerContext ctx = await listener.GetContextAsync();
                 string path = ctx.Request.Url.AbsolutePath;
                 bool isSuccess = path.StartsWith(SuccessPath);
+                bool isCancel = path.StartsWith(CancelPath);
+
+                if (!isSuccess && !isCancel)
+                    continue;
 
                 string html = await GetHTMLAsync(isSuccess);
                 html = ReplaceTemplate(html, data);
@@ -82,7 +86,7 @@ public class PaymentCallbackServer : MonoBehaviour
 
                 StopServer();
 
-                return true;
+                return isSuccess;
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
