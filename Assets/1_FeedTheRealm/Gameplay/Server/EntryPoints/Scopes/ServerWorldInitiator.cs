@@ -2,6 +2,7 @@ using API;
 using FTR.Core.Common.Config;
 using FTR.Core.Server;
 using FTR.Core.Server.EventChannels;
+using FTR.Core.Server.Healthcheck;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Linkers;
@@ -45,6 +46,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(npcDialogRegistry);
 
+            builder.Register<HealthcheckServer>(Lifetime.Singleton);
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
             builder.Register<ServerWorldLoader>(Lifetime.Singleton);
             builder.Register<WorldMonitor>(Lifetime.Singleton);

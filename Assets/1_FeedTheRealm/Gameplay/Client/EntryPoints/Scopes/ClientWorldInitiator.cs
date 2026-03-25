@@ -1,5 +1,6 @@
 using API;
 using FeedTheRealm.Core.Client.EventChannels;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Linkers;
@@ -47,6 +48,8 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private GltLoaderService gltfLoaderService;
 
+        private readonly SetupServices setupServices = new();
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Client)
@@ -55,6 +58,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             Validate();
 
             clientEventRegistry.RegisterAll(builder);
+            setupServices.RegisterAll(builder);
             builder.RegisterInstance(playerInputReader);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(logger);
