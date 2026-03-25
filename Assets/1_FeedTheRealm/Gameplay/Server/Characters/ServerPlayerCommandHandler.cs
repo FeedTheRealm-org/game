@@ -16,11 +16,11 @@ namespace FTR.Gameplay.Server.Characters
             MovementSystem movementSystem,
             DashSystem dashSystem,
             UseSystem useSystem,
-            InteractSystem interactSystem,
+            PlayerInteractSystem playerInteractSystem,
             InventorySystem inventorySystem
         )
         {
-            Initialize(movementSystem, dashSystem, useSystem, interactSystem);
+            Initialize(movementSystem, dashSystem, useSystem, playerInteractSystem);
             this.inventorySystem = inventorySystem;
         }
 

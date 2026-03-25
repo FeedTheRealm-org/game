@@ -88,7 +88,7 @@ public class ClientPlayerLinker : PlayerLinker
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
             interactController?.Initialize(networkAdapter);
-            interactView?.Initialize(networkEventRouter, npcDialogRegistry, stateStorage);
+            interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);
         }
     }

@@ -23,7 +23,7 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
 
     public override void Link(GameObject gameObject)
     {
-        gameObject.name = $"AgressiveNPC";
+        gameObject.name = "AggresiveNPC";
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
@@ -35,10 +35,9 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
-        var interactSystem = serverComponents.GetComponent<InteractSystem>();
+        var interactSystem = serverComponents.GetComponent<PlayerInteractSystem>();
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
-
         characterLinker.RegisterEntity(netId, networkAdapter, serverCommandHandler);
     }
 }

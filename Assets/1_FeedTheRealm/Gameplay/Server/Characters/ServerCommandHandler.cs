@@ -11,14 +11,14 @@ namespace FTR.Gameplay.Server.Characters
         protected MovementSystem movementSystem;
         protected DashSystem dashSystem;
         protected UseSystem useSystem;
-        protected InteractSystem interactSystem;
+        protected PlayerInteractSystem interactSystem;
 
         // TODO: Serialize field whatever possible
         public void Initialize(
             MovementSystem movementSystem,
             DashSystem dashSystem,
             UseSystem useSystem,
-            InteractSystem interactSystem
+            PlayerInteractSystem interactSystem
         )
         {
             this.movementSystem = movementSystem;

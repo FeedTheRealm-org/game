@@ -43,17 +43,16 @@ public class ServerCharacterLinker
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
-        var interactSystem = serverComponents.GetComponent<InteractSystem>();
+        var interactSystem = serverComponents.GetComponent<PlayerInteractSystem>();
 
         movementSystem.Initialize(rb, stateStorage);
         dashSystem.Initialize(netId, rb, stateStorage);
         useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
         healthSystem.Initialize(netId, stateStorage);
-        interactSystem.Initialize(netId, stateStorage);
+        interactSystem.Initialize(netId);
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
-
         return serverComponents;
     }
 

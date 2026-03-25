@@ -177,10 +177,15 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
             if (UnityEngine.Time.time < _interactCooldownUntil)
                 return;
 
-            interactController.OnInteract();
-
-            if (CurrentActionState is not CharacterInteractingState)
+            if (CurrentActionState is CharacterInteractingState interactingState)
+            {
+                interactingState.OnInteractWhileActive();
+            }
+            else
+            {
+                interactController.OnInteract();
                 SetActionState(actionStates[typeof(CharacterInteractingState)]);
+            }
         }
 
         /// <summary>

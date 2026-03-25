@@ -40,7 +40,7 @@ public class ServerPlayerLinker : PlayerLinker
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
-        var interactSystem = serverComponents.GetComponent<InteractSystem>();
+        var interactSystem = serverComponents.GetComponent<PlayerInteractSystem>();
         var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
 
