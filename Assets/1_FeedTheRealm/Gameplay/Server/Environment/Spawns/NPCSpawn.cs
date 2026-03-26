@@ -161,11 +161,7 @@ public class NPCSpawns : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, radius);
 
         if (!Application.isPlaying || !navMeshReady)
-            logger.Log(
-                "[NPCSpawns] NavMesh not ready, skipping NavMesh visualization in Gizmos.",
-                this,
-                Logging.LogType.Warning
-            );
+            return;
 
         Gizmos.color = Color.blue;
 

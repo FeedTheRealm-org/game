@@ -1,37 +1,26 @@
 using System.Collections;
 using FTR.Core.Server;
 using FTR.Core.Server.Commands;
+using FTR.Core.Server.Config;
+using FTR.Core.Server.EventChannels;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using UnityEngine.AI;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class AINavigationSystem : MonoBehaviour
     {
-        [Header("Wander Settings")]
-        [SerializeField]
-        private float wanderRadius = 10f;
+        [Inject]
+        private ServerConfig config;
 
-        [SerializeField]
-        private float minWaitTime = 2f;
+        [Inject]
+        private Logging.Logger logger;
 
-        [SerializeField]
-        private float maxWaitTime = 5f;
-
-        [SerializeField]
-        private float stoppingDistance = 0.5f;
-
-        [Header("Debug")]
-        [SerializeField]
-        private bool showGizmos = true;
-
-        private WorldMonitor worldMonitor;
-        private uint netId;
-        private Vector3 spawnCenter;
-        private bool isInitialized;
-        private NavMeshPath currentPath;
-        private int currentPathIndex;
-        private Vector3 lastSentDirection = Vector3.zero;
+        [Inject]
+        private GameTickEvent gameTickEvent;
 
         private enum AIState
         {
@@ -40,217 +29,209 @@ namespace FTR.Gameplay.Server.Characters.Systems
         }
 
         private AIState currentState = AIState.Idle;
+        private NavMeshPath currentPath;
+        private int currentPathIndex;
+        private Vector3 lastSentDirection = Vector3.zero;
 
-        /// <summary>
-        /// Initializes the AI Navigation system.
-        /// Call this from your linker or spawner when setting up the NPC/Enemy entity.
-        /// </summary>
+        private WorldMonitor worldMonitor;
+        private CharacterStateStorage stateStorage;
+        private uint netId;
+        private Vector3 spawnCenter;
+        private bool isInitialized;
+
         public void Initialize(
             uint netId,
             WorldMonitor worldMonitor,
-            Vector3? spawnCenter = null,
-            float? customRadius = null
+            CharacterStateStorage stateStorage
         )
         {
             this.netId = netId;
             this.worldMonitor = worldMonitor;
-            this.spawnCenter = spawnCenter ?? transform.position;
-
-            if (customRadius.HasValue)
-                this.wanderRadius = customRadius.Value;
+            spawnCenter = transform.root.position;
+            this.stateStorage = stateStorage;
 
             currentPath = new NavMeshPath();
+
+            gameTickEvent.OnRaised += GameTick;
+
             isInitialized = true;
 
-            StartCoroutine(WanderRoutine());
+            TransitionTo(AIState.Idle);
         }
 
-        private IEnumerator WanderRoutine()
+        private void OnDisable()
         {
-            while (true)
+            gameTickEvent.OnRaised -= GameTick;
+        }
+
+        private void GameTick(float dt)
+        {
+            if (!isInitialized || currentState != AIState.Wandering)
+                return;
+
+            ProcessMovementAlongPath();
+        }
+
+        // Flattens a Vector3 to XZ plane for ground-distance checks
+        private static Vector3 Flat(Vector3 v) => new Vector3(v.x, 0f, v.z);
+
+        private void TransitionTo(AIState next)
+        {
+            currentState = next;
+
+            switch (next)
             {
-                if (!isInitialized)
-                {
-                    yield return null;
-                    continue;
-                }
+                case AIState.Idle:
+                    StopAllCoroutines();
+                    SendMove(Vector3.zero);
+                    StartCoroutine(IdleRoutine());
+                    break;
 
-                if (currentState == AIState.Idle)
-                {
-                    float waitTime = Random.Range(minWaitTime, maxWaitTime);
-                    yield return new WaitForSeconds(waitTime);
-                    SetNewWanderTarget();
-                }
-                else if (currentState == AIState.Wandering)
-                {
-                    ProcessMovement();
-                }
-
-                yield return null; // Update the movement processing every frame
+                case AIState.Wandering:
+                    break;
             }
         }
 
-        private void SetNewWanderTarget()
+        // Waits a random duration then tries to pick a new wander target.
+        private IEnumerator IdleRoutine()
         {
-            // Abort if ground check fails to ensure NavMesh isn't calculating mid-air
-            var stateStorage =
-                transform.GetComponentInParent<FTR.Gameplay.Common.NetworkEntities.Characters.CharacterStateStorage>();
-            if (stateStorage != null && !stateStorage.IsGrounded)
+            yield return new WaitForSeconds(Random.Range(config.MinWaitTime, config.MaxWaitTime));
+            TryBeginWander();
+        }
+
+        private void TryBeginWander()
+        {
+            if (!stateStorage.IsGrounded)
             {
-                Debug.LogWarning(
-                    $"[AINav] {gameObject.name} is not grounded yet, deferring NavMesh pathing."
+                logger.Log(
+                    $"[AINav] {gameObject.name} not grounded, deferring wander.",
+                    this,
+                    Logging.LogType.Warning
                 );
-                currentState = AIState.Idle;
+                TransitionTo(AIState.Idle);
                 return;
             }
 
-            // Use transform.root.position to ensure we are grabbing the coordinates of the base NPC GameObject,
-            // not the newly added child `serverComponents` wrapper which might be offset
-            Vector3 startPos = transform.root.position;
+            Vector3 rootPos = transform.root.position;
+            Vector3 randomTarget = spawnCenter + Random.insideUnitSphere * config.WanderRadius;
 
-            // Pick a random direction within the defined wander radius
-            Vector3 randomDirection = Random.insideUnitSphere * wanderRadius;
-            randomDirection += spawnCenter;
+            bool startOnMesh = NavMesh.SamplePosition(
+                rootPos,
+                out NavMeshHit startHit,
+                20f,
+                NavMesh.AllAreas
+            );
+            bool targetOnMesh = NavMesh.SamplePosition(
+                randomTarget,
+                out NavMeshHit targetHit,
+                config.WanderRadius + 10f,
+                NavMesh.AllAreas
+            );
 
-            // Increase search radius significantly. If it's a dynamic NavMesh, the exact Y could vary,
-            // and the built mesh bounding box generation might slightly float above physical colliders.
-            if (NavMesh.SamplePosition(startPos, out NavMeshHit startHit, 20.0f, NavMesh.AllAreas))
+            if (!startOnMesh)
             {
-                // Sample the NavMesh to find the closest valid target point
-                if (
-                    NavMesh.SamplePosition(
-                        randomDirection,
-                        out NavMeshHit targetHit,
-                        wanderRadius + 10f,
-                        NavMesh.AllAreas
-                    )
-                )
-                {
-                    if (
-                        NavMesh.CalculatePath(
-                            startHit.position,
-                            targetHit.position,
-                            NavMesh.AllAreas,
-                            currentPath
-                        )
-                    )
-                    {
-                        if (currentPath.status == NavMeshPathStatus.PathComplete)
-                        {
-                            currentPathIndex = 0;
-                            currentState = AIState.Wandering;
-                            Debug.Log($"[AINav] {gameObject.name} found path. Wandering!");
-                            return;
-                        }
-                        else
-                        {
-                            Debug.LogWarning(
-                                $"[AINav] {gameObject.name} path status was {currentPath.status}. Idle."
-                            );
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogWarning(
-                            $"[AINav] {gameObject.name} failed to calculate NavMesh path."
-                        );
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogError(
-                    $"[AINav] {gameObject.name}'s transform ({startPos}) is too far from a NavMesh! Can't start pathing."
+                logger.Log(
+                    $"[AINav] {gameObject.name} at {rootPos} is too far from any NavMesh.",
+                    this,
+                    Logging.LogType.Error
                 );
+                TransitionTo(AIState.Idle);
+                return;
             }
 
-            // If failed to find a valid path, remain idle and try again next loop
-            currentState = AIState.Idle;
-        }
-
-        private void ProcessMovement()
-        {
             if (
-                currentPath == null
-                || currentPath.corners.Length == 0
-                || currentPathIndex >= currentPath.corners.Length
+                !targetOnMesh
+                || !NavMesh.CalculatePath(
+                    startHit.position,
+                    targetHit.position,
+                    NavMesh.AllAreas,
+                    currentPath
+                )
             )
             {
-                StopMoving();
+                logger.Log(
+                    $"[AINav] {gameObject.name} could not find a valid path. Staying idle.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                TransitionTo(AIState.Idle);
                 return;
             }
 
-            Vector3 targetPosition = currentPath.corners[currentPathIndex];
+            if (currentPath.status != NavMeshPathStatus.PathComplete)
+            {
+                logger.Log(
+                    $"[AINav] {gameObject.name} path incomplete ({currentPath.status}). Staying idle.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                TransitionTo(AIState.Idle);
+                return;
+            }
 
-            // Calculate distance ignoring the Y axis
-            Vector3 currentPosFlat = new Vector3(
-                transform.root.position.x,
-                0,
-                transform.root.position.z
+            currentPathIndex = 0;
+            TransitionTo(AIState.Wandering);
+            logger.Log(
+                $"[AINav] {gameObject.name} began wandering ({currentPath.corners.Length} waypoints).",
+                this
             );
-            Vector3 targetPosFlat = new Vector3(targetPosition.x, 0, targetPosition.z);
+        }
 
-            float distance = Vector3.Distance(currentPosFlat, targetPosFlat);
+        private void ProcessMovementAlongPath()
+        {
+            if (currentPath == null || currentPathIndex >= currentPath.corners.Length)
+            {
+                TransitionTo(AIState.Idle);
+                return;
+            }
 
-            if (distance <= stoppingDistance)
+            Vector3 rootPos = Flat(transform.root.position);
+            Vector3 waypoint = Flat(currentPath.corners[currentPathIndex]);
+
+            if (Vector3.Distance(rootPos, waypoint) <= config.StoppingDistance)
             {
                 currentPathIndex++;
+
+                // Reached the final waypoint — go idle
                 if (currentPathIndex >= currentPath.corners.Length)
                 {
-                    StopMoving();
+                    TransitionTo(AIState.Idle);
                     return;
                 }
 
-                targetPosition = currentPath.corners[currentPathIndex];
-                targetPosFlat = new Vector3(targetPosition.x, 0, targetPosition.z);
+                waypoint = Flat(currentPath.corners[currentPathIndex]);
             }
 
-            // Move towards the target waypoint
-            Vector3 direction = (targetPosFlat - currentPosFlat).normalized;
+            Vector3 direction = (waypoint - rootPos).normalized;
 
-            // Only send MoveCommand if the direction changed to prevent flooding the server queues (0.01 threshold)
+            // Throttle MoveCommand sends — only dispatch when direction meaningfully changes
             if (Vector3.Distance(direction, lastSentDirection) > 0.05f)
-            {
-                lastSentDirection = direction;
-                var moveCommand = new MoveCommand(netId, direction);
-                worldMonitor.Commands.Enqueue(moveCommand);
-            }
+                SendMove(direction);
         }
 
-        private void StopMoving()
+        private void SendMove(Vector3 direction)
         {
-            currentState = AIState.Idle;
-            currentPath = new NavMeshPath(); // Clear the path
-
-            // Send a final zero direction to bring the character to a halt
-            if (lastSentDirection != Vector3.zero)
-            {
-                lastSentDirection = Vector3.zero;
-                worldMonitor.Commands.Enqueue(new MoveCommand(netId, Vector3.zero));
-            }
+            lastSentDirection = direction;
+            worldMonitor.Commands.Enqueue(new MoveCommand(netId, direction));
         }
 
         private void OnDrawGizmos()
         {
-            if (!showGizmos)
+            Vector3 center = Application.isPlaying ? spawnCenter : transform.position;
+
+            Gizmos.color = new Color(0f, 1f, 1f, 0.2f);
+            Gizmos.DrawWireSphere(center, config.WanderRadius);
+
+            if (!Application.isPlaying || currentPath == null || currentPath.corners.Length == 0)
                 return;
 
-            // Draw wander radius constraint radially around the configured spawn center
-            Gizmos.color = new Color(0, 1, 1, 0.2f);
-            Vector3 center = Application.isPlaying ? spawnCenter : transform.position;
-            Gizmos.DrawWireSphere(center, wanderRadius);
-
-            // Draw current path waypoints and lines
-            if (Application.isPlaying && currentPath != null && currentPath.corners.Length > 0)
+            Gizmos.color = Color.yellow;
+            for (int i = 0; i < currentPath.corners.Length - 1; i++)
             {
-                Gizmos.color = Color.yellow;
-                for (int i = 0; i < currentPath.corners.Length - 1; i++)
-                {
-                    Gizmos.DrawLine(currentPath.corners[i], currentPath.corners[i + 1]);
-                    Gizmos.DrawSphere(currentPath.corners[i], 0.1f);
-                }
-                Gizmos.DrawSphere(currentPath.corners[currentPath.corners.Length - 1], 0.2f);
+                Gizmos.DrawLine(currentPath.corners[i], currentPath.corners[i + 1]);
+                Gizmos.DrawSphere(currentPath.corners[i], 0.1f);
             }
+            Gizmos.DrawSphere(currentPath.corners[^1], 0.2f);
         }
     }
 }

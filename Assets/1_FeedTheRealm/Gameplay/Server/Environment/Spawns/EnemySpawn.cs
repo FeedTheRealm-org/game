@@ -53,6 +53,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         private Dictionary<uint, GameObject> spawnedEnemies = new Dictionary<uint, GameObject>();
 
         private bool isInitialized = false;
+        private bool navMeshReady = false;
         private string enemyId;
 
         public void Initialize(EnemySpawnerData data)
@@ -265,7 +266,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             var sources = new List<NavMeshBuildSource>();
             NavMeshBuilder.CollectSources(
                 bounds,
-                LayerMask.GetMask("Default"),
+                ~0,
                 NavMeshCollectGeometry.PhysicsColliders,
                 0,
                 new List<NavMeshBuildMarkup>(),
@@ -281,7 +282,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 bounds
             );
 
-            NavMesh.AddNavMeshData(navMeshData);
+            UnityEngine.AI.NavMesh.AddNavMeshData(navMeshData);
 
             StartCoroutine(WaitForNavMesh(buildOp));
         }
@@ -293,6 +294,8 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         {
             while (!buildOp.isDone)
                 yield return null;
+
+            navMeshReady = true;
         }
 
 #if DEBUG
@@ -311,9 +314,25 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         private void OnDrawGizmos()
         {
             Gizmos.color = spawnerActive ? Color.green : Color.red;
-            Gizmos.matrix = transform.localToWorldMatrix; // Needed to translate to scene pos
-            Gizmos.DrawWireSphere(spawnArea.center, spawnArea.radius);
-            Gizmos.matrix = Matrix4x4.identity;
+            Gizmos.DrawWireSphere(transform.position, spawnArea.radius);
+
+            if (!Application.isPlaying || !navMeshReady)
+                return;
+
+            Gizmos.color = Color.blue;
+
+            var triangulation = NavMesh.CalculateTriangulation();
+
+            for (int i = 0; i < triangulation.indices.Length; i += 3)
+            {
+                Vector3 v0 = triangulation.vertices[triangulation.indices[i]];
+                Vector3 v1 = triangulation.vertices[triangulation.indices[i + 1]];
+                Vector3 v2 = triangulation.vertices[triangulation.indices[i + 2]];
+
+                Gizmos.DrawLine(v0, v1);
+                Gizmos.DrawLine(v1, v2);
+                Gizmos.DrawLine(v2, v0);
+            }
         }
     }
 }

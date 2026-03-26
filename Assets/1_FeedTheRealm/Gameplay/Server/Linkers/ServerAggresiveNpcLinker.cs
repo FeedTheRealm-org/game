@@ -1,5 +1,6 @@
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
@@ -12,6 +13,7 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
 {
     private ServerCharacterLinker characterLinker;
     private readonly WorldMonitor world;
+    private readonly IObjectResolver resolver;
 
     public ServerAggresiveNpcLinker(
         WorldMonitor world,
@@ -21,6 +23,7 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
     {
         this.world = world;
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
+        this.resolver = resolver;
     }
 
     public override void Link(GameObject gameObject)
@@ -38,11 +41,13 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var interactSystem = serverComponents.GetComponent<InteractSystem>();
+        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var aiNavigationSystem = serverComponents.AddComponent<AINavigationSystem>();
 
-        serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
+        resolver.Inject(aiNavigationSystem);
 
-        aiNavigationSystem.Initialize(netId, world);
+        serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
+        aiNavigationSystem.Initialize(netId, world, stateStorage);
 
         characterLinker.RegisterEntity(netId, networkAdapter, serverCommandHandler);
     }
