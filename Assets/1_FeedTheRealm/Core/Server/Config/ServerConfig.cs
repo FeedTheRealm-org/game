@@ -73,5 +73,7 @@ namespace FTR.Core.Server.Config
         public float MinWaitTime = 2f;
         public float MaxWaitTime = 5f;
         public float StoppingDistance = 0.5f;
+        public float AggressiveChaseRadius = 5f;
+        public float AggressiveAttackRadius = 1f;
     }
 }

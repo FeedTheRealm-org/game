@@ -37,6 +37,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
+        // AI-driven usage
+        private int amountOfPlayersInRange = 0;
+
         public void Initialize(uint netId, Rigidbody rb)
         {
             this.netId = netId;
@@ -55,6 +58,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             ec.Collect(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
 
+            Attack();
+        }
+
+        private void Attack()
+        {
             var currentHitPoint = HitPoint;
             logger.Log(
                 $"[UseSystem] Attack from netId={netId} | hitPoint={currentHitPoint} | radius={hitRadius} | layerMask={targetLayer.value}",
@@ -81,6 +89,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (hitTargets.Length == 0)
             {
                 logger.Log("No targets hit", this);
+            }
+        }
+
+        public void AIStartAttacking(Collider _)
+        {
+            StartCoroutine(AIKeepAttacking());
+        }
+
+        public void AIPlayerLeftRange(Collider _)
+        {
+            amountOfPlayersInRange = Mathf.Max(0, amountOfPlayersInRange - 1);
+        }
+
+        private IEnumerator AIKeepAttacking()
+        {
+            while (amountOfPlayersInRange > 0)
+            {
+                Attack();
+                yield return new WaitForSeconds(attackCooldown);
             }
         }
 

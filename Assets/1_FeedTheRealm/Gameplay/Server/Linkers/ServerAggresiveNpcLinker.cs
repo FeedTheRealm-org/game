@@ -1,6 +1,8 @@
 using FTR.Core.Server;
+using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.Utils;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
@@ -11,19 +13,24 @@ namespace FTR.Gameplay.Server.Linkers;
 
 public class ServerAggresiveNpcLinker : AggresiveNpcLinker
 {
-    private ServerCharacterLinker characterLinker;
     private readonly WorldMonitor world;
+    private ServerCharacterLinker characterLinker;
+    private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private readonly ServerConfig config;
 
     public ServerAggresiveNpcLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
-        IObjectResolver resolver
+        IObjectResolver resolver,
+        ServerConfig config
     )
     {
         this.world = world;
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
+        this.prefabProvider = prefabProvider;
         this.resolver = resolver;
+        this.config = config;
     }
 
     public override void Link(GameObject gameObject)
@@ -46,8 +53,22 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
 
         resolver.Inject(aiNavigationSystem);
 
+        var chaseTriggerArea = UnityEngine
+            .Object.Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
+            .GetComponent<PlayerTriggerArea>();
+        var attackTriggerArea = UnityEngine
+            .Object.Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
+            .GetComponent<PlayerTriggerArea>();
+
+        chaseTriggerArea.Initialize(config.AggressiveChaseRadius);
+        attackTriggerArea.Initialize(config.AggressiveAttackRadius);
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
         aiNavigationSystem.Initialize(netId, world, stateStorage);
+
+        chaseTriggerArea.OnPlayerEnter += aiNavigationSystem.OnChaseStart;
+        chaseTriggerArea.OnPlayerExit += aiNavigationSystem.OnChaseStop;
+        attackTriggerArea.OnPlayerEnter += useSystem.AIStartAttacking;
+        attackTriggerArea.OnPlayerExit += useSystem.AIPlayerLeftRange;
 
         characterLinker.RegisterEntity(netId, networkAdapter, serverCommandHandler);
     }

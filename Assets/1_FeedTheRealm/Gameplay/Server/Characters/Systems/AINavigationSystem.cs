@@ -26,6 +26,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             Idle,
             Wandering,
+            Chasing,
         }
 
         private AIState currentState = AIState.Idle;
@@ -97,6 +98,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             yield return new WaitForSeconds(Random.Range(config.MinWaitTime, config.MaxWaitTime));
             TryBeginWander();
+        }
+
+        public void OnChaseStart(Collider target)
+        {
+            // Chase behavior not implemented yet, so this is ignored.
+        }
+
+        public void OnChaseStop(Collider target)
+        {
+            // Chase behavior not implemented yet, so this is ignored.
         }
 
         private void TryBeginWander()
