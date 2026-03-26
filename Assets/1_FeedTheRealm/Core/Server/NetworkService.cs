@@ -66,8 +66,23 @@ public class NetworkService
         {
             if (worldMonitor.Entities.TryGet(serverEvent.NetId, out ServerEntity entity))
             {
-                entity.NetworkAdapter.DispatchEvent(serverEvent.ToDTO()); // TODO: targeted RPC
+                UnityEngine.Debug.Log(
+                    $"[NetworkService] Dispatching event {serverEvent.GetType().Name} "
+                        + $"via NetId:{serverEvent.NetId} "
+                        + $"adapter.ConnectionId:{entity.NetworkAdapter.ConnectionId} "
+                        + $"targetConnection:{serverEvent.TargetConnectionId}"
+                );
+                entity.NetworkAdapter.DispatchEvent(
+                    serverEvent.ToDTO(),
+                    serverEvent.TargetConnectionId
+                );
                 processedThisTick++;
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[NetworkService] No entity found for NetId:{serverEvent.NetId}"
+                );
             }
         }
     }

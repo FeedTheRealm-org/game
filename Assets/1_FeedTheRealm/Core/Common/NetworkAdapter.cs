@@ -22,6 +22,7 @@ public class NetworkAdapter : NetworkBehaviour
     // Server ONLY
     public event Action<ActionCommandDTO> OnActionRequest;
     public event Action<TransactionCommandDTO> OnTransactionRequest;
+    public int ConnectionId => connectionToClient != null ? connectionToClient.connectionId : -1;
 
     public bool IsLocalPlayer => isLocalPlayer;
 
@@ -65,18 +66,51 @@ public class NetworkAdapter : NetworkBehaviour
     }
 
     /// <summary>
-    /// DispatchResponse is called by the server to dispatch a server response to all clients.
+    /// DispatchEvent is called by the server to dispatch a server response to all clients or a targeted one.
     /// Server ONLY.
     /// </summary>
     [Server]
-    public void DispatchEvent(ServerEventDTO response)
+    public void DispatchEvent(ServerEventDTO response, int? targetConnectionId = null)
     {
         if (!isServer)
             return;
 
-        logger.Log($"Dispatching Server Event: {response.Type} for NetId: {netId}", this);
-
-        RpcServerEvent(response);
+        Debug.Log(
+            $"[NetworkAdapter] DispatchEvent called | netId:{netId} | "
+                + $"connectionToClient:{connectionToClient?.connectionId.ToString() ?? "null"} | "
+                + $"targetConnectionId:{targetConnectionId}"
+        );
+        if (targetConnectionId.HasValue)
+        {
+            if (
+                NetworkServer.connections.TryGetValue(
+                    targetConnectionId.Value,
+                    out var targetConnection
+                )
+            )
+            {
+                logger.Log(
+                    $"Dispatching Targeted Server Event: {response.Type} for NetId: {netId} to connection {targetConnectionId}",
+                    this
+                );
+                TargetRpcServerEvent(targetConnection, response);
+            }
+            else
+            {
+                logger.Log(
+                    $"Failed to dispatch Targeted Server Event: {response.Type} for NetId: {netId} to connection {targetConnectionId} - connection not found",
+                    this
+                );
+            }
+        }
+        else
+        {
+            logger.Log(
+                $"Dispatching Broadcast Server Event: {response.Type} for NetId: {netId}",
+                this
+            );
+            RpcServerEvent(response);
+        }
     }
 
     /* --- RPCs --- */
@@ -108,6 +142,18 @@ public class NetworkAdapter : NetworkBehaviour
     [ClientRpc(channel = Channels.Reliable)]
     private void RpcServerEvent(ServerEventDTO response)
     {
+        OnServerEvent?.Invoke(response);
+    }
+
+    /// <summary>
+    /// TargetServerEvent is a client RPC method that dispatches a server response to a single targeted client via event.
+    /// </summary>
+    [TargetRpc(channel = Channels.Reliable)]
+    private void TargetRpcServerEvent(NetworkConnectionToClient target, ServerEventDTO response)
+    {
+        Debug.Log(
+            $"[NetworkAdapter CLIENT] TargetRpc received | type:{response.Type} | localNetId:{netId}"
+        );
         OnServerEvent?.Invoke(response);
     }
 }

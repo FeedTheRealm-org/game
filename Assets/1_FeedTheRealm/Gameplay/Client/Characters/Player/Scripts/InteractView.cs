@@ -26,6 +26,9 @@ public class InteractView : MonoBehaviour
         this.dialogRegistry = dialogRegistry;
 
         eventRouter.OnDialogEvent += HandleDialogEvent;
+        Debug.Log(
+            $"[InteractView] Initialized. eventRouter set: {eventRouter != null}, dialogRegistry set: {dialogRegistry != null}"
+        );
     }
 
     private void OnDestroy()
@@ -36,6 +39,9 @@ public class InteractView : MonoBehaviour
 
     private void HandleDialogEvent(DialogEventContent content)
     {
+        Debug.Log(
+            $"[InteractView] HandleDialogEvent received. NpcId={content.NpcId}, DialogState={content.DialogState}, DialogIndex={content.DialogIndex}"
+        );
         if (content.DialogState == DialogStateType.DialogTypeStarted)
         {
             if (!string.IsNullOrEmpty(_activeNpcId))
@@ -71,7 +77,12 @@ public class InteractView : MonoBehaviour
     private void ShowDialogLine(string npcId, int index)
     {
         if (TryGetMessage(npcId, index, out MessageData message))
+        {
+            Debug.Log(
+                $"[InteractView] ShowDialogLine -> raising message for NpcId={npcId}, Index={index}, Sender={message.Sender}, Content={message.Content}"
+            );
             npcDialogMessageEvent.Raise((npcId, message));
+        }
     }
 
     private bool TryGetMessage(string npcId, int index, out MessageData message)
@@ -93,6 +104,9 @@ public class InteractView : MonoBehaviour
         }
 
         message = messages[index];
+        Debug.Log(
+            $"[InteractView] TryGetMessage -> found message for NpcId={npcId}, Index={index}"
+        );
         return true;
     }
 }

@@ -18,6 +18,11 @@ namespace FTR.Core.Common.Interactions
         Transform Transform { get; }
 
         /// <summary>
+        /// The network ID of the interactor entity.
+        /// </summary>
+        uint NetId { get; }
+
+        /// <summary>
         /// Event triggered when the interactor has finished interacting.
         /// </summary>
         void FinishInteracting();

@@ -5,7 +5,6 @@ using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Environment.Npcs;
-using FTR.Gameplay.Server.Characters.Interactions;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
@@ -24,21 +23,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float inactivityTimeout = 10f;
 
         private NpcIdentity npcIdentity;
+        private WorldMonitor worldMonitor;
+        private uint ownNetId;
 
         private Dictionary<uint, int> playerDialogStates = new Dictionary<uint, int>();
         private Dictionary<uint, Coroutine> playerTimeouts = new Dictionary<uint, Coroutine>();
 
-        private WorldMonitor worldMonitor;
-
         public void Initialize(
             Logging.Logger logger,
             NpcDialogRegistry npcDialogRegistry,
-            WorldMonitor worldMonitor
+            WorldMonitor worldMonitor,
+            uint ownNetId
         )
         {
             this.logger = logger;
             this.npcDialogRegistry = npcDialogRegistry;
             this.worldMonitor = worldMonitor;
+            this.ownNetId = ownNetId;
         }
 
         private void Awake()
@@ -46,127 +47,110 @@ namespace FTR.Gameplay.Server.Characters.Systems
             npcIdentity = GetComponent<NpcIdentity>();
         }
 
+        /// <summary>
+        /// Resolves the connection ID of the player interactor from the EntityRegistry.
+        /// The DialogEvent is sent via the NPC's NetworkAdapter, targeted to the player's connection,
+        /// so only the interacting client receives it.
+        /// </summary>
+        private int? GetPlayerConnectionId(uint playerNetId)
+        {
+            if (worldMonitor.Entities.TryGet(playerNetId, out var entity))
+                return entity.NetworkAdapter.ConnectionId;
+            return null;
+        }
+
         public string Interact(IInteractor interactor)
         {
-            if (interactor is IServerInteractor serverInteractor)
+            uint playerNetId = interactor.NetId;
+
+            int count = npcDialogRegistry.GetMessageCount(npcIdentity.NpcId);
+            if (count == 0)
             {
-                var ec = serverInteractor.CurrentEventCollector;
-                if (ec == null)
-                    return npcIdentity.NpcId;
-
-                uint netId = serverInteractor.NetId;
-
-                int count = npcDialogRegistry.GetMessageCount(npcIdentity.NpcId);
-                if (count == 0)
-                {
-                    if (logger != null)
-                        logger.Log(
-                            $"[NpcInteractSystem] No messages registered for NpcId '{npcIdentity.NpcId}'.",
-                            this
-                        );
-                    return npcIdentity.NpcId;
-                }
-
-                // Start or restart dialog
-                playerDialogStates[netId] = 0;
-                RestartInactivityTimer(netId, interactor);
-
-                ec.Collect(
-                    new DialogEvent(
-                        netId,
-                        new DialogEventContent
-                        {
-                            DialogState = DialogStateType.DialogTypeStarted,
-                            NpcId = npcIdentity.NpcId,
-                            DialogIndex = 0,
-                        }
-                    )
-                );
-
                 if (logger != null)
-                    logger.Log($"NPC interacted with by " + interactor.GameObject.name, this);
+                    logger.Log(
+                        $"[NpcInteractSystem] No messages registered for NpcId '{npcIdentity.NpcId}'.",
+                        this
+                    );
+                return npcIdentity.NpcId;
             }
 
-            return npcIdentity?.NpcId ?? "";
+            playerDialogStates[playerNetId] = 0;
+            RestartInactivityTimer(playerNetId, interactor);
+
+            worldMonitor.Events.Enqueue(
+                new DialogEvent(
+                    ownNetId,
+                    new DialogEventContent
+                    {
+                        DialogState = DialogStateType.DialogTypeStarted,
+                        NpcId = npcIdentity.NpcId,
+                        DialogIndex = 0,
+                    },
+                    GetPlayerConnectionId(playerNetId)
+                )
+            );
+
+            if (logger != null)
+                logger.Log($"NPC interacted with by {interactor.GameObject.name}", this);
+
+            return npcIdentity.NpcId;
         }
 
         public void ContinueInteraction(IInteractor interactor)
         {
-            if (interactor is IServerInteractor serverInteractor)
+            uint playerNetId = interactor.NetId;
+
+            if (!playerDialogStates.TryGetValue(playerNetId, out int currentIndex))
+                return;
+
+            int count = npcDialogRegistry.GetMessageCount(npcIdentity.NpcId);
+            int nextIndex = currentIndex + 1;
+
+            if (nextIndex >= count)
             {
-                var ec = serverInteractor.CurrentEventCollector;
-                if (ec == null)
-                    return;
-
-                uint netId = serverInteractor.NetId;
-
-                if (!playerDialogStates.TryGetValue(netId, out int currentIndex))
-                {
-                    return;
-                }
-
-                int count = npcDialogRegistry.GetMessageCount(npcIdentity.NpcId);
-                int nextIndex = currentIndex + 1;
-
-                if (nextIndex >= count)
-                {
-                    // Interaction ends if no more dialog content
-                    interactor.FinishInteracting();
-                    return;
-                }
-
-                playerDialogStates[netId] = nextIndex;
-                RestartInactivityTimer(netId, interactor);
-
-                ec.Collect(
-                    new DialogEvent(
-                        netId,
-                        new DialogEventContent
-                        {
-                            DialogState = DialogStateType.DialogTypeAdvanced,
-                            NpcId = npcIdentity.NpcId,
-                            DialogIndex = nextIndex,
-                        }
-                    )
-                );
+                interactor.FinishInteracting();
+                return;
             }
+
+            playerDialogStates[playerNetId] = nextIndex;
+            RestartInactivityTimer(playerNetId, interactor);
+
+            worldMonitor.Events.Enqueue(
+                new DialogEvent(
+                    ownNetId,
+                    new DialogEventContent
+                    {
+                        DialogState = DialogStateType.DialogTypeAdvanced,
+                        NpcId = npcIdentity.NpcId,
+                        DialogIndex = nextIndex,
+                    },
+                    GetPlayerConnectionId(playerNetId)
+                )
+            );
         }
 
         public void StopInteraction(IInteractor interactor)
         {
-            if (interactor is IServerInteractor serverInteractor)
-            {
-                uint netId = serverInteractor.NetId;
+            uint playerNetId = interactor.NetId;
 
-                if (playerDialogStates.ContainsKey(netId))
-                {
-                    playerDialogStates.Remove(netId);
-                    StopInactivityTimer(netId);
+            if (!playerDialogStates.ContainsKey(playerNetId))
+                return;
 
-                    var closeEvent = new DialogEvent(
-                        netId,
-                        new DialogEventContent
-                        {
-                            DialogState = DialogStateType.DialogTypeClosed,
-                            NpcId = npcIdentity.NpcId,
-                            DialogIndex = 0,
-                        }
-                    );
+            playerDialogStates.Remove(playerNetId);
+            StopInactivityTimer(playerNetId);
 
-                    if (worldMonitor != null)
+            worldMonitor.Events.Enqueue(
+                new DialogEvent(
+                    ownNetId,
+                    new DialogEventContent
                     {
-                        worldMonitor.Events.Enqueue(closeEvent);
-                    }
-                    else
-                    {
-                        var ec = serverInteractor.CurrentEventCollector;
-                        if (ec != null)
-                        {
-                            ec.Collect(closeEvent);
-                        }
-                    }
-                }
-            }
+                        DialogState = DialogStateType.DialogTypeClosed,
+                        NpcId = npcIdentity.NpcId,
+                        DialogIndex = 0,
+                    },
+                    GetPlayerConnectionId(playerNetId)
+                )
+            );
         }
 
         public bool CanInteract(IInteractor interactor)
@@ -174,27 +158,31 @@ namespace FTR.Gameplay.Server.Characters.Systems
             return true;
         }
 
-        private void RestartInactivityTimer(uint netId, IInteractor interactor)
+        private void RestartInactivityTimer(uint playerNetId, IInteractor interactor)
         {
-            StopInactivityTimer(netId);
-            Coroutine coroutine = StartCoroutine(InactivityCoroutine(netId, interactor));
-            playerTimeouts[netId] = coroutine;
+            StopInactivityTimer(playerNetId);
+            playerTimeouts[playerNetId] = StartCoroutine(
+                InactivityCoroutine(playerNetId, interactor)
+            );
         }
 
-        private void StopInactivityTimer(uint netId)
+        private void StopInactivityTimer(uint playerNetId)
         {
-            if (playerTimeouts.TryGetValue(netId, out Coroutine coroutine) && coroutine != null)
+            if (
+                playerTimeouts.TryGetValue(playerNetId, out Coroutine coroutine)
+                && coroutine != null
+            )
             {
                 StopCoroutine(coroutine);
-                playerTimeouts.Remove(netId);
+                playerTimeouts.Remove(playerNetId);
             }
         }
 
-        private IEnumerator InactivityCoroutine(uint netId, IInteractor interactor)
+        private IEnumerator InactivityCoroutine(uint playerNetId, IInteractor interactor)
         {
             yield return new WaitForSeconds(inactivityTimeout);
 
-            if (playerDialogStates.ContainsKey(netId))
+            if (playerDialogStates.ContainsKey(playerNetId))
             {
                 interactor.FinishInteracting();
             }

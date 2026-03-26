@@ -1,12 +1,9 @@
-using System;
 using System.Collections;
-using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Interactions;
 using FTR.Core.Server.Events;
-using FTR.Gameplay.Server.Characters.Interactions;
 using UnityEngine;
 
-public class PlayerInteractSystem : MonoBehaviour, IServerInteractor
+public class PlayerInteractSystem : MonoBehaviour, IInteractor
 {
     [Header("Interaction Settings")]
     [SerializeField]
@@ -23,7 +20,6 @@ public class PlayerInteractSystem : MonoBehaviour, IServerInteractor
     public Transform Transform => this.transform;
 
     public uint NetId { get; private set; }
-    public IEventCollectable CurrentEventCollector { get; private set; }
     public IInteractable CurrentInteractable { get; private set; }
 
     public void Initialize(uint netId)
@@ -39,7 +35,6 @@ public class PlayerInteractSystem : MonoBehaviour, IServerInteractor
     {
         if (logger != null)
             logger.Log("Player interaction triggered.", this);
-        this.CurrentEventCollector = ec;
 
         Collider[] hitColliders = Physics.OverlapSphere(
             transform.position,
@@ -69,7 +64,6 @@ public class PlayerInteractSystem : MonoBehaviour, IServerInteractor
         if (closestInteractable == null)
         {
             FinishInteracting();
-            this.CurrentEventCollector = null;
             return;
         }
 
@@ -78,7 +72,6 @@ public class PlayerInteractSystem : MonoBehaviour, IServerInteractor
             if (logger != null)
                 logger.Log("Continuing interaction with: " + closestInteractable, this);
             CurrentInteractable.ContinueInteraction(this);
-            this.CurrentEventCollector = null;
             return;
         }
 
@@ -91,17 +84,13 @@ public class PlayerInteractSystem : MonoBehaviour, IServerInteractor
         if (logger != null)
             logger.Log("Interacting with: " + closestInteractable, this);
         CurrentInteractable.Interact(this);
-
-        this.CurrentEventCollector = null;
     }
 
     public void OnDialogNext(IEventCollectable ec)
     {
         if (CurrentInteractable != null)
         {
-            this.CurrentEventCollector = ec;
             CurrentInteractable.ContinueInteraction(this);
-            this.CurrentEventCollector = null;
         }
         else
         {

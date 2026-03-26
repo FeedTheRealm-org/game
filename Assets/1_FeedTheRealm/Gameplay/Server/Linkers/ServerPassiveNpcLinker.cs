@@ -32,7 +32,6 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
-        var rb = gameObject.GetComponent<Rigidbody>();
 
         var serverComponents = characterLinker.Link(gameObject, netId);
 
@@ -46,7 +45,7 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
 
         var logger = resolver.Resolve<Logging.Logger>();
         var npcDialogRegistry = resolver.Resolve<NpcDialogRegistry>();
-        npcInteract.Initialize(logger, npcDialogRegistry, worldMonitor);
+        npcInteract.Initialize(logger, npcDialogRegistry, worldMonitor, netId);
 
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
         characterLinker.RegisterEntity(netId, networkAdapter, serverCommandHandler);

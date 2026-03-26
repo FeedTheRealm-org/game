@@ -37,6 +37,7 @@ namespace FTR.UI.WorldSpace
         {
             npcIdentity = GetComponentInParent<INpcIdentity>();
             ui = GetComponent<UIDocument>().rootVisualElement;
+            Debug.Log($"[UIDialogController] Awake. npcIdentity found: {npcIdentity != null}");
         }
 
         private void Start()
@@ -75,7 +76,10 @@ namespace FTR.UI.WorldSpace
             if (!IsMyNpc(data.npcId))
                 return;
 
-            //logger.Log($"[UIDialogController] Dialog changed: {data.message.Content}", this);
+            Debug.Log(
+                $"[UIDialogController] HandleDialogChanged for npcId={data.npcId}. Content={data.message.Content}"
+            );
+            logger.Log($"[UIDialogController] Dialog changed: {data.message.Content}", this);
             _msgLabel.text = data.message.Content;
             _senderLabel.text = SenderPrefix + data.message.Sender;
         }
@@ -84,6 +88,9 @@ namespace FTR.UI.WorldSpace
         {
             if (!IsMyNpc(data.npcId))
                 return;
+            Debug.Log(
+                $"[UIDialogController] HandleToggleDialog for npcId={data.npcId}. isOpen={data.isOpen}"
+            );
             _root.style.display = data.isOpen ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
@@ -99,7 +106,11 @@ namespace FTR.UI.WorldSpace
                 return false;
             }
 
-            return !string.IsNullOrEmpty(npcIdentity.NpcId) && npcIdentity.NpcId == npcId;
+            var isMy = !string.IsNullOrEmpty(npcIdentity.NpcId) && npcIdentity.NpcId == npcId;
+            Debug.Log(
+                $"[UIDialogController] IsMyNpc check: myId={npcIdentity.NpcId} checkId={npcId} result={isMy}"
+            );
+            return isMy;
         }
     }
 }

@@ -20,6 +20,9 @@ public class InteractController : MonoBehaviour
         this.networkAdapter = networkAdapter;
         isInitialized = true;
         inputReader.InteractEvent += OnInteract;
+        Debug.Log(
+            $"[InteractController] Initialized. NetworkAdapter set: {networkAdapter != null}"
+        );
     }
 
     private void OnDestroy()
@@ -40,7 +43,11 @@ public class InteractController : MonoBehaviour
             return;
         }
 
-        networkAdapter.DispatchAction(new ActionCommandDTO { Type = ActionType.Interact });
+        var dto = new ActionCommandDTO { Type = ActionType.Interact };
+        Debug.Log(
+            $"[InteractController] OnInteract -> Dispatching ActionCommandDTO Type={dto.Type}"
+        );
+        networkAdapter.DispatchAction(dto);
     }
 
     /// <summary>
@@ -55,6 +62,10 @@ public class InteractController : MonoBehaviour
             return;
         }
 
-        networkAdapter.DispatchAction(new ActionCommandDTO { Type = ActionType.DialogNext });
+        var dto = new ActionCommandDTO { Type = ActionType.DialogNext };
+        Debug.Log(
+            $"[InteractController] OnDialogNext -> Dispatching ActionCommandDTO Type={dto.Type}"
+        );
+        networkAdapter.DispatchAction(dto);
     }
 }

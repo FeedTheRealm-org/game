@@ -8,7 +8,7 @@ public class DashEvent : BaseServerEvent
     private DashEventContent content;
 
     public DashEvent(uint netId, DashEventContent content)
-        : base(netId, false)
+        : base(netId)
     {
         this.content = content;
     }
