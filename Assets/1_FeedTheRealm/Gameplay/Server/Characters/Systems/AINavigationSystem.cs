@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using FTR.Core.Server;
 using FTR.Core.Server.Commands;
 using FTR.Core.Server.Config;
@@ -41,6 +42,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Vector3 spawnCenter;
         private bool isInitialized;
         private PlayerTriggerArea _chaseTriggerArea;
+        private List<Collider> activeTargets = new List<Collider>();
+        private Collider currentTarget;
 
         public void Initialize(
             uint netId,
@@ -85,10 +88,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void GameTick(float dt)
         {
-            if (!isInitialized || currentState != AIState.Wandering)
+            if (!isInitialized)
                 return;
 
-            ProcessMovementAlongPath();
+            if (currentState == AIState.Wandering || currentState == AIState.Chasing)
+            {
+                ProcessMovementAlongPath();
+            }
         }
 
         // Flattens a Vector3 to XZ plane for ground-distance checks
@@ -108,6 +114,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
                 case AIState.Wandering:
                     break;
+
+                case AIState.Chasing:
+                    StopAllCoroutines();
+                    StartCoroutine(ChaseRoutine());
+                    break;
             }
         }
 
@@ -118,14 +129,77 @@ namespace FTR.Gameplay.Server.Characters.Systems
             TryBeginWander();
         }
 
+        private IEnumerator ChaseRoutine()
+        {
+            while (currentState == AIState.Chasing && currentTarget != null)
+            {
+                UpdateChasePath();
+                yield return new WaitForSeconds(0.25f);
+            }
+        }
+
+        private void UpdateChasePath()
+        {
+            if (currentTarget == null || !stateStorage.IsGrounded)
+                return;
+
+            Vector3 rootPos = transform.root.position;
+            Vector3 targetPos = currentTarget.transform.position;
+
+            bool startOnMesh = NavMesh.SamplePosition(
+                rootPos,
+                out NavMeshHit startHit,
+                20f,
+                NavMesh.AllAreas
+            );
+            bool targetOnMesh = NavMesh.SamplePosition(
+                targetPos,
+                out NavMeshHit targetHit,
+                20f,
+                NavMesh.AllAreas
+            );
+
+            if (startOnMesh && targetOnMesh)
+            {
+                NavMesh.CalculatePath(
+                    startHit.position,
+                    targetHit.position,
+                    NavMesh.AllAreas,
+                    currentPath
+                );
+                currentPathIndex = 0;
+            }
+        }
+
         public void OnChaseStart(Collider target)
         {
-            // Chase behavior not implemented yet, so this is ignored.
+            if (!activeTargets.Contains(target))
+                activeTargets.Add(target);
+
+            currentTarget = target;
+
+            if (currentState != AIState.Chasing)
+            {
+                TransitionTo(AIState.Chasing);
+            }
         }
 
         public void OnChaseStop(Collider target)
         {
-            // Chase behavior not implemented yet, so this is ignored.
+            activeTargets.Remove(target);
+
+            if (currentTarget == target)
+            {
+                if (activeTargets.Count > 0)
+                {
+                    currentTarget = activeTargets[activeTargets.Count - 1];
+                }
+                else
+                {
+                    currentTarget = null;
+                    TransitionTo(AIState.Idle);
+                }
+            }
         }
 
         private void TryBeginWander()
@@ -210,7 +284,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             if (currentPath == null || currentPathIndex >= currentPath.corners.Length)
             {
-                TransitionTo(AIState.Idle);
+                if (currentState == AIState.Wandering)
+                    TransitionTo(AIState.Idle);
+                else if (currentState == AIState.Chasing)
+                    SendMove(Vector3.zero);
                 return;
             }
 
@@ -224,7 +301,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 // Reached the final waypoint — go idle
                 if (currentPathIndex >= currentPath.corners.Length)
                 {
-                    TransitionTo(AIState.Idle);
+                    if (currentState == AIState.Wandering)
+                        TransitionTo(AIState.Idle);
+                    else if (currentState == AIState.Chasing)
+                        SendMove(Vector3.zero);
                     return;
                 }
 
