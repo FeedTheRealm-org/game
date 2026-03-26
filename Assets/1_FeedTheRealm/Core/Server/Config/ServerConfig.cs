@@ -67,5 +67,11 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private int inventorySize = 20;
         public int InventorySize => inventorySize;
+
+        [Header("NPC AI")]
+        public float WanderRadius = 10f;
+        public float MinWaitTime = 2f;
+        public float MaxWaitTime = 5f;
+        public float StoppingDistance = 0.5f;
     }
 }
