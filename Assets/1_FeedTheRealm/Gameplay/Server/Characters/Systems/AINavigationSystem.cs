@@ -5,6 +5,7 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.Utils;
 using UnityEngine;
 using UnityEngine.AI;
 using VContainer;
@@ -39,6 +40,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
         private Vector3 spawnCenter;
         private bool isInitialized;
+        private PlayerTriggerArea _chaseTriggerArea;
 
         public void Initialize(
             uint netId,
@@ -63,6 +65,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void OnDisable()
         {
             gameTickEvent.OnRaised -= GameTick;
+        }
+
+        private void OnDestroy()
+        {
+            if (_chaseTriggerArea != null)
+            {
+                _chaseTriggerArea.OnPlayerEnter -= OnChaseStart;
+                _chaseTriggerArea.OnPlayerExit -= OnChaseStop;
+            }
+        }
+
+        public void SetChaseTriggerArea(PlayerTriggerArea chaseTriggerArea)
+        {
+            _chaseTriggerArea = chaseTriggerArea;
+            _chaseTriggerArea.OnPlayerEnter += OnChaseStart;
+            _chaseTriggerArea.OnPlayerExit += OnChaseStop;
         }
 
         private void GameTick(float dt)

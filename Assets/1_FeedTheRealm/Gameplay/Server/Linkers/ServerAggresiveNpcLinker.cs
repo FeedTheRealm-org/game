@@ -65,10 +65,8 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
         aiNavigationSystem.Initialize(netId, world, stateStorage);
 
-        chaseTriggerArea.OnPlayerEnter += aiNavigationSystem.OnChaseStart;
-        chaseTriggerArea.OnPlayerExit += aiNavigationSystem.OnChaseStop;
-        attackTriggerArea.OnPlayerEnter += useSystem.AIStartAttacking;
-        attackTriggerArea.OnPlayerExit += useSystem.AIPlayerLeftRange;
+        aiNavigationSystem.SetChaseTriggerArea(chaseTriggerArea);
+        useSystem.SetAttackTriggerArea(attackTriggerArea);
 
         characterLinker.RegisterEntity(netId, networkAdapter, serverCommandHandler);
     }

@@ -6,6 +6,7 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.Utils;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
 using UnityEngine;
@@ -39,6 +40,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         // AI-driven usage
         private int amountOfPlayersInRange = 0;
+        private PlayerTriggerArea _attackTriggerArea;
 
         public void Initialize(uint netId, Rigidbody rb)
         {
@@ -47,6 +49,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
         }
 
         public void GameTick(float dt) { }
+
+        public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
+        {
+            _attackTriggerArea = attackTriggerArea;
+            _attackTriggerArea.OnPlayerEnter += AIStartAttacking;
+            _attackTriggerArea.OnPlayerExit += AIPlayerLeftRange;
+        }
+
+        private void OnDestroy()
+        {
+            if (_attackTriggerArea != null)
+            {
+                _attackTriggerArea.OnPlayerEnter -= AIStartAttacking;
+                _attackTriggerArea.OnPlayerExit -= AIPlayerLeftRange;
+            }
+        }
 
         public void OnUse(IEventCollectable ec)
         {
