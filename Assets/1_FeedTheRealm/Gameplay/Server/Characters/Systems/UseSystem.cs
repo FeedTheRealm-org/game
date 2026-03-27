@@ -38,6 +38,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Rigidbody _rb;
         private uint netId;
 
+        private CharacterStateStorage stateStorage;
+
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
         // AutoAttack-driven usage
@@ -45,11 +47,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
 
-        public void Initialize(uint netId, Rigidbody rb, LayerMask targetLayer)
+        public void Initialize(
+            uint netId,
+            Rigidbody rb,
+            LayerMask targetLayer,
+            CharacterStateStorage stateStorage
+        )
         {
             this.netId = netId;
             _rb = rb;
             this.targetLayer = targetLayer;
+            this.stateStorage = stateStorage;
         }
 
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
@@ -83,6 +91,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void Attack()
         {
+            if (stateStorage.Health <= 0)
+                return; // Cant attack while dying
+
             var currentHitPoint = HitPoint;
             logger.Log(
                 $"[UseSystem] Attack from netId={netId} | hitPoint={currentHitPoint} | radius={hitRadius} | layerMask={targetLayer.value}",
@@ -139,7 +150,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             while (amountOfPlayersInRange > 0)
             {
                 Attack();
-                yield return new WaitForSeconds(attackCooldown);
+                yield return new WaitForSeconds(attackCooldown * 2);
             }
         }
 

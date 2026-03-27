@@ -1,6 +1,7 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
@@ -41,6 +42,7 @@ public class ServerPlayerLinker : PlayerLinker
         var rb = gameObject.GetComponent<Rigidbody>();
 
         var serverComponents = characterLinker.Link(gameObject, netId);
+        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
@@ -58,7 +60,7 @@ public class ServerPlayerLinker : PlayerLinker
         var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
 
-        useSystem.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer);
+        useSystem.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
         inventorySystem.Initialize(netId, inventoryStateStorage);
         respawnSystem.Initialize(netId, networkAdapter, serverCommandHandler, rb, healthSystem);
         persistenceSystem.Initialize(movementSystem, inventorySystem);

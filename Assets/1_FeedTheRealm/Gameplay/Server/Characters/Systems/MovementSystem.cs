@@ -41,7 +41,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void OnMove(Vector3 direction)
         {
-            if (!stateStorage.IsGrounded)
+            if (!stateStorage.IsGrounded || stateStorage.Health <= 0)
                 return;
 
             this.direction = direction.normalized;
@@ -53,7 +53,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!isInitialized)
                 return;
 
-            if (stateStorage.IsMovementBlocked)
+            if (stateStorage.IsMovementBlocked || stateStorage.Health <= 0)
                 return;
 
             Vector3 nextPosition = rb.position + dt * moveSpeed * direction;

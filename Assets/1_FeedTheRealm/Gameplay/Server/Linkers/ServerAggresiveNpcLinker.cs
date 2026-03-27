@@ -60,7 +60,7 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
             .Object.Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
             .GetComponent<PlayerTriggerArea>();
 
-        useSystem.Initialize(netId, rb, config.PlayerLayer);
+        useSystem.Initialize(netId, rb, config.PlayerLayer, stateStorage);
         chaseTriggerArea.Initialize(config.AggressiveChaseRadius);
         attackTriggerArea.Initialize(config.AggressiveAttackRadius);
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
