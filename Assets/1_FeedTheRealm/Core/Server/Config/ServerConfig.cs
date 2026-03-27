@@ -6,6 +6,10 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
+        [Header("Layer Masks")]
+        public LayerMask PlayerLayer;
+        public LayerMask TargetLayer; // Enemies
+
         [Header("Movement")]
         [SerializeField]
         private float playerSpeed = 5f;
@@ -74,6 +78,6 @@ namespace FTR.Core.Server.Config
         public float MaxWaitTime = 5f;
         public float StoppingDistance = 0.5f;
         public float AggressiveChaseRadius = 5f;
-        public float AggressiveAttackRadius = 1f;
+        public float AggressiveAttackRadius = 2f;
     }
 }
