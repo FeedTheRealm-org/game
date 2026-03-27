@@ -29,7 +29,7 @@ namespace FTR.Gameplay.Common.Utils
         private void OnDrawGizmos()
         {
             Gizmos.color = new Color(1, 0, 0, 0.1f);
-            Gizmos.DrawSphere(transform.position, sphereCollider.radius);
+            Gizmos.DrawSphere(transform.position, gameObject.GetComponent<SphereCollider>().radius);
         }
     }
 }

@@ -26,10 +26,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float hitRadius;
 
         [SerializeField]
-        private LayerMask targetLayer;
-
-        [SerializeField]
         private Logging.Logger logger;
+
+        [Inject]
+        private WorldMonitor world;
+
+        private LayerMask targetLayer;
 
         private bool isAttacking = false;
 
@@ -38,33 +40,35 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
-        // AI-driven usage
+        // AutoAttack-driven usage
         private int amountOfPlayersInRange = 0;
         private PlayerTriggerArea _attackTriggerArea;
+        private Coroutine _autoAttackCoroutine;
 
-        public void Initialize(uint netId, Rigidbody rb)
+        public void Initialize(uint netId, Rigidbody rb, LayerMask targetLayer)
         {
             this.netId = netId;
             _rb = rb;
+            this.targetLayer = targetLayer;
         }
-
-        public void GameTick(float dt) { }
 
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
         {
             _attackTriggerArea = attackTriggerArea;
-            _attackTriggerArea.OnPlayerEnter += AIStartAttacking;
-            _attackTriggerArea.OnPlayerExit += AIPlayerLeftRange;
+            _attackTriggerArea.OnPlayerEnter += StartAutoAttacking;
+            _attackTriggerArea.OnPlayerExit += PlayerLeftAutoAttackRange;
         }
 
         private void OnDestroy()
         {
             if (_attackTriggerArea != null)
             {
-                _attackTriggerArea.OnPlayerEnter -= AIStartAttacking;
-                _attackTriggerArea.OnPlayerExit -= AIPlayerLeftRange;
+                _attackTriggerArea.OnPlayerEnter -= StartAutoAttacking;
+                _attackTriggerArea.OnPlayerExit -= PlayerLeftAutoAttackRange;
             }
         }
+
+        public void GameTick(float dt) { }
 
         public void OnUse(IEventCollectable ec)
         {
@@ -73,8 +77,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             isAttacking = true;
             StartCoroutine(resetAttackCooldown());
-
-            ec.Collect(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
 
             Attack();
         }
@@ -108,19 +110,31 @@ namespace FTR.Gameplay.Server.Characters.Systems
             {
                 logger.Log("No targets hit", this);
             }
+
+            world.Events.Enqueue(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
         }
 
-        public void AIStartAttacking(Collider _)
+        public void StartAutoAttacking(Collider _)
         {
-            StartCoroutine(AIKeepAttacking());
+            logger.Log("Target entered auto attack range", this);
+            amountOfPlayersInRange++;
+            if (_autoAttackCoroutine == null)
+            {
+                _autoAttackCoroutine = StartCoroutine(KeepAutoAttacking());
+            }
         }
 
-        public void AIPlayerLeftRange(Collider _)
+        public void PlayerLeftAutoAttackRange(Collider _)
         {
             amountOfPlayersInRange = Mathf.Max(0, amountOfPlayersInRange - 1);
+            if (amountOfPlayersInRange == 0 && _autoAttackCoroutine != null)
+            {
+                StopCoroutine(_autoAttackCoroutine);
+                _autoAttackCoroutine = null;
+            }
         }
 
-        private IEnumerator AIKeepAttacking()
+        private IEnumerator KeepAutoAttacking()
         {
             while (amountOfPlayersInRange > 0)
             {

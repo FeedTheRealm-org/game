@@ -47,7 +47,6 @@ public class ServerCharacterLinker
 
         movementSystem.Initialize(rb, stateStorage);
         dashSystem.Initialize(netId, rb, stateStorage);
-        useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
         healthSystem.Initialize(netId, stateStorage);
         interactSystem.Initialize(netId, stateStorage);

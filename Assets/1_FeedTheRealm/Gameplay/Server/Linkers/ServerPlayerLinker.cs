@@ -1,4 +1,5 @@
 using FTR.Core.Server;
+using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
@@ -15,16 +16,19 @@ public class ServerPlayerLinker : PlayerLinker
     private readonly ServerCharacterLinker characterLinker;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private readonly ServerConfig config;
 
     public ServerPlayerLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
-        IObjectResolver resolver
+        IObjectResolver resolver,
+        ServerConfig config
     )
     {
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
+        this.config = config;
     }
 
     public override void Link(GameObject gameObject)
@@ -54,6 +58,7 @@ public class ServerPlayerLinker : PlayerLinker
         var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
 
+        useSystem.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer);
         inventorySystem.Initialize(netId, inventoryStateStorage);
         respawnSystem.Initialize(netId, networkAdapter, serverCommandHandler, rb, healthSystem);
         persistenceSystem.Initialize(movementSystem, inventorySystem);
