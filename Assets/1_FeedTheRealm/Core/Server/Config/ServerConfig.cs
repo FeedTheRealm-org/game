@@ -9,6 +9,8 @@ namespace FTR.Core.Server.Config
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;
         public LayerMask TargetLayer; // Enemies
+        public LayerMask GroundLayer;
+        public LayerMask ObstacleLayer;
 
         [Header("Movement")]
         [SerializeField]
@@ -58,10 +60,6 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private float groundCheckSphereRadius = 0.4f;
         public float GroundCheckSphereRadius => groundCheckSphereRadius;
-
-        [SerializeField]
-        private LayerMask groundLayer;
-        public LayerMask GroundLayer => groundLayer;
 
         [Header("Inventory")]
         [SerializeField]

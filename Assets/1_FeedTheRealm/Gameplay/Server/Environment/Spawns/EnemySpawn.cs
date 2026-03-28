@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
+using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
@@ -38,12 +39,15 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         [SerializeField]
         private CapsuleCollider spawnArea;
 
-        [SerializeField]
-        private ObjectResolverContainer resolverContainer;
-
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
+
+        [SerializeField]
+        private ObjectResolverContainer resolverContainer;
+
+        private ServerPrefabProvider prefabProvider;
+        private ServerConfig config;
 
         private Coroutine spawnRoutine;
         private bool spawnerActive;
@@ -58,12 +62,22 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
         public void Initialize(EnemySpawnerData data)
         {
+            config = resolverContainer.Resolver.Resolve<ServerConfig>();
+
+            if (config == null)
+                throw new System.ArgumentNullException(
+                    nameof(config),
+                    "ServerConfig cannot be null when initializing Spawn."
+                );
+
             maxEnemies = data.MaxEnemies;
             spawnRate = data.SpawnRate;
             resetAfterKills = data.ResetAfterKills;
             resetDelay = data.ResetDelay;
             spawnArea.radius = data.Radius;
             enemyId = data.EnemyId;
+
+            prefabProvider = resolverContainer.Resolver.Resolve<ServerPrefabProvider>();
 
             if (!isInitialized)
             {
@@ -164,7 +178,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         {
             logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
             Vector3 point = GetRandomPointInRadius();
-            GameObject enemy = resolverContainer.Resolver?.Instantiate(
+            GameObject enemy = resolverContainer.Resolver.Instantiate(
                 enemyPrefab,
                 point,
                 Quaternion.identity
@@ -216,11 +230,10 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
         private void SpawnLootItem(Vector3 position, string itemId)
         {
-            var prefabProvider = resolverContainer.Resolver?.Resolve<ServerPrefabProvider>();
             var lootItemPrefab = prefabProvider?.LootItemPrefab;
             if (lootItemPrefab != null)
             {
-                GameObject lootInstance = resolverContainer.Resolver?.Instantiate(
+                GameObject lootInstance = resolverContainer.Resolver.Instantiate(
                     lootItemPrefab,
                     position,
                     Quaternion.identity
@@ -266,12 +279,24 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             var sources = new List<NavMeshBuildSource>();
             NavMeshBuilder.CollectSources(
                 bounds,
-                ~0,
+                config.GroundLayer,
                 NavMeshCollectGeometry.PhysicsColliders,
                 0,
                 new List<NavMeshBuildMarkup>(),
                 sources
             );
+
+            var obstacleSources = new List<NavMeshBuildSource>();
+            NavMeshBuilder.CollectSources(
+                bounds,
+                config.ObstacleLayer,
+                NavMeshCollectGeometry.PhysicsColliders,
+                1, // Not Walkable
+                new List<NavMeshBuildMarkup>(),
+                obstacleSources
+            );
+
+            sources.AddRange(obstacleSources);
 
             var navMeshData = new NavMeshData();
 
@@ -302,12 +327,9 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         private IEnumerator Start()
         {
             yield return new WaitUntil(() => NetworkServer.active);
-            logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
-            if (!isInitialized)
-            {
-                BuildNavMesh(spawnArea.radius + 5f);
-                isInitialized = true;
-            }
+
+            var enemyData = new EnemySpawnerData(transform.position, spawnArea.radius, enemyId);
+            Initialize(enemyData);
         }
 #endif
 

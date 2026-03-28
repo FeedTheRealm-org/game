@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
+using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.Environment.Npcs;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
 using UnityEngine.AI;
+using VContainer;
 using VContainer.Unity;
 
 public class NPCSpawns : MonoBehaviour
@@ -20,12 +22,14 @@ public class NPCSpawns : MonoBehaviour
     [SerializeField]
     private float radius = 5f;
 
-    [SerializeField]
-    private ObjectResolverContainer resolverContainer;
-
     [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
+
+    [SerializeField]
+    private ObjectResolverContainer resolverContainer;
+
+    private ServerConfig config;
 
     private NPCData npcData;
     private bool isInitialized = false;
@@ -40,13 +44,21 @@ public class NPCSpawns : MonoBehaviour
         if (spawnData == null)
             throw new System.ArgumentNullException(
                 nameof(spawnData),
-                "NPCSpawnerData cannot be null when initializing NPCSpawns."
+                "NPCSpawnerData cannot be null when initializing Spawns."
             );
 
         if (npcData == null)
             throw new System.ArgumentNullException(
                 nameof(npcData),
                 "NPCData cannot be null when initializing NPCSpawns."
+            );
+
+        config = resolverContainer.Resolver.Resolve<ServerConfig>();
+
+        if (config == null)
+            throw new System.ArgumentNullException(
+                nameof(config),
+                "ServerConfig cannot be null when initializing NPCSpawns."
             );
 
         this.npcID = spawnData.NpcId;
@@ -109,12 +121,24 @@ public class NPCSpawns : MonoBehaviour
         var sources = new List<NavMeshBuildSource>();
         NavMeshBuilder.CollectSources(
             bounds,
-            ~0,
+            config.GroundLayer,
             NavMeshCollectGeometry.PhysicsColliders,
-            0,
+            0, // Walkable
             new List<NavMeshBuildMarkup>(),
             sources
         );
+
+        var obstacleSources = new List<NavMeshBuildSource>();
+        NavMeshBuilder.CollectSources(
+            bounds,
+            config.ObstacleLayer,
+            NavMeshCollectGeometry.PhysicsColliders,
+            1, // Not Walkable
+            new List<NavMeshBuildMarkup>(),
+            obstacleSources
+        );
+
+        sources.AddRange(obstacleSources);
 
         var navMeshData = new NavMeshData();
 
@@ -145,13 +169,16 @@ public class NPCSpawns : MonoBehaviour
     private IEnumerator Start()
     {
         yield return new WaitUntil(() => NetworkServer.active);
-        logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
-        if (!isInitialized)
-        {
-            BuildNavMesh(radius + 5f);
-            StartCoroutine(SpawnWhenServerActive());
-            isInitialized = true;
-        }
+
+        var npcSpawnerData = new NPCSpawnerData(transform.position, radius, npcID);
+        var npcData = new NPCData(
+            npcID,
+            $"NPC_{npcID}",
+            "A friendly NPC.",
+            "Sprites/NPCs/Default",
+            null
+        );
+        Initialize(npcSpawnerData, npcData);
     }
 #endif
 
