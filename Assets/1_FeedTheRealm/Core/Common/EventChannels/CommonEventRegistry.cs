@@ -14,6 +14,9 @@ namespace FTR.Core.Common.EventChannels
         [Header("Player Events")]
         public InitiatePlayerEvent initiatePlayerEvent;
         public NpcInteractedEvent npcInteractedEvent;
+        public NpcDialogClosedEvent npcDialogClosedEvent;
+        public NpcDialogMessageEvent npcDialogMessageEvent;
+        public NpcDialogToggledEvent npcDialogToggledEvent;
         public EnemySlayedEvent enemySlayedEvent;
 
         [Header("Quest Events")]
@@ -36,6 +39,9 @@ namespace FTR.Core.Common.EventChannels
 
             builder.RegisterInstance(initiatePlayerEvent);
             builder.RegisterInstance(npcInteractedEvent);
+            builder.RegisterInstance(npcDialogClosedEvent);
+            builder.RegisterInstance(npcDialogMessageEvent);
+            builder.RegisterInstance(npcDialogToggledEvent);
             builder.RegisterInstance(enemySlayedEvent);
             builder.RegisterInstance(questOfferedEvent);
             builder.RegisterInstance(questProgressEvent);
@@ -49,6 +55,9 @@ namespace FTR.Core.Common.EventChannels
         {
             ValidateField(initiatePlayerEvent, nameof(initiatePlayerEvent));
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
+            ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
+            ValidateField(npcDialogMessageEvent, nameof(npcDialogMessageEvent));
+            ValidateField(npcDialogToggledEvent, nameof(npcDialogToggledEvent));
             ValidateField(enemySlayedEvent, nameof(enemySlayedEvent));
             ValidateField(questOfferedEvent, nameof(questOfferedEvent));
             ValidateField(questProgressEvent, nameof(questProgressEvent));
@@ -61,7 +70,7 @@ namespace FTR.Core.Common.EventChannels
         private void ValidateField(Object field, string fieldName)
         {
             if (field == null)
-                Debug.LogError($"[CommonEventRegistry] {fieldName} is not assigned.");
+                throw new System.Exception($"[CommonEventRegistry] {fieldName} is not assigned.");
         }
     }
 }

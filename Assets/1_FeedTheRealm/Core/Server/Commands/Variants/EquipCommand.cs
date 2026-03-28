@@ -6,9 +6,9 @@ namespace FTR.Core.Server.Commands;
 public class EquipItemCommand : BaseServerCommand
 {
     private readonly string itemId;
-    private readonly MoveItemCommandContent content;
+    private readonly EquipItemCommandContent content;
 
-    public EquipItemCommand(uint netId, string itemId, MoveItemCommandContent content)
+    public EquipItemCommand(uint netId, string itemId, EquipItemCommandContent content)
         : base(netId)
     {
         this.itemId = itemId;
@@ -17,11 +17,6 @@ public class EquipItemCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnEquipItem(
-            eventCollector,
-            content.SourcePosition,
-            content.TargetPosition,
-            itemId
-        );
+        commandable.OnEquipItem(eventCollector, content.Position);
     }
 }

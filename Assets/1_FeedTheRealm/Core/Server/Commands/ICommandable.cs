@@ -11,11 +11,17 @@ public interface ICommandable
     void OnDash(IEventCollectable ec, Vector3 direction);
     void OnUse(IEventCollectable ec);
     void OnInteract(IEventCollectable ec);
-    void OnEquipItem(IEventCollectable ec, int sourceSlot, int targetSlot, string itemId);
-    void OnUnequipItem(IEventCollectable ec, int sourceSlot, int targetSlot, string itemId);
+    void OnEquipItem(IEventCollectable ec, int slotIndex);
     void OnDropItem(IEventCollectable ec, StorageType type, int slotIndex, string itemId);
     void OnPurchase(IEventCollectable ec);
     void OnQuestAccepted(IEventCollectable ec);
     void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
-    void OnMoveItem(IEventCollectable ec, StorageType type, int sourceSlot, int targetSlot);
+    void OnMoveItem(
+        IEventCollectable ec,
+        StorageType sourceType,
+        int sourceSlot,
+        StorageType targetType,
+        int targetSlot
+    );
+    void OnDialogNext(IEventCollectable ec);
 }

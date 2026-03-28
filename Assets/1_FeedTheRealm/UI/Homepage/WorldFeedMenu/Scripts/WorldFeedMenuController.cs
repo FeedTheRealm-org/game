@@ -27,6 +27,12 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     [SerializeField]
     private GameObject worldInfoHUD;
 
+    [SerializeField]
+    private WorldSelector worldSelector;
+
+    [SerializeField]
+    private API.ItemAssetsService itemAssetsService;
+
     public event Action OnNavigateToWorld;
 
     private VisualElement ui;
@@ -190,6 +196,17 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
                 );
                 return;
             }
+
+            if (worldSelector != null)
+            {
+                worldSelector.SetSelectedWorldId(worldData.id);
+            }
+
+            if (itemAssetsService != null)
+            {
+                await itemAssetsService.InitializeCategoryForWorldAsync(worldData.id);
+            }
+
             if (OnNavigateToWorld != null)
                 OnNavigateToWorld.Invoke();
             else

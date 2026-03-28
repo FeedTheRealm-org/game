@@ -3,6 +3,7 @@ using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Common.EventChannels;
 using UnityEngine;
 using VContainer;
 
@@ -26,11 +27,15 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public LastAddedEvent lastAddedEvent;
         public LastSwappedEvent lastSwappedEvent;
         public LastRemovedEvent lastRemovedEvent;
+        public ActiveSlotChangedEvent ActiveSlotChangedEvent;
         public SlotEquipRequestEvent slotEquipRequestEvent;
-        public SlotUnequipRequestEvent slotUnequipRequestEvent;
         public SlotSwapRequestEvent slotSwapRequestEvent;
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
+
+        [Header("NPC Events")]
+        public NpcInteractedEvent npcInteractedEvent;
+        public NpcDialogClosedEvent npcDialogClosedEvent;
 
         [Header("Tick Events")]
         public TickEvent tickEvent;
@@ -48,14 +53,16 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(lastAddedEvent);
             builder.RegisterInstance(lastSwappedEvent);
             builder.RegisterInstance(lastRemovedEvent);
+            builder.RegisterInstance(ActiveSlotChangedEvent);
             builder.RegisterInstance(slotEquipRequestEvent);
-            builder.RegisterInstance(slotUnequipRequestEvent);
             builder.RegisterInstance(slotSwapRequestEvent);
             builder.RegisterInstance(slotDropRequestEvent);
             builder.RegisterInstance(inventoryToggleEvent);
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
             builder.RegisterInstance(lateTickEvent);
+            builder.RegisterInstance(npcInteractedEvent);
+            builder.RegisterInstance(npcDialogClosedEvent);
             builder.RegisterInstance(worldSetupEvent);
         }
 
@@ -68,21 +75,22 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(lastAddedEvent, nameof(lastAddedEvent));
             ValidateField(lastSwappedEvent, nameof(lastSwappedEvent));
             ValidateField(lastRemovedEvent, nameof(lastRemovedEvent));
+            ValidateField(ActiveSlotChangedEvent, nameof(ActiveSlotChangedEvent));
             ValidateField(slotEquipRequestEvent, nameof(slotEquipRequestEvent));
-            ValidateField(slotUnequipRequestEvent, nameof(slotUnequipRequestEvent));
             ValidateField(slotSwapRequestEvent, nameof(slotSwapRequestEvent));
             ValidateField(slotDropRequestEvent, nameof(slotDropRequestEvent));
             ValidateField(inventoryToggleEvent, nameof(inventoryToggleEvent));
             ValidateField(tickEvent, nameof(tickEvent));
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));
             ValidateField(lateTickEvent, nameof(lateTickEvent));
+            ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
             ValidateField(worldSetupEvent, nameof(worldSetupEvent));
         }
 
         private void ValidateField(Object field, string fieldName)
         {
             if (field == null)
-                Debug.LogError($"[ClientEventRegistry] {fieldName} is not assigned.");
+                throw new System.Exception($"[ClientEventRegistry] {fieldName} is not assigned.");
         }
     }
 }

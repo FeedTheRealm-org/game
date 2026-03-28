@@ -15,9 +15,6 @@ GameObject:
   - component: {fileID: 6862505364610922874}
   - component: {fileID: 2082028261007521408}
   - component: {fileID: 159244127895327875}
-  - component: {fileID: 5121831121043531446}
-  - component: {fileID: 4951664805709151255}
-  - component: {fileID: -7943367885201108921}
   - component: {fileID: 3143189486675115970}
   m_Layer: 0
   m_Name: ServerCharacterComponents
@@ -128,48 +125,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.HealthSystem
   MaxHealth: 100
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
---- !u!114 &5121831121043531446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2056940003155735034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4eff2765bc293dcf9444e854bba2596, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.RespawnSystem
-  respawnDelay: 3
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
---- !u!114 &4951664805709151255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2056940003155735034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 790f1da818909d1e982f793433cf8ef2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.InventorySystem
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
-  config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
---- !u!114 &-7943367885201108921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2056940003155735034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1ff4cf7c399fca44bb08adee8bc2f74, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.FastSlotSystem
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
-  config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
 --- !u!114 &3143189486675115970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,6 +134,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2056940003155735034}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 782bd7c8f4aa59195bc6a89cbb414789, type: 3}
+  m_Script: {fileID: 11500000, guid: 445f376cdfe827986a4555ccc86e53a3, type: 3}
   m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.PersistenceSystem
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.InteractSystem
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  npcDialogRegistry: {fileID: 11400000, guid: 005987f0302cbcf9094db004ad4ffe04, type: 2}
+  interactionRadius: 3
+  npcLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  inactivityTimeout: 10

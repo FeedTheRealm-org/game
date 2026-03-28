@@ -20,6 +20,15 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnHealthSync))]
         private float health;
 
+        [SyncVar]
+        private int _currentDialogIndex;
+
+        [SyncVar(hook = nameof(OnCurrentNpcIdSync))]
+        private string _currentNpcId;
+
+        [SyncVar(hook = nameof(OnIsInteractingSync))]
+        private bool _isInteracting;
+
         /* --- Getters --- */
 
         public Vector3 Position => position;
@@ -29,11 +38,20 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public bool IsLocalPlayer => isLocalPlayer;
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
+        public bool IsInteracting => _isInteracting;
+        public string CurrentNpcId => _currentNpcId;
+        public int CurrentDialogIndex => _currentDialogIndex;
+
+        /* --- Events --- */
 
         public event Action<Vector3> OnPositionCorrected;
         public event Action<Vector3> OnDirectionChanged;
         public event Action<float> OnStaminaChanged;
         public event Action<float> OnHealthChanged;
+        public event Action<bool> OnIsInteractingChanged;
+        public event Action<string> OnCurrentNpcIdChanged;
+        public event Action OnDeath;
+        public event Action OnRespawn;
 
         /* --- Setters --- */
 
@@ -58,10 +76,31 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [Server]
         public void SetHealth(float newHealth)
         {
+            float oldHealth = health;
             health = newHealth;
+            RaiseHealthStatusChanged(oldHealth, newHealth);
         }
 
-        /* --- Syncvar hooks --- */
+        [Server]
+        public void SetInteracting(bool value, string npcId = "")
+        {
+            _currentNpcId = npcId;
+            if (!value)
+                _currentDialogIndex = 0;
+            _isInteracting = value;
+        }
+
+        [Server]
+        public void SetDialogIndex(int index) => _currentDialogIndex = index;
+
+        [Server]
+        public void SwitchInteractingNpc(string newNpcId)
+        {
+            _currentNpcId = newNpcId;
+            _currentDialogIndex = 0;
+        }
+
+        /* --- SyncVar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
         {
@@ -81,6 +120,28 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private void OnHealthSync(float oldHealth, float newHealth)
         {
             OnHealthChanged?.Invoke(newHealth);
+            RaiseHealthStatusChanged(oldHealth, newHealth);
+        }
+
+        private void OnIsInteractingSync(bool _, bool v)
+        {
+            OnIsInteractingChanged?.Invoke(v);
+        }
+
+        private void OnCurrentNpcIdSync(string oldId, string newId)
+        {
+            if (_isInteracting && !string.IsNullOrEmpty(newId))
+                OnCurrentNpcIdChanged?.Invoke(newId);
+        }
+
+        /* --- Event Raisers --- */
+
+        private void RaiseHealthStatusChanged(float oldHealth, float newHealth)
+        {
+            if (oldHealth > 0 && newHealth <= 0)
+                OnDeath?.Invoke();
+            else if (oldHealth <= 0 && newHealth > 0)
+                OnRespawn?.Invoke();
         }
 
         public override void OnStartClient()
@@ -93,6 +154,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnDirectionSync(Vector3.zero, direction);
             OnStaminaSync(0, stamina);
             OnHealthSync(0, health);
+            OnIsInteractingSync(false, _isInteracting);
         }
     }
 }

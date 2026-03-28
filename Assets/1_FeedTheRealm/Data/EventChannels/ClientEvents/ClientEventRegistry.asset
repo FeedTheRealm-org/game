@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1456de5aa11214da18ee3689bf48a817, type: 3}
   m_Name: ClientEventRegistry
   m_EditorClassIdentifier: FTR.Core.Client::FeedTheRealm.Core.Client.EventChannels.ClientEventRegistry
+  worldSetupEvent: {fileID: 11400000, guid: 48c5fe6717816fac2a684e45d8fa910b, type: 2}
   shopInteractedEvent: {fileID: 11400000, guid: deb8fa24566e93241b98ce8aabe1de3b, type: 2}
   shopOnCloseEvent: {fileID: 11400000, guid: d66e0a54a3c06be4a909b5b6b63e40c0, type: 2}
   healthChangedEvent: {fileID: 11400000, guid: ebc7b4ec14e54b8dbb876afc2254d9e8, type: 2}
@@ -19,11 +20,13 @@ MonoBehaviour:
   lastAddedEvent: {fileID: 11400000, guid: 2e1f564ad5c2eee4998aafc82ee7194a, type: 2}
   lastSwappedEvent: {fileID: 11400000, guid: bf3939e36fcaf324f9a058512960901d, type: 2}
   lastRemovedEvent: {fileID: 11400000, guid: 0f5368480f9c49746876cfa5badab65b, type: 2}
+  ActiveSlotChangedEvent: {fileID: 11400000, guid: 3260ffbf7c8d6184096030b3a3f71905, type: 2}
   slotEquipRequestEvent: {fileID: 11400000, guid: ff1e9a109c515c344b2758af74d024c5, type: 2}
-  slotUnequipRequestEvent: {fileID: 11400000, guid: 196b337dfca104144942425cdf4a73bc, type: 2}
   slotSwapRequestEvent: {fileID: 11400000, guid: c3cc1d0603aa70c49aab396de7ebd0b5, type: 2}
   slotDropRequestEvent: {fileID: 11400000, guid: 84a2eb51e3076e8409032523460beef8, type: 2}
   inventoryToggleEvent: {fileID: 11400000, guid: 71845091c26c22049b862e665acb63b0, type: 2}
+  npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
+  npcDialogClosedEvent: {fileID: 11400000, guid: e7146b22aa5022befbf1d4ab8487c9a8, type: 2}
   tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
   fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
   lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}

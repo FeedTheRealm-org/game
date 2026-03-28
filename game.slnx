@@ -6,19 +6,29 @@
   <Project Path="Mirror.Examples.csproj" />
   <Project Path="FTR.Gameplay.Server.csproj" />
   <Project Path="FTR.Core.Client.csproj" />
-  <Project Path="FTR.UI.Client.csproj" />
   <Project Path="FeedTheRealm_Shared.csproj" />
+  <Project Path="FTR.Gameplay.Client.csproj" />
+<<<<<<< Updated upstream
+  <Project Path="FTR.Core.Common.csproj" />
+=======
+>>>>>>> Stashed changes
   <Project Path="Mirror.csproj" />
   <Project Path="Unity.Mirror.CodeGen.csproj" />
   <Project Path="SimpleWebTransport.csproj" />
   <Project Path="Mirror.Authenticators.csproj" />
   <Project Path="kcp2k.csproj" />
   <Project Path="Mirror.Transports.csproj" />
-  <Project Path="FTR.Core.Common.csproj" />
-  <Project Path="Telepathy.csproj" />
-  <Project Path="FTR.Gameplay.Client.csproj" />
-  <Project Path="FTR.Gameplay.Common.csproj" />
+<<<<<<< Updated upstream
   <Project Path="FTR.Core.Server.csproj" />
+  <Project Path="FTR.UI.Client.csproj" />
+  <Project Path="Telepathy.csproj" />
+=======
+  <Project Path="FTR.Core.Common.csproj" />
+  <Project Path="FTR.UI.Client.csproj" />
+  <Project Path="Telepathy.csproj" />
+  <Project Path="FTR.Core.Server.csproj" />
+>>>>>>> Stashed changes
+  <Project Path="FTR.Gameplay.Common.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Mirror.CompilerSymbols.csproj" />
   <Project Path="EditorTools.csproj" />

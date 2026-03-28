@@ -12,6 +12,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 {
     private readonly ServerTickDriver serverTickDriver;
     private readonly NetworkTickDriver networkTickDriver;
+
     private readonly ServerWorldLoader worldLoader;
     private readonly HealthcheckServer healthcheckServer;
 
@@ -48,7 +49,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     /// <summary>
     /// Tick method is called by the VContainer's TickableManager every frame
     /// (60 TPS or as stated in server entrypoint), and it will call ServerTickDriver and NetworkTickDriver.
-    /// </summary
+    /// </summary>
     public void Tick()
     {
         networkTickDriver.TickBefore();

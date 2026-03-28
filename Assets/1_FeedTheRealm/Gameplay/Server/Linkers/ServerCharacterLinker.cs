@@ -1,10 +1,8 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
-using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
-using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -28,16 +26,12 @@ public class ServerCharacterLinker
         this.resolver = resolver;
     }
 
-    public GameObject Link(GameObject gameObject)
+    public GameObject Link(GameObject gameObject, uint netId)
     {
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
-        var inventoryStateStorage = gameObject.GetComponent<InventoryStateStorage>();
-        var fastSlotStateStorage = gameObject.GetComponent<FastSlotStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
         var col = gameObject.GetComponent<Collider>();
-        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
-        // Add server-side components
         var serverComponents = resolver.Instantiate(
             prefabProvider.ServerCharacterComponents,
             gameObject.transform
@@ -47,44 +41,26 @@ public class ServerCharacterLinker
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
-        var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
-        var inventorySystem = serverComponents.GetComponent<InventorySystem>();
-        var fastSlotSystem = serverComponents.GetComponent<FastSlotSystem>();
+        var interactSystem = serverComponents.GetComponent<InteractSystem>();
 
-        var netId = gameObject.GetComponent<NetworkIdentity>().netId;
-
-        // Initialize components
         movementSystem.Initialize(rb, stateStorage);
         dashSystem.Initialize(netId, rb, stateStorage);
-        useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
-        healthSystem.Initialize(netId, stateStorage);
-        inventorySystem.Initialize(netId, inventoryStateStorage);
-        fastSlotSystem.Initialize(netId, fastSlotStateStorage);
+        interactSystem.Initialize(netId, stateStorage);
 
-        serverCommandHandler.Initialize(
-            movementSystem,
-            dashSystem,
-            useSystem,
-            inventorySystem,
-            fastSlotSystem
-        );
-
-        RegisterEntity(netId, networkAdapter, serverCommandHandler);
-
-        Debug.Log($"Linked domain scripts for character with netID {netId}");
+        serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
 
         return serverComponents;
     }
 
-    private void RegisterEntity(
-        uint netID,
+    public void RegisterEntity(
+        uint netId,
         NetworkAdapter networkAdapter,
-        ServerCommandHandler serverCommandHandler
+        ServerCommandHandler commandHandler
     )
     {
-        var entity = new ServerEntity(netID, networkAdapter, serverCommandHandler);
-        world.Entities.Register(netID, entity);
+        var entity = new ServerEntity(netId, networkAdapter, commandHandler);
+        world.Entities.Register(netId, entity);
     }
 }

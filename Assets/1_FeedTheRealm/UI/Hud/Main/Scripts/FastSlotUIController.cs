@@ -1,187 +1,180 @@
 using System.Collections.Generic;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.UI.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
-[RequireComponent(typeof(UIDocument))]
-public class FastSlotUIController : MonoBehaviour
+namespace FTR.UI.Hud.Main
 {
-    private const int FastSlotCount = 5;
-
-    [Inject]
-    private LastAddedEvent lastAddedEvent;
-
-    [Inject]
-    private LastSwappedEvent lastSwappedEvent;
-
-    [Inject]
-    private LastRemovedEvent lastRemovedEvent;
-
-    [SerializeField]
-    private Sprite defaultSlotSprite;
-
-    [SerializeField]
-    private Sprite itemObtainedSprite;
-
-    private UIDocument uiDocument;
-
-    private readonly List<VisualElement> slots = new List<VisualElement>(FastSlotCount);
-
-    private void OnEnable()
+    [RequireComponent(typeof(UIDocument))]
+    public class FastSlotUIController : MonoBehaviour
     {
-        if (uiDocument == null)
-            uiDocument = GetComponent<UIDocument>();
+        private const int FastSlotCount = 5;
 
-        var root = uiDocument != null ? uiDocument.rootVisualElement : null;
-        if (root == null)
-            return;
+        [Inject]
+        private LastAddedEvent lastAddedEvent;
 
-        slots.Clear();
-        for (int i = 0; i < FastSlotCount; i++)
+        [Inject]
+        private LastSwappedEvent lastSwappedEvent;
+
+        [Inject]
+        private LastRemovedEvent lastRemovedEvent;
+
+        [Inject]
+        private ActiveSlotChangedEvent activeSlotChangedEvent;
+
+        [Inject]
+        private SlotEquipRequestEvent equipRequestEvent;
+
+        [Inject]
+        private InventoryToggleEvent inventoryToggleEvent;
+
+        [SerializeField]
+        private PlayerInputReader inputReader;
+
+        [SerializeField]
+        private Sprite defaultSlotSprite;
+
+        [SerializeField]
+        private Sprite selectedSlotSprite;
+
+        [SerializeField]
+        private Sprite hiddenHUDSlotSprite;
+
+        [SerializeField]
+        private API.ItemAssetsService itemAssetsService;
+
+        private UIDocument uiDocument;
+        private readonly List<VisualElement> slots = new(FastSlotCount);
+        private int activeSlot = 0;
+        private bool isInventoryOpen = false;
+
+        private void OnEnable()
         {
-            var slot =
-                root.Q<VisualElement>($"FastEquipSlot{i + 1}")
-                ?? root.Q<VisualElement>($"Slot{i + 1}");
-            if (slot != null)
-            {
-                if (defaultSlotSprite != null)
-                    slot.style.backgroundImage = new StyleBackground(defaultSlotSprite);
+            uiDocument ??= GetComponent<UIDocument>();
+            var root = uiDocument?.rootVisualElement;
+            if (root == null)
+                return;
 
-                slots.Add(slot);
+            slots.Clear();
+            for (int i = 0; i < FastSlotCount; i++)
+            {
+                var slot = root.Q($"FastEquipSlot{i + 1}");
+                if (slot != null)
+                    slots.Add(slot);
+            }
+
+            lastAddedEvent.OnRaised += OnLastAdded;
+            lastSwappedEvent.OnRaised += OnLastSwapped;
+            lastRemovedEvent.OnRaised += OnLastRemoved;
+            activeSlotChangedEvent.OnRaised += OnActiveSlotChanged;
+            inventoryToggleEvent.OnRaised += OnInventoryToggled;
+            inputReader.FastSlotEvent += OnFastSlotInput;
+
+            SetActiveSlot(activeSlot);
+        }
+
+        private void OnDisable()
+        {
+            lastAddedEvent.OnRaised -= OnLastAdded;
+            lastSwappedEvent.OnRaised -= OnLastSwapped;
+            lastRemovedEvent.OnRaised -= OnLastRemoved;
+            activeSlotChangedEvent.OnRaised -= OnActiveSlotChanged;
+            inventoryToggleEvent.OnRaised -= OnInventoryToggled;
+            inputReader.FastSlotEvent -= OnFastSlotInput;
+        }
+
+        // ────────────────────────── Input ─────────────────────────────────────────────
+
+        private void OnFastSlotInput(int inputPad)
+        {
+            if (isInventoryOpen)
+                return;
+            if (inputPad <= 0 || inputPad > FastSlotCount)
+                return;
+            equipRequestEvent.Raise(inputPad - 1);
+        }
+
+        // ────────────────────────── Inventory events ─────────────────────────────────────
+        private void OnLastAdded((StorageType storageType, string itemId, int position) data)
+        {
+            if (data.storageType != StorageType.FastSlot)
+                return;
+            SlotItemLoader.LoadItem(Icon(data.position), data.itemId, itemAssetsService);
+        }
+
+        private void OnLastRemoved((StorageType storageType, string itemId, int position) data)
+        {
+            if (data.storageType != StorageType.FastSlot)
+                return;
+            SlotItemLoader.LoadItem(Icon(data.position), null, itemAssetsService);
+        }
+
+        private void OnLastSwapped(
+            (
+                StorageType sourceType,
+                int sourceSlot,
+                string sourceItemId,
+                StorageType targetType,
+                int targetSlot,
+                string targetItemId
+            ) data
+        )
+        {
+            if (data.targetType == StorageType.FastSlot)
+                SlotItemLoader.LoadItem(
+                    Icon(data.targetSlot),
+                    data.sourceItemId,
+                    itemAssetsService
+                );
+            if (data.sourceType == StorageType.FastSlot)
+                SlotItemLoader.LoadItem(
+                    Icon(data.sourceSlot),
+                    data.targetItemId,
+                    itemAssetsService
+                );
+        }
+
+        // ────────────────────────── Active slot & visibility ──────────────────────────────────
+
+        private void OnActiveSlotChanged(int slotIndex) => SetActiveSlot(slotIndex);
+
+        private void OnInventoryToggled(bool status)
+        {
+            isInventoryOpen = status;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                Sprite sprite =
+                    status ? hiddenHUDSlotSprite
+                    : i == activeSlot ? selectedSlotSprite
+                    : defaultSlotSprite;
+                SetSlotBackground(i, sprite);
             }
         }
 
-        if (lastAddedEvent != null)
-            lastAddedEvent.OnRaised += OnLastAdded;
-
-        if (lastSwappedEvent != null)
-            lastSwappedEvent.OnRaised += OnLastSwappedItemChanged;
-
-        if (lastRemovedEvent != null)
-            lastRemovedEvent.OnRaised += OnLastDroppedItemChanged;
-    }
-
-    private void OnDisable()
-    {
-        if (lastAddedEvent != null)
-            lastAddedEvent.OnRaised -= OnLastAdded;
-
-        if (lastSwappedEvent != null)
-            lastSwappedEvent.OnRaised -= OnLastSwappedItemChanged;
-
-        if (lastRemovedEvent != null)
-            lastRemovedEvent.OnRaised -= OnLastDroppedItemChanged;
-    }
-
-    private void OnLastAdded((StorageType, string, int) data)
-    {
-        if (data.Item1 != StorageType.FastSlot)
-            return;
-
-        int slotNumber = ResolveSlotNumber(data.Item3);
-        if (slotNumber < 1 || slotNumber > FastSlotCount)
-            return;
-
-        Debug.Log($"Fast slot item changed: {data.Item2} in slot {slotNumber}");
-        ShowItemObtained(slotNumber, data.Item2);
-    }
-
-    private void OnLastDroppedItemChanged((StorageType, string, int) data)
-    {
-        if (data.Item1 != StorageType.FastSlot)
-            return;
-
-        int slotNumber = ResolveSlotNumber(data.Item3);
-        if (slotNumber < 1 || slotNumber > FastSlotCount)
-            return;
-
-        Debug.Log($"Fast slot item dropped: {data.Item2} from slot {slotNumber}");
-        ShowItemObtained(slotNumber, string.Empty);
-    }
-
-    private void OnLastSwappedItemChanged((StorageType, int, int) data)
-    {
-        if (data.Item1 != StorageType.FastSlot)
-            return;
-
-        int sourceSlotIndex = data.Item2;
-        int targetSlotIndex = data.Item3;
-
-        if (
-            sourceSlotIndex < 0
-            || sourceSlotIndex >= slots.Count
-            || targetSlotIndex < 0
-            || targetSlotIndex >= slots.Count
-        )
-            return;
-
-        var sourceIcon = GetSlotIcon(slots[sourceSlotIndex]);
-        var targetIcon = GetSlotIcon(slots[targetSlotIndex]);
-
-        if (sourceIcon == null || targetIcon == null)
-            return;
-
-        var tempBackground = sourceIcon.style.backgroundImage;
-        var tempTint = sourceIcon.style.unityBackgroundImageTintColor;
-
-        sourceIcon.style.backgroundImage = targetIcon.style.backgroundImage;
-        sourceIcon.style.unityBackgroundImageTintColor = targetIcon
-            .style
-            .unityBackgroundImageTintColor;
-
-        targetIcon.style.backgroundImage = tempBackground;
-        targetIcon.style.unityBackgroundImageTintColor = tempTint;
-
-        Debug.Log($"Swapped fast slot visuals between {sourceSlotIndex} and {targetSlotIndex}");
-    }
-
-    private int ResolveSlotNumber(int position)
-    {
-        if (position < 0 || position >= FastSlotCount)
-            return -1;
-
-        return position + 1;
-    }
-
-    private void ShowItemObtained(int slotNumber, string itemId)
-    {
-        int index = slotNumber - 1;
-        if (index < 0 || index >= slots.Count || slots[index] == null)
-            return;
-
-        var slot = slots[index];
-        var icon = GetSlotIcon(slot);
-
-        if (icon == null)
-            return;
-
-        if (string.IsNullOrEmpty(itemId))
+        private void SetActiveSlot(int slotIndex)
         {
-            icon.style.backgroundImage = null;
-            icon.style.backgroundColor = Color.clear;
-            icon.style.unityBackgroundImageTintColor = Color.white;
-            Debug.Log($"Cleared item from fast slot {slotNumber}");
+            SetSlotBackground(activeSlot, defaultSlotSprite);
+            activeSlot = slotIndex;
+            SetSlotBackground(activeSlot, selectedSlotSprite);
         }
-        else
+
+        // ────────────────────────── Helpers ──────────────────────────────────────
+
+        private void SetSlotBackground(int index, Sprite sprite)
         {
-            if (itemObtainedSprite != null)
-                icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
-            else
-                icon.style.backgroundImage = null;
-
-            icon.style.backgroundColor = Color.clear;
-            icon.style.unityBackgroundImageTintColor = Color.white;
-            Debug.Log($"Showing fast slot item in slot {slotNumber}");
+            if (index < 0 || index >= slots.Count || sprite == null)
+                return;
+            slots[index].style.backgroundImage = new StyleBackground(sprite);
         }
-    }
 
-    private VisualElement GetSlotIcon(VisualElement slot)
-    {
-        if (slot == null)
-            return null;
-
-        return slot.Q<VisualElement>("FastEquipIcon") ?? slot.Q<VisualElement>("ItemIcon") ?? slot;
+        private VisualElement Icon(int index)
+        {
+            if (index < 0 || index >= slots.Count)
+                return null;
+            return slots[index].Q("FastEquipIcon") ?? slots[index];
+        }
     }
 }

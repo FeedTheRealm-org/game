@@ -1,5 +1,6 @@
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.Exceptions;
+using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;
@@ -108,7 +109,7 @@ public class PlayerController : MonoBehaviour
         // }
         // TODO: remove these if and make the state machine know via events when it can execute inputs or not (e.g. Hud manager events).
 
-        logger.Log($"PlayerController OnMoveInput: {vec}", this);
+        //logger.Log($"PlayerController OnMoveInput: {vec}", this);
         characterStateMachine?.OnMove(vec);
     }
 

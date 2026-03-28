@@ -1,37 +1,62 @@
 using System;
+using FTR.Core.Common.Protocol.RpcMessages;
 using Mirror;
-using UnityEngine;
 
 namespace FTR.Gameplay.Common.NetworkEntities.LootItem
 {
+    // ── Shared structs ────────────────────────────────────────────────────────
+
     public struct LastItemData
     {
-        public string itemId;
+        public StorageType storageType;
         public int itemPosition;
+        public string itemId;
+        public uint version;
 
-        public LastItemData(string itemId, int itemPosition)
+        public LastItemData(StorageType storageType, int itemPosition, string itemId, uint version)
         {
-            this.itemId = itemId;
+            this.storageType = storageType;
             this.itemPosition = itemPosition;
+            this.itemId = itemId;
+            this.version = version;
         }
     }
 
     public struct LastSwappedItemData
     {
+        public StorageType sourceType;
         public int sourcePosition;
+        public string sourceItemId;
+        public StorageType targetType;
         public int targetPosition;
+        public string targetItemId;
+        public uint version;
 
-        public LastSwappedItemData(int sourcePosition, int targetPosition)
+        public LastSwappedItemData(
+            StorageType sourceType,
+            int sourcePosition,
+            string sourceItemId,
+            StorageType targetType,
+            int targetPosition,
+            string targetItemId,
+            uint version
+        )
         {
+            this.sourceType = sourceType;
             this.sourcePosition = sourcePosition;
+            this.sourceItemId = sourceItemId;
+            this.targetType = targetType;
             this.targetPosition = targetPosition;
+            this.targetItemId = targetItemId;
+            this.version = version;
         }
     }
 
+    // ── NetworkBehaviour ──────────────────────────────────────────────────────
+
     public class InventoryStateStorage : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(OnLastItemSync))]
-        private LastItemData lastItemData;
+        public readonly SyncList<LastItemData> addedItems = new SyncList<LastItemData>();
 
         [SyncVar(hook = nameof(OnLastSwappedItemSync))]
         private LastSwappedItemData lastSwappedItemData;
@@ -39,40 +64,99 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         [SyncVar(hook = nameof(OnLastDroppedItemSync))]
         private LastItemData lastDroppedItemData;
 
+        [SyncVar(hook = nameof(OnActiveSlotSync))]
+        private int activeSlot = 0;
+
+        private uint _itemVersion = 0;
+        private uint _swapVersion = 0;
+        private uint _dropVersion = 0;
+
         /* --- Getters --- */
 
-        public LastItemData LastItem => lastItemData;
         public LastSwappedItemData LastSwappedItem => lastSwappedItemData;
         public LastItemData LastDroppedItem => lastDroppedItemData;
+        public int ActiveSlot => activeSlot;
 
         public event Action<LastItemData> OnLastItemChanged;
         public event Action<LastSwappedItemData> OnLastSwappedItemChanged;
         public event Action<LastItemData> OnLastDroppedItemChanged;
+        public event Action<int> OnActiveSlotChanged;
 
-        /* --- Setters --- */
+        public override void OnStartClient()
+        {
+            addedItems.Callback += OnAddedItemsCallback;
+
+            for (int i = 0; i < addedItems.Count; i++)
+                OnLastItemChanged?.Invoke(addedItems[i]);
+        }
+
+        private void OnDestroy()
+        {
+            addedItems.Callback -= OnAddedItemsCallback;
+        }
+
+        private void OnAddedItemsCallback(
+            SyncList<LastItemData>.Operation op,
+            int index,
+            LastItemData oldItem,
+            LastItemData newItem
+        )
+        {
+            if (op == SyncList<LastItemData>.Operation.OP_ADD)
+                OnLastItemChanged?.Invoke(newItem);
+        }
+
+        /* --- Setters (server only) --- */
 
         [Server]
-        public void AddItem(string itemId, int position)
+        public void AddItem(StorageType storageType, int position, string itemId)
         {
-            lastItemData = new LastItemData(itemId, position);
+            var data = new LastItemData(storageType, position, itemId, ++_itemVersion);
+            addedItems.Add(data);
+
+            while (addedItems.Count > 50)
+                addedItems.RemoveAt(0);
         }
 
         [Server]
-        public void SwapItems(int sourcePosition, int targetPosition)
+        public void SwapItems(
+            StorageType sourceType,
+            int sourcePosition,
+            string sourceItemId,
+            StorageType targetType,
+            int targetPosition,
+            string targetItemId
+        )
         {
-            lastSwappedItemData = new LastSwappedItemData(sourcePosition, targetPosition);
+            lastSwappedItemData = new LastSwappedItemData(
+                sourceType,
+                sourcePosition,
+                sourceItemId,
+                targetType,
+                targetPosition,
+                targetItemId,
+                ++_swapVersion
+            );
         }
 
         [Server]
-        public void DropItem(int position)
+        public void DropItem(StorageType storageType, int position)
         {
-            lastDroppedItemData = new LastItemData(string.Empty, position);
+            lastDroppedItemData = new LastItemData(
+                storageType,
+                position,
+                string.Empty,
+                ++_dropVersion
+            );
         }
 
-        private void OnLastItemSync(LastItemData oldLastItemData, LastItemData newLastItemData)
+        [Server]
+        public void SetActiveSlot(int slotIndex)
         {
-            OnLastItemChanged?.Invoke(newLastItemData);
+            activeSlot = slotIndex;
         }
+
+        /* --- SyncVar hooks (client) --- */
 
         private void OnLastSwappedItemSync(LastSwappedItemData oldData, LastSwappedItemData newData)
         {
@@ -82,6 +166,11 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         private void OnLastDroppedItemSync(LastItemData oldData, LastItemData newData)
         {
             OnLastDroppedItemChanged?.Invoke(newData);
+        }
+
+        private void OnActiveSlotSync(int oldSlot, int newSlot)
+        {
+            OnActiveSlotChanged?.Invoke(newSlot);
         }
     }
 }

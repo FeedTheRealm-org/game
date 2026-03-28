@@ -16,5 +16,6 @@ MonoBehaviour:
   HudComponent: {fileID: 8198765365136042446, guid: 17712f529b334c64db2cde9364251857, type: 3}
   LootItemVisual: {fileID: 5803050593894928880, guid: 92be4aa7024df945aae5d8f5a23c5c73, type: 3}
   InventoryHudComponent: {fileID: 1688747805032981907, guid: 1b35de2543c4668eaac40686c3ea0e5c, type: 3}
+  DialogBox: {fileID: 9102659438987187223, guid: d0e857c1fbc641cd2abacb877dbefc8c, type: 3}
   SettingMenuComponent: {fileID: 6209252735088991528, guid: d4c9583a724961068894efa45cac342e, type: 3}
   StructurePrefab: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}

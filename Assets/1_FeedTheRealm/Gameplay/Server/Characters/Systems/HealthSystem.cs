@@ -21,11 +21,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private CharacterStateStorage stateStorage;
 
         private bool isInitialized = false;
+        private bool isImmortal = false;
 
-        public void Initialize(uint netId, CharacterStateStorage stateStorage)
+        public void Initialize(uint netId, CharacterStateStorage stateStorage, bool isImmortal)
         {
             this.netId = netId;
             this.stateStorage = stateStorage;
+            this.isImmortal = isImmortal;
             isInitialized = true;
             stateStorage.SetHealth(currentHealth);
         }
@@ -39,6 +41,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public bool TakeDamage(float damage)
         {
+            if (isImmortal)
+                return false;
+
             if (currentHealth <= 0)
                 return true;
 

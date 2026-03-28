@@ -1,8 +1,13 @@
-using FTR.Core.Common.Dialogue;
+using System.Collections;
+using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
+using FTR.Core.Server.Config;
+using FTR.Gameplay.Common.Environment.Npcs;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
+using UnityEngine.AI;
+using VContainer;
 using VContainer.Unity;
 
 public class NPCSpawns : MonoBehaviour
@@ -15,92 +20,165 @@ public class NPCSpawns : MonoBehaviour
     private string npcID;
 
     [SerializeField]
-    private DialogData dialogData;
-
-    [SerializeField]
     private float radius = 5f;
-
-    [SerializeField]
-    private ObjectResolverContainer resolverContainer;
 
     [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
 
+    [SerializeField]
+    private ObjectResolverContainer resolverContainer;
+
+    private ServerConfig config;
+
+    private NPCData npcData;
     private bool isInitialized = false;
+    private bool navMeshReady = false;
 
     /// <summary>
-    /// Initialize Configures this spawn instance with data from NPCSpawnerData.
-    /// Must be called after instantiation for dynamically placed spawns.
+    /// Configures this spawner with data from the world loader.
+    /// npcData provides the id and name for NpcIdentity.
     /// </summary>
-    public void Initialize(NPCSpawnerData spawnData, DialogData dialogData)
+    public void Initialize(NPCSpawnerData spawnData, NPCData npcData, DialogData dialogData = null)
     {
         if (spawnData == null)
             throw new System.ArgumentNullException(
                 nameof(spawnData),
-                "NPCSpawnerData cannot be null when initializing NPCSpawns."
+                "NPCSpawnerData cannot be null when initializing Spawns."
+            );
+
+        if (npcData == null)
+            throw new System.ArgumentNullException(
+                nameof(npcData),
+                "NPCData cannot be null when initializing NPCSpawns."
+            );
+
+        config = resolverContainer.Resolver.Resolve<ServerConfig>();
+
+        if (config == null)
+            throw new System.ArgumentNullException(
+                nameof(config),
+                "ServerConfig cannot be null when initializing NPCSpawns."
             );
 
         this.npcID = spawnData.NpcId;
-        this.dialogData = dialogData;
+        this.npcData = npcData;
         this.radius = spawnData.Radius;
 
         if (!isInitialized)
         {
-            SpawnNPC();
+            BuildNavMesh(radius + 5f);
+            StartCoroutine(SpawnWhenServerActive());
             isInitialized = true;
         }
+    }
+
+    private IEnumerator SpawnWhenServerActive()
+    {
+        yield return new WaitUntil(() => NetworkServer.active);
+        SpawnNPC();
     }
 
     private void SpawnNPC()
     {
         if (npcPrefab == null)
-            throw new System.Exception("NPC prefab not assigned on NPCSpawns!");
+            throw new System.Exception("[NPCSpawns] NPC prefab not assigned!");
 
         var position = GetRandomPointInRadius();
-        logger.Log($"[NPCSpawns] Spawning NPC at {position}", this);
+        logger.Log($"[NPCSpawns] Spawning NPC '{npcID}' at {position}", this);
+
         GameObject npc = resolverContainer.Resolver.Instantiate(
             npcPrefab,
             position,
             Quaternion.identity
         );
         npc.name = $"NPC_{npcID}";
+
+        var identity = npc.GetComponent<NpcIdentity>();
+        if (identity != null)
+            identity.Initialize(npcData);
+        else
+            Debug.LogWarning(
+                $"[NPCSpawns] NpcIdentity component not found on prefab for NPC '{npcID}'."
+            );
+
         NetworkServer.Spawn(npc);
-
-        var msgs = dialogData != null ? TransformDialogDataToNpcMessages(dialogData) : null;
-        npc.GetComponent<DialogManagerComponent>()?.SetDialogs(msgs);
-    }
-
-    private NpcMessageData[] TransformDialogDataToNpcMessages(DialogData dialogData)
-    {
-        NpcMessageData[] npcMessages = new NpcMessageData[dialogData.messages.Count];
-
-        for (int i = 0; i < dialogData.messages.Count; i++)
-        {
-            var msg = dialogData.messages[i];
-            npcMessages[i] = new NpcMessageData(msg.Content, null);
-        }
-
-        return npcMessages;
     }
 
     private Vector3 GetRandomPointInRadius()
     {
         Vector2 randomCircle = Random.insideUnitCircle * radius;
-        return transform.position
-            + new Vector3(randomCircle.x, transform.position.y, randomCircle.y);
+        return transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
+    }
+
+    /// <summary>
+    /// Builds a NavMesh around the spawn area to ensure enemies can navigate properly.
+    /// </summary>
+    private void BuildNavMesh(float navMeshRadius)
+    {
+        Bounds bounds = new Bounds(transform.position, Vector3.one * navMeshRadius * 2);
+
+        var sources = new List<NavMeshBuildSource>();
+        NavMeshBuilder.CollectSources(
+            bounds,
+            config.GroundLayer,
+            NavMeshCollectGeometry.PhysicsColliders,
+            0, // Walkable
+            new List<NavMeshBuildMarkup>(),
+            sources
+        );
+
+        var obstacleSources = new List<NavMeshBuildSource>();
+        NavMeshBuilder.CollectSources(
+            bounds,
+            config.ObstacleLayer,
+            NavMeshCollectGeometry.PhysicsColliders,
+            1, // Not Walkable
+            new List<NavMeshBuildMarkup>(),
+            obstacleSources
+        );
+
+        sources.AddRange(obstacleSources);
+
+        var navMeshData = new NavMeshData();
+
+        var buildOp = NavMeshBuilder.UpdateNavMeshDataAsync(
+            navMeshData,
+            UnityEngine.AI.NavMesh.GetSettingsByID(0),
+            sources,
+            bounds
+        );
+
+        UnityEngine.AI.NavMesh.AddNavMeshData(navMeshData);
+
+        StartCoroutine(WaitForNavMesh(buildOp));
+    }
+
+    /// <summary>
+    /// Waits for the NavMesh to be built before allowing enemy spawns.
+    /// </summary>
+    IEnumerator WaitForNavMesh(AsyncOperation buildOp)
+    {
+        while (!buildOp.isDone)
+            yield return null;
+
+        navMeshReady = true;
     }
 
 #if DEBUG
-    private System.Collections.IEnumerator Start()
+    private IEnumerator Start()
     {
         yield return new WaitUntil(() => NetworkServer.active);
-        logger.Log("[NPCSpawns] Resolver already set, spawning NPC immediately.", this);
-        if (!isInitialized)
-        {
-            SpawnNPC();
-            isInitialized = true;
-        }
+
+        var npcSpawnerData = new NPCSpawnerData(transform.position, radius, npcID);
+        var npcData = new NPCData(
+            npcID,
+            $"NPC_{npcID}",
+            "A friendly NPC.",
+            "Sprites/NPCs/Default",
+            null
+        );
+        Initialize(npcSpawnerData, npcData);
     }
 #endif
 
@@ -108,6 +186,23 @@ public class NPCSpawns : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, radius);
-        Gizmos.matrix = Matrix4x4.identity;
+
+        if (!Application.isPlaying || !navMeshReady)
+            return;
+
+        Gizmos.color = Color.blue;
+
+        var triangulation = NavMesh.CalculateTriangulation();
+
+        for (int i = 0; i < triangulation.indices.Length; i += 3)
+        {
+            Vector3 v0 = triangulation.vertices[triangulation.indices[i]];
+            Vector3 v1 = triangulation.vertices[triangulation.indices[i + 1]];
+            Vector3 v2 = triangulation.vertices[triangulation.indices[i + 2]];
+
+            Gizmos.DrawLine(v0, v1);
+            Gizmos.DrawLine(v1, v2);
+            Gizmos.DrawLine(v2, v0);
+        }
     }
 }

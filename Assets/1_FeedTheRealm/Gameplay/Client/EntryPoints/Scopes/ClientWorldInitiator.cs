@@ -5,6 +5,7 @@ using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
+using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using UnityEngine;
 using VContainer;
@@ -39,6 +40,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private WorldService worldService;
 
         [SerializeField]
+        private NpcDialogRegistry npcDialogRegistry;
+
+        [SerializeField]
         private ModelService modelService;
 
         [SerializeField]
@@ -51,7 +55,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             if (config.RuntimeRole != RuntimeRole.Client)
                 return;
 
-            ValidateSerializeFields();
+            Validate();
 
             clientEventRegistry.RegisterAll(builder);
             setupServices.RegisterAll(builder);
@@ -62,6 +66,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(config);
             builder.RegisterInstance(session);
+            builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(modelService);
             builder.RegisterInstance(gltfLoaderService);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
@@ -73,26 +78,23 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
         }
 
-        private void ValidateSerializeFields()
+        private void Validate()
         {
-            ValidateField(playerInputReader, "PlayerInputReader");
-            ValidateField(prefabProvider, "PrefabProvider");
-            ValidateField(clientEventRegistry, "ClientEventRegistry");
-            ValidateField(logger, "Logger");
-            ValidateField(worldSelector, "WorldSelector");
-            ValidateField(worldService, "WorldService");
-            ValidateField(config, "Config");
-            ValidateField(session, "Session");
-            ValidateField(modelService, "ModelService");
-            ValidateField(gltfLoaderService, "GLTFLoaderService");
+            ValidateField(config, nameof(config));
+            ValidateField(playerInputReader, nameof(playerInputReader));
+            ValidateField(prefabProvider, nameof(prefabProvider));
+            ValidateField(clientEventRegistry, nameof(clientEventRegistry));
+            ValidateField(logger, nameof(logger));
+            ValidateField(session, nameof(session));
+            ValidateField(worldSelector, nameof(worldSelector));
+            ValidateField(worldService, nameof(worldService));
+            ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
         }
 
-        private void ValidateField(object field, string fieldName)
+        private void ValidateField(Object field, string fieldName)
         {
             if (field == null)
-                throw new System.NullReferenceException(
-                    $"{fieldName} is not assigned in the Inspector."
-                );
+                throw new System.Exception($"[ClientWorldInitiator] {fieldName} is not assigned.");
         }
     }
 }

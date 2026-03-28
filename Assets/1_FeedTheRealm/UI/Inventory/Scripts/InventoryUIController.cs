@@ -1,360 +1,230 @@
+using System;
 using System.Collections.Generic;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.UI.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
-[RequireComponent(typeof(UIDocument))]
-public class InventoryUIController : MonoBehaviour
+namespace FTR.UI.Inventory
 {
-    private const int InventoryRows = 3;
-    private const int InventoryColumns = 4;
-    private const int InventorySlotCount = InventoryRows * InventoryColumns;
-    private const int FastSlotCount = 5;
-
-    [Inject]
-    private LastAddedEvent lastAddedEvent;
-
-    [Inject]
-    private LastSwappedEvent lastSwappedEvent;
-
-    [Inject]
-    private LastRemovedEvent lastRemovedEvent;
-
-    [Inject]
-    private SlotSwapRequestEvent swapRequestEvent;
-
-    [Inject]
-    private SlotDropRequestEvent dropRequestEvent;
-
-    [Inject]
-    private SlotEquipRequestEvent equipRequestEvent;
-
-    [Inject]
-    private SlotUnequipRequestEvent unequipRequestEvent;
-
-    [Inject]
-    private InventoryToggleEvent inventoryToggleEvent;
-
-    [SerializeField]
-    private PlayerInputReader inputReader;
-
-    [SerializeField]
-    private Sprite defaultSlotSprite;
-
-    [SerializeField]
-    private Sprite selectedSlotSprite;
-
-    [SerializeField]
-    private Sprite itemObtainedSprite;
-
-    private UIDocument uiDocument;
-
-    private readonly List<VisualElement> inventorySlots = new List<VisualElement>(
-        InventorySlotCount
-    );
-    private readonly List<VisualElement> fastSlots = new List<VisualElement>(FastSlotCount);
-    private int selectedSlotIndex = -1;
-    private StorageType? selectedStorage;
-
-    private void OnEnable()
+    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(AnimationInventoryUIController))]
+    public class InventoryUIController : MonoBehaviour
     {
-        if (uiDocument == null)
+        private const int InventorySlotCount = 12;
+        private const int FastSlotCount = 5;
+
+        [Inject]
+        private LastAddedEvent lastAddedEvent;
+
+        [Inject]
+        private LastSwappedEvent lastSwappedEvent;
+
+        [Inject]
+        private LastRemovedEvent lastRemovedEvent;
+
+        [Inject]
+        private SlotSwapRequestEvent swapRequestEvent;
+
+        [Inject]
+        private SlotDropRequestEvent dropRequestEvent;
+
+        [Inject]
+        private InventoryToggleEvent inventoryToggleEvent;
+
+        [SerializeField]
+        private PlayerInputReader inputReader;
+
+        [SerializeField]
+        private Sprite defaultSlotSprite;
+
+        [SerializeField]
+        private Sprite selectedSlotSprite;
+
+        [SerializeField]
+        private API.ItemAssetsService itemAssetsService;
+
+        private UIDocument uiDocument;
+        private AnimationInventoryUIController animationController;
+
+        private readonly List<VisualElement> inventorySlots = new(InventorySlotCount);
+        private readonly List<VisualElement> fastSlots = new(FastSlotCount);
+
+        private int selectedSlotIndex = -1;
+        private StorageType selectedStorage;
+
+        private readonly InventorySlotGhostController ghost = new();
+
+        private void OnEnable()
+        {
             uiDocument = GetComponent<UIDocument>();
+            animationController = GetComponent<AnimationInventoryUIController>();
 
-        var root = uiDocument != null ? uiDocument.rootVisualElement : null;
-        if (root == null)
-            return;
+            var root = uiDocument.rootVisualElement;
+            if (root == null)
+                return;
 
-        inventorySlots.Clear();
-        for (int i = 0; i < InventorySlotCount; i++)
-        {
-            var slot = root.Q<VisualElement>($"Slot{i + 1}");
-            if (slot != null)
-            {
-                int capturedIndex = i; // capture for the closure
-                slot.RegisterCallback<ClickEvent>(evt => OnInventorySlotClicked(capturedIndex));
-                inventorySlots.Add(slot);
-            }
-        }
+            animationController.Initialize(root);
 
-        fastSlots.Clear();
-        for (int i = 0; i < FastSlotCount; i++)
-        {
-            var slot = root.Q<VisualElement>($"FastEquipSlot{i + 1}");
-            if (slot != null)
-            {
-                int capturedIndex = i;
-                slot.RegisterCallback<ClickEvent>(evt => OnFastSlotClicked(capturedIndex));
-                fastSlots.Add(slot);
-            }
-        }
+            RegisterSlots(
+                root,
+                inventorySlots,
+                InventorySlotCount,
+                "Slot",
+                OnInventorySlotClicked,
+                StorageType.Inventory
+            );
+            RegisterSlots(
+                root,
+                fastSlots,
+                FastSlotCount,
+                "FastEquipSlot",
+                OnFastSlotClicked,
+                StorageType.FastSlot
+            );
+            root.Q("Drop")?.RegisterCallback<ClickEvent>(_ => OnDropClicked());
 
-        var dropButton = root.Q<VisualElement>("Drop");
-        if (dropButton != null)
-        {
-            dropButton.RegisterCallback<ClickEvent>(evt => OnDropClicked());
-        }
-
-        inputReader.InventoryEvent += OnInventoryInput;
-
-        if (lastAddedEvent != null)
+            inputReader.InventoryEvent += OnInventoryInput;
             lastAddedEvent.OnRaised += OnLastAdded;
-
-        if (lastSwappedEvent != null)
-            lastSwappedEvent.OnRaised += OnLastSwappedItemChanged;
-
-        if (lastRemovedEvent != null)
+            lastSwappedEvent.OnRaised += OnLastSwapped;
             lastRemovedEvent.OnRaised += OnLastRemoved;
-    }
+        }
 
-    private void OnDisable()
-    {
-        inputReader.InventoryEvent -= OnInventoryInput;
-
-        if (lastAddedEvent != null)
+        private void OnDisable()
+        {
+            inputReader.InventoryEvent -= OnInventoryInput;
             lastAddedEvent.OnRaised -= OnLastAdded;
-
-        if (lastSwappedEvent != null)
-            lastSwappedEvent.OnRaised -= OnLastSwappedItemChanged;
-
-        if (lastRemovedEvent != null)
+            lastSwappedEvent.OnRaised -= OnLastSwapped;
             lastRemovedEvent.OnRaised -= OnLastRemoved;
-    }
-
-    private void OnInventoryInput()
-    {
-        Debug.Log("Inventory input received. Toggling inventory UI.");
-        var inventory = uiDocument.rootVisualElement.Q<VisualElement>("Inventory");
-
-        if (inventory != null)
-        {
-            bool isCurrentlyDisplayed = inventory.resolvedStyle.display != DisplayStyle.None;
-            bool shouldDisplay = !isCurrentlyDisplayed;
-
-            inventory.style.display = shouldDisplay ? DisplayStyle.Flex : DisplayStyle.None;
-            inventoryToggleEvent?.Raise(shouldDisplay);
-        }
-    }
-
-    private void OnInventorySlotClicked(int index)
-    {
-        HandleSlotClick(StorageType.Inventory, index);
-    }
-
-    private void OnFastSlotClicked(int index)
-    {
-        HandleSlotClick(StorageType.FastSlot, index);
-    }
-
-    private void HandleSlotClick(StorageType clickedStorage, int clickedIndex)
-    {
-        if (!selectedStorage.HasValue)
-        {
-            SetSelection(clickedStorage, clickedIndex);
-            return;
         }
 
-        if (selectedStorage == clickedStorage && selectedSlotIndex == clickedIndex)
-        {
-            ClearSelection();
-            return;
-        }
-
-        RequestMoveOrSwap(selectedStorage.Value, selectedSlotIndex, clickedStorage, clickedIndex);
-        ClearSelection();
-    }
-
-    private void SetSelection(StorageType storage, int index)
-    {
-        selectedStorage = storage;
-        selectedSlotIndex = index;
-
-        var targetSlots = storage == StorageType.FastSlot ? fastSlots : inventorySlots;
-        UpdateSlotSprite(targetSlots, index, true);
-    }
-
-    private void RequestMoveOrSwap(
-        StorageType fromStorage,
-        int fromIndex,
-        StorageType toStorage,
-        int toIndex
-    )
-    {
-        if (fromStorage == StorageType.Inventory && toStorage == StorageType.Inventory)
-        {
-            swapRequestEvent?.Raise((StorageType.Inventory, fromIndex, toIndex));
-            Debug.Log($"Requested inventory swap from UI: {fromIndex} to {toIndex}");
-            return;
-        }
-
-        if (fromStorage == StorageType.FastSlot && toStorage == StorageType.FastSlot)
-        {
-            swapRequestEvent?.Raise((StorageType.FastSlot, fromIndex, toIndex));
-            Debug.Log($"Requested fast slot swap from inventory UI: {fromIndex} to {toIndex}");
-            return;
-        }
-
-        if (fromStorage == StorageType.Inventory && toStorage == StorageType.FastSlot)
-        {
-            equipRequestEvent?.Raise((fromIndex, toIndex));
-            Debug.Log($"Requested equip from inventory slot {fromIndex} to fast slot {toIndex}");
-            return;
-        }
-
-        if (fromStorage == StorageType.FastSlot && toStorage == StorageType.Inventory)
-        {
-            unequipRequestEvent?.Raise((fromIndex, toIndex));
-            Debug.Log($"Requested unequip from fast slot {fromIndex} to inventory slot {toIndex}");
-        }
-    }
-
-    private void OnDropClicked()
-    {
-        if (selectedSlotIndex != -1)
-        {
-            if (dropRequestEvent != null)
-            {
-                var storageType =
-                    selectedStorage == StorageType.FastSlot
-                        ? StorageType.FastSlot
-                        : StorageType.Inventory;
-
-                dropRequestEvent.Raise((storageType, selectedSlotIndex));
-                Debug.Log(
-                    $"Requested drop from UI for storage {storageType} slot: {selectedSlotIndex}"
-                );
-            }
-
-            ClearSelection();
-        }
-        else
-        {
-            Debug.Log("Drop clicked but no item is selected. Ignoring.");
-        }
-    }
-
-    private void UpdateSlotSprite(List<VisualElement> targetSlots, int index, bool isSelected)
-    {
-        if (index < 0 || index >= targetSlots.Count)
-            return;
-        var sprite = isSelected ? selectedSlotSprite : defaultSlotSprite;
-        if (sprite != null)
-        {
-            targetSlots[index].style.backgroundImage = new StyleBackground(sprite);
-        }
-    }
-
-    private void ClearSelection()
-    {
-        if (selectedStorage == StorageType.Inventory)
-            UpdateSlotSprite(inventorySlots, selectedSlotIndex, false);
-        else if (selectedStorage == StorageType.FastSlot)
-            UpdateSlotSprite(fastSlots, selectedSlotIndex, false);
-
-        selectedStorage = null;
-        selectedSlotIndex = -1;
-    }
-
-    private void OnLastAdded((StorageType, string, int) data)
-    {
-        ShowItemObtained(data.Item1, data.Item3, data.Item2);
-    }
-
-    private void OnLastRemoved((StorageType, string, int) data)
-    {
-        ShowItemObtained(data.Item1, data.Item3, string.Empty);
-    }
-
-    private void OnLastSwappedItemChanged((StorageType, int, int) data)
-    {
-        var targetSlots = data.Item1 == StorageType.FastSlot ? fastSlots : inventorySlots;
-        SwapSlotVisuals(data.Item1, targetSlots, data.Item2, data.Item3);
-    }
-
-    private void SwapSlotVisuals(
-        StorageType storageType,
-        List<VisualElement> targetSlots,
-        int sourceSlotIndex,
-        int targetSlotIndex
-    )
-    {
-        if (
-            sourceSlotIndex < 0
-            || sourceSlotIndex >= targetSlots.Count
-            || targetSlotIndex < 0
-            || targetSlotIndex >= targetSlots.Count
+        private void RegisterSlots(
+            VisualElement root,
+            List<VisualElement> list,
+            int count,
+            string prefix,
+            Action<int> onClick,
+            StorageType storage
         )
-            return;
-
-        var sourceIcon = GetSlotIcon(storageType, targetSlots[sourceSlotIndex]);
-        var targetIcon = GetSlotIcon(storageType, targetSlots[targetSlotIndex]);
-
-        if (sourceIcon != null && targetIcon != null)
         {
-            var tempBackground = sourceIcon.style.backgroundImage;
-            var tempTint = sourceIcon.style.unityBackgroundImageTintColor;
-
-            sourceIcon.style.backgroundImage = targetIcon.style.backgroundImage;
-            sourceIcon.style.unityBackgroundImageTintColor = targetIcon
-                .style
-                .unityBackgroundImageTintColor;
-
-            targetIcon.style.backgroundImage = tempBackground;
-            targetIcon.style.unityBackgroundImageTintColor = tempTint;
-            Debug.Log($"Swapped backgrounds between slot {sourceSlotIndex} and {targetSlotIndex}");
-        }
-    }
-
-    private void ShowItemObtained(StorageType storageType, int position, string itemId)
-    {
-        var targetSlots = storageType == StorageType.FastSlot ? fastSlots : inventorySlots;
-        if (position < 0 || position >= targetSlots.Count || targetSlots[position] == null)
-            return;
-
-        var slot = targetSlots[position];
-        var icon = GetSlotIcon(storageType, slot);
-
-        if (icon != null)
-        {
-            if (string.IsNullOrEmpty(itemId))
+            list.Clear();
+            for (int i = 0; i < count; i++)
             {
-                icon.style.backgroundImage = null;
-                icon.style.unityBackgroundImageTintColor = Color.white;
-                Debug.Log($"Cleared item from {storageType} slot {position}");
-            }
-            else if (itemObtainedSprite != null)
-            {
-                icon.style.backgroundImage = new StyleBackground(itemObtainedSprite);
-                icon.style.unityBackgroundImageTintColor = GetColorFromItemId(itemId);
-                Debug.Log($"Showing item obtained in {storageType} slot {position}");
+                var slot = root.Q($"{prefix}{i + 1}");
+                if (slot == null)
+                    continue;
+
+                int idx = i;
+                slot.RegisterCallback<ClickEvent>(_ => onClick(idx));
+                slot.RegisterCallback<PointerEnterEvent>(_ =>
+                    ghost.OnHoverEnter(selectedStorage, selectedSlotIndex, storage, idx, Icon)
+                );
+                slot.RegisterCallback<PointerLeaveEvent>(_ => ghost.OnHoverLeave());
+                list.Add(slot);
             }
         }
-    }
 
-    private VisualElement GetSlotIcon(StorageType storageType, VisualElement slot)
-    {
-        if (slot == null)
-            return null;
+        // ──────────────────────────────────── Input ─────────────────────────────────────────
 
-        if (storageType == StorageType.FastSlot)
-            return slot.Q<VisualElement>("FastEquipIcon") ?? slot;
+        private void OnInventoryInput()
+        {
+            bool show = !animationController.IsVisible;
+            animationController.Toggle();
+            inventoryToggleEvent?.Raise(show);
+        }
 
-        return slot.Q<VisualElement>("ItemIcon") ?? slot;
-    }
+        // ───────────────────────────────── Slot click ───────────────────────────────────────
 
-    private Color GetColorFromItemId(string itemId)
-    {
-        if (string.IsNullOrEmpty(itemId))
-            return Color.white;
-        var rand = new System.Random(System.DateTime.Now.Millisecond);
+        private void OnInventorySlotClicked(int i) => HandleSlotClick(StorageType.Inventory, i);
 
-        return new Color(
-            (float)rand.NextDouble() * 0.7f + 0.3f,
-            (float)rand.NextDouble() * 0.7f + 0.3f,
-            (float)rand.NextDouble() * 0.7f + 0.3f,
-            1f
-        );
+        private void OnFastSlotClicked(int i) => HandleSlotClick(StorageType.FastSlot, i);
+
+        private void HandleSlotClick(StorageType storage, int index)
+        {
+            if (selectedStorage == StorageType.Null)
+            {
+                SetSelection(storage, index);
+                return;
+            }
+
+            if (selectedStorage == storage && selectedSlotIndex == index)
+            {
+                ClearSelection();
+                return;
+            }
+
+            swapRequestEvent?.Raise((selectedStorage, selectedSlotIndex, storage, index));
+            ClearSelection();
+        }
+
+        private void OnDropClicked()
+        {
+            if (selectedStorage == StorageType.Null)
+                return;
+            dropRequestEvent?.Raise((selectedStorage, selectedSlotIndex));
+            ClearSelection();
+        }
+
+        private void SetSelection(StorageType storage, int index)
+        {
+            selectedStorage = storage;
+            selectedSlotIndex = index;
+            SetSlotSprite(Slots(storage), index, selectedSlotSprite);
+        }
+
+        private void ClearSelection()
+        {
+            if (selectedStorage != StorageType.Null)
+                SetSlotSprite(Slots(selectedStorage), selectedSlotIndex, defaultSlotSprite);
+
+            selectedStorage = StorageType.Null;
+            selectedSlotIndex = -1;
+            ghost.OnHoverLeave();
+        }
+
+        private void SetSlotSprite(List<VisualElement> slots, int index, Sprite sprite)
+        {
+            if (sprite != null && index >= 0 && index < slots.Count)
+                slots[index].style.backgroundImage = new StyleBackground(sprite);
+        }
+
+        // ─────────────────────── Inventory events ──────────────────────────────────
+
+        private void OnLastAdded((StorageType t, string id, int pos) data) =>
+            SlotItemLoader.LoadItem(Icon(data.t, data.pos), data.id, itemAssetsService);
+
+        private void OnLastRemoved((StorageType t, string id, int pos) data) =>
+            SlotItemLoader.LoadItem(Icon(data.t, data.pos), null, itemAssetsService);
+
+        private void OnLastSwapped(
+            (
+                StorageType srcT,
+                int srcI,
+                string srcId,
+                StorageType tgtT,
+                int tgtI,
+                string tgtId
+            ) data
+        )
+        {
+            SlotItemLoader.LoadItem(Icon(data.srcT, data.srcI), data.tgtId, itemAssetsService);
+            SlotItemLoader.LoadItem(Icon(data.tgtT, data.tgtI), data.srcId, itemAssetsService);
+        }
+
+        // ────────────────────────────── Helpers ──────────────────────────────────────────────────────
+
+        private List<VisualElement> Slots(StorageType t) =>
+            t == StorageType.FastSlot ? fastSlots : inventorySlots;
+
+        private VisualElement Icon(StorageType t, int index)
+        {
+            var slots = Slots(t);
+            if (index < 0 || index >= slots.Count)
+                return null;
+            string iconName = t == StorageType.FastSlot ? "FastEquipIcon" : "ItemIcon";
+            return slots[index].Q(iconName) ?? slots[index];
+        }
     }
 }

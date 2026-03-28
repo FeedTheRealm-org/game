@@ -12,6 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16cbbb4f97f4215ff9829a9e945214d4, type: 3}
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
+  PlayerLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  TargetLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  GroundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  ObstacleLayer:
+    serializedVersion: 2
+    m_Bits: 4096
   playerSpeed: 5
   itemDespawnTime: 60
   maxInitialForce: 2
@@ -23,8 +35,11 @@ MonoBehaviour:
   staminaRecoveryAmount: 5
   groundCheckDistance: 1
   groundCheckSphereRadius: 0.4
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
   fastSlotSize: 5
   inventorySize: 20
+  WanderRadius: 10
+  MinWaitTime: 2
+  MaxWaitTime: 5
+  StoppingDistance: 0.5
+  AggressiveChaseRadius: 5
+  AggressiveAttackRadius: 2
