@@ -41,11 +41,13 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var interactSystem = serverComponents.GetComponent<InteractSystem>();
+        var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var aiNavigationSystem = serverComponents.AddComponent<AINavigationSystem>();
 
         resolver.Inject(aiNavigationSystem);
 
+        healthSystem.Initialize(netId, stateStorage, true);
         serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
         aiNavigationSystem.Initialize(netId, world, stateStorage);
 

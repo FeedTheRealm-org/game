@@ -60,6 +60,7 @@ public class ServerPlayerLinker : PlayerLinker
         var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
 
+        healthSystem.Initialize(netId, stateStorage, false);
         useSystem.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
         inventorySystem.Initialize(netId, inventoryStateStorage);
         respawnSystem.Initialize(netId, networkAdapter, serverCommandHandler, rb, healthSystem);

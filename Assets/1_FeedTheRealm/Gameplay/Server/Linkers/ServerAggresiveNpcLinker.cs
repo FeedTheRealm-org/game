@@ -48,6 +48,7 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var interactSystem = serverComponents.GetComponent<InteractSystem>();
+        var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var aiNavigationSystem = serverComponents.AddComponent<AINavigationSystem>();
 
@@ -60,6 +61,7 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
             .Object.Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
             .GetComponent<PlayerTriggerArea>();
 
+        healthSystem.Initialize(netId, stateStorage, false);
         useSystem.Initialize(netId, rb, config.PlayerLayer, stateStorage);
         chaseTriggerArea.Initialize(config.AggressiveChaseRadius);
         attackTriggerArea.Initialize(config.AggressiveAttackRadius);
