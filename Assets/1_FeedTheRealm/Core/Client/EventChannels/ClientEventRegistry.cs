@@ -1,4 +1,5 @@
 using FeedTheRealm.Core.EventChannels.Setup;
+using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
@@ -42,6 +43,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public FixedTickEvent fixedTickEvent;
         public LateTickEvent lateTickEvent;
 
+        [Header("Gold Events")]
+        public GoldChangedEvent goldChangedEvent;
+
         public void RegisterAll(IContainerBuilder builder)
         {
             Validate();
@@ -64,6 +68,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
             builder.RegisterInstance(worldSetupEvent);
+            builder.RegisterInstance(goldChangedEvent);
         }
 
         private void Validate()
@@ -85,6 +90,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(lateTickEvent, nameof(lateTickEvent));
             ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
             ValidateField(worldSetupEvent, nameof(worldSetupEvent));
+            ValidateField(goldChangedEvent, nameof(goldChangedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

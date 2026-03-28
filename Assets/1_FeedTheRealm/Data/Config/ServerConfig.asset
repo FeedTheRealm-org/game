@@ -28,3 +28,4 @@ MonoBehaviour:
     m_Bits: 64
   fastSlotSize: 5
   inventorySize: 20
+  startingGold: 777

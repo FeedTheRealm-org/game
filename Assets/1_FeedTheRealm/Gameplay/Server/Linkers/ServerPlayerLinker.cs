@@ -1,5 +1,6 @@
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.Gold;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
@@ -34,6 +35,7 @@ public class ServerPlayerLinker : PlayerLinker
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var inventoryStateStorage = gameObject.GetComponent<InventoryStateStorage>();
+        var goldStateStorage = gameObject.GetComponent<GoldStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
 
         var serverComponents = characterLinker.Link(gameObject, netId);
@@ -53,8 +55,10 @@ public class ServerPlayerLinker : PlayerLinker
         var respawnSystem = playerComponents.GetComponent<RespawnSystem>();
         var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
+        var goldSystem = playerComponents.GetComponent<GoldSystem>();
 
         inventorySystem.Initialize(netId, inventoryStateStorage);
+        goldSystem.Initialize(netId, goldStateStorage);
         respawnSystem.Initialize(netId, networkAdapter, serverCommandHandler, rb, healthSystem);
         persistenceSystem.Initialize(movementSystem, inventorySystem);
         serverPlayerCommandHandler.Initialize(
@@ -66,5 +70,7 @@ public class ServerPlayerLinker : PlayerLinker
         );
 
         characterLinker.RegisterEntity(netId, networkAdapter, serverPlayerCommandHandler);
+
+        goldStateStorage.AddGold(1000);
     }
 }

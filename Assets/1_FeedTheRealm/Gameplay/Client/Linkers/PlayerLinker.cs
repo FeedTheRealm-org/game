@@ -3,6 +3,7 @@ using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.NetworkEntities.Gold;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;
@@ -73,10 +74,13 @@ public class ClientPlayerLinker : PlayerLinker
             var playerController = gameObject.AddComponent<PlayerController>();
 
             var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
+            var goldState = gameObject.GetComponent<GoldStateStorage>();
             var inventoryController = playerComponents.AddComponent<InventoryController>();
             var inventoryView = playerComponents.AddComponent<InventoryView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
+
+            var goldView = playerComponents.AddComponent<GoldView>();
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);
@@ -85,8 +89,11 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);
 
+            resolver.Inject(goldView);
+
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
+            goldView?.Initialize(goldState);
             interactController?.Initialize(networkAdapter);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry, stateStorage);
             playerController.Initialize(characterStateMachine);

@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: ItemAssetsService
   m_EditorClassIdentifier: Assembly-CSharp::API.ItemAssetsService
   apiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
+  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   logger: {fileID: 11400000, guid: c98d647d46d67a84598b908dfd3deb26, type: 2}
