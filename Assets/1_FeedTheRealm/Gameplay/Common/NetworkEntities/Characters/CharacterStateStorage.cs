@@ -50,6 +50,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public event Action<float> OnHealthChanged;
         public event Action<bool> OnIsInteractingChanged;
         public event Action<string> OnCurrentNpcIdChanged;
+        public event Action OnDeath;
+        public event Action OnRespawn;
 
         /* --- Setters --- */
 
@@ -74,7 +76,13 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [Server]
         public void SetHealth(float newHealth)
         {
+            float oldHealth = health;
             health = newHealth;
+
+            if (oldHealth > 0 && newHealth <= 0)
+                OnDeath?.Invoke();
+            else if (oldHealth <= 0 && newHealth > 0)
+                OnRespawn?.Invoke();
         }
 
         [Server]

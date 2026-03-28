@@ -47,6 +47,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
 
+        private bool isDead = false;
+
         public void Initialize(
             uint netId,
             Rigidbody rb,
@@ -58,6 +60,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
             _rb = rb;
             this.targetLayer = targetLayer;
             this.stateStorage = stateStorage;
+
+            this.stateStorage.OnDeath += HandleDeath;
+            this.stateStorage.OnRespawn += HandleRespawn;
+        }
+
+        private void HandleDeath()
+        {
+            isDead = true;
+            isAttacking = false;
+            if (_autoAttackCoroutine != null)
+            {
+                StopCoroutine(_autoAttackCoroutine);
+                _autoAttackCoroutine = null;
+            }
+        }
+
+        private void HandleRespawn()
+        {
+            isDead = false;
         }
 
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
@@ -74,6 +95,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 _attackTriggerArea.OnPlayerEnter -= StartAutoAttacking;
                 _attackTriggerArea.OnPlayerExit -= PlayerLeftAutoAttackRange;
             }
+
+            if (stateStorage != null)
+            {
+                stateStorage.OnDeath -= HandleDeath;
+                stateStorage.OnRespawn -= HandleRespawn;
+            }
         }
 
         public void GameTick(float dt) { }
@@ -81,7 +108,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void OnUse(IEventCollectable ec)
         {
             logger.Log("Use action triggered", this);
-            if (isAttacking)
+            if (isAttacking || isDead)
                 return;
             isAttacking = true;
             StartCoroutine(resetAttackCooldown());
@@ -91,7 +118,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void Attack()
         {
-            if (stateStorage.Health <= 0)
+            if (isDead)
                 return; // Cant attack while dying
 
             var currentHitPoint = HitPoint;
