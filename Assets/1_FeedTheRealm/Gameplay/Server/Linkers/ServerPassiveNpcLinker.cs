@@ -1,6 +1,7 @@
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
@@ -43,12 +44,19 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
             gameObject.transform
         );
         var npcCommandHandler = npcComponents.GetComponent<NpcCommandHandler>();
-        npcCommandHandler.Initialize(systems.Movement);
 
         var npcInteract = gameObject.AddComponent<NpcInteractSystem>();
         var logger = resolver.Resolve<Logging.Logger>();
         var npcDialogRegistry = resolver.Resolve<NpcDialogRegistry>();
         npcInteract.Initialize(logger, npcDialogRegistry, worldMonitor, netId);
+        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+        var aiNavigationSystem = npcComponents.AddComponent<AINavigationSystem>();
+
+        resolver.Inject(aiNavigationSystem);
+
+        //systems.Health.Initialize(netId, stateStorage, true);
+        npcCommandHandler.Initialize(systems.Movement);
+        aiNavigationSystem.Initialize(netId, worldMonitor, stateStorage);
 
         characterLinker.RegisterEntity(netId, networkAdapter, npcCommandHandler);
     }

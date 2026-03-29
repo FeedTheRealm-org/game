@@ -4,16 +4,23 @@ using FTR.Core.Server;
 using FTR.Gameplay.Server.Environment.Spawns;
 using FTRShared.Runtime.Models;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Loaders
 {
     public class AggressiveNpcSpawnerLoader : ILoader
     {
         private readonly GameObject spawnerPrefab;
+        private readonly IObjectResolver resolver;
 
-        public AggressiveNpcSpawnerLoader(ServerPrefabProvider prefabProvider)
+        public AggressiveNpcSpawnerLoader(
+            ServerPrefabProvider prefabProvider,
+            IObjectResolver resolver
+        )
         {
             spawnerPrefab = prefabProvider.AggresiveNpcSpawnerComponent;
+            this.resolver = resolver;
         }
 
         public async UniTask Load(WorldData worldData)
@@ -21,7 +28,7 @@ namespace FTR.Gameplay.Server.Loaders
             var spawnAreas = worldData.enemySpawnAreas;
             foreach (EnemySpawnerData data in spawnAreas)
             {
-                GameObject instance = Object.Instantiate(
+                GameObject instance = resolver.Instantiate(
                     spawnerPrefab,
                     new Vector3(data.Position.x, data.Position.y, data.Position.z),
                     Quaternion.identity

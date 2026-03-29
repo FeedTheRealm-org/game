@@ -19,6 +19,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject worldFeedMenuPrefab;
         private readonly GameObject navBarPrefab;
         private readonly GameObject profileMenuPrefab;
+        private readonly GameObject gemStorePrefab;
         private readonly MainMenuFlowService flowService;
 
         public ClientEntryPoint(
@@ -29,7 +30,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject verifyCodePrefab,
             GameObject worldFeedMenuPrefab,
             GameObject navBarPrefab,
-            GameObject profileMenuPrefab
+            GameObject profileMenuPrefab,
+            GameObject gemStorePrefab
         )
         {
             this.mainScene = mainScene;
@@ -40,13 +42,15 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
+            this.gemStorePrefab = gemStorePrefab;
             flowService = new MainMenuFlowService(
                 loginPrefab,
                 signUpPrefab,
                 verifyCodePrefab,
                 worldFeedMenuPrefab,
                 navBarPrefab,
-                profileMenuPrefab
+                profileMenuPrefab,
+                gemStorePrefab
             );
         }
 

@@ -1,6 +1,7 @@
 using API;
 using FTR.Core.Common.Config;
 using FTR.Core.Server;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -17,6 +18,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
     {
         [SerializeField]
         private Config config;
+
+        [SerializeField]
+        private ServerConfig serverConfig;
 
         [SerializeField]
         private Logging.Logger logger;
@@ -40,6 +44,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
 
             Validate();
 
+            builder.RegisterInstance(serverConfig);
             builder.RegisterInstance(logger);
             builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);

@@ -24,24 +24,47 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float positionCorrectionCounter = 3;
         private float gameTickCounter = 0;
 
-        private void OnDisable()
+        private bool isDead = false;
+
+        private void OnDestroy()
         {
             if (gameTickEvent != null)
                 gameTickEvent.OnRaised -= GameTick;
+
+            if (stateStorage != null)
+            {
+                stateStorage.OnDeath -= HandleDeath;
+                stateStorage.OnRespawn -= HandleRespawn;
+            }
         }
 
         public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
         {
             this.rb = rb;
             this.stateStorage = stateStorage;
+
+            this.stateStorage.OnDeath += HandleDeath;
+            this.stateStorage.OnRespawn += HandleRespawn;
+
             moveSpeed = config.PlayerSpeed > 0 ? config.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
             isInitialized = true;
         }
 
+        private void HandleDeath()
+        {
+            isDead = true;
+            direction = Vector3.zero;
+        }
+
+        private void HandleRespawn()
+        {
+            isDead = false;
+        }
+
         public void OnMove(Vector3 direction)
         {
-            if (!stateStorage.IsGrounded)
+            if (!stateStorage.IsGrounded || isDead)
                 return;
 
             this.direction = direction.normalized;
@@ -50,10 +73,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt)
         {
-            if (!isInitialized)
-                return;
-
-            if (stateStorage.IsMovementBlocked)
+            if (!isInitialized || stateStorage.IsMovementBlocked || isDead)
                 return;
 
             Vector3 nextPosition = rb.position + dt * moveSpeed * direction;

@@ -23,9 +23,9 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
-  - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerWorld.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientWorld.unity
   m_HasScriptingDefines: 1
@@ -1012,7 +1012,7 @@ MonoBehaviour:
         m_RemoteDeviceUsername: 
         m_RemoteDeviceExports: 
         m_PathOnRemoteDevice: 
---- !u!114 &4504619214682853450
+--- !u!114 &5240530814211662384
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1024,4 +1024,4 @@ MonoBehaviour:
   m_Script: {fileID: 15022, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: Multiplayer Role Data
   m_EditorClassIdentifier: UnityEditor.MultiplayerModule.dll::UnityEditor.Multiplayer.Internal.MultiplayerRoleData
-  multiplayerRole: 2
+  multiplayerRole: 3

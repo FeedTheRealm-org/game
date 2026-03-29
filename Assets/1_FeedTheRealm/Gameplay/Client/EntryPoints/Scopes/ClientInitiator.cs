@@ -30,6 +30,9 @@ public class ClientInitiator : LifetimeScope
     private GameObject profileMenuPrefab;
 
     [SerializeField]
+    private GameObject gemStorePrefab;
+
+    [SerializeField]
     private Session.Session session;
 
     [SerializeField]
@@ -52,7 +55,8 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("verifyCodePrefab", verifyCodePrefab)
             .WithParameter("worldFeedMenuPrefab", worldFeedMenuPrefab)
             .WithParameter("navBarPrefab", navBarPrefab)
-            .WithParameter("profileMenuPrefab", profileMenuPrefab);
+            .WithParameter("profileMenuPrefab", profileMenuPrefab)
+            .WithParameter("gemStorePrefab", gemStorePrefab);
 
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
     }

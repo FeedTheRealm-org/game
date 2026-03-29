@@ -47,16 +47,14 @@ public class ServerCharacterLinker
         );
 
         var movementSystem = serverComponents.GetComponent<MovementSystem>();
+        var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var dashSystem = serverComponents.GetComponent<DashSystem>();
         var useSystem = serverComponents.GetComponent<UseSystem>();
-        var healthSystem = serverComponents.GetComponent<HealthSystem>();
         var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
 
         movementSystem.Initialize(rb, stateStorage);
         dashSystem.Initialize(netId, rb, stateStorage);
-        useSystem.Initialize(netId, rb);
         groundCheckSystem.Initialize(col, stateStorage);
-        healthSystem.Initialize(netId, stateStorage);
 
         return new ServerCharacterSystems(
             serverComponents,

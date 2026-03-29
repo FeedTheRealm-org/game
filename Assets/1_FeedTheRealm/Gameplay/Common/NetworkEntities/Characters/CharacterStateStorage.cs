@@ -36,6 +36,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public event Action<Vector3> OnDirectionChanged;
         public event Action<float> OnStaminaChanged;
         public event Action<float> OnHealthChanged;
+        public event Action OnDeath;
+        public event Action OnRespawn;
 
         /* --- Setters --- */
 
@@ -60,7 +62,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [Server]
         public void SetHealth(float newHealth)
         {
+            float oldHealth = health;
             health = newHealth;
+            RaiseHealthStatusChanged(oldHealth, newHealth);
         }
 
         /* --- SyncVar hooks --- */
@@ -83,6 +87,17 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private void OnHealthSync(float oldHealth, float newHealth)
         {
             OnHealthChanged?.Invoke(newHealth);
+            RaiseHealthStatusChanged(oldHealth, newHealth);
+        }
+
+        /* --- Event Raisers --- */
+
+        private void RaiseHealthStatusChanged(float oldHealth, float newHealth)
+        {
+            if (oldHealth > 0 && newHealth <= 0)
+                OnDeath?.Invoke();
+            else if (oldHealth <= 0 && newHealth > 0)
+                OnRespawn?.Invoke();
         }
 
         public override void OnStartClient()

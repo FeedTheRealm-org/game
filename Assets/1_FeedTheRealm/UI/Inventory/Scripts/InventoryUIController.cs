@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.UI.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
