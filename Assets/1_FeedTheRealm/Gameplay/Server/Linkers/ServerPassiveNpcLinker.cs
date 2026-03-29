@@ -38,7 +38,6 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
 
         var systems = characterLinker.Link(gameObject, netId);
 
-        // Instantiate NPC-specific components prefab (contains NpcCommandHandler)
         var npcComponents = resolver.Instantiate(
             prefabProvider.ServerNpcComponents,
             gameObject.transform
@@ -46,7 +45,6 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
         var npcCommandHandler = npcComponents.GetComponent<NpcCommandHandler>();
         npcCommandHandler.Initialize(systems.Movement);
 
-        // NpcInteractSystem is added by code — it has no inspector configuration
         var npcInteract = gameObject.AddComponent<NpcInteractSystem>();
         var logger = resolver.Resolve<Logging.Logger>();
         var npcDialogRegistry = resolver.Resolve<NpcDialogRegistry>();

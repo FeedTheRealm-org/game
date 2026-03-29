@@ -71,10 +71,11 @@ public class ServerCharacterLinker
     public void RegisterEntity(
         uint netId,
         NetworkAdapter networkAdapter,
-        ICommandable commandHandler
+        ICommandable commandHandler,
+        int? connectionId = null
     )
     {
-        var entity = new ServerEntity(netId, networkAdapter, commandHandler);
+        var entity = new ServerEntity(netId, networkAdapter, commandHandler, connectionId);
         world.Entities.Register(netId, entity);
     }
 }

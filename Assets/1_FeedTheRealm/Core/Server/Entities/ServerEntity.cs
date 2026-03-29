@@ -12,14 +12,21 @@ public sealed class ServerEntity
 
     public NetworkAdapter NetworkAdapter { get; }
     public ICommandable Commandable { get; }
+    public int? ConnectionId { get; }
 
     /// <summary>
     /// Creates a new ServerEntity with the given netId, networkAdapter, and entity commandable.
     /// </summary>
-    public ServerEntity(uint netId, NetworkAdapter networkAdapter, ICommandable commandable)
+    public ServerEntity(
+        uint netId,
+        NetworkAdapter networkAdapter,
+        ICommandable commandable,
+        int? connectionId = null
+    )
     {
         NetId = netId;
         NetworkAdapter = networkAdapter;
         this.Commandable = commandable;
+        this.ConnectionId = connectionId;
     }
 }

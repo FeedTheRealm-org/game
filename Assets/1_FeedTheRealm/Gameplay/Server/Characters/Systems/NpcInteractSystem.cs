@@ -47,22 +47,20 @@ namespace FTR.Gameplay.Server.Characters.Systems
             npcIdentity = GetComponent<NpcIdentity>();
         }
 
-        /// <summary>
-        /// Resolves the connection ID of the player interactor from the EntityRegistry.
-        /// The DialogEvent is sent via the NPC's NetworkAdapter, targeted to the player's connection,
-        /// so only the interacting client receives it.
-        /// </summary>
         private int? GetPlayerConnectionId(uint playerNetId)
         {
-            if (worldMonitor.Entities.TryGet(playerNetId, out var entity))
+            if (
+                worldMonitor.Entities.TryGet(playerNetId, out var entity)
+                && entity.ConnectionId.HasValue
+            )
             {
                 Debug.Log(
-                    $"[NpcInteractSystem] Found player entity for netId:{playerNetId} connectionId:{entity.NetworkAdapter.ConnectionId}"
+                    $"[NpcInteractSystem] Found player connection for netId:{playerNetId} connectionId:{entity.ConnectionId.Value}"
                 );
-                return entity.NetworkAdapter.ConnectionId;
+                return entity.ConnectionId.Value;
             }
             Debug.LogWarning(
-                $"[NpcInteractSystem] Player entity NOT found for netId:{playerNetId}"
+                $"[NpcInteractSystem] Player connection NOT found for netId:{playerNetId}"
             );
             return null;
         }

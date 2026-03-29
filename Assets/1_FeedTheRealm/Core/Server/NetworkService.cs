@@ -66,12 +66,6 @@ public class NetworkService
         {
             if (worldMonitor.Entities.TryGet(serverEvent.NetId, out ServerEntity entity))
             {
-                UnityEngine.Debug.Log(
-                    $"[NetworkService] Dispatching event {serverEvent.GetType().Name} "
-                        + $"via NetId:{serverEvent.NetId} "
-                        + $"adapter.ConnectionId:{entity.NetworkAdapter.ConnectionId} "
-                        + $"targetConnection:{serverEvent.TargetConnectionId}"
-                );
                 entity.NetworkAdapter.DispatchEvent(
                     serverEvent.ToDTO(),
                     serverEvent.TargetConnectionId

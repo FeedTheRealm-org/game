@@ -15,6 +15,7 @@ public class ServerPlayerLinker : PlayerLinker
     private readonly ServerCharacterLinker characterLinker;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private readonly WorldMonitor world;
 
     public ServerPlayerLinker(
         WorldMonitor world,
@@ -22,6 +23,7 @@ public class ServerPlayerLinker : PlayerLinker
         IObjectResolver resolver
     )
     {
+        this.world = world;
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
@@ -35,6 +37,11 @@ public class ServerPlayerLinker : PlayerLinker
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var inventoryStateStorage = gameObject.GetComponent<InventoryStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
+
+        int connectionId = networkAdapter.connectionToClient.connectionId;
+
+        var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
+        tracker.Initialize(world, netId);
 
         var systems = characterLinker.Link(gameObject, netId);
 
@@ -70,6 +77,11 @@ public class ServerPlayerLinker : PlayerLinker
             systems.Health
         );
 
-        characterLinker.RegisterEntity(netId, networkAdapter, serverPlayerCommandHandler);
+        characterLinker.RegisterEntity(
+            netId,
+            networkAdapter,
+            serverPlayerCommandHandler,
+            connectionId
+        );
     }
 }

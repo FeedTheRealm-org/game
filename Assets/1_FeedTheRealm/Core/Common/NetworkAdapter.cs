@@ -22,7 +22,6 @@ public class NetworkAdapter : NetworkBehaviour
     // Server ONLY
     public event Action<ActionCommandDTO> OnActionRequest;
     public event Action<TransactionCommandDTO> OnTransactionRequest;
-    public int ConnectionId => connectionToClient != null ? connectionToClient.connectionId : -1;
 
     public bool IsLocalPlayer => isLocalPlayer;
 

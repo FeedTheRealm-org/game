@@ -9,9 +9,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     /// <summary>
     /// Handles death and respawn for a single server-side character.
-    /// Subscribes to HealthSystem.OnDeath, unregisters the entity from the
-    /// command loop while dead, then resets state and re-registers after the
-    /// configured delay.
+    /// Subscribes to HealthSystem.OnDeath
     /// </summary>
     public class RespawnSystem : MonoBehaviour, IGameTickable
     {
@@ -66,9 +64,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private IEnumerator RespawnCoroutine()
         {
-            yield return null;
-            world.Entities.Unregister(netId);
-
             yield return new WaitForSeconds(respawnDelay);
 
             healthSystem.ResetHealth();
@@ -76,9 +71,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             // TODO: Replace with a spawn-point lookup (spawner provider could help, but need
             // spawn loading system to be implemented first).
             rb.position = Vector3.zero;
-            rb.linearVelocity = Vector3.zero;
-
-            world.Entities.Register(netId, new ServerEntity(netId, networkAdapter, commandHandler));
 
             logger.Log($"[RespawnSystem] Player {netId} respawned.", this);
         }
