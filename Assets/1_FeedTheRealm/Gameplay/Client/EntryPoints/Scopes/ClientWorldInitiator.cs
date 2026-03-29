@@ -55,7 +55,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             if (config.RuntimeRole != RuntimeRole.Client)
                 return;
 
-            Validate();
+            ValidateSerializeFields();
 
             clientEventRegistry.RegisterAll(builder);
             setupServices.RegisterAll(builder);
@@ -78,23 +78,26 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
         }
 
-        private void Validate()
+        private void ValidateSerializeFields()
         {
-            ValidateField(config, nameof(config));
-            ValidateField(playerInputReader, nameof(playerInputReader));
-            ValidateField(prefabProvider, nameof(prefabProvider));
-            ValidateField(clientEventRegistry, nameof(clientEventRegistry));
-            ValidateField(logger, nameof(logger));
-            ValidateField(session, nameof(session));
-            ValidateField(worldSelector, nameof(worldSelector));
-            ValidateField(worldService, nameof(worldService));
-            ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
+            ValidateField(playerInputReader, "PlayerInputReader");
+            ValidateField(prefabProvider, "PrefabProvider");
+            ValidateField(clientEventRegistry, "ClientEventRegistry");
+            ValidateField(logger, "Logger");
+            ValidateField(worldSelector, "WorldSelector");
+            ValidateField(worldService, "WorldService");
+            ValidateField(config, "Config");
+            ValidateField(session, "Session");
+            ValidateField(modelService, "ModelService");
+            ValidateField(gltfLoaderService, "GLTFLoaderService");
         }
 
-        private void ValidateField(Object field, string fieldName)
+        private void ValidateField(object field, string fieldName)
         {
             if (field == null)
-                throw new System.Exception($"[ClientWorldInitiator] {fieldName} is not assigned.");
+                throw new System.NullReferenceException(
+                    $"{fieldName} is not assigned in the Inspector."
+                );
         }
     }
 }
