@@ -1,5 +1,6 @@
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
@@ -67,7 +68,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 {
                     inventorySlots[i] = itemId;
                     inventoryState.AddItem(StorageType.Inventory, i, itemId);
-                    logger.Log($"Item {itemId} added to inventory slot {i}", this);
+                    logger.Log(
+                        $"[InventorySystem] Item {itemId} added to inventory slot {i}",
+                        this
+                    );
                     onComplete(true);
                     return;
                 }
@@ -121,7 +125,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
             );
         }
 
-        public string OnDropItem(IEventCollectable ec, int slotIndex, StorageType storageType)
+        public string OnDropItem(
+            IEventCollectable ec,
+            int slotIndex,
+            StorageType storageType,
+            Vector3 dropPosition,
+            ServerPrefabProvider prefabProvider
+        )
         {
             if (!IsValidSlot(storageType, slotIndex))
                 return null;
@@ -138,7 +148,42 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 $"Dropped item {itemId} from {storageType}[{slotIndex}] for player {netId}",
                 this
             );
+
+            if (prefabProvider != null)
+            {
+                SpawnItem(dropPosition, prefabProvider, itemId);
+            }
+
             return itemId;
+        }
+
+        private static void SpawnItem(
+            Vector3 dropPosition,
+            ServerPrefabProvider prefabProvider,
+            string itemId
+        )
+        {
+            var lootPrefab = prefabProvider.LootItemPrefab;
+            if (lootPrefab != null)
+            {
+                GameObject lootInstance = Object.Instantiate(
+                    lootPrefab,
+                    dropPosition,
+                    Quaternion.identity
+                );
+                var stateStorage = lootInstance.GetComponent<LootItemStateStorage>();
+                if (stateStorage != null)
+                {
+                    stateStorage.SetItemId(itemId);
+                }
+                Mirror.NetworkServer.Spawn(lootInstance);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[InventorySystem] LootItem prefab not found in NetworkManager spawnPrefabs!"
+                );
+            }
         }
 
         public void OnEquipItem(IEventCollectable ec, int slotIndex)

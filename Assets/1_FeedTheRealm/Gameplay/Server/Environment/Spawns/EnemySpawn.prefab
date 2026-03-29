@@ -43,10 +43,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 3959
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -70,6 +70,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawn
   enemyPrefab: {fileID: 1418397613159891299, guid: 2f22313ba332299e9b09c2fcdc09952a, type: 3}
   maxEnemies: 3
+  enemyDestroyDelay: 3
   spawnRate: 2
   resetAfterKills: 6
   resetDelay: 10

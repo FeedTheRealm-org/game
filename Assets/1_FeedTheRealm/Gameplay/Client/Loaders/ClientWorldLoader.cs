@@ -18,9 +18,15 @@ namespace FTR.Gameplay.Client.Loaders
         public ClientWorldLoader(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
         {
             var clientStructureLoader = new ClientStructureLoader(prefabProvider);
-            var ClientNpcDialogLoader = new ClientNpcDialogLoader();
+            var clientNpcDialogLoader = new ClientNpcDialogLoader();
+            var clientItemLoader = new ClientItemLoader();
 
-            loaders = new List<ILoader> { clientStructureLoader, ClientNpcDialogLoader };
+            loaders = new List<ILoader>
+            {
+                clientStructureLoader,
+                clientNpcDialogLoader,
+                clientItemLoader,
+            };
 
             foreach (var loader in loaders)
             {

@@ -19,8 +19,8 @@ namespace FTR.Gameplay.Common.Environment.Npcs
         [Server]
         public void Initialize(NPCData data)
         {
-            npcId = data.id;
-            gameObject.name = $"NPC_{data.id}";
+            npcId = data?.id;
+            gameObject.name = $"NPC_{data?.id}";
         }
     }
 }

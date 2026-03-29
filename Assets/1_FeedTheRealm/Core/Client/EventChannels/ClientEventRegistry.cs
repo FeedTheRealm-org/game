@@ -90,7 +90,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         private void ValidateField(Object field, string fieldName)
         {
             if (field == null)
-                Debug.LogError($"[ClientEventRegistry] {fieldName} is not assigned.");
+                throw new System.Exception($"[ClientEventRegistry] {fieldName} is not assigned.");
         }
     }
 }

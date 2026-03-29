@@ -26,6 +26,16 @@
     margin: 0 2px 0 2px;
 }
 
+.fast-equip-slot > #FastEquipIcon {
+    width: 80%;
+    height: 80%;
+    -unity-background-scale-mode: scale-to-fit;
+    align-self: center;
+    position: relative;
+    top: 5px;
+    left: -4px;
+}
+
 .sidebar {
     width: 25%;
     padding: 12px;

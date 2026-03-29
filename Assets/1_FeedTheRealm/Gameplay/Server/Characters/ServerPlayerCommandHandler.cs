@@ -1,6 +1,7 @@
 using FTR.Core.Common.Protocol.RpcMessages;
-using FTR.Core.Server.Commands;
+using FTR.Core.Server;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace FTR.Gameplay.Server.Characters
     public class ServerPlayerCommandHandler : ServerCommandHandler
     {
         private InventorySystem inventorySystem;
+        private ServerPrefabProvider prefabProvider;
 
         public void Initialize(
             MovementSystem movementSystem,
@@ -50,7 +52,8 @@ namespace FTR.Gameplay.Server.Characters
             string itemId
         )
         {
-            inventorySystem.OnDropItem(ec, slotIndex, storageType);
+            Vector3 dropPosition = transform.position + transform.forward * 1.5f;
+            inventorySystem.OnDropItem(ec, slotIndex, storageType, dropPosition, prefabProvider);
         }
 
         public override void OnPickUp(
