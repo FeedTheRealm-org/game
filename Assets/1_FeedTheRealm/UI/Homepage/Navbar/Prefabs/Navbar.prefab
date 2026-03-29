@@ -72,4 +72,5 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   profileMenuPrefab: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
+  gemStorePrefab: {fileID: 1348964074043700, guid: 442b277acc9586448ba5baa9f54327d5, type: 3}
   sectionName: Select Your World!

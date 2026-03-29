@@ -14,5 +14,8 @@ namespace FTR.Core.Server
         public GameObject StructureComponent;
         public GameObject AggresiveNpcSpawnerComponent;
         public GameObject FriendlyNpcSpawnerComponent;
+
+        [Header("Utility")]
+        public GameObject PlayerTriggerAreaPrefab;
     }
 }

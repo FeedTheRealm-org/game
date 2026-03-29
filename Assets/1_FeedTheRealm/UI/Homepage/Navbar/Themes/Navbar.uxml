@@ -3,5 +3,6 @@
         <ui:Label text="Feed The Realm" name="FeedTheRealm" style="font-size: 16px;"/>
         <ui:Label text="Section Name Here" name="SectionLabel" style="font-size: 20px;"/>
         <ui:Button text="PlayerNameHere" name="ProfileButton" style="background-color: rgb(0, 0, 0); margin-bottom: 6px; margin-top: 6px;"/>
+        <ui:Button text="💎 Gems" name="GemStoreButton" style="background-color: rgb(80, 40, 120); margin-bottom: 6px; margin-top: 6px; margin-right: 4px;"/>
     </ui:VisualElement>
 </ui:UXML>

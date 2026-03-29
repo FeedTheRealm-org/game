@@ -6,6 +6,12 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
+        [Header("Layer Masks")]
+        public LayerMask PlayerLayer;
+        public LayerMask TargetLayer; // Enemies
+        public LayerMask GroundLayer;
+        public LayerMask ObstacleLayer;
+
         [Header("Movement")]
         [SerializeField]
         private float playerSpeed = 5f;
@@ -55,10 +61,6 @@ namespace FTR.Core.Server.Config
         private float groundCheckSphereRadius = 0.4f;
         public float GroundCheckSphereRadius => groundCheckSphereRadius;
 
-        [SerializeField]
-        private LayerMask groundLayer;
-        public LayerMask GroundLayer => groundLayer;
-
         [Header("Inventory")]
         [SerializeField]
         private int fastSlotSize = 5;
@@ -72,5 +74,13 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private int startingGold = 100;
         public int StartingGold => startingGold;
+
+        [Header("NPC AI")]
+        public float WanderRadius = 10f;
+        public float MinWaitTime = 2f;
+        public float MaxWaitTime = 5f;
+        public float StoppingDistance = 0.5f;
+        public float AggressiveChaseRadius = 5f;
+        public float AggressiveAttackRadius = 2f;
     }
 }

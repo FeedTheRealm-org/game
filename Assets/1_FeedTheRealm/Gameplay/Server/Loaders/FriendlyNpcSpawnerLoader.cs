@@ -6,6 +6,7 @@ using FTR.Gameplay.Common.Environment.Dialogs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Loaders
 {
@@ -16,9 +17,15 @@ namespace FTR.Gameplay.Server.Loaders
 
         private readonly GameObject spawnerPrefab;
 
-        public FriendlyNpcSpawnerLoader(ServerPrefabProvider prefabProvider)
+        private readonly IObjectResolver resolver;
+
+        public FriendlyNpcSpawnerLoader(
+            ServerPrefabProvider prefabProvider,
+            IObjectResolver resolver
+        )
         {
             spawnerPrefab = prefabProvider.FriendlyNpcSpawnerComponent;
+            this.resolver = resolver;
         }
 
         public async UniTask Load(WorldData worldData)
@@ -53,7 +60,7 @@ namespace FTR.Gameplay.Server.Loaders
                     }
                 }
 
-                var instance = Object.Instantiate(
+                var instance = resolver.Instantiate(
                     spawnerPrefab,
                     new Vector3(spawnData.Position.x, spawnData.Position.y, spawnData.Position.z),
                     Quaternion.identity

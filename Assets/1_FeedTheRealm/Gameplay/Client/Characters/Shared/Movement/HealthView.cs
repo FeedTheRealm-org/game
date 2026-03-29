@@ -56,7 +56,9 @@ public class HealthView : MonoBehaviour
             return;
 
         if (currentHealth <= 0f)
+        {
             animator.PlayDeath();
+        }
         else if (currentHealth < maxHealth)
             animator.PlayDamaged();
         else

@@ -20,11 +20,16 @@ namespace FTR.UI.Homepage.Navbar
         private GameObject profileMenuPrefab;
 
         [SerializeField]
+        private GameObject gemStorePrefab;
+
+        [SerializeField]
         private string sectionName = "Section";
 
         private GameObject profileMenuInstance;
         private VisualElement _root;
+        private GameObject gemStoreInstance;
         private Button playerProfileButton;
+        private Button gemStoreButton;
         private Label sectionLabel;
 
         private void OnEnable()
@@ -80,6 +85,14 @@ namespace FTR.UI.Homepage.Navbar
                 ? "Guest"
                 : session.CharacterName;
             playerProfileButton.clicked += onProfileButtonClicked;
+
+            gemStoreButton = body.Q<Button>("GemStoreButton");
+            if (gemStoreButton == null)
+            {
+                logger.Log("GemStoreButton not found in Body.", this, Logging.LogType.Error);
+                return;
+            }
+            gemStoreButton.clicked += OnGemStoreButtonClicked;
         }
 
         private void OnDisable()
@@ -87,6 +100,10 @@ namespace FTR.UI.Homepage.Navbar
             if (playerProfileButton != null)
             {
                 playerProfileButton.clicked -= onProfileButtonClicked;
+            }
+            if (gemStoreButton != null)
+            {
+                gemStoreButton.clicked -= OnGemStoreButtonClicked;
             }
         }
 
@@ -103,6 +120,21 @@ namespace FTR.UI.Homepage.Navbar
         public void SetProfileMenuInstance(GameObject instance)
         {
             profileMenuInstance = instance;
+        }
+
+        private void OnGemStoreButtonClicked()
+        {
+            if (gemStoreInstance == null)
+            {
+                logger.Log("GemStore instance is not set.", this, Logging.LogType.Error);
+                return;
+            }
+            gemStoreInstance.SetActive(!gemStoreInstance.activeSelf);
+        }
+
+        public void SetGemStoreInstance(GameObject instance)
+        {
+            gemStoreInstance = instance;
         }
     }
 }
