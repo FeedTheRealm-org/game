@@ -55,7 +55,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private int? GetPlayerConnectionId(uint playerNetId)
         {
             if (worldMonitor.Entities.TryGet(playerNetId, out var entity))
+            {
+                Debug.Log(
+                    $"[NpcInteractSystem] Found player entity for netId:{playerNetId} connectionId:{entity.NetworkAdapter.ConnectionId}"
+                );
                 return entity.NetworkAdapter.ConnectionId;
+            }
+            Debug.LogWarning(
+                $"[NpcInteractSystem] Player entity NOT found for netId:{playerNetId}"
+            );
             return null;
         }
 

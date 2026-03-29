@@ -9,13 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1607649542385950516}
-  - component: {fileID: 6682530117870127933}
   - component: {fileID: 3631298942065249905}
   - component: {fileID: 8849227909655753052}
   - component: {fileID: 6862505364610922874}
   - component: {fileID: 2082028261007521408}
   - component: {fileID: 159244127895327875}
-  - component: {fileID: 3143189486675115970}
   m_Layer: 0
   m_Name: ServerCharacterComponents
   m_TagString: Untagged
@@ -38,18 +36,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6682530117870127933
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2056940003155735034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5e4a9ab1c4dbb75e90535c957573a1c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.ServerCommandHandler
 --- !u!114 &3631298942065249905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,21 +110,4 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.HealthSystem
   MaxHealth: 100
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
---- !u!114 &3143189486675115970
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2056940003155735034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a255630e910c159bb856a77108a7b9f, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.InteractSystem
-  interactionRadius: 3
-  interactableLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}

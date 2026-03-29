@@ -6,14 +6,16 @@ using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Linkers;
 
 public class ServerPassiveNpcLinker : PassiveNpcLinker
 {
-    private ServerCharacterLinker characterLinker;
-    private IObjectResolver resolver;
-    private WorldMonitor worldMonitor;
+    private readonly ServerCharacterLinker characterLinker;
+    private readonly ServerPrefabProvider prefabProvider;
+    private readonly IObjectResolver resolver;
+    private readonly WorldMonitor worldMonitor;
 
     public ServerPassiveNpcLinker(
         WorldMonitor world,
@@ -23,31 +25,33 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
     {
         this.worldMonitor = world;
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
+        this.prefabProvider = prefabProvider;
         this.resolver = resolver;
     }
 
     public override void Link(GameObject gameObject)
     {
-        gameObject.name = $"PassiveNPC";
+        gameObject.name = "PassiveNPC";
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
-        var serverComponents = characterLinker.Link(gameObject, netId);
+        var systems = characterLinker.Link(gameObject, netId);
 
-        var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
-        var movementSystem = serverComponents.GetComponent<MovementSystem>();
-        var dashSystem = serverComponents.GetComponent<DashSystem>();
-        var useSystem = serverComponents.GetComponent<UseSystem>();
-        var interactSystem = serverComponents.GetComponent<PlayerInteractSystem>();
+        // Instantiate NPC-specific components prefab (contains NpcCommandHandler)
+        var npcComponents = resolver.Instantiate(
+            prefabProvider.ServerNpcComponents,
+            gameObject.transform
+        );
+        var npcCommandHandler = npcComponents.GetComponent<NpcCommandHandler>();
+        npcCommandHandler.Initialize(systems.Movement);
 
+        // NpcInteractSystem is added by code — it has no inspector configuration
         var npcInteract = gameObject.AddComponent<NpcInteractSystem>();
-
         var logger = resolver.Resolve<Logging.Logger>();
         var npcDialogRegistry = resolver.Resolve<NpcDialogRegistry>();
         npcInteract.Initialize(logger, npcDialogRegistry, worldMonitor, netId);
 
-        serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
-        characterLinker.RegisterEntity(netId, networkAdapter, serverCommandHandler);
+        characterLinker.RegisterEntity(netId, networkAdapter, npcCommandHandler);
     }
 }

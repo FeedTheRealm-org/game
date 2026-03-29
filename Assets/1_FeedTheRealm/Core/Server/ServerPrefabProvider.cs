@@ -8,6 +8,8 @@ namespace FTR.Core.Server
         public GameObject ServerCharacterComponents;
         public GameObject ServerPlayerComponents;
         public GameObject ServerLootItemComponents;
+        public GameObject ServerEnemyComponents;
+        public GameObject ServerNpcComponents;
         public GameObject LootItemPrefab;
 
         [Header("Loader Components")]

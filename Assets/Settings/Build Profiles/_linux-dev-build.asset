@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 15003, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: _linux-dev-build
+  m_Name: Linux-Multiplayer-World
   m_EditorClassIdentifier: UnityEditor.dll::UnityEditor.Build.Profile.BuildProfile
   m_AssetVersion: 1
   m_BuildTarget: 24
@@ -23,16 +23,16 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerEntryPoint.unity
   - m_enabled: 1
-    m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerWorld.unity
-  - m_enabled: 0
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
-  - m_enabled: 0
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Server/ServerWorld.unity
+  - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientWorld.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
   - DEBUG
-  - SERVER_BUILD
   - CLIENT_BUILD
+  - SERVER_BUILD
   m_PlayerSettingsYaml:
     m_Settings:
     - line: '| PlayerSettings:'
@@ -143,7 +143,7 @@ MonoBehaviour:
     - line: '|   xboxEnableFitness: 0'
     - line: '|   visibleInBackground: 1'
     - line: '|   allowFullscreenSwitch: 1'
-    - line: '|   fullscreenMode: 3'
+    - line: '|   fullscreenMode: 1'
     - line: '|   xboxSpeechDB: 0'
     - line: '|   xboxEnableHeadOrientation: 0'
     - line: '|   xboxEnableGuest: 0'
