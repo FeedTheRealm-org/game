@@ -1,3 +1,5 @@
+using System.Collections;
+using FTR.Core.Client.Config;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Common.Systems.Status;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -13,13 +15,13 @@ public class HealthView : MonoBehaviour
     [Inject]
     private HealthChangedEvent healthChangedEvent;
 
-    [SerializeField]
-    private float maxHealth = 100f;
+    [Inject]
+    private ClientConfig config;
 
     [SerializeField]
     private CharacterAnimator animator;
 
-    public float MaxHealth => maxHealth;
+    public float MaxHealth => config.MaxHealth;
 
     private CharacterStateStorage stateStorage;
 
@@ -38,6 +40,14 @@ public class HealthView : MonoBehaviour
 
     private void OnHealthChanged(float value)
     {
+        StartCoroutine(UpdateHealthAfterDelay(value));
+    }
+
+    private IEnumerator UpdateHealthAfterDelay(float value)
+    {
+        if (value < config.MaxHealth)
+            yield return new WaitForSeconds(config.HealthUpdateDelay); // Delay for better animation timing
+
         RaiseHudEvent(value);
         UpdateAnimation(value);
     }
@@ -47,7 +57,7 @@ public class HealthView : MonoBehaviour
         if (!stateStorage.isLocalPlayer)
             return;
 
-        healthChangedEvent?.Raise(new HealthChangedData(currentHealth, maxHealth));
+        healthChangedEvent?.Raise(new HealthChangedData(currentHealth, config.MaxHealth));
     }
 
     private void UpdateAnimation(float currentHealth)
@@ -59,7 +69,7 @@ public class HealthView : MonoBehaviour
         {
             animator.PlayDeath();
         }
-        else if (currentHealth < maxHealth)
+        else if (currentHealth < config.MaxHealth)
             animator.PlayDamaged();
         else
             animator.PlayIdle();
