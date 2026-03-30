@@ -14,20 +14,20 @@ namespace FTR.Gameplay.Server.Scopes
     {
         public ServerWorldLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
         {
+            var structureLoader = new ServerStructureLoader(prefabProvider);
+            var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
             var aggressiveNpcSpawnerLoader = new AggressiveNpcSpawnerLoader(
                 prefabProvider,
                 resolver
             );
-            var structureLoader = new ServerStructureLoader(prefabProvider);
-            var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
             var playerSpawnerLoader = new PlayerSpawnerLoader();
             var serverItemLoader = new ServerItemLoader();
 
             loaders = new List<ILoader>
             {
-                aggressiveNpcSpawnerLoader,
-                friendlyNpcSpawnerLoader,
                 structureLoader,
+                friendlyNpcSpawnerLoader,
+                aggressiveNpcSpawnerLoader,
                 playerSpawnerLoader,
                 serverItemLoader,
             };
