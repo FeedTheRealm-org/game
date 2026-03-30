@@ -62,7 +62,7 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
 
         resolver.Inject(aiNavigationSystem);
 
-        //systems.Health.Initialize(netId, stateStorage, true);
+        systems.Health.Initialize(netId, stateStorage, true);
         npcCommandHandler.Initialize(systems.Movement);
         aiNavigationSystem.Initialize(netId, worldMonitor, stateStorage);
 
