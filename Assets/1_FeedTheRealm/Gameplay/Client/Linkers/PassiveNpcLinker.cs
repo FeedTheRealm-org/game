@@ -33,9 +33,6 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
         var characterBody = characterComponent.transform.Find("CharacterBody");
         var dialogParent = characterBody != null ? characterBody : gameObject.transform;
 
-        // Each NPC owns its InteractView, subscribed to its own NetworkEventRouter.
-        // DialogEvent arrives targeted via the NPC's NetworkAdapter, routed here,
-        // and broadcast globally via EventChannelSOs — UIDialogController filters by NpcId.
         var networkEventRouter = characterComponent.GetComponent<NetworkEventRouter>();
         var interactView = characterComponent.AddComponent<InteractView>();
         resolver.Inject(interactView);

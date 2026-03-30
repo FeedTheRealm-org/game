@@ -4,12 +4,10 @@ using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.Environment.Dialogs;
-using FTR.Gameplay.Common.Environment.Npcs;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
-    [RequireComponent(typeof(NpcIdentity))]
     public class NpcInteractSystem : MonoBehaviour, IInteractable
     {
         [Header("General settings")]
@@ -22,7 +20,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private float inactivityTimeout = 10f;
 
-        private NpcIdentity npcIdentity;
+        private string npcId;
         private WorldMonitor worldMonitor;
         private uint ownNetId;
 
@@ -33,18 +31,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
             Logging.Logger logger,
             NpcDialogRegistry npcDialogRegistry,
             WorldMonitor worldMonitor,
-            uint ownNetId
+            uint ownNetId,
+            string npcId
         )
         {
             this.logger = logger;
             this.npcDialogRegistry = npcDialogRegistry;
             this.worldMonitor = worldMonitor;
             this.ownNetId = ownNetId;
-        }
-
-        private void Awake()
-        {
-            npcIdentity = GetComponent<NpcIdentity>();
+            this.npcId = npcId;
         }
 
         private int? GetPlayerConnectionId(uint playerNetId)
@@ -69,15 +64,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             uint playerNetId = interactor.NetId;
 
-            int count = npcDialogRegistry.GetMessageCount(npcIdentity.NpcId);
+            int count = npcDialogRegistry.GetMessageCount(npcId);
             if (count == 0)
             {
                 if (logger != null)
                     logger.Log(
-                        $"[NpcInteractSystem] No messages registered for NpcId '{npcIdentity.NpcId}'.",
+                        $"[NpcInteractSystem] No messages registered for NpcId '{npcId}'.",
                         this
                     );
-                return npcIdentity.NpcId;
+                return npcId;
             }
 
             playerDialogStates[playerNetId] = 0;
@@ -89,7 +84,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     new DialogEventContent
                     {
                         DialogState = DialogStateType.DialogTypeStarted,
-                        NpcId = npcIdentity.NpcId,
+                        NpcId = npcId,
                         DialogIndex = 0,
                     },
                     GetPlayerConnectionId(playerNetId)
@@ -99,7 +94,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (logger != null)
                 logger.Log($"NPC interacted with by {interactor.GameObject.name}", this);
 
-            return npcIdentity.NpcId;
+            return npcId;
         }
 
         public void ContinueInteraction(IInteractor interactor)
@@ -109,7 +104,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!playerDialogStates.TryGetValue(playerNetId, out int currentIndex))
                 return;
 
-            int count = npcDialogRegistry.GetMessageCount(npcIdentity.NpcId);
+            int count = npcDialogRegistry.GetMessageCount(npcId);
             int nextIndex = currentIndex + 1;
 
             if (nextIndex >= count)
@@ -127,7 +122,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     new DialogEventContent
                     {
                         DialogState = DialogStateType.DialogTypeAdvanced,
-                        NpcId = npcIdentity.NpcId,
+                        NpcId = npcId,
                         DialogIndex = nextIndex,
                     },
                     GetPlayerConnectionId(playerNetId)
@@ -151,7 +146,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     new DialogEventContent
                     {
                         DialogState = DialogStateType.DialogTypeClosed,
-                        NpcId = npcIdentity.NpcId,
+                        NpcId = npcId,
                         DialogIndex = 0,
                     },
                     GetPlayerConnectionId(playerNetId)

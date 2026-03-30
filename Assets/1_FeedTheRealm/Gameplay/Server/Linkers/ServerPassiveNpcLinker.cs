@@ -48,8 +48,16 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
         var npcInteract = gameObject.AddComponent<NpcInteractSystem>();
         var logger = resolver.Resolve<Logging.Logger>();
         var npcDialogRegistry = resolver.Resolve<NpcDialogRegistry>();
-        npcInteract.Initialize(logger, npcDialogRegistry, worldMonitor, netId);
+
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+        npcInteract.Initialize(
+            logger,
+            npcDialogRegistry,
+            worldMonitor,
+            netId,
+            stateStorage.CharacterId
+        );
+
         var aiNavigationSystem = npcComponents.AddComponent<AINavigationSystem>();
 
         resolver.Inject(aiNavigationSystem);

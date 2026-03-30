@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server.Config;
-using FTR.Gameplay.Common.Environment.Npcs;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
@@ -37,7 +37,6 @@ public class NPCSpawns : MonoBehaviour
 
     /// <summary>
     /// Configures this spawner with data from the world loader.
-    /// npcData provides the id and name for NpcIdentity.
     /// </summary>
     public void Initialize(NPCSpawnerData spawnData, NPCData npcData, DialogData dialogData = null)
     {
@@ -94,12 +93,12 @@ public class NPCSpawns : MonoBehaviour
         );
         npc.name = $"NPC_{npcID}";
 
-        var identity = npc.GetComponent<NpcIdentity>();
-        if (identity != null)
-            identity.Initialize(npcData);
+        var stateStorage = npc.GetComponent<CharacterStateStorage>();
+        if (stateStorage != null)
+            stateStorage.SetCharacterId(npcData.id);
         else
             Debug.LogWarning(
-                $"[NPCSpawns] NpcIdentity component not found on prefab for NPC '{npcID}'."
+                $"[NPCSpawns] CharacterStateStorage component not found on prefab for NPC '{npcID}'."
             );
 
         NetworkServer.Spawn(npc);
