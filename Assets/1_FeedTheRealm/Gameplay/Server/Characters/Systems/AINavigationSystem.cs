@@ -5,7 +5,6 @@ using FTR.Core.Server.Commands;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.Utils;
 using UnityEngine;
 using UnityEngine.AI;

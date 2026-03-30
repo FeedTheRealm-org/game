@@ -43,11 +43,6 @@ public class NetworkAdapter : NetworkBehaviour
         if (!isLocalPlayer)
             return;
 
-        /*logger.Log(
-            $"Dispatching Action Command: {command.Type} with direction {command.Direction}",
-            this
-        );*/
-
         CmdActionRequest(command);
     }
 
@@ -65,18 +60,31 @@ public class NetworkAdapter : NetworkBehaviour
     }
 
     /// <summary>
-    /// DispatchResponse is called by the server to dispatch a server response to all clients.
+    /// DispatchEvent is called by the server to dispatch a server response to all clients or a targeted one.
     /// Server ONLY.
     /// </summary>
     [Server]
-    public void DispatchEvent(ServerEventDTO response)
+    public void DispatchEvent(ServerEventDTO response, int? targetConnectionId = null)
     {
         if (!isServer)
             return;
 
-        logger.Log($"Dispatching Server Event: {response.Type} for NetId: {netId}", this);
-
-        RpcServerEvent(response);
+        if (targetConnectionId.HasValue)
+        {
+            if (
+                NetworkServer.connections.TryGetValue(
+                    targetConnectionId.Value,
+                    out var targetConnection
+                )
+            )
+                TargetRpcServerEvent(targetConnection, response);
+            else
+                logger.Log($"Failed to dispatch Targeted Server Event for NetId: {netId}", this);
+        }
+        else
+        {
+            RpcServerEvent(response);
+        }
     }
 
     /* --- RPCs --- */
@@ -98,7 +106,6 @@ public class NetworkAdapter : NetworkBehaviour
     private void CmdTransactionRequest(TransactionCommandDTO command)
     {
         command.NetId = netId;
-        logger.Log($"Received Transaction Command from client: {command.NetId}", this);
         receivedTransactionCommandEvent.Raise(command);
     }
 
@@ -107,6 +114,15 @@ public class NetworkAdapter : NetworkBehaviour
     /// </summary>
     [ClientRpc(channel = Channels.Reliable)]
     private void RpcServerEvent(ServerEventDTO response)
+    {
+        OnServerEvent?.Invoke(response);
+    }
+
+    /// <summary>
+    /// TargetServerEvent is a client RPC method that dispatches a server response to a single targeted client via event.
+    /// </summary>
+    [TargetRpc(channel = Channels.Reliable)]
+    private void TargetRpcServerEvent(NetworkConnectionToClient target, ServerEventDTO response)
     {
         OnServerEvent?.Invoke(response);
     }

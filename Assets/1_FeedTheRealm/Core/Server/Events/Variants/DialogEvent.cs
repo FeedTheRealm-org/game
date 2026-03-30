@@ -8,8 +8,8 @@ public class DialogEvent : BaseServerEvent
 {
     private readonly DialogEventContent content;
 
-    public DialogEvent(uint netId, DialogEventContent content)
-        : base(netId, isTargeted: true)
+    public DialogEvent(uint netId, DialogEventContent content, int? targetConnectionId = null)
+        : base(netId, targetConnectionId)
     {
         this.content = content;
     }

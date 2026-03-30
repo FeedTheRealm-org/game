@@ -6,7 +6,11 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Common.NetworkEntities.Characters
 {
-    public class CharacterStateStorage : NetworkBehaviour, ICharacterHealthSource, IGroundable
+    public class CharacterStateStorage
+        : NetworkBehaviour,
+            ICharacterHealthSource,
+            IGroundable,
+            ICharacterIdentity
     {
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
@@ -20,14 +24,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnHealthSync))]
         private float health;
 
-        [SyncVar]
-        private int _currentDialogIndex;
-
-        [SyncVar(hook = nameof(OnCurrentNpcIdSync))]
-        private string _currentNpcId;
-
-        [SyncVar(hook = nameof(OnIsInteractingSync))]
-        private bool _isInteracting;
+        [SyncVar(hook = nameof(OnCharacterIdSync))]
+        private string characterId;
 
         /* --- Getters --- */
 
@@ -35,12 +33,10 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public Vector3 Direction => direction;
         public float Stamina => stamina;
         public float Health => health;
+        public string CharacterId => characterId;
         public bool IsLocalPlayer => isLocalPlayer;
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
-        public bool IsInteracting => _isInteracting;
-        public string CurrentNpcId => _currentNpcId;
-        public int CurrentDialogIndex => _currentDialogIndex;
 
         /* --- Events --- */
 
@@ -48,8 +44,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public event Action<Vector3> OnDirectionChanged;
         public event Action<float> OnStaminaChanged;
         public event Action<float> OnHealthChanged;
-        public event Action<bool> OnIsInteractingChanged;
-        public event Action<string> OnCurrentNpcIdChanged;
+        public event Action<string> OnCharacterIdChanged;
         public event Action OnDeath;
         public event Action OnRespawn;
 
@@ -82,22 +77,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         }
 
         [Server]
-        public void SetInteracting(bool value, string npcId = "")
+        public void SetCharacterId(string newCharacterId)
         {
-            _currentNpcId = npcId;
-            if (!value)
-                _currentDialogIndex = 0;
-            _isInteracting = value;
-        }
-
-        [Server]
-        public void SetDialogIndex(int index) => _currentDialogIndex = index;
-
-        [Server]
-        public void SwitchInteractingNpc(string newNpcId)
-        {
-            _currentNpcId = newNpcId;
-            _currentDialogIndex = 0;
+            characterId = newCharacterId;
         }
 
         /* --- SyncVar hooks --- */
@@ -123,15 +105,10 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             RaiseHealthStatusChanged(oldHealth, newHealth);
         }
 
-        private void OnIsInteractingSync(bool _, bool v)
+        private void OnCharacterIdSync(string oldId, string newId)
         {
-            OnIsInteractingChanged?.Invoke(v);
-        }
-
-        private void OnCurrentNpcIdSync(string oldId, string newId)
-        {
-            if (_isInteracting && !string.IsNullOrEmpty(newId))
-                OnCurrentNpcIdChanged?.Invoke(newId);
+            characterId = newId;
+            OnCharacterIdChanged?.Invoke(newId);
         }
 
         /* --- Event Raisers --- */
@@ -147,14 +124,14 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public override void OnStartClient()
         {
             Debug.Log(
-                $"[CharacterStateStorage] Initial sync: position={position}, direction={direction}, stamina={stamina}, health={health}",
+                $"[CharacterStateStorage] Initial sync: position={position}, direction={direction}, stamina={stamina}, health={health}, characterId={characterId}",
                 this
             );
             OnPositionSync(Vector3.zero, position);
             OnDirectionSync(Vector3.zero, direction);
             OnStaminaSync(0, stamina);
             OnHealthSync(0, health);
-            OnIsInteractingSync(false, _isInteracting);
+            OnCharacterIdSync(null, characterId);
         }
     }
 }

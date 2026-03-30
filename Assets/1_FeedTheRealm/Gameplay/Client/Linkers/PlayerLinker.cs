@@ -95,7 +95,7 @@ public class ClientPlayerLinker : PlayerLinker
             inventoryView?.Initialize(inventoryState);
             goldView?.Initialize(goldState);
             interactController?.Initialize(networkAdapter);
-            interactView?.Initialize(networkEventRouter, npcDialogRegistry, stateStorage);
+            interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);
         }
     }

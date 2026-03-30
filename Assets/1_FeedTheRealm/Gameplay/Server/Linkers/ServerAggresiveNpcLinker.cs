@@ -8,15 +8,16 @@ using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Linkers;
 
 public class ServerAggresiveNpcLinker : AggresiveNpcLinker
 {
-    private readonly WorldMonitor world;
-    private ServerCharacterLinker characterLinker;
+    private readonly ServerCharacterLinker characterLinker;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private readonly WorldMonitor world;
     private readonly ServerConfig config;
 
     public ServerAggresiveNpcLinker(
@@ -35,42 +36,42 @@ public class ServerAggresiveNpcLinker : AggresiveNpcLinker
 
     public override void Link(GameObject gameObject)
     {
-        gameObject.name = $"AgressiveNPC";
+        gameObject.name = "AggressiveNPC";
 
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
+
+        var systems = characterLinker.Link(gameObject, netId);
         var rb = gameObject.GetComponent<Rigidbody>();
 
-        var serverComponents = characterLinker.Link(gameObject, netId);
+        var enemyComponents = resolver.Instantiate(
+            prefabProvider.ServerEnemyComponents,
+            gameObject.transform
+        );
+        var enemyCommandHandler = enemyComponents.GetComponent<EnemyCommandHandler>();
 
-        var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
-        var movementSystem = serverComponents.GetComponent<MovementSystem>();
-        var dashSystem = serverComponents.GetComponent<DashSystem>();
-        var useSystem = serverComponents.GetComponent<UseSystem>();
-        var interactSystem = serverComponents.GetComponent<InteractSystem>();
-        var healthSystem = serverComponents.GetComponent<HealthSystem>();
+        characterLinker.RegisterEntity(netId, networkAdapter, enemyCommandHandler);
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
-        var aiNavigationSystem = serverComponents.AddComponent<AINavigationSystem>();
+        var aiNavigationSystem = enemyComponents.AddComponent<AINavigationSystem>();
 
         resolver.Inject(aiNavigationSystem);
 
-        var chaseTriggerArea = UnityEngine
-            .Object.Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
+        var chaseTriggerArea = Object
+            .Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
             .GetComponent<PlayerTriggerArea>();
-        var attackTriggerArea = UnityEngine
-            .Object.Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
+        var attackTriggerArea = Object
+            .Instantiate(prefabProvider.PlayerTriggerAreaPrefab, gameObject.transform)
             .GetComponent<PlayerTriggerArea>();
 
-        healthSystem.Initialize(netId, stateStorage, false);
-        useSystem.Initialize(netId, rb, config.PlayerLayer, stateStorage);
+        systems.Health.Initialize(netId, stateStorage, false);
+        systems.Use.Initialize(netId, rb, config.PlayerLayer, stateStorage);
         chaseTriggerArea.Initialize(config.AggressiveChaseRadius);
         attackTriggerArea.Initialize(config.AggressiveAttackRadius);
-        serverCommandHandler.Initialize(movementSystem, dashSystem, useSystem, interactSystem);
+
+        enemyCommandHandler.Initialize(systems.Movement, systems.Dash, systems.Use);
         aiNavigationSystem.Initialize(netId, world, stateStorage);
 
         aiNavigationSystem.SetChaseTriggerArea(chaseTriggerArea);
-        useSystem.SetAttackTriggerArea(attackTriggerArea);
-
-        characterLinker.RegisterEntity(netId, networkAdapter, serverCommandHandler);
+        systems.Use.SetAttackTriggerArea(attackTriggerArea);
     }
 }

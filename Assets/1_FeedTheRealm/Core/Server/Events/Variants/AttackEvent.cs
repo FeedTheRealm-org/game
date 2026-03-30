@@ -8,7 +8,7 @@ public class AttackEvent : BaseServerEvent
     private AttackEventContent content;
 
     public AttackEvent(uint netId, AttackEventContent content)
-        : base(netId, false)
+        : base(netId)
     {
         this.content = content;
     }

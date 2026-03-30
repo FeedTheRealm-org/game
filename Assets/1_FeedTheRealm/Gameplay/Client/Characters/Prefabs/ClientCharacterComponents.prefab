@@ -19,10 +19,6 @@ GameObject:
   - component: {fileID: 8113882516953622363}
   - component: {fileID: 5535709811406022713}
   - component: {fileID: -4974415550214178087}
-  - component: {fileID: 1232106069820633984}
-  - component: {fileID: 1386346745984298910}
-  - component: {fileID: 1200678716181462585}
-  - component: {fileID: 8138701453679768281}
   m_Layer: 7
   m_Name: ClientCharacterComponents
   m_TagString: Player
@@ -185,54 +181,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
   maxHealth: 100
   animator: {fileID: 4486304355727522199}
---- !u!114 &1232106069820633984
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20806c353aafd88bd9367ea97d39276d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Client::InteractController
---- !u!114 &1386346745984298910
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0c32a89b7339a0cb879b8748260e4cb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Client::InventoryView
---- !u!114 &1200678716181462585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f7e9508a698f3549b1c9f06c952b8ab, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Client::InventoryController
---- !u!114 &8138701453679768281
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c651612101196c4d8cbcffcb62dfee5, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Client::GoldView
 --- !u!1001 &3728965444176374322
 PrefabInstance:
   m_ObjectHideFlags: 0
