@@ -49,14 +49,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 && entity.ConnectionId.HasValue
             )
             {
-                Debug.Log(
-                    $"[NpcInteractSystem] Found player connection for netId:{playerNetId} connectionId:{entity.ConnectionId.Value}"
-                );
                 return entity.ConnectionId.Value;
             }
-            Debug.LogWarning(
-                $"[NpcInteractSystem] Player connection NOT found for netId:{playerNetId}"
-            );
             return null;
         }
 
@@ -67,16 +61,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
             int count = npcDialogRegistry.GetMessageCount(npcId);
             if (count == 0)
             {
-                if (logger != null)
-                    logger.Log(
-                        $"[NpcInteractSystem] No messages registered for NpcId '{npcId}'.",
-                        this
-                    );
+                logger?.Log($"[NpcInteractSystem] No messages for Npc '{npcId}'.", this);
                 return npcId;
             }
 
             playerDialogStates[playerNetId] = 0;
             RestartInactivityTimer(playerNetId, interactor);
+
+            var connId = GetPlayerConnectionId(playerNetId);
+            if (!connId.HasValue)
+            {
+                logger?.Log($"[NpcInteractSystem] conn not found, Player:{playerNetId}.", this);
+                return npcId;
+            }
 
             worldMonitor.Events.Enqueue(
                 new DialogEvent(
@@ -87,12 +84,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         NpcId = npcId,
                         DialogIndex = 0,
                     },
-                    GetPlayerConnectionId(playerNetId)
+                    connId.Value
                 )
             );
 
-            if (logger != null)
-                logger.Log($"NPC interacted with by {interactor.GameObject.name}", this);
+            logger?.Log($"NPC interacted with by {interactor.GameObject.name}", this);
 
             return npcId;
         }

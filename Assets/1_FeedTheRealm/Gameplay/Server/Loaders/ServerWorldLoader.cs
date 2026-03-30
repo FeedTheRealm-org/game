@@ -18,8 +18,8 @@ namespace FTR.Gameplay.Server.Scopes
                 prefabProvider,
                 resolver
             );
-            var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
             var structureLoader = new ServerStructureLoader(prefabProvider);
+            var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
             var playerSpawnerLoader = new PlayerSpawnerLoader();
             var serverItemLoader = new ServerItemLoader();
 

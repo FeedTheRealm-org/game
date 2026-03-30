@@ -132,14 +132,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
             {
                 var targetNetId = target.GetComponent<NetworkIdentity>()?.netId;
                 if (targetNetId.HasValue && targetNetId.Value == netId)
-                {
                     continue;
-                }
                 var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
                 if (healthSystem == null)
-                {
                     continue;
-                }
 
                 healthSystem.TakeDamage(attackDamage);
             }

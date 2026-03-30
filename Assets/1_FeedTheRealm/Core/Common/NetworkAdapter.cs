@@ -43,11 +43,6 @@ public class NetworkAdapter : NetworkBehaviour
         if (!isLocalPlayer)
             return;
 
-        /*logger.Log(
-            $"Dispatching Action Command: {command.Type} with direction {command.Direction}",
-            this
-        );*/
-
         CmdActionRequest(command);
     }
 
@@ -74,11 +69,6 @@ public class NetworkAdapter : NetworkBehaviour
         if (!isServer)
             return;
 
-        Debug.Log(
-            $"[NetworkAdapter] DispatchEvent called | netId:{netId} | "
-                + $"connectionToClient:{connectionToClient?.connectionId.ToString() ?? "null"} | "
-                + $"targetConnectionId:{targetConnectionId}"
-        );
         if (targetConnectionId.HasValue)
         {
             if (
@@ -87,27 +77,12 @@ public class NetworkAdapter : NetworkBehaviour
                     out var targetConnection
                 )
             )
-            {
-                logger.Log(
-                    $"Dispatching Targeted Server Event: {response.Type} for NetId: {netId} to connection {targetConnectionId}",
-                    this
-                );
                 TargetRpcServerEvent(targetConnection, response);
-            }
             else
-            {
-                logger.Log(
-                    $"Failed to dispatch Targeted Server Event: {response.Type} for NetId: {netId} to connection {targetConnectionId} - connection not found",
-                    this
-                );
-            }
+                logger.Log($"Failed to dispatch Targeted Server Event for NetId: {netId}", this);
         }
         else
         {
-            logger.Log(
-                $"Dispatching Broadcast Server Event: {response.Type} for NetId: {netId}",
-                this
-            );
             RpcServerEvent(response);
         }
     }
@@ -131,7 +106,6 @@ public class NetworkAdapter : NetworkBehaviour
     private void CmdTransactionRequest(TransactionCommandDTO command)
     {
         command.NetId = netId;
-        logger.Log($"Received Transaction Command from client: {command.NetId}", this);
         receivedTransactionCommandEvent.Raise(command);
     }
 
@@ -150,9 +124,6 @@ public class NetworkAdapter : NetworkBehaviour
     [TargetRpc(channel = Channels.Reliable)]
     private void TargetRpcServerEvent(NetworkConnectionToClient target, ServerEventDTO response)
     {
-        Debug.Log(
-            $"[NetworkAdapter CLIENT] TargetRpc received | type:{response.Type} | localNetId:{netId}"
-        );
         OnServerEvent?.Invoke(response);
     }
 }
