@@ -38,4 +38,8 @@ public class ShopInteractComponent : MonoBehaviour, IInteractable
     {
         return true;
     }
+
+    public void ContinueInteraction(IInteractor interactor) { }
+
+    public void StopInteraction(IInteractor interactor) { }
 }

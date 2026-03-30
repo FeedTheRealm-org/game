@@ -20,6 +20,10 @@ namespace API
         [SerializeField]
         private ApiConfig apiConfig;
 
+        [Header("Session settings")]
+        [SerializeField]
+        private Session.Session session;
+
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
@@ -162,14 +166,17 @@ namespace API
         /// Get item categories.
         /// Full URL: /assets/items/categories
         /// </summary>
-        public async System.Threading.Tasks.Task<string> GetCategoriesAsync()
+        public async System.Threading.Tasks.Task<SpriteCategoryListResponse> GetCategoriesAsync()
         {
             var url = $"{GetBaseUrl()}/categories";
             Debug.Log($"[ItemAssetsService] GetCategoriesAsync fetching from URL: {url}");
             using var uwr = UnityWebRequest.Get(url);
 
+            uwr.SetRequestHeader("Authorization", $"Bearer {session.APIToken}");
             var asyncOp = uwr.SendWebRequest();
             await asyncOp;
+
+            logger?.Log($"GetCategoriesAsync completed with status: {uwr.result}", this);
 
             if (
                 uwr.result == UnityWebRequest.Result.ConnectionError
@@ -184,7 +191,9 @@ namespace API
             }
 
             logger?.Log("GetCategoriesAsync success", this);
-            return uwr.downloadHandler.text;
+            return JsonUtility
+                .FromJson<DataEnvelope<SpriteCategoryListResponse>>(uwr.downloadHandler.text)
+                .data;
         }
 
         /// <summary>
@@ -195,23 +204,24 @@ namespace API
         {
             currentWorldId = worldId;
             Debug.Log($"[ItemAssetsService] Fetching categories for world {worldId}...");
-            string categoriesJson = await GetCategoriesAsync();
+            SpriteCategoryListResponse categoriesResponse = await GetCategoriesAsync();
 
-            if (!string.IsNullOrEmpty(categoriesJson))
+            if (categoriesResponse != null)
             {
-                Debug.Log($"[ItemAssetsService] Raw categories JSON received: {categoriesJson}");
+                Debug.Log(
+                    $"[ItemAssetsService] Raw categories JSON received: {categoriesResponse.category_list.Length} categories"
+                );
                 try
                 {
-                    var response = JsonUtility.FromJson<CategoriesResponse>(categoriesJson);
                     if (
-                        response != null
-                        && response.data != null
-                        && response.data.category_list != null
-                        && response.data.category_list.Length > 0
+                        categoriesResponse != null
+                        && categoriesResponse != null
+                        && categoriesResponse.category_list != null
+                        && categoriesResponse.category_list.Length > 0
                     )
                     {
                         categoriesMap.Clear();
-                        foreach (var cat in response.data.category_list)
+                        foreach (var cat in categoriesResponse.category_list)
                         {
                             categoriesMap[cat.category_name] = cat.category_id;
                             Debug.Log(

@@ -17,6 +17,7 @@ public class ServerPlayerLinker : PlayerLinker
     private readonly ServerCharacterLinker characterLinker;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private readonly WorldMonitor world;
     private readonly ServerConfig config;
 
     public ServerPlayerLinker(
@@ -26,6 +27,7 @@ public class ServerPlayerLinker : PlayerLinker
         ServerConfig config
     )
     {
+        this.world = world;
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
@@ -41,38 +43,53 @@ public class ServerPlayerLinker : PlayerLinker
         var inventoryStateStorage = gameObject.GetComponent<InventoryStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
 
-        var serverComponents = characterLinker.Link(gameObject, netId);
+        int connectionId = networkAdapter.connectionToClient.connectionId;
+
+        var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
+        tracker.Initialize(world, netId);
+
+        var systems = characterLinker.Link(gameObject, netId);
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
-        var movementSystem = serverComponents.GetComponent<MovementSystem>();
-        var dashSystem = serverComponents.GetComponent<DashSystem>();
-        var useSystem = serverComponents.GetComponent<UseSystem>();
-        var interactSystem = serverComponents.GetComponent<InteractSystem>();
-        var healthSystem = serverComponents.GetComponent<HealthSystem>();
-        var serverCommandHandler = serverComponents.GetComponent<ServerCommandHandler>();
 
         var playerComponents = resolver.Instantiate(
             prefabProvider.ServerPlayerComponents,
             gameObject.transform
         );
+
         var serverPlayerCommandHandler =
             playerComponents.GetComponent<ServerPlayerCommandHandler>();
         var respawnSystem = playerComponents.GetComponent<RespawnSystem>();
         var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
+        var interactSystem = playerComponents.GetComponent<PlayerInteractSystem>();
 
-        healthSystem.Initialize(netId, stateStorage, false);
-        useSystem.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
+        interactSystem.Initialize(netId);
+        systems.Health.Initialize(netId, stateStorage, false);
+        systems.Use.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
         inventorySystem.Initialize(netId, inventoryStateStorage);
-        respawnSystem.Initialize(netId, networkAdapter, serverCommandHandler, rb, healthSystem);
-        persistenceSystem.Initialize(movementSystem, inventorySystem);
+        persistenceSystem.Initialize(systems.Movement, inventorySystem);
+
         serverPlayerCommandHandler.Initialize(
-            movementSystem,
-            dashSystem,
-            useSystem,
+            systems.Movement,
+            systems.Dash,
+            systems.Use,
             interactSystem,
             inventorySystem
         );
 
-        characterLinker.RegisterEntity(netId, networkAdapter, serverPlayerCommandHandler);
+        respawnSystem.Initialize(
+            netId,
+            networkAdapter,
+            serverPlayerCommandHandler,
+            rb,
+            systems.Health
+        );
+
+        characterLinker.RegisterEntity(
+            netId,
+            networkAdapter,
+            serverPlayerCommandHandler,
+            connectionId
+        );
     }
 }

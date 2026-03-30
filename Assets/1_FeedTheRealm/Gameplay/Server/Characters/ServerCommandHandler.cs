@@ -6,51 +6,21 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
 {
-    public class ServerCommandHandler : MonoBehaviour, ICommandable
+    /// <summary>
+    /// Abstract base providing default no-op implementations of ICommandable.
+    /// Concrete handlers inherit only what they need.
+    /// </summary>
+    public abstract class ServerCommandHandler : MonoBehaviour, ICommandable
     {
-        protected MovementSystem movementSystem;
-        protected DashSystem dashSystem;
-        protected UseSystem useSystem;
-        protected InteractSystem interactSystem;
+        public virtual void OnMove(IEventCollectable ec, Vector3 direction) { }
 
-        // TODO: Serialize field whatever possible
-        public void Initialize(
-            MovementSystem movementSystem,
-            DashSystem dashSystem,
-            UseSystem useSystem,
-            InteractSystem interactSystem
-        )
-        {
-            this.movementSystem = movementSystem;
-            this.dashSystem = dashSystem;
-            this.useSystem = useSystem;
-            this.interactSystem = interactSystem;
-        }
+        public virtual void OnDash(IEventCollectable ec, Vector3 direction) { }
 
-        public virtual void OnMove(IEventCollectable ec, Vector3 direction)
-        {
-            movementSystem.OnMove(direction);
-        }
+        public virtual void OnUse(IEventCollectable ec) { }
 
-        public virtual void OnDash(IEventCollectable ec, Vector3 direction)
-        {
-            dashSystem.OnDash(ec, direction);
-        }
+        public virtual void OnInteract(IEventCollectable ec) { }
 
-        public virtual void OnUse(IEventCollectable ec)
-        {
-            useSystem.OnUse(ec);
-        }
-
-        public virtual void OnInteract(IEventCollectable ec)
-        {
-            interactSystem.OnInteract(ec);
-        }
-
-        public virtual void OnDialogNext(IEventCollectable ec)
-        {
-            interactSystem.OnDialogNext(ec);
-        }
+        public virtual void OnDialogNext(IEventCollectable ec) { }
 
         public virtual void OnEquipItem(IEventCollectable ec, int slotIndex) { }
 
@@ -61,9 +31,9 @@ namespace FTR.Gameplay.Server.Characters
             string itemId
         ) { }
 
-        public void OnPurchase(IEventCollectable ec) { }
+        public virtual void OnPurchase(IEventCollectable ec) { }
 
-        public void OnQuestAccepted(IEventCollectable ec) { }
+        public virtual void OnQuestAccepted(IEventCollectable ec) { }
 
         public virtual void OnMoveItem(
             IEventCollectable ec,

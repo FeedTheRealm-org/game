@@ -60,6 +60,9 @@ public class CharacterAnimator : MonoBehaviour
 
     public void SetFacing(FacingDirection facing)
     {
+        if (spriteMap == null)
+            return;
+
         foreach (var kvp in spriteMap)
         {
             kvp.Value.SetActive(kvp.Key == facing);

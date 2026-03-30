@@ -8,7 +8,7 @@ public class InitialForceEvent : BaseServerEvent
     private InitialForceEventContent content;
 
     public InitialForceEvent(uint netId, InitialForceEventContent content)
-        : base(netId, false)
+        : base(netId)
     {
         this.content = content;
     }
