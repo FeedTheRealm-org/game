@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5168829270403790104
 Transform:
   m_ObjectHideFlags: 0
@@ -52,8 +52,8 @@ MonoBehaviour:
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
+  m_WorldSpaceWidth: 1000
+  m_WorldSpaceHeight: 1000
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
@@ -69,9 +69,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
-  centeredBillboard: 1
-  centerTransform: {fileID: 0}
-  offset: {x: 0, y: 1, z: 0}
 --- !u!114 &283696448335698891
 MonoBehaviour:
   m_ObjectHideFlags: 0

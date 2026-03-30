@@ -1,5 +1,8 @@
+using System;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.Commands;
+using UnityEditor;
 
 namespace FTR.Core.Server.Commands;
 
@@ -19,9 +22,11 @@ public static class CommandsFactory
             case ActionType.Use:
                 return new UseCommand(dto.NetId, dto.Direction);
             case ActionType.Interact:
-                return new InteractCommand(dto.NetId, dto.Direction);
+                return new InteractCommand(dto.NetId);
+            case ActionType.DialogNext:
+                return new DialogNextCommand(dto.NetId);
             default:
-                throw new System.ArgumentException($"Unsupported action type: {dto.Type}");
+                throw new ArgumentException($"Unsupported action type: {dto.Type}");
         }
     }
 
@@ -29,16 +34,64 @@ public static class CommandsFactory
     {
         switch (dto.Type)
         {
-            case TransactionType.Equip:
-                return new EquipCommand(dto.NetId, dto.Id);
-            case TransactionType.Drop:
-                return new DropCommand(dto.NetId, dto.Id);
+            case TransactionType.EquipItem:
+                try
+                {
+                    EquipItemCommandContent content = EquipItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new EquipItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    EquipItemCommandContent defaultContent = new EquipItemCommandContent
+                    {
+                        Position = -1,
+                    };
+                    return new EquipItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
+            case TransactionType.DropItem:
+                try
+                {
+                    DropItemCommandContent content = DropItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new DropItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    DropItemCommandContent defaultContent = new DropItemCommandContent
+                    {
+                        Type = StorageType.Null,
+                        Position = -1,
+                    };
+                    return new DropItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
             case TransactionType.Purchase:
                 return new PurchaseCommand(dto.NetId, dto.Id);
             case TransactionType.AcceptQuest:
                 return new AcceptQuestCommand(dto.NetId, dto.Id);
+            case TransactionType.MoveItem:
+                try
+                {
+                    MoveItemCommandContent content = MoveItemCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new MoveItemCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    MoveItemCommandContent defaultContent = new MoveItemCommandContent
+                    {
+                        SourceType = StorageType.Null,
+                        SourcePosition = -1,
+                        TargetType = StorageType.Null,
+                        TargetPosition = -1,
+                    };
+                    return new MoveItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
             default:
-                throw new System.ArgumentException($"Unsupported transaction type: {dto.Type}");
+                throw new ArgumentException($"Unsupported transaction type: {dto.Type}");
         }
     }
 }

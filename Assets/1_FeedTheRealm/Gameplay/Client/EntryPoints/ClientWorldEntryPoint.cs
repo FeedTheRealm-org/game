@@ -1,74 +1,74 @@
-using API;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
+using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
-using FTR.Gameplay.Common.WorldLoader;
-using FTR.Gameplay.LoaderEntities;
-using Logging;
+using FTR.Core.Common.Scopes;
+using FTR.Gameplay.Client.Loaders;
 using VContainer;
 using VContainer.Unity;
 
-public class ClientWorldEntryPoint : WorldLoader, ITickable, IFixedTickable, ILateTickable
+namespace FTR.Gameplay.Client.EntryPoints
 {
-    private TickEvent tickEvent;
-
-    private FixedTickEvent fixedTickEvent;
-
-    private LateTickEvent lateTickEvent;
-
-    private bool isInitialized = false;
-
-    private Session.Session session;
-
-    private WorldSelector worldSelector;
-
-    [Inject]
-    public ClientWorldEntryPoint(
-        TickEvent tickEvent,
-        FixedTickEvent fixedTickEvent,
-        LateTickEvent lateTickEvent,
-        Session.Session session,
-        WorldService worldService,
-        Logger logger,
-        LoaderProvider loaderProvider,
-        WorldSelector worldSelector
-    )
-        : base(worldService, logger, loaderProvider)
+    /// <summary>
+    /// Entry point for the client application, responsible for initializing the application flow, including authentication and main menu navigation.
+    /// </summary>
+    public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
     {
-        this.tickEvent = tickEvent;
-        this.fixedTickEvent = fixedTickEvent;
-        this.lateTickEvent = lateTickEvent;
-        this.session = session;
-        this.worldSelector = worldSelector;
-        isInitialized = true;
-    }
+        private TickEvent tickEvent;
 
-    public override string GetWorldId()
-    {
-        return worldSelector.GetSelectedWorldId();
-    }
+        private FixedTickEvent fixedTickEvent;
 
-    public override string GetAccessToken()
-    {
-        return session.APIToken;
-    }
+        private LateTickEvent lateTickEvent;
 
-    public void Tick()
-    {
-        if (!isInitialized)
-            return;
-        tickEvent.Raise();
-    }
+        private bool isInitialized = false;
 
-    public void FixedTick()
-    {
-        if (!isInitialized)
-            return;
-        fixedTickEvent.Raise();
-    }
+        private readonly ClientWorldLoader worldLoader;
+        private readonly WorldSetupService worldSetup;
 
-    public void LateTick()
-    {
-        if (!isInitialized)
-            return;
-        lateTickEvent.Raise();
+        [Inject]
+        public ClientWorldEntryPoint(
+            TickEvent tickEvent,
+            FixedTickEvent fixedTickEvent,
+            LateTickEvent lateTickEvent,
+            IObjectResolver resolver,
+            ObjectResolverContainer resolverContainer,
+            ClientWorldLoader worldLoader,
+            WorldSetupService worldSetup
+        )
+        {
+            this.tickEvent = tickEvent;
+            this.fixedTickEvent = fixedTickEvent;
+            this.lateTickEvent = lateTickEvent;
+            resolverContainer.SetResolver(resolver);
+            this.worldLoader = worldLoader;
+            this.worldSetup = worldSetup;
+            isInitialized = true;
+        }
+
+        public async void Start()
+        {
+            await worldLoader.LoadWorld();
+            worldSetup.ExecuteSetup();
+        }
+
+        public void Tick()
+        {
+            if (!isInitialized)
+                return;
+            tickEvent.Raise();
+        }
+
+        public void FixedTick()
+        {
+            if (!isInitialized)
+                return;
+            fixedTickEvent.Raise();
+        }
+
+        public void LateTick()
+        {
+            if (!isInitialized)
+                return;
+            lateTickEvent.Raise();
+        }
     }
 }

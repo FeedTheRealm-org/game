@@ -1,3 +1,5 @@
+using FTR.Gameplay.Client.Registry;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
@@ -7,7 +9,7 @@ using UnityEngine.UIElements;
 /// Shows stats for items using data provided by the current world.
 ///
 /// For gameplay items, data comes from the current world's item collections
-/// (via Worlds.WorldItemsRegistry). Items are identified by their unique item id.
+/// (via ClientItemsRegistry). Items are identified by their unique item id.
 /// </summary>
 public class ItemStatsTooltip : MonoBehaviour
 {
@@ -137,11 +139,11 @@ public class ItemStatsTooltip : MonoBehaviour
         logger?.Log($"[Tooltip] ShowTooltip called - Slot: {slot.name}", this);
 
         // Resolve the item once and then delegate type-specific logic to the presenter.
-        var item = Worlds.WorldItemsRegistry.GetItemById(itemId);
+        var item = ClientItemsRegistry.GetItemById(itemId);
         if (item == null)
         {
             logger?.Log(
-                $"[Tooltip] Item not found in WorldItemsRegistry for itemId: {itemId}",
+                $"[Tooltip] Item not found in ClientItemsRegistry for itemId: {itemId}",
                 this,
                 Logging.LogType.Warning
             );

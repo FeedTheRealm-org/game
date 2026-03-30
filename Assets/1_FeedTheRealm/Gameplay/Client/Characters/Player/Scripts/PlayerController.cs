@@ -1,4 +1,6 @@
+using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.Exceptions;
+using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using Unity.Cinemachine;
 using UnityEngine;
 using VContainer;
@@ -13,17 +15,30 @@ public class PlayerController : MonoBehaviour
     public PlayerInputReader inputReader;
 
     [Inject]
+    private InventoryToggleEvent inventoryToggleEvent;
+
+    [Inject]
     private Logging.Logger logger;
 
     private CharacterStateMachine characterStateMachine;
 
     private bool isInitialized = false;
+    private bool isInventoryOpen = false;
 
     public void Initialize(CharacterStateMachine characterStateMachine)
     {
         this.characterStateMachine = characterStateMachine;
         isInitialized = true;
+
+        if (inventoryToggleEvent != null)
+            inventoryToggleEvent.OnRaised += OnInventoryToggled;
+
         StartController();
+    }
+
+    private void OnInventoryToggled(bool isOpen)
+    {
+        isInventoryOpen = isOpen;
     }
 
     public void StartController()
@@ -48,6 +63,9 @@ public class PlayerController : MonoBehaviour
     public void OnDestroy()
     {
         ToggleRegisterInputs(false);
+
+        if (inventoryToggleEvent != null)
+            inventoryToggleEvent.OnRaised -= OnInventoryToggled;
     }
 
     private void ToggleRegisterInputs(bool register)
@@ -73,6 +91,11 @@ public class PlayerController : MonoBehaviour
         // if (Cursor.visible)
         // {
         //     return;
+        if (isInventoryOpen)
+        {
+            return;
+        }
+
         // }
 
         characterStateMachine?.OnUse();
@@ -86,7 +109,7 @@ public class PlayerController : MonoBehaviour
         // }
         // TODO: remove these if and make the state machine know via events when it can execute inputs or not (e.g. Hud manager events).
 
-        logger.Log($"PlayerController OnMoveInput: {vec}", this);
+        //logger.Log($"PlayerController OnMoveInput: {vec}", this);
         characterStateMachine?.OnMove(vec);
     }
 

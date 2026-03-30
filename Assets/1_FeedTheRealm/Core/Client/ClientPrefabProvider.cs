@@ -5,7 +5,14 @@ namespace FTR.Core.Client
     [CreateAssetMenu(menuName = "Scriptable Objects/Client/Prefab Provider")]
     public class ClientPrefabProvider : ScriptableObject
     {
-        public GameObject ClientPlayerComponents;
+        public GameObject ClientCharacterComponents;
         public GameObject HudComponent;
+        public GameObject LootItemVisual;
+        public GameObject InventoryHudComponent;
+        public GameObject DialogBox;
+        public GameObject SettingMenuComponent;
+
+        [Header("Loader Components")]
+        public GameObject StructurePrefab;
     }
 }

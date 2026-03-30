@@ -11,27 +11,38 @@ namespace FTR.Gameplay.Common.Environment.Structures
         public void Initialize(StructureData structureData)
         {
             this.structureData = structureData;
-            transform.position = this.structureData.position;
-            transform.rotation = Quaternion.Euler(this.structureData.rotation);
+
+            transform.position = structureData.position;
+            transform.rotation = Quaternion.Euler(structureData.rotation);
             transform.localScale = Vector3.one;
-
             SetupCollider();
-        }
-
-        public void SetVisualModel(GameObject visualModel)
-        {
-            visualModel.transform.SetParent(gameObject.transform);
-            visualModel.SetActive(true);
-            visualModel.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            visualModel.transform.localScale = structureData.size;
         }
 
         private void SetupCollider()
         {
-            BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
+            var boxCollider = gameObject.AddComponent<BoxCollider>();
             boxCollider.size = structureData.colliderSize;
             boxCollider.center = structureData.colliderCenter;
-            boxCollider.isTrigger = false;
+        }
+
+        public void SetupMesh(GameObject visualPrefab)
+        {
+            var visualInstance = Instantiate(visualPrefab, transform);
+            visualInstance.SetActive(true);
+            visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            visualInstance.transform.localScale = structureData.size;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.silver;
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(
+                transform.position,
+                transform.rotation,
+                Vector3.one
+            );
+            Gizmos.matrix = rotationMatrix;
+            Gizmos.DrawWireCube(structureData.colliderCenter, structureData.colliderSize);
         }
     }
 }

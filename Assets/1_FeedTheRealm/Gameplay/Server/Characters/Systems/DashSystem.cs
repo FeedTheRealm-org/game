@@ -67,7 +67,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     netId,
                     new DashEventContent
                     {
-                        Force = new Force
+                        Force = new ProtoVector3
                         {
                             X = force.x,
                             Y = force.y,

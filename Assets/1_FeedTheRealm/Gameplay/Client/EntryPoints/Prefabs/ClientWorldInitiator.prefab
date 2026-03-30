@@ -51,7 +51,11 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
   playerInputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
   prefabProvider: {fileID: 11400000, guid: 805f190945737dfdd82e6b04f6f82e9a, type: 2}
-  tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
-  fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
-  lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}
+  clientEventRegistry: {fileID: 11400000, guid: 7b0314ec47ec120ae9b419a5265297fe, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
+  worldSelector: {fileID: 11400000, guid: faed404c8f2d5282c8f1b73ca17c2f00, type: 2}
+  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
+  npcDialogRegistry: {fileID: 11400000, guid: 005987f0302cbcf9094db004ad4ffe04, type: 2}
+  modelService: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
+  gltfLoaderService: {fileID: 11400000, guid: 021be9f008c872d43b5753a0c733ad99, type: 2}

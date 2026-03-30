@@ -1,0 +1,91 @@
+using System.Collections.Generic;
+using API;
+using Cysharp.Threading.Tasks;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Loaders;
+using FTRShared.Runtime.Models;
+using VContainer;
+
+namespace FTR.Gameplay.Common.LoaderEntities
+{
+    public abstract class WorldLoaderManager
+    {
+        [Inject]
+        protected Config config;
+
+        [Inject]
+        private readonly WorldService worldService;
+
+        [Inject]
+        private readonly Logging.Logger logger;
+
+        public List<ILoader> loaders;
+
+        public abstract string GetWorldId();
+        public abstract string GetAccessToken();
+
+        public async UniTask LoadWorld()
+        {
+            if (!config.DoNotLoadWorld)
+                await Initialize();
+        }
+
+        // --- Private methods --- //
+        private async UniTask Initialize()
+        {
+            try
+            {
+                (string worldId, string accessToken) = (GetWorldId(), GetAccessToken());
+                ValidateArgs(worldId, "worldId");
+                ValidateArgs(accessToken, "accessToken");
+                logger.Log(
+                    $"[WORLD-LOAD] Starting world loading with World ID: {worldId} | Access Token: {accessToken}"
+                );
+                await Load(worldId, accessToken);
+            }
+            catch (System.Exception ex)
+            {
+                logger.Log(
+                    $"World could not be loaded: {ex.Message}\n{ex.StackTrace}",
+                    Logging.LogType.Error
+                );
+            }
+        }
+
+        private async UniTask Load(string worldId, string accessToken)
+        {
+            if (loaders == null || loaders.Count == 0)
+                return;
+
+            WorldData worldData =
+                await LoadWorldData(worldId, accessToken)
+                ?? throw new System.InvalidOperationException("Failed to load world data");
+            for (int i = 0; i < loaders.Count; i++)
+            {
+                ILoader loader = loaders[i];
+                logger.Log($"Loading {loader.GetType().Name} | {i + 1} / {loaders.Count}");
+                await loader.Load(worldData);
+            }
+            logger.Log("World loading complete!");
+        }
+
+        private async UniTask<WorldData> LoadWorldData(string worldId, string accessToken)
+        {
+            (WorldData data, string errorMessage, long responseCode) =
+                await worldService.GetWorldData(worldId, accessToken);
+            if (data == null || !string.IsNullOrEmpty(errorMessage))
+                throw new System.Exception(
+                    $"Failed to load world data: {errorMessage} (Response code: {responseCode})"
+                );
+            return data;
+        }
+
+        private void ValidateArgs(string args, string argName)
+        {
+            if (args == null || string.IsNullOrEmpty(args))
+            {
+                throw new System.ArgumentException($"Empty or null value for: {argName}");
+            }
+        }
+    }
+}

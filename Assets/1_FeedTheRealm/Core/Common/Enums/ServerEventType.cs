@@ -8,4 +8,6 @@ public enum ServerEventType
     AttackEvent,
     HitEvent,
     DashEvent,
+    InitialForceEvent,
+    DialogEvent,
 }

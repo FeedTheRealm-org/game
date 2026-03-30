@@ -5,8 +5,19 @@ namespace FTR.Core.Server
     [CreateAssetMenu(menuName = "Scriptable Objects/Server/Prefab Provider")]
     public class ServerPrefabProvider : ScriptableObject
     {
+        public GameObject ServerCharacterComponents;
         public GameObject ServerPlayerComponents;
+        public GameObject ServerLootItemComponents;
+        public GameObject ServerEnemyComponents;
+        public GameObject ServerNpcComponents;
+        public GameObject LootItemPrefab;
 
-        public GameObject ServerLoaderComponents;
+        [Header("Loader Components")]
+        public GameObject StructureComponent;
+        public GameObject AggresiveNpcSpawnerComponent;
+        public GameObject FriendlyNpcSpawnerComponent;
+
+        [Header("Utility")]
+        public GameObject PlayerTriggerAreaPrefab;
     }
 }

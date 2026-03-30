@@ -1,34 +1,80 @@
 using Cysharp.Threading.Tasks;
+using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
 
-public class ClientEntryPoint : IStartable
+namespace FTR.Gameplay.Client.EntryPoints
 {
-    private readonly SceneReference mainScene;
-
-    public ClientEntryPoint(SceneReference worldScene)
+    /// <summary>
+    /// Entry point for the client application, responsible for initializing the application flow, including authentication and main menu navigation.
+    /// </summary>
+    public class ClientEntryPoint : IStartable
     {
-        this.mainScene = worldScene;
-    }
+        private readonly SceneReference mainScene;
+        private readonly Session.Session session;
+        private readonly GameObject loginPrefab;
+        private readonly GameObject signUpPrefab;
+        private readonly GameObject verifyCodePrefab;
+        private readonly GameObject worldFeedMenuPrefab;
+        private readonly GameObject navBarPrefab;
+        private readonly GameObject profileMenuPrefab;
+        private readonly GameObject gemStorePrefab;
+        private readonly MainMenuFlowService flowService;
 
-    public async void Start()
-    {
-        ConfigureUnityForClient();
-        await LoadMainScene();
-    }
+        public ClientEntryPoint(
+            SceneReference mainScene,
+            Session.Session session,
+            GameObject loginPrefab,
+            GameObject signUpPrefab,
+            GameObject verifyCodePrefab,
+            GameObject worldFeedMenuPrefab,
+            GameObject navBarPrefab,
+            GameObject profileMenuPrefab,
+            GameObject gemStorePrefab
+        )
+        {
+            this.mainScene = mainScene;
+            this.session = session;
+            this.loginPrefab = loginPrefab;
+            this.signUpPrefab = signUpPrefab;
+            this.verifyCodePrefab = verifyCodePrefab;
+            this.worldFeedMenuPrefab = worldFeedMenuPrefab;
+            this.navBarPrefab = navBarPrefab;
+            this.profileMenuPrefab = profileMenuPrefab;
+            this.gemStorePrefab = gemStorePrefab;
+            flowService = new MainMenuFlowService(
+                loginPrefab,
+                signUpPrefab,
+                verifyCodePrefab,
+                worldFeedMenuPrefab,
+                navBarPrefab,
+                profileMenuPrefab,
+                gemStorePrefab
+            );
+        }
 
-    void ConfigureUnityForClient()
-    {
-        // TODO: Load client config
+        public async void Start()
+        {
+            ConfigureUnityForClient();
 
-        // Cap Update & LateUpdate TPS
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 60;
-    }
+            await flowService.ShowAuthFlow();
+            await flowService.ShowMainMenuFlow();
+            await LoadMainScene();
+        }
 
-    async UniTask LoadMainScene()
-    {
-        await SceneManager.LoadSceneAsync(mainScene.SceneName, LoadSceneMode.Single);
+        void ConfigureUnityForClient()
+        {
+            // TODO: Load client config
+
+            // Cap Update & LateUpdate TPS
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 60;
+        }
+
+        async UniTask LoadMainScene()
+        {
+            await SceneManager.LoadSceneAsync(mainScene.SceneName, LoadSceneMode.Single);
+        }
     }
 }

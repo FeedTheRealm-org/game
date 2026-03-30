@@ -48,7 +48,7 @@ public class MovementController : MonoBehaviour
         if (delta >= rotationMagnitudeToSend)
         {
             SendMoveCommand();
-            logger.Log($"Rotation changed significantly. Sent new move command.", this);
+            //logger.Log($"Rotation changed significantly. Sent new move command.", this);
         }
     }
 

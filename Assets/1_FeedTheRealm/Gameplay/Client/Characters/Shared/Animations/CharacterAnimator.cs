@@ -60,6 +60,9 @@ public class CharacterAnimator : MonoBehaviour
 
     public void SetFacing(FacingDirection facing)
     {
+        if (spriteMap == null)
+            return;
+
         foreach (var kvp in spriteMap)
         {
             kvp.Value.SetActive(kvp.Key == facing);
@@ -82,6 +85,10 @@ public class CharacterAnimator : MonoBehaviour
     }
 
     /* --- Players --- */
+    public void PlayIdle()
+    {
+        animator.SetInteger("State", 0);
+    }
 
     public void PlayAttack()
     {
@@ -95,7 +102,7 @@ public class CharacterAnimator : MonoBehaviour
 
     public void PlayDeath()
     {
-        animator.SetTrigger("Death");
+        animator.SetInteger("State", 9);
     }
 
     /* --- Animator Hooks --- */

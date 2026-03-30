@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Shop;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -69,14 +69,15 @@ public class ShopMenuController : MonoBehaviour
         item.AddToClassList("shop-slot");
 
         var img = new VisualElement();
-        Texture2D texture = await itemAssetsService.DownloadItemSpriteAsync(product.itemData.id);
-        Sprite sprite = Sprite.Create(
-            texture,
-            new Rect(0, 0, texture.width, texture.height),
-            new Vector2(0.5f, 0.5f)
-        );
+        // TODO: itemData NO LONGER EXISTS IN ProductData! UPDATE!!
+        // Texture2D texture = await itemAssetsService.DownloadItemSpriteAsync(product.itemData.id);
+        // Sprite sprite = Sprite.Create(
+        //     texture,
+        //     new Rect(0, 0, texture.width, texture.height),
+        //     new Vector2(0.5f, 0.5f)
+        // );
 
-        img.style.backgroundImage = new StyleBackground(sprite);
+        // img.style.backgroundImage = new StyleBackground(sprite);
         img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
         img.style.width = new Length(100, LengthUnit.Percent);
         img.style.height = new Length(100, LengthUnit.Percent);
@@ -101,7 +102,7 @@ public class ShopMenuController : MonoBehaviour
     {
         foreach (var product in shopItemsSO.GetShopData().products)
         {
-            logger.Log($"Adding item to shop UI: {product.itemData.name}", this);
+            // logger.Log($"Adding item to shop UI: {product.itemData.name}", this);
             await AddProductToUI(product);
         }
     }

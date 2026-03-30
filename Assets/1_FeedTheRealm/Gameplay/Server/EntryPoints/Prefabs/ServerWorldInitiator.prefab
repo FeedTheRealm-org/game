@@ -51,3 +51,6 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
+  prefabProvider: {fileID: 11400000, guid: 4ccdd76aef3b99a93afaee9d9606a365, type: 2}
+  npcDialogRegistry: {fileID: 11400000, guid: 005987f0302cbcf9094db004ad4ffe04, type: 2}
+  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}

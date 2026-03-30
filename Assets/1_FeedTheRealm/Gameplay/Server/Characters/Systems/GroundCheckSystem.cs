@@ -1,10 +1,9 @@
 using FTR.Core.Common.Config;
+using FTR.Core.Common.Systems.Status;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
-using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
@@ -16,7 +15,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private ServerConfig config;
         private Collider col;
-        private CharacterStateStorage stateStorage;
+        private IGroundable stateStorage;
         private Vector3 groundCheckSphereOrigin;
 
         private void OnDisable()
@@ -25,7 +24,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 gameTickEvent.OnRaised -= GameTick;
         }
 
-        public void Initialize(Collider col, CharacterStateStorage stateStorage)
+        public void Initialize(Collider col, IGroundable stateStorage)
         {
             this.col = col;
             this.stateStorage = stateStorage;

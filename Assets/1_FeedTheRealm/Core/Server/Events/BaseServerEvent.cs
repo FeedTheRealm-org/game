@@ -5,18 +5,19 @@ namespace FTR.Core.Server.Events;
 /// <summary>
 /// Represents a server event that should be serialized & sent to
 /// the given netId::NetworkAdapter.
-/// If isTargeted is false, the event will be sent to all clients, otherwise just the owner.
+/// If TargetConnectionId is null, the event will be sent to all clients (Broadcast).
+/// If specified, it will only be sent to the client with that connection ID.
 /// </summary>
 public abstract class BaseServerEvent
 {
     public uint NetId { get; }
 
-    public bool IsTargeted { get; }
+    public int? TargetConnectionId { get; }
 
-    public BaseServerEvent(uint netId, bool isTargeted)
+    public BaseServerEvent(uint netId, int? targetConnectionId = null)
     {
         this.NetId = netId;
-        this.IsTargeted = isTargeted;
+        this.TargetConnectionId = targetConnectionId;
     }
 
     public abstract ServerEventDTO ToDTO();

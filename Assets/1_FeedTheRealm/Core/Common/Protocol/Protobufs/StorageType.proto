@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+enum StorageType {
+  STORAGE_TYPE_NULL = 0;
+  STORAGE_TYPE_INVENTORY = 1;
+  STORAGE_TYPE_FAST_SLOT = 2;
+}

@@ -1,5 +1,5 @@
----
 name: Build
+
 on:
   workflow_call:
     secrets:
@@ -11,93 +11,61 @@ on:
         required: true
       ECR_REPOSITORY:
         required: true
-      # SUPABASE_CERT:
-      #   required: true
-      # GH_PAT:
-      #   required: true
-      UNITY_LICENSE:
-        required: true
-      UNITY_EMAIL:
-        required: true
-      UNITY_PASSWORD:
-        required: true
     outputs:
       image_tag:
         value: ${{ jobs.build.outputs.image_tag }}
 
+permissions:
+  contents: read
+  packages: read
+  id-token: write # OIDC required
+
+env:
+  IMAGE_NAME: ftr-server
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write # OIDC required
-      contents: read
 
     outputs:
       image_tag: ${{ steps.tag.outputs.image_tag }}
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }} # token with access
-          submodules: recursive # fetch submodules recursively
 
-      - name: Set Image Tag
+      - name: Prepare image variables
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}:latest"
+
+          echo "OWNER=$OWNER" >> $GITHUB_ENV
+          echo "GHCR_IMAGE=$GHCR_IMAGE" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        run: |
+          GHCR_USER="${{ github.actor }}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+      - name: Pull image from GHCR
+        run: |
+          docker pull "$GHCR_IMAGE"
+
+      - name: Set Image Tag for ECR
         id: tag
-        run: >
-          echo "image_tag=server-headless-$(date +%Y%m%d-%H%M%S)-
-          $(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "image_tag=latest" >> $GITHUB_OUTPUT
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
-
-      # - name: Login to Amazon ECR
-      #   uses: aws-actions/amazon-ecr-login@v2
-
-      # Make sure submodules are on main branch
-      - name: Force submodules to main
-        run: >
-          git submodule foreach 'git fetch origin main &&
-          git checkout main && git pull origin main'
-
-      - name: Cache Library
-        uses: actions/cache@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          path: Library
-          key: >
-            Library-${{ runner.os }}-
-            ${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: |
-            Library-${{ runner.os }}-
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Echo build output
-        run: ls -la Packages/1_FeedTheRealm_Shared
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build server
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          targetPlatform: StandaloneLinux64
-          allowDirtyBuild: true
-          buildName: server
-          buildsPath: build
-          customParameters: -batchmode -nographics
-          buildProfile: >
-            Assets/Settings/Build Profiles/linux-server-build.asset
+      - name: Tag & Push to ECR
+        run: |
+          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.tag.outputs.image_tag }}
 
-      - name: Echo build output
-        run: ls -la build/StandaloneLinux64
-
-      # - name: Build & Push
-      #   run: |
-      #     IMAGE_URI=${{ secrets.ECR_REGISTRY }}/
-      #     ${{ secrets.ECR_REPOSITORY }}:
-      #     ${{ steps.tag.outputs.image_tag }}
-      #     docker build --target prod -t $IMAGE_URI .
-      #     docker push $IMAGE_URI
+          docker tag "$GHCR_IMAGE" "$IMAGE_URI"
+          docker push "$IMAGE_URI"
