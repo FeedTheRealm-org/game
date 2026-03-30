@@ -2,6 +2,7 @@ using API;
 using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
+using FTR.Core.Client.Config;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
@@ -17,6 +18,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
     {
         [SerializeField]
         private Config config;
+
+        [SerializeField]
+        private ClientConfig clientConfig;
 
         [SerializeField]
         private PlayerInputReader playerInputReader;
@@ -59,6 +63,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
             clientEventRegistry.RegisterAll(builder);
             setupServices.RegisterAll(builder);
+            builder.RegisterInstance(clientConfig);
             builder.RegisterInstance(playerInputReader);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(logger);
@@ -80,6 +85,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
         private void ValidateSerializeFields()
         {
+            ValidateField(config, "Config");
             ValidateField(playerInputReader, "PlayerInputReader");
             ValidateField(prefabProvider, "PrefabProvider");
             ValidateField(clientEventRegistry, "ClientEventRegistry");
