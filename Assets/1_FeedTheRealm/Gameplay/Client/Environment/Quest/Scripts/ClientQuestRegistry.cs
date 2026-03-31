@@ -6,8 +6,6 @@ namespace FTR.Gameplay.Client.Environment.Quest
 {
     /// <summary>
     /// Client-side ScriptableObject that stores full QuestData from world data.
-    /// Used by QuestView to resolve QuestData from a questId received in a DialogEvent.
-    /// Populated by ClientQuestLoader at world load time.
     /// </summary>
     [CreateAssetMenu(
         fileName = "ClientQuestRegistry",
@@ -17,9 +15,6 @@ namespace FTR.Gameplay.Client.Environment.Quest
     {
         private Dictionary<string, QuestData> _questById;
 
-        /// <summary>
-        /// Rebuilds the registry from world quest data.
-        /// </summary>
         public void Populate(List<QuestData> worldQuests)
         {
             _questById = new Dictionary<string, QuestData>();
@@ -46,9 +41,6 @@ namespace FTR.Gameplay.Client.Environment.Quest
             Debug.Log($"[ClientQuestRegistry] Populated with {_questById.Count} quest(s).");
         }
 
-        /// <summary>
-        /// Returns the QuestData for the given questId, or null if not found.
-        /// </summary>
         public bool TryGetQuest(string questId, out QuestData questData)
         {
             questData = null;

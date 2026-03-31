@@ -66,6 +66,20 @@ public class ClientPlayerLinker : PlayerLinker
                 prefabProvider.InventoryHudComponent,
                 gameObject.transform
             );
+
+            prefabProvider.QuestPrompt.SetActive(false);
+            var questPrompt = Object.Instantiate(prefabProvider.QuestPrompt, gameObject.transform);
+            resolver.InjectGameObject(questPrompt);
+            questPrompt.SetActive(true);
+
+            prefabProvider.QuestCompletionPanel.SetActive(false);
+            var questCompletion = Object.Instantiate(
+                prefabProvider.QuestCompletionPanel,
+                gameObject.transform
+            );
+            resolver.InjectGameObject(questCompletion);
+            questCompletion.SetActive(true);
+
             resolver.InjectGameObject(inventoryHudComponent);
             inventoryHudComponent.SetActive(true);
 

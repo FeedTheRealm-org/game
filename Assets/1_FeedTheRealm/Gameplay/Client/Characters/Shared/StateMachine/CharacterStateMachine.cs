@@ -23,7 +23,6 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         [SerializeField]
         private UseController useController;
 
-        // Passed dynamically during Link/Initialization
         private InteractController interactController;
 
         [SerializeField]
@@ -33,7 +32,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         private NpcDialogClosedEvent npcDialogClosedEvent;
 
         [Inject]
-        private QuestOfferedEvent questOfferedEvent;
+        private ShowQuestPromptEvent showQuestPromptEvent;
 
         [Inject]
         private QuestDecisionEvent questDecisionEvent;
@@ -92,7 +91,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
                         this,
                         interactController,
                         npcDialogClosedEvent,
-                        questOfferedEvent,
+                        showQuestPromptEvent,
                         characterAnimator
                     )
                 );

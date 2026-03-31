@@ -18,7 +18,6 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
 
         private Dictionary<string, List<MessageData>> _messageLookup;
 
-        // Parallel list to _messageLookup: questId per message index (empty string = no quest).
         private Dictionary<string, List<string>> _questLookup;
 
         private void OnEnable() => BuildLookup(npcs, dialogs);
@@ -158,7 +157,6 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                     continue;
                 }
 
-                // messageQuestMap maps messageId -> questId (from NpcDialogData).
                 var messageQuestMap =
                     npc.npcDialog?.GetMessageQuestMap() ?? new Dictionary<string, string>();
 

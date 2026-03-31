@@ -21,7 +21,7 @@ namespace FTR.UI.Hud.Main
 
         [Header("Quests")]
         [SerializeField]
-        private QuestOfferedEvent questOfferedEvent;
+        private ShowQuestPromptEvent showQuestPromptEvent;
 
         [SerializeField]
         private QuestDecisionEvent questDecisionEvent;
@@ -49,7 +49,7 @@ namespace FTR.UI.Hud.Main
                     Logging.LogType.Error
                 );
 
-            if (questOfferedEvent == null)
+            if (showQuestPromptEvent == null)
                 logger.Log(
                     "Quest Offered Event is not assigned in the inspector.",
                     this,
@@ -74,21 +74,21 @@ namespace FTR.UI.Hud.Main
         private void OnEnable()
         {
             hudPanel.SetActive(true);
-            questOfferedEvent.OnRaised += OnQuestOffered;
+            showQuestPromptEvent.OnRaised += OnQuestPrompt;
             questDecisionEvent.OnRaised += OnQuestDecision;
             questCompletedEvent.OnRaised += OnQuestCompleted;
         }
 
         private void OnDisable()
         {
-            questOfferedEvent.OnRaised -= OnQuestOffered;
+            showQuestPromptEvent.OnRaised -= OnQuestPrompt;
             questDecisionEvent.OnRaised -= OnQuestDecision;
             questCompletedEvent.OnRaised -= OnQuestCompleted;
         }
 
-        public void OnQuestOffered(QuestData data)
+        public void OnQuestPrompt(QuestData data)
         {
-            Debug.Log($"[HudManager] OnQuestOffered called with data: {data?.title}");
+            Debug.Log($"[HudManager] OnQuestPrompt called with data: {data?.title}");
             questPromptPanel.ToggleQuestPrompt(true);
             questPromptPanel.OnQuestOffered(data);
             Cursor.visible = true;

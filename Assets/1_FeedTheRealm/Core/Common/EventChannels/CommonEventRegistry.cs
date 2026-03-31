@@ -20,7 +20,7 @@ namespace FTR.Core.Common.EventChannels
         public EnemySlayedEvent enemySlayedEvent;
 
         [Header("Quest Events")]
-        public QuestOfferedEvent questOfferedEvent;
+        public ShowQuestPromptEvent showQuestPromptEvent;
         public QuestProgressEvent questProgressEvent;
         public QuestDecisionEvent questDecisionEvent;
         public QuestCompletedEvent questCompletedEvent;
@@ -43,7 +43,7 @@ namespace FTR.Core.Common.EventChannels
             builder.RegisterInstance(npcDialogMessageEvent);
             builder.RegisterInstance(npcDialogToggledEvent);
             builder.RegisterInstance(enemySlayedEvent);
-            builder.RegisterInstance(questOfferedEvent);
+            builder.RegisterInstance(showQuestPromptEvent);
             builder.RegisterInstance(questProgressEvent);
             builder.RegisterInstance(questDecisionEvent);
             builder.RegisterInstance(questCompletedEvent);
@@ -59,7 +59,7 @@ namespace FTR.Core.Common.EventChannels
             ValidateField(npcDialogMessageEvent, nameof(npcDialogMessageEvent));
             ValidateField(npcDialogToggledEvent, nameof(npcDialogToggledEvent));
             ValidateField(enemySlayedEvent, nameof(enemySlayedEvent));
-            ValidateField(questOfferedEvent, nameof(questOfferedEvent));
+            ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
             ValidateField(questProgressEvent, nameof(questProgressEvent));
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));

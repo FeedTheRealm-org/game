@@ -40,6 +40,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Quest Events")]
         public NpcQuestOfferedEvent npcQuestOfferedEvent;
+        public ShowQuestPromptEvent showQuestPromptEvent;
+        public QuestDecisionEvent questDecisionEvent;
+        public QuestCompletedEvent questCompletedEvent;
 
         [Header("Tick Events")]
         public TickEvent tickEvent;
@@ -69,6 +72,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
             builder.RegisterInstance(npcQuestOfferedEvent);
+            builder.RegisterInstance(showQuestPromptEvent);
+            builder.RegisterInstance(questDecisionEvent);
+            builder.RegisterInstance(questCompletedEvent);
         }
 
         private void Validate()
@@ -92,6 +98,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(worldSetupEvent, nameof(worldSetupEvent));
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
             ValidateField(npcQuestOfferedEvent, nameof(npcQuestOfferedEvent));
+            ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
+            ValidateField(questDecisionEvent, nameof(questDecisionEvent));
+            ValidateField(questCompletedEvent, nameof(questCompletedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

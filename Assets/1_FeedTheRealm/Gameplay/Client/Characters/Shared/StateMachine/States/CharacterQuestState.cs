@@ -7,7 +7,6 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
     /// <summary>
     /// Active while a quest prompt is shown to the player.
     /// Interact input is fully blocked — the player must accept or reject via UI buttons.
-    /// Movement is NOT blocked.
     /// Exits back to CharacterInteractingState when QuestDecisionEvent fires (accept or reject),
     /// or exits to null if the dialog closes server-side while the prompt is open.
     /// </summary>
@@ -42,7 +41,6 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
 
         private void OnQuestDecided(QuestDecisionData _)
         {
-            // Return to interacting state — dialog continues after the decision.
             var interactingState = stateMachine.GetActionStateByType(
                 typeof(CharacterInteractingState)
             );
@@ -51,7 +49,6 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
 
         private void OnDialogClosed()
         {
-            // Server closed the dialog (timeout, cancel, etc.) while quest prompt was open.
             if (stateMachine is CharacterStateMachine csm)
                 csm.OnDialogClosed();
 

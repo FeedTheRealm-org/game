@@ -5,6 +5,6 @@ using UnityEngine;
 
 namespace FTR.Core.Common.EventChannels
 {
-    [CreateAssetMenu(menuName = "Events/Quests/Quest Offered")]
-    public class QuestOfferedEvent : EventChannelSO<QuestData> { }
+    [CreateAssetMenu(menuName = "Events/Quests/Show Quest Prompt")]
+    public class ShowQuestPromptEvent : EventChannelSO<QuestData> { }
 }

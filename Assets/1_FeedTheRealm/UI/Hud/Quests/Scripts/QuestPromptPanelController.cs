@@ -1,3 +1,4 @@
+using System;
 using FTR.Core.Common.EventChannels;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -9,9 +10,9 @@ using UnityEngine.UIElements;
 /// </summary>
 public class QuestPromptController : MonoBehaviour
 {
-    [Header("Quests")]
+    [Header("Event Registry")]
     [SerializeField]
-    private QuestDecisionEvent questDecisionEvent;
+    private CommonEventRegistry eventRegistry;
 
     [Header("General settings")]
     [SerializeField]
@@ -54,6 +55,17 @@ public class QuestPromptController : MonoBehaviour
             _acceptButton.clicked += OnAcceptClicked;
         if (_rejectButton != null)
             _rejectButton.clicked += OnRejectClicked;
+
+        if (eventRegistry != null && eventRegistry.showQuestPromptEvent != null)
+        {
+            eventRegistry.showQuestPromptEvent.OnRaised += OnQuestOffered;
+        }
+        else
+        {
+            throw new MissingFieldException(
+                "CommonEventRegistry or ShowQuestPromptEvent is not assigned in the inspector."
+            );
+        }
     }
 
     private void OnDisable()
@@ -62,6 +74,9 @@ public class QuestPromptController : MonoBehaviour
             _acceptButton.clicked -= OnAcceptClicked;
         if (_rejectButton != null)
             _rejectButton.clicked -= OnRejectClicked;
+
+        if (eventRegistry != null && eventRegistry.showQuestPromptEvent != null)
+            eventRegistry.showQuestPromptEvent.OnRaised -= OnQuestOffered;
     }
 
     /// <summary>
@@ -74,13 +89,10 @@ public class QuestPromptController : MonoBehaviour
 
     /// <summary>
     /// Populates and shows the quest prompt panel.
-    /// Called by QuestView via QuestOfferedEvent.
+    /// Called by QuestView via showQuestPromptEvent.
     /// </summary>
     public void OnQuestOffered(QuestData data)
     {
-        Debug.Log(
-            $"[QuestPromptController] OnQuestOffered called inside PromptController for quest: {data?.title}"
-        );
         if (data == null)
             return;
 
@@ -96,7 +108,9 @@ public class QuestPromptController : MonoBehaviour
             return;
 
         logger.Log($"Quest '{_currentQuestData.title}' was accepted.", this);
-        questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, true));
+        if (eventRegistry != null && eventRegistry.questDecisionEvent != null)
+            eventRegistry.questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, true));
+
         ToggleQuestPrompt(false);
         _currentQuestData = null;
     }
@@ -107,7 +121,9 @@ public class QuestPromptController : MonoBehaviour
             return;
 
         logger.Log($"Quest '{_currentQuestData.title}' was rejected.", this);
-        questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, false));
+        if (eventRegistry != null && eventRegistry.questDecisionEvent != null)
+            eventRegistry.questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, false));
+
         ToggleQuestPrompt(false);
         _currentQuestData = null;
     }

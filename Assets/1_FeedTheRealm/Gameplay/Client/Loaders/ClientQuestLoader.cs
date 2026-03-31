@@ -9,8 +9,6 @@ namespace FTR.Gameplay.Client.Loaders
 {
     /// <summary>
     /// Client-side loader that populates ClientQuestRegistry with world quest data.
-    /// Analogous to ClientNpcDialogLoader — injects the registry SO directly
-    /// without depending on PlayerLinker.
     /// </summary>
     public class ClientQuestLoader : ILoader
     {

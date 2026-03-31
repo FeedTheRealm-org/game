@@ -18,7 +18,7 @@ namespace FTR.Gameplay.Client.Characters.Player
         private NpcQuestOfferedEvent npcQuestOfferedEvent;
 
         [Inject]
-        private QuestOfferedEvent questOfferedEvent;
+        private ShowQuestPromptEvent showQuestPromptEvent;
 
         [Inject]
         private QuestDecisionEvent questDecisionEvent;
@@ -36,7 +36,6 @@ namespace FTR.Gameplay.Client.Characters.Player
 
             npcQuestOfferedEvent.OnRaised += HandleQuestOffered;
             questDecisionEvent.OnRaised += HandleQuestDecision;
-            Debug.Log($"[QuestView] Initialized and subscribed to events.");
         }
 
         private void OnDestroy()
@@ -49,7 +48,6 @@ namespace FTR.Gameplay.Client.Characters.Player
 
         private void HandleQuestOffered(string questId)
         {
-            Debug.Log($"[QuestView] HandleQuestOffered triggered for questId: {questId}");
             if (!isInitialized || string.IsNullOrEmpty(questId))
             {
                 Debug.LogWarning(
@@ -66,14 +64,10 @@ namespace FTR.Gameplay.Client.Characters.Player
                 return;
             }
 
-            Debug.Log(
-                $"[QuestView] Raising questOfferedEvent for quest: {questData.id} - {questData.title}"
-            );
-
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
-            questOfferedEvent.Raise(questData);
+            showQuestPromptEvent.Raise(questData);
         }
 
         private void HandleQuestDecision(QuestDecisionData decision)

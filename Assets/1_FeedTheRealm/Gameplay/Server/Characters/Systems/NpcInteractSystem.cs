@@ -23,14 +23,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private string npcId;
         private WorldMonitor worldMonitor;
         private uint ownNetId;
-
-        // Current dialog index per player.
         private Dictionary<uint, int> playerDialogStates = new Dictionary<uint, int>();
-
-        // Players currently waiting on a quest prompt decision.
-        // DialogNext commands are ignored for these players until OnQuestDecided is called.
         private HashSet<uint> _questPendingPlayers = new HashSet<uint>();
-
         private Dictionary<uint, Coroutine> playerTimeouts = new Dictionary<uint, Coroutine>();
 
         public void Initialize(
@@ -58,10 +52,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             return null;
         }
-
-        // -------------------------------------------------------------------------
-        // IInteractable
-        // -------------------------------------------------------------------------
 
         public string Interact(IInteractor interactor)
         {
@@ -191,12 +181,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             return true;
         }
 
-        /// <summary>
-        /// Clears the quest-pending block for this player so the DialogNext that
-        /// QuestView dispatches immediately after the decision can advance the dialog.
-        /// Call this from the server transaction handler when AcceptQuest or RejectQuest
-        /// arrives, BEFORE the paired DialogNext is processed.
-        /// </summary>
         public void OnQuestDecided(uint playerNetId)
         {
             if (!_questPendingPlayers.Remove(playerNetId))

@@ -7,7 +7,6 @@ namespace FTR.Gameplay.Server.Environment.Quest
     /// <summary>
     /// Lightweight registry that stores only the set of valid quest ids from world data.
     /// Used server-side to validate AcceptQuest commands without holding full QuestData in memory.
-    /// Populated by FriendlyNpcSpawnerLoader at world load time.
     /// </summary>
     [CreateAssetMenu(
         fileName = "ServerQuestRegistry",
@@ -17,9 +16,6 @@ namespace FTR.Gameplay.Server.Environment.Quest
     {
         private HashSet<string> _validQuestIds;
 
-        /// <summary>
-        /// Rebuilds the registry from world quest data.
-        /// </summary>
         public void Populate(List<QuestData> worldQuests)
         {
             _validQuestIds = new HashSet<string>();

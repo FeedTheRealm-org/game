@@ -6,10 +6,6 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
 {
-    /// <summary>
-    /// Command handler for passive NPCs. Only movement is driven externally (by AI).
-    /// All other commands are no-ops since NPCs don't receive player input.
-    /// </summary>
     public class NpcCommandHandler : MonoBehaviour, ICommandable
     {
         private MovementSystem movementSystem;

@@ -56,19 +56,12 @@ namespace FTR.Gameplay.Server.Characters
             interactSystem.OnDialogNext(ec);
         }
 
-        /// <summary>
-        /// Validates and registers the accepted quest, then unblocks the dialog.
-        /// Both steps must happen before the paired DialogNext is processed.
-        /// </summary>
         public override void OnQuestAccepted(IEventCollectable ec, string questId)
         {
             questSystem.OnQuestAccepted(ec, questId);
             interactSystem.OnQuestDecided();
         }
 
-        /// <summary>
-        /// On reject, no quest is registered — just unblock the dialog.
-        /// </summary>
         public override void OnQuestDecided(IEventCollectable ec)
         {
             interactSystem.OnQuestDecided();

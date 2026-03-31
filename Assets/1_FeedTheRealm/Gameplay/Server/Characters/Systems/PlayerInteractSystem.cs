@@ -102,7 +102,6 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
     }
 
     /// <summary>
-    /// Called by ServerPlayerCommandHandler when the player accepts or rejects a quest.
     /// Forwards to the current NpcInteractSystem to unblock the dialog advance.
     /// </summary>
     public void OnQuestDecided()
