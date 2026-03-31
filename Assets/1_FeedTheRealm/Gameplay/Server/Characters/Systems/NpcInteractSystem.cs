@@ -77,9 +77,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var questId = npcDialogRegistry.GetQuestIdAt(npcId, 0);
 
             if (!string.IsNullOrEmpty(questId))
+            {
                 _questPendingPlayers.Add(playerNetId);
+                StopInactivityTimer(playerNetId);
+            }
             else
+            {
                 RestartInactivityTimer(playerNetId, interactor);
+            }
 
             worldMonitor.Events.Enqueue(
                 new DialogEvent(
@@ -132,9 +137,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var questId = npcDialogRegistry.GetQuestIdAt(npcId, nextIndex);
 
             if (!string.IsNullOrEmpty(questId))
+            {
                 _questPendingPlayers.Add(playerNetId);
+                StopInactivityTimer(playerNetId);
+            }
             else
+            {
                 RestartInactivityTimer(playerNetId, interactor);
+            }
 
             worldMonitor.Events.Enqueue(
                 new DialogEvent(
