@@ -24,7 +24,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private WorldMonitor worldMonitor;
         private uint ownNetId;
 
+        // Current dialog index per player.
         private Dictionary<uint, int> playerDialogStates = new Dictionary<uint, int>();
+
+        // Players currently waiting on a quest prompt decision.
+        // DialogNext commands are ignored for these players until OnQuestDecided is called.
+        private HashSet<uint> _questPendingPlayers = new HashSet<uint>();
+
         private Dictionary<uint, Coroutine> playerTimeouts = new Dictionary<uint, Coroutine>();
 
         public void Initialize(
@@ -48,11 +54,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 worldMonitor.Entities.TryGet(playerNetId, out var entity)
                 && entity.ConnectionId.HasValue
             )
-            {
                 return entity.ConnectionId.Value;
-            }
+
             return null;
         }
+
+        // -------------------------------------------------------------------------
+        // IInteractable
+        // -------------------------------------------------------------------------
 
         public string Interact(IInteractor interactor)
         {
@@ -66,7 +75,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             playerDialogStates[playerNetId] = 0;
-            RestartInactivityTimer(playerNetId, interactor);
+            _questPendingPlayers.Remove(playerNetId);
 
             var connId = GetPlayerConnectionId(playerNetId);
             if (!connId.HasValue)
@@ -74,6 +83,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 logger?.Log($"[NpcInteractSystem] conn not found, Player:{playerNetId}.", this);
                 return npcId;
             }
+
+            var questId = npcDialogRegistry.GetQuestIdAt(npcId, 0);
+
+            if (!string.IsNullOrEmpty(questId))
+                _questPendingPlayers.Add(playerNetId);
+            else
+                RestartInactivityTimer(playerNetId, interactor);
 
             worldMonitor.Events.Enqueue(
                 new DialogEvent(
@@ -83,19 +99,31 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         DialogState = DialogStateType.DialogTypeStarted,
                         NpcId = npcId,
                         DialogIndex = 0,
+                        QuestId = questId,
                     },
                     connId.Value
                 )
             );
 
-            logger?.Log($"NPC interacted with by {interactor.GameObject.name}", this);
-
+            logger?.Log(
+                $"[NpcInteractSystem] NPC interacted with by {interactor.GameObject.name}",
+                this
+            );
             return npcId;
         }
 
         public void ContinueInteraction(IInteractor interactor)
         {
             uint playerNetId = interactor.NetId;
+
+            if (_questPendingPlayers.Contains(playerNetId))
+            {
+                logger?.Log(
+                    $"[NpcInteractSystem] DialogNext ignored — quest pending for Player:{playerNetId}.",
+                    this
+                );
+                return;
+            }
 
             if (!playerDialogStates.TryGetValue(playerNetId, out int currentIndex))
                 return;
@@ -110,7 +138,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             playerDialogStates[playerNetId] = nextIndex;
-            RestartInactivityTimer(playerNetId, interactor);
+
+            var questId = npcDialogRegistry.GetQuestIdAt(npcId, nextIndex);
+
+            if (!string.IsNullOrEmpty(questId))
+                _questPendingPlayers.Add(playerNetId);
+            else
+                RestartInactivityTimer(playerNetId, interactor);
 
             worldMonitor.Events.Enqueue(
                 new DialogEvent(
@@ -120,6 +154,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         DialogState = DialogStateType.DialogTypeAdvanced,
                         NpcId = npcId,
                         DialogIndex = nextIndex,
+                        QuestId = questId,
                     },
                     GetPlayerConnectionId(playerNetId)
                 )
@@ -134,6 +169,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
 
             playerDialogStates.Remove(playerNetId);
+            _questPendingPlayers.Remove(playerNetId);
             StopInactivityTimer(playerNetId);
 
             worldMonitor.Events.Enqueue(
@@ -153,6 +189,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public bool CanInteract(IInteractor interactor)
         {
             return true;
+        }
+
+        /// <summary>
+        /// Clears the quest-pending block for this player so the DialogNext that
+        /// QuestView dispatches immediately after the decision can advance the dialog.
+        /// Call this from the server transaction handler when AcceptQuest or RejectQuest
+        /// arrives, BEFORE the paired DialogNext is processed.
+        /// </summary>
+        public void OnQuestDecided(uint playerNetId)
+        {
+            if (!_questPendingPlayers.Remove(playerNetId))
+                return;
+
+            logger?.Log(
+                $"[NpcInteractSystem] Quest decided — unblocking dialog for Player:{playerNetId}.",
+                this
+            );
         }
 
         private void RestartInactivityTimer(uint playerNetId, IInteractor interactor)
@@ -180,9 +233,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             yield return new WaitForSeconds(inactivityTimeout);
 
             if (playerDialogStates.ContainsKey(playerNetId))
-            {
                 interactor.FinishInteracting();
-            }
         }
     }
 }

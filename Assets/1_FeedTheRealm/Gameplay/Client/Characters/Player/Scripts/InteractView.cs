@@ -1,3 +1,4 @@
+using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -15,6 +16,9 @@ public class InteractView : MonoBehaviour
 
     [Inject]
     private NpcDialogToggledEvent npcDialogToggledEvent;
+
+    [Inject]
+    private NpcQuestOfferedEvent npcQuestOfferedEvent;
 
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
@@ -40,37 +44,46 @@ public class InteractView : MonoBehaviour
     private void HandleDialogEvent(DialogEventContent content)
     {
         Debug.Log(
-            $"[InteractView] HandleDialogEvent received. NpcId={content.NpcId}, DialogState={content.DialogState}, DialogIndex={content.DialogIndex}"
+            $"[InteractView] HandleDialogEvent received. NpcId={content.NpcId}, DialogState={content.DialogState}, DialogIndex={content.DialogIndex}, QuestId={content.QuestId}"
         );
-        if (content.DialogState == DialogStateType.DialogTypeStarted)
+
+        switch (content.DialogState)
         {
-            if (!string.IsNullOrEmpty(_activeNpcId))
-            {
-                npcDialogToggledEvent.Raise((false, _activeNpcId));
-            }
-            _activeNpcId = content.NpcId;
-            npcDialogToggledEvent.Raise((true, _activeNpcId));
-            ShowDialogLine(content.NpcId, content.DialogIndex);
-        }
-        else if (content.DialogState == DialogStateType.DialogTypeAdvanced)
-        {
-            if (_activeNpcId != content.NpcId)
-            {
-                if (!string.IsNullOrEmpty(_activeNpcId))
+            case DialogStateType.DialogTypeStarted:
+                if (!string.IsNullOrEmpty(_activeNpcId) && _activeNpcId != content.NpcId)
                     npcDialogToggledEvent.Raise((false, _activeNpcId));
+
                 _activeNpcId = content.NpcId;
                 npcDialogToggledEvent.Raise((true, _activeNpcId));
-            }
-            ShowDialogLine(content.NpcId, content.DialogIndex);
-        }
-        else if (content.DialogState == DialogStateType.DialogTypeClosed)
-        {
-            if (!string.IsNullOrEmpty(_activeNpcId))
-            {
-                npcDialogToggledEvent.Raise((false, _activeNpcId));
-                npcDialogClosedEvent.Raise();
-                _activeNpcId = null;
-            }
+                ShowDialogLine(content.NpcId, content.DialogIndex);
+
+                if (!string.IsNullOrEmpty(content.QuestId))
+                    npcQuestOfferedEvent.Raise(content.QuestId);
+                break;
+
+            case DialogStateType.DialogTypeAdvanced:
+                if (_activeNpcId != content.NpcId)
+                {
+                    if (!string.IsNullOrEmpty(_activeNpcId))
+                        npcDialogToggledEvent.Raise((false, _activeNpcId));
+                    _activeNpcId = content.NpcId;
+                    npcDialogToggledEvent.Raise((true, _activeNpcId));
+                }
+
+                ShowDialogLine(content.NpcId, content.DialogIndex);
+
+                if (!string.IsNullOrEmpty(content.QuestId))
+                    npcQuestOfferedEvent.Raise(content.QuestId);
+                break;
+
+            case DialogStateType.DialogTypeClosed:
+                if (!string.IsNullOrEmpty(_activeNpcId))
+                {
+                    npcDialogToggledEvent.Raise((false, _activeNpcId));
+                    npcDialogClosedEvent.Raise();
+                    _activeNpcId = null;
+                }
+                break;
         }
     }
 

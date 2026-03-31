@@ -1,6 +1,7 @@
 using System.Collections;
 using FTR.Core.Common.Interactions;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 
 public class PlayerInteractSystem : MonoBehaviour, IInteractor
@@ -28,8 +29,8 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
     }
 
     /// <summary>
-    /// Attempts to interact with the closest interactable object within range.
-    /// Returns true if an interaction was initiated, false otherwise.
+    /// Attempts to interact with the closest interactable within range.
+    /// Delegates to the NPC to start or continue the dialog.
     /// </summary>
     public void OnInteract(IEventCollectable ec)
     {
@@ -76,9 +77,7 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
         }
 
         if (CurrentInteractable != null && CurrentInteractable != closestInteractable)
-        {
             CurrentInteractable.StopInteraction(this);
-        }
 
         CurrentInteractable = closestInteractable;
         if (logger != null)
@@ -99,6 +98,25 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
                     "[PlayerInteractSystem] OnDialogNext received but no active interaction.",
                     this
                 );
+        }
+    }
+
+    /// <summary>
+    /// Called by ServerPlayerCommandHandler when the player accepts or rejects a quest.
+    /// Forwards to the current NpcInteractSystem to unblock the dialog advance.
+    /// </summary>
+    public void OnQuestDecided()
+    {
+        if (CurrentInteractable is NpcInteractSystem npcInteract)
+        {
+            npcInteract.OnQuestDecided(NetId);
+        }
+        else if (logger != null)
+        {
+            logger.Log(
+                "[PlayerInteractSystem] OnQuestDecided called but CurrentInteractable is not an NpcInteractSystem.",
+                this
+            );
         }
     }
 

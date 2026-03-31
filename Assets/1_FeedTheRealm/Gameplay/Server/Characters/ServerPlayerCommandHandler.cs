@@ -12,13 +12,15 @@ namespace FTR.Gameplay.Server.Characters
         private UseSystem useSystem;
         private PlayerInteractSystem interactSystem;
         private InventorySystem inventorySystem;
+        private QuestSystem questSystem;
 
         public void Initialize(
             MovementSystem movementSystem,
             DashSystem dashSystem,
             UseSystem useSystem,
             PlayerInteractSystem interactSystem,
-            InventorySystem inventorySystem
+            InventorySystem inventorySystem,
+            QuestSystem questSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -26,6 +28,7 @@ namespace FTR.Gameplay.Server.Characters
             this.useSystem = useSystem;
             this.interactSystem = interactSystem;
             this.inventorySystem = inventorySystem;
+            this.questSystem = questSystem;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -51,6 +54,24 @@ namespace FTR.Gameplay.Server.Characters
         public override void OnDialogNext(IEventCollectable ec)
         {
             interactSystem.OnDialogNext(ec);
+        }
+
+        /// <summary>
+        /// Validates and registers the accepted quest, then unblocks the dialog.
+        /// Both steps must happen before the paired DialogNext is processed.
+        /// </summary>
+        public override void OnQuestAccepted(IEventCollectable ec, string questId)
+        {
+            questSystem.OnQuestAccepted(ec, questId);
+            interactSystem.OnQuestDecided();
+        }
+
+        /// <summary>
+        /// On reject, no quest is registered — just unblock the dialog.
+        /// </summary>
+        public override void OnQuestDecided(IEventCollectable ec)
+        {
+            interactSystem.OnQuestDecided();
         }
 
         public override void OnEquipItem(IEventCollectable ec, int slotIndex)

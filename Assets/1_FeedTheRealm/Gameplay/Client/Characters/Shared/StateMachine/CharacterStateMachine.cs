@@ -23,7 +23,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         [SerializeField]
         private UseController useController;
 
-        [SerializeField]
+        // Passed dynamically during Link/Initialization
         private InteractController interactController;
 
         [SerializeField]
@@ -31,6 +31,12 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
 
         [Inject]
         private NpcDialogClosedEvent npcDialogClosedEvent;
+
+        [Inject]
+        private QuestOfferedEvent questOfferedEvent;
+
+        [Inject]
+        private QuestDecisionEvent questDecisionEvent;
 
         /* States */
         public readonly Dictionary<System.Type, IMovementState> movementStates =
@@ -57,8 +63,10 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
             }
         }
 
-        public void Initialize()
+        public void Initialize(InteractController interactController)
         {
+            this.interactController = interactController;
+
             movementStates.Add(
                 typeof(CharacterIdleState),
                 new CharacterIdleState(this, movementController, characterAnimator)
@@ -75,6 +83,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
                 typeof(CharacterUsingState),
                 new CharacterUsingState(this, useController, characterAnimator)
             );
+
             if (npcDialogClosedEvent != null)
             {
                 actionStates.Add(
@@ -83,8 +92,14 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
                         this,
                         interactController,
                         npcDialogClosedEvent,
+                        questOfferedEvent,
                         characterAnimator
                     )
+                );
+
+                actionStates.Add(
+                    typeof(CharacterQuestState),
+                    new CharacterQuestState(this, questDecisionEvent, npcDialogClosedEvent)
                 );
             }
 
@@ -161,6 +176,12 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         {
             if (isActionBlocked)
                 return;
+            if (
+                CurrentActionState is CharacterInteractingState
+                || CurrentActionState is CharacterQuestState
+            )
+                return;
+
             SetActionState(actionStates[typeof(CharacterUsingState)]);
         }
 
@@ -168,9 +189,13 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         /// Always dispatches Interact to the server.
         /// The server authoritatively decides whether to start, advance, switch, or close dialog.
         /// A short cooldown prevents re-opening a dialog immediately after closing it.
+        /// Blocked while CharacterQuestState is active.
         /// </summary>
         public void OnInteract()
         {
+            if (CurrentActionState is CharacterQuestState)
+                return;
+
             if (isActionBlocked)
                 return;
 

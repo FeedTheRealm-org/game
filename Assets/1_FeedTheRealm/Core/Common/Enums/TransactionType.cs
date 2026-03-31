@@ -10,5 +10,6 @@ public enum TransactionType
     Purchase,
     PickUp,
     AcceptQuest,
+    RejectQuest,
     MoveItem,
 }

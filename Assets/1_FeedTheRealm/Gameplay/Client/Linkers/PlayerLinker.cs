@@ -1,4 +1,5 @@
 using FTR.Core.Client;
+using FTR.Gameplay.Client.Characters.Player;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
@@ -77,17 +78,20 @@ public class ClientPlayerLinker : PlayerLinker
             var inventoryView = playerComponents.AddComponent<InventoryView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
+            var questView = hudComponent.AddComponent<QuestView>();
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);
             resolver.Inject(interactView);
-
+            resolver.Inject(questView);
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);
 
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
             interactController?.Initialize(networkAdapter);
+            questView?.Initialize(networkAdapter);
+            characterStateMachine?.Initialize(interactController);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);
         }
