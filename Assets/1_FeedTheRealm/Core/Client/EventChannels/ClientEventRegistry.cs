@@ -86,7 +86,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(showQuestPromptEvent);
             builder.RegisterInstance(questDecisionEvent);
             builder.RegisterInstance(questCompletedEvent);
-            builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(goldChangedEvent);
             builder.RegisterInstance(openShopEvent);
             builder.RegisterInstance(interactFailedEvent);
