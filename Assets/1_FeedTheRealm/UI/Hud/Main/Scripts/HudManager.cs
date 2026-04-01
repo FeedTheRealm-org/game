@@ -86,9 +86,9 @@ namespace FTR.UI.Hud.Main
             questCompletedEvent.OnRaised -= OnQuestCompleted;
         }
 
-        public void OnQuestPrompt(QuestData data)
+        public void OnQuestPrompt(QuestPromptData data)
         {
-            Debug.Log($"[HudManager] OnQuestPrompt called with data: {data?.title}");
+            Debug.Log($"[HudManager] OnQuestPrompt called with data: {data.Quest?.title}");
             questPromptPanel.ToggleQuestPrompt(true);
             questPromptPanel.OnQuestOffered(data);
             Cursor.visible = true;
