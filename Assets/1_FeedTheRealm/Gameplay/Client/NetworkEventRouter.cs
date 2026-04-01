@@ -8,11 +8,11 @@ public class NetworkEventRouter : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
-    // List of subscribable ServerEvents
     public event Action<AttackEventContent> OnAttackEvent;
     public event Action<DashEventContent> OnDashEvent;
     public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
     public event Action<DialogEventContent> OnDialogEvent;
+    public event Action OnInteractFailedEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -51,7 +51,15 @@ public class NetworkEventRouter : MonoBehaviour
                 logger.Log($"Routed LootItemSpawnEvent", this);
                 break;
             case ServerEventType.DialogEvent:
-                OnDialogEvent?.Invoke(DialogEventContent.Parser.ParseFrom(serverEvent.content));
+                DialogEventContent dialogEvent = DialogEventContent.Parser.ParseFrom(
+                    serverEvent.content
+                );
+                OnDialogEvent?.Invoke(dialogEvent);
+                logger.Log($"Routed DialogEvent", this);
+                break;
+            case ServerEventType.InteractFailedEvent:
+                OnInteractFailedEvent?.Invoke();
+                logger.Log($"Routed InteractFailedEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);

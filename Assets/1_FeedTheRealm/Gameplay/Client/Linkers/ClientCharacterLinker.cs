@@ -29,7 +29,6 @@ namespace FTR.Gameplay.Client.Linkers
                 gameObject.transform
             );
             resolver.InjectGameObject(playerComponents);
-            playerComponents.GetComponent<CharacterStateMachine>()?.Initialize();
 
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
             var movementView = playerComponents.GetComponent<MovementView>();

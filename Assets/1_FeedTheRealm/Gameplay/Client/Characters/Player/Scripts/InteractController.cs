@@ -19,17 +19,12 @@ public class InteractController : MonoBehaviour
     {
         this.networkAdapter = networkAdapter;
         isInitialized = true;
-        inputReader.InteractEvent += OnInteract;
         Debug.Log(
             $"[InteractController] Initialized. NetworkAdapter set: {networkAdapter != null}"
         );
     }
 
-    private void OnDestroy()
-    {
-        if (inputReader != null)
-            inputReader.InteractEvent -= OnInteract;
-    }
+    private void OnDestroy() { }
 
     /// <summary>
     /// Signals the server that the player wants to interact.

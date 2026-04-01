@@ -10,4 +10,5 @@ public enum ServerEventType
     DashEvent,
     InitialForceEvent,
     DialogEvent,
+    InteractFailedEvent,
 }

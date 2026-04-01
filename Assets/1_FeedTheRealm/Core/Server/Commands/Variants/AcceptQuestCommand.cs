@@ -14,6 +14,6 @@ public class AcceptQuestCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnQuestAccepted(eventCollector);
+        commandable.OnQuestAccepted(eventCollector, questId);
     }
 }

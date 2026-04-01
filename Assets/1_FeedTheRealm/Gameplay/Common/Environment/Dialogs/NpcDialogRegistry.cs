@@ -16,7 +16,9 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
         [SerializeField]
         private List<DialogData> dialogs = new();
 
-        private Dictionary<string, List<MessageData>> _lookup;
+        private Dictionary<string, List<MessageData>> _messageLookup;
+
+        private Dictionary<string, List<string>> _questLookup;
 
         private void OnEnable() => BuildLookup(npcs, dialogs);
 
@@ -40,10 +42,10 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                 return false;
             }
 
-            if (_lookup == null)
+            if (_messageLookup == null)
                 BuildLookup(npcs, dialogs);
 
-            return _lookup.TryGetValue(npcId, out messages);
+            return _messageLookup.TryGetValue(npcId, out messages);
         }
 
         public int GetMessageCount(string npcId)
@@ -53,9 +55,31 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
             return 0;
         }
 
+        /// <summary>
+        /// Returns the questId associated with the message at the given index for this NPC.
+        /// Returns empty string if no quest is associated with that message.
+        /// </summary>
+        public string GetQuestIdAt(string npcId, int messageIndex)
+        {
+            if (string.IsNullOrEmpty(npcId))
+                return string.Empty;
+
+            if (_questLookup == null)
+                BuildLookup(npcs, dialogs);
+
+            if (!_questLookup.TryGetValue(npcId, out var questIds))
+                return string.Empty;
+
+            if (messageIndex < 0 || messageIndex >= questIds.Count)
+                return string.Empty;
+
+            return questIds[messageIndex] ?? string.Empty;
+        }
+
         private void BuildLookup(List<NPCData> npcList, List<DialogData> dialogList)
         {
-            _lookup = new Dictionary<string, List<MessageData>>();
+            _messageLookup = new Dictionary<string, List<MessageData>>();
+            _questLookup = new Dictionary<string, List<string>>();
 
             if (npcList == null || dialogList == null)
                 return;
@@ -89,7 +113,7 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                     continue;
                 }
 
-                if (_lookup.ContainsKey(npc.id))
+                if (_messageLookup.ContainsKey(npc.id))
                 {
                     Debug.LogWarning(
                         $"[NpcDialogRegistry] Duplicate NPC id '{npc.id}', skipping.",
@@ -106,7 +130,8 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                         $"[NpcDialogRegistry] NPC '{npc.id}' has no dialogId assigned.",
                         this
                     );
-                    _lookup[npc.id] = new List<MessageData>();
+                    _messageLookup[npc.id] = new List<MessageData>();
+                    _questLookup[npc.id] = new List<string>();
                     continue;
                 }
 
@@ -116,7 +141,8 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                         $"[NpcDialogRegistry] NPC '{npc.id}' references dialogId '{dialogId}' which was not found in the dialog list.",
                         this
                     );
-                    _lookup[npc.id] = new List<MessageData>();
+                    _messageLookup[npc.id] = new List<MessageData>();
+                    _questLookup[npc.id] = new List<string>();
                     continue;
                 }
 
@@ -126,11 +152,17 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                         $"[NpcDialogRegistry] Dialog '{dialogId}' for NPC '{npc.id}' has no messages.",
                         this
                     );
-                    _lookup[npc.id] = new List<MessageData>();
+                    _messageLookup[npc.id] = new List<MessageData>();
+                    _questLookup[npc.id] = new List<string>();
                     continue;
                 }
 
+                var messageQuestMap =
+                    npc.npcDialog?.GetMessageQuestMap() ?? new Dictionary<string, string>();
+
                 var messages = new List<MessageData>();
+                var questIds = new List<string>();
+
                 foreach (var msg in dialogMatch.messages)
                 {
                     if (msg == null)
@@ -140,12 +172,16 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                         msg.Sender = npc.name;
 
                     messages.Add(msg);
+
+                    messageQuestMap.TryGetValue(msg.id, out var questId);
+                    questIds.Add(questId ?? string.Empty);
                 }
 
-                _lookup[npc.id] = messages;
+                _messageLookup[npc.id] = messages;
+                _questLookup[npc.id] = questIds;
             }
 
-            Debug.Log($"[NpcDialogRegistry] Built lookup for {_lookup.Count} NPCs.", this);
+            Debug.Log($"[NpcDialogRegistry] Built lookup for {_messageLookup.Count} NPCs.", this);
         }
     }
 }

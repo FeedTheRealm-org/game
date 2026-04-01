@@ -1,3 +1,4 @@
+using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -16,6 +17,12 @@ public class InteractView : MonoBehaviour
     [Inject]
     private NpcDialogToggledEvent npcDialogToggledEvent;
 
+    [Inject]
+    private NpcQuestOfferedEvent npcQuestOfferedEvent;
+
+    [Inject]
+    private InteractFailedEvent interactFailedEvent;
+
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
     private string _activeNpcId;
@@ -26,51 +33,71 @@ public class InteractView : MonoBehaviour
         this.dialogRegistry = dialogRegistry;
 
         eventRouter.OnDialogEvent += HandleDialogEvent;
+        eventRouter.OnInteractFailedEvent += HandleInteractFailed;
+
         Debug.Log(
-            $"[InteractView] Initialized. eventRouter set: {eventRouter != null}, dialogRegistry set: {dialogRegistry != null}"
+            $"[InteractView] Initialized. eventRouter={eventRouter != null}, dialogRegistry={dialogRegistry != null}"
         );
     }
 
     private void OnDestroy()
     {
-        if (eventRouter != null)
-            eventRouter.OnDialogEvent -= HandleDialogEvent;
+        if (eventRouter == null)
+            return;
+
+        eventRouter.OnDialogEvent -= HandleDialogEvent;
+        eventRouter.OnInteractFailedEvent -= HandleInteractFailed;
+    }
+
+    private void HandleInteractFailed()
+    {
+        Debug.Log("[InteractView] HandleInteractFailed — raising InteractFailedEvent.");
+        interactFailedEvent.Raise();
     }
 
     private void HandleDialogEvent(DialogEventContent content)
     {
         Debug.Log(
-            $"[InteractView] HandleDialogEvent received. NpcId={content.NpcId}, DialogState={content.DialogState}, DialogIndex={content.DialogIndex}"
+            $"[InteractView] HandleDialogEvent. NpcId={content.NpcId}, State={content.DialogState}, Index={content.DialogIndex}, QuestId={content.QuestId}"
         );
-        if (content.DialogState == DialogStateType.DialogTypeStarted)
+
+        switch (content.DialogState)
         {
-            if (!string.IsNullOrEmpty(_activeNpcId))
-            {
-                npcDialogToggledEvent.Raise((false, _activeNpcId));
-            }
-            _activeNpcId = content.NpcId;
-            npcDialogToggledEvent.Raise((true, _activeNpcId));
-            ShowDialogLine(content.NpcId, content.DialogIndex);
-        }
-        else if (content.DialogState == DialogStateType.DialogTypeAdvanced)
-        {
-            if (_activeNpcId != content.NpcId)
-            {
-                if (!string.IsNullOrEmpty(_activeNpcId))
+            case DialogStateType.DialogTypeStarted:
+                if (!string.IsNullOrEmpty(_activeNpcId) && _activeNpcId != content.NpcId)
                     npcDialogToggledEvent.Raise((false, _activeNpcId));
+
                 _activeNpcId = content.NpcId;
                 npcDialogToggledEvent.Raise((true, _activeNpcId));
-            }
-            ShowDialogLine(content.NpcId, content.DialogIndex);
-        }
-        else if (content.DialogState == DialogStateType.DialogTypeClosed)
-        {
-            if (!string.IsNullOrEmpty(_activeNpcId))
-            {
-                npcDialogToggledEvent.Raise((false, _activeNpcId));
-                npcDialogClosedEvent.Raise();
-                _activeNpcId = null;
-            }
+                ShowDialogLine(content.NpcId, content.DialogIndex);
+
+                if (!string.IsNullOrEmpty(content.QuestId))
+                    npcQuestOfferedEvent.Raise(content.QuestId);
+                break;
+
+            case DialogStateType.DialogTypeAdvanced:
+                if (_activeNpcId != content.NpcId)
+                {
+                    if (!string.IsNullOrEmpty(_activeNpcId))
+                        npcDialogToggledEvent.Raise((false, _activeNpcId));
+                    _activeNpcId = content.NpcId;
+                    npcDialogToggledEvent.Raise((true, _activeNpcId));
+                }
+
+                ShowDialogLine(content.NpcId, content.DialogIndex);
+
+                if (!string.IsNullOrEmpty(content.QuestId))
+                    npcQuestOfferedEvent.Raise(content.QuestId);
+                break;
+
+            case DialogStateType.DialogTypeClosed:
+                if (!string.IsNullOrEmpty(_activeNpcId))
+                {
+                    npcDialogToggledEvent.Raise((false, _activeNpcId));
+                    npcDialogClosedEvent.Raise();
+                    _activeNpcId = null;
+                }
+                break;
         }
     }
 
@@ -79,7 +106,7 @@ public class InteractView : MonoBehaviour
         if (TryGetMessage(npcId, index, out MessageData message))
         {
             Debug.Log(
-                $"[InteractView] ShowDialogLine -> raising message for NpcId={npcId}, Index={index}, Sender={message.Sender}, Content={message.Content}"
+                $"[InteractView] ShowDialogLine NpcId={npcId}, Index={index}, Sender={message.Sender}"
             );
             npcDialogMessageEvent.Raise((npcId, message));
         }
@@ -104,9 +131,6 @@ public class InteractView : MonoBehaviour
         }
 
         message = messages[index];
-        Debug.Log(
-            $"[InteractView] TryGetMessage -> found message for NpcId={npcId}, Index={index}"
-        );
         return true;
     }
 }

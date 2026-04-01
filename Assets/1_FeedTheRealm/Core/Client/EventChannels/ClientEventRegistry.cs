@@ -1,5 +1,6 @@
 using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
@@ -33,9 +34,18 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
 
+        [Header("Interact Events")]
+        public InteractFailedEvent interactFailedEvent;
+
         [Header("NPC Events")]
         public NpcInteractedEvent npcInteractedEvent;
         public NpcDialogClosedEvent npcDialogClosedEvent;
+
+        [Header("Quest Events")]
+        public NpcQuestOfferedEvent npcQuestOfferedEvent;
+        public ShowQuestPromptEvent showQuestPromptEvent;
+        public QuestDecisionEvent questDecisionEvent;
+        public QuestCompletedEvent questCompletedEvent;
 
         [Header("Tick Events")]
         public TickEvent tickEvent;
@@ -61,9 +71,14 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
             builder.RegisterInstance(lateTickEvent);
+            builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
-            builder.RegisterInstance(worldSetupEvent);
+            builder.RegisterInstance(npcQuestOfferedEvent);
+            builder.RegisterInstance(showQuestPromptEvent);
+            builder.RegisterInstance(questDecisionEvent);
+            builder.RegisterInstance(questCompletedEvent);
+            builder.RegisterInstance(interactFailedEvent);
         }
 
         private void Validate()
@@ -85,6 +100,12 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(lateTickEvent, nameof(lateTickEvent));
             ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
             ValidateField(worldSetupEvent, nameof(worldSetupEvent));
+            ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
+            ValidateField(npcQuestOfferedEvent, nameof(npcQuestOfferedEvent));
+            ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
+            ValidateField(questDecisionEvent, nameof(questDecisionEvent));
+            ValidateField(questCompletedEvent, nameof(questCompletedEvent));
+            ValidateField(interactFailedEvent, nameof(interactFailedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

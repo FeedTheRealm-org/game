@@ -1,8 +1,6 @@
 using System;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
-using FTR.Core.Server.Commands;
-using UnityEditor;
 
 namespace FTR.Core.Server.Commands;
 
@@ -23,6 +21,8 @@ public static class CommandsFactory
                 return new UseCommand(dto.NetId, dto.Direction);
             case ActionType.Interact:
                 return new InteractCommand(dto.NetId);
+            case ActionType.CancelInteract:
+                return new CancelInteractCommand(dto.NetId);
             case ActionType.DialogNext:
                 return new DialogNextCommand(dto.NetId);
             default:
@@ -71,6 +71,8 @@ public static class CommandsFactory
                 return new PurchaseCommand(dto.NetId, dto.Id);
             case TransactionType.AcceptQuest:
                 return new AcceptQuestCommand(dto.NetId, dto.Id);
+            case TransactionType.RejectQuest:
+                return new RejectQuestCommand(dto.NetId);
             case TransactionType.MoveItem:
                 try
                 {
