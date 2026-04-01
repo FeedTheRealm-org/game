@@ -23,6 +23,7 @@ namespace FTR.Gameplay.Common.Environment.Structures
             var boxCollider = gameObject.AddComponent<BoxCollider>();
             boxCollider.size = structureData.colliderSize;
             boxCollider.center = structureData.colliderCenter;
+            boxCollider.includeLayers = LayerMask.GetMask("Player");
         }
 
         public void SetupMesh(GameObject visualPrefab)

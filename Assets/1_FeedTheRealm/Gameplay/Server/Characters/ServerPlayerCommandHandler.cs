@@ -88,5 +88,10 @@ namespace FTR.Gameplay.Server.Characters
         {
             inventorySystem.OnPickUp(ec, itemId, onComplete);
         }
+
+        public override void OnPurchase(IEventCollectable ec, string itemId, int amount)
+        {
+            // inventorySystem.OnPurchase(ec, itemId, amount);
+        }
     }
 }

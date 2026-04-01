@@ -5,6 +5,7 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
 using FTR.Gameplay.Common.Environment.Dialogs;
+using FTR.Gameplay.Common.Environment.Shop;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Linkers;
 using FTR.Gameplay.Server.Scopes;
@@ -35,6 +36,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private NpcDialogRegistry npcDialogRegistry;
 
         [SerializeField]
+        private ShopRegistry shopRegistry;
+
+        [SerializeField]
         private WorldService worldService;
 
         protected override void Configure(IContainerBuilder builder)
@@ -50,6 +54,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(npcDialogRegistry);
+            builder.RegisterInstance(shopRegistry);
 
             builder.Register<HealthcheckServer>(Lifetime.Singleton);
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
@@ -59,6 +64,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ServerPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ServerLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
+            builder.Register<ServerShopLinker>(Lifetime.Singleton).As<ShopLinker>();
 
             builder.Register<GameLoop>(Lifetime.Singleton);
             builder.Register<NetworkService>(Lifetime.Singleton);
@@ -76,6 +82,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             ValidateField(prefabProvider, nameof(prefabProvider));
             ValidateField(worldService, nameof(worldService));
             ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
+            ValidateField(shopRegistry, nameof(shopRegistry));
         }
 
         private void ValidateField(Object field, string fieldName)
