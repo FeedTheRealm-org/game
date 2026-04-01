@@ -13,7 +13,7 @@ public interface ICommandable
     void OnInteract(IEventCollectable ec);
     void OnEquipItem(IEventCollectable ec, int slotIndex);
     void OnDropItem(IEventCollectable ec, StorageType type, int slotIndex, string itemId);
-    void OnPurchase(IEventCollectable ec);
+    void OnPurchase(IEventCollectable ec, string itemId, int amount);
     void OnQuestAccepted(IEventCollectable ec);
     void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
     void OnMoveItem(

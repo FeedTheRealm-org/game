@@ -1,6 +1,8 @@
 using FeedTheRealm.Core.EventChannels.Setup;
+using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
@@ -19,6 +21,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         [Header("Shop Events")]
         public ShopInteractedEvent shopInteractedEvent;
         public ShopOnCloseEvent shopOnCloseEvent;
+        public OpenShopEvent openShopEvent;
 
         [Header("Status Events")]
         public HealthChangedEvent healthChangedEvent;
@@ -37,6 +40,12 @@ namespace FeedTheRealm.Core.Client.EventChannels
         [Header("NPC Events")]
         public NpcInteractedEvent npcInteractedEvent;
         public NpcDialogClosedEvent npcDialogClosedEvent;
+
+        [Header("Quest Events")]
+        public NpcQuestOfferedEvent npcQuestOfferedEvent;
+        public ShowQuestPromptEvent showQuestPromptEvent;
+        public QuestDecisionEvent questDecisionEvent;
+        public QuestCompletedEvent questCompletedEvent;
 
         [Header("Tick Events")]
         public TickEvent tickEvent;
@@ -67,8 +76,13 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(lateTickEvent);
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
+            builder.RegisterInstance(npcQuestOfferedEvent);
+            builder.RegisterInstance(showQuestPromptEvent);
+            builder.RegisterInstance(questDecisionEvent);
+            builder.RegisterInstance(questCompletedEvent);
             builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(goldChangedEvent);
+            builder.RegisterInstance(openShopEvent);
         }
 
         private void Validate()
@@ -89,8 +103,13 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));
             ValidateField(lateTickEvent, nameof(lateTickEvent));
             ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
+            ValidateField(npcQuestOfferedEvent, nameof(npcQuestOfferedEvent));
+            ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
+            ValidateField(questDecisionEvent, nameof(questDecisionEvent));
+            ValidateField(questCompletedEvent, nameof(questCompletedEvent));
             ValidateField(worldSetupEvent, nameof(worldSetupEvent));
             ValidateField(goldChangedEvent, nameof(goldChangedEvent));
+            ValidateField(openShopEvent, nameof(openShopEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

@@ -15,6 +15,7 @@ MonoBehaviour:
   worldSetupEvent: {fileID: 11400000, guid: 48c5fe6717816fac2a684e45d8fa910b, type: 2}
   shopInteractedEvent: {fileID: 11400000, guid: deb8fa24566e93241b98ce8aabe1de3b, type: 2}
   shopOnCloseEvent: {fileID: 11400000, guid: d66e0a54a3c06be4a909b5b6b63e40c0, type: 2}
+  openShopEvent: {fileID: 11400000, guid: dd6b4779e6bd42a429070a759a723da4, type: 2}
   healthChangedEvent: {fileID: 11400000, guid: ebc7b4ec14e54b8dbb876afc2254d9e8, type: 2}
   staminaChangedEvent: {fileID: 11400000, guid: 89582c7e8afc2cb4db5daece29a3d3be, type: 2}
   lastAddedEvent: {fileID: 11400000, guid: 2e1f564ad5c2eee4998aafc82ee7194a, type: 2}
@@ -27,6 +28,10 @@ MonoBehaviour:
   inventoryToggleEvent: {fileID: 11400000, guid: 71845091c26c22049b862e665acb63b0, type: 2}
   npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
   npcDialogClosedEvent: {fileID: 11400000, guid: e7146b22aa5022befbf1d4ab8487c9a8, type: 2}
+  npcQuestOfferedEvent: {fileID: 11400000, guid: a100e781f0a5d2048bb9474695449187, type: 2}
+  showQuestPromptEvent: {fileID: 11400000, guid: fd7e6c0fba7873b459246daedcf0a5c9, type: 2}
+  questDecisionEvent: {fileID: 11400000, guid: 982c6ff128438cb20afe10947eb6ce40, type: 2}
+  questCompletedEvent: {fileID: 11400000, guid: b2755233a0e9e83729434441a96c878d, type: 2}
   tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
   fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
   lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}
