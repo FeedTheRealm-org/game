@@ -1,6 +1,7 @@
+using FTR.Core.Common.EventChannels;
 using UnityEngine;
 
-namespace FTR.Core.Common.EventChannels
+namespace FTR.Core.Client.EventChannels.Interaction
 {
     [CreateAssetMenu(menuName = "Events/PlayerEvents/Interact Failed")]
     public class InteractFailedEvent : EventChannelSO { }

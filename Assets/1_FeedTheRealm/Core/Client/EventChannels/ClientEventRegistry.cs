@@ -1,6 +1,7 @@
 using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.EventChannels.Shop;
@@ -39,6 +40,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Interact Events")]
         public InteractFailedEvent interactFailedEvent;
+        public InteractCompletedEvent interactCompletedEvent;
 
         [Header("NPC Events")]
         public NpcInteractedEvent npcInteractedEvent;
@@ -88,6 +90,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(goldChangedEvent);
             builder.RegisterInstance(openShopEvent);
             builder.RegisterInstance(interactFailedEvent);
+            builder.RegisterInstance(interactCompletedEvent);
         }
 
         private void Validate()
@@ -121,6 +124,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
+            ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

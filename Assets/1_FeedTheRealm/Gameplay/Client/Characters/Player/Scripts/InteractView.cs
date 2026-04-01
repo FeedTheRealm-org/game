@@ -1,3 +1,4 @@
+using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
@@ -23,6 +24,9 @@ public class InteractView : MonoBehaviour
     [Inject]
     private InteractFailedEvent interactFailedEvent;
 
+    [Inject]
+    private InteractCompletedEvent interactCompletedEvent;
+
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
     private string _activeNpcId;
@@ -34,6 +38,7 @@ public class InteractView : MonoBehaviour
 
         eventRouter.OnDialogEvent += HandleDialogEvent;
         eventRouter.OnInteractFailedEvent += HandleInteractFailed;
+        eventRouter.OnInteractCompletedEvent += HandleInteractCompleted;
 
         Debug.Log(
             $"[InteractView] Initialized. eventRouter={eventRouter != null}, dialogRegistry={dialogRegistry != null}"
@@ -47,12 +52,19 @@ public class InteractView : MonoBehaviour
 
         eventRouter.OnDialogEvent -= HandleDialogEvent;
         eventRouter.OnInteractFailedEvent -= HandleInteractFailed;
+        eventRouter.OnInteractCompletedEvent -= HandleInteractCompleted;
     }
 
     private void HandleInteractFailed()
     {
-        Debug.Log("[InteractView] HandleInteractFailed — raising InteractFailedEvent.");
+        Debug.Log("[InteractView] HandleInteractFailed.");
         interactFailedEvent.Raise();
+    }
+
+    private void HandleInteractCompleted()
+    {
+        Debug.Log("[InteractView] HandleInteractCompleted.");
+        interactCompletedEvent.Raise();
     }
 
     private void HandleDialogEvent(DialogEventContent content)

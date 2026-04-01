@@ -1,6 +1,7 @@
 using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
@@ -59,6 +60,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 )
             );
 
+            worldMonitor.Events.Enqueue(new InteractCompletedEvent(ownNetId, connId.Value));
+
             logger?.Log($"[ShopInteractSystem] Player {playerNetId} opened shop '{shopId}'.", this);
 
             return shopId;
@@ -68,9 +71,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void StopInteraction(IInteractor interactor) { }
 
-        public bool CanInteract(IInteractor interactor)
-        {
-            return true;
-        }
+        public bool CanInteract(IInteractor interactor) => true;
     }
 }
