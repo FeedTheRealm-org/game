@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3922623790710069857
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4904787117731685866}
+  - component: {fileID: 7774593433106030350}
+  - component: {fileID: 5233460857616364915}
+  - component: {fileID: -303548839676757540}
+  - component: {fileID: -1726177640601011997}
+  - component: {fileID: -2119517169629561240}
+  m_Layer: 10
+  m_Name: Shop
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4904787117731685866
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922623790710069857}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: -0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7774593433106030350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922623790710069857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
+  sceneId: 0
+  _assetId: 3147732448
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
+--- !u!114 &5233460857616364915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922623790710069857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0966246341c5cfcb8175f48d3fe60d0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Environment.Structures.StructureController
+--- !u!114 &-303548839676757540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922623790710069857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7289518a8e88d6f48b3fc1ba40130230, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Environment.Shop.ClientShopNetworkInitializer
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &-1726177640601011997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922623790710069857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 198e5bd5de0103a4c910a73fd1f56c9d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Shop.ServerShopNetworkInitializer
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &-2119517169629561240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922623790710069857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76981e5a927d4ee3ea4df54936378c64, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
+  linkerType: 4

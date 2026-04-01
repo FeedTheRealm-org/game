@@ -8,6 +8,7 @@ using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.Loaders
 {
@@ -54,6 +55,7 @@ namespace FTR.Gameplay.Client.Loaders
                 controller.Initialize(structureData);
                 controller.SetupMesh(visual);
             }
+
             modelCache.Clear();
             modelsInfo.Clear();
         }
