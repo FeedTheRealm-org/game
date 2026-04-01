@@ -13,6 +13,7 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<DashEventContent> OnDashEvent;
     public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
     public event Action<DialogEventContent> OnDialogEvent;
+    public event Action<OpenShopEventContent> OnOpenShopEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -52,6 +53,9 @@ public class NetworkEventRouter : MonoBehaviour
                 break;
             case ServerEventType.DialogEvent:
                 OnDialogEvent?.Invoke(DialogEventContent.Parser.ParseFrom(serverEvent.content));
+                break;
+            case ServerEventType.OpenShopEvent:
+                OnOpenShopEvent?.Invoke(OpenShopEventContent.Parser.ParseFrom(serverEvent.content));
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);
