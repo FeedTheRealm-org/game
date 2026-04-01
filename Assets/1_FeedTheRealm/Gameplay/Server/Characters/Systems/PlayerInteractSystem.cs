@@ -1,6 +1,6 @@
-using System.Collections;
 using FTR.Core.Common.Interactions;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 
 public class PlayerInteractSystem : MonoBehaviour, IInteractor
@@ -22,95 +22,147 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
     public uint NetId { get; private set; }
     public IInteractable CurrentInteractable { get; private set; }
 
-    public void Initialize(uint netId)
+    private WorldMonitor worldMonitor;
+    private uint ownNetId;
+
+    public void Initialize(uint netId, WorldMonitor worldMonitor, uint ownNetId)
     {
         this.NetId = netId;
+        this.worldMonitor = worldMonitor;
+        this.ownNetId = ownNetId;
     }
 
     /// <summary>
-    /// Attempts to interact with the closest interactable object within range.
-    /// Returns true if an interaction was initiated, false otherwise.
+    /// Finds the closest IInteractable in range and either starts or continues the interaction.
+    /// If nothing is found, notifies the client via InteractFailedEvent so it can exit
+    /// CharacterInteractingState without waiting for a dialog event.
     /// </summary>
-    public void OnInteract(IEventCollectable ec)
+    public void TryInteract(IEventCollectable ec)
     {
-        if (logger != null)
-            logger.Log("Player interaction triggered.", this);
+        logger?.Log("[PlayerInteractSystem] TryInteract triggered.", this);
 
-        Collider[] hitColliders = Physics.OverlapSphere(
-            transform.position,
-            interactionRadius,
-            interactableLayerMask
-        );
-        IInteractable closestInteractable = null;
-        float closestDistance = float.MaxValue;
+        IInteractable closest = FindClosestInteractable();
 
-        foreach (var hitCollider in hitColliders)
+        if (closest == null)
         {
-            IInteractable interactable = hitCollider.GetComponent<IInteractable>();
-            if (interactable != null && interactable.CanInteract(this))
-            {
-                float distance = Vector3.Distance(
-                    transform.position,
-                    hitCollider.transform.position
-                );
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestInteractable = interactable;
-                }
-            }
-        }
-
-        if (closestInteractable == null)
-        {
+            logger?.Log("[PlayerInteractSystem] No interactable found — notifying client.", this);
+            SendInteractFailed();
             FinishInteracting();
             return;
         }
 
-        if (CurrentInteractable == closestInteractable)
+        if (CurrentInteractable == closest)
         {
-            if (logger != null)
-                logger.Log("Continuing interaction with: " + closestInteractable, this);
+            logger?.Log($"[PlayerInteractSystem] Continuing interaction with: {closest}", this);
             CurrentInteractable.ContinueInteraction(this);
             return;
         }
 
-        if (CurrentInteractable != null && CurrentInteractable != closestInteractable)
-        {
+        if (CurrentInteractable != null)
             CurrentInteractable.StopInteraction(this);
-        }
 
-        CurrentInteractable = closestInteractable;
-        if (logger != null)
-            logger.Log("Interacting with: " + closestInteractable, this);
+        CurrentInteractable = closest;
+        logger?.Log($"[PlayerInteractSystem] Starting interaction with: {closest}", this);
         CurrentInteractable.Interact(this);
     }
 
-    public void OnDialogNext(IEventCollectable ec)
+    public void TryContinue(IEventCollectable ec)
     {
-        if (CurrentInteractable != null)
+        if (CurrentInteractable == null)
         {
-            CurrentInteractable.ContinueInteraction(this);
+            logger?.Log(
+                "[PlayerInteractSystem] TryContinue received but no active interaction.",
+                this
+            );
+            return;
+        }
+
+        CurrentInteractable.ContinueInteraction(this);
+    }
+
+    /// <summary>
+    /// Only forwarded if the interactable opts in via IQuestBlockable.
+    /// </summary>
+    public void NotifyQuestDecided()
+    {
+        if (CurrentInteractable is IQuestBlockable questBlockable)
+        {
+            questBlockable.OnQuestDecided(NetId);
         }
         else
         {
-            if (logger != null)
-                logger.Log(
-                    "[PlayerInteractSystem] OnDialogNext received but no active interaction.",
-                    this
-                );
+            logger?.Log(
+                "[PlayerInteractSystem] NotifyQuestDecided — current interactable does not implement IQuestBlockable.",
+                this
+            );
         }
     }
 
     public void FinishInteracting()
     {
-        if (logger != null)
-            logger.Log("Finished interacting.", this);
+        logger?.Log("[PlayerInteractSystem] FinishInteracting.", this);
         if (CurrentInteractable != null)
         {
             CurrentInteractable.StopInteraction(this);
             CurrentInteractable = null;
         }
+    }
+
+    private IInteractable FindClosestInteractable()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(
+            transform.position,
+            interactionRadius,
+            interactableLayerMask
+        );
+
+        IInteractable closest = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var col in hitColliders)
+        {
+            IInteractable interactable = col.GetComponent<IInteractable>();
+            if (interactable == null || !interactable.CanInteract(this))
+                continue;
+
+            float distance = Vector3.Distance(transform.position, col.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closest = interactable;
+            }
+        }
+
+        return closest;
+    }
+
+    private void SendInteractFailed()
+    {
+        if (worldMonitor == null)
+            return;
+
+        int? connId = GetPlayerConnectionId(NetId);
+        if (!connId.HasValue)
+        {
+            logger?.Log(
+                $"[PlayerInteractSystem] SendInteractFailed — connection not found for Player:{NetId}.",
+                this
+            );
+            return;
+        }
+
+        worldMonitor.Events.Enqueue(new InteractFailedEvent(ownNetId, connId.Value));
+    }
+
+    private int? GetPlayerConnectionId(uint playerNetId)
+    {
+        if (
+            worldMonitor.Entities.TryGet(playerNetId, out var entity)
+            && entity.ConnectionId.HasValue
+        )
+            return entity.ConnectionId.Value;
+
+        return null;
     }
 
     private void OnDrawGizmosSelected()

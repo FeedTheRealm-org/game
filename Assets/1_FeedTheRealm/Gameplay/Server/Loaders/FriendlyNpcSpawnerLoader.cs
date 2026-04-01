@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Environment.Dialogs;
+using FTR.Gameplay.Server.Environment.Quest;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
@@ -14,6 +15,9 @@ namespace FTR.Gameplay.Server.Loaders
     {
         [Inject]
         private readonly NpcDialogRegistry npcDialogRegistry;
+
+        [Inject]
+        private readonly ServerQuestRegistry serverQuestRegistry;
 
         private readonly GameObject spawnerPrefab;
 

@@ -90,6 +90,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!isInitialized)
                 return;
 
+            if (stateStorage.IsMovementBlocked)
+            {
+                if (currentState != AIState.Idle)
+                {
+                    TransitionTo(AIState.Idle);
+                }
+                return;
+            }
+
             if (currentState == AIState.Wandering || currentState == AIState.Chasing)
             {
                 ProcessMovementAlongPath();
@@ -203,6 +212,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void TryBeginWander()
         {
+            if (stateStorage.IsMovementBlocked)
+            {
+                TransitionTo(AIState.Idle);
+                return;
+            }
+
             if (!stateStorage.IsGrounded)
             {
                 logger.Log(
@@ -232,11 +247,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             if (!startOnMesh)
             {
-                logger.Log(
+                /*logger.Log(
                     $"[AINav] {gameObject.name} at {rootPos} is too far from any NavMesh.",
                     this,
                     Logging.LogType.Error
-                );
+                );*/
                 TransitionTo(AIState.Idle);
                 return;
             }
@@ -251,32 +266,32 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 )
             )
             {
-                logger.Log(
+                /*logger.Log(
                     $"[AINav] {gameObject.name} could not find a valid path. Staying idle.",
                     this,
                     Logging.LogType.Warning
-                );
+                );*/
                 TransitionTo(AIState.Idle);
                 return;
             }
 
             if (currentPath.status != NavMeshPathStatus.PathComplete)
             {
-                logger.Log(
+                /*logger.Log(
                     $"[AINav] {gameObject.name} path incomplete ({currentPath.status}). Staying idle.",
                     this,
                     Logging.LogType.Warning
-                );
+                );*/
                 TransitionTo(AIState.Idle);
                 return;
             }
 
             currentPathIndex = 0;
             TransitionTo(AIState.Wandering);
-            logger.Log(
+            /*logger.Log(
                 $"[AINav] {gameObject.name} began wandering ({currentPath.corners.Length} waypoints).",
                 this
-            );
+            );*/
         }
 
         private void ProcessMovementAlongPath()

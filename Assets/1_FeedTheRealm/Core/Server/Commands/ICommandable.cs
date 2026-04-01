@@ -11,10 +11,14 @@ public interface ICommandable
     void OnDash(IEventCollectable ec, Vector3 direction);
     void OnUse(IEventCollectable ec);
     void OnInteract(IEventCollectable ec);
+    void OnCancelInteract(IEventCollectable ec);
+    void OnDialogNext(IEventCollectable ec);
     void OnEquipItem(IEventCollectable ec, int slotIndex);
     void OnDropItem(IEventCollectable ec, StorageType type, int slotIndex, string itemId);
     void OnPurchase(IEventCollectable ec);
-    void OnQuestAccepted(IEventCollectable ec);
+    void OnQuestAccepted(IEventCollectable ec, string questId);
+    void OnQuestDecided(IEventCollectable ec);
+
     void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
     void OnMoveItem(
         IEventCollectable ec,
@@ -23,5 +27,4 @@ public interface ICommandable
         StorageType targetType,
         int targetSlot
     );
-    void OnDialogNext(IEventCollectable ec);
 }

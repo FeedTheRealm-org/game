@@ -25,14 +25,15 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9FdmVudHMvRGlhbG9nRXZlbnRDb250ZW50LnByb3RvEghwcm90b2NvbBoV",
-            "RGlhbG9nU3RhdGVUeXBlLnByb3RvImsKEkRpYWxvZ0V2ZW50Q29udGVudBIv",
+            "RGlhbG9nU3RhdGVUeXBlLnByb3RvIn0KEkRpYWxvZ0V2ZW50Q29udGVudBIv",
             "CgxkaWFsb2dfc3RhdGUYASABKA4yGS5wcm90b2NvbC5EaWFsb2dTdGF0ZVR5",
-            "cGUSDgoGbnBjX2lkGAIgASgJEhQKDGRpYWxvZ19pbmRleBgDIAEoBUInqgIk",
-            "RlRSLkNvcmUuQ29tbW9uLlByb3RvY29sLlJwY01lc3NhZ2VzYgZwcm90bzM="));
+            "cGUSDgoGbnBjX2lkGAIgASgJEhQKDGRpYWxvZ19pbmRleBgDIAEoBRIQCghx",
+            "dWVzdF9pZBgEIAEoCUInqgIkRlRSLkNvcmUuQ29tbW9uLlByb3RvY29sLlJw",
+            "Y01lc3NhZ2VzYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::FTR.Core.Common.Protocol.RpcMessages.DialogStateTypeReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent), global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent.Parser, new[]{ "DialogState", "NpcId", "DialogIndex" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent), global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent.Parser, new[]{ "DialogState", "NpcId", "DialogIndex", "QuestId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -79,6 +80,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       dialogState_ = other.dialogState_;
       npcId_ = other.npcId_;
       dialogIndex_ = other.dialogIndex_;
+      questId_ = other.questId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -133,6 +135,21 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
     }
 
+    /// <summary>Field number for the "quest_id" field.</summary>
+    public const int QuestIdFieldNumber = 4;
+    private string questId_ = "";
+    /// <summary>
+    /// Empty when no quest is associated with this message
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string QuestId {
+      get { return questId_; }
+      set {
+        questId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -151,6 +168,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (DialogState != other.DialogState) return false;
       if (NpcId != other.NpcId) return false;
       if (DialogIndex != other.DialogIndex) return false;
+      if (QuestId != other.QuestId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -161,6 +179,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (DialogState != global::FTR.Core.Common.Protocol.RpcMessages.DialogStateType.DialogTypeStarted) hash ^= DialogState.GetHashCode();
       if (NpcId.Length != 0) hash ^= NpcId.GetHashCode();
       if (DialogIndex != 0) hash ^= DialogIndex.GetHashCode();
+      if (QuestId.Length != 0) hash ^= QuestId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -191,6 +210,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(24);
         output.WriteInt32(DialogIndex);
       }
+      if (QuestId.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(QuestId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -213,6 +236,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(24);
         output.WriteInt32(DialogIndex);
       }
+      if (QuestId.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(QuestId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -231,6 +258,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (DialogIndex != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(DialogIndex);
+      }
+      if (QuestId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(QuestId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -252,6 +282,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (other.DialogIndex != 0) {
         DialogIndex = other.DialogIndex;
+      }
+      if (other.QuestId.Length != 0) {
+        QuestId = other.QuestId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -280,6 +313,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             DialogIndex = input.ReadInt32();
             break;
           }
+          case 34: {
+            QuestId = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -305,6 +342,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
           }
           case 24: {
             DialogIndex = input.ReadInt32();
+            break;
+          }
+          case 34: {
+            QuestId = input.ReadString();
             break;
           }
         }
