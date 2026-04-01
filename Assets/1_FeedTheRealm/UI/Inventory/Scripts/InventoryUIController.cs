@@ -150,6 +150,8 @@ namespace FTR.UI.Inventory
             bool show = !animationController.IsVisible;
             animationController.Toggle();
             inventoryToggleEvent?.Raise(show);
+            UnityEngine.Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
+            UnityEngine.Cursor.visible = show;
         }
 
         private void OnInventorySlotClicked(int i) => HandleSlotClick(StorageType.Inventory, i);
