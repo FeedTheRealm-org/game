@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FTR.Gameplay.Client.EntryPoints;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -44,8 +45,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private const int PAGE_SIZE = 20;
 
     //private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
-    private List<FTRShared.Runtime.Models.WorldMetadata> currentWorlds =
-        new List<FTRShared.Runtime.Models.WorldMetadata>();
+    private List<WorldData> currentWorlds = new();
 
     private void Awake()
     {
@@ -179,32 +179,18 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         }
     }
 
-    private async Task OnWorldSelected(FTRShared.Runtime.Models.WorldMetadata metadata)
+    private async Task OnWorldSelected(WorldData worldData)
     {
         try
         {
-            var (worldData, error, code) = await worldService.GetWorldData(
-                metadata.id,
-                session.APIToken
-            );
-            if (!string.IsNullOrEmpty(error) || worldData == null)
-            {
-                logger.Log(
-                    $"Error loading world data: {error} (code: {code})",
-                    this,
-                    Logging.LogType.Error
-                );
-                return;
-            }
-
             if (worldSelector != null)
             {
-                worldSelector.SetSelectedWorldId(worldData.id);
+                worldSelector.SetSelectedWorldId(worldData.worldId);
             }
 
             if (itemAssetsService != null)
             {
-                await itemAssetsService.InitializeCategoryForWorldAsync(worldData.id);
+                await itemAssetsService.InitializeCategoryForWorldAsync(worldData.worldId);
             }
 
             if (OnNavigateToWorld != null)
@@ -250,16 +236,16 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         RenderCategories();
     }
 
-    private VisualElement CreateWorldElement(FTRShared.Runtime.Models.WorldMetadata worldData)
+    private VisualElement CreateWorldElement(WorldData worldData)
     {
-        if (worldData == null || string.IsNullOrEmpty(worldData.name))
+        if (worldData == null || string.IsNullOrEmpty(worldData.worldName))
             return null;
 
         var worldElement = new VisualElement();
         worldElement.AddToClassList("worldElement");
         worldElement.name = "WorldElement";
 
-        var worldLabel = new Label(worldData.name.Split('.')[0]);
+        var worldLabel = new Label(worldData.worldName.Split('.')[0]);
         worldLabel.AddToClassList("worldName");
         worldLabel.name = "WorldName";
 
@@ -285,9 +271,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         return worldElement;
     }
 
-    private void onClickAboutWorld(FTRShared.Runtime.Models.WorldMetadata world)
+    private void onClickAboutWorld(WorldData world)
     {
-        logger.Log($"About world clicked: {world.name}", this);
+        logger.Log($"About world clicked: {world.worldName}", this);
         worldInfoHUD.SetActive(true);
         worldInfoHUD.GetComponent<WorldInfoController>().SetCurrentWorld(world);
     }
@@ -351,7 +337,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     private VisualElement CreateCategoryContainer(
         //Worlds.Category category,
-        List<FTRShared.Runtime.Models.WorldMetadata> worlds
+        List<WorldData> worlds
     )
     {
         var categoryContainer = new VisualElement();

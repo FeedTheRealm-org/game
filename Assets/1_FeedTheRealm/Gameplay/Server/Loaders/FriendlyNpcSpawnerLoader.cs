@@ -28,14 +28,14 @@ namespace FTR.Gameplay.Server.Loaders
             this.resolver = resolver;
         }
 
-        public async UniTask Load(WorldData worldData)
+        public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
-            npcDialogRegistry.Populate(worldData.npcs, worldData.dialogs);
+            npcDialogRegistry.Populate(creatablesData.npcs, creatablesData.dialogs);
 
-            var npcById = BuildNpcLookup(worldData.npcs);
-            var dialogById = BuildDialogLookup(worldData.dialogs);
+            var npcById = BuildNpcLookup(creatablesData.npcs);
+            var dialogById = BuildDialogLookup(creatablesData.dialogs);
 
-            foreach (var spawnData in worldData.npcSpawnAreas)
+            foreach (var spawnData in zoneData.npcSpawnAreas)
             {
                 if (string.IsNullOrEmpty(spawnData.NpcId))
                 {

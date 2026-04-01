@@ -11,9 +11,9 @@ namespace FTR.Gameplay.Server.Loaders
         [Inject]
         PlayerSpawnpointManager playerSpawnpointManager;
 
-        public async UniTask Load(WorldData worldData)
+        public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
-            var spawnpoints = worldData.playerSpawnAreas;
+            var spawnpoints = zoneData.playerSpawnAreas;
             playerSpawnpointManager.SetSpawnpoints(spawnpoints);
         }
     }

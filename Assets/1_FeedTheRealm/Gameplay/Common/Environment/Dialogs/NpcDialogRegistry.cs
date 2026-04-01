@@ -136,8 +136,8 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                     if (msg == null)
                         continue;
 
-                    if (string.IsNullOrEmpty(msg.Sender))
-                        msg.Sender = npc.name;
+                    if (string.IsNullOrEmpty(msg.sender))
+                        msg.sender = npc.name;
 
                     messages.Add(msg);
                 }

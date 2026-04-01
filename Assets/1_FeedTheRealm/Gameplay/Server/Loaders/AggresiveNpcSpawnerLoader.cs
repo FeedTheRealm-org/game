@@ -23,9 +23,9 @@ namespace FTR.Gameplay.Server.Loaders
             this.resolver = resolver;
         }
 
-        public async UniTask Load(WorldData worldData)
+        public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
-            var spawnAreas = worldData.enemySpawnAreas;
+            var spawnAreas = zoneData.enemySpawnAreas;
             foreach (EnemySpawnerData data in spawnAreas)
             {
                 GameObject instance = resolver.Instantiate(

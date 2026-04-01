@@ -114,8 +114,8 @@ namespace FTR.UI.WorldSpace
             if (!IsMyNpc(data.npcId))
                 return;
 
-            _msgLabel.text = data.message.Content;
-            _senderLabel.text = SenderPrefix + data.message.Sender;
+            _msgLabel.text = data.message.content;
+            _senderLabel.text = SenderPrefix + data.message.sender;
         }
 
         private void HandleToggleDialog((bool isOpen, string npcId) data)

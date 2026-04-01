@@ -10,10 +10,14 @@ namespace FTR.Gameplay.Client.Loaders
     {
         public ClientItemLoader() { }
 
-        public virtual async UniTask Load(WorldData worldData)
+        public virtual async UniTask Load(
+            string worldId,
+            ZoneData zoneData,
+            CreatablesData creatablesData
+        )
         {
-            Debug.Log($"[ClientItemLoader] Loading world items for world: {worldData.id}");
-            ClientItemsRegistry.RegisterWorldData(worldData);
+            Debug.Log($"[ClientItemLoader] Loading world items for world: {worldId}");
+            ClientItemsRegistry.RegisterWorldData(creatablesData);
         }
     }
 }

@@ -79,7 +79,7 @@ public class InteractView : MonoBehaviour
         if (TryGetMessage(npcId, index, out MessageData message))
         {
             Debug.Log(
-                $"[InteractView] ShowDialogLine -> raising message for NpcId={npcId}, Index={index}, Sender={message.Sender}, Content={message.Content}"
+                $"[InteractView] ShowDialogLine -> raising message for NpcId={npcId}, Index={index}, Sender={message.sender}, Content={message.content}"
             );
             npcDialogMessageEvent.Raise((npcId, message));
         }
