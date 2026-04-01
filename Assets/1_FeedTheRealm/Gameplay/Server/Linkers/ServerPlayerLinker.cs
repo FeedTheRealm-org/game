@@ -64,7 +64,7 @@ public class ServerPlayerLinker : PlayerLinker
         var interactSystem = playerComponents.GetComponent<PlayerInteractSystem>();
         var questSystem = playerComponents.GetComponent<QuestSystem>();
 
-        interactSystem.Initialize(netId);
+        interactSystem.Initialize(netId, world, networkAdapter.netId);
         questSystem.Initialize(netId);
         systems.Health.Initialize(netId, stateStorage, false);
         systems.Use.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);

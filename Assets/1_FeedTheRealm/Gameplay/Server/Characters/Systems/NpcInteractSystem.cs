@@ -4,11 +4,12 @@ using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.Environment.Dialogs;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
-    public class NpcInteractSystem : MonoBehaviour, IInteractable
+    public class NpcInteractSystem : MonoBehaviour, IInteractable, IQuestBlockable
     {
         [Header("General settings")]
         [SerializeField]
@@ -26,6 +27,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Dictionary<uint, int> playerDialogStates = new Dictionary<uint, int>();
         private HashSet<uint> _questPendingPlayers = new HashSet<uint>();
         private Dictionary<uint, Coroutine> playerTimeouts = new Dictionary<uint, Coroutine>();
+        private CharacterStateStorage stateStorage;
 
         public void Initialize(
             Logging.Logger logger,
@@ -40,6 +42,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.worldMonitor = worldMonitor;
             this.ownNetId = ownNetId;
             this.npcId = npcId;
+            this.stateStorage = GetComponent<CharacterStateStorage>();
+        }
+
+        private void UpdateMovementBlockedState()
+        {
+            if (stateStorage != null)
+            {
+                stateStorage.IsMovementBlocked = playerDialogStates.Count > 0;
+            }
         }
 
         private int? GetPlayerConnectionId(uint playerNetId)
@@ -66,6 +77,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             playerDialogStates[playerNetId] = 0;
             _questPendingPlayers.Remove(playerNetId);
+            UpdateMovementBlockedState();
 
             var connId = GetPlayerConnectionId(playerNetId);
             if (!connId.HasValue)
@@ -114,7 +126,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (_questPendingPlayers.Contains(playerNetId))
             {
                 logger?.Log(
-                    $"[NpcInteractSystem] DialogNext ignored — quest pending for Player:{playerNetId}.",
+                    $"[NpcInteractSystem] ContinueInteraction ignored — quest pending for Player:{playerNetId}.",
                     this
                 );
                 return;
@@ -171,6 +183,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             playerDialogStates.Remove(playerNetId);
             _questPendingPlayers.Remove(playerNetId);
             StopInactivityTimer(playerNetId);
+            UpdateMovementBlockedState();
 
             worldMonitor.Events.Enqueue(
                 new DialogEvent(

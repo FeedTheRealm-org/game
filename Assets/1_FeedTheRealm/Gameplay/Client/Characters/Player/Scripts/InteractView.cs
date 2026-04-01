@@ -20,6 +20,9 @@ public class InteractView : MonoBehaviour
     [Inject]
     private NpcQuestOfferedEvent npcQuestOfferedEvent;
 
+    [Inject]
+    private InteractFailedEvent interactFailedEvent;
+
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
     private string _activeNpcId;
@@ -30,21 +33,32 @@ public class InteractView : MonoBehaviour
         this.dialogRegistry = dialogRegistry;
 
         eventRouter.OnDialogEvent += HandleDialogEvent;
+        eventRouter.OnInteractFailedEvent += HandleInteractFailed;
+
         Debug.Log(
-            $"[InteractView] Initialized. eventRouter set: {eventRouter != null}, dialogRegistry set: {dialogRegistry != null}"
+            $"[InteractView] Initialized. eventRouter={eventRouter != null}, dialogRegistry={dialogRegistry != null}"
         );
     }
 
     private void OnDestroy()
     {
-        if (eventRouter != null)
-            eventRouter.OnDialogEvent -= HandleDialogEvent;
+        if (eventRouter == null)
+            return;
+
+        eventRouter.OnDialogEvent -= HandleDialogEvent;
+        eventRouter.OnInteractFailedEvent -= HandleInteractFailed;
+    }
+
+    private void HandleInteractFailed()
+    {
+        Debug.Log("[InteractView] HandleInteractFailed — raising InteractFailedEvent.");
+        interactFailedEvent.Raise();
     }
 
     private void HandleDialogEvent(DialogEventContent content)
     {
         Debug.Log(
-            $"[InteractView] HandleDialogEvent received. NpcId={content.NpcId}, DialogState={content.DialogState}, DialogIndex={content.DialogIndex}, QuestId={content.QuestId}"
+            $"[InteractView] HandleDialogEvent. NpcId={content.NpcId}, State={content.DialogState}, Index={content.DialogIndex}, QuestId={content.QuestId}"
         );
 
         switch (content.DialogState)
@@ -92,7 +106,7 @@ public class InteractView : MonoBehaviour
         if (TryGetMessage(npcId, index, out MessageData message))
         {
             Debug.Log(
-                $"[InteractView] ShowDialogLine -> raising message for NpcId={npcId}, Index={index}, Sender={message.Sender}, Content={message.Content}"
+                $"[InteractView] ShowDialogLine NpcId={npcId}, Index={index}, Sender={message.Sender}"
             );
             npcDialogMessageEvent.Raise((npcId, message));
         }
@@ -117,9 +131,6 @@ public class InteractView : MonoBehaviour
         }
 
         message = messages[index];
-        Debug.Log(
-            $"[InteractView] TryGetMessage -> found message for NpcId={npcId}, Index={index}"
-        );
         return true;
     }
 }

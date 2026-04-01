@@ -90,6 +90,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!isInitialized)
                 return;
 
+            if (stateStorage.IsMovementBlocked)
+            {
+                if (currentState != AIState.Idle)
+                {
+                    TransitionTo(AIState.Idle);
+                }
+                return;
+            }
+
             if (currentState == AIState.Wandering || currentState == AIState.Chasing)
             {
                 ProcessMovementAlongPath();
@@ -203,6 +212,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void TryBeginWander()
         {
+            if (stateStorage.IsMovementBlocked)
+            {
+                TransitionTo(AIState.Idle);
+                return;
+            }
+
             if (!stateStorage.IsGrounded)
             {
                 logger.Log(

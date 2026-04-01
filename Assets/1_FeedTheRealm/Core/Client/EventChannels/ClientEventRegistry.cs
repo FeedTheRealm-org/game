@@ -34,6 +34,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
 
+        [Header("Interact Events")]
+        public InteractFailedEvent interactFailedEvent;
+
         [Header("NPC Events")]
         public NpcInteractedEvent npcInteractedEvent;
         public NpcDialogClosedEvent npcDialogClosedEvent;
@@ -75,6 +78,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(showQuestPromptEvent);
             builder.RegisterInstance(questDecisionEvent);
             builder.RegisterInstance(questCompletedEvent);
+            builder.RegisterInstance(interactFailedEvent);
         }
 
         private void Validate()
@@ -101,6 +105,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
+            ValidateField(interactFailedEvent, nameof(interactFailedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

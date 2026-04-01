@@ -6,11 +6,9 @@ using FTRShared.Runtime.Models;
 namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
 {
     /// <summary>
-    /// State for when the character is interacting with an NPC.
-    /// Pressing Interact again dispatches DialogNext to the server, which either
-    /// advances to the next message or closes the dialog.
-    /// When a ShowQuestPromptEvent arrives, transitions to CharacterQuestState
-    /// so interact input is blocked during the prompt.
+    /// Active while the player is interacting with any server-side IInteractable.
+    /// While active, pressing Interact dispatches ContinueInteraction (DialogNext) to the server
+    /// rather than starting a new interaction, so the server drives all progression logic.
     /// </summary>
     public class CharacterInteractingState : IActionState
     {
@@ -18,6 +16,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
         private InteractController interactController;
         private NpcDialogClosedEvent npcDialogClosedEvent;
         private ShowQuestPromptEvent showQuestPromptEvent;
+        private InteractFailedEvent interactFailedEvent;
         private CharacterAnimator animator;
 
         public CharacterInteractingState(
@@ -25,6 +24,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             InteractController interactController,
             NpcDialogClosedEvent npcDialogClosedEvent,
             ShowQuestPromptEvent showQuestPromptEvent,
+            InteractFailedEvent interactFailedEvent,
             CharacterAnimator animator
         )
         {
@@ -32,12 +32,15 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             this.interactController = interactController;
             this.npcDialogClosedEvent = npcDialogClosedEvent;
             this.showQuestPromptEvent = showQuestPromptEvent;
+            this.interactFailedEvent = interactFailedEvent;
             this.animator = animator;
         }
 
         public void Enter()
         {
             npcDialogClosedEvent.OnRaised += OnDialogClosed;
+            interactFailedEvent.OnRaised += OnInteractFailed;
+
             if (showQuestPromptEvent != null)
                 showQuestPromptEvent.OnRaised += OnShowQuestPrompt;
         }
@@ -45,23 +48,24 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
         public void Exit()
         {
             npcDialogClosedEvent.OnRaised -= OnDialogClosed;
+            interactFailedEvent.OnRaised -= OnInteractFailed;
+
             if (showQuestPromptEvent != null)
                 showQuestPromptEvent.OnRaised -= OnShowQuestPrompt;
         }
 
         /// <summary>
-        /// Dispatches DialogNext so the server advances or closes the dialog.
+        /// Dispatches ContinueInteraction so the server advances or closes whatever
+        /// interactable is currently active.
         /// </summary>
         public void OnInteractWhileActive()
         {
             interactController.OnDialogNext();
         }
 
-        private void OnShowQuestPrompt(QuestData _)
+        private void OnInteractFailed()
         {
-            var questState = stateMachine.GetActionStateByType(typeof(CharacterQuestState));
-            if (questState != null)
-                stateMachine.SetActionState(questState);
+            stateMachine.SetActionState(null);
         }
 
         private void OnDialogClosed()
@@ -71,12 +75,20 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             stateMachine.SetActionState(null);
         }
 
+        private void OnShowQuestPrompt(QuestData _)
+        {
+            var questState = stateMachine.GetActionStateByType(typeof(CharacterQuestState));
+            if (questState != null)
+                stateMachine.SetActionState(questState);
+        }
+
         public void Dispose()
         {
             stateMachine = null;
             interactController = null;
             npcDialogClosedEvent = null;
             showQuestPromptEvent = null;
+            interactFailedEvent = null;
             animator = null;
         }
     }

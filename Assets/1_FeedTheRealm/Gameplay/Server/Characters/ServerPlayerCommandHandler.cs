@@ -48,23 +48,23 @@ namespace FTR.Gameplay.Server.Characters
 
         public override void OnInteract(IEventCollectable ec)
         {
-            interactSystem.OnInteract(ec);
+            interactSystem.TryInteract(ec);
         }
 
         public override void OnDialogNext(IEventCollectable ec)
         {
-            interactSystem.OnDialogNext(ec);
+            interactSystem.TryContinue(ec);
         }
 
         public override void OnQuestAccepted(IEventCollectable ec, string questId)
         {
             questSystem.OnQuestAccepted(ec, questId);
-            interactSystem.OnQuestDecided();
+            interactSystem.NotifyQuestDecided();
         }
 
         public override void OnQuestDecided(IEventCollectable ec)
         {
-            interactSystem.OnQuestDecided();
+            interactSystem.NotifyQuestDecided();
         }
 
         public override void OnEquipItem(IEventCollectable ec, int slotIndex)
