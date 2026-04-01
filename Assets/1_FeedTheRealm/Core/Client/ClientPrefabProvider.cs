@@ -11,6 +11,8 @@ namespace FTR.Core.Client
         public GameObject InventoryHudComponent;
         public GameObject DialogBox;
         public GameObject SettingMenuComponent;
+        public GameObject QuestPrompt;
+        public GameObject QuestCompletionPanel;
 
         [Header("Shop Components")]
         public GameObject ShopItemVisual;

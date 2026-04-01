@@ -7,6 +7,7 @@ using FTR.Core.Server.Healthcheck;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Environment.Shop;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Server.Environment.Quest;
 using FTR.Gameplay.Server.Linkers;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
@@ -39,6 +40,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private ShopRegistry shopRegistry;
 
         [SerializeField]
+        private ServerQuestRegistry serverQuestRegistry;
+
+        [SerializeField]
         private WorldService worldService;
 
         protected override void Configure(IContainerBuilder builder)
@@ -55,6 +59,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(shopRegistry);
+            builder.RegisterInstance(serverQuestRegistry);
 
             builder.Register<HealthcheckServer>(Lifetime.Singleton);
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
@@ -83,6 +88,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             ValidateField(worldService, nameof(worldService));
             ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
             ValidateField(shopRegistry, nameof(shopRegistry));
+            ValidateField(serverQuestRegistry, nameof(serverQuestRegistry));
         }
 
         private void ValidateField(Object field, string fieldName)

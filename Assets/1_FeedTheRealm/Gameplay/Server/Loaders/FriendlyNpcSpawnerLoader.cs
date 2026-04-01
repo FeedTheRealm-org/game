@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Environment.Dialogs;
+using FTR.Gameplay.Server.Environment.Quest;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
@@ -14,6 +15,9 @@ namespace FTR.Gameplay.Server.Loaders
     {
         [Inject]
         private readonly NpcDialogRegistry npcDialogRegistry;
+
+        [Inject]
+        private readonly ServerQuestRegistry serverQuestRegistry;
 
         private readonly GameObject spawnerPrefab;
 
@@ -31,6 +35,7 @@ namespace FTR.Gameplay.Server.Loaders
         public async UniTask Load(WorldData worldData)
         {
             npcDialogRegistry.Populate(worldData.npcs, worldData.dialogs);
+            serverQuestRegistry.Populate(worldData.quests);
 
             var npcById = BuildNpcLookup(worldData.npcs);
             var dialogById = BuildDialogLookup(worldData.dialogs);

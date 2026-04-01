@@ -20,4 +20,6 @@ MonoBehaviour:
   SettingMenuComponent: {fileID: 6209252735088991528, guid: d4c9583a724961068894efa45cac342e, type: 3}
   ShopItemVisual: {fileID: 6961499021917701889, guid: 52c0895cf118ac446ad844f6a5cf7e7b, type: 3}
   ShopMenuComponent: {fileID: 8696414152491939335, guid: f0b692812afc3394294f13d7679e0318, type: 3}
+  QuestPrompt: {fileID: 8504447414605347183, guid: 12414a26c35ba05f18c2075f2061f9bb, type: 3}
+  QuestCompletionPanel: {fileID: 8504447414605347183, guid: a81b988673b5b191e8120233871c1208, type: 3}
   StructurePrefab: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}

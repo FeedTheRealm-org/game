@@ -37,6 +37,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
 
+        [Header("Interact Events")]
+        public InteractFailedEvent interactFailedEvent;
+
         [Header("NPC Events")]
         public NpcInteractedEvent npcInteractedEvent;
         public NpcDialogClosedEvent npcDialogClosedEvent;
@@ -74,6 +77,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
             builder.RegisterInstance(lateTickEvent);
+            builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
             builder.RegisterInstance(npcQuestOfferedEvent);
@@ -83,6 +87,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(goldChangedEvent);
             builder.RegisterInstance(openShopEvent);
+            builder.RegisterInstance(interactFailedEvent);
         }
 
         private void Validate()
@@ -110,6 +115,12 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(worldSetupEvent, nameof(worldSetupEvent));
             ValidateField(goldChangedEvent, nameof(goldChangedEvent));
             ValidateField(openShopEvent, nameof(openShopEvent));
+            ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
+            ValidateField(npcQuestOfferedEvent, nameof(npcQuestOfferedEvent));
+            ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
+            ValidateField(questDecisionEvent, nameof(questDecisionEvent));
+            ValidateField(questCompletedEvent, nameof(questCompletedEvent));
+            ValidateField(interactFailedEvent, nameof(interactFailedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

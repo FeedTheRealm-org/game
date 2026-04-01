@@ -2,7 +2,9 @@ using API;
 using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
+using FTR.Core.Client.Config;
 using FTR.Core.Common.Config;
+using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -19,6 +21,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private Config config;
 
         [SerializeField]
+        private ClientConfig clientConfig;
+
+        [SerializeField]
         private PlayerInputReader playerInputReader;
 
         [SerializeField]
@@ -26,6 +31,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
         [SerializeField]
         private ClientEventRegistry clientEventRegistry;
+
+        [SerializeField]
+        private ClientQuestRegistry clientQuestRegistry;
 
         [SerializeField]
         private Logging.Logger logger;
@@ -59,6 +67,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
             clientEventRegistry.RegisterAll(builder);
             setupServices.RegisterAll(builder);
+            builder.RegisterInstance(clientConfig);
             builder.RegisterInstance(playerInputReader);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(logger);
@@ -67,6 +76,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(config);
             builder.RegisterInstance(session);
             builder.RegisterInstance(npcDialogRegistry);
+            builder.RegisterInstance(clientQuestRegistry);
             builder.RegisterInstance(modelService);
             builder.RegisterInstance(gltfLoaderService);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
@@ -81,9 +91,11 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
         private void ValidateSerializeFields()
         {
+            ValidateField(config, "Config");
             ValidateField(playerInputReader, "PlayerInputReader");
             ValidateField(prefabProvider, "PrefabProvider");
             ValidateField(clientEventRegistry, "ClientEventRegistry");
+            ValidateField(clientQuestRegistry, "ClientQuestRegistry");
             ValidateField(logger, "Logger");
             ValidateField(worldSelector, "WorldSelector");
             ValidateField(worldService, "WorldService");

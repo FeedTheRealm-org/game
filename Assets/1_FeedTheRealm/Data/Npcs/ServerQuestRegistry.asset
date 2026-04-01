@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9d3a389638bac544a5150b8221a6d90, type: 3}
-  m_Name: QuestOfferedEvent
-  m_EditorClassIdentifier: Assembly-CSharp::QuestOfferedEvent
+  m_Script: {fileID: 11500000, guid: 293a11609d6e0af97bf674edc803ad01, type: 3}
+  m_Name: ServerQuestRegistry
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Environment.Quest.ServerQuestRegistry

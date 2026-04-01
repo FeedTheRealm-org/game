@@ -9,6 +9,7 @@ public enum ServerEventType
     HitEvent,
     DashEvent,
     InitialForceEvent,
+    InteractFailedEvent,
     DialogEvent,
     OpenShopEvent,
 }

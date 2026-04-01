@@ -65,8 +65,10 @@ public class ServerPlayerLinker : PlayerLinker
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
         var goldSystem = playerComponents.GetComponent<GoldSystem>();
         var interactSystem = playerComponents.GetComponent<PlayerInteractSystem>();
+        var questSystem = playerComponents.GetComponent<QuestSystem>();
 
-        interactSystem.Initialize(netId);
+        interactSystem.Initialize(netId, world, networkAdapter.netId);
+        questSystem.Initialize(netId);
         systems.Health.Initialize(netId, stateStorage, false);
         systems.Use.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
         inventorySystem.Initialize(netId, inventoryStateStorage);
@@ -78,7 +80,8 @@ public class ServerPlayerLinker : PlayerLinker
             systems.Dash,
             systems.Use,
             interactSystem,
-            inventorySystem
+            inventorySystem,
+            questSystem
         );
 
         respawnSystem.Initialize(

@@ -12,13 +12,15 @@ namespace FTR.Gameplay.Server.Characters
         private UseSystem useSystem;
         private PlayerInteractSystem interactSystem;
         private InventorySystem inventorySystem;
+        private QuestSystem questSystem;
 
         public void Initialize(
             MovementSystem movementSystem,
             DashSystem dashSystem,
             UseSystem useSystem,
             PlayerInteractSystem interactSystem,
-            InventorySystem inventorySystem
+            InventorySystem inventorySystem,
+            QuestSystem questSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -26,6 +28,7 @@ namespace FTR.Gameplay.Server.Characters
             this.useSystem = useSystem;
             this.interactSystem = interactSystem;
             this.inventorySystem = inventorySystem;
+            this.questSystem = questSystem;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -45,12 +48,23 @@ namespace FTR.Gameplay.Server.Characters
 
         public override void OnInteract(IEventCollectable ec)
         {
-            interactSystem.OnInteract(ec);
+            interactSystem.TryInteract(ec);
         }
 
         public override void OnDialogNext(IEventCollectable ec)
         {
-            interactSystem.OnDialogNext(ec);
+            interactSystem.TryContinue(ec);
+        }
+
+        public override void OnQuestAccepted(IEventCollectable ec, string questId)
+        {
+            questSystem.OnQuestAccepted(ec, questId);
+            interactSystem.NotifyQuestDecided();
+        }
+
+        public override void OnQuestDecided(IEventCollectable ec)
+        {
+            interactSystem.NotifyQuestDecided();
         }
 
         public override void OnEquipItem(IEventCollectable ec, int slotIndex)

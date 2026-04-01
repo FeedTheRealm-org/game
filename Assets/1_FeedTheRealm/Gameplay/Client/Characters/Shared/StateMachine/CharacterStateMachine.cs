@@ -37,6 +37,9 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         [Inject]
         private QuestDecisionEvent questDecisionEvent;
 
+        [Inject]
+        private InteractFailedEvent interactFailedEvent;
+
         /* States */
         public readonly Dictionary<System.Type, IMovementState> movementStates =
             new Dictionary<System.Type, IMovementState>();
@@ -92,6 +95,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
                         interactController,
                         npcDialogClosedEvent,
                         showQuestPromptEvent,
+                        interactFailedEvent,
                         characterAnimator
                     )
                 );
@@ -186,8 +190,8 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
 
         /// <summary>
         /// Always dispatches Interact to the server.
-        /// The server authoritatively decides whether to start, advance, switch, or close dialog.
-        /// A short cooldown prevents re-opening a dialog immediately after closing it.
+        /// The server authoritatively decides whether to start, advance, switch, or close the interaction.
+        /// A short cooldown prevents re-opening immediately after closing.
         /// Blocked while CharacterQuestState is active.
         /// </summary>
         public void OnInteract()

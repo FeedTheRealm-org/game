@@ -1,4 +1,5 @@
 using FTR.Core.Client;
+using FTR.Gameplay.Client.Characters.Player;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
@@ -66,6 +67,20 @@ public class ClientPlayerLinker : PlayerLinker
                 prefabProvider.InventoryHudComponent,
                 gameObject.transform
             );
+
+            prefabProvider.QuestPrompt.SetActive(false);
+            var questPrompt = Object.Instantiate(prefabProvider.QuestPrompt, gameObject.transform);
+            resolver.InjectGameObject(questPrompt);
+            questPrompt.SetActive(true);
+
+            prefabProvider.QuestCompletionPanel.SetActive(false);
+            var questCompletion = Object.Instantiate(
+                prefabProvider.QuestCompletionPanel,
+                gameObject.transform
+            );
+            resolver.InjectGameObject(questCompletion);
+            questCompletion.SetActive(true);
+
             resolver.InjectGameObject(inventoryHudComponent);
             inventoryHudComponent.SetActive(true);
 
@@ -88,6 +103,7 @@ public class ClientPlayerLinker : PlayerLinker
             var inventoryView = playerComponents.AddComponent<InventoryView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
+            var questView = hudComponent.AddComponent<QuestView>();
 
             var goldView = playerComponents.AddComponent<GoldView>();
             var shopView = playerComponents.AddComponent<ShopView>();
@@ -95,7 +111,7 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(playerController);
             resolver.Inject(interactController);
             resolver.Inject(interactView);
-
+            resolver.Inject(questView);
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);
 
@@ -107,6 +123,7 @@ public class ClientPlayerLinker : PlayerLinker
             goldView?.Initialize(goldState);
             shopView?.Initialize(eventRouter);
             interactController?.Initialize(networkAdapter);
+            questView?.Initialize(networkAdapter);
             characterStateMachine?.Initialize(interactController);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);

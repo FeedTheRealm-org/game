@@ -39,6 +39,8 @@ public class PlayerController : MonoBehaviour
     private void OnInventoryToggled(bool isOpen)
     {
         isInventoryOpen = isOpen;
+        Cursor.visible = isOpen;
+        Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     public void StartController()
@@ -88,15 +90,10 @@ public class PlayerController : MonoBehaviour
 
     private void OnUseInput()
     {
-        // if (Cursor.visible)
-        // {
-        //     return;
         if (isInventoryOpen)
         {
             return;
         }
-
-        // }
 
         characterStateMachine?.OnUse();
     }
@@ -115,17 +112,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnDashInput()
     {
-        // if (Cursor.visible)
-        // {
-        //     return;
-        // }
-
         characterStateMachine?.OnDash();
     }
 
     private void OnInteractInput()
     {
-        if (Cursor.visible)
+        if (isInventoryOpen)
         {
             return;
         }

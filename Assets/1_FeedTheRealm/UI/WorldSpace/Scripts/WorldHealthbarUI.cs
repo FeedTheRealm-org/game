@@ -1,17 +1,20 @@
+using System.Collections;
+using FTR.Core.Client.Config;
 using FTR.Core.Common.Characters;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.WorldSpace
 {
     [RequireComponent(typeof(UIDocument))]
     public class WorldHealthBarUI : MonoBehaviour
     {
-        [SerializeField]
-        private Logging.Logger logger;
+        [Inject]
+        private ClientConfig config;
 
         [SerializeField]
-        private float maxHealth = 100f;
+        private Logging.Logger logger;
 
         private VisualElement _root;
         private ProgressBar _healthBar;
@@ -64,7 +67,16 @@ namespace FTR.UI.WorldSpace
             if (_healthBar == null)
                 return;
 
-            _healthBar.value = maxHealth > 0 ? currentHealth / maxHealth * _healthBar.highValue : 0;
+            StartCoroutine(UpdateHealthAfterDelay(currentHealth));
+        }
+
+        private IEnumerator UpdateHealthAfterDelay(float currentHealth)
+        {
+            if (currentHealth < config.MaxHealth)
+                yield return new WaitForSeconds(config.HealthUpdateDelay); // Delay for better animation timing
+
+            _healthBar.value =
+                config.MaxHealth > 0 ? currentHealth / config.MaxHealth * _healthBar.highValue : 0;
 
             if (_healthBar.value < 0)
                 _healthBar.value = 0;
