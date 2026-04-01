@@ -69,9 +69,18 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.InjectGameObject(inventoryHudComponent);
             inventoryHudComponent.SetActive(true);
 
+            prefabProvider.ShopMenuComponent.SetActive(false);
+            var shopMenuComponent = Object.Instantiate(
+                prefabProvider.ShopMenuComponent,
+                gameObject.transform
+            );
+            resolver.InjectGameObject(shopMenuComponent);
+            shopMenuComponent.SetActive(true);
+
             /* -- Instantiate and initialize controllers and views -- */
 
             var playerController = gameObject.AddComponent<PlayerController>();
+            var eventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
             var goldState = gameObject.GetComponent<GoldStateStorage>();
@@ -81,6 +90,7 @@ public class ClientPlayerLinker : PlayerLinker
             var interactView = hudComponent.AddComponent<InteractView>();
 
             var goldView = playerComponents.AddComponent<GoldView>();
+            var shopView = playerComponents.AddComponent<ShopView>();
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);
@@ -90,11 +100,14 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(inventoryView);
 
             resolver.Inject(goldView);
+            resolver.Inject(shopView);
 
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
             goldView?.Initialize(goldState);
+            shopView?.Initialize(eventRouter);
             interactController?.Initialize(networkAdapter);
+            characterStateMachine?.Initialize(interactController);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);
         }

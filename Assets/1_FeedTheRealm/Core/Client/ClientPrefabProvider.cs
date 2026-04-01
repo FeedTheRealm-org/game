@@ -12,6 +12,10 @@ namespace FTR.Core.Client
         public GameObject DialogBox;
         public GameObject SettingMenuComponent;
 
+        [Header("Shop Components")]
+        public GameObject ShopItemVisual;
+        public GameObject ShopMenuComponent;
+
         [Header("Loader Components")]
         public GameObject StructurePrefab;
     }
