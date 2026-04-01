@@ -62,9 +62,11 @@ namespace FTR.Gameplay.Common.LoaderEntities
 
             ZoneData zoneData =
                 await LoadZoneData(worldId, accessToken)
-                ?? throw new System.InvalidOperationException("Failed to load world data");
+                ?? throw new System.InvalidOperationException("Failed to load zone data");
 
-            var (_, creatablesData, _, _) = await worldService.GetWorld(worldId, accessToken);
+            CreatablesData creatablesData =
+                await LoadCreatablesData(worldId, accessToken)
+                ?? throw new System.InvalidOperationException("Failed to load creatables data");
 
             for (int i = 0; i < loaders.Count; i++)
             {
@@ -87,6 +89,21 @@ namespace FTR.Gameplay.Common.LoaderEntities
                     $"Failed to load world data: {errorMessage} (Response code: {responseCode})"
                 );
             return data;
+        }
+
+        private async UniTask<CreatablesData> LoadCreatablesData(string worldId, string accessToken)
+        {
+            // TODO: this also loads the world data, we should optimize this by creating a new endpoint that only returns the creatables data.
+            var (_, creatablesData, errorMessage, responseCode) = await worldService.GetWorld(
+                worldId,
+                accessToken
+            );
+
+            if (creatablesData == null || !string.IsNullOrEmpty(errorMessage))
+                throw new System.Exception(
+                    $"Failed to load creatables creatablesData: {errorMessage} (Response code: {responseCode})"
+                );
+            return creatablesData;
         }
 
         private void ValidateArgs(string args, string argName)

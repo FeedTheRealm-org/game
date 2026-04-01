@@ -37,6 +37,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         [SerializeField]
         private WorldService worldService;
 
+        [SerializeField]
+        private ZoneService zoneService;
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Server)
@@ -49,6 +52,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
+            builder.RegisterInstance(zoneService);
             builder.RegisterInstance(npcDialogRegistry);
 
             builder.Register<HealthcheckServer>(Lifetime.Singleton);

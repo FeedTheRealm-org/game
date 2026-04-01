@@ -133,7 +133,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7612664852109393012, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8760325099734416004, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -422,7 +422,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5180060565708909657, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -482,10 +482,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
-      propertyPath: modelService
-      value: 
-      objectReference: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
-    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: loaderProvider
       value: 
       objectReference: {fileID: 0}
@@ -493,10 +489,6 @@ PrefabInstance:
       propertyPath: clientWorldLoader
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
-      propertyPath: gltfLoaderService
-      value: 
-      objectReference: {fileID: 11400000, guid: 021be9f008c872d43b5753a0c733ad99, type: 2}
     - target: {fileID: 7357027031613840830, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: loaders.Array.size
       value: 1

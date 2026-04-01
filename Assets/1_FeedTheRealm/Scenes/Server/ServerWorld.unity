@@ -141,7 +141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7612664852109393012, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8760325099734416004, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -253,7 +253,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3990866465834413684, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
       propertyPath: resolverContainer
@@ -395,7 +395,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7265489834613234143, guid: 92a6d90bb86a46146bd725128e92e36d, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -460,7 +460,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5180060565708909657, guid: 0ebf5ea53eb4fd013bc753d6ab180207, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -604,10 +604,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: ServerWorldInitiator
       objectReference: {fileID: 0}
-    - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
-      propertyPath: serverConfig
-      value: 
-      objectReference: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
     - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
       propertyPath: loaderProvider
       value: 
