@@ -288,8 +288,26 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private void onClickAboutWorld(FTRShared.Runtime.Models.WorldMetadata world)
     {
         logger.Log($"About world clicked: {world.name}", this);
+
+        if (worldInfoHUD == null)
+        {
+            logger.Log("WorldInfoHUD reference is not assigned.", this, Logging.LogType.Error);
+            return;
+        }
+
+        var worldInfoController = worldInfoHUD.GetComponent<WorldInfoController>();
+        if (worldInfoController == null)
+        {
+            logger.Log(
+                "WorldInfoController component not found on WorldInfoHUD.",
+                this,
+                Logging.LogType.Error
+            );
+            return;
+        }
+
         worldInfoHUD.SetActive(true);
-        worldInfoHUD.GetComponent<WorldInfoController>().SetCurrentWorld(world);
+        worldInfoController.SetCurrentWorld(world);
     }
 
     private void RenderCategories()
