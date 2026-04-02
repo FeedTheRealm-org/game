@@ -3,11 +3,13 @@
     <ui:VisualElement name="Body" class="body body-background">
         <ui:VisualElement name="CharacterEditContainer" tabindex="0" class="character-edit-container" style="top: 1px; left: 1px;">
             <ui:VisualElement name="Character" class="character-panel">
+                <ui:Label text="Character" class="panel-title"/>
                 <ui:TextField placeholder-text="Enter character name (*)" hide-placeholder-on-focus="false" name="NameInput" class="menu-text-input text-input-full-width"/>
                 <ui:VisualElement name="CharacterPreview" class="character-preview character-preview-background"/>
                 <ui:TextField placeholder-text="Enter character bio" hide-placeholder-on-focus="false" name="BioInput" multiline="true" class="menu-text-input bio-input"/>
             </ui:VisualElement>
             <ui:VisualElement name="Cosmetics" class="cosmetics-panel">
+                <ui:Label text="Cosmetics" class="panel-title panel-title-cosmetics"/>
                 <ui:Label name="ErrorMessage" class="error-message"/>
                 <ui:VisualElement name="Buttons" class="button-container">
                     <ui:Button text="Cancel" name="Cancel" class="menu-button action-button cancel-button"/>
