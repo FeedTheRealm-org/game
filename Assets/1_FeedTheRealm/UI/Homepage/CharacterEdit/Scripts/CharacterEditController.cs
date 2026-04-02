@@ -155,6 +155,8 @@ public class CharacterEditController : MonoBehaviour
             return;
         }
 
+        _errorMessage.style.display = DisplayStyle.None;
+
         _emptyItemButton = _itemsList.Q<Button>("Empty");
         if (_emptyItemButton == null)
         {
@@ -285,10 +287,9 @@ public class CharacterEditController : MonoBehaviour
         logger.Log("Save Button Clicked", this);
         logger.Log($"Name: {_nameInput.value}, Bio {_bioInput.value}", this);
 
-        _errorMessage.text = "";
-        if (_nameInput.value == "")
+        if (string.IsNullOrWhiteSpace(_nameInput.value))
         {
-            _errorMessage.text = "Name cannot be empty.";
+            ShowToastError("Name cannot be empty.");
             return;
         }
 
@@ -356,11 +357,12 @@ public class CharacterEditController : MonoBehaviour
             session.IsFirstLogin = false;
             session.CharacterName = characterInfo.character_name;
             _saveButton.text = "Saved";
+            ShowToastSuccess("Character updated successfully.");
         }
         else
         {
             logger.Log("Failed to update character info", this, Logging.LogType.Error);
-            _errorMessage.text = "Failed to update character info";
+            ShowToastError("Failed to update character info.");
         }
     }
 
@@ -432,7 +434,7 @@ public class CharacterEditController : MonoBehaviour
         if (response == null || response.category_list == null)
         {
             logger.Log("Failed to fetch categories", this, Logging.LogType.Error);
-            _errorMessage.text = "Failed to load categories.";
+            ShowToastError("Failed to load categories.");
             return;
         }
 
@@ -470,7 +472,7 @@ public class CharacterEditController : MonoBehaviour
         if (response == null || response.sprites_list == null)
         {
             logger.Log("Failed to fetch sprites", this, Logging.LogType.Error);
-            _errorMessage.text = "Failed to load sprites.";
+            ShowToastError("Failed to load sprites.");
             ClearItems();
             return;
         }
@@ -571,5 +573,15 @@ public class CharacterEditController : MonoBehaviour
         );
 
         canvasCharacterPreview.anchoredPosition = localPoint + characterInContainerOffset;
+    }
+
+    private void ShowToastSuccess(string message)
+    {
+        ToastNotification.Show(message, "success", Color.green);
+    }
+
+    private void ShowToastError(string message)
+    {
+        ToastNotification.Show(message, "error", Color.red);
     }
 }
