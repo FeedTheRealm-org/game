@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
-public class WorldFeedMenuController : MonoBehaviour
+public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 {
     [SerializeField]
     private Logging.Logger logger;
@@ -24,6 +24,7 @@ public class WorldFeedMenuController : MonoBehaviour
 
     [SerializeField]
     private WorldSelector worldSelector;
+    public event Action OnNavigateToWorld;
 
     private VisualElement ui;
     private TextField searchField;
