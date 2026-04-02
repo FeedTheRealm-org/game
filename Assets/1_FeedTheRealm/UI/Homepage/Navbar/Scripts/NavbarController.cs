@@ -32,6 +32,8 @@ namespace FTR.UI.Homepage.Navbar
         private Button gemStoreButton;
         private Label sectionLabel;
 
+        private const string EditCharacterLabel = "Edit Character";
+
         private void OnEnable()
         {
             _root = GetComponent<UIDocument>().rootVisualElement;
@@ -51,7 +53,17 @@ namespace FTR.UI.Homepage.Navbar
                 playerService.GetCharacterInfo(
                     (data, err) =>
                     {
-                        session.CharacterName = data?.character_name ?? "Guest";
+                        if (!string.IsNullOrEmpty(err))
+                        {
+                            logger.Log(
+                                $"Failed to fetch character info for navbar: {err}",
+                                this,
+                                Logging.LogType.Warning
+                            );
+                        }
+
+                        session.CharacterName = data?.character_name?.Trim() ?? string.Empty;
+                        UpdateProfileButtonText();
                     }
                 )
             );
@@ -81,9 +93,7 @@ namespace FTR.UI.Homepage.Navbar
                 logger.Log("ProfileButton not found in Body.", this, Logging.LogType.Error);
                 return;
             }
-            playerProfileButton.text = string.IsNullOrEmpty(session.CharacterName)
-                ? "Guest"
-                : session.CharacterName;
+            UpdateProfileButtonText();
             playerProfileButton.clicked += onProfileButtonClicked;
 
             gemStoreButton = body.Q<Button>("GemStoreButton");
@@ -93,6 +103,20 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
             gemStoreButton.clicked += OnGemStoreButtonClicked;
+        }
+
+        private void UpdateProfileButtonText()
+        {
+            if (playerProfileButton == null)
+                return;
+
+            if (string.IsNullOrWhiteSpace(session?.CharacterName))
+            {
+                playerProfileButton.text = EditCharacterLabel;
+                return;
+            }
+
+            playerProfileButton.text = $"Edit {session.CharacterName}";
         }
 
         private void OnDisable()
