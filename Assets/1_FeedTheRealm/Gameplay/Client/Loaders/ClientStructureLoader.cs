@@ -35,14 +35,14 @@ namespace FTR.Gameplay.Client.Loaders
 
         private Dictionary<string, GameObject> modelCache = new();
 
-        public async UniTask Load(WorldData worldData)
+        public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
             Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(
-                worldData.id,
+                worldId,
                 GetSessionToken()
             );
 
-            var structures = worldData.objectPlacementData;
+            var structures = zoneData.objectPlacementData;
             foreach (StructureData structureData in structures)
             {
                 string modelUrl = modelsInfo[structureData.id].url;

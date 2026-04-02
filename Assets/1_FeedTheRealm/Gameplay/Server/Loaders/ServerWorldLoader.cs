@@ -10,7 +10,7 @@ using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Scopes
 {
-    public class ServerWorldLoader : WorldLoaderManager
+    public class ServerWorldLoader : ZoneLoaderManager
     {
         public ServerWorldLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
         {

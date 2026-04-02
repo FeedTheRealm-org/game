@@ -20,11 +20,14 @@ namespace FTR.Gameplay.Server.Loaders
             shopPrefab = prefabProvider.ShopComponent;
         }
 
-        public virtual async UniTask Load(WorldData worldData)
+        public virtual async UniTask Load(
+            string worldId,
+            ZoneData zoneData,
+            CreatablesData creatablesData
+        )
         {
-            var structures = worldData.objectPlacementData;
             var structureShopData = new List<StructureData>();
-
+            var structures = zoneData.objectPlacementData;
             foreach (StructureData structureData in structures)
             {
                 if (structureData.isShop)
