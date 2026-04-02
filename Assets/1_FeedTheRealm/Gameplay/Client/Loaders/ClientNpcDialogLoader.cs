@@ -15,19 +15,19 @@ namespace FTR.Gameplay.Client.Loaders
         [Inject]
         private readonly NpcDialogRegistry npcDialogRegistry;
 
-        public async UniTask Load(WorldData worldData)
+        public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
-            if (worldData.npcs == null || worldData.dialogs == null)
+            if (creatablesData.npcs == null || creatablesData.dialogs == null)
             {
                 Debug.LogWarning(
-                    "[ClientNpcDialogLoader] WorldData is missing npcs or dialogs, registry will be empty."
+                    "[ClientNpcDialogLoader] CreatablesData is missing npcs or dialogs, registry will be empty."
                 );
                 return;
             }
 
-            npcDialogRegistry.Populate(worldData.npcs, worldData.dialogs);
+            npcDialogRegistry.Populate(creatablesData.npcs, creatablesData.dialogs);
             Debug.Log(
-                $"[ClientNpcDialogLoader] Registry populated with {worldData.npcs.Count} NPC(s) and {worldData.dialogs.Count} dialog(s)."
+                $"[ClientNpcDialogLoader] Registry populated with {creatablesData.npcs.Count} NPC(s) and {creatablesData.dialogs.Count} dialog(s)."
             );
 
             await UniTask.CompletedTask;

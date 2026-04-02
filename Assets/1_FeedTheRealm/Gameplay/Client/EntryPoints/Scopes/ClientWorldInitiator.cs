@@ -48,6 +48,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private WorldService worldService;
 
         [SerializeField]
+        private ZoneService zoneService;
+
+        [SerializeField]
         private NpcDialogRegistry npcDialogRegistry;
 
         [SerializeField]
@@ -73,6 +76,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(logger);
             builder.RegisterInstance(worldSelector);
             builder.RegisterInstance(worldService);
+            builder.RegisterInstance(zoneService);
             builder.RegisterInstance(config);
             builder.RegisterInstance(session);
             builder.RegisterInstance(npcDialogRegistry);

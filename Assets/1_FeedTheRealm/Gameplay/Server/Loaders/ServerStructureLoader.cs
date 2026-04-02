@@ -16,9 +16,13 @@ namespace FTR.Gameplay.Server.Loaders
             structurePrefab = prefabProvider.StructureComponent;
         }
 
-        public virtual async UniTask Load(WorldData worldData)
+        public virtual async UniTask Load(
+            string worldId,
+            ZoneData zoneData,
+            CreatablesData creatablesData
+        )
         {
-            var structures = worldData.objectPlacementData;
+            var structures = zoneData.objectPlacementData;
             foreach (StructureData structureData in structures)
             {
                 GameObject instance = Instantiate(structurePrefab);
