@@ -105,11 +105,17 @@ public partial class CharacterEditController
         logger.Log($"onCategoryClicked called with ID: {categoryId}, Name: {categoryName}", this);
         if (categoryId == _selectedCategoryId)
         {
+            UpdateCategorySelectionVisual();
+            if (_itemsList.contentContainer.childCount <= 1)
+            {
+                await fetchSpritesByCategory(categoryId);
+            }
             return;
         }
         logger.Log($"Category clicked: {categoryId}", this);
         _selectedCategoryId = categoryId;
         _selectedCategoryName = categoryName;
+        UpdateCategorySelectionVisual();
         _currentCosmeticsOffset = 0;
         _currentCosmeticsTotalCount = 0;
         _hasNextCosmeticsPage = false;
@@ -143,6 +149,13 @@ public partial class CharacterEditController
         logger.Log($"Item clicked: {spriteId}", this);
         var category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
         spriteManager.ChangeSprite(category, texture);
+
+        if (characterInfoRequest.category_sprites == null)
+        {
+            characterInfoRequest.category_sprites = new Dictionary<string, string>();
+        }
+
+        TrackPreviewSelection(category, spriteId);
         characterInfoRequest.category_sprites[_selectedCategoryId] = spriteId;
         _saveButton.text = "Save";
     }
@@ -181,7 +194,12 @@ public partial class CharacterEditController
             logger.Log("Character info successfully retrieved", this);
             _nameInput.value = characterInfo.character_name;
             _bioInput.value = characterInfo.character_bio;
-            characterInfoRequest.category_sprites = characterInfo.category_sprites;
+            if (characterInfo.category_sprites != null)
+            {
+                characterInfoRequest.category_sprites = new Dictionary<string, string>(
+                    characterInfo.category_sprites
+                );
+            }
         }
         else
         {
@@ -196,6 +214,8 @@ public partial class CharacterEditController
     {
         if (_categories == null || characterInfoRequest.category_sprites == null)
             return;
+
+        _previewSpriteByPart.Clear();
 
         foreach (var kvp in characterInfoRequest.category_sprites)
         {
@@ -223,6 +243,7 @@ public partial class CharacterEditController
             if (texture != null)
             {
                 spriteManager.ChangeSprite(part, texture);
+                TrackPreviewSelection(part, spriteId);
             }
         }
     }
@@ -243,6 +264,18 @@ public partial class CharacterEditController
         }
 
         _categories = response.category_list;
+        UpdateCategorySelectionVisual();
+
+        if (response.category_list.Length == 0)
+        {
+            logger.Log("No categories returned from server", this, Logging.LogType.Warning);
+            _selectedCategoryId = string.Empty;
+            _selectedCategoryName = string.Empty;
+            ClearItems();
+            UpdatePaginationControls(0, 0);
+            return;
+        }
+
         foreach (var category in response.category_list)
         {
             var btn = _categoriesList.Q<Button>(category.category_name);
@@ -272,6 +305,10 @@ public partial class CharacterEditController
     /// </summary>
     private async Task fetchSpritesByCategory(string categoryId)
     {
+        var requestVersion = ++_spritesRequestVersion;
+
+        ReleaseCurrentPageTexturesExceptPinned();
+
         if (string.IsNullOrEmpty(categoryId))
         {
             ClearItems();
@@ -280,11 +317,19 @@ public partial class CharacterEditController
             return;
         }
 
+        ClearItems();
+
         var response = await assetsService.GetSpritesByCategoryAsync(
             categoryId,
             _currentCosmeticsOffset,
             cosmeticsPageLimit
         );
+
+        if (!IsSpritesRequestCurrent(requestVersion, categoryId))
+        {
+            return;
+        }
+
         if (response == null || response.sprites_list == null)
         {
             logger.Log("Failed to fetch sprites", this, Logging.LogType.Error);
@@ -309,28 +354,57 @@ public partial class CharacterEditController
             return;
         }
 
-        populateItems(response.sprites_list);
+        await populateItems(response.sprites_list, requestVersion, categoryId);
+
+        if (!IsSpritesRequestCurrent(requestVersion, categoryId))
+        {
+            return;
+        }
+
         UpdatePaginationControls(response.sprites_list.Length, _currentCosmeticsTotalCount);
     }
 
     /// <summary>
     /// Populates the items list with sprite buttons.
     /// </summary>
-    private async void populateItems(API.SpriteResponse[] sprites)
+    private async Task populateItems(
+        API.SpriteResponse[] sprites,
+        int requestVersion,
+        string requestCategoryId
+    )
     {
+        if (!IsSpritesRequestCurrent(requestVersion, requestCategoryId))
+        {
+            return;
+        }
+
         ClearItems();
 
         foreach (var sprite in sprites)
         {
+            if (!IsSpritesRequestCurrent(requestVersion, requestCategoryId))
+            {
+                return;
+            }
+
             var btn = new Button();
             btn.AddToClassList("item_button");
             btn.name = sprite.sprite_id;
-
-            _itemsList.contentContainer.Add(btn);
             Texture2D texture = null;
-            if (!textureCache.TryGetValue(sprite.sprite_id, out texture))
+            var hasCachedTexture = textureCache.TryGetValue(sprite.sprite_id, out texture);
+            if (!hasCachedTexture)
             {
                 texture = await assetsService.DownloadTexture2D(sprite.sprite_id);
+
+                if (!IsSpritesRequestCurrent(requestVersion, requestCategoryId))
+                {
+                    if (texture != null)
+                    {
+                        Destroy(texture);
+                    }
+                    return;
+                }
+
                 if (texture != null)
                 {
                     textureCache[sprite.sprite_id] = texture;
@@ -338,6 +412,8 @@ public partial class CharacterEditController
             }
             if (texture != null)
             {
+                _currentPageTextureKeys.Add(sprite.sprite_id);
+
                 var category = spriteManager.GetPartCategoryFromCategoryName(_selectedCategoryName);
                 var configs = GetConfigsForPart(director, category);
                 if (configs != null && configs.Count > 0)
@@ -367,7 +443,27 @@ public partial class CharacterEditController
                     Logging.LogType.Warning
                 );
             }
+
+            _itemsList.contentContainer.Add(btn);
         }
+    }
+
+    private bool IsSpritesRequestCurrent(int requestVersion, string requestCategoryId)
+    {
+        return isActiveAndEnabled
+            && requestVersion == _spritesRequestVersion
+            && requestCategoryId == _selectedCategoryId;
+    }
+
+    private void TrackPreviewSelection(CharacterPartCategory category, string spriteId)
+    {
+        if (string.IsNullOrEmpty(spriteId))
+        {
+            _previewSpriteByPart.Remove(category);
+            return;
+        }
+
+        _previewSpriteByPart[category] = spriteId;
     }
 
     /// <summary>
@@ -379,6 +475,72 @@ public partial class CharacterEditController
         {
             _itemsList.contentContainer.RemoveAt(1);
         }
+    }
+
+    private void UpdateCategorySelectionVisual()
+    {
+        if (_categories == null || _categoriesList == null)
+            return;
+
+        foreach (var category in _categories)
+        {
+            var btn = _categoriesList.Q<Button>(category.category_name);
+            if (btn == null)
+                continue;
+
+            if (category.category_id == _selectedCategoryId)
+            {
+                btn.AddToClassList(SelectedCategoryClass);
+            }
+            else
+            {
+                btn.RemoveFromClassList(SelectedCategoryClass);
+            }
+        }
+    }
+
+    private void ReleaseCurrentPageTexturesExceptPinned()
+    {
+        if (_currentPageTextureKeys.Count == 0)
+            return;
+
+        var pinnedKeys = new HashSet<string>();
+        if (characterInfoRequest?.category_sprites != null)
+        {
+            foreach (var spriteId in characterInfoRequest.category_sprites.Values)
+            {
+                if (!string.IsNullOrEmpty(spriteId))
+                {
+                    pinnedKeys.Add(spriteId);
+                }
+            }
+        }
+
+        foreach (var spriteId in _previewSpriteByPart.Values)
+        {
+            if (!string.IsNullOrEmpty(spriteId))
+            {
+                pinnedKeys.Add(spriteId);
+            }
+        }
+
+        foreach (var key in _currentPageTextureKeys)
+        {
+            if (string.IsNullOrEmpty(key) || pinnedKeys.Contains(key))
+                continue;
+
+            if (textureCache.TryGetValue(key, out var texture))
+            {
+                if (texture != null)
+                {
+                    Destroy(texture);
+                }
+
+                textureCache.Remove(key);
+            }
+        }
+
+        _currentPageTextureKeys.Clear();
     }
 
     private void UpdatePaginationControls(int loadedItemsCount, int totalItemsCount)

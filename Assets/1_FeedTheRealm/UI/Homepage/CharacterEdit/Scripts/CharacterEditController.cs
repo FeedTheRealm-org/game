@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FTR.Core.Client.Enums;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -52,6 +53,12 @@ public partial class CharacterEditController : MonoBehaviour
 
     // Texture cache
     private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
+    private HashSet<string> _currentPageTextureKeys = new HashSet<string>();
+    private Dictionary<CharacterPartCategory, string> _previewSpriteByPart =
+        new Dictionary<CharacterPartCategory, string>();
+    private int _spritesRequestVersion;
+
+    private const string SelectedCategoryClass = "category_button_selected";
 
     // Category button actions for unregistering
     private Dictionary<Button, System.Action> categoryButtonActions =
@@ -229,8 +236,22 @@ public partial class CharacterEditController : MonoBehaviour
             logger.Log("First login detected, hiding back button.", this);
             _backButton.style.display = DisplayStyle.None;
         }
+        else
+        {
+            _backButton.style.display = DisplayStyle.Flex;
+        }
 
-        characterInfoRequest.category_sprites = new Dictionary<string, string>();
+        _spritesRequestVersion++;
+        _selectedCategoryId = string.Empty;
+        _selectedCategoryName = string.Empty;
+        _categories = null;
+        _currentPageTextureKeys.Clear();
+
+        if (characterInfoRequest.category_sprites == null)
+        {
+            characterInfoRequest.category_sprites = new Dictionary<string, string>();
+        }
+
         _currentCosmeticsOffset = 0;
         _currentCosmeticsTotalCount = 0;
         _hasNextCosmeticsPage = false;
@@ -306,6 +327,7 @@ public partial class CharacterEditController : MonoBehaviour
 
     private void OnDisable()
     {
+        _spritesRequestVersion++;
         registerCallbacks(false);
 
         foreach (var kvp in categoryButtonActions)
@@ -314,6 +336,7 @@ public partial class CharacterEditController : MonoBehaviour
         }
         categoryButtonActions.Clear();
 
+        ReleaseCurrentPageTexturesExceptPinned();
         ClearItems();
 
         if (canvasCharacterPreview != null)
