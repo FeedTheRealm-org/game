@@ -129,9 +129,12 @@
 
 .character-preview {
     width: 100%;
-    min-height: 160px;
-    height: 46%;
-    flex-grow: 1;
+    max-width: 340px;
+    min-height: 220px;
+    max-height: 340px;
+    aspect-ratio: 1;
+    flex-grow: 0;
+    align-self: center;
     margin: 4px 0 10px 0;
     background-color: var(--dark);
     border-width: 1px;
@@ -145,6 +148,7 @@
 .character-preview-background {
     background-image: url("project://database/Assets/GUI_Parts/Gui_parts/Frame_mid.png?fileID=2800000&guid=d5bda4f272648f34c8020e4e2772de3f&type=3#Frame_mid");
     -unity-background-image-tint-color: rgba(255, 255, 255, 0.8);
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .button-container {

@@ -24,7 +24,20 @@ public class CharacterEditController : MonoBehaviour
     private RectTransform canvasCharacterPreview;
 
     [SerializeField]
+    private Camera characterPreviewCameraOverride;
+
+    [SerializeField]
     private Vector2 characterInContainerOffset = new Vector2(-12, 0);
+
+    // Code-driven tuning values: edit these defaults directly in code.
+    private float characterPreviewFillRatio = 0.82f;
+
+    // Bigger orthographic size means the character appears smaller in preview.
+    private float characterPreviewOrthographicSize = 1.2f;
+
+    private float _lastAppliedPreviewFillRatio = -1f;
+    private float _lastAppliedPreviewOrthoSize = -1f;
+    private Camera _characterPreviewCamera;
 
     [SerializeField]
     private SpriteManager spriteManager;
@@ -62,6 +75,9 @@ public class CharacterEditController : MonoBehaviour
     private Button _backButton;
     private Button _cancelButton;
     private Button _saveButton;
+
+    private System.Action _onEmptyItemClickedAction;
+    private System.Action _onSaveClickedAction;
 
     // Data
     private string _selectedCategoryId = "";
@@ -164,6 +180,31 @@ public class CharacterEditController : MonoBehaviour
             return;
         }
 
+        _onEmptyItemClickedAction ??= () => onItemClicked(null, "");
+        _onSaveClickedAction ??= () => _ = onSaveClicked();
+
+        cacheCharacterPreviewCamera();
+        applyCharacterPreviewCameraZoom();
+        logger.Log(
+            $"Preview tuning applied: fill={characterPreviewFillRatio}, ortho={characterPreviewOrthographicSize}, cameraFound={(_characterPreviewCamera != null)}",
+            this
+        );
+
+        if (canvasCharacterPreview != null)
+        {
+            canvasCharacterPreview.gameObject.SetActive(true);
+            canvasCharacterPreview.localScale = Vector3.one;
+            canvasCharacterPreview.anchorMin = new Vector2(0.5f, 0.5f);
+            canvasCharacterPreview.anchorMax = new Vector2(0.5f, 0.5f);
+            canvasCharacterPreview.pivot = new Vector2(0.5f, 0.5f);
+
+            var previewParent = canvasCharacterPreview.parent as RectTransform;
+            if (previewParent != null)
+            {
+                previewParent.localScale = Vector3.one;
+            }
+        }
+
         if (session.IsFirstLogin)
         {
             logger.Log("First login detected, hiding back button.", this);
@@ -172,9 +213,72 @@ public class CharacterEditController : MonoBehaviour
 
         characterInfoRequest.category_sprites = new Dictionary<string, string>();
         registerCallbacks(true);
+        _lastAppliedPreviewFillRatio = characterPreviewFillRatio;
+        _lastAppliedPreviewOrthoSize = characterPreviewOrthographicSize;
+        centerCharacterPreview();
         await fetchCharacterInfo();
         await fetchCategories();
         await ApplyCurrentCharacterSprites();
+    }
+
+    private void Update()
+    {
+        if (!isActiveAndEnabled || canvasCharacterPreview == null)
+            return;
+
+        if (!Mathf.Approximately(_lastAppliedPreviewOrthoSize, characterPreviewOrthographicSize))
+        {
+            _lastAppliedPreviewOrthoSize = characterPreviewOrthographicSize;
+            applyCharacterPreviewCameraZoom();
+        }
+
+        if (!Mathf.Approximately(_lastAppliedPreviewFillRatio, characterPreviewFillRatio))
+        {
+            _lastAppliedPreviewFillRatio = characterPreviewFillRatio;
+            centerCharacterPreview();
+        }
+    }
+
+    private void cacheCharacterPreviewCamera()
+    {
+        if (_characterPreviewCamera != null)
+            return;
+
+        if (characterPreviewCameraOverride != null)
+        {
+            _characterPreviewCamera = characterPreviewCameraOverride;
+            return;
+        }
+
+        var previewRoot = transform.parent != null ? transform.parent.Find("Preview") : null;
+        if (previewRoot != null)
+        {
+            _characterPreviewCamera = previewRoot.GetComponentInChildren<Camera>(true);
+        }
+    }
+
+    private void applyCharacterPreviewCameraZoom()
+    {
+        cacheCharacterPreviewCamera();
+
+        if (_characterPreviewCamera == null)
+        {
+            logger.Log(
+                "Character preview camera was not found. Ortho tuning is skipped.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        if (_characterPreviewCamera.orthographic)
+        {
+            _characterPreviewCamera.orthographicSize = Mathf.Clamp(
+                characterPreviewOrthographicSize,
+                0.5f,
+                8f
+            );
+        }
     }
 
     private void OnDisable()
@@ -189,6 +293,14 @@ public class CharacterEditController : MonoBehaviour
 
         ClearItems();
 
+        if (canvasCharacterPreview != null)
+        {
+            canvasCharacterPreview.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnDestroy()
+    {
         foreach (var texture in textureCache.Values)
         {
             if (texture != null)
@@ -207,19 +319,19 @@ public class CharacterEditController : MonoBehaviour
         if (shouldRegister)
         {
             logger.Log("Registering button callbacks", this);
-            _emptyItemButton.clicked += () => onItemClicked(null, "");
+            _emptyItemButton.clicked += _onEmptyItemClickedAction;
             _backButton.clicked += onBackClicked;
             _cancelButton.clicked += onCancelClicked;
-            _saveButton.clicked += async () => await onSaveClicked();
+            _saveButton.clicked += _onSaveClickedAction;
             _root.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
         else
         {
             logger.Log("Unregistering button callbacks", this);
-            _emptyItemButton.clicked -= () => onItemClicked(null, "");
+            _emptyItemButton.clicked -= _onEmptyItemClickedAction;
             _backButton.clicked -= onBackClicked;
             _cancelButton.clicked -= onCancelClicked;
-            _saveButton.clicked -= async () => await onSaveClicked();
+            _saveButton.clicked -= _onSaveClickedAction;
             _root.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
     }
@@ -268,6 +380,12 @@ public class CharacterEditController : MonoBehaviour
     private void onBackClicked()
     {
         logger.Log("Back Button Clicked", this);
+
+        if (canvasCharacterPreview != null)
+        {
+            canvasCharacterPreview.gameObject.SetActive(false);
+        }
+
         transform.parent.gameObject.SetActive(false);
     }
 
@@ -553,7 +671,44 @@ public class CharacterEditController : MonoBehaviour
         if (_characterPreview == null || canvasCharacterPreview == null)
             return;
 
+        var previewParent = canvasCharacterPreview.parent as RectTransform;
+        if (previewParent == null)
+            return;
+
+        previewParent.localScale = Vector3.one;
+
         var rect = _characterPreview.worldBound;
+
+        // Convert preview bounds from screen space to parent-local space to get accurate size.
+        Vector2 topLeftScreen = new Vector2(rect.xMin, Screen.height - rect.yMin);
+        Vector2 bottomRightScreen = new Vector2(rect.xMax, Screen.height - rect.yMax);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            previewParent,
+            topLeftScreen,
+            null,
+            out Vector2 topLeftLocal
+        );
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            previewParent,
+            bottomRightScreen,
+            null,
+            out Vector2 bottomRightLocal
+        );
+
+        float localWidth = Mathf.Abs(bottomRightLocal.x - topLeftLocal.x);
+        float localHeight = Mathf.Abs(topLeftLocal.y - bottomRightLocal.y);
+        float squareSize = Mathf.Min(localWidth, localHeight);
+        squareSize *= Mathf.Clamp(characterPreviewFillRatio, 0.2f, 1.25f);
+
+        if (squareSize <= 0f)
+        {
+            return;
+        }
+
+        canvasCharacterPreview.localScale = Vector3.one;
+        canvasCharacterPreview.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, squareSize);
+        canvasCharacterPreview.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, squareSize);
 
         // Get screen center of the UI Toolkit element (Toolkit origin = top-left)
         Vector2 screenCenter = new Vector2(
@@ -566,7 +721,7 @@ public class CharacterEditController : MonoBehaviour
 
         // Convert screen point to local position within the canvas
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasCharacterPreview.parent as RectTransform,
+            previewParent,
             screenCenter,
             null, // camera if Canvas = Screen Space - Overlay
             out Vector2 localPoint
