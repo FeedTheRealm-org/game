@@ -309,49 +309,9 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: session
-      value: 
-      objectReference: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: loginPrefab
-      value: 
-      objectReference: {fileID: 5469282581521250782, guid: d9b2052c8826857dd93b0476accb713f, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: navBarPrefab
-      value: 
-      objectReference: {fileID: 6415553132047525761, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: signUpPrefab
-      value: 
-      objectReference: {fileID: 7671274207003174485, guid: 8ab8f64f05ce5d9449d04f0b58f000a4, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: gemStorePrefab
-      value: 
-      objectReference: {fileID: 1348964074043700, guid: 442b277acc9586448ba5baa9f54327d5, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
       propertyPath: mainMenuPrefab
       value: 
       objectReference: {fileID: 7463538350467974155, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: verifyCodePrefab
-      value: 
-      objectReference: {fileID: 4283777905451521364, guid: 1f632b38b28885e44b7a24a90ab8e8cd, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: profileMenuPrefab
-      value: 
-      objectReference: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: mainScene.sceneName
-      value: ClientWorld
-      objectReference: {fileID: 0}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: worldFeedMenuPrefab
-      value: 
-      objectReference: {fileID: 7463538350467974155, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: mainScene.sceneAsset
-      value: 
-      objectReference: {fileID: 102900000, guid: 701c4046fa42a621791231367c88fbc5, type: 3}
     - target: {fileID: 5549379460917750396, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
       propertyPath: m_Name
       value: ClientInitiator
