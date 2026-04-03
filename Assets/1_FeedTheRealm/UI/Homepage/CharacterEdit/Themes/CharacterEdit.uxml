@@ -34,6 +34,11 @@
                 <ui:ScrollView name="Items" class="content-container content-items">
                     <ui:Button name="Empty" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Empty.png?fileID=2800000&amp;guid=28f83d71ea6c28b499085210ea78cb72&amp;type=3#Empty" class="item_button"/>
                 </ui:ScrollView>
+                <ui:VisualElement name="Pagination" class="pagination-container">
+                    <ui:Button text="Prev" name="PrevPage" class="menu-button action-button pagination-button"/>
+                    <ui:Label text="Page 1" name="PageInfo" class="pagination-info"/>
+                    <ui:Button text="Next" name="NextPage" class="menu-button action-button pagination-button"/>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:Button name="BackButton" tabindex="0" focusable="true" icon-image="project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=5923138177525885446&amp;guid=f65e45a379dc54fcc9499c23c4ce4729&amp;type=3#arrow-left" class="back-button back-button-background"/>

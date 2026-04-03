@@ -30,6 +30,9 @@ public partial class CharacterEditController : MonoBehaviour
     // Code-driven tuning values: edit these defaults directly in code.
     private float characterPreviewFillRatio = 0.82f;
 
+    // Number of cosmetics loaded per request/page.
+    private int cosmeticsPageLimit = 24;
+
     // Bigger orthographic size means the character appears smaller in preview.
     private float characterPreviewOrthographicSize = 1.2f;
 
@@ -61,6 +64,9 @@ public partial class CharacterEditController : MonoBehaviour
     private VisualElement _cosmeticsContainer;
     private ScrollView _itemsList;
     private ScrollView _categoriesList;
+    private Button _prevPageButton;
+    private Button _nextPageButton;
+    private Label _pageInfoLabel;
 
     private Label _errorMessage;
 
@@ -76,6 +82,8 @@ public partial class CharacterEditController : MonoBehaviour
 
     private System.Action _onEmptyItemClickedAction;
     private System.Action _onSaveClickedAction;
+    private System.Action _onPrevPageClickedAction;
+    private System.Action _onNextPageClickedAction;
 
     // Data
     private string _selectedCategoryId = "";
@@ -83,6 +91,9 @@ public partial class CharacterEditController : MonoBehaviour
     private API.PatchCharacterInfoRequest characterInfoRequest =
         new API.PatchCharacterInfoRequest();
     private API.SpriteCategoryResponse[] _categories;
+    private int _currentCosmeticsOffset;
+    private int _currentCosmeticsTotalCount;
+    private bool _hasNextCosmeticsPage;
 
     private async void OnEnable()
     {
@@ -155,6 +166,9 @@ public partial class CharacterEditController : MonoBehaviour
         _errorMessage = _cosmeticsContainer.Q<Label>("ErrorMessage");
         _itemsList = _cosmeticsContainer.Q<ScrollView>("Items");
         _categoriesList = _cosmeticsContainer.Q<ScrollView>("Categories");
+        _prevPageButton = _cosmeticsContainer.Q<Button>("PrevPage");
+        _nextPageButton = _cosmeticsContainer.Q<Button>("NextPage");
+        _pageInfoLabel = _cosmeticsContainer.Q<Label>("PageInfo");
 
         if (
             _nameInput == null
@@ -163,6 +177,11 @@ public partial class CharacterEditController : MonoBehaviour
             || _cancelButton == null
             || _saveButton == null
             || _errorMessage == null
+            || _itemsList == null
+            || _categoriesList == null
+            || _prevPageButton == null
+            || _nextPageButton == null
+            || _pageInfoLabel == null
         )
         {
             logger.Log("Buttons or Inputs not found in UI Document.", this, Logging.LogType.Error);
@@ -180,6 +199,8 @@ public partial class CharacterEditController : MonoBehaviour
 
         _onEmptyItemClickedAction ??= () => onItemClicked(null, "");
         _onSaveClickedAction ??= () => _ = onSaveClicked();
+        _onPrevPageClickedAction ??= () => onPrevPageClicked();
+        _onNextPageClickedAction ??= () => onNextPageClicked();
 
         cacheCharacterPreviewCamera();
         applyCharacterPreviewCameraZoom();
@@ -210,7 +231,11 @@ public partial class CharacterEditController : MonoBehaviour
         }
 
         characterInfoRequest.category_sprites = new Dictionary<string, string>();
+        _currentCosmeticsOffset = 0;
+        _currentCosmeticsTotalCount = 0;
+        _hasNextCosmeticsPage = false;
         registerCallbacks(true);
+        UpdatePaginationControls(0, 0);
         _lastAppliedPreviewFillRatio = characterPreviewFillRatio;
         _lastAppliedPreviewOrthoSize = characterPreviewOrthographicSize;
         centerCharacterPreview();
@@ -321,6 +346,8 @@ public partial class CharacterEditController : MonoBehaviour
             _backButton.clicked += onBackClicked;
             _cancelButton.clicked += onCancelClicked;
             _saveButton.clicked += _onSaveClickedAction;
+            _prevPageButton.clicked += _onPrevPageClickedAction;
+            _nextPageButton.clicked += _onNextPageClickedAction;
             _root.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
         else
@@ -330,6 +357,8 @@ public partial class CharacterEditController : MonoBehaviour
             _backButton.clicked -= onBackClicked;
             _cancelButton.clicked -= onCancelClicked;
             _saveButton.clicked -= _onSaveClickedAction;
+            _prevPageButton.clicked -= _onPrevPageClickedAction;
+            _nextPageButton.clicked -= _onNextPageClickedAction;
             _root.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
     }

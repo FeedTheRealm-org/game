@@ -110,8 +110,29 @@ public partial class CharacterEditController
         logger.Log($"Category clicked: {categoryId}", this);
         _selectedCategoryId = categoryId;
         _selectedCategoryName = categoryName;
+        _currentCosmeticsOffset = 0;
+        _currentCosmeticsTotalCount = 0;
+        _hasNextCosmeticsPage = false;
 
         await fetchSpritesByCategory(categoryId);
+    }
+
+    private async void onPrevPageClicked()
+    {
+        if (_currentCosmeticsOffset <= 0)
+            return;
+
+        _currentCosmeticsOffset = Mathf.Max(0, _currentCosmeticsOffset - cosmeticsPageLimit);
+        await fetchSpritesByCategory(_selectedCategoryId);
+    }
+
+    private async void onNextPageClicked()
+    {
+        if (!_hasNextCosmeticsPage)
+            return;
+
+        _currentCosmeticsOffset += cosmeticsPageLimit;
+        await fetchSpritesByCategory(_selectedCategoryId);
     }
 
     /// <summary>
@@ -251,16 +272,45 @@ public partial class CharacterEditController
     /// </summary>
     private async Task fetchSpritesByCategory(string categoryId)
     {
-        var response = await assetsService.GetSpritesByCategoryAsync(categoryId);
+        if (string.IsNullOrEmpty(categoryId))
+        {
+            ClearItems();
+            _currentCosmeticsTotalCount = 0;
+            UpdatePaginationControls(0, 0);
+            return;
+        }
+
+        var response = await assetsService.GetSpritesByCategoryAsync(
+            categoryId,
+            _currentCosmeticsOffset,
+            cosmeticsPageLimit
+        );
         if (response == null || response.sprites_list == null)
         {
             logger.Log("Failed to fetch sprites", this, Logging.LogType.Error);
             ShowToastError("Failed to load sprites.");
             ClearItems();
+            _currentCosmeticsTotalCount = 0;
+            _hasNextCosmeticsPage = false;
+            UpdatePaginationControls(0, 0);
+            return;
+        }
+
+        _currentCosmeticsTotalCount = Mathf.Max(0, response.total_count);
+        _hasNextCosmeticsPage =
+            (_currentCosmeticsOffset + response.sprites_list.Length) < _currentCosmeticsTotalCount;
+
+        if (response.sprites_list.Length == 0 && _currentCosmeticsOffset > 0)
+        {
+            _currentCosmeticsOffset = Mathf.Max(0, _currentCosmeticsOffset - cosmeticsPageLimit);
+            _hasNextCosmeticsPage = false;
+            UpdatePaginationControls(0, _currentCosmeticsTotalCount);
+            await fetchSpritesByCategory(categoryId);
             return;
         }
 
         populateItems(response.sprites_list);
+        UpdatePaginationControls(response.sprites_list.Length, _currentCosmeticsTotalCount);
     }
 
     /// <summary>
@@ -329,5 +379,16 @@ public partial class CharacterEditController
         {
             _itemsList.contentContainer.RemoveAt(1);
         }
+    }
+
+    private void UpdatePaginationControls(int loadedItemsCount, int totalItemsCount)
+    {
+        var safeLimit = Mathf.Max(1, cosmeticsPageLimit);
+        var totalPages = Mathf.Max(1, Mathf.CeilToInt(totalItemsCount / (float)safeLimit));
+        var currentPage = Mathf.Clamp((_currentCosmeticsOffset / safeLimit) + 1, 1, totalPages);
+
+        _pageInfoLabel.text = $"Page {currentPage} of {totalPages}";
+        _prevPageButton.SetEnabled(_currentCosmeticsOffset > 0);
+        _nextPageButton.SetEnabled(_hasNextCosmeticsPage);
     }
 }

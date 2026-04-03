@@ -37,6 +37,7 @@ namespace API
         private class CosmeticsListResponse
         {
             public CosmeticResponse[] cosmetics_list;
+            public int total_count;
         }
 
         private string GetCosmeticsCdnBaseUrl()
@@ -93,6 +94,7 @@ namespace API
             var sprites = new SpritesListResponse
             {
                 sprites_list = new SpriteResponse[cosmetics?.cosmetics_list?.Length ?? 0],
+                total_count = cosmetics?.total_count ?? 0,
             };
 
             if (cosmetics?.cosmetics_list == null)
@@ -153,7 +155,23 @@ namespace API
             System.Action<SpritesListResponse, string> handler
         )
         {
-            var url = $"{GetBaseUrl()}/categories/{categoryId}";
+            return GetSpritesByCategory(categoryId, 0, 24, handler);
+        }
+
+        /// <summary>
+        /// Retrieve a paginated list of sprites for a given category.
+        /// </summary>
+        public IEnumerator GetSpritesByCategory(
+            string categoryId,
+            int offset,
+            int limit,
+            System.Action<SpritesListResponse, string> handler
+        )
+        {
+            var safeOffset = Mathf.Max(0, offset);
+            var safeLimit = Mathf.Max(1, limit);
+            var url =
+                $"{GetBaseUrl()}/categories/{categoryId}?offset={safeOffset}&limit={safeLimit}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 
@@ -227,9 +245,16 @@ namespace API
         /// <summary>
         /// Retrieve the list of sprites for a given category asynchronously.
         /// </summary>
-        public async Task<SpritesListResponse> GetSpritesByCategoryAsync(string categoryId)
+        public async Task<SpritesListResponse> GetSpritesByCategoryAsync(
+            string categoryId,
+            int offset = 0,
+            int limit = 24
+        )
         {
-            var url = $"{GetBaseUrl()}/categories/{categoryId}";
+            var safeOffset = Mathf.Max(0, offset);
+            var safeLimit = Mathf.Max(1, limit);
+            var url =
+                $"{GetBaseUrl()}/categories/{categoryId}?offset={safeOffset}&limit={safeLimit}";
             var uwr = new UnityWebRequest(url, "GET");
             uwr.downloadHandler = new DownloadHandlerBuffer();
 

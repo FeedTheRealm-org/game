@@ -26,5 +26,6 @@ namespace API
     public class SpritesListResponse
     {
         public SpriteResponse[] sprites_list;
+        public int total_count;
     }
 }
