@@ -500,7 +500,7 @@ public class SpriteLoader : MonoBehaviour
     /// Method to equip a weapon by spriteId.
     /// Downloads (or loads from cache) the weapon sprite from the API and applies it to the character.
     /// </summary>
-    public void EquipWeapon(string spriteId)
+    public void EquipWeapon(string worldId, string spriteId)
     {
         if (string.IsNullOrEmpty(spriteId))
         {
@@ -535,7 +535,7 @@ public class SpriteLoader : MonoBehaviour
 
     private System.Collections.IEnumerator EquipWeaponCoroutine(string spriteId)
     {
-        var downloadTask = itemAssetsService.DownloadItemSpriteAsync(spriteId, "weapons");
+        var downloadTask = itemAssetsService.DownloadItemSpriteAsync(spriteId);
 
         while (!downloadTask.IsCompleted)
         {

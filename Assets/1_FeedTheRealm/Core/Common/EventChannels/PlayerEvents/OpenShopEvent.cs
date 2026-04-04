@@ -4,5 +4,5 @@ using UnityEngine;
 namespace FTR.Core.Client.EventChannels
 {
     [CreateAssetMenu(menuName = "Events/PlayerEvents/Open Shop")]
-    public class OpenShopEvent : EventChannelSO { }
+    public class OpenShopEvent : EventChannelSO<string> { }
 }

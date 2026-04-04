@@ -12,5 +12,6 @@ public enum ServerEventType
     InteractFailedEvent,
     DialogEvent,
     OpenShopEvent,
+    NotEnoughGoldEvent,
     InteractCompletedEvent,
 }

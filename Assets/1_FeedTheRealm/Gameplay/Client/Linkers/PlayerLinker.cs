@@ -105,8 +105,8 @@ public class ClientPlayerLinker : PlayerLinker
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
 
+            var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
-            var shopView = playerComponents.AddComponent<ShopView>();
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);
@@ -116,12 +116,12 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(inventoryView);
 
             resolver.Inject(goldView);
-            resolver.Inject(shopView);
+            resolver.Inject(goldController);
 
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
-            goldView?.Initialize(goldState);
-            shopView?.Initialize(eventRouter);
+            goldView?.Initialize(goldState, networkEventRouter);
+            goldController?.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);
             questView?.Initialize(networkAdapter);
             characterStateMachine?.Initialize(interactController);

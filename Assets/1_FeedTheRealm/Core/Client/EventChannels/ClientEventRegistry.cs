@@ -23,6 +23,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public ShopInteractedEvent shopInteractedEvent;
         public ShopOnCloseEvent shopOnCloseEvent;
         public OpenShopEvent openShopEvent;
+        public PurchaseRequestEvent purchaseRequestEvent;
 
         [Header("Status Events")]
         public HealthChangedEvent healthChangedEvent;
@@ -59,6 +60,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Gold Events")]
         public GoldChangedEvent goldChangedEvent;
+        public NotEnoughGoldEvent notEnoughGoldEvent;
 
         public void RegisterAll(IContainerBuilder builder)
         {
@@ -79,7 +81,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
             builder.RegisterInstance(lateTickEvent);
-            builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
             builder.RegisterInstance(npcQuestOfferedEvent);
@@ -89,8 +90,10 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(goldChangedEvent);
             builder.RegisterInstance(openShopEvent);
+            builder.RegisterInstance(purchaseRequestEvent);
             builder.RegisterInstance(interactFailedEvent);
             builder.RegisterInstance(interactCompletedEvent);
+            builder.RegisterInstance(notEnoughGoldEvent);
         }
 
         private void Validate()
@@ -118,6 +121,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(worldSetupEvent, nameof(worldSetupEvent));
             ValidateField(goldChangedEvent, nameof(goldChangedEvent));
             ValidateField(openShopEvent, nameof(openShopEvent));
+            ValidateField(purchaseRequestEvent, nameof(purchaseRequestEvent));
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
             ValidateField(npcQuestOfferedEvent, nameof(npcQuestOfferedEvent));
             ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
@@ -125,6 +129,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
             ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
+            ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
         }
 
         private void ValidateField(Object field, string fieldName)
