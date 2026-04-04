@@ -102,5 +102,11 @@ namespace FTR.Gameplay.Server.Characters
         {
             inventorySystem.OnPickUp(ec, itemId, onComplete);
         }
+
+        public override void OnSetUserId(IEventCollectable ec, string tokenId)
+        {
+            // TODO: request to core-service's player-service with the one time tokenId it created for this
+            // player when they tried to join a world so that it returns the real userId to be set in the characterStateStorage as characterId.
+        }
     }
 }

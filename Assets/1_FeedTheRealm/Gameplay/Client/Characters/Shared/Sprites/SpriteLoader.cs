@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FTR.Core.Client.Enums;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 
 public class SpriteLoader : MonoBehaviour
@@ -43,6 +44,7 @@ public class SpriteLoader : MonoBehaviour
 
     private SpriteConfigBuilder builder;
     private SpriteConfigDirector director;
+    private CharacterStateStorage stateStorage;
 
     private void Awake()
     {
@@ -73,15 +75,22 @@ public class SpriteLoader : MonoBehaviour
 
         if (loadLoggedUser && !string.IsNullOrEmpty(session.UserId))
         {
-            UserId = session.UserId;
-            _ = InitCharacterSpritesAsync();
+            StartForUserId(session.UserId);
         }
     }
 
-    public void Initialize(string characterID)
+    public void Initialize(CharacterStateStorage stateStorage)
     {
-        logger.Log($"[SpriteLoader] StartLoadingSprites called with UserId: '{UserId}'", this);
-        UserId = characterID;
+        this.stateStorage = stateStorage;
+        if (string.IsNullOrEmpty(stateStorage.CharacterId))
+            stateStorage.OnCharacterIdChanged += StartForUserId;
+        else
+            StartForUserId(stateStorage.CharacterId);
+    }
+
+    private void StartForUserId(string id)
+    {
+        UserId = id;
         _ = InitCharacterSpritesAsync();
     }
 
@@ -100,6 +109,10 @@ public class SpriteLoader : MonoBehaviour
             spriteManager.OnBackChange -= ChangeBack;
             spriteManager.OnEarringsChange -= ChangeEarrings;
             spriteManager.OnMaskChange -= ChangeMask;
+        }
+        if (stateStorage != null)
+        {
+            stateStorage.OnCharacterIdChanged -= StartForUserId;
         }
 
         // Clean up cached textures to prevent memory leaks

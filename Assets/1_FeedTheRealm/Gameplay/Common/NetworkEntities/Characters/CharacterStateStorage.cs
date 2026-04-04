@@ -25,7 +25,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private float health;
 
         [SyncVar(hook = nameof(OnCharacterIdSync))]
-        private string characterId;
+        private string characterId = "";
 
         /* --- Getters --- */
 

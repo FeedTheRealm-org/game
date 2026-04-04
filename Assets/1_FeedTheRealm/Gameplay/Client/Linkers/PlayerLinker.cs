@@ -1,4 +1,6 @@
 using FTR.Core.Client;
+using FTR.Core.Common.Enums;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Characters.Player;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -17,17 +19,20 @@ public class ClientPlayerLinker : PlayerLinker
     private readonly IObjectResolver resolver;
     private readonly ClientCharacterLinker characterLinker;
     private readonly NpcDialogRegistry npcDialogRegistry;
+    private readonly Session.Session session;
 
     public ClientPlayerLinker(
         ClientPrefabProvider prefabProvider,
         IObjectResolver resolver,
-        NpcDialogRegistry npcDialogRegistry
+        NpcDialogRegistry npcDialogRegistry,
+        Session.Session session
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
         this.npcDialogRegistry = npcDialogRegistry;
+        this.session = session;
     }
 
     public override void Link(GameObject gameObject)
@@ -47,6 +52,14 @@ public class ClientPlayerLinker : PlayerLinker
 
         if (networkAdapter.IsLocalPlayer)
         {
+            var setUserIdTransaction = new TransactionCommandDTO
+            {
+                Type = TransactionType.SetUserId,
+                Id = session.UserId, // TODO: change for TokenID that got from core-service after signaling intent to join a world
+                content = null,
+            };
+            networkAdapter.DispatchTransaction(setUserIdTransaction);
+
             // var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();

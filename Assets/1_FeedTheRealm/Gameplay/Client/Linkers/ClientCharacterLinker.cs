@@ -24,32 +24,34 @@ namespace FTR.Gameplay.Client.Linkers
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
-            var playerComponents = Object.Instantiate(
+            var characterComponents = Object.Instantiate(
                 prefabProvider.ClientCharacterComponents,
                 gameObject.transform
             );
-            resolver.InjectGameObject(playerComponents);
+            resolver.InjectGameObject(characterComponents);
 
-            var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
-            var movementView = playerComponents.GetComponent<MovementView>();
-            var attackView = playerComponents.GetComponent<AttackView>();
-            var dashView = playerComponents.GetComponent<DashView>();
-            var staminaView = playerComponents.GetComponent<StaminaView>();
-            var healthView = playerComponents.GetComponent<HealthView>();
-            var movementController = playerComponents.GetComponent<MovementController>();
-            var useController = playerComponents.GetComponent<UseController>();
+            var networkEventRouter = characterComponents.GetComponent<NetworkEventRouter>();
+            var movementView = characterComponents.GetComponent<MovementView>();
+            var attackView = characterComponents.GetComponent<AttackView>();
+            var dashView = characterComponents.GetComponent<DashView>();
+            var staminaView = characterComponents.GetComponent<StaminaView>();
+            var healthView = characterComponents.GetComponent<HealthView>();
+            var movementController = characterComponents.GetComponent<MovementController>();
+            var useController = characterComponents.GetComponent<UseController>();
+            var spriteLoader = characterComponents.GetComponent<SpriteLoader>();
 
             networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
             attackView.Initialize(networkEventRouter);
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             staminaView.Initialize(stateStorage);
+            spriteLoader.Initialize(stateStorage);
             healthView?.Initialize(stateStorage);
 
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 
-            return playerComponents;
+            return characterComponents;
         }
     }
 }

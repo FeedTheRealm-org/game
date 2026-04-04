@@ -74,5 +74,7 @@ namespace FTR.Gameplay.Server.Characters
             string itemId,
             System.Action<bool> onComplete
         ) { }
+
+        public void OnSetUserId(IEventCollectable ec, string tokenId) { }
     }
 }

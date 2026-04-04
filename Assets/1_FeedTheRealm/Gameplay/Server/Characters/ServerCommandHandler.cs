@@ -51,5 +51,7 @@ namespace FTR.Gameplay.Server.Characters
             string itemId,
             System.Action<bool> onComplete
         ) { }
+
+        public virtual void OnSetUserId(IEventCollectable ec, string tokenId) { }
     }
 }
