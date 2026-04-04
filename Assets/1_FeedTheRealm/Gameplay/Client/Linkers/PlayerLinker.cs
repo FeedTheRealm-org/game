@@ -48,8 +48,6 @@ public class ClientPlayerLinker : PlayerLinker
 
         if (networkAdapter.IsLocalPlayer)
         {
-            // var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
-            var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             /* -- Instantiate and inject UI components -- */
@@ -95,7 +93,6 @@ public class ClientPlayerLinker : PlayerLinker
             /* -- Instantiate and initialize controllers and views -- */
 
             var playerController = gameObject.AddComponent<PlayerController>();
-            var eventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
             var goldState = gameObject.GetComponent<GoldStateStorage>();
