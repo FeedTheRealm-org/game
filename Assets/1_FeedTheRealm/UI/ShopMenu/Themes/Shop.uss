@@ -54,6 +54,25 @@
     margin-right: 12px;
 }
 
+.shop-item-amount {
+    width: 48px;
+    margin-right: 8px;
+    color: rgb(0, 0, 0);
+    -unity-text-align: middle-center;
+}
+
+.shop-not-enough-gold-message {
+    color: rgb(255, 80, 80);
+    -unity-font-style: bold;
+    font-size: 16px;
+    -unity-text-align: upper-center;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background-color: rgba(180, 0, 0, 0.35);
+    border-radius: 6px;
+    width: 350px;
+}
+
 .shop-buy-button {
     background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button.png?fileID=2800000&guid=485cd2ab0486a8e4aaa55e94ec27c6b6&type=3#button");
     background-size: 100% 100%;

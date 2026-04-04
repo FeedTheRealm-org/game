@@ -27,6 +27,6 @@ public class ShopView : MonoBehaviour
     private void HandleOpenShopEvent(OpenShopEventContent content)
     {
         Debug.Log($"[ShopView] HandleOpenShopEvent received.");
-        openShopEvent.Raise();
+        openShopEvent.Raise(content.ShopId);
     }
 }
