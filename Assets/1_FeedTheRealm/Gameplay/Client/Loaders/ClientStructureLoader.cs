@@ -1,17 +1,14 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.Registry;
-using FTR.Gameplay.Common.Environment.Shop;
 using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
-using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.Loaders
 {
