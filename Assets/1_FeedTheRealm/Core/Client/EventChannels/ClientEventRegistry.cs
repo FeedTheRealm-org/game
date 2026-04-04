@@ -123,10 +123,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(openShopEvent, nameof(openShopEvent));
             ValidateField(purchaseRequestEvent, nameof(purchaseRequestEvent));
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
-            ValidateField(npcQuestOfferedEvent, nameof(npcQuestOfferedEvent));
-            ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
-            ValidateField(questDecisionEvent, nameof(questDecisionEvent));
-            ValidateField(questCompletedEvent, nameof(questCompletedEvent));
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
             ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
             ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
