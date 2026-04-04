@@ -57,6 +57,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return false;
             }
 
+            if (goldState.Gold < amount)
+            {
+                logger.Log(
+                    $"[GoldSystem] ReduceGold: insufficient gold for player {netId}. Requested {amount}, current {goldState.Gold}",
+                    this
+                );
+                return false;
+            }
+
             goldState.ReduceGold(amount);
             logger.Log($"[GoldSystem] Player {netId} reduced {amount} gold", this);
             return true;
