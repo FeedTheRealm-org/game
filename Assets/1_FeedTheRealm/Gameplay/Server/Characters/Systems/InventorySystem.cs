@@ -88,6 +88,31 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 this
             );
 
+            if (amount <= 0)
+            {
+                logger.Log(
+                    $"Invalid purchase amount {amount} for item {itemId} and player {netId}",
+                    this
+                );
+                return;
+            }
+
+            int emptySlots = 0;
+            for (int i = 0; i < inventorySize; i++)
+            {
+                if (string.IsNullOrEmpty(inventorySlots[i]))
+                    emptySlots++;
+            }
+
+            if (emptySlots < amount)
+            {
+                logger.Log(
+                    $"Inventory has insufficient space for purchased item {itemId} x{amount} (free={emptySlots})",
+                    this
+                );
+                return;
+            }
+
             for (int i = 0; i < inventorySize; i++)
             {
                 if (string.IsNullOrEmpty(inventorySlots[i]))
