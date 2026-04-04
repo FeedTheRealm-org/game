@@ -6,7 +6,7 @@ namespace FTR.Gameplay.Server.Registry
 {
     /// <summary>
     /// Static registry that exposes the current world's shops and their products
-    /// to client-side gameplay systems (UI, tooltips, visuals).
+    /// to server-side
     /// </summary>
     public static class ServerShopRegistry
     {
