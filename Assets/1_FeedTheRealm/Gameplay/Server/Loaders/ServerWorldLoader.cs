@@ -22,7 +22,6 @@ namespace FTR.Gameplay.Server.Scopes
             );
             var playerSpawnerLoader = new PlayerSpawnerLoader();
             var serverItemLoader = new ServerItemLoader();
-            var shopLoader = new ServerShopLoader();
 
             loaders = new List<ILoader>
             {
@@ -31,7 +30,6 @@ namespace FTR.Gameplay.Server.Scopes
                 aggressiveNpcSpawnerLoader,
                 playerSpawnerLoader,
                 serverItemLoader,
-                shopLoader,
             };
 
             foreach (var loader in loaders)

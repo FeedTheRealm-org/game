@@ -1,9 +1,12 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
+using FTR.Gameplay.Client.Registry;
+using FTR.Gameplay.Common.Environment.Shop;
 using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -27,10 +30,12 @@ namespace FTR.Gameplay.Client.Loaders
         private readonly GltLoaderService gltfLoaderService;
 
         private readonly GameObject structurePrefab;
+        private readonly GameObject shopPrefab;
 
         public ClientStructureLoader(ClientPrefabProvider prefabProvider)
         {
             structurePrefab = prefabProvider.StructurePrefab;
+            shopPrefab = prefabProvider.ShopPrefab;
         }
 
         private Dictionary<string, GameObject> modelCache = new();
@@ -42,9 +47,17 @@ namespace FTR.Gameplay.Client.Loaders
                 GetSessionToken()
             );
 
+            ClientShopRegistry.RegisterWorldData(creatablesData);
+
             var structures = zoneData.objectPlacementData;
+            var shopStructures = new List<StructureData>();
             foreach (StructureData structureData in structures)
             {
+                if (structureData.isShop)
+                {
+                    shopStructures.Add(structureData);
+                    continue;
+                }
                 string modelUrl = modelsInfo[structureData.id].url;
                 GameObject visual = await GetModel(modelUrl);
 
@@ -53,6 +66,19 @@ namespace FTR.Gameplay.Client.Loaders
                 var controller = instance.GetComponent<StructureController>();
 
                 controller.Initialize(structureData);
+                controller.SetupMesh(visual);
+            }
+
+            foreach (StructureData shopData in shopStructures)
+            {
+                string modelUrl = modelsInfo[shopData.id].url;
+                GameObject visual = await GetModel(modelUrl);
+
+                GameObject instance = Object.Instantiate(shopPrefab);
+                instance.name = shopData.structureName;
+                var controller = instance.GetComponent<StructureController>();
+
+                controller.Initialize(shopData);
                 controller.SetupMesh(visual);
             }
 

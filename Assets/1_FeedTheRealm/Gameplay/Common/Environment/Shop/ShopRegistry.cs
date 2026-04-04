@@ -14,7 +14,7 @@ namespace FTR.Gameplay.Common.Environment.Shop
 
         private void OnEnable() => BuildLookup(shops);
 
-        public bool TryGetItem(string shopId, string itemId, out ProductData productData)
+        public bool TryGetItem(string shopId, string productId, out ProductData productData)
         {
             productData = null;
 
@@ -24,9 +24,9 @@ namespace FTR.Gameplay.Common.Environment.Shop
                 return false;
             }
 
-            if (string.IsNullOrEmpty(itemId))
+            if (string.IsNullOrEmpty(productId))
             {
-                Debug.LogWarning("[ShopRegistry] TryGetItem called with null or empty itemId.");
+                Debug.LogWarning("[ShopRegistry] TryGetItem called with null or empty productId.");
                 return false;
             }
 
@@ -35,7 +35,7 @@ namespace FTR.Gameplay.Common.Environment.Shop
 
             if (_lookup.TryGetValue(shopId, out var shopData))
             {
-                productData = shopData.products.Find(p => p.itemId == itemId);
+                productData = shopData.products.Find(p => p.productId == productId);
                 return productData != null;
             }
 
