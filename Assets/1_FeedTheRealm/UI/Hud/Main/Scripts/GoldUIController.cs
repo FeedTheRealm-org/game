@@ -58,8 +58,17 @@ namespace FTR.UI.Hud.Main
 
         private void OnGoldChanged(int current)
         {
-            if (_goldAmount != null)
-                logger.Log($"[GoldUIController] Updating gold amount to {current}", this);
+            if (_goldAmount == null)
+            {
+                logger.Log(
+                    "[GoldUIController] GoldAmount label is not initialized yet. Skipping gold update.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            logger.Log($"[GoldUIController] Updating gold amount to {current}", this);
             _goldAmount.text = current.ToString();
         }
     }
