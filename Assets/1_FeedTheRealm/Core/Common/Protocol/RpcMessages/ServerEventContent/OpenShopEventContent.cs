@@ -25,11 +25,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiFFdmVudHMvT3BlblNob3BFdmVudENvbnRlbnQucHJvdG8SCHByb3RvY29s",
-            "GhJQcm90b1ZlY3RvcjMucHJvdG8iJwoUT3BlblNob3BFdmVudENvbnRlbnQS",
-            "DwoHc2hvcF9pZBgBIAEoCUInqgIkRlRSLkNvcmUuQ29tbW9uLlByb3RvY29s",
-            "LlJwY01lc3NhZ2VzYgZwcm90bzM="));
+            "IicKFE9wZW5TaG9wRXZlbnRDb250ZW50Eg8KB3Nob3BfaWQYASABKAlCJ6oC",
+            "JEZUUi5Db3JlLkNvbW1vbi5Qcm90b2NvbC5ScGNNZXNzYWdlc2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::FTR.Core.Common.Protocol.RpcMessages.ProtoVector3Reflection.Descriptor, },
+          new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.OpenShopEventContent), global::FTR.Core.Common.Protocol.RpcMessages.OpenShopEventContent.Parser, new[]{ "ShopId" }, null, null, null, null)
           }));
