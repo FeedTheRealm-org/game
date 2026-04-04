@@ -17,6 +17,12 @@ namespace API
         public string world_id;
     }
 
+    [System.Serializable]
+    public class ConsumeWorldJoinTokenRequest
+    {
+        public string token_id;
+    }
+
     /* --- Responses --- */
     [System.Serializable]
     public class CharacterInfoResponse
@@ -31,5 +37,12 @@ namespace API
     {
         public string token_id;
         public string expires_at;
+    }
+
+    [System.Serializable]
+    public class ConsumeWorldJoinTokenResponse
+    {
+        public string user_id;
+        public string world_id;
     }
 }

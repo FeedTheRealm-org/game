@@ -1,3 +1,4 @@
+using API;
 using FTR.Core.Common.Config;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
@@ -21,13 +22,15 @@ public class ServerPlayerLinker : PlayerLinker
     private readonly WorldMonitor world;
     private readonly ServerConfig serverConfig;
     private readonly Config commonConfig;
+    private readonly PlayerService playerService;
 
     public ServerPlayerLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
         IObjectResolver resolver,
         ServerConfig serverConfig,
-        Config commonConfig
+        Config commonConfig,
+        PlayerService playerService
     )
     {
         this.world = world;
@@ -36,6 +39,7 @@ public class ServerPlayerLinker : PlayerLinker
         this.resolver = resolver;
         this.serverConfig = serverConfig;
         this.commonConfig = commonConfig;
+        this.playerService = playerService;
     }
 
     public override void Link(GameObject gameObject)
@@ -88,7 +92,8 @@ public class ServerPlayerLinker : PlayerLinker
             inventorySystem,
             questSystem,
             stateStorage,
-            commonConfig
+            playerService,
+            commonConfig.ServerAccessToken
         );
 
         respawnSystem.Initialize(

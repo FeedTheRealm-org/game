@@ -30,6 +30,9 @@ namespace API
         private string GetWorldJoinTokenUrl() =>
             $"http://{apiConfig.Hostname}:{apiConfig.Port}/player/world-access/token";
 
+        private string GetWorldJoinTokenConsumeUrl() =>
+            $"http://{apiConfig.Hostname}:{apiConfig.Port}/player/world-access/token/consume";
+
         /// <summary>
         /// Update the character information such as name and bio.
         /// </summary>
@@ -261,6 +264,68 @@ namespace API
                 responseText
             );
             logger.Log($"IssueWorldJoinTokenAsync response: {responseText}", this);
+            return envelope?.data;
+        }
+
+        /// <summary>
+        /// Consumes and burns a world join token, returning the resolved user ID.
+        /// Intended for server-side usage when validating local player token transactions.
+        /// </summary>
+        public async Task<ConsumeWorldJoinTokenResponse> ConsumeWorldJoinTokenAsync(
+            string tokenId,
+            string authorizationToken = null
+        )
+        {
+            if (string.IsNullOrWhiteSpace(tokenId))
+            {
+                logger.Log(
+                    "ConsumeWorldJoinTokenAsync failed: tokenId is empty",
+                    this,
+                    Logging.LogType.Error
+                );
+                return null;
+            }
+
+            var url = GetWorldJoinTokenConsumeUrl();
+            var payload = new ConsumeWorldJoinTokenRequest { token_id = tokenId };
+            var json = JsonConvert.SerializeObject(payload);
+
+            var uwr = new UnityWebRequest(url, "POST");
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+            uwr.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            uwr.downloadHandler = new DownloadHandlerBuffer();
+
+            uwr.SetRequestHeader("Content-Type", "application/json");
+
+            var bearerToken = !string.IsNullOrWhiteSpace(authorizationToken)
+                ? authorizationToken
+                : session?.APIToken;
+            uwr.SetRequestHeader("Authorization", $"Bearer {bearerToken}");
+
+            await uwr.SendWebRequest();
+
+            var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
+
+            if (
+                uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.ProtocolError
+            )
+            {
+                var res = string.IsNullOrEmpty(responseText)
+                    ? null
+                    : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
+                logger.Log(
+                    $"ConsumeWorldJoinTokenAsync error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
+                    this,
+                    Logging.LogType.Error
+                );
+                return null;
+            }
+
+            var envelope = JsonConvert.DeserializeObject<
+                DataEnvelope<ConsumeWorldJoinTokenResponse>
+            >(responseText);
+            logger.Log($"ConsumeWorldJoinTokenAsync response: {responseText}", this);
             return envelope?.data;
         }
     }

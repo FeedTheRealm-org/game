@@ -18,6 +18,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
     public class ServerWorldInitiator : LifetimeScope
     {
         [SerializeField]
+        private Config config;
+
+        [SerializeField]
         private ServerConfig serverConfig;
 
         [SerializeField]
@@ -38,6 +41,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         [SerializeField]
         private WorldService worldService;
 
+        [SerializeField]
+        private PlayerService playerService;
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Server)
@@ -50,6 +56,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
+            builder.RegisterInstance(playerService);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
 
@@ -72,11 +79,12 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
 
         private void Validate()
         {
-            ValidateField(config, nameof(config));
+            ValidateField(serverConfig, nameof(serverConfig));
             ValidateField(logger, nameof(logger));
             ValidateField(gameTickEvent, nameof(gameTickEvent));
             ValidateField(prefabProvider, nameof(prefabProvider));
             ValidateField(worldService, nameof(worldService));
+            ValidateField(playerService, nameof(playerService));
             ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
             ValidateField(serverQuestRegistry, nameof(serverQuestRegistry));
         }
