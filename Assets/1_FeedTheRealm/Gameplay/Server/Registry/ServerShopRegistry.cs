@@ -43,6 +43,9 @@ namespace FTR.Gameplay.Server.Registry
         {
             foreach (var shop in shopsById.Values)
             {
+                if (shop?.products == null)
+                    continue;
+
                 var product = shop.products.Find(p => p.productId == id);
                 if (product != null)
                     return product;
