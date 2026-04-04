@@ -27,6 +27,9 @@ namespace API
         private string GetBaseUrl() =>
             $"http://{apiConfig.Hostname}:{apiConfig.Port}/player/character";
 
+        private string GetWorldJoinTokenUrl() =>
+            $"http://{apiConfig.Hostname}:{apiConfig.Port}/player/world-access/token";
+
         /// <summary>
         /// Update the character information such as name and bio.
         /// </summary>
@@ -205,6 +208,60 @@ namespace API
                 logger.Log($"PatchCharacterInfo response: {responseText}", this);
                 return res.data;
             }
+        }
+
+        /// <summary>
+        /// Issues a short-lived one-time token used by the game server to resolve and set the real user ID.
+        /// </summary>
+        public async Task<WorldJoinTokenResponse> IssueWorldJoinTokenAsync(string worldId)
+        {
+            if (string.IsNullOrWhiteSpace(worldId))
+            {
+                logger.Log(
+                    "IssueWorldJoinTokenAsync failed: worldId is empty",
+                    this,
+                    Logging.LogType.Error
+                );
+                return null;
+            }
+
+            var url = GetWorldJoinTokenUrl();
+            var payload = new IssueWorldJoinTokenRequest { world_id = worldId };
+            var json = JsonConvert.SerializeObject(payload);
+
+            var uwr = new UnityWebRequest(url, "POST");
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+            uwr.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            uwr.downloadHandler = new DownloadHandlerBuffer();
+
+            uwr.SetRequestHeader("Content-Type", "application/json");
+            uwr.SetRequestHeader("Authorization", $"Bearer {session.APIToken}");
+
+            await uwr.SendWebRequest();
+
+            var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
+
+            if (
+                uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.ProtocolError
+            )
+            {
+                var res = string.IsNullOrEmpty(responseText)
+                    ? null
+                    : JsonConvert.DeserializeObject<ErrorResponse>(responseText);
+                logger.Log(
+                    $"IssueWorldJoinTokenAsync error: {(res != null ? $"{res.title}: {res.detail}" : responseText)} - {responseText}",
+                    this,
+                    Logging.LogType.Error
+                );
+                return null;
+            }
+
+            var envelope = JsonConvert.DeserializeObject<DataEnvelope<WorldJoinTokenResponse>>(
+                responseText
+            );
+            logger.Log($"IssueWorldJoinTokenAsync response: {responseText}", this);
+            return envelope?.data;
         }
     }
 }

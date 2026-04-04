@@ -11,8 +11,17 @@ namespace FTR.Gameplay.Client.EntryPoints
         [SerializeField]
         private string SelectedWorldId = "";
 
+        [SerializeField]
+        private string SelectedWorldJoinToken = "";
+
         public string GetSelectedWorldId() => SelectedWorldId;
 
+        public string GetSelectedWorldJoinToken() => SelectedWorldJoinToken;
+
         public void SetSelectedWorldId(string worldId) => SelectedWorldId = worldId;
+
+        public void SetSelectedWorldJoinToken(string tokenId) => SelectedWorldJoinToken = tokenId;
+
+        public void ClearSelectedWorldJoinToken() => SelectedWorldJoinToken = string.Empty;
     }
 }

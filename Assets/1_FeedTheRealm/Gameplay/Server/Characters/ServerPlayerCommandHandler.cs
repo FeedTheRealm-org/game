@@ -1,7 +1,13 @@
+using System;
+using System.Text;
+using System.Threading.Tasks;
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace FTR.Gameplay.Server.Characters
 {
@@ -13,6 +19,9 @@ namespace FTR.Gameplay.Server.Characters
         private PlayerInteractSystem interactSystem;
         private InventorySystem inventorySystem;
         private QuestSystem questSystem;
+        private CharacterStateStorage stateStorage;
+        private Config config;
+        private bool isResolvingCharacterId;
 
         public void Initialize(
             MovementSystem movementSystem,
@@ -20,7 +29,9 @@ namespace FTR.Gameplay.Server.Characters
             UseSystem useSystem,
             PlayerInteractSystem interactSystem,
             InventorySystem inventorySystem,
-            QuestSystem questSystem
+            QuestSystem questSystem,
+            CharacterStateStorage stateStorage,
+            Config config
         )
         {
             this.movementSystem = movementSystem;
@@ -29,6 +40,8 @@ namespace FTR.Gameplay.Server.Characters
             this.interactSystem = interactSystem;
             this.inventorySystem = inventorySystem;
             this.questSystem = questSystem;
+            this.stateStorage = stateStorage;
+            this.config = config;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -105,8 +118,134 @@ namespace FTR.Gameplay.Server.Characters
 
         public override void OnSetUserId(IEventCollectable ec, string tokenId)
         {
-            // TODO: request to core-service's player-service with the one time tokenId it created for this
-            // player when they tried to join a world so that it returns the real userId to be set in the characterStateStorage as characterId.
+            if (isResolvingCharacterId)
+                return;
+
+            if (string.IsNullOrWhiteSpace(tokenId))
+            {
+                Debug.LogWarning(
+                    "[ServerPlayerCommandHandler] Received empty world join token.",
+                    this
+                );
+                return;
+            }
+
+            if (stateStorage == null)
+            {
+                Debug.LogError(
+                    "[ServerPlayerCommandHandler] CharacterStateStorage is missing; cannot set character ID.",
+                    this
+                );
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(stateStorage.CharacterId))
+            {
+                // Character ID already resolved for this entity.
+                return;
+            }
+
+            _ = ResolveAndSetUserIdFromTokenAsync(tokenId);
+        }
+
+        private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
+        {
+            isResolvingCharacterId = true;
+            try
+            {
+                var resolvedUserId = await ConsumeJoinTokenAsync(tokenId);
+                if (string.IsNullOrWhiteSpace(resolvedUserId))
+                    return;
+
+                if (!Guid.TryParse(resolvedUserId, out _))
+                {
+                    Debug.LogWarning(
+                        $"[ServerPlayerCommandHandler] Invalid user_id returned from consume endpoint: '{resolvedUserId}'.",
+                        this
+                    );
+                    return;
+                }
+
+                stateStorage.SetCharacterId(resolvedUserId);
+            }
+            finally
+            {
+                isResolvingCharacterId = false;
+            }
+        }
+
+        private async Task<string> ConsumeJoinTokenAsync(string tokenId)
+        {
+            if (config?.ApiConfig == null)
+            {
+                Debug.LogError(
+                    "[ServerPlayerCommandHandler] Config.ApiConfig is missing; cannot resolve world join token.",
+                    this
+                );
+                return null;
+            }
+
+            var url =
+                $"http://{config.ApiConfig.Hostname}:{config.ApiConfig.Port}/player/world-access/token/consume";
+            var payload = JsonUtility.ToJson(
+                new ConsumeWorldJoinTokenRequest { token_id = tokenId }
+            );
+
+            var uwr = new UnityWebRequest(url, "POST");
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(payload);
+            uwr.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            uwr.downloadHandler = new DownloadHandlerBuffer();
+            uwr.SetRequestHeader("Content-Type", "application/json");
+
+            if (!string.IsNullOrWhiteSpace(config.ServerAccessToken))
+            {
+                uwr.SetRequestHeader("Authorization", $"Bearer {config.ServerAccessToken}");
+            }
+
+            await uwr.SendWebRequest();
+
+            var responseText = uwr.downloadHandler?.text ?? uwr.error ?? string.Empty;
+            if (
+                uwr.result == UnityWebRequest.Result.ConnectionError
+                || uwr.result == UnityWebRequest.Result.ProtocolError
+            )
+            {
+                var error = string.IsNullOrEmpty(responseText)
+                    ? null
+                    : JsonUtility.FromJson<BackendErrorResponse>(responseText);
+                Debug.LogWarning(
+                    $"[ServerPlayerCommandHandler] Failed to consume world join token: {(error != null ? error.detail : responseText)}",
+                    this
+                );
+                return null;
+            }
+
+            var envelope = JsonUtility.FromJson<ConsumeWorldJoinTokenEnvelope>(responseText);
+            return envelope?.data?.user_id;
+        }
+
+        [Serializable]
+        private class ConsumeWorldJoinTokenRequest
+        {
+            public string token_id;
+        }
+
+        [Serializable]
+        private class ConsumeWorldJoinTokenResponse
+        {
+            public string user_id;
+        }
+
+        [Serializable]
+        private class ConsumeWorldJoinTokenEnvelope
+        {
+            public ConsumeWorldJoinTokenResponse data;
+        }
+
+        [Serializable]
+        private class BackendErrorResponse
+        {
+            public string detail;
         }
     }
 }

@@ -18,9 +18,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
     public class ServerWorldInitiator : LifetimeScope
     {
         [SerializeField]
-        private Config config;
-
-        [SerializeField]
         private ServerConfig serverConfig;
 
         [SerializeField]

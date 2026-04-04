@@ -1,3 +1,4 @@
+using FTR.Core.Common.Config;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.Linkers;
@@ -18,20 +19,23 @@ public class ServerPlayerLinker : PlayerLinker
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
     private readonly WorldMonitor world;
-    private readonly ServerConfig config;
+    private readonly ServerConfig serverConfig;
+    private readonly Config commonConfig;
 
     public ServerPlayerLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
         IObjectResolver resolver,
-        ServerConfig config
+        ServerConfig serverConfig,
+        Config commonConfig
     )
     {
         this.world = world;
         this.characterLinker = new ServerCharacterLinker(world, prefabProvider, resolver);
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
-        this.config = config;
+        this.serverConfig = serverConfig;
+        this.commonConfig = commonConfig;
     }
 
     public override void Link(GameObject gameObject)
@@ -67,7 +71,12 @@ public class ServerPlayerLinker : PlayerLinker
         interactSystem.Initialize(netId, world, networkAdapter.netId);
         questSystem.Initialize(netId);
         systems.Health.Initialize(netId, stateStorage, false);
-        systems.Use.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
+        systems.Use.Initialize(
+            netId,
+            rb,
+            serverConfig.PlayerLayer | serverConfig.TargetLayer,
+            stateStorage
+        );
         inventorySystem.Initialize(netId, inventoryStateStorage);
         persistenceSystem.Initialize(systems.Movement, inventorySystem);
 
@@ -77,7 +86,9 @@ public class ServerPlayerLinker : PlayerLinker
             systems.Use,
             interactSystem,
             inventorySystem,
-            questSystem
+            questSystem,
+            stateStorage,
+            commonConfig
         );
 
         respawnSystem.Initialize(

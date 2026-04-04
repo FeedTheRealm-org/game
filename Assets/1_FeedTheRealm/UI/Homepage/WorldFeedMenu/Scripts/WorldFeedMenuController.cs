@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
@@ -20,6 +21,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     [SerializeField]
     private API.WorldService worldService;
+
+    [SerializeField]
+    private API.PlayerService playerService;
 
     [SerializeField]
     private SceneReference worldScene;
@@ -144,6 +148,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     {
         // worldHandler.createACategory(Worlds.WorldHandler.NULL_CATEGORY_NAME);
         logger.Log("Worlds OnEnable called, fetching worlds...", this);
+        worldSelector?.ClearSelectedWorldJoinToken();
         RenderWorldPage(currentOffset);
     }
 
@@ -201,6 +206,19 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             {
                 worldSelector.SetSelectedWorldId(worldData.id);
             }
+
+            var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(worldData.id);
+            if (worldJoinToken == null || string.IsNullOrWhiteSpace(worldJoinToken.token_id))
+            {
+                logger.Log(
+                    "Failed to issue world join token; aborting world join.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
+
+            worldSelector?.SetSelectedWorldJoinToken(worldJoinToken.token_id);
 
             if (itemAssetsService != null)
             {
