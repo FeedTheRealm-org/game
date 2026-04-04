@@ -118,7 +118,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public override void OnSetUserId(IEventCollectable ec, string tokenId)
         {
-            if (isResolvingCharacterId)
+            if (isResolvingCharacterId || !string.IsNullOrEmpty(stateStorage.CharacterId))
                 return;
 
             if (string.IsNullOrWhiteSpace(tokenId))
@@ -142,17 +142,8 @@ namespace FTR.Gameplay.Server.Characters
                     tokenId,
                     serverAccessToken
                 );
-                if (consumeResponse == null || string.IsNullOrWhiteSpace(consumeResponse.user_id))
+                if (consumeResponse == null)
                     return;
-
-                if (!System.Guid.TryParse(consumeResponse.user_id, out _))
-                {
-                    Debug.LogWarning(
-                        $"[ServerPlayerCommandHandler] Invalid user_id returned from consume endpoint: '{consumeResponse.user_id}'.",
-                        this
-                    );
-                    return;
-                }
 
                 stateStorage.SetCharacterId(consumeResponse.user_id);
             }

@@ -69,3 +69,4 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInfoController
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}

@@ -71,6 +71,7 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
+  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   worldScene:
     sceneName: ClientWorld
     sceneAsset: {fileID: 102900000, guid: 701c4046fa42a621791231367c88fbc5, type: 3}
