@@ -19,19 +19,22 @@ public class GoldView : MonoBehaviour
 
     [SerializeField]
     private GoldStateStorage stateStorage;
+    private NetworkEventRouter eventRouter;
 
     public void Initialize(GoldStateStorage stateStorage, NetworkEventRouter eventRouter)
     {
         this.stateStorage = stateStorage;
+        this.eventRouter = eventRouter;
         stateStorage.OnGoldChanged += OnGoldChanged;
         eventRouter.OnNotEnoughGoldEvent += HandleNotEnoughGoldEvent;
     }
 
     private void OnDestroy()
     {
-        if (stateStorage == null)
-            return;
-        stateStorage.OnGoldChanged -= OnGoldChanged;
+        if (stateStorage != null)
+            stateStorage.OnGoldChanged -= OnGoldChanged;
+        if (eventRouter != null)
+            eventRouter.OnNotEnoughGoldEvent -= HandleNotEnoughGoldEvent;
     }
 
     private void OnGoldChanged(int newGold)
