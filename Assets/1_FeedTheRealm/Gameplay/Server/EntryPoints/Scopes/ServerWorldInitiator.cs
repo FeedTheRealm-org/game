@@ -5,7 +5,6 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
 using FTR.Gameplay.Common.Environment.Dialogs;
-using FTR.Gameplay.Common.Environment.Shop;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Environment.Quest;
 using FTR.Gameplay.Server.Linkers;
@@ -37,9 +36,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private NpcDialogRegistry npcDialogRegistry;
 
         [SerializeField]
-        private ShopRegistry shopRegistry;
-
-        [SerializeField]
         private ServerQuestRegistry serverQuestRegistry;
 
         [SerializeField]
@@ -62,7 +58,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(zoneService);
             builder.RegisterInstance(npcDialogRegistry);
-            builder.RegisterInstance(shopRegistry);
             builder.RegisterInstance(serverQuestRegistry);
 
             builder.Register<HealthcheckServer>(Lifetime.Singleton);
@@ -91,7 +86,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             ValidateField(prefabProvider, nameof(prefabProvider));
             ValidateField(worldService, nameof(worldService));
             ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
-            ValidateField(shopRegistry, nameof(shopRegistry));
             ValidateField(serverQuestRegistry, nameof(serverQuestRegistry));
         }
 
