@@ -152,13 +152,13 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             Logging.LogType.Info
         );
         worldSelector.SetSelectedWorldId(worldData.worldId);
-        _ = SetWorldIdForServices(worldData.worldId);
+        SetWorldIdForServices(worldData.worldId);
         SceneManager.LoadScene(worldScene.SceneName);
     }
 
-    private async Task SetWorldIdForServices(string worldId)
+    private void SetWorldIdForServices(string worldId)
     {
-        await itemAssetsService.SetCurrentWorldId(worldId);
+        itemAssetsService.SetCurrentWorldId(worldId);
     }
 
     private void OnBackButtonClicked()

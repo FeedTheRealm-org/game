@@ -107,7 +107,7 @@ namespace API
         /// Initializes the service by setting the current world ID and fetching the global category.
         /// Call this once when the world is loaded to set the category ID for subsequent texture downloads.
         /// </summary>
-        public async System.Threading.Tasks.Task SetCurrentWorldId(string worldId)
+        public void SetCurrentWorldId(string worldId)
         {
             currentWorldId = worldId;
         }
