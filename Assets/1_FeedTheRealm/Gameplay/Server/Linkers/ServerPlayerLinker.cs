@@ -72,7 +72,7 @@ public class ServerPlayerLinker : PlayerLinker
         systems.Health.Initialize(netId, stateStorage, false);
         systems.Use.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
         inventorySystem.Initialize(netId, inventoryStateStorage);
-        goldSystem.Initialize(netId, goldStateStorage);
+        goldSystem.Initialize(netId, goldStateStorage, world);
         persistenceSystem.Initialize(systems.Movement, inventorySystem);
 
         serverPlayerCommandHandler.Initialize(
@@ -81,7 +81,8 @@ public class ServerPlayerLinker : PlayerLinker
             systems.Use,
             interactSystem,
             inventorySystem,
-            questSystem
+            questSystem,
+            goldSystem
         );
 
         respawnSystem.Initialize(

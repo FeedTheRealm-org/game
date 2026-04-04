@@ -121,7 +121,8 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
 
         foreach (var col in hitColliders)
         {
-            IInteractable interactable = col.GetComponent<IInteractable>();
+            IInteractable interactable =
+                col.GetComponent<IInteractable>() ?? col.GetComponentInChildren<IInteractable>();
             if (interactable == null || !interactable.CanInteract(this))
                 continue;
 

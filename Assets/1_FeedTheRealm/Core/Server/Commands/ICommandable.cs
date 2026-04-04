@@ -15,7 +15,7 @@ public interface ICommandable
     void OnDialogNext(IEventCollectable ec);
     void OnEquipItem(IEventCollectable ec, int slotIndex);
     void OnDropItem(IEventCollectable ec, StorageType type, int slotIndex, string itemId);
-    void OnPurchase(IEventCollectable ec, string itemId, int amount);
+    void OnPurchase(IEventCollectable ec, uint netId, string productId, int amount);
     void OnQuestAccepted(IEventCollectable ec, string questId);
     void OnQuestDecided(IEventCollectable ec);
 

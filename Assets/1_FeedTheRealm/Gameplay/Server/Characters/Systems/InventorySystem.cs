@@ -81,6 +81,30 @@ namespace FTR.Gameplay.Server.Characters.Systems
             onComplete(false);
         }
 
+        public void OnPurchase(IEventCollectable ec, string itemId, int amount)
+        {
+            logger.Log(
+                $"Attempting to add purchased item {itemId} x{amount} to inventory for player {netId}",
+                this
+            );
+
+            for (int i = 0; i < inventorySize; i++)
+            {
+                if (string.IsNullOrEmpty(inventorySlots[i]))
+                {
+                    inventorySlots[i] = itemId;
+                    inventoryState.AddItem(StorageType.Inventory, i, itemId);
+                    logger.Log(
+                        $"[InventorySystem] Purchased item {itemId} added to inventory slot {i}",
+                        this
+                    );
+                    return;
+                }
+            }
+
+            logger.Log($"Inventory full, cannot add purchased item {itemId}", this);
+        }
+
         public void OnMoveItem(
             IEventCollectable ec,
             StorageType sourceType,
