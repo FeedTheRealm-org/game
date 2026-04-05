@@ -26,7 +26,7 @@
                 <ui:ProgressBar name="StaminaBar" title="Stamina" value="25" class="stat-bar stamina"/>
                 <ui:VisualElement name="CurrencyContainer" class="currency">
                     <ui:Button name="GoldIcon" class="currency-icon"/>
-                    <ui:Label name="GoldAmount" text="7532" class="currency-amount"/>
+                    <ui:Label name="GoldAmount" text="777" class="currency-amount"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

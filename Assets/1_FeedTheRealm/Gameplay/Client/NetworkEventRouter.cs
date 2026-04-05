@@ -12,7 +12,10 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<DashEventContent> OnDashEvent;
     public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
     public event Action<DialogEventContent> OnDialogEvent;
+    public event Action<OpenShopEventContent> OnOpenShopEvent;
+    public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
     public event Action OnInteractFailedEvent;
+    public event Action OnInteractCompletedEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -60,6 +63,19 @@ public class NetworkEventRouter : MonoBehaviour
             case ServerEventType.InteractFailedEvent:
                 OnInteractFailedEvent?.Invoke();
                 logger.Log($"Routed InteractFailedEvent", this);
+                break;
+            case ServerEventType.OpenShopEvent:
+                OnOpenShopEvent?.Invoke(OpenShopEventContent.Parser.ParseFrom(serverEvent.content));
+                break;
+            case ServerEventType.NotEnoughGoldEvent:
+                OnNotEnoughGoldEvent?.Invoke(
+                    NotEnoughGoldEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log($"Routed NotEnoughGoldEvent", this);
+                break;
+            case ServerEventType.InteractCompletedEvent:
+                OnInteractCompletedEvent?.Invoke();
+                logger.Log($"Routed InteractCompletedEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.Exceptions;
 using FTR.Core.Client.StateMachine;
 using FTR.Core.Common.EventChannels;
@@ -8,15 +9,11 @@ using VContainer;
 
 namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
 {
-    /// <summary>
-    /// Manages the character's state machine, handling transitions based on input and state.
-    /// </summary>
     public class CharacterStateMachine : MonoBehaviour, IStateMachine
     {
         [SerializeField]
         private Logging.Logger logger;
 
-        /* Components */
         [SerializeField]
         private MovementController movementController;
 
@@ -40,13 +37,14 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         [Inject]
         private InteractFailedEvent interactFailedEvent;
 
-        /* States */
+        [Inject]
+        private InteractCompletedEvent interactCompletedEvent;
+
         public readonly Dictionary<System.Type, IMovementState> movementStates =
             new Dictionary<System.Type, IMovementState>();
         public readonly Dictionary<System.Type, IActionState> actionStates =
             new Dictionary<System.Type, IActionState>();
 
-        /* State Layers */
         public IMovementState CurrentMovementState { get; private set; }
         public IActionState CurrentActionState { get; private set; }
 
@@ -58,11 +56,9 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
         private void Awake()
         {
             if (movementController == null || useController == null || characterAnimator == null)
-            {
                 throw new MissingFieldException(
                     "One or more required components are missing in CharacterStateMachine."
                 );
-            }
         }
 
         public void Initialize(InteractController interactController)
@@ -96,6 +92,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
                         npcDialogClosedEvent,
                         showQuestPromptEvent,
                         interactFailedEvent,
+                        interactCompletedEvent,
                         characterAnimator
                     )
                 );
@@ -188,12 +185,6 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
             SetActionState(actionStates[typeof(CharacterUsingState)]);
         }
 
-        /// <summary>
-        /// Always dispatches Interact to the server.
-        /// The server authoritatively decides whether to start, advance, switch, or close the interaction.
-        /// A short cooldown prevents re-opening immediately after closing.
-        /// Blocked while CharacterQuestState is active.
-        /// </summary>
         public void OnInteract()
         {
             if (CurrentActionState is CharacterQuestState)
@@ -202,7 +193,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
             if (isActionBlocked)
                 return;
 
-            if (UnityEngine.Time.time < _interactCooldownUntil)
+            if (Time.time < _interactCooldownUntil)
                 return;
 
             if (CurrentActionState is CharacterInteractingState interactingState)
@@ -216,18 +207,11 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
             }
         }
 
-        /// <summary>
-        /// Called by CharacterInteractingState when the dialog closes,
-        /// to set a cooldown that prevents immediately re-opening it.
-        /// </summary>
         public void OnDialogClosed()
         {
-            _interactCooldownUntil = UnityEngine.Time.time + 0.3f;
+            _interactCooldownUntil = Time.time + 0.3f;
         }
 
-        /// <summary>
-        /// Only forwards DialogNext if currently interacting (kept for external callers).
-        /// </summary>
         public void OnDialogNext()
         {
             if (CurrentActionState is CharacterInteractingState)

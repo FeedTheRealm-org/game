@@ -54,5 +54,6 @@ MonoBehaviour:
   gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
   prefabProvider: {fileID: 11400000, guid: 4ccdd76aef3b99a93afaee9d9606a365, type: 2}
   npcDialogRegistry: {fileID: 11400000, guid: 005987f0302cbcf9094db004ad4ffe04, type: 2}
+  shopRegistry: {fileID: 11400000, guid: 324e0fdc18f7a634291c496f9d95eb30, type: 2}
   worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
   zoneService: {fileID: 11400000, guid: 58aa4added2b6fe5784bb31c528de305, type: 2}

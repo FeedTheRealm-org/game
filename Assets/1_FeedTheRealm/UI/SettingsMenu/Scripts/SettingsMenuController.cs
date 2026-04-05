@@ -181,21 +181,10 @@ public class SettingsMenuController : MonoBehaviour
         logger.Log("Toggle settings", this);
 
         bool willBeActive = !gameObject.activeSelf;
-
-        if (willBeActive)
-        {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
-            logger.Log("Cursor shown (toggle)", this);
-        }
-        else
-        {
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-            UnityEngine.Cursor.visible = false;
-            logger.Log("Cursor hidden (toggle)", this);
-        }
-
         gameObject.SetActive(willBeActive);
+
+        UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = willBeActive;
     }
 
     private void onHomeButtonClicked()

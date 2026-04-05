@@ -53,10 +53,8 @@ namespace FTR.UI.Inventory
                 itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
                     ? itemData.spriteFilePath
                     : itemId;
-            string categoryName =
-                ClientItemsRegistry.GetWeaponById(itemId) != null ? "weapons" : "consumables";
 
-            var texture = await itemAssetsService.DownloadItemSpriteAsync(spriteId, categoryName);
+            var texture = await itemAssetsService.DownloadItemSpriteAsync(spriteId);
 
             string currentMarker = icon.userData as string;
             Debug.Log(

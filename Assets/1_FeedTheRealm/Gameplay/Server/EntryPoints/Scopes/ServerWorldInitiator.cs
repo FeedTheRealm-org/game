@@ -68,6 +68,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ServerPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ServerLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
+            builder.Register<ServerShopLinker>(Lifetime.Singleton).As<ShopLinker>();
 
             builder.Register<GameLoop>(Lifetime.Singleton);
             builder.Register<NetworkService>(Lifetime.Singleton);

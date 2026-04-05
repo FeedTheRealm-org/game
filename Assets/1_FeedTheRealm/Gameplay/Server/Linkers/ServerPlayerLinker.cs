@@ -2,6 +2,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.NetworkEntities.Gold;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
@@ -41,6 +42,7 @@ public class ServerPlayerLinker : PlayerLinker
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var inventoryStateStorage = gameObject.GetComponent<InventoryStateStorage>();
+        var goldStateStorage = gameObject.GetComponent<GoldStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
 
         int connectionId = networkAdapter.connectionToClient.connectionId;
@@ -61,6 +63,7 @@ public class ServerPlayerLinker : PlayerLinker
         var respawnSystem = playerComponents.GetComponent<RespawnSystem>();
         var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
+        var goldSystem = playerComponents.GetComponent<GoldSystem>();
         var interactSystem = playerComponents.GetComponent<PlayerInteractSystem>();
         var questSystem = playerComponents.GetComponent<QuestSystem>();
 
@@ -69,6 +72,7 @@ public class ServerPlayerLinker : PlayerLinker
         systems.Health.Initialize(netId, stateStorage, false);
         systems.Use.Initialize(netId, rb, config.PlayerLayer | config.TargetLayer, stateStorage);
         inventorySystem.Initialize(netId, inventoryStateStorage);
+        goldSystem.Initialize(netId, goldStateStorage, world);
         persistenceSystem.Initialize(systems.Movement, inventorySystem);
 
         serverPlayerCommandHandler.Initialize(
@@ -77,7 +81,8 @@ public class ServerPlayerLinker : PlayerLinker
             systems.Use,
             interactSystem,
             inventorySystem,
-            questSystem
+            questSystem,
+            goldSystem
         );
 
         respawnSystem.Initialize(

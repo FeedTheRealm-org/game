@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API;
 using FTR.Gameplay.Client.EntryPoints;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -24,6 +25,10 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     [SerializeField]
     private WorldSelector worldSelector;
+
+    [SerializeField]
+    private ItemAssetsService itemAssetsService;
+
     public event Action OnNavigateToWorld;
 
     private VisualElement ui;
@@ -147,7 +152,13 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             Logging.LogType.Info
         );
         worldSelector.SetSelectedWorldId(worldData.worldId);
+        SetWorldIdForServices(worldData.worldId);
         SceneManager.LoadScene(worldScene.SceneName);
+    }
+
+    private void SetWorldIdForServices(string worldId)
+    {
+        itemAssetsService.SetCurrentWorldId(worldId);
     }
 
     private void OnBackButtonClicked()

@@ -68,7 +68,22 @@ public static class CommandsFactory
                     return new DropItemCommand(dto.NetId, dto.Id, defaultContent);
                 }
             case TransactionType.Purchase:
-                return new PurchaseCommand(dto.NetId, dto.Id);
+                try
+                {
+                    PurchaseCommandContent content = PurchaseCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new PurchaseCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    PurchaseCommandContent defaultContent = new PurchaseCommandContent
+                    {
+                        ProductId = string.Empty,
+                        Amount = 0,
+                    };
+                    return new PurchaseCommand(dto.NetId, dto.Id, defaultContent);
+                }
             case TransactionType.AcceptQuest:
                 return new AcceptQuestCommand(dto.NetId, dto.Id);
             case TransactionType.RejectQuest:

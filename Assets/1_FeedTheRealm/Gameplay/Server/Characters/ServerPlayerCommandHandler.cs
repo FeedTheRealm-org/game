@@ -1,6 +1,7 @@
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Registry;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
@@ -13,6 +14,7 @@ namespace FTR.Gameplay.Server.Characters
         private PlayerInteractSystem interactSystem;
         private InventorySystem inventorySystem;
         private QuestSystem questSystem;
+        private GoldSystem goldSystem;
 
         public void Initialize(
             MovementSystem movementSystem,
@@ -20,7 +22,8 @@ namespace FTR.Gameplay.Server.Characters
             UseSystem useSystem,
             PlayerInteractSystem interactSystem,
             InventorySystem inventorySystem,
-            QuestSystem questSystem
+            QuestSystem questSystem,
+            GoldSystem goldSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -29,6 +32,7 @@ namespace FTR.Gameplay.Server.Characters
             this.interactSystem = interactSystem;
             this.inventorySystem = inventorySystem;
             this.questSystem = questSystem;
+            this.goldSystem = goldSystem;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -101,6 +105,38 @@ namespace FTR.Gameplay.Server.Characters
         )
         {
             inventorySystem.OnPickUp(ec, itemId, onComplete);
+        }
+
+        public override void OnPurchase(
+            IEventCollectable ec,
+            uint netId,
+            string productId,
+            int amount
+        )
+        {
+            if (amount <= 0)
+            {
+                Debug.LogWarning(
+                    $"[ServerPlayerCommandHandler] Invalid purchase amount {amount} for product {productId}"
+                );
+                return;
+            }
+
+            var product = ServerShopRegistry.GetProductById(productId);
+            if (product == null)
+            {
+                Debug.LogWarning($"[ServerPlayerCommandHandler] Product not found: {productId}");
+                return;
+            }
+
+            if (goldSystem.HasEnoughGold(netId, productId, product.price, amount))
+            {
+                Debug.Log(
+                    $"[ServerPlayerCommandHandler] Processing purchase of {productId} x{amount}"
+                );
+                goldSystem.ReduceGold(ec, product.price * amount);
+                inventorySystem.OnPurchase(ec, productId, amount);
+            }
         }
     }
 }
