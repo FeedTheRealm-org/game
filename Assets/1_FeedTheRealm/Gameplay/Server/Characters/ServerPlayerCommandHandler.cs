@@ -4,6 +4,7 @@ using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Registry;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
@@ -20,6 +21,7 @@ namespace FTR.Gameplay.Server.Characters
         private PlayerService playerService;
         private string serverAccessToken;
         private bool isResolvingCharacterId;
+        private GoldSystem goldSystem;
 
         public void Initialize(
             MovementSystem movementSystem,
@@ -30,7 +32,8 @@ namespace FTR.Gameplay.Server.Characters
             QuestSystem questSystem,
             CharacterStateStorage stateStorage,
             PlayerService playerService,
-            string serverAccessToken
+            string serverAccessToken,
+            GoldSystem goldSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -42,6 +45,7 @@ namespace FTR.Gameplay.Server.Characters
             this.stateStorage = stateStorage;
             this.playerService = playerService;
             this.serverAccessToken = serverAccessToken;
+            this.goldSystem = goldSystem;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -129,8 +133,39 @@ namespace FTR.Gameplay.Server.Characters
                 );
                 return;
             }
-
             _ = ResolveAndSetUserIdFromTokenAsync(tokenId);
+        }
+
+        public override void OnPurchase(
+            IEventCollectable ec,
+            uint netId,
+            string productId,
+            int amount
+        )
+        {
+            if (amount <= 0)
+            {
+                Debug.LogWarning(
+                    $"[ServerPlayerCommandHandler] Invalid purchase amount {amount} for product {productId}"
+                );
+                return;
+            }
+
+            var product = ServerShopRegistry.GetProductById(productId);
+            if (product == null)
+            {
+                Debug.LogWarning($"[ServerPlayerCommandHandler] Product not found: {productId}");
+                return;
+            }
+
+            if (goldSystem.HasEnoughGold(netId, productId, product.price, amount))
+            {
+                Debug.Log(
+                    $"[ServerPlayerCommandHandler] Processing purchase of {productId} x{amount}"
+                );
+                goldSystem.ReduceGold(ec, product.price * amount);
+                inventorySystem.OnPurchase(ec, productId, amount);
+            }
         }
 
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)

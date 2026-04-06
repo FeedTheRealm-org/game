@@ -5,5 +5,5 @@ namespace FTR.Core.Common.Loaders;
 
 public interface ILoader
 {
-    UniTask Load(WorldData worldData);
+    UniTask Load(string world_id, ZoneData zoneData, CreatablesData creatablesData);
 }

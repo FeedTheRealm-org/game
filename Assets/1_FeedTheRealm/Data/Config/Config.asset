@@ -17,8 +17,8 @@ MonoBehaviour:
   ListeningPort: 7777
   HealthcheckPort: 7778
   serverAccessToken: M1Lo6HtJvFIETs2vnJwfUuaAgR4ggxYFnSJIsQTp7mQo68I15N0kTTwPa3ixNMm2IECqUL2FA14ohGgM0zgcL0K6fIwRbL3F84pq
-  CurrentServerAddress: ec2-18-191-166-94.us-east-2.compute.amazonaws.com
+  CurrentServerAddress: localhost
   CurrentServerPort: 7777
   isDebugWorld: 0
   doNotLoadWorld: 0
-  worldID: 
+  worldID: 74cab186-12e8-4288-be75-cf96b0101f40

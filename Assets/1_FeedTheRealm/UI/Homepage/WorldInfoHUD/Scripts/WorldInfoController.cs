@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -22,9 +23,9 @@ public class WorldInfoController : MonoBehaviour
     private Label WorldCreatorLabel;
     private Coroutine sidebarAnimationCoroutine;
     private float sidebarWidthPx = 0f;
-    private FTRShared.Runtime.Models.WorldMetadata pendingWorld;
+    private WorldData pendingWorld;
 
-    public void SetCurrentWorld(FTRShared.Runtime.Models.WorldMetadata world)
+    public void SetCurrentWorld(WorldData world)
     {
         if (world == null)
         {
@@ -48,24 +49,30 @@ public class WorldInfoController : MonoBehaviour
         pendingWorld = null;
     }
 
-    private void ApplyWorldInfo(FTRShared.Runtime.Models.WorldMetadata world)
+    private void ApplyWorldInfo(WorldData world)
     {
-        logger.Log($"Setting current world info: {world.name}", this);
+        logger.Log($"Setting current world info: {world.worldName}", this);
 
-        string worldName = string.IsNullOrWhiteSpace(world.name) ? "Unknown World" : world.name;
+        string worldName = string.IsNullOrWhiteSpace(world.worldName)
+            ? "Unknown World"
+            : world.worldName;
         WorldNameLabel.text = worldName.Split('.')[0];
         WorldDescriptionLabel.text = string.IsNullOrWhiteSpace(world.description)
             ? "No description provided."
             : world.description;
-        WorldCreatedAtLabel.text = $"Created {makeHumanReadableCreatedAt(world.createdAt)}";
 
-        if (string.IsNullOrWhiteSpace(world.userId))
+        string createdAtText = world.created_at == default ? "" : world.created_at.ToString("o");
+        WorldCreatedAtLabel.text = string.IsNullOrWhiteSpace(createdAtText)
+            ? "Created unknown date"
+            : $"Created {makeHumanReadableCreatedAt(createdAtText)}";
+
+        if (string.IsNullOrWhiteSpace(world.created_by))
         {
             WorldCreatorLabel.text = "Created By Unknown User";
             return;
         }
 
-        _ = getUserDisplayName(world.userId);
+        _ = getUserDisplayName(world.created_by);
     }
 
     private bool TryInitializeUiReferences()
@@ -193,15 +200,9 @@ public class WorldInfoController : MonoBehaviour
             int years = (int)(span.TotalDays / 365);
             return $"{years} year{(years == 1 ? "" : "s")} ago";
         }
-        else
-        {
-            logger.Log(
-                $"Failed to parse createdAt date: {createdAt}",
-                this,
-                Logging.LogType.Warning
-            );
-            return createdAt;
-        }
+
+        logger.Log($"Failed to parse createdAt date: {createdAt}", this, Logging.LogType.Warning);
+        return createdAt;
     }
 
     private void OnEnable()
@@ -252,7 +253,7 @@ public class WorldInfoController : MonoBehaviour
             StopCoroutine(sidebarAnimationCoroutine);
         sidebarAnimationCoroutine = StartCoroutine(
             AnimateSidebar(
-                sidebarWidthPx > 0 ? 0f : 0f,
+                0f,
                 -sidebarWidthPx,
                 0.28f,
                 () =>
@@ -293,7 +294,7 @@ public class WorldInfoController : MonoBehaviour
         float fromPx,
         float toPx,
         float duration,
-        System.Action onComplete = null
+        Action onComplete = null
     )
     {
         float elapsed = 0f;

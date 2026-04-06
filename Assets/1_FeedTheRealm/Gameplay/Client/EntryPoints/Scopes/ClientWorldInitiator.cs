@@ -48,6 +48,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private WorldService worldService;
 
         [SerializeField]
+        private ZoneService zoneService;
+
+        [SerializeField]
         private NpcDialogRegistry npcDialogRegistry;
 
         [SerializeField]
@@ -79,6 +82,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(logger);
             builder.RegisterInstance(worldSelector);
             builder.RegisterInstance(worldService);
+            builder.RegisterInstance(zoneService);
             builder.RegisterInstance(config);
             builder.RegisterInstance(session);
             builder.RegisterInstance(npcDialogRegistry);
@@ -94,6 +98,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
+            builder.Register<ClientShopLinker>(Lifetime.Singleton).As<ShopLinker>();
 
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
         }

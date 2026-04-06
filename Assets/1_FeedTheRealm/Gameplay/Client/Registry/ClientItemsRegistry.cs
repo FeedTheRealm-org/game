@@ -11,7 +11,7 @@ namespace FTR.Gameplay.Client.Registry
     /// </summary>
     public static class ClientItemsRegistry
     {
-        public static WorldData CurrentWorldData { get; private set; }
+        public static CreatablesData CurrentWorldData { get; private set; }
 
         private static readonly Dictionary<string, ItemData> itemsById =
             new Dictionary<string, ItemData>();
@@ -19,7 +19,7 @@ namespace FTR.Gameplay.Client.Registry
             new Dictionary<string, EnemyData>();
         private static readonly HashSet<string> worldItemIds = new HashSet<string>();
 
-        public static void RegisterWorldData(WorldData data)
+        public static void RegisterWorldData(CreatablesData data)
         {
             CurrentWorldData = data;
 
@@ -73,7 +73,7 @@ namespace FTR.Gameplay.Client.Registry
             }
 
             Debug.Log(
-                $"[ClientItemsRegistry] Registered {registeredItems} items and {enemiesById.Count} enemies visuals for world '{data.worldName}'."
+                $"[ClientItemsRegistry] Registered {registeredItems} items and {enemiesById.Count} enemies visuals for world."
             );
         }
 

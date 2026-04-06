@@ -23,6 +23,7 @@ namespace FTR.Gameplay.Common.Environment.Structures
             var boxCollider = gameObject.AddComponent<BoxCollider>();
             boxCollider.size = structureData.colliderSize;
             boxCollider.center = structureData.colliderCenter;
+            boxCollider.includeLayers = LayerMask.GetMask("Player");
         }
 
         public void SetupMesh(GameObject visualPrefab)
@@ -35,6 +36,9 @@ namespace FTR.Gameplay.Common.Environment.Structures
 
         private void OnDrawGizmos()
         {
+            if (structureData == null)
+                return;
+
             Gizmos.color = Color.silver;
             Matrix4x4 rotationMatrix = Matrix4x4.TRS(
                 transform.position,

@@ -1,0 +1,10 @@
+.tittle {
+    font-size: 52px;
+    color: rgb(255, 220, 100);
+    -unity-font-style: bold;
+}
+
+.fields {
+    font-size: 48px;
+    color: rgb(220, 220, 220);
+}

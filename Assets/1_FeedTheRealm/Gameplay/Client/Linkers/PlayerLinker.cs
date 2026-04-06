@@ -7,6 +7,7 @@ using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Common.NetworkEntities.Gold;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;
@@ -73,7 +74,6 @@ public class ClientPlayerLinker : PlayerLinker
             };
             networkAdapter.DispatchTransaction(setUserIdTransaction);
 
-            // var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             /* -- Instantiate and inject UI components -- */
@@ -108,16 +108,28 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.InjectGameObject(inventoryHudComponent);
             inventoryHudComponent.SetActive(true);
 
+            prefabProvider.ShopMenuComponent.SetActive(false);
+            var shopMenuComponent = Object.Instantiate(
+                prefabProvider.ShopMenuComponent,
+                gameObject.transform
+            );
+            resolver.InjectGameObject(shopMenuComponent);
+            shopMenuComponent.SetActive(true);
+
             /* -- Instantiate and initialize controllers and views -- */
 
             var playerController = gameObject.AddComponent<PlayerController>();
 
             var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
+            var goldState = gameObject.GetComponent<GoldStateStorage>();
             var inventoryController = playerComponents.AddComponent<InventoryController>();
             var inventoryView = playerComponents.AddComponent<InventoryView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
+
+            var goldController = playerComponents.AddComponent<GoldController>();
+            var goldView = playerComponents.AddComponent<GoldView>();
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);
@@ -126,8 +138,13 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);
 
+            resolver.Inject(goldView);
+            resolver.Inject(goldController);
+
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
+            goldView?.Initialize(goldState, networkEventRouter);
+            goldController?.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);
             questView?.Initialize(networkAdapter);
             characterStateMachine?.Initialize(interactController);

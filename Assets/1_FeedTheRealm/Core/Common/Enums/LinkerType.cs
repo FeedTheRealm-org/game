@@ -9,4 +9,7 @@ public enum LinkerType
 
     // Loot
     LootItem,
+
+    // Shop
+    Shop,
 }

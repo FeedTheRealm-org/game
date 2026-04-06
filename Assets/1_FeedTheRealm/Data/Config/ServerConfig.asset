@@ -37,6 +37,7 @@ MonoBehaviour:
   groundCheckSphereRadius: 0.4
   fastSlotSize: 5
   inventorySize: 20
+  startingGold: 777
   WanderRadius: 10
   MinWaitTime: 2
   MaxWaitTime: 5

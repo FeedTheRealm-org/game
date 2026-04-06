@@ -1,3 +1,4 @@
+using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.StateMachine;
 using FTR.Core.Common.EventChannels;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
@@ -17,6 +18,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
         private NpcDialogClosedEvent npcDialogClosedEvent;
         private ShowQuestPromptEvent showQuestPromptEvent;
         private InteractFailedEvent interactFailedEvent;
+        private InteractCompletedEvent interactCompletedEvent;
         private CharacterAnimator animator;
 
         public CharacterInteractingState(
@@ -25,6 +27,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             NpcDialogClosedEvent npcDialogClosedEvent,
             ShowQuestPromptEvent showQuestPromptEvent,
             InteractFailedEvent interactFailedEvent,
+            InteractCompletedEvent interactCompletedEvent,
             CharacterAnimator animator
         )
         {
@@ -33,6 +36,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             this.npcDialogClosedEvent = npcDialogClosedEvent;
             this.showQuestPromptEvent = showQuestPromptEvent;
             this.interactFailedEvent = interactFailedEvent;
+            this.interactCompletedEvent = interactCompletedEvent;
             this.animator = animator;
         }
 
@@ -40,6 +44,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
         {
             npcDialogClosedEvent.OnRaised += OnDialogClosed;
             interactFailedEvent.OnRaised += OnInteractFailed;
+            interactCompletedEvent.OnRaised += OnInteractCompleted;
 
             if (showQuestPromptEvent != null)
                 showQuestPromptEvent.OnRaised += OnShowQuestPrompt;
@@ -49,21 +54,23 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
         {
             npcDialogClosedEvent.OnRaised -= OnDialogClosed;
             interactFailedEvent.OnRaised -= OnInteractFailed;
+            interactCompletedEvent.OnRaised -= OnInteractCompleted;
 
             if (showQuestPromptEvent != null)
                 showQuestPromptEvent.OnRaised -= OnShowQuestPrompt;
         }
 
-        /// <summary>
-        /// Dispatches ContinueInteraction so the server advances or closes whatever
-        /// interactable is currently active.
-        /// </summary>
         public void OnInteractWhileActive()
         {
             interactController.OnDialogNext();
         }
 
         private void OnInteractFailed()
+        {
+            stateMachine.SetActionState(null);
+        }
+
+        private void OnInteractCompleted()
         {
             stateMachine.SetActionState(null);
         }
@@ -89,6 +96,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             npcDialogClosedEvent = null;
             showQuestPromptEvent = null;
             interactFailedEvent = null;
+            interactCompletedEvent = null;
             animator = null;
         }
     }

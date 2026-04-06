@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using API;
 using FTR.Gameplay.Client.EntryPoints;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -10,9 +11,6 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(UIDocument))]
 public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 {
-    //[SerializeField]
-    //private Worlds.WorldHandler worldHandler;
-
     [SerializeField]
     private Logging.Logger logger;
 
@@ -29,13 +27,13 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private SceneReference worldScene;
 
     [SerializeField]
-    private GameObject worldInfoHUD;
-
-    [SerializeField]
     private WorldSelector worldSelector;
 
     [SerializeField]
-    private API.ItemAssetsService itemAssetsService;
+    private ItemAssetsService itemAssetsService;
+
+    [SerializeField]
+    private GameObject worldInfoHUD;
 
     public event Action OnNavigateToWorld;
 
@@ -43,175 +41,175 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private TextField searchField;
     private Button backButton;
     private Button forwardButton;
+    private ScrollView listOfWorlds;
+
     private int currentOffset = 0;
     private int maxPageOffset = int.MaxValue;
     private const int PAGE_SIZE = 20;
-
-    //private readonly List<Worlds.Category> allCategories = new List<Worlds.Category>();
-    private List<FTRShared.Runtime.Models.WorldMetadata> currentWorlds =
-        new List<FTRShared.Runtime.Models.WorldMetadata>();
 
     private void Awake()
     {
         ui = GetComponent<UIDocument>().rootVisualElement;
 
         searchField = ui.Q<TextField>("SearchField");
-        if (searchField != null)
-        {
-            searchField.RegisterValueChangedCallback(evt =>
-            {
-                currentOffset = 0;
-                maxPageOffset = int.MaxValue;
-                RenderWorldPage(currentOffset, evt.newValue);
-            });
-        }
-        else
-        {
-            logger.Log("SearchField not found in UI", this, Logging.LogType.Warning);
-        }
-
         backButton = ui.Q<Button>("BackButton");
-        if (backButton != null)
-        {
-            backButton.clicked += OnBackButtonClicked;
-        }
-
         forwardButton = ui.Q<Button>("ForwardButton");
+        listOfWorlds = ui.Q<ScrollView>("ListOfWorlds");
+
+        searchField?.RegisterValueChangedCallback(evt =>
+        {
+            currentOffset = 0;
+            maxPageOffset = int.MaxValue;
+            _ = RenderWorldPage(currentOffset, evt.newValue);
+        });
+
+        if (backButton != null)
+            backButton.clicked += OnBackButtonClicked;
         if (forwardButton != null)
-        {
             forwardButton.clicked += OnForwardButtonClicked;
-        }
     }
 
-    private void RenderWorldPage(int offset, string filter = null)
+    private async void OnEnable()
     {
-        //worldHandler.Clear();
-
-        StartCoroutine(
-            worldService.GetWorldPage(
-                offset,
-                PAGE_SIZE,
-                filter,
-                session.APIToken,
-                (amount, worlds, error) =>
-                {
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        logger.Log($"Error fetching worlds: {error}", this, Logging.LogType.Error);
-                        return;
-                    }
-
-                    if (worlds == null || worlds.Count == 0)
-                    {
-                        logger.Log("No worlds received from server", this, Logging.LogType.Warning);
-                        //worldHandler.Clear();
-
-                        if (offset > 0)
-                        {
-                            maxPageOffset = offset - PAGE_SIZE;
-                            currentOffset = maxPageOffset;
-                            RenderWorldPage(currentOffset, filter);
-                        }
-                        else
-                        {
-                            maxPageOffset = 0;
-                            CreateCategories();
-                        }
-                        return;
-                    }
-
-                    if (worlds.Count < PAGE_SIZE)
-                    {
-                        maxPageOffset = offset;
-                    }
-
-                    currentWorlds.Clear();
-                    foreach (var world in worlds)
-                    {
-                        currentWorlds.Add(world);
-
-                        //logger.Log($"Fetched world: {world.name} (ID: {world.id})",
-                        // worldHandler.addWorldToCategory(
-                        //     Worlds.WorldHandler.NULL_CATEGORY_NAME,
-                        //     world
-                        // );
-                    }
-
-                    logger.Log($"Fetched and categorized {worlds.Count} worlds.", this);
-                    CreateCategories();
-                }
-            )
-        );
-    }
-
-    private void OnEnable()
-    {
-        // worldHandler.createACategory(Worlds.WorldHandler.NULL_CATEGORY_NAME);
-        logger.Log("Worlds OnEnable called, fetching worlds...", this);
         worldSelector?.ClearSelectedWorldJoinToken();
-        RenderWorldPage(currentOffset);
+        await RenderWorldPage(currentOffset, searchField?.value);
     }
 
-    private void OnBackButtonClicked()
+    private async Task RenderWorldPage(int offset, string filter = null)
     {
-        if (currentOffset >= PAGE_SIZE)
+        var (amount, worlds, error) = await worldService.GetWorldPage(
+            offset,
+            PAGE_SIZE,
+            filter,
+            session.APIToken
+        );
+
+        if (!string.IsNullOrEmpty(error))
         {
-            currentOffset -= PAGE_SIZE;
-            logger.Log($"Navigating to previous page, offset: {currentOffset}", this);
-            RenderWorldPage(currentOffset, searchField?.value);
+            logger.Log($"[WorldFeed] Error fetching worlds: {error}", this, Logging.LogType.Error);
+            return;
         }
-        else
+
+        if (worlds == null || worlds.Count == 0)
         {
-            logger.Log("Already at the first page, cannot go back.", this, Logging.LogType.Warning);
+            if (offset > 0)
+            {
+                maxPageOffset = offset - PAGE_SIZE;
+                currentOffset = maxPageOffset;
+                await RenderWorldPage(currentOffset, filter);
+            }
+            else
+            {
+                maxPageOffset = 0;
+                RenderWorlds(new List<WorldData>());
+            }
+
+            return;
         }
+
+        currentOffset = offset;
+
+        if (worlds.Count < PAGE_SIZE)
+            maxPageOffset = offset;
+
+        RenderWorlds(worlds);
     }
 
-    private void OnForwardButtonClicked()
+    private void RenderWorlds(List<WorldData> worlds)
     {
-        if (currentOffset < maxPageOffset)
-        {
-            currentOffset += PAGE_SIZE;
-            logger.Log($"Navigating to next page, offset: {currentOffset}", this);
-            RenderWorldPage(currentOffset, searchField?.value);
-        }
-        else
+        if (listOfWorlds == null)
         {
             logger.Log(
-                "Already at the last page, cannot go forward.",
+                "[WorldFeed] ListOfWorlds UI element not found.",
                 this,
-                Logging.LogType.Warning
+                Logging.LogType.Error
             );
+            return;
         }
+
+        listOfWorlds.Clear();
+
+        if (worlds.Count == 0)
+        {
+            var noResults = new Label("No worlds found");
+            noResults.AddToClassList("noResultsMessage");
+            listOfWorlds.Add(noResults);
+            SetPaginationVisible(false);
+            return;
+        }
+
+        foreach (var world in worlds)
+        {
+            var element = CreateWorldElement(world);
+            if (element != null)
+                listOfWorlds.Add(element);
+        }
+
+        bool showPagination = worlds.Count >= PAGE_SIZE || currentOffset > 0;
+        SetPaginationVisible(showPagination);
     }
 
-    private async Task OnWorldSelected(FTRShared.Runtime.Models.WorldMetadata metadata)
+    private VisualElement CreateWorldElement(WorldData worldData)
     {
+        if (worldData == null || string.IsNullOrWhiteSpace(worldData.worldName))
+            return null;
+
+        var element = new VisualElement();
+        element.AddToClassList("worldElement");
+        element.name = "WorldElement";
+
+        var label = new Label(worldData.worldName.Split('.')[0]);
+        label.AddToClassList("worldName");
+        label.name = "WorldName";
+
+        var aboutButton = new Button();
+        aboutButton.AddToClassList("aboutButton");
+        aboutButton.name = "AboutButton";
+        aboutButton.text = "i";
+        aboutButton.clicked += () => OnClickAboutWorld(worldData);
+        aboutButton.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
+
+        element.Add(label);
+        element.Add(aboutButton);
+        element.AddManipulator(new Clickable(() => _ = OnWorldSelected(worldData)));
+
+        return element;
+    }
+
+    private async Task OnWorldSelected(WorldData worldData)
+    {
+        if (worldData == null || string.IsNullOrWhiteSpace(worldData.worldId))
+        {
+            logger.Log("[WorldFeed] Selected world is invalid.", this, Logging.LogType.Warning);
+            return;
+        }
+
+        logger.Log(
+            $"[WorldFeed] Selected world: {worldData.worldName}",
+            this,
+            Logging.LogType.Info
+        );
+
         try
         {
-            var (worldData, error, code) = await worldService.GetWorldData(
-                metadata.id,
-                session.APIToken
-            );
-            if (!string.IsNullOrEmpty(error) || worldData == null)
+            worldSelector?.SetSelectedWorldId(worldData.worldId);
+            SetWorldIdForServices(worldData.worldId);
+
+            if (playerService == null)
             {
                 logger.Log(
-                    $"Error loading world data: {error} (code: {code})",
+                    "[WorldFeed] PlayerService is not assigned; cannot issue world join token.",
                     this,
                     Logging.LogType.Error
                 );
                 return;
             }
 
-            if (worldSelector != null)
-            {
-                worldSelector.SetSelectedWorldId(worldData.id);
-            }
-
-            var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(worldData.id);
+            var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(worldData.worldId);
             if (worldJoinToken == null || string.IsNullOrWhiteSpace(worldJoinToken.token_id))
             {
                 logger.Log(
-                    "Failed to issue world join token; aborting world join.",
+                    "[WorldFeed] Failed to issue world join token; aborting world join.",
                     this,
                     Logging.LogType.Error
                 );
@@ -220,11 +218,6 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
             worldSelector?.SetSelectedWorldJoinToken(worldJoinToken.token_id);
 
-            if (itemAssetsService != null)
-            {
-                await itemAssetsService.InitializeCategoryForWorldAsync(worldData.id);
-            }
-
             if (OnNavigateToWorld != null)
                 OnNavigateToWorld.Invoke();
             else
@@ -232,84 +225,33 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         }
         catch (Exception ex)
         {
-            logger.Log($"Exception in OnWorldSelected: {ex.Message}", this, Logging.LogType.Error);
+            logger.Log(
+                $"[WorldFeed] Exception selecting world: {ex.Message}",
+                this,
+                Logging.LogType.Error
+            );
         }
     }
 
-    private void CreateCategories()
+    private void SetWorldIdForServices(string worldId)
     {
-        //allCategories.Clear();
-
-        // if (worldHandler == null)
-        // {
-        //     logger.Log(
-        //         "listOfWorlds is null - cannot load categories",
-        //         this,
-        //         Logging.LogType.Error
-        //     );
-        //     RenderCategories();
-        //     return;
-        // }
-
-        //List<Worlds.Category> categories = worldHandler.GetCategoryObjects();
-        // if (categories == null || categories.Count == 0)
-        // {
-        //     logger.Log("No categories found in listOfWorlds", this, Logging.LogType.Warning);
-        //     RenderCategories();
-        //     return;
-        // }
-
-        //llCategories.AddRange(categories);
-        // logger.Log(
-        //     $"Loaded {allCategories.Count} categories with {allCategories.Sum(c => c.worlds?.Count ?? 0)} total worlds",
-        //     this
-        // );
-
-        RenderCategories();
+        itemAssetsService?.SetCurrentWorldId(worldId);
     }
 
-    private VisualElement CreateWorldElement(FTRShared.Runtime.Models.WorldMetadata worldData)
+    private void OnClickAboutWorld(WorldData world)
     {
-        if (worldData == null || string.IsNullOrEmpty(worldData.name))
-            return null;
+        if (world == null)
+            return;
 
-        var worldElement = new VisualElement();
-        worldElement.AddToClassList("worldElement");
-        worldElement.name = "WorldElement";
-
-        var worldLabel = new Label(worldData.name.Split('.')[0]);
-        worldLabel.AddToClassList("worldName");
-        worldLabel.name = "WorldName";
-
-        var worldAboutButton = new Button();
-        worldAboutButton.AddToClassList("aboutButton");
-        worldAboutButton.name = "AboutButton";
-        worldAboutButton.text = "i";
-        worldAboutButton.clicked += () =>
-        {
-            onClickAboutWorld(worldData);
-        };
-
-        worldElement.Add(worldLabel);
-        worldElement.Add(worldAboutButton);
-
-        worldElement.AddManipulator(
-            new Clickable(async () =>
-            {
-                await OnWorldSelected(worldData);
-            })
-        );
-
-        return worldElement;
-    }
-
-    private void onClickAboutWorld(FTRShared.Runtime.Models.WorldMetadata world)
-    {
-        logger.Log($"About world clicked: {world.name}", this);
+        logger.Log($"[WorldFeed] About clicked for world: {world.worldName}", this);
 
         if (worldInfoHUD == null)
         {
-            logger.Log("WorldInfoHUD reference is not assigned.", this, Logging.LogType.Error);
+            logger.Log(
+                "[WorldFeed] WorldInfoHUD reference is not assigned.",
+                this,
+                Logging.LogType.Warning
+            );
             return;
         }
 
@@ -317,7 +259,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         if (worldInfoController == null)
         {
             logger.Log(
-                "WorldInfoController component not found on WorldInfoHUD.",
+                "[WorldFeed] WorldInfoController component not found on WorldInfoHUD.",
                 this,
                 Logging.LogType.Error
             );
@@ -328,84 +270,36 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         worldInfoController.SetCurrentWorld(world);
     }
 
-    private void RenderCategories()
+    private void OnBackButtonClicked()
     {
-        var rootContainer = ui.Q<VisualElement>("ListOfWorlds") ?? ui;
-        rootContainer.Clear();
-
-        int totalCategories = 0;
-        int totalWorlds = currentWorlds.Count;
-
-        // foreach (var category in allCategories)
-        // {
-        //     if (category == null || category.worlds == null || category.worlds.Count == 0)
-        //         continue;
-
-        //     totalCategories++;
-        //     totalWorlds += category.worlds.Count;
-        //     rootContainer.Add(CreateCategoryContainer(category, category.worlds));
-        // }
-
-        rootContainer.Add(CreateCategoryContainer(currentWorlds));
-
-        if (totalWorlds == 0)
+        if (currentOffset < PAGE_SIZE)
         {
-            rootContainer.Add(CreateNoResultsMessage());
-            logger.Log("No worlds to display", this, Logging.LogType.Warning);
-            if (backButton != null)
-                backButton.style.display = DisplayStyle.None;
-            if (forwardButton != null)
-                forwardButton.style.display = DisplayStyle.None;
+            logger.Log("[WorldFeed] Already on first page.", this, Logging.LogType.Warning);
+            return;
         }
-        else if (totalWorlds < PAGE_SIZE && currentOffset == 0)
-        {
-            logger.Log(
-                $"Rendered {totalCategories} categories with {totalWorlds} worlds (less than page size, hiding pagination)",
-                this
-            );
-            if (backButton != null)
-                backButton.style.display = DisplayStyle.None;
-            if (forwardButton != null)
-                forwardButton.style.display = DisplayStyle.None;
-        }
-        else
-        {
-            logger.Log($"Rendered {totalCategories} categories with {totalWorlds} worlds", this);
-            if (backButton != null)
-                backButton.style.display = DisplayStyle.Flex;
-            if (forwardButton != null)
-                forwardButton.style.display = DisplayStyle.Flex;
-        }
+
+        currentOffset -= PAGE_SIZE;
+        _ = RenderWorldPage(currentOffset, searchField?.value);
     }
 
-    private Label CreateNoResultsMessage()
+    private void OnForwardButtonClicked()
     {
-        var noResultsLabel = new Label("No worlds found");
-        noResultsLabel.AddToClassList("noResultsMessage");
-        return noResultsLabel;
-    }
-
-    private VisualElement CreateCategoryContainer(
-        //Worlds.Category category,
-        List<FTRShared.Runtime.Models.WorldMetadata> worlds
-    )
-    {
-        var categoryContainer = new VisualElement();
-        categoryContainer.AddToClassList("categoryList");
-
-        //var nameLabel = new Label(category.name);
-        //nameLabel.AddToClassList("categoryName");
-        //categoryContainer.Add(nameLabel);
-
-        foreach (var world in worlds)
+        if (currentOffset >= maxPageOffset)
         {
-            var worldElement = CreateWorldElement(world);
-            if (worldElement != null)
-            {
-                categoryContainer.Add(worldElement);
-            }
+            logger.Log("[WorldFeed] Already on last page.", this, Logging.LogType.Warning);
+            return;
         }
 
-        return categoryContainer;
+        currentOffset += PAGE_SIZE;
+        _ = RenderWorldPage(currentOffset, searchField?.value);
+    }
+
+    private void SetPaginationVisible(bool visible)
+    {
+        var display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        if (backButton != null)
+            backButton.style.display = display;
+        if (forwardButton != null)
+            forwardButton.style.display = display;
     }
 }

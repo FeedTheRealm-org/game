@@ -70,6 +70,11 @@ namespace FTR.Core.Server.Config
         private int inventorySize = 20;
         public int InventorySize => inventorySize;
 
+        [Header("Gold")]
+        [SerializeField]
+        private int startingGold = 100;
+        public int StartingGold => startingGold;
+
         [Header("NPC AI")]
         public float WanderRadius = 10f;
         public float MinWaitTime = 2f;

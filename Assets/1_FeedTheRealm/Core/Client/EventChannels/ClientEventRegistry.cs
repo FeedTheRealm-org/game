@@ -1,4 +1,7 @@
 using FeedTheRealm.Core.EventChannels.Setup;
+using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.EventChannels.Shop;
@@ -19,6 +22,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
         [Header("Shop Events")]
         public ShopInteractedEvent shopInteractedEvent;
         public ShopOnCloseEvent shopOnCloseEvent;
+        public OpenShopEvent openShopEvent;
+        public PurchaseRequestEvent purchaseRequestEvent;
 
         [Header("Status Events")]
         public HealthChangedEvent healthChangedEvent;
@@ -36,6 +41,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Interact Events")]
         public InteractFailedEvent interactFailedEvent;
+        public InteractCompletedEvent interactCompletedEvent;
 
         [Header("NPC Events")]
         public NpcInteractedEvent npcInteractedEvent;
@@ -51,6 +57,10 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public TickEvent tickEvent;
         public FixedTickEvent fixedTickEvent;
         public LateTickEvent lateTickEvent;
+
+        [Header("Gold Events")]
+        public GoldChangedEvent goldChangedEvent;
+        public NotEnoughGoldEvent notEnoughGoldEvent;
 
         public void RegisterAll(IContainerBuilder builder)
         {
@@ -71,14 +81,19 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(tickEvent);
             builder.RegisterInstance(fixedTickEvent);
             builder.RegisterInstance(lateTickEvent);
-            builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(npcDialogClosedEvent);
             builder.RegisterInstance(npcQuestOfferedEvent);
             builder.RegisterInstance(showQuestPromptEvent);
             builder.RegisterInstance(questDecisionEvent);
             builder.RegisterInstance(questCompletedEvent);
+            builder.RegisterInstance(worldSetupEvent);
+            builder.RegisterInstance(goldChangedEvent);
+            builder.RegisterInstance(openShopEvent);
+            builder.RegisterInstance(purchaseRequestEvent);
             builder.RegisterInstance(interactFailedEvent);
+            builder.RegisterInstance(interactCompletedEvent);
+            builder.RegisterInstance(notEnoughGoldEvent);
         }
 
         private void Validate()
@@ -99,13 +114,18 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(fixedTickEvent, nameof(fixedTickEvent));
             ValidateField(lateTickEvent, nameof(lateTickEvent));
             ValidateField(npcDialogClosedEvent, nameof(npcDialogClosedEvent));
-            ValidateField(worldSetupEvent, nameof(worldSetupEvent));
-            ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
             ValidateField(npcQuestOfferedEvent, nameof(npcQuestOfferedEvent));
             ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
+            ValidateField(worldSetupEvent, nameof(worldSetupEvent));
+            ValidateField(goldChangedEvent, nameof(goldChangedEvent));
+            ValidateField(openShopEvent, nameof(openShopEvent));
+            ValidateField(purchaseRequestEvent, nameof(purchaseRequestEvent));
+            ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
+            ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
+            ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

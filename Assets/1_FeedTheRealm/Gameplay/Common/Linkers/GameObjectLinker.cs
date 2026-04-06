@@ -18,6 +18,9 @@ namespace FTR.Gameplay.Common.Linkers
         [Inject]
         private LootItemLinker lootItemLinker;
 
+        [Inject]
+        private ShopLinker shopLinker;
+
         [SerializeField]
         private LinkerType linkerType;
 
@@ -36,6 +39,9 @@ namespace FTR.Gameplay.Common.Linkers
                     break;
                 case LinkerType.LootItem:
                     lootItemLinker.Link(gameObject);
+                    break;
+                case LinkerType.Shop:
+                    shopLinker.Link(gameObject);
                     break;
                 default:
                     throw new System.ArgumentException($"Unsupported LinkerType: {linkerType}");

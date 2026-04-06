@@ -44,6 +44,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         [SerializeField]
         private PlayerService playerService;
 
+        [SerializeField]
+        private ZoneService zoneService;
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Server)
@@ -57,6 +60,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(playerService);
+            builder.RegisterInstance(zoneService);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
 
@@ -68,6 +72,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ServerPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ServerLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
+            builder.Register<ServerShopLinker>(Lifetime.Singleton).As<ShopLinker>();
 
             builder.Register<GameLoop>(Lifetime.Singleton);
             builder.Register<NetworkService>(Lifetime.Singleton);
