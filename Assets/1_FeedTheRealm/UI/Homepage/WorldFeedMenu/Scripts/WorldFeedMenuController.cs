@@ -188,24 +188,26 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     {
         try
         {
-            if (metadata == null || string.IsNullOrWhiteSpace(metadata.id))
+            var (worldData, error, code) = await worldService.GetWorldData(
+                metadata.id,
+                session.APIToken
+            );
+            if (!string.IsNullOrEmpty(error) || worldData == null)
             {
                 logger.Log(
-                    "Cannot select world: metadata is missing or world ID is empty.",
+                    $"Error loading world data: {error} (code: {code})",
                     this,
                     Logging.LogType.Error
                 );
                 return;
             }
 
-            var selectedWorldId = metadata.id;
-
             if (worldSelector != null)
             {
-                worldSelector.SetSelectedWorldId(selectedWorldId);
+                worldSelector.SetSelectedWorldId(worldData.id);
             }
 
-            var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(selectedWorldId);
+            var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(worldData.id);
             if (worldJoinToken == null || string.IsNullOrWhiteSpace(worldJoinToken.token_id))
             {
                 logger.Log(
@@ -220,7 +222,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
             if (itemAssetsService != null)
             {
-                await itemAssetsService.InitializeCategoryForWorldAsync(selectedWorldId);
+                await itemAssetsService.InitializeCategoryForWorldAsync(worldData.id);
             }
 
             if (OnNavigateToWorld != null)
