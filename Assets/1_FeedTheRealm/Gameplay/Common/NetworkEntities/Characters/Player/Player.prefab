@@ -14,10 +14,13 @@ GameObject:
   - component: {fileID: 4885086532300312383}
   - component: {fileID: 3095535743837438187}
   - component: {fileID: 614184209223244181}
-  - component: {fileID: -4644941045307041541}
   - component: {fileID: 6115904368319544611}
   - component: {fileID: -3193778337751549948}
+  - component: {fileID: 5760659891015972678}
+  - component: {fileID: 7477461968242626205}
   - component: {fileID: 5320877551239362344}
+  - component: {fileID: 6489399200151354170}
+  - component: {fileID: 6809830748454114207}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -136,7 +139,7 @@ Rigidbody:
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -164,19 +167,6 @@ MonoBehaviour:
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
---- !u!114 &-4644941045307041541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bfa26a00c7ed603cb6a5f53215eec07, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Characters.CharacterInitializer
-  initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
 --- !u!114 &6115904368319544611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,6 +198,36 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+--- !u!114 &5760659891015972678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d278e53f076907ffaa80f9c8a85b8b6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.LootItem.InventoryStateStorage
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &7477461968242626205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb3b0191229ed6548928402999dbe96f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Gold.GoldStateStorage
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
 --- !u!114 &5320877551239362344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223,4 +243,31 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
+--- !u!114 &6489399200151354170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42867e44e2ee014f1adb2b825f3bcd91, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.ServerCharacterNetworkInitializer
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &6809830748454114207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76981e5a927d4ee3ea4df54936378c64, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
+  linkerType: 0

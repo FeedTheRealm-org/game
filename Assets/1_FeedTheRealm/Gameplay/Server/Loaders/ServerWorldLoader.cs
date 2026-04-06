@@ -1,57 +1,57 @@
-using API;
-using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using FTR.Core.Common.Loaders;
-using FTRShared.Runtime.Models;
+using FTR.Core.Server;
+using FTR.Core.Server.Utils;
+using FTR.Gameplay.Common.LoaderEntities;
+using FTR.Gameplay.Server.Loaders;
+using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
-public class ServerWorldLoader : ILoader
+namespace FTR.Gameplay.Server.Scopes
 {
-    private string worldId;
-
-    private WorldService worldService;
-
-    private string accessToken;
-
-    private Logging.Logger logger;
-
-    // private ILoader serverStructureLoader = new();
-
-    public async UniTask<WorldData> Load()
+    public class ServerWorldLoader : ZoneLoaderManager
     {
-        // worldId = ParamsSerializer.GetArgs("worldId");
-        // accessToken = ParamsSerializer.GetArgs("accessToken");
-
-        logger.Log($"[SERVER] Server Loading World ID: {worldId}");
-
-        WorldData worldData = await LoadWorldData(worldId, accessToken);
-        if (worldData == null)
+        public ServerWorldLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
         {
-            logger.Log(
-                $"Failed to load world data for world ID: {worldId}. Aborting server loading.",
-                Logging.LogType.Error
+            var structureLoader = new ServerStructureLoader(prefabProvider);
+            var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
+            var aggressiveNpcSpawnerLoader = new AggressiveNpcSpawnerLoader(
+                prefabProvider,
+                resolver
             );
-            return null;
-        }
-        // foreach (GameObject loaderObject in serverLoaders)
-        // {
-        //     await loader.LoadServer(worldData, accessToken);
-        // }
-        return worldData;
-    }
+            var playerSpawnerLoader = new PlayerSpawnerLoader();
+            var serverItemLoader = new ServerItemLoader();
 
-    private async UniTask<WorldData> LoadWorldData(string worldId, string accessToken)
-    {
-        (WorldData data, string errorMessage, long responseCode) = await worldService.GetWorldData(
-            worldId,
-            accessToken
-        );
-        if (data == null || !string.IsNullOrEmpty(errorMessage))
-        {
-            logger.Log(
-                $"Failed to load world '{worldId}': {errorMessage}, Code: {responseCode}",
-                Logging.LogType.Error
-            );
-            return null;
+            loaders = new List<ILoader>
+            {
+                structureLoader,
+                friendlyNpcSpawnerLoader,
+                aggressiveNpcSpawnerLoader,
+                playerSpawnerLoader,
+                serverItemLoader,
+            };
+
+            foreach (var loader in loaders)
+            {
+                resolver.Inject(loader);
+            }
         }
-        return data;
+
+        public override string GetWorldId()
+        {
+            if (config.IsDebugWorld)
+                return ParamsSerializer.GetArgs("world-id", config.WorldID);
+            return ParamsSerializer.GetArgs("world-id", null);
+        }
+
+        public override string GetAccessToken()
+        {
+            if (string.IsNullOrEmpty(config.ServerAccessToken))
+                throw new System.InvalidOperationException(
+                    "Access token is required to load the world. Please provide it in the config or as a command line argument."
+                );
+            return config.ServerAccessToken;
+        }
     }
 }

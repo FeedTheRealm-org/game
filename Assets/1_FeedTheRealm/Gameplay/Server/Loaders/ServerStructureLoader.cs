@@ -1,43 +1,58 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
+using FTR.Core.Server;
 using FTR.Gameplay.Common.Environment.Structures;
+using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
-namespace FTR.Gameplay.Server.Environment.Loaders;
-
-public class ServerStructureLoader : ILoader
+namespace FTR.Gameplay.Server.Loaders
 {
-    private WorldData worldData;
-    private GameObject structurePrefab;
-    private Logging.Logger logger;
-
-    public ServerStructureLoader(
-        WorldData worldData,
-        Logging.Logger logger,
-        GameObject structurePrefab
-    )
+    public class ServerStructureLoader : MonoBehaviour, ILoader
     {
-        this.worldData = worldData;
-        this.structurePrefab = structurePrefab;
-        this.logger = logger;
-    }
+        private readonly GameObject structurePrefab;
+        private readonly GameObject shopPrefab;
 
-    public async UniTask<WorldData> Load()
-    {
-        logger.Log(
-            "[StructureLoader][Server] Spawning structures | Amount "
-                + worldData.objectPlacementData.Count
-        );
-        foreach (StructureData structureData in worldData.objectPlacementData)
+        public ServerStructureLoader(ServerPrefabProvider prefabProvider)
         {
-            GameObject instance = UnityEngine.Object.Instantiate(structurePrefab);
-            instance.name = structureData.structureName;
-            var controller = instance.GetComponent<StructureController>();
-            controller.Initialize(structureData);
+            structurePrefab = prefabProvider.StructureComponent;
+            shopPrefab = prefabProvider.ShopComponent;
         }
-        logger.Log("[StructureLoader][Server] Finished spawning structures!");
 
-        return worldData;
+        public virtual async UniTask Load(
+            string worldId,
+            ZoneData zoneData,
+            CreatablesData creatablesData
+        )
+        {
+            ServerShopRegistry.RegisterWorldData(creatablesData);
+
+            var structureShopData = new List<StructureData>();
+            var structures = zoneData.objectPlacementData;
+            foreach (StructureData structureData in structures)
+            {
+                if (structureData.isShop)
+                {
+                    structureShopData.Add(structureData);
+                    continue;
+                }
+                GameObject instance = Instantiate(structurePrefab);
+                instance.name = structureData.structureName;
+                var controller = instance.GetComponent<StructureController>();
+                controller.Initialize(structureData);
+            }
+
+            foreach (StructureData structureData in structureShopData)
+            {
+                GameObject instance = Instantiate(shopPrefab);
+                instance.name = structureData.shopId;
+                var controller = instance.GetComponent<StructureController>();
+                controller.Initialize(structureData);
+
+                Mirror.NetworkServer.Spawn(instance);
+            }
+        }
     }
 }

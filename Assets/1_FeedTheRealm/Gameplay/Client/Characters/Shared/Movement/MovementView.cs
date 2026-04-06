@@ -16,7 +16,6 @@ public class MovementView : MonoBehaviour
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
-
     private bool isInitialized = false;
 
     // TODO: moves these to a proper config or constants class later
@@ -27,6 +26,8 @@ public class MovementView : MonoBehaviour
 
     private Vector3 currentDirection = Vector3.zero;
 
+    private bool isDead = false;
+
     public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
     {
         this.rb = rb;
@@ -34,9 +35,24 @@ public class MovementView : MonoBehaviour
 
         this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
+        this.stateStorage.OnDeath += HandleDeath;
+        this.stateStorage.OnRespawn += HandleRespawn;
 
         isInitialized = true;
         fixedTickEvent.OnRaised += FixedTick;
+    }
+
+    private void HandleDeath()
+    {
+        isDead = true;
+        currentDirection = Vector3.zero;
+        animator.SetMoving(false);
+        animator.SetDashing(false);
+    }
+
+    private void HandleRespawn()
+    {
+        isDead = false;
     }
 
     // TODO: review if we need to unsubscribe from events on disable/destroy,
@@ -46,12 +62,20 @@ public class MovementView : MonoBehaviour
         fixedTickEvent.OnRaised -= FixedTick;
         stateStorage.OnDirectionChanged -= OnDirectionChanged;
         stateStorage.OnPositionCorrected -= OnPositionCorrected;
+        stateStorage.OnDeath -= HandleDeath;
+        stateStorage.OnRespawn -= HandleRespawn;
     }
 
     private void FixedTick()
     {
-        if (!isInitialized)
+        if (!isInitialized || isDead)
             return;
+
+        if (stateStorage.IsMovementBlocked)
+        {
+            correctingPosition = false;
+            return;
+        }
 
         if (correctingPosition)
         {

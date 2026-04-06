@@ -1,40 +1,52 @@
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
-namespace FTR.Gameplay.Common.Environment.Structures;
-
-public class StructureController : MonoBehaviour
+namespace FTR.Gameplay.Common.Environment.Structures
 {
-    private StructureData data;
-
-    public void Initialize(StructureData data)
+    public class StructureController : MonoBehaviour
     {
-        this.data = data;
+        private StructureData structureData;
+        public StructureData Data => structureData;
 
-        transform.position = data.position;
-        transform.rotation = Quaternion.Euler(data.rotation);
-        transform.localScale = Vector3.one;
+        public void Initialize(StructureData structureData)
+        {
+            this.structureData = structureData;
 
-        SetupCollider();
-    }
+            transform.position = structureData.position;
+            transform.rotation = Quaternion.Euler(structureData.rotation);
+            transform.localScale = Vector3.one;
+            SetupCollider();
+        }
 
-    public void RenderVisual(GameObject referenceModel)
-    {
-        GameObject structureModel = Instantiate(referenceModel);
-        structureModel.SetActive(true);
+        private void SetupCollider()
+        {
+            var boxCollider = gameObject.AddComponent<BoxCollider>();
+            boxCollider.size = structureData.colliderSize;
+            boxCollider.center = structureData.colliderCenter;
+            boxCollider.includeLayers = LayerMask.GetMask("Player");
+        }
 
-        structureModel.transform.parent = gameObject.transform;
-        structureModel.transform.localPosition = Vector3.zero;
-        structureModel.transform.localRotation = Quaternion.identity;
-        structureModel.transform.localScale = data.size;
-        // TODO: check if scale is applied correctly, should it be applied to the parent object instead?
-    }
+        public void SetupMesh(GameObject visualPrefab)
+        {
+            var visualInstance = Instantiate(visualPrefab, transform);
+            visualInstance.SetActive(true);
+            visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            visualInstance.transform.localScale = structureData.size;
+        }
 
-    private void SetupCollider()
-    {
-        BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
-        boxCollider.size = data.colliderSize;
-        boxCollider.center = data.colliderCenter;
-        boxCollider.isTrigger = false;
+        private void OnDrawGizmos()
+        {
+            if (structureData == null)
+                return;
+
+            Gizmos.color = Color.silver;
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(
+                transform.position,
+                transform.rotation,
+                Vector3.one
+            );
+            Gizmos.matrix = rotationMatrix;
+            Gizmos.DrawWireCube(structureData.colliderCenter, structureData.colliderSize);
+        }
     }
 }

@@ -19,7 +19,7 @@ repos:
     hooks:
       - id: yamllint
         files: \.(yml|yaml)$
-        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+        exclude: ^(ProjectSettings|Assets|\.github)/.*\.(asset|unity|yml)$
         args: [--format, parsable]
 
   - repo: local

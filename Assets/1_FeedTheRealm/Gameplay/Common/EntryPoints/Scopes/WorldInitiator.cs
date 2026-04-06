@@ -1,5 +1,6 @@
 using FTR.Core.Common.Config;
 using FTR.Core.Common.EventChannels;
+using FTR.Core.Common.Scopes;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -7,10 +8,10 @@ using VContainer.Unity;
 public class WorldInitiator : LifetimeScope
 {
     [SerializeField]
-    private ReceivedActionCommandEvent receivedActionCommandEvent;
+    private CommonEventRegistry commonEventRegistry;
 
     [SerializeField]
-    private ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
+    private ObjectResolverContainer objectResolverContainer;
 
     [SerializeField]
     private Config config;
@@ -20,10 +21,10 @@ public class WorldInitiator : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
+        commonEventRegistry.RegisterAll(builder);
+        builder.RegisterInstance(objectResolverContainer);
         builder.RegisterInstance(config);
         builder.RegisterInstance(logger); // Default logger
-        builder.RegisterInstance(receivedActionCommandEvent);
-        builder.RegisterInstance(receivedTransactionCommandEvent);
 
         logger?.Log("WorldInitiator: Registered as Common", this);
     }

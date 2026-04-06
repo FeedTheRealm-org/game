@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -24,15 +25,17 @@ public class WorldInfoController : MonoBehaviour
     private Coroutine sidebarAnimationCoroutine;
     private float sidebarWidthPx = 0f;
 
-    public void SetCurrentWorld(FTRShared.Runtime.Models.WorldMetadata world)
+    public void SetCurrentWorld(WorldData world)
     {
-        logger.Log($"Setting current world info: {world.name}", this);
+        logger.Log($"Setting current world info: {world.worldName}", this);
 
-        WorldNameLabel.text = world.name.Split('.')[0];
+        WorldNameLabel.text = world.worldName.Split('.')[0];
         WorldDescriptionLabel.text = world.description;
-        WorldCreatedAtLabel.text = $"Created {makeHumanReadableCreatedAt(world.createdAt)}";
+        WorldCreatedAtLabel.text =
+            $"Created {makeHumanReadableCreatedAt(world.created_at.ToString())}";
 
-        _ = getUserDisplayName(world.userId);
+        // TODO: the user id is not in the "metadata" its in the get worlds response
+        // _ = getUserDisplayName(world.user_id);
     }
 
     private async Task getUserDisplayName(string userId)

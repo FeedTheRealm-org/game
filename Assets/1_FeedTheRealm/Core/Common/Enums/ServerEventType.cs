@@ -8,4 +8,10 @@ public enum ServerEventType
     AttackEvent,
     HitEvent,
     DashEvent,
+    InitialForceEvent,
+    InteractFailedEvent,
+    DialogEvent,
+    OpenShopEvent,
+    NotEnoughGoldEvent,
+    InteractCompletedEvent,
 }

@@ -1,51 +1,120 @@
 using API;
+using FeedTheRealm.Core.Client.EventChannels;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
-using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Client.Config;
 using FTR.Core.Common.Config;
-using FTR.Core.Common.EventChannels;
-using FTR.Core.Common.Loaders;
-using FTR.Gameplay.Client.Characters;
+using FTR.Gameplay.Client.Environment.Quest;
+using FTR.Gameplay.Client.Linkers;
+using FTR.Gameplay.Client.Loaders;
+using FTR.Gameplay.Common.Environment.Dialogs;
+using FTR.Gameplay.Common.Linkers;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class ClientWorldInitiator : LifetimeScope
+namespace FTR.Gameplay.Client.EntryPoints.Scopes
 {
-    [SerializeField]
-    private Config config;
-
-    [SerializeField]
-    private PlayerInputReader playerInputReader;
-
-    [SerializeField]
-    private ClientPrefabProvider prefabProvider;
-
-    [SerializeField]
-    private TickEvent tickEvent;
-
-    [SerializeField]
-    private FixedTickEvent fixedTickEvent;
-
-    [SerializeField]
-    private LateTickEvent lateTickEvent;
-
-    [SerializeField]
-    private Logging.Logger logger;
-
-    protected override void Configure(IContainerBuilder builder)
+    public class ClientWorldInitiator : LifetimeScope
     {
-        if (config.RuntimeRole != RuntimeRole.Client)
-            return;
+        [SerializeField]
+        private Config config;
 
-        builder.RegisterInstance(playerInputReader);
-        builder.RegisterInstance(prefabProvider);
-        builder.RegisterInstance(tickEvent);
-        builder.RegisterInstance(fixedTickEvent);
-        builder.RegisterInstance(lateTickEvent);
-        builder.Register<ClientCharacterLinker>(Lifetime.Singleton).As<IScriptLinker>();
-        builder.Register<GltLoaderService>(Lifetime.Singleton);
-        builder.RegisterEntryPoint<ClientWorldEntryPoint>();
+        [SerializeField]
+        private ClientConfig clientConfig;
 
-        logger?.Log("WorldInitiator: Registered as Client", this);
+        [SerializeField]
+        private PlayerInputReader playerInputReader;
+
+        [SerializeField]
+        private ClientPrefabProvider prefabProvider;
+
+        [SerializeField]
+        private ClientEventRegistry clientEventRegistry;
+
+        [SerializeField]
+        private ClientQuestRegistry clientQuestRegistry;
+
+        [SerializeField]
+        private Logging.Logger logger;
+
+        [SerializeField]
+        private Session.Session session;
+
+        [SerializeField]
+        private WorldSelector worldSelector;
+
+        [SerializeField]
+        private WorldService worldService;
+
+        [SerializeField]
+        private ZoneService zoneService;
+
+        [SerializeField]
+        private NpcDialogRegistry npcDialogRegistry;
+
+        [SerializeField]
+        private ModelService modelService;
+
+        [SerializeField]
+        private GltLoaderService gltfLoaderService;
+
+        private readonly SetupServices setupServices = new();
+
+        protected override void Configure(IContainerBuilder builder)
+        {
+            if (config.RuntimeRole != RuntimeRole.Client)
+                return;
+
+            ValidateSerializeFields();
+
+            clientEventRegistry.RegisterAll(builder);
+            setupServices.RegisterAll(builder);
+            builder.RegisterInstance(clientConfig);
+            builder.RegisterInstance(playerInputReader);
+            builder.RegisterInstance(prefabProvider);
+            builder.RegisterInstance(logger);
+            builder.RegisterInstance(worldSelector);
+            builder.RegisterInstance(worldService);
+            builder.RegisterInstance(zoneService);
+            builder.RegisterInstance(config);
+            builder.RegisterInstance(session);
+            builder.RegisterInstance(npcDialogRegistry);
+            builder.RegisterInstance(clientQuestRegistry);
+            builder.RegisterInstance(modelService);
+            builder.RegisterInstance(gltfLoaderService);
+            builder.Register<ClientWorldLoader>(Lifetime.Singleton);
+            builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
+            builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
+            builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
+            builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
+            builder.Register<ClientShopLinker>(Lifetime.Singleton).As<ShopLinker>();
+
+            builder.RegisterEntryPoint<ClientWorldEntryPoint>();
+        }
+
+        private void ValidateSerializeFields()
+        {
+            ValidateField(config, "Config");
+            ValidateField(playerInputReader, "PlayerInputReader");
+            ValidateField(prefabProvider, "PrefabProvider");
+            ValidateField(clientEventRegistry, "ClientEventRegistry");
+            ValidateField(clientQuestRegistry, "ClientQuestRegistry");
+            ValidateField(logger, "Logger");
+            ValidateField(worldSelector, "WorldSelector");
+            ValidateField(worldService, "WorldService");
+            ValidateField(config, "Config");
+            ValidateField(session, "Session");
+            ValidateField(modelService, "ModelService");
+            ValidateField(gltfLoaderService, "GLTFLoaderService");
+        }
+
+        private void ValidateField(object field, string fieldName)
+        {
+            if (field == null)
+                throw new System.NullReferenceException(
+                    $"{fieldName} is not assigned in the Inspector."
+                );
+        }
     }
 }

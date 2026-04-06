@@ -1,3 +1,5 @@
+using FTR.Gameplay.Client.Registry;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
@@ -7,7 +9,7 @@ using UnityEngine.UIElements;
 /// Shows stats for items using data provided by the current world.
 ///
 /// For gameplay items, data comes from the current world's item collections
-/// (via Worlds.WorldItemsRegistry). Items are identified by their unique item id.
+/// (via ClientItemsRegistry). Items are identified by their unique item id.
 /// </summary>
 public class ItemStatsTooltip : MonoBehaviour
 {
@@ -24,25 +26,19 @@ public class ItemStatsTooltip : MonoBehaviour
     [SerializeField]
     private int descriptionMaxLineLength = 25;
 
-    // UI Elements
-    private VisualElement root;
     private VisualElement tooltipContainer;
     private Label nameLabel;
     private Label descriptionLabel;
-    private Label effectLabel;
-    private Label valueLabel;
-    private Label durationLabel;
-    private Label cooldownLabel;
-    private Label maxStackLabel;
+    private StatsPresenter statsPresenter;
 
-    // Helpers
-    private UI.ItemStats.TooltipStatsPresenter statsPresenter;
-
-    // State
-    private bool isVisible = false;
+    private bool isInitialized;
+    private bool isVisible;
     private string currentItemId;
 
-    void Awake()
+    private string pendingItemId;
+    private VisualElement pendingSlot;
+
+    private void Awake()
     {
         if (Application.isBatchMode || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
         {
@@ -50,98 +46,101 @@ public class ItemStatsTooltip : MonoBehaviour
             return;
         }
 
-        if (tooltipDocument == null)
-        {
-            tooltipDocument = GetComponent<UIDocument>();
-        }
+        tooltipDocument ??= GetComponent<UIDocument>();
 
-        if (tooltipDocument != null)
-        {
-            root = tooltipDocument.rootVisualElement;
-            InitializeUIElements();
-            statsPresenter = new UI.ItemStats.TooltipStatsPresenter(
-                effectLabel,
-                valueLabel,
-                durationLabel,
-                cooldownLabel,
-                maxStackLabel
-            );
-            HideTooltip();
-        }
-        else
-        {
+        if (tooltipDocument == null)
             logger?.Log("UIDocument not assigned!", this, Logging.LogType.Error);
-        }
     }
 
-    /// <summary>
-    /// Initialize references to all UI elements.
-    /// </summary>
-    private void InitializeUIElements()
+    private void OnEnable()
     {
-        // Get the main container by name
-        tooltipContainer = root.Q<VisualElement>("TooltipContainer");
+        if (tooltipDocument == null)
+            return;
+        TryInitialize();
+    }
+
+    private void Update()
+    {
+        if (!isInitialized)
+            TryInitialize();
+    }
+
+    private void TryInitialize()
+    {
+        var root = tooltipDocument.rootVisualElement;
+
+        if (root == null || root.childCount == 0)
+            return;
+
+        InitializeUIElements(root);
+    }
+
+    private void InitializeUIElements(VisualElement root)
+    {
+        // TooltipContainer sits directly under the panel root,
+        // so index access is more reliable than Q() in this case.
+        tooltipContainer =
+            root.childCount > 0 ? root[0] : root.Q<VisualElement>("TooltipContainer");
 
         if (tooltipContainer == null)
         {
+            logger?.Log("[Tooltip] TooltipContainer not found!", this, Logging.LogType.Error);
+            return;
+        }
+
+        nameLabel = tooltipContainer.Q<Label>("Name");
+        descriptionLabel = tooltipContainer.Q<Label>("Description");
+
+        statsPresenter = new StatsPresenter(
+            tooltipContainer.Q<Label>("Effect"),
+            tooltipContainer.Q<Label>("Value"),
+            tooltipContainer.Q<Label>("Duration"),
+            tooltipContainer.Q<Label>("Cooldown"),
+            tooltipContainer.Q<Label>("MaxStack")
+        );
+
+        if (nameLabel == null || descriptionLabel == null)
             logger?.Log(
-                "TooltipContainer not found! Make sure UXML has a VisualElement named 'TooltipContainer'",
+                "[Tooltip] Failed to find required UI labels!",
                 this,
                 Logging.LogType.Error
             );
-            return;
-        }
 
-        // Get all labels
-        nameLabel = root.Q<Label>("Name");
-        descriptionLabel = root.Q<Label>("Description");
-        effectLabel = root.Q<Label>("Effect");
-        valueLabel = root.Q<Label>("Value");
-        durationLabel = root.Q<Label>("Duration");
-        cooldownLabel = root.Q<Label>("Cooldown");
-        maxStackLabel = root.Q<Label>("MaxStack");
-        // Validate that all elements were found
-        if (nameLabel == null || descriptionLabel == null)
+        isInitialized = true;
+        HideTooltip();
+        logger?.Log("[Tooltip] UI elements initialized successfully", this);
+
+        // Show tooltip if the user was already hovering during initialization
+        if (!string.IsNullOrEmpty(pendingItemId) && pendingSlot != null)
         {
-            logger?.Log("Failed to find required UI labels!", this, Logging.LogType.Error);
+            ShowTooltip(pendingItemId, pendingSlot);
+            pendingItemId = null;
+            pendingSlot = null;
         }
-
-        logger?.Log("ItemStatsTooltip UI elements initialized", this);
     }
 
-    /// <summary>
-    /// Show tooltip for a specific item next to the slot.
-    /// </summary>
     public void ShowTooltip(string itemId, VisualElement slot)
     {
-        if (string.IsNullOrEmpty(itemId))
+        logger?.Log(
+            $"[Tooltip] ShowTooltip called — isInitialized: {isInitialized}, itemId: {itemId}",
+            this
+        );
+
+        if (!isInitialized)
         {
-            logger?.Log(
-                "[Tooltip] Cannot show tooltip: itemId is null or empty",
-                this,
-                Logging.LogType.Warning
-            );
+            pendingItemId = itemId;
+            pendingSlot = slot;
             return;
         }
 
-        if (slot == null)
-        {
-            logger?.Log(
-                "[Tooltip] Cannot show tooltip: slot is null",
-                this,
-                Logging.LogType.Warning
-            );
+        if (string.IsNullOrEmpty(itemId) || slot == null || tooltipContainer == null)
             return;
-        }
 
-        logger?.Log($"[Tooltip] ShowTooltip called - Slot: {slot.name}", this);
-
-        // Resolve the item once and then delegate type-specific logic to the presenter.
-        var item = Worlds.WorldItemsRegistry.GetItemById(itemId);
+        var item = ClientItemsRegistry.GetItemById(itemId);
         if (item == null)
         {
             logger?.Log(
-                $"[Tooltip] Item not found in WorldItemsRegistry for itemId: {itemId}",
+                $"[Tooltip] Item not found for id: {itemId}",
                 this,
                 Logging.LogType.Warning
             );
@@ -149,45 +148,6 @@ public class ItemStatsTooltip : MonoBehaviour
         }
 
         currentItemId = itemId;
-
-        // Populate common UI (name, description) for any item type.
-        PopulateCommonItemFields(item);
-
-        // Let the stats presenter decide what to show based on concrete type.
-        statsPresenter?.ShowStats(item);
-
-        UpdateTooltipPosition(slot);
-
-        tooltipContainer.style.display = DisplayStyle.Flex;
-        isVisible = true;
-
-        logger?.Log($"[Tooltip] Tooltip shown for itemId: {currentItemId}", this);
-    }
-
-    /// <summary>
-    /// Hide the tooltip.
-    /// </summary>
-    public void HideTooltip()
-    {
-        if (tooltipContainer != null)
-        {
-            tooltipContainer.style.display = DisplayStyle.None;
-        }
-        isVisible = false;
-        currentItemId = null;
-
-        logger?.Log("[Tooltip] Tooltip hidden", this);
-    }
-
-    /// <summary>
-    /// Populate common fields (name, description) shared by any item type.
-    /// </summary>
-    private void PopulateCommonItemFields(FTRShared.Runtime.Models.ItemData item)
-    {
-        if (item == null)
-        {
-            return;
-        }
 
         if (nameLabel != null)
         {
@@ -203,90 +163,131 @@ public class ItemStatsTooltip : MonoBehaviour
             );
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
+
+        statsPresenter?.ShowStats(item);
+        UpdateTooltipPosition(slot);
+
+        tooltipContainer.style.display = DisplayStyle.Flex;
+        isVisible = true;
+        logger?.Log($"[Tooltip] Shown for itemId: {currentItemId}", this);
     }
 
-    /// <summary>
-    /// Update tooltip position to appear next to the slot.
-    /// Positions tooltip to the right of the slot, or to the left if not enough space.
-    /// </summary>
+    public void HideTooltip()
+    {
+        if (tooltipContainer != null)
+            tooltipContainer.style.display = DisplayStyle.None;
+
+        isVisible = false;
+        currentItemId = null;
+    }
+
+    public bool IsVisible() => isVisible;
+
+    public string GetCurrentItemId() => currentItemId;
+
     private void UpdateTooltipPosition(VisualElement slot)
     {
-        if (tooltipContainer == null)
-        {
-            logger?.Log(
-                "[Tooltip] UpdateTooltipPosition: tooltipContainer is null",
-                this,
-                Logging.LogType.Warning
-            );
+        if (tooltipContainer?.panel == null || slot == null)
             return;
-        }
 
-        if (slot == null)
-        {
-            logger?.Log(
-                "[Tooltip] UpdateTooltipPosition: slot is null",
-                this,
-                Logging.LogType.Warning
-            );
-            return;
-        }
-
-        if (tooltipContainer.panel == null)
-        {
-            logger?.Log(
-                "[Tooltip] UpdateTooltipPosition: panel is null",
-                this,
-                Logging.LogType.Warning
-            );
-            return;
-        }
-
-        // Get slot's world bounds
-        Rect slotBounds = slot.worldBound;
-
-        // Convert slot position to panel coordinates
-        Vector2 slotPanelPos = RuntimePanelUtils.ScreenToPanel(
+        var slotBounds = slot.worldBound;
+        var slotPanelPos = RuntimePanelUtils.ScreenToPanel(
             tooltipContainer.panel,
             new Vector2(slotBounds.x, slotBounds.y)
         );
 
-        // Calculate panel width to check if tooltip fits on the right
         float panelWidth = tooltipContainer.panel.visualTree.worldBound.width;
-        float tooltipWidth = 200;
-        float horizontalOffset = 135; // Space between slot and tooltip
+        float tooltipWidth = 600f;
+        float offset = 135f;
 
-        float tooltipLeft = slotPanelPos.x + slotBounds.width + horizontalOffset;
+        float left = slotPanelPos.x + slotBounds.width + offset;
+        if (left + tooltipWidth > panelWidth)
+            left = slotPanelPos.x - tooltipWidth - offset;
 
-        // If tooltip doesn't fit on the right, position it on the left
-        if (tooltipLeft + tooltipWidth > panelWidth)
+        tooltipContainer.style.left = left;
+        tooltipContainer.style.top = slotPanelPos.y;
+        tooltipContainer.style.position = Position.Absolute;
+    }
+
+    // -------------------------------------------------------------------------
+    // Nested class: no external consumers, no reason to live in its own file
+    // -------------------------------------------------------------------------
+    private class StatsPresenter
+    {
+        private readonly Label effectLabel;
+        private readonly Label valueLabel;
+        private readonly Label durationLabel;
+        private readonly Label cooldownLabel;
+        private readonly Label maxStackLabel;
+
+        public StatsPresenter(
+            Label effect,
+            Label value,
+            Label duration,
+            Label cooldown,
+            Label maxStack
+        )
         {
-            tooltipLeft = slotPanelPos.x - tooltipWidth - horizontalOffset;
+            effectLabel = effect;
+            valueLabel = value;
+            durationLabel = duration;
+            cooldownLabel = cooldown;
+            maxStackLabel = maxStack;
         }
 
-        // Position vertically aligned with the slot
-        float tooltipTop = slotPanelPos.y;
+        public void ShowStats(ItemData item)
+        {
+            HideAll();
+            switch (item)
+            {
+                case ConsumableItemData consumable:
+                    ShowConsumable(consumable);
+                    break;
+                case WeaponItemData weapon:
+                    ShowWeapon(weapon);
+                    break;
+            }
+        }
 
-        // Apply position
-        tooltipContainer.style.left = tooltipLeft;
-        tooltipContainer.style.top = tooltipTop;
-        tooltipContainer.style.position = Position.Absolute;
+        private void ShowConsumable(ConsumableItemData c)
+        {
+            SetLabel(effectLabel, $"Effect: {c.effectType}");
+            SetLabel(valueLabel, $"Value: {c.value}");
+            SetLabel(durationLabel, $"Duration: {c.duration}");
+            SetLabel(cooldownLabel, $"Cooldown: {c.cooldown}");
+            SetLabel(maxStackLabel, $"Max Stack: {c.maxStack}");
+        }
 
-        logger?.Log($"[Tooltip] Position updated: ({tooltipLeft}, {tooltipTop})", this);
-    }
+        private void ShowWeapon(WeaponItemData w)
+        {
+            SetLabel(effectLabel, $"Type: {w.weaponType}");
+            SetLabel(valueLabel, $"Damage: {w.damage}");
+            SetLabel(durationLabel, $"Range: {w.range}");
+            SetLabel(cooldownLabel, $"Attack Speed: {w.attackSpeed}");
+            SetLabel(maxStackLabel, $"Ammo: {w.ammo}");
+        }
 
-    /// <summary>
-    /// Check if tooltip is currently visible.
-    /// </summary>
-    public bool IsVisible()
-    {
-        return isVisible;
-    }
+        private static void SetLabel(Label label, string text)
+        {
+            if (label == null)
+                return;
+            label.text = text;
+            label.style.display = DisplayStyle.Flex;
+        }
 
-    /// <summary>
-    /// Get the current item ID being displayed.
-    /// </summary>
-    public string GetCurrentItemId()
-    {
-        return currentItemId;
+        private void HideAll()
+        {
+            Hide(effectLabel);
+            Hide(valueLabel);
+            Hide(durationLabel);
+            Hide(cooldownLabel);
+            Hide(maxStackLabel);
+        }
+
+        private static void Hide(Label label)
+        {
+            if (label != null)
+                label.style.display = DisplayStyle.None;
+        }
     }
 }

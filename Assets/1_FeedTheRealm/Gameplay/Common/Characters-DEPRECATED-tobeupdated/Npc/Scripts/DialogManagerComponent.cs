@@ -10,7 +10,7 @@ using UnityEngine;
 /// </summary>
 public class DialogManagerComponent : MonoBehaviour
 {
-    public event Action<MessageData> OnDialogChanged;
+    /*public event Action<MessageData> OnDialogChanged;
     public event Action<bool> OnToggleDialog;
 
     [Header("Dialog settings")]
@@ -144,5 +144,5 @@ public class DialogManagerComponent : MonoBehaviour
     {
         yield return new WaitForSeconds(inactivityTimeout);
         CloseDialog();
-    }
+    }*/
 }

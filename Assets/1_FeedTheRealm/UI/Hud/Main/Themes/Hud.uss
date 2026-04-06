@@ -6,43 +6,34 @@
     background-color: rgb(255, 133, 120);
 }
 
-.progress-bar {
-    font-size: 50%;
-}
-
-.currency-container {
-    flex-grow: 1;
-    flex-direction: row;
-}
-
-.fast-use-slot {
-    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2.png?fileID=2800000&guid=711fb7a2b8e1ff54da609e52c3e729b8&type=3#button2");
-    border-left-color: rgba(0, 0, 0, 0);
-    border-right-color: rgba(0, 0, 0, 0);
-    border-top-color: rgba(0, 0, 0, 0);
-    border-bottom-color: rgba(0, 0, 0, 0);
-    -unity-background-image-tint-color: rgb(255, 255, 255);
-    background-color: rgba(0, 0, 0, 0);
-    width: 50px;
-    height: 50px;
-}
-
 .fast-use-container {
     position: absolute;
     bottom: 5%;
     width: 100%;
+    align-items: center;
     justify-content: center;
     flex-direction: row;
     gap: 12px;
 }
 
-.fast-use-slot {
+.fast-equip-slot {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
     width: 64px;
     height: 64px;
-    border-radius: 12px;
-    background-color: rgba(30, 30, 30, 0.8);
-    border-width: 2px;
-    border-color: rgba(255, 255, 255, 0.2);
+    justify-content: center;
+    align-items: center;
+    margin: 0 2px 0 2px;
+}
+
+.fast-equip-slot > #FastEquipIcon {
+    width: 80%;
+    height: 80%;
+    -unity-background-scale-mode: scale-to-fit;
+    align-self: center;
+    position: relative;
+    top: 5px;
+    left: -4px;
 }
 
 .sidebar {
@@ -77,20 +68,12 @@
 
 .username {
     font-size: 18px;
-    unity-font-style: bold;
+    -unity-font-style: bold;
 }
 
 .stat-bar {
     height: 18px;
     border-radius: 8px;
-}
-
-.stat-bar.health {
-    --unity-progress-bar-fill-color: rgb(200, 60, 60);
-}
-
-.stat-bar.stamina {
-    --unity-progress-bar-fill-color: rgb(60, 180, 120);
 }
 
 .currency {
@@ -104,7 +87,6 @@
     height: 32px;
     background-image: url("project://database/Assets/6000FantasyIcons/MedievalIcons/ResourcesMedieval/GoldCoinTen.png?fileID=21300000&guid=0045638d99e4f7b4e9b6cae25236df34&type=3#GoldCoinTen");
     background-size: contain;
-    background-repeat: no-repeat;
     background-color: rgba(0, 0, 0, 0);
     border-color: rgba(0, 0, 0, 0);
 }
@@ -112,7 +94,7 @@
 .currency-amount {
     margin-left: 6px;
     font-size: 14px;
-    unity-font-style: bold;
+    -unity-font-style: bold;
 }
 
 .quest-list {
@@ -151,16 +133,4 @@
 .quest-progress .unity-progress-bar__background {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-}
-
-.fast-use-slot-selected {
-    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2_ready_on.png?fileID=2800000&guid=6b8728d20b5d4c540b335c3789517218&type=3#button2_ready_on");
-    border-left-color: rgba(0, 0, 0, 0);
-    border-right-color: rgba(0, 0, 0, 0);
-    border-top-color: rgba(0, 0, 0, 0);
-    border-bottom-color: rgba(0, 0, 0, 0);
-    -unity-background-image-tint-color: rgb(255, 255, 255);
-    background-color: rgba(0, 0, 0, 0);
-    width: 64px;
-    height: 64px;
 }

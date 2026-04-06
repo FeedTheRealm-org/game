@@ -1,59 +1,57 @@
-using API;
-using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
+using FTR.Core.Client;
 using FTR.Core.Common.Loaders;
-using FTRShared.Runtime.Models;
-using Worlds;
+using FTR.Gameplay.Client.EntryPoints;
+using FTR.Gameplay.Common.LoaderEntities;
+using VContainer;
 
-public class ClientWorldLoader : ILoader
+namespace FTR.Gameplay.Client.Loaders
 {
-    private string worldId;
-
-    private WorldHandler worldHandler;
-    private WorldService worldService;
-
-    private string accessToken;
-
-    private Logging.Logger logger;
-
-    public async UniTask<WorldData> Load()
+    public class ClientWorldLoader : ZoneLoaderManager
     {
-        // worldId = worldHandler.selectedWorldID;
-        // accessToken = session.APIToken;
+        [Inject]
+        private readonly Session.Session session;
 
-        logger.Log($"[CLIENT] Client Loading World ID: {worldId}");
+        [Inject]
+        private readonly WorldSelector worldSelector;
 
-        WorldData worldData = await LoadWorldData(worldId, accessToken);
-        if (worldData == null)
+        public ClientWorldLoader(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
         {
-            logger.Log(
-                $"Failed to load world data for world ID: {worldId}. Aborting client loading.",
-                Logging.LogType.Error
-            );
-            return null;
+            var clientStructureLoader = new ClientStructureLoader(prefabProvider);
+            var clientNpcDialogLoader = new ClientNpcDialogLoader();
+            var clientItemLoader = new ClientItemLoader();
+            var clientQuestLoader = new ClientQuestLoader();
+
+            loaders = new List<ILoader>
+            {
+                clientStructureLoader,
+                clientNpcDialogLoader,
+                clientItemLoader,
+                clientQuestLoader,
+            };
+
+            foreach (var loader in loaders)
+            {
+                resolver.Inject(loader);
+            }
         }
 
-        // foreach (GameObject loaderObject in clientLoaders)
-        // {
-        //     await loader.Load();
-        // }
-
-        return worldData;
-    }
-
-    private async UniTask<WorldData> LoadWorldData(string worldId, string accessToken)
-    {
-        (WorldData data, string errorMessage, long responseCode) = await worldService.GetWorldData(
-            worldId,
-            accessToken
-        );
-        if (data == null || !string.IsNullOrEmpty(errorMessage))
+        public override string GetWorldId()
         {
-            logger.Log(
-                $"Failed to load world '{worldId}': {errorMessage}, Code: {responseCode}",
-                Logging.LogType.Error
-            );
-            return null;
+            if (config.IsDebugWorld)
+                return !string.IsNullOrEmpty(config.WorldID)
+                    ? config.WorldID
+                    : worldSelector.GetSelectedWorldId();
+            return worldSelector.GetSelectedWorldId();
         }
-        return data;
+
+        public override string GetAccessToken()
+        {
+            if (config.IsDebugWorld)
+                return !string.IsNullOrEmpty(config.ServerAccessToken)
+                    ? config.ServerAccessToken
+                    : session.APIToken;
+            return session.APIToken;
+        }
     }
 }

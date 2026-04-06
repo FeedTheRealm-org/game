@@ -1,4 +1,4 @@
-using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Common.Interactions;
 using UnityEngine;
 
@@ -38,4 +38,8 @@ public class ShopInteractComponent : MonoBehaviour, IInteractable
     {
         return true;
     }
+
+    public void ContinueInteraction(IInteractor interactor) { }
+
+    public void StopInteraction(IInteractor interactor) { }
 }

@@ -1,53 +1,74 @@
+using FeedTheRealm.Gameplay.Client.SceneSetup;
+using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Common.Scopes;
+using FTR.Gameplay.Client.Loaders;
 using VContainer;
 using VContainer.Unity;
 
-public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
+namespace FTR.Gameplay.Client.EntryPoints
 {
-    private TickEvent tickEvent;
-
-    private FixedTickEvent fixedTickEvent;
-
-    private LateTickEvent lateTickEvent;
-
-    private bool isInitialized = false;
-
-    [Inject]
-    public ClientWorldEntryPoint(
-        TickEvent tickEvent,
-        FixedTickEvent fixedTickEvent,
-        LateTickEvent lateTickEvent
-    )
+    /// <summary>
+    /// Entry point for the client application, responsible for initializing the application flow, including authentication and main menu navigation.
+    /// </summary>
+    public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
     {
-        this.tickEvent = tickEvent;
-        this.fixedTickEvent = fixedTickEvent;
-        this.lateTickEvent = lateTickEvent;
-        isInitialized = true;
-    }
+        private TickEvent tickEvent;
 
-    public void Start()
-    {
-        // Initialize client world here
-    }
+        private FixedTickEvent fixedTickEvent;
 
-    public void Tick()
-    {
-        if (!isInitialized)
-            return;
-        tickEvent.Raise();
-    }
+        private LateTickEvent lateTickEvent;
 
-    public void FixedTick()
-    {
-        if (!isInitialized)
-            return;
-        fixedTickEvent.Raise();
-    }
+        private bool isInitialized = false;
 
-    public void LateTick()
-    {
-        if (!isInitialized)
-            return;
-        lateTickEvent.Raise();
+        private readonly ClientWorldLoader worldLoader;
+        private readonly WorldSetupService worldSetup;
+
+        [Inject]
+        public ClientWorldEntryPoint(
+            TickEvent tickEvent,
+            FixedTickEvent fixedTickEvent,
+            LateTickEvent lateTickEvent,
+            IObjectResolver resolver,
+            ObjectResolverContainer resolverContainer,
+            ClientWorldLoader worldLoader,
+            WorldSetupService worldSetup
+        )
+        {
+            this.tickEvent = tickEvent;
+            this.fixedTickEvent = fixedTickEvent;
+            this.lateTickEvent = lateTickEvent;
+            resolverContainer.SetResolver(resolver);
+            this.worldLoader = worldLoader;
+            this.worldSetup = worldSetup;
+            isInitialized = true;
+        }
+
+        public async void Start()
+        {
+            await worldLoader.LoadWorld();
+            worldSetup.ExecuteSetup();
+        }
+
+        public void Tick()
+        {
+            if (!isInitialized)
+                return;
+            tickEvent.Raise();
+        }
+
+        public void FixedTick()
+        {
+            if (!isInitialized)
+                return;
+            fixedTickEvent.Raise();
+        }
+
+        public void LateTick()
+        {
+            if (!isInitialized)
+                return;
+            lateTickEvent.Raise();
+        }
     }
 }

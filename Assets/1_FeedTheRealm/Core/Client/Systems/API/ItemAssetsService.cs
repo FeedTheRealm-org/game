@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -20,20 +20,32 @@ namespace API
         [SerializeField]
         private ApiConfig apiConfig;
 
+        [Header("Session settings")]
+        [SerializeField]
+        private Session.Session session;
+
         [Header("General settings")]
         [SerializeField]
         private Logging.Logger logger;
 
-        private string GetBaseUrl() =>
-            $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/sprites/items";
+        private string currentWorldId;
+
+        private string GetBaseUrl() => $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/items";
+
+        private string GetBaseCdnUrl() => $"http://{apiConfig.ModelsCDN}/worlds";
 
         // Simple in-memory cache to avoid downloading the same sprite multiple times
         private readonly System.Collections.Generic.Dictionary<string, Texture2D> spriteCache =
             new System.Collections.Generic.Dictionary<string, Texture2D>();
 
+        private void OnEnable()
+        {
+            spriteCache.Clear();
+        }
+
         /// <summary>
         /// Download sprite by spriteId.
-        /// Full URL: /assets/sprites/items/{spriteId}
+        /// Full URL: /assets/items/{spriteId}
         /// </summary>
         public async System.Threading.Tasks.Task<Texture2D> DownloadItemSpriteAsync(string spriteId)
         {
@@ -51,10 +63,17 @@ namespace API
             if (spriteCache.TryGetValue(spriteId, out var cachedTexture))
             {
                 logger?.Log($"DownloadItemSpriteAsync cache hit: {spriteId}", this);
+                await System.Threading.Tasks.Task.Yield();
                 return cachedTexture;
             }
 
-            var url = $"{GetBaseUrl()}/{spriteId}";
+            // Extract just the filename from full path, e.g. "Sprites/uuid.png" -> "uuid.png"
+            string fileName = System.IO.Path.GetFileName(spriteId);
+
+            var url = $"{GetBaseCdnUrl()}/{currentWorldId}/items/{fileName}";
+            Debug.Log($"[ItemAssetsService] Current WorldID: {currentWorldId}");
+            Debug.Log($"[ItemAssetsService] DownloadItemSpriteAsync fetching from URL: {url}");
+            logger?.Log($"DownloadItemSpriteAsync fetching from URL: {url}", this);
             using var uwr = UnityWebRequestTexture.GetTexture(url);
             var asyncOp = uwr.SendWebRequest();
             await asyncOp;
@@ -64,6 +83,7 @@ namespace API
                 || uwr.result == UnityWebRequest.Result.ProtocolError
             )
             {
+                Debug.LogError($"[ItemAssetsService] error for {spriteId}: {uwr.error}");
                 logger?.Log(
                     $"DownloadItemSpriteAsync error for {spriteId}: {uwr.error}",
                     this,
@@ -81,6 +101,15 @@ namespace API
                 logger?.Log($"DownloadItemSpriteAsync success: {spriteId}", this);
                 return texture;
             }
+        }
+
+        /// <summary>
+        /// Initializes the service by setting the current world ID and fetching the global category.
+        /// Call this once when the world is loaded to set the category ID for subsequent texture downloads.
+        /// </summary>
+        public void SetCurrentWorldId(string worldId)
+        {
+            currentWorldId = worldId;
         }
     }
 }

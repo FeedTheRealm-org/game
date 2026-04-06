@@ -14,4 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
   editorRuntimeRole: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
-  Port: 7777
+  ListeningPort: 7777
+  HealthcheckPort: 7778
+  serverAccessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
+  CurrentServerAddress: localhost
+  CurrentServerPort: 7777
+  isDebugWorld: 0
+  doNotLoadWorld: 0
+  worldID: 74cab186-12e8-4288-be75-cf96b0101f40

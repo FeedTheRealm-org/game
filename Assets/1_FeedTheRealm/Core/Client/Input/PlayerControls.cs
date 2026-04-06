@@ -147,7 +147,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""QuickSlots"",
+                    ""name"": ""FastSlots"",
                     ""type"": ""Button"",
                     ""id"": ""d098a32f-1999-4870-801b-b244745a1d48"",
                     ""expectedControlType"": """",
@@ -318,7 +318,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -329,7 +329,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -340,7 +340,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -351,7 +351,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -362,7 +362,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -373,7 +373,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -384,7 +384,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -395,7 +395,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -406,7 +406,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""QuickSlots"",
+                    ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -423,7 +423,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Inventory = m_Player.FindAction("Inventory", throwIfNotFound: true);
         m_Player_CursorToggle = m_Player.FindAction("CursorToggle", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
-        m_Player_QuickSlots = m_Player.FindAction("QuickSlots", throwIfNotFound: true);
+        m_Player_FastSlots = m_Player.FindAction("FastSlots", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -510,7 +510,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Inventory;
     private readonly InputAction m_Player_CursorToggle;
     private readonly InputAction m_Player_Interact;
-    private readonly InputAction m_Player_QuickSlots;
+    private readonly InputAction m_Player_FastSlots;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -547,9 +547,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Interact => m_Wrapper.m_Player_Interact;
         /// <summary>
-        /// Provides access to the underlying input action "Player/QuickSlots".
+        /// Provides access to the underlying input action "Player/FastSlots".
         /// </summary>
-        public InputAction @QuickSlots => m_Wrapper.m_Player_QuickSlots;
+        public InputAction @FastSlots => m_Wrapper.m_Player_FastSlots;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -594,9 +594,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
-            @QuickSlots.started += instance.OnQuickSlots;
-            @QuickSlots.performed += instance.OnQuickSlots;
-            @QuickSlots.canceled += instance.OnQuickSlots;
+            @FastSlots.started += instance.OnFastSlots;
+            @FastSlots.performed += instance.OnFastSlots;
+            @FastSlots.canceled += instance.OnFastSlots;
         }
 
         /// <summary>
@@ -626,9 +626,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
-            @QuickSlots.started -= instance.OnQuickSlots;
-            @QuickSlots.performed -= instance.OnQuickSlots;
-            @QuickSlots.canceled -= instance.OnQuickSlots;
+            @FastSlots.started -= instance.OnFastSlots;
+            @FastSlots.performed -= instance.OnFastSlots;
+            @FastSlots.canceled -= instance.OnFastSlots;
         }
 
         /// <summary>
@@ -712,11 +712,11 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "QuickSlots" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "FastSlots" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnQuickSlots(InputAction.CallbackContext context);
+        void OnFastSlots(InputAction.CallbackContext context);
     }
 }

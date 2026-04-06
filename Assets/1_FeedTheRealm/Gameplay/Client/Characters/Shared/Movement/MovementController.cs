@@ -48,7 +48,7 @@ public class MovementController : MonoBehaviour
         if (delta >= rotationMagnitudeToSend)
         {
             SendMoveCommand();
-            logger.Log($"Rotation changed significantly. Sent new move command.", this);
+            //logger.Log($"Rotation changed significantly. Sent new move command.", this);
         }
     }
 
@@ -62,6 +62,17 @@ public class MovementController : MonoBehaviour
 
         currentInputDirection = direction;
         SendMoveCommand();
+    }
+
+    /// <summary>
+    /// SetDirection called when an input event is raised (non continous).
+    /// </summary>
+    public void OnDash()
+    {
+        if (!isInitialized)
+            return;
+
+        SendDashCommand();
     }
 
     /// <summary>
@@ -82,6 +93,25 @@ public class MovementController : MonoBehaviour
 
         networkAdapter.DispatchAction(command);
         previousRotationSent = currentRotation;
+    }
+
+    /// <summary>
+    /// Sends a dash command when a dash input event is raised (via OnDash).
+    /// </summary>
+    private void SendDashCommand()
+    {
+        if (!isInitialized)
+            return;
+
+        UpdateCurrentDirectionWithCamera();
+
+        ActionCommandDTO command = new()
+        {
+            Type = ActionType.Dash,
+            Direction = currentRealDirection,
+        };
+
+        networkAdapter.DispatchAction(command);
     }
 
     private void UpdateCurrentDirectionWithCamera()

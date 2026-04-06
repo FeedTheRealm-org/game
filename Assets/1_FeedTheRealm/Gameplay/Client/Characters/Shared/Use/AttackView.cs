@@ -21,7 +21,7 @@ public class AttackView : MonoBehaviour
             eventRouter.OnAttackEvent -= OnAttackEvent;
     }
 
-    private void OnAttackEvent(ServerEventDTO serverEvent)
+    private void OnAttackEvent(AttackEventContent attackEvent)
     {
         animator.SetAction(true);
         animator.PlayAttack();

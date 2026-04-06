@@ -1,0 +1,262 @@
+
+:root {
+    --teal:          rgb(110, 255, 251);
+    --teal-dim:      rgba(110, 255, 251, 0.18);
+    --teal-glow:     rgba(110, 255, 251, 0.08);
+    --gold:          rgb(255, 210, 80);
+    --gold-dim:      rgba(255, 210, 80, 0.15);
+    --white:         rgb(255, 255, 255);
+    --white-soft:    rgba(255, 255, 255, 0.75);
+    --dark:          rgba(0, 0, 0, 0.72);
+    --darker:        rgba(0, 0, 0, 0.88);
+    --card-bg:       rgba(0, 0, 0, 0.62);
+    --radius:        12px;
+    --radius-sm:     8px;
+}
+
+.background {
+    flex-grow: 1;
+    background-image: url("project://database/Assets/1_FeedTheRealm/VisualAssets/bg_feed.jpg?fileID=2800000&guid=8d8f8fd241019e57b9aee8d2035bd722&type=3#bg_feed");
+    background-color: rgb(0, 0, 0);
+    -unity-background-image-tint-color: rgb(110, 255, 251);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 2%;
+    padding-bottom: 1%;
+    padding-left: 4%;
+    padding-right: 4%;
+    background-color: rgba(0, 0, 0, 0.45);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(110, 255, 251, 0.25);
+}
+
+.back-button {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.4);
+    border-radius: var(--radius-sm);
+    color: var(--teal);
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    -unity-text-align: middle-center;
+}
+
+.back-button:hover {
+    background-color: var(--teal-dim);
+}
+
+.title {
+    color: var(--teal);
+    font-size: 26px;
+    -unity-text-align: middle-center;
+    letter-spacing: 3px;
+    flex-grow: 1;
+    -unity-font-style: bold;
+}
+
+.balance-badge {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--dark);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.35);
+    border-radius: 20px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.gem-icon {
+    font-size: 16px;
+    margin-right: 6px;
+}
+
+.balance-label {
+    color: var(--teal);
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.subtitle {
+    color: var(--white-soft);
+    font-size: 13px;
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    margin-bottom: 18px;
+}
+
+.pack-list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-self: center;
+    width: 90%;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0;
+    margin-bottom: 24px;
+}
+
+.pack-list > .unity-scroll-view__content-container {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.pack-card {
+    background-color: var(--card-bg);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.22);
+    border-radius: var(--radius);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 28%;
+    min-width: 200px;
+    height: 380px;
+    margin-left: 16px;
+    margin-right: 16px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    padding-left: 16px;
+    padding-right: 16px;
+    transition-duration: 0.15s;
+}
+
+.pack-card:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-color: rgba(110, 255, 251, 0.6);
+    scale: 1.03 1.03;
+}
+
+.pack-card--featured {
+    border-color: var(--gold);
+    border-width: 2px;
+    background-color: rgba(10, 5, 0, 0.75);
+}
+
+.pack-card--featured:hover {
+    border-color: rgb(255, 230, 120);
+}
+
+.featured-badge {
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    border-width: 1px;
+    border-color: var(--gold);
+    border-radius: 4px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-bottom: 10px;
+    background-color: var(--gold-dim);
+}
+
+.card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--radius);
+    background-color: var(--teal-glow);
+}
+
+.card-glow--featured {
+    background-color: rgba(255, 210, 80, 0.05);
+}
+
+.pack-gem-icon {
+    font-size: 42px;
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.pack-gem-amount {
+    color: var(--white);
+    font-size: 36px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: -1px;
+}
+
+.pack-gem-word {
+    color: var(--teal);
+    font-size: 13px;
+    letter-spacing: 3px;
+    -unity-text-align: middle-center;
+    margin-bottom: 12px;
+}
+
+.card-divider {
+    width: 60%;
+    height: 1px;
+    background-color: rgba(110, 255, 251, 0.2);
+    margin-top: 8px;
+    margin-bottom: 14px;
+    align-self: center;
+}
+
+.pack-price {
+    color: var(--white-soft);
+    font-size: 20px;
+    -unity-text-align: middle-center;
+    margin-bottom: 16px;
+}
+
+.buy-button {
+    background-color: var(--teal-dim);
+    border-width: 1px;
+    border-color: var(--teal);
+    border-radius: var(--radius-sm);
+    color: var(--teal);
+    font-size: 14px;
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 28px;
+    padding-right: 28px;
+    -unity-text-align: middle-center;
+    width: 100%;
+}
+
+.buy-button:hover {
+    background-color: rgba(110, 255, 251, 0.32);
+    color: var(--white);
+}
+
+.buy-button--featured {
+    background-color: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.buy-button--featured:hover {
+    background-color: rgba(255, 210, 80, 0.3);
+    color: var(--white);
+}
+
+.status-label {
+    color: var(--white-soft);
+    font-size: 16px;
+    -unity-text-align: middle-center;
+    margin-top: 20px;
+    display: none;
+}

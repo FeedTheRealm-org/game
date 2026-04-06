@@ -143,7 +143,7 @@ MonoBehaviour:
     - line: '|   xboxEnableFitness: 0'
     - line: '|   visibleInBackground: 1'
     - line: '|   allowFullscreenSwitch: 1'
-    - line: '|   fullscreenMode: 1'
+    - line: '|   fullscreenMode: 3'
     - line: '|   xboxSpeechDB: 0'
     - line: '|   xboxEnableHeadOrientation: 0'
     - line: '|   xboxEnableGuest: 0'
@@ -1012,7 +1012,7 @@ MonoBehaviour:
         m_RemoteDeviceUsername: 
         m_RemoteDeviceExports: 
         m_PathOnRemoteDevice: 
---- !u!114 &4266890019711155625
+--- !u!114 &5240530814211662384
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1024,4 +1024,4 @@ MonoBehaviour:
   m_Script: {fileID: 15022, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: Multiplayer Role Data
   m_EditorClassIdentifier: UnityEditor.MultiplayerModule.dll::UnityEditor.Multiplayer.Internal.MultiplayerRoleData
-  multiplayerRole: 2
+  multiplayerRole: 3

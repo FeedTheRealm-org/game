@@ -2,16 +2,6 @@ using UnityEngine;
 
 public class SpriteBillboardComponent : MonoBehaviour
 {
-    [Header("Centered billboard settings")]
-    [SerializeField]
-    private bool centeredBillboard = false;
-
-    [SerializeField]
-    private Transform centerTransform;
-
-    [SerializeField]
-    private Vector3 offset = new Vector3(0, 1f, 0);
-
     private Camera _mainCamera;
 
     private void Start()
@@ -39,11 +29,6 @@ public class SpriteBillboardComponent : MonoBehaviour
             float roll = target.z;
 
             transform.rotation = Quaternion.Euler(pitch, smoothYaw, roll);
-        }
-
-        if (centeredBillboard && centerTransform != null)
-        {
-            transform.position = centerTransform.position + offset;
         }
     }
 }

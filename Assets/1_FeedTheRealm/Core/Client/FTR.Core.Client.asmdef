@@ -6,7 +6,6 @@
     "UnityEngine",
     "Unity.InputSystem",
     "Mirror",
-    "glTFast",
     "VContainer",
     "UniTask"
   ],

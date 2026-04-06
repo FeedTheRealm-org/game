@@ -1,0 +1,113 @@
+:root {
+}
+
+.panel {
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    overflow: hidden;
+}
+
+.shop-items-container {
+    width: 400px;
+    flex-direction: column;
+    align-items: stretch;
+    align-self: center;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.shop-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 70px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-bottom-width: 1px;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.shop-item-icon {
+    background-size: cover;
+    -unity-background-scale-mode: scale-to-fit;
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&guid=4b3d2095baccc2041b973b66b786b9d0&type=3#button2_ready_off");
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.shop-item-name {
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 16px;
+    flex-grow: 1;
+    margin-left: 12px;
+}
+
+.shop-item-price {
+    color: rgb(255, 210, 80);
+    -unity-font-style: bold;
+    font-size: 14px;
+    margin-right: 12px;
+}
+
+.shop-item-amount {
+    width: 48px;
+    margin-right: 8px;
+    color: rgb(0, 0, 0);
+    -unity-text-align: middle-center;
+}
+
+.shop-not-enough-gold-message {
+    color: rgb(255, 80, 80);
+    -unity-font-style: bold;
+    font-size: 16px;
+    -unity-text-align: upper-center;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background-color: rgba(180, 0, 0, 0.35);
+    border-radius: 6px;
+    width: 350px;
+}
+
+.shop-buy-button {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button.png?fileID=2800000&guid=485cd2ab0486a8e4aaa55e94ec27c6b6&type=3#button");
+    background-size: 100% 100%;
+    min-width: 80px;
+    min-height: 40px;
+    max-width: 80px;
+    max-height: 40px;
+    justify-content: center;
+    align-items: center;
+    border-width: 0;
+}
+
+.shop-buy-button-label {
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 14px;
+    -unity-text-align: upper-center;
+}
+
+.shop-close-button {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button.png?fileID=2800000&guid=485cd2ab0486a8e4aaa55e94ec27c6b6&type=3#button");
+    background-size: 100% 100%;
+    min-width: 120px;
+    min-height: 70px;
+    max-width: 120px;
+    max-height: 70px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    border-width: 0;
+}
+
+.shop-close-button-label {
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 16px;
+    -unity-text-align: upper-center;
+}

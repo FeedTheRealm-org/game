@@ -48,7 +48,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: 075e87dd07246a581902574539fc140b, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: c4297ff1ff274c543b49a0331c3899a3, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 700
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -70,13 +70,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LoginController
   authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  targetScene:
-    sceneName: SampleScene
-    sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
-  otherFormScene:
-    sceneName: SignUpScene
-    sceneAsset: {fileID: 102900000, guid: 3389029b3c1ee7f40bec33f792a7f184, type: 3}
-  verifyCodeScene:
-    sceneName: VerifyCodeScene
-    sceneAsset: {fileID: 102900000, guid: 6807976b6f5dfcb4382c558daa37b219, type: 3}
+  loginBackgroundPrefab: {fileID: 5556295372408462094, guid: 0c5e5389679ba55ea8d517bd7a5f081d, type: 3}
+  showBackground: 1
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}

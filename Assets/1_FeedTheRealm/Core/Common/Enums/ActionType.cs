@@ -9,4 +9,6 @@ public enum ActionType
     Dash,
     Use,
     Interact,
+    DialogNext,
+    CancelInteract,
 }
