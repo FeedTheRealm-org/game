@@ -5558,6 +5558,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   SortingGroup: {fileID: 0}
+  DepthSortingPrecision: 100
+  DepthSortingOffset: 0
+  DepthSortingCamera: {fileID: 0}
   Sprites:
   - {fileID: 2776651529544351104}
   - {fileID: 2733429790296984830}
@@ -7481,7 +7484,7 @@ Animator:
   m_GameObject: {fileID: 3539730328510245114}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b932593c4f32ff8918ec3e08cbda1f6e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4c7c716b877ab82c98088e087015a1ee, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -7502,7 +7505,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3539730328510245114}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa3d0a5bb9d3c04d3ac2dc5893220154, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e28b36ef3944197c906e3db5dc80918, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
   animator: {fileID: 6309870974530971492}
@@ -7510,7 +7513,7 @@ MonoBehaviour:
   back: {fileID: 7890858304694303582}
   right: {fileID: 3594509579022949042}
   left: {fileID: 3653021444883206904}
-  logger: {fileID: 11400000, guid: e566741b31fec873c94b2868946ab81d, type: 2}
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!1 &3588008396827394645
 GameObject:
   m_ObjectHideFlags: 0
@@ -7861,6 +7864,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   SortingGroup: {fileID: 0}
+  DepthSortingPrecision: 100
+  DepthSortingOffset: 0
+  DepthSortingCamera: {fileID: 0}
   Sprites:
   - {fileID: 3191443655284785749}
   - {fileID: 5484549704738909416}
@@ -8167,6 +8173,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   SortingGroup: {fileID: 0}
+  DepthSortingPrecision: 100
+  DepthSortingOffset: 0
+  DepthSortingCamera: {fileID: 0}
   Sprites:
   - {fileID: 872660459790423350}
   - {fileID: 7169182956665199019}
@@ -11142,6 +11151,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8848294552524135727}
   - component: {fileID: 241119999011203661}
+  - component: {fileID: 8928021094902802808}
+  - component: {fileID: 2880274892149425418}
   m_Layer: 0
   m_Name: CharacterBody
   m_TagString: Untagged
@@ -11179,6 +11190,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
+--- !u!114 &8928021094902802808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5167346019328723826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ae068552dfb671458052c0c93464725, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::SpriteLoader
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+--- !u!114 &2880274892149425418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5167346019328723826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f7196b6992ca54d9adb89a1fdc3480, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FeedTheRealm_Shared::SpriteManager
 --- !u!1 &5256173953412404887
 GameObject:
   m_ObjectHideFlags: 0
@@ -16769,6 +16805,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   SortingGroup: {fileID: 0}
+  DepthSortingPrecision: 100
+  DepthSortingOffset: 0
+  DepthSortingCamera: {fileID: 0}
   Sprites:
   - {fileID: 3589534199553396893}
   - {fileID: 3048116673343857586}

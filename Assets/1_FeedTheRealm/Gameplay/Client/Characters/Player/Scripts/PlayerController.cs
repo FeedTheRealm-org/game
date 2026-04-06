@@ -100,13 +100,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnMoveInput(Vector2 vec)
     {
-        // if (Cursor.visible)
-        // {
-        //     return;
-        // }
-        // TODO: remove these if and make the state machine know via events when it can execute inputs or not (e.g. Hud manager events).
-
-        //logger.Log($"PlayerController OnMoveInput: {vec}", this);
         characterStateMachine?.OnMove(vec);
     }
 

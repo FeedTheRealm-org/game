@@ -22,13 +22,15 @@ public class ClientPlayerLinker : PlayerLinker
     private readonly NpcDialogRegistry npcDialogRegistry;
     private readonly Session.Session session;
     private readonly WorldSelector worldSelector;
+    private readonly PlayerSpriteRepository playerSpriteRepository;
 
     public ClientPlayerLinker(
         ClientPrefabProvider prefabProvider,
         IObjectResolver resolver,
         NpcDialogRegistry npcDialogRegistry,
         Session.Session session,
-        WorldSelector worldSelector
+        WorldSelector worldSelector,
+        PlayerSpriteRepository playerSpriteRepository
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
@@ -37,6 +39,7 @@ public class ClientPlayerLinker : PlayerLinker
         this.npcDialogRegistry = npcDialogRegistry;
         this.session = session;
         this.worldSelector = worldSelector;
+        this.playerSpriteRepository = playerSpriteRepository;
     }
 
     public override void Link(GameObject gameObject)
@@ -53,6 +56,11 @@ public class ClientPlayerLinker : PlayerLinker
         }
 
         var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
+        var spriteLoader = playerComponents.GetComponentInChildren<SpriteLoader>();
+        var spriteManager = playerComponents.GetComponentInChildren<SpriteManager>();
+        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+
+        spriteManager.Initialize(spriteLoader, playerSpriteRepository, stateStorage);
 
         if (networkAdapter.IsLocalPlayer)
         {
@@ -66,7 +74,6 @@ public class ClientPlayerLinker : PlayerLinker
             networkAdapter.DispatchTransaction(setUserIdTransaction);
 
             // var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
-            var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             /* -- Instantiate and inject UI components -- */

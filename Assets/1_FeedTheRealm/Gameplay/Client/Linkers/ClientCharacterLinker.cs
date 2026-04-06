@@ -38,14 +38,12 @@ namespace FTR.Gameplay.Client.Linkers
             var healthView = characterComponents.GetComponent<HealthView>();
             var movementController = characterComponents.GetComponent<MovementController>();
             var useController = characterComponents.GetComponent<UseController>();
-            var spriteLoader = characterComponents.GetComponent<SpriteLoader>();
 
             networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
             attackView.Initialize(networkEventRouter);
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             staminaView.Initialize(stateStorage);
-            spriteLoader.Initialize(stateStorage);
             healthView?.Initialize(stateStorage);
 
             movementController.Initialize(networkAdapter);
