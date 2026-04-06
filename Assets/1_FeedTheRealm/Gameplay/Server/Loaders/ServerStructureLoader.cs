@@ -4,6 +4,7 @@ using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Environment.Structures;
 using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
@@ -20,11 +21,16 @@ namespace FTR.Gameplay.Server.Loaders
             shopPrefab = prefabProvider.ShopComponent;
         }
 
-        public virtual async UniTask Load(WorldData worldData)
+        public virtual async UniTask Load(
+            string worldId,
+            ZoneData zoneData,
+            CreatablesData creatablesData
+        )
         {
-            var structures = worldData.objectPlacementData;
-            var structureShopData = new List<StructureData>();
+            ServerShopRegistry.RegisterWorldData(creatablesData);
 
+            var structureShopData = new List<StructureData>();
+            var structures = zoneData.objectPlacementData;
             foreach (StructureData structureData in structures)
             {
                 if (structureData.isShop)
@@ -41,9 +47,11 @@ namespace FTR.Gameplay.Server.Loaders
             foreach (StructureData structureData in structureShopData)
             {
                 GameObject instance = Instantiate(shopPrefab);
-                instance.name = structureData.structureName;
+                instance.name = structureData.shopId;
                 var controller = instance.GetComponent<StructureController>();
                 controller.Initialize(structureData);
+
+                Mirror.NetworkServer.Spawn(instance);
             }
         }
     }

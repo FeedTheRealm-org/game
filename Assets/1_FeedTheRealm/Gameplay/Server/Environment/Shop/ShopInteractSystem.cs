@@ -56,11 +56,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 new OpenShopEvent(
                     ownNetId,
                     new OpenShopEventContent { ShopId = shopId },
-                    connId.Value
+                    GetPlayerConnectionId(playerNetId)
                 )
             );
 
-            worldMonitor.Events.Enqueue(new InteractCompletedEvent(ownNetId, connId.Value));
+            worldMonitor.Events.Enqueue(new InteractCompletedEvent(playerNetId, connId.Value));
 
             logger?.Log($"[ShopInteractSystem] Player {playerNetId} opened shop '{shopId}'.", this);
 

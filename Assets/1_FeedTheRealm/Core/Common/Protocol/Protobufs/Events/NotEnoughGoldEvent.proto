@@ -4,6 +4,7 @@ package protocol;
 
 option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
 
-message OpenShopEventContent {
-  string shop_id = 1;
+message NotEnoughGoldEventContent {
+  string product_id = 1;
+  int32 amount = 2;
 }

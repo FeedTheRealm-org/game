@@ -10,10 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4904787117731685866}
   - component: {fileID: 7774593433106030350}
-  - component: {fileID: 5233460857616364915}
+  - component: {fileID: -3610736449784353485}
   - component: {fileID: -303548839676757540}
   - component: {fileID: -1726177640601011997}
   - component: {fileID: -2119517169629561240}
+  - component: {fileID: 3459576264419832992}
   m_Layer: 10
   m_Name: Shop
   m_TagString: Untagged
@@ -53,7 +54,7 @@ MonoBehaviour:
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
---- !u!114 &5233460857616364915
+--- !u!114 &-3610736449784353485
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -62,9 +63,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3922623790710069857}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0966246341c5cfcb8175f48d3fe60d0, type: 3}
+  m_Script: {fileID: 11500000, guid: 6bf2504e4b1dafd5d996d2e9b35c690d, type: 3}
   m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Environment.Structures.StructureController
+  m_EditorClassIdentifier: FTR.Core.Common::NetworkAdapter
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
 --- !u!114 &-303548839676757540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,3 +113,15 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
   linkerType: 4
+--- !u!114 &3459576264419832992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922623790710069857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0966246341c5cfcb8175f48d3fe60d0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Environment.Structures.StructureController

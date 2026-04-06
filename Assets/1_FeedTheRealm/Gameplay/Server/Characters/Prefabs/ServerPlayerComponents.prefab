@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a255630e910c159bb856a77108a7b9f, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::PlayerInteractSystem
-  interactionRadius: 3
+  interactionRadius: 8
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 1024

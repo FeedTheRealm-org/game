@@ -24,11 +24,16 @@ public class ClientShopLinker : ShopLinker
 
     public override void Link(GameObject gameObject)
     {
+        Debug.Log(
+            "[ClientShopLinker] Linking shop with netId: "
+                + gameObject.GetComponent<Mirror.NetworkIdentity>().netId
+        );
+
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         if (networkAdapter == null)
         {
             Debug.LogWarning(
-                "[ClientShopLinker] NetworkAdapter component is missing on player object."
+                "[ClientShopLinker] NetworkAdapter component is missing on shop object."
             );
             return;
         }
@@ -41,9 +46,10 @@ public class ClientShopLinker : ShopLinker
 
         var eventRouter = clientShopComponents.GetComponent<NetworkEventRouter>();
 
-        var shopView = clientShopComponents.AddComponent<ShopView>();
-        resolver.Inject(shopView);
+        resolver.InjectGameObject(clientShopComponents);
+        var shopView = clientShopComponents.GetComponent<ShopView>();
 
         shopView.Initialize(eventRouter);
+        eventRouter.Initialize(networkAdapter);
     }
 }

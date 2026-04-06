@@ -9,10 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88f1e0326d7da24ae943a052022117a0, type: 3}
-  m_Name: TooltipLogger
-  m_EditorClassIdentifier: Assembly-CSharp::Logging.Logger
-  showLogs: 0
-  loggerPrefix: '[Tooltip]'
-  loggerColor: {r: 0, g: 0, b: 0, a: 0}
-  showColor: 0
+  m_Script: {fileID: 11500000, guid: d60a687563c47784f833a5d1c0ee0d77, type: 3}
+  m_Name: PurchaseRequestEvent
+  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Gold.PurchaseRequestEvent

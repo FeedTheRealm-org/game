@@ -25,13 +25,13 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiVDb21tYW5kcy9QdXJjaGFzZUNvbW1hbmRDb250ZW50LnByb3RvEghwcm90",
-            "b2NvbCI5ChZQdXJjaGFzZUNvbW1hbmRDb250ZW50Eg8KB2l0ZW1faWQYASAB",
-            "KAkSDgoGYW1vdW50GAIgASgFQieqAiRGVFIuQ29yZS5Db21tb24uUHJvdG9j",
-            "b2wuUnBjTWVzc2FnZXNiBnByb3RvMw=="));
+            "b2NvbCI8ChZQdXJjaGFzZUNvbW1hbmRDb250ZW50EhIKCnByb2R1Y3RfaWQY",
+            "ASABKAkSDgoGYW1vdW50GAIgASgFQieqAiRGVFIuQ29yZS5Db21tb24uUHJv",
+            "dG9jb2wuUnBjTWVzc2FnZXNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent), global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent.Parser, new[]{ "ItemId", "Amount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent), global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent.Parser, new[]{ "ProductId", "Amount" }, null, null, null, null)
           }));
     }
     #endregion
@@ -73,7 +73,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public PurchaseCommandContent(PurchaseCommandContent other) : this() {
-      itemId_ = other.itemId_;
+      productId_ = other.productId_;
       amount_ = other.amount_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -84,15 +84,15 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       return new PurchaseCommandContent(this);
     }
 
-    /// <summary>Field number for the "item_id" field.</summary>
-    public const int ItemIdFieldNumber = 1;
-    private string itemId_ = "";
+    /// <summary>Field number for the "product_id" field.</summary>
+    public const int ProductIdFieldNumber = 1;
+    private string productId_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string ItemId {
-      get { return itemId_; }
+    public string ProductId {
+      get { return productId_; }
       set {
-        itemId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        productId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -123,7 +123,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (ItemId != other.ItemId) return false;
+      if (ProductId != other.ProductId) return false;
       if (Amount != other.Amount) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -132,7 +132,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (ItemId.Length != 0) hash ^= ItemId.GetHashCode();
+      if (ProductId.Length != 0) hash ^= ProductId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -152,9 +152,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (ItemId.Length != 0) {
+      if (ProductId.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(ItemId);
+        output.WriteString(ProductId);
       }
       if (Amount != 0) {
         output.WriteRawTag(16);
@@ -170,9 +170,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (ItemId.Length != 0) {
+      if (ProductId.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(ItemId);
+        output.WriteString(ProductId);
       }
       if (Amount != 0) {
         output.WriteRawTag(16);
@@ -188,8 +188,8 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (ItemId.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(ItemId);
+      if (ProductId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(ProductId);
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Amount);
@@ -206,8 +206,8 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (other == null) {
         return;
       }
-      if (other.ItemId.Length != 0) {
-        ItemId = other.ItemId;
+      if (other.ProductId.Length != 0) {
+        ProductId = other.ProductId;
       }
       if (other.Amount != 0) {
         Amount = other.Amount;
@@ -232,7 +232,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            ItemId = input.ReadString();
+            ProductId = input.ReadString();
             break;
           }
           case 16: {
@@ -259,7 +259,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            ItemId = input.ReadString();
+            ProductId = input.ReadString();
             break;
           }
           case 16: {

@@ -36,6 +36,9 @@ namespace FTR.Gameplay.Common.Environment.Structures
 
         private void OnDrawGizmos()
         {
+            if (structureData == null)
+                return;
+
             Gizmos.color = Color.silver;
             Matrix4x4 rotationMatrix = Matrix4x4.TRS(
                 transform.position,

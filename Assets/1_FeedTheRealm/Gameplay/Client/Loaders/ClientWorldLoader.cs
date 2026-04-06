@@ -7,7 +7,7 @@ using VContainer;
 
 namespace FTR.Gameplay.Client.Loaders
 {
-    public class ClientWorldLoader : WorldLoaderManager
+    public class ClientWorldLoader : ZoneLoaderManager
     {
         [Inject]
         private readonly Session.Session session;

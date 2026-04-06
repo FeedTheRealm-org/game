@@ -1,9 +1,7 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.Linkers;
-using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters.Systems;
-using FTR.Gameplay.Server.Environment.LootItem;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -30,12 +28,17 @@ public class ServerShopLinker : ShopLinker
 
     public override void Link(GameObject gameObject)
     {
+        Debug.Log(
+            "[ShopLinker] Linking shop with netId: "
+                + gameObject.GetComponent<NetworkIdentity>().netId
+        );
+
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
 
         // Add server-side components
-        var serverComponents = Object.Instantiate(
-            prefabProvider.ServerLootItemComponents,
+        var serverComponents = resolver.Instantiate(
+            prefabProvider.ServerShopComponent,
             gameObject.transform
         );
         serverComponents.layer = gameObject.layer;

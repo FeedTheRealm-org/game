@@ -48,8 +48,6 @@ public class ClientPlayerLinker : PlayerLinker
 
         if (networkAdapter.IsLocalPlayer)
         {
-            // var fastSlotState = gameObject.GetComponent<FastSlotStateStorage>();
-            var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             /* -- Instantiate and inject UI components -- */
@@ -95,7 +93,6 @@ public class ClientPlayerLinker : PlayerLinker
             /* -- Instantiate and initialize controllers and views -- */
 
             var playerController = gameObject.AddComponent<PlayerController>();
-            var eventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             var inventoryState = gameObject.GetComponent<InventoryStateStorage>();
             var goldState = gameObject.GetComponent<GoldStateStorage>();
@@ -105,8 +102,8 @@ public class ClientPlayerLinker : PlayerLinker
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
 
+            var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
-            var shopView = playerComponents.AddComponent<ShopView>();
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);
@@ -116,12 +113,12 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(inventoryView);
 
             resolver.Inject(goldView);
-            resolver.Inject(shopView);
+            resolver.Inject(goldController);
 
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
-            goldView?.Initialize(goldState);
-            shopView?.Initialize(eventRouter);
+            goldView?.Initialize(goldState, networkEventRouter);
+            goldController?.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);
             questView?.Initialize(networkAdapter);
             characterStateMachine?.Initialize(interactController);

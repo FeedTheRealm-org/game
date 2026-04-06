@@ -10,7 +10,7 @@ namespace FTR.Gameplay.Server.Registry
     /// </summary>
     public static class ServerItemsRegistry
     {
-        public static WorldData CurrentWorldData { get; private set; }
+        public static CreatablesData CurrentData { get; private set; }
 
         private static readonly Dictionary<string, ItemData> itemsById =
             new Dictionary<string, ItemData>();
@@ -20,9 +20,9 @@ namespace FTR.Gameplay.Server.Registry
             new Dictionary<string, LootTableData>();
         private static readonly HashSet<string> worldItemIds = new HashSet<string>();
 
-        public static void RegisterWorldData(WorldData data)
+        public static void RegisterWorldData(CreatablesData data)
         {
-            CurrentWorldData = data;
+            CurrentData = data;
 
             itemsById.Clear();
             enemiesById.Clear();
@@ -86,7 +86,7 @@ namespace FTR.Gameplay.Server.Registry
             }
 
             Debug.Log(
-                $"[ServerItemsRegistry] Registered {registeredItems} items, {enemiesById.Count} enemies and {lootTablesById.Count} loot tables for world '{data.worldName}'."
+                $"[ServerItemsRegistry] Registered {registeredItems} items, {enemiesById.Count} enemies and {lootTablesById.Count} loot tables for world."
             );
         }
 

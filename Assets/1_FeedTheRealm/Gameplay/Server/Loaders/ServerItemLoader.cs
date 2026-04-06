@@ -10,10 +10,14 @@ namespace FTR.Gameplay.Server.Loaders
     {
         public ServerItemLoader() { }
 
-        public virtual async UniTask Load(WorldData worldData)
+        public virtual async UniTask Load(
+            string worldId,
+            ZoneData zoneData,
+            CreatablesData creatablesData
+        )
         {
-            Debug.Log($"[ServerItemLoader] Loading world items for world: {worldData.id}");
-            ServerItemsRegistry.RegisterWorldData(worldData);
+            Debug.Log($"[ServerItemLoader] Loading world items for world: {worldId}");
+            ServerItemsRegistry.RegisterWorldData(creatablesData);
         }
     }
 }

@@ -32,7 +32,12 @@ namespace FTR.Gameplay.Server.Characters
             string itemId
         ) { }
 
-        public virtual void OnPurchase(IEventCollectable ec, string itemId, int amount) { }
+        public virtual void OnPurchase(
+            IEventCollectable ec,
+            uint netId,
+            string productId,
+            int amount
+        ) { }
 
         public virtual void OnQuestAccepted(IEventCollectable ec, string questId) { }
 

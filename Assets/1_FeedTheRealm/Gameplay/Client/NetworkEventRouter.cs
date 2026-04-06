@@ -13,6 +13,7 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
     public event Action<DialogEventContent> OnDialogEvent;
     public event Action<OpenShopEventContent> OnOpenShopEvent;
+    public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
     public event Action OnInteractFailedEvent;
     public event Action OnInteractCompletedEvent;
 
@@ -65,6 +66,12 @@ public class NetworkEventRouter : MonoBehaviour
                 break;
             case ServerEventType.OpenShopEvent:
                 OnOpenShopEvent?.Invoke(OpenShopEventContent.Parser.ParseFrom(serverEvent.content));
+                break;
+            case ServerEventType.NotEnoughGoldEvent:
+                OnNotEnoughGoldEvent?.Invoke(
+                    NotEnoughGoldEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log($"Routed NotEnoughGoldEvent", this);
                 break;
             case ServerEventType.InteractCompletedEvent:
                 OnInteractCompletedEvent?.Invoke();

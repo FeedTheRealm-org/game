@@ -79,7 +79,7 @@ public static class CommandsFactory
                 {
                     PurchaseCommandContent defaultContent = new PurchaseCommandContent
                     {
-                        ItemId = string.Empty,
+                        ProductId = string.Empty,
                         Amount = 0,
                     };
                     return new PurchaseCommand(dto.NetId, dto.Id, defaultContent);

@@ -15,17 +15,17 @@ namespace FTR.Gameplay.Client.Loaders
         [Inject]
         private readonly ClientQuestRegistry clientQuestRegistry;
 
-        public async UniTask Load(WorldData worldData)
+        public async UniTask Load(string world_id, ZoneData zoneData, CreatablesData creatablesData)
         {
-            if (worldData?.quests == null)
+            if (creatablesData?.quests == null)
             {
-                Debug.LogWarning("[ClientQuestLoader] WorldData has no quests.");
+                Debug.LogWarning("[ClientQuestLoader] CreatablesData has no quests.");
                 return;
             }
 
-            clientQuestRegistry.Populate(worldData.quests);
+            clientQuestRegistry.Populate(creatablesData.quests);
             Debug.Log(
-                $"[ClientQuestLoader] Registry populated with {worldData.quests.Count} quest(s)."
+                $"[ClientQuestLoader] Registry populated with {creatablesData.quests.Count} quest(s)."
             );
 
             await UniTask.CompletedTask;

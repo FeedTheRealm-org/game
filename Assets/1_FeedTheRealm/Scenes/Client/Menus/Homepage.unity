@@ -283,15 +283,15 @@ PrefabInstance:
     - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: worldSelector
       value: 
-      objectReference: {fileID: 11400000, guid: d54015669dd0b4a47aea5d2bef3cd7a0, type: 2}
+      objectReference: {fileID: 11400000, guid: faed404c8f2d5282c8f1b73ca17c2f00, type: 2}
     - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: worldScene.sceneName
-      value: WorldServer
+      value: ClientWorld
       objectReference: {fileID: 0}
     - target: {fileID: -5679934309798226453, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: worldScene.sceneAsset
       value: 
-      objectReference: {fileID: 102900000, guid: af1dd9f0b6fa92e91ab9ba4ba37f9e71, type: 3}
+      objectReference: {fileID: 102900000, guid: 701c4046fa42a621791231367c88fbc5, type: 3}
     - target: {fileID: 2465686432925961172, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 887.7582

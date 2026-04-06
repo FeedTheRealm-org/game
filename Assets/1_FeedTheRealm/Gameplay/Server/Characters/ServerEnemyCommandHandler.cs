@@ -53,7 +53,7 @@ namespace FTR.Gameplay.Server.Characters
             string itemId
         ) { }
 
-        public void OnPurchase(IEventCollectable ec, string itemId, int amount) { }
+        public void OnPurchase(IEventCollectable ec, uint netId, string productId, int amount) { }
 
         public void OnQuestAccepted(IEventCollectable ec, string questId) { }
 
