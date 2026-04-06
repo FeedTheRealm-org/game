@@ -25,7 +25,7 @@ namespace API
         /// </summary>
         public async UniTask<GameObject> DownloadModel(string url)
         {
-            string fullUrl = $"http://{apiConfig.ModelsCDN.TrimEnd('/')}/{url.TrimStart('/')}";
+            string fullUrl = $"{apiConfig.ModelsCDN.TrimEnd('/')}/{url.TrimStart('/')}";
             var parentObject = new GameObject("Model");
             Debug.Log($"Downloading model from URL: {fullUrl}");
             await LoadModel(parentObject, fullUrl);
