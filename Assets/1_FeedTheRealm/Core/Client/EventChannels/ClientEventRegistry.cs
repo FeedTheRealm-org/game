@@ -93,6 +93,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(interactFailedEvent);
             builder.RegisterInstance(interactCompletedEvent);
             builder.RegisterInstance(notEnoughGoldEvent);
+            builder.RegisterInstance(worldSetupEvent);
         }
 
         private void Validate()
