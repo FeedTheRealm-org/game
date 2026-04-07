@@ -174,8 +174,8 @@ public class NPCSpawns : MonoBehaviour
             npcID,
             $"NPC_{npcID}",
             "A friendly NPC.",
-            "Sprites/NPCs/Default",
-            null
+            null,
+            new Dictionary<string, string>()
         );
         Initialize(npcSpawnerData, npcData);
     }
