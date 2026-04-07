@@ -2,13 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
+    /// <summary>
+    /// Server-side interactable for passive NPCs with dialog sequences.
+    /// Implements IInteractable for the standard interaction lifecycle,
+    /// IQuestBlockable to pause dialog while waiting for a quest decision,
+    /// and publishes to NpcInteractedServerChannel so QuestSystem can track NpcInteract quests.
+    /// </summary>
     public class NpcInteractSystem : MonoBehaviour, IInteractable, IQuestBlockable
     {
         [Header("General settings")]
@@ -20,6 +28,30 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private float inactivityTimeout = 10f;
+
+        [Inject]
+        public void Construct(IObjectResolver resolver)
+        {
+            var hasEvent = resolver.TryResolve<NpcInteractedEvent>(out var ev);
+            if (!hasEvent || ev == null)
+            {
+                logger?.Log(
+                    "[NpcInteractSystem] Construct: NpcInteractedEvent NOT found in container!",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
+            else
+            {
+                this.npcInteractedEvent = ev;
+                logger?.Log(
+                    "[NpcInteractSystem] Construct: Successfully resolved NpcInteractedEvent from container.",
+                    this
+                );
+            }
+        }
+
+        private NpcInteractedEvent npcInteractedEvent;
 
         private string npcId;
         private WorldMonitor worldMonitor;
@@ -86,6 +118,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return npcId;
             }
 
+            if (npcInteractedEvent == null)
+            {
+                logger?.Log(
+                    "[NpcInteractSystem] npcInteractedEvent is NULL! Cannot notify QuestSystem.",
+                    this,
+                    Logging.LogType.Error
+                );
+            }
+            else
+            {
+                logger?.Log(
+                    $"[NpcInteractSystem] Raising NpcInteractedEvent for player {playerNetId} and npc {npcId}",
+                    this
+                );
+                npcInteractedEvent?.Raise((playerNetId, npcId));
+            }
+
             var questId = npcDialogRegistry.GetQuestIdAt(npcId, 0);
 
             if (!string.IsNullOrEmpty(questId))
@@ -112,10 +161,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 )
             );
 
-            logger?.Log(
-                $"[NpcInteractSystem] NPC interacted with by {interactor.GameObject.name}",
-                this
-            );
+            logger?.Log($"[NpcInteractSystem] Interacted by {interactor.GameObject.name}", this);
             return npcId;
         }
 
@@ -199,10 +245,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             );
         }
 
-        public bool CanInteract(IInteractor interactor)
-        {
-            return true;
-        }
+        public bool CanInteract(IInteractor interactor) => true;
 
         public void OnQuestDecided(uint playerNetId)
         {

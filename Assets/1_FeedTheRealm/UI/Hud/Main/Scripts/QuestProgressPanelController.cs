@@ -4,15 +4,17 @@ using FTR.Core.Common.Quests;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.Hud.Main
 {
     /// <summary>
-    /// Manages the quest progress panel in the UI, updating quest progress based on events.
+    /// Manages the quest progress panel in the HUD.
+    /// Lives on the Hud prefab.
     /// </summary>
     public class QuestProgressPanelController : MonoBehaviour
     {
-        [SerializeField]
+        [Inject]
         private QuestProgressEvent progressEvent;
 
         [SerializeField]
@@ -28,28 +30,25 @@ namespace FTR.UI.Hud.Main
         private readonly string _questProgressClasses = "quest-progress";
         private readonly float _questProgressHighValue = 100f;
 
-        void Start()
+        private void Start()
         {
-            var root = GetComponent<UIDocument>().rootVisualElement;
-
-            _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
-            if (_currentQuestsContainer == null)
+            var rootDocument = GetComponent<UIDocument>();
+            if (rootDocument == null)
             {
-                logger.Log(
-                    "CurrentQuestsContainer not found in the UI Document.",
+                logger?.Log(
+                    "[QuestProgressPanel] UIDocument component missing.",
                     this,
                     Logging.LogType.Error
                 );
                 return;
             }
 
-            if (progressEvent == null)
+            var root = rootDocument.rootVisualElement;
+
+            _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
+            if (_currentQuestsContainer == null)
             {
-                logger.Log(
-                    "QuestProgressEvent is not assigned in the inspector.",
-                    this,
-                    Logging.LogType.Error
-                );
+                StartCoroutine(DeferredInitializeContainer());
                 return;
             }
 
@@ -57,22 +56,43 @@ namespace FTR.UI.Hud.Main
             ToggleContainerVisibility(false);
         }
 
+        private IEnumerator DeferredInitializeContainer()
+        {
+            yield return null;
+            var root = GetComponent<UIDocument>().rootVisualElement;
+            _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
+            if (_currentQuestsContainer == null)
+            {
+                logger?.Log(
+                    "[QuestProgressPanel] CurrentQuestsContainer not found in UIDocument even after delay.",
+                    this,
+                    Logging.LogType.Error
+                );
+                yield break;
+            }
+            _currentQuestsContainer.Clear();
+            ToggleContainerVisibility(false);
+        }
+
         private void OnEnable()
         {
-            progressEvent.OnRaised += HandleQuestProgress;
+            if (progressEvent != null)
+                progressEvent.OnRaised += HandleQuestProgress;
         }
 
         private void OnDisable()
         {
-            progressEvent.OnRaised -= HandleQuestProgress;
+            if (progressEvent != null)
+                progressEvent.OnRaised -= HandleQuestProgress;
         }
 
         private void HandleQuestProgress(QuestProgressData questProgress)
         {
-            logger.Log(
-                $"New progress for quest {questProgress.Quest.title} with id {questProgress.Id}",
+            /*logger?.Log(
+                $"[QuestProgressPanel] Progress: '{questProgress.Quest.title}' "
+                    + $"{questProgress.CurrentProgressAmount}/{questProgress.TargetProgressAmount}",
                 this
-            );
+            );*/
 
             var questItem = _currentQuestsContainer.Q<VisualElement>(questProgress.Id);
 
@@ -85,8 +105,8 @@ namespace FTR.UI.Hud.Main
             var progressBar = questItem.Q<ProgressBar>();
             if (progressBar == null)
             {
-                logger.Log(
-                    $"Progress: Progress bar not found in quest item with ID {questProgress.Id}.",
+                logger?.Log(
+                    $"[QuestProgressPanel] ProgressBar not found for quest '{questProgress.Id}'.",
                     this,
                     Logging.LogType.Warning
                 );
@@ -135,23 +155,26 @@ namespace FTR.UI.Hud.Main
 
         private void ToggleContainerVisibility(bool show)
         {
-            if (_currentQuestsContainer.visible == show)
+            if (_currentQuestsContainer == null)
                 return;
 
-            _currentQuestsContainer.visible = show;
+            _currentQuestsContainer.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private IEnumerator RemoveQuestAfterDelay(float delay, string questId)
         {
             yield return new WaitForSeconds(delay);
-            var questItem = _currentQuestsContainer.Q<VisualElement>(questId);
+            var questItem = _currentQuestsContainer?.Q<VisualElement>(questId);
             if (questItem != null)
             {
                 _currentQuestsContainer.Remove(questItem);
-                logger.Log($"Removed quest item with id {questId} after delay.", this);
+                logger?.Log(
+                    $"[QuestProgressPanel] Removed quest item '{questId}' after delay.",
+                    this
+                );
             }
 
-            if (_currentQuestsContainer.childCount == 0)
+            if (_currentQuestsContainer != null && _currentQuestsContainer.childCount == 0)
                 ToggleContainerVisibility(false);
         }
     }

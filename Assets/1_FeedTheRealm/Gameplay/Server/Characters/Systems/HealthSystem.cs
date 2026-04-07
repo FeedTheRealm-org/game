@@ -14,6 +14,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Logging.Logger logger;
 
         public event Action<uint> OnDeath;
+        public event Action<uint, string> OnDeathByPlayer;
+
         public float CurrentHealth => currentHealth;
 
         private float currentHealth;
@@ -39,7 +41,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt) { }
 
-        public bool TakeDamage(float damage)
+        public bool TakeDamage(float damage, uint attackerNetId = 0)
         {
             if (isImmortal)
                 return false;
@@ -49,10 +51,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             currentHealth -= damage;
             stateStorage.SetHealth(Mathf.Max(0f, currentHealth));
-            logger.Log($"Took {damage} damage, current health: {currentHealth}", this);
+            /*logger.Log(
+                $"Took {damage} damage from netId={attackerNetId}, health: {currentHealth}",
+                this
+            );*/
+
             var isDead = currentHealth <= 0;
             if (isDead)
-                Die();
+                Die(attackerNetId);
 
             return isDead;
         }
@@ -61,15 +67,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             currentHealth = MaxHealth;
             stateStorage.SetHealth(MaxHealth);
-            logger.Log($"Health reset to {MaxHealth}", this);
+            //logger.Log($"Health reset to {MaxHealth}", this);
         }
 
-        private void Die()
+        private void Die(uint killerNetId)
         {
             if (!isInitialized)
                 return;
-            logger.Log("Character has died.", this);
+
+            logger.Log($"Character has died. Killer netId={killerNetId}", this);
             OnDeath?.Invoke(netId);
+
+            if (killerNetId > 0)
+            {
+                var enemyTypeId = stateStorage?.CharacterId;
+                if (!string.IsNullOrEmpty(enemyTypeId))
+                {
+                    OnDeathByPlayer?.Invoke(killerNetId, enemyTypeId);
+                }
+            }
         }
     }
 }

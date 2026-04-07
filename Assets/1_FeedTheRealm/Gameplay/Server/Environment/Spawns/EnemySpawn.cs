@@ -123,15 +123,15 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             }
 
             playersInside++;
-            logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
+            //logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            logger.Log(
+            /*logger.Log(
                 $"[EnemySpawn] Player exited. Total unique players: {playersInside - 1}",
                 this
-            );
+            );*/
             playersInside = Mathf.Max(0, playersInside - 1);
 
             if (playersInside == 0)
@@ -176,7 +176,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         /// </summary>
         private void SpawnEnemy()
         {
-            logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
+            //logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
             Vector3 point = GetRandomPointInRadius();
             GameObject enemy = resolverContainer.Resolver.Instantiate(
                 enemyPrefab,

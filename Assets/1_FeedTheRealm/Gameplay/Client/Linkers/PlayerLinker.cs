@@ -48,6 +48,7 @@ public class ClientPlayerLinker : PlayerLinker
 
         if (networkAdapter.IsLocalPlayer)
         {
+            var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             /* -- Instantiate and inject UI components -- */
@@ -101,6 +102,7 @@ public class ClientPlayerLinker : PlayerLinker
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
+            var questProgressView = hudComponent.AddComponent<QuestProgressView>();
 
             var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
@@ -121,6 +123,8 @@ public class ClientPlayerLinker : PlayerLinker
             goldController?.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);
             questView?.Initialize(networkAdapter);
+            resolver.Inject(questProgressView);
+            questProgressView?.Initialize(networkEventRouter);
             characterStateMachine?.Initialize(interactController);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);

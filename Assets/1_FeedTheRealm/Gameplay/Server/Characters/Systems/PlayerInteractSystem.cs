@@ -39,7 +39,7 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
     /// </summary>
     public void TryInteract(IEventCollectable ec)
     {
-        logger?.Log("[PlayerInteractSystem] TryInteract triggered.", this);
+        //logger?.Log("[PlayerInteractSystem] TryInteract triggered.", this);
 
         IInteractable closest = FindClosestInteractable();
 
@@ -53,7 +53,7 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
 
         if (CurrentInteractable == closest)
         {
-            logger?.Log($"[PlayerInteractSystem] Continuing interaction with: {closest}", this);
+            //logger?.Log($"[PlayerInteractSystem] Continuing interaction with: {closest}", this);
             CurrentInteractable.ContinueInteraction(this);
             return;
         }
@@ -62,7 +62,7 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
             CurrentInteractable.StopInteraction(this);
 
         CurrentInteractable = closest;
-        logger?.Log($"[PlayerInteractSystem] Starting interaction with: {closest}", this);
+        //logger?.Log($"[PlayerInteractSystem] Starting interaction with: {closest}", this);
         CurrentInteractable.Interact(this);
     }
 
@@ -100,7 +100,7 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
 
     public void FinishInteracting()
     {
-        logger?.Log("[PlayerInteractSystem] FinishInteracting.", this);
+        //logger?.Log("[PlayerInteractSystem] FinishInteracting.", this);
         if (CurrentInteractable != null)
         {
             CurrentInteractable.StopInteraction(this);

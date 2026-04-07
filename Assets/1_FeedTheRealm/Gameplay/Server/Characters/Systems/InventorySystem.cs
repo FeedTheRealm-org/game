@@ -60,7 +60,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
         {
-            logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
+            //logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
 
             for (int i = 0; i < inventorySize; i++)
             {
@@ -68,10 +68,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 {
                     inventorySlots[i] = itemId;
                     inventoryState.AddItem(StorageType.Inventory, i, itemId);
-                    logger.Log(
+                    /*logger.Log(
                         $"[InventorySystem] Item {itemId} added to inventory slot {i}",
                         this
-                    );
+                    );*/
                     onComplete(true);
                     return;
                 }
