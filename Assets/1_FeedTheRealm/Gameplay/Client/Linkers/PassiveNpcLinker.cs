@@ -20,11 +20,12 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
     public ClientPassiveNpcLinker(
         ClientPrefabProvider prefabProvider,
         IObjectResolver resolver,
-        NpcDialogRegistry npcDialogRegistry
+        NpcDialogRegistry npcDialogRegistry,
+        ClientNpcEnemySpriteRepository npcEnemySpriteRepository
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
-        this.npcEnemySpriteRepository = new ClientNpcEnemySpriteRepository();
+        this.npcEnemySpriteRepository = npcEnemySpriteRepository;
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
         this.npcDialogRegistry = npcDialogRegistry;
@@ -36,26 +37,17 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var spriteLoader = characterComponent.GetComponentInChildren<SpriteLoader>();
         var spriteManager = characterComponent.GetComponentInChildren<SpriteManager>();
-
-        if (stateStorage != null && spriteLoader != null && spriteManager != null)
-        {
-            spriteManager.Initialize(spriteLoader, npcEnemySpriteRepository, stateStorage);
-        }
-        else
-        {
-            Debug.LogWarning(
-                "[ClientPassiveNpcLinker] Missing sprite components or CharacterStateStorage for passive NPC."
-            );
-        }
-
-        var characterBody = characterComponent.transform.Find("CharacterBody");
-        var dialogParent = characterBody != null ? characterBody : gameObject.transform;
-
         var networkEventRouter = characterComponent.GetComponent<NetworkEventRouter>();
         var interactView = characterComponent.AddComponent<InteractView>();
+
         resolver.Inject(interactView);
+
+        spriteManager.Initialize(spriteLoader, npcEnemySpriteRepository, stateStorage);
         interactView.Initialize(networkEventRouter, npcDialogRegistry);
 
+        // Initialize dialog box
+        var characterBody = characterComponent.transform.Find("CharacterBody");
+        var dialogParent = characterBody != null ? characterBody : gameObject.transform;
         prefabProvider.DialogBox.SetActive(false);
         var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, dialogParent);
         dialogBoxComponent.transform.localPosition = new Vector3(1f, -0.2f, 0);

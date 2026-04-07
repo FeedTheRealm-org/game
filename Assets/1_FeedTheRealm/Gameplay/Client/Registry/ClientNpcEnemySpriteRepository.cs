@@ -13,36 +13,6 @@ namespace FTR.Gameplay.Client.Registry
             if (string.IsNullOrEmpty(characterId))
                 return null;
 
-            var characterInfo = TryBuildCharacterInfo(characterId);
-            if (characterInfo != null)
-                return characterInfo;
-
-            // NPCs can be spawned on server before the client world loaders populate registries.
-            // Wait briefly for world data so initial CharacterId sync can still resolve sprites.
-            if (ClientItemsRegistry.CurrentWorldData == null)
-            {
-                var waitedMs = 0;
-                while (
-                    ClientItemsRegistry.CurrentWorldData == null && waitedMs < RegistryWaitTimeoutMs
-                )
-                {
-                    await Task.Delay(RegistryRetryDelayMs);
-                    waitedMs += RegistryRetryDelayMs;
-
-                    characterInfo = TryBuildCharacterInfo(characterId);
-                    if (characterInfo != null)
-                        return characterInfo;
-                }
-            }
-
-            return TryBuildCharacterInfo(characterId);
-        }
-
-        private static API.CharacterInfoResponse TryBuildCharacterInfo(string characterId)
-        {
-            if (string.IsNullOrEmpty(characterId))
-                return null;
-
             var npcData = ClientItemsRegistry.GetNpcById(characterId);
             if (npcData != null)
             {

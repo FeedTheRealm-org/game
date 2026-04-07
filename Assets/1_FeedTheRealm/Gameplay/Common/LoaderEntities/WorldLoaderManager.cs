@@ -23,18 +23,34 @@ namespace FTR.Gameplay.Common.LoaderEntities
         private readonly Logging.Logger logger;
 
         public List<ILoader> loaders;
+        private UniTask<bool> loadWorldTask;
+        private bool hasLoadWorldTask;
+
+        public bool LastLoadSucceeded { get; private set; }
 
         public abstract string GetWorldId();
         public abstract string GetAccessToken();
 
-        public async UniTask LoadWorld()
+        public async UniTask<bool> LoadWorld()
         {
-            if (!config.DoNotLoadWorld)
-                await Initialize();
+            if (config.DoNotLoadWorld)
+            {
+                LastLoadSucceeded = true;
+                return true;
+            }
+
+            if (!hasLoadWorldTask)
+            {
+                hasLoadWorldTask = true;
+                loadWorldTask = Initialize();
+            }
+
+            LastLoadSucceeded = await loadWorldTask;
+            return LastLoadSucceeded;
         }
 
         // --- Private methods --- //
-        private async UniTask Initialize()
+        private async UniTask<bool> Initialize()
         {
             try
             {
@@ -45,6 +61,7 @@ namespace FTR.Gameplay.Common.LoaderEntities
                     $"[ZONE-LOAD] Starting zone loading with Zone ID: {worldId} | Access Token: {accessToken}"
                 );
                 await Load(worldId, accessToken);
+                return true;
             }
             catch (System.Exception ex)
             {
@@ -52,6 +69,7 @@ namespace FTR.Gameplay.Common.LoaderEntities
                     $"World could not be loaded: {ex.Message}\n{ex.StackTrace}",
                     Logging.LogType.Error
                 );
+                return false;
             }
         }
 
