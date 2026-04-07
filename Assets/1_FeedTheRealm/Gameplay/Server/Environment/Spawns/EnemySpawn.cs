@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
@@ -185,11 +186,48 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             );
             NetworkServer.Spawn(enemy);
 
+            var stateStorage = enemy.GetComponent<CharacterStateStorage>();
+            if (stateStorage != null && !string.IsNullOrEmpty(enemyId))
+            {
+                stateStorage.SetCharacterId(enemyId);
+            }
+
             enemy.name = $"Enemy_{currentEnemies}";
             var netId = enemy.GetComponent<NetworkIdentity>().netId;
             spawnedEnemies[netId] = enemy;
-            var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
-            healthSystem.OnDeath += OnEnemyDeath;
+
+            if (!string.IsNullOrEmpty(enemyId))
+            {
+                var enemyData = ServerItemsRegistry.GetEnemyById(enemyId);
+                if (enemyData != null)
+                {
+                    var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                    if (healthSystem != null)
+                    {
+                        healthSystem.MaxHealth = enemyData.healthPoints;
+                        healthSystem.ResetHealth();
+                        healthSystem.OnDeath += OnEnemyDeath;
+                    }
+
+                    var useSystem = enemy.GetComponentInChildren<UseSystem>();
+                    if (useSystem != null)
+                    {
+                        useSystem.SetAttackDamage(enemyData.damage);
+                    }
+                }
+                else
+                {
+                    var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                    if (healthSystem != null)
+                        healthSystem.OnDeath += OnEnemyDeath;
+                }
+            }
+            else
+            {
+                var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                if (healthSystem != null)
+                    healthSystem.OnDeath += OnEnemyDeath;
+            }
         }
 
         /// <summary>

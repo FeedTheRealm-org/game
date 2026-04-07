@@ -51,16 +51,15 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
 
             Validate();
 
+            serverEventRegistry.RegisterAll(builder);
+
             builder.RegisterInstance(serverConfig);
             builder.RegisterInstance(logger);
-            builder.RegisterInstance(serverEventRegistry);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(zoneService);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
-
-            serverEventRegistry.RegisterAll(builder);
 
             builder.Register<HealthcheckServer>(Lifetime.Singleton);
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);

@@ -32,27 +32,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private WorldMonitor world;
 
         [Inject]
-        public void Construct(IObjectResolver resolver)
-        {
-            var hasEvent = resolver.TryResolve<EnemySlayedEvent>(out var ev);
-            if (!hasEvent || ev == null)
-            {
-                logger?.Log(
-                    "[UseSystem] Construct: EnemySlayedEvent NOT found in container!",
-                    this,
-                    Logging.LogType.Error
-                );
-            }
-            else
-            {
-                this.enemySlayedEvent = ev;
-                logger?.Log(
-                    "[UseSystem] Construct: Successfully resolved EnemySlayedEvent from container.",
-                    this
-                );
-            }
-        }
-
         private EnemySlayedEvent enemySlayedEvent;
 
         private LayerMask targetLayer;
@@ -67,6 +46,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
         private bool isDead = false;
+
+        public void SetAttackDamage(int damage)
+        {
+            attackDamage = damage;
+        }
 
         public void Initialize(
             uint netId,
@@ -153,14 +137,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 if (healthSystem == null)
                     continue;
 
-                bool killed = healthSystem.TakeDamage(attackDamage, this.netId);
+                var (killed, enemyTypeId) = healthSystem.TakeDamage(attackDamage, this.netId);
 
-                if (killed && enemySlayedEvent != null)
+                if (killed)
                 {
-                    var enemyTypeId = target
-                        .transform.root.GetComponentInChildren<CharacterStateStorage>()
-                        ?.CharacterId;
-
                     logger?.Log(
                         $"[UseSystem] Enemy {enemyTypeId} killed by {this.netId}, raising event.",
                         this
