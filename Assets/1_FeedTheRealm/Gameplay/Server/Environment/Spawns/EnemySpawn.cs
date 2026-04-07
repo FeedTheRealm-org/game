@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
@@ -59,9 +60,16 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         private bool isInitialized = false;
         private bool navMeshReady = false;
         private string enemyId;
+        private EnemyData enemyData;
 
-        public void Initialize(EnemySpawnerData data)
+        public void Initialize(EnemySpawnerData data, EnemyData enemyData)
         {
+            if (data == null)
+                throw new System.ArgumentNullException(
+                    nameof(data),
+                    "EnemySpawnerData cannot be null when initializing EnemySpawn."
+                );
+
             config = resolverContainer.Resolver.Resolve<ServerConfig>();
 
             if (config == null)
@@ -75,7 +83,14 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             resetAfterKills = data.ResetAfterKills;
             resetDelay = data.ResetDelay;
             spawnArea.radius = data.Radius;
-            enemyId = data.EnemyId;
+            this.enemyData = enemyData;
+            enemyId = !string.IsNullOrEmpty(enemyData?.id) ? enemyData.id : data.EnemyId;
+
+            if (string.IsNullOrEmpty(enemyId))
+                Debug.LogWarning(
+                    "[EnemySpawn] Enemy spawner initialized without a valid EnemyId.",
+                    this
+                );
 
             prefabProvider = resolverContainer.Resolver.Resolve<ServerPrefabProvider>();
 
@@ -183,6 +198,27 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 point,
                 Quaternion.identity
             );
+
+            var characterId = !string.IsNullOrEmpty(enemyData?.id) ? enemyData.id : enemyId;
+            var stateStorage = enemy.GetComponent<CharacterStateStorage>();
+            if (stateStorage != null && !string.IsNullOrEmpty(characterId))
+            {
+                stateStorage.SetCharacterId(characterId);
+            }
+            else if (stateStorage == null)
+            {
+                Debug.LogWarning(
+                    $"[EnemySpawn] CharacterStateStorage component not found on prefab for enemy '{enemyId}'."
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[EnemySpawn] CharacterId is empty, enemy sprite sync may fail.",
+                    this
+                );
+            }
+
             NetworkServer.Spawn(enemy);
 
             enemy.name = $"Enemy_{currentEnemies}";
@@ -210,10 +246,12 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
             if (!string.IsNullOrEmpty(enemyId))
             {
-                var enemyData = ServerItemsRegistry.GetEnemyById(enemyId);
-                if (enemyData != null && !string.IsNullOrEmpty(enemyData.lootTableId))
+                var currentEnemyData = enemyData ?? ServerItemsRegistry.GetEnemyById(enemyId);
+                if (currentEnemyData != null && !string.IsNullOrEmpty(currentEnemyData.lootTableId))
                 {
-                    var lootTable = ServerItemsRegistry.GetLootTableById(enemyData.lootTableId);
+                    var lootTable = ServerItemsRegistry.GetLootTableById(
+                        currentEnemyData.lootTableId
+                    );
                     if (lootTable != null && lootTable.lootItems != null)
                     {
                         foreach (var lootEntry in lootTable.lootItems)
@@ -328,8 +366,23 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         {
             yield return new WaitUntil(() => NetworkServer.active);
 
-            var enemyData = new EnemySpawnerData(transform.position, spawnArea.radius, enemyId);
-            Initialize(enemyData);
+            var enemySpawnerData = new EnemySpawnerData(
+                transform.position,
+                spawnArea.radius,
+                enemyId
+            );
+            var debugEnemyData = new EnemyData(
+                enemyId,
+                $"Enemy_{enemyId}",
+                "A hostile enemy.",
+                0,
+                0,
+                0,
+                0,
+                "",
+                new Dictionary<string, string>()
+            );
+            Initialize(enemySpawnerData, debugEnemyData);
         }
 #endif
 
