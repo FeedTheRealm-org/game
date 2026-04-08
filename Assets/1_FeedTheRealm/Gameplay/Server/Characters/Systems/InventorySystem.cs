@@ -61,6 +61,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
         {
             logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
+            if (string.IsNullOrEmpty(itemId))
+            {
+                logger.Log($"Invalid itemId '{itemId}' for player {netId}", this);
+                onComplete(false);
+                return;
+            }
 
             for (int i = 0; i < inventorySize; i++)
             {
@@ -81,7 +87,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             onComplete(false);
         }
 
-        public void OnPurchase(IEventCollectable ec, string itemId, int amount)
+        public bool OnPurchase(IEventCollectable ec, string itemId, int amount)
         {
             logger.Log(
                 $"Attempting to add purchased item {itemId} x{amount} to inventory for player {netId}",
@@ -94,7 +100,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     $"Invalid purchase amount {amount} for item {itemId} and player {netId}",
                     this
                 );
-                return;
+                return false;
             }
 
             int emptySlots = 0;
@@ -110,7 +116,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     $"Inventory has insufficient space for purchased item {itemId} x{amount} (free={emptySlots})",
                     this
                 );
-                return;
+                return false;
             }
 
             for (int i = 0; i < inventorySize; i++)
@@ -123,11 +129,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         $"[InventorySystem] Purchased item {itemId} added to inventory slot {i}",
                         this
                     );
-                    return;
+                    return true;
                 }
             }
 
             logger.Log($"Inventory full, cannot add purchased item {itemId}", this);
+            return false;
         }
 
         public void OnMoveItem(

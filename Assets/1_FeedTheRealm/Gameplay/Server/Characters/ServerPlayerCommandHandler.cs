@@ -101,10 +101,12 @@ namespace FTR.Gameplay.Server.Characters
         public override void OnPickUp(
             IEventCollectable ec,
             string itemId,
+            int goldAmount,
             System.Action<bool> onComplete
         )
         {
             inventorySystem.OnPickUp(ec, itemId, onComplete);
+            goldSystem.OnPickUp(ec, goldAmount, onComplete);
         }
 
         public override void OnPurchase(
@@ -134,8 +136,10 @@ namespace FTR.Gameplay.Server.Characters
                 Debug.Log(
                     $"[ServerPlayerCommandHandler] Processing purchase of {productId} x{amount}"
                 );
-                goldSystem.ReduceGold(ec, product.price * amount);
-                inventorySystem.OnPurchase(ec, productId, amount);
+                if (inventorySystem.OnPurchase(ec, productId, amount))
+                {
+                    goldSystem.ReduceGold(ec, product.price * amount);
+                }
             }
         }
     }

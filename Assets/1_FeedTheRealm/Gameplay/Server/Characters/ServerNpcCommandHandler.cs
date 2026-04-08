@@ -56,6 +56,7 @@ namespace FTR.Gameplay.Server.Characters
         public void OnPickUp(
             IEventCollectable ec,
             string itemId,
+            int goldAmount,
             System.Action<bool> onComplete
         ) { }
     }
