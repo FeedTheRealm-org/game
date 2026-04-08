@@ -1,6 +1,9 @@
 using System.Collections;
+using Enums;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
+using FTR.Gameplay.Client.Registry;
+using FTR.Gameplay.Common.Environment.Dialogs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -23,10 +26,14 @@ namespace FTR.UI.Hud.Main
         [SerializeField]
         private Logging.Logger logger;
 
+        [Inject]
+        private NpcDialogRegistry npcDialogRegistry;
+
         private ScrollView _currentQuestsContainer;
 
         private readonly string _questItemClasses = "quest-item";
         private readonly string _questTitleClasses = "quest-title";
+        private readonly string _questDetailClasses = "quest-detail";
         private readonly string _questProgressClasses = "quest-progress";
         private readonly float _questProgressHighValue = 100f;
 
@@ -88,18 +95,22 @@ namespace FTR.UI.Hud.Main
 
         private void HandleQuestProgress(QuestProgressData questProgress)
         {
-            /*logger?.Log(
-                $"[QuestProgressPanel] Progress: '{questProgress.Quest.title}' "
-                    + $"{questProgress.CurrentProgressAmount}/{questProgress.TargetProgressAmount}",
-                this
-            );*/
-
             var questItem = _currentQuestsContainer.Q<VisualElement>(questProgress.Id);
 
             if (questItem == null)
             {
                 questItem = CreateQuestItem(questProgress.Quest);
                 ToggleContainerVisibility(true);
+            }
+
+            var detailLabel = questItem.Q<Label>("QuestProgressDetail");
+            if (detailLabel != null)
+            {
+                detailLabel.text = GetQuestProgressText(
+                    questProgress.Quest,
+                    questProgress.CurrentProgressAmount,
+                    questProgress.TargetProgressAmount
+                );
             }
 
             var progressBar = questItem.Q<ProgressBar>();
@@ -135,6 +146,14 @@ namespace FTR.UI.Hud.Main
             titleLabel.AddToClassList(_questTitleClasses);
             questItem.Add(titleLabel);
 
+            var detailLabel = new Label
+            {
+                name = "QuestProgressDetail",
+                text = GetQuestProgressText(questData, 0, questData.targetAmount),
+            };
+            detailLabel.AddToClassList(_questDetailClasses);
+            questItem.Add(detailLabel);
+
             var progressBar = new ProgressBar
             {
                 value = 0f,
@@ -153,6 +172,55 @@ namespace FTR.UI.Hud.Main
             return questItem;
         }
 
+        private string GetQuestProgressText(
+            QuestData questData,
+            int currentProgress,
+            int targetProgress
+        )
+        {
+            var targetLabel = GetQuestTargetDescription(questData);
+            return targetProgress > 0
+                ? $"{targetLabel} {currentProgress}/{targetProgress}"
+                : targetLabel;
+        }
+
+        private string GetQuestTargetDescription(QuestData questData)
+        {
+            switch (questData.type)
+            {
+                case QuestType.EnemySlays:
+                {
+                    var enemy = ClientItemsRegistry.GetEnemyById(questData.targetId);
+                    return $"Slay: {(enemy != null && !string.IsNullOrEmpty(enemy.name) ? enemy.name : questData.targetId)}";
+                }
+                case QuestType.NpcInteract:
+                {
+                    var npcId = string.IsNullOrEmpty(questData.targetId)
+                        ? questData.targetInteractionId
+                        : questData.targetId;
+                    return $"Talk with: {GetNpcName(npcId)}";
+                }
+                default:
+                    return questData.content ?? questData.targetId;
+            }
+        }
+
+        private string GetNpcName(string npcId)
+        {
+            if (string.IsNullOrEmpty(npcId))
+                return "Unknown NPC";
+
+            if (npcDialogRegistry != null)
+            {
+                if (npcDialogRegistry.TryGetNpcName(npcId, out string npcName))
+                {
+                    return string.IsNullOrEmpty(npcName) ? npcId : npcName;
+                }
+            }
+
+            return npcId;
+        }
+
         private void ToggleContainerVisibility(bool show)
         {
             if (_currentQuestsContainer == null)
@@ -168,10 +236,6 @@ namespace FTR.UI.Hud.Main
             if (questItem != null)
             {
                 _currentQuestsContainer.Remove(questItem);
-                logger?.Log(
-                    $"[QuestProgressPanel] Removed quest item '{questId}' after delay.",
-                    this
-                );
             }
 
             if (_currentQuestsContainer != null && _currentQuestsContainer.childCount == 0)
