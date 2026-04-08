@@ -31,13 +31,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             if (resolver.TryResolve<EnemySlayedEvent>(out var ev1) && ev1 != null)
                 this.enemySlayedEvent = ev1;
-            else
-                logger?.Log(
-                    "[QuestSystem] Failed to resolve EnemySlayedEvent!",
-                    this,
-                    Logging.LogType.Error
-                );
-
             if (resolver.TryResolve<NpcInteractedEvent>(out var ev2) && ev2 != null)
                 this.npcInteractedEvent = ev2;
         }

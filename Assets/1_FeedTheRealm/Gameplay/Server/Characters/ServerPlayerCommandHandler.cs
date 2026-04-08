@@ -23,10 +23,7 @@ namespace FTR.Gameplay.Server.Characters
             PlayerInteractSystem interactSystem,
             InventorySystem inventorySystem,
             QuestSystem questSystem,
-            GoldSystem goldSystem,
-            WorldMonitor worldMonitor,
-            uint netId,
-            uint ownNetId
+            GoldSystem goldSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -36,9 +33,6 @@ namespace FTR.Gameplay.Server.Characters
             this.inventorySystem = inventorySystem;
             this.questSystem = questSystem;
             this.goldSystem = goldSystem;
-
-            questSystem.Initialize(netId, worldMonitor, ownNetId);
-            interactSystem.Initialize(netId, worldMonitor, ownNetId);
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)

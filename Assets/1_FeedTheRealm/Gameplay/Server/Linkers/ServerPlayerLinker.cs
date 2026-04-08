@@ -82,10 +82,7 @@ public class ServerPlayerLinker : PlayerLinker
             interactSystem,
             inventorySystem,
             questSystem,
-            goldSystem,
-            world,
-            netId,
-            networkAdapter.netId
+            goldSystem
         );
 
         respawnSystem.Initialize(

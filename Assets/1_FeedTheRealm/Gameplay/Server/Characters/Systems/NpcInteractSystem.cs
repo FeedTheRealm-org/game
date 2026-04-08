@@ -33,22 +33,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void Construct(IObjectResolver resolver)
         {
             var hasEvent = resolver.TryResolve<NpcInteractedEvent>(out var ev);
-            if (!hasEvent || ev == null)
-            {
-                logger?.Log(
-                    "[NpcInteractSystem] Construct: NpcInteractedEvent NOT found in container!",
-                    this,
-                    Logging.LogType.Error
-                );
-            }
-            else
-            {
+            if (hasEvent && ev != null)
                 this.npcInteractedEvent = ev;
-                logger?.Log(
-                    "[NpcInteractSystem] Construct: Successfully resolved NpcInteractedEvent from container.",
-                    this
-                );
-            }
         }
 
         private NpcInteractedEvent npcInteractedEvent;
