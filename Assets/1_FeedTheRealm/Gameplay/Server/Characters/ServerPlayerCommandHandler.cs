@@ -136,8 +136,10 @@ namespace FTR.Gameplay.Server.Characters
                 Debug.Log(
                     $"[ServerPlayerCommandHandler] Processing purchase of {productId} x{amount}"
                 );
-                goldSystem.ReduceGold(ec, product.price * amount);
-                inventorySystem.OnPurchase(ec, productId, amount);
+                if (inventorySystem.OnPurchase(ec, productId, amount))
+                {
+                    goldSystem.ReduceGold(ec, product.price * amount);
+                }
             }
         }
     }
