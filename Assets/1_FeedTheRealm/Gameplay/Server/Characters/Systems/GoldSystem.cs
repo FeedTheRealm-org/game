@@ -100,6 +100,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
             return false;
         }
 
+        public void OnPickUp(IEventCollectable ec, int goldAmount, System.Action<bool> onComplete)
+        {
+            if (goldAmount <= 0)
+            {
+                logger.Log(
+                    $"[GoldSystem] OnPickUp: invalid goldAmount {goldAmount} for player {netId}",
+                    this
+                );
+                onComplete?.Invoke(false);
+                return;
+            }
+
+            logger.Log($"[GoldSystem] Player {netId} picked up {goldAmount} gold", this);
+            AddGold(ec, goldAmount);
+            onComplete?.Invoke(true);
+        }
+
         public void LoadGold(int savedGold)
         {
             // TODO: restore gold from saved data

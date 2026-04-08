@@ -223,8 +223,41 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                                 SpawnLootItem(enemy.transform.position, lootEntry.id);
                             }
                         }
+                        int amountOfGold = Random.Range(
+                            lootTable.minGoldDropAmount,
+                            lootTable.maxGoldDropAmount + 1
+                        );
+                        SpawnGold(enemy.transform.position, amountOfGold);
                     }
                 }
+            }
+        }
+
+        private void SpawnGold(Vector3 position, int amount)
+        {
+            var lootItemPrefab = prefabProvider?.LootItemPrefab;
+            if (lootItemPrefab != null)
+            {
+                GameObject lootInstance = resolverContainer.Resolver.Instantiate(
+                    lootItemPrefab,
+                    position,
+                    Quaternion.identity
+                );
+
+                if (lootInstance != null)
+                {
+                    var stateStorage = lootInstance.GetComponent<LootItemStateStorage>();
+                    if (stateStorage != null)
+                    {
+                        stateStorage.SetItemId("");
+                        stateStorage.SetGoldAmount(amount);
+                    }
+                    NetworkServer.Spawn(lootInstance);
+                }
+            }
+            else
+            {
+                logger.Log("[EnemySpawn] LootItem prefab not assigned on EnemySpawn!", this);
             }
         }
 
@@ -245,6 +278,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                     if (stateStorage != null)
                     {
                         stateStorage.SetItemId(itemId);
+                        stateStorage.SetGoldAmount(0);
                     }
                     NetworkServer.Spawn(lootInstance);
                 }

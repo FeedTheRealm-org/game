@@ -101,10 +101,12 @@ namespace FTR.Gameplay.Server.Characters
         public override void OnPickUp(
             IEventCollectable ec,
             string itemId,
+            int goldAmount,
             System.Action<bool> onComplete
         )
         {
             inventorySystem.OnPickUp(ec, itemId, onComplete);
+            goldSystem.OnPickUp(ec, goldAmount, onComplete);
         }
 
         public override void OnPurchase(

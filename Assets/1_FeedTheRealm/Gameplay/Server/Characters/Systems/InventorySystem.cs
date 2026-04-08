@@ -61,6 +61,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
         {
             logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
+            if (string.IsNullOrEmpty(itemId))
+            {
+                logger.Log($"Invalid itemId '{itemId}' for player {netId}", this);
+                onComplete(false);
+                return;
+            }
 
             for (int i = 0; i < inventorySize; i++)
             {
