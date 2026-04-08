@@ -13,11 +13,16 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         [SyncVar(hook = nameof(OnItemIdSync))]
         private string itemId;
 
+        [SyncVar(hook = nameof(OnGoldAmountSync))]
+        private int goldAmount;
+
         /* --- Callbacks --- */
         public event Action<Vector3> OnPositionCorrected;
         public event Action<string> OnItemIdChanged;
+        public event Action<int> OnGoldAmountChanged;
 
         public string ItemId => itemId;
+        public int GoldAmount => goldAmount;
 
         /* --- Setters --- */
 
@@ -33,6 +38,12 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             itemId = newItemId;
         }
 
+        [Server]
+        public void SetGoldAmount(int amount)
+        {
+            goldAmount = amount;
+        }
+
         /* --- Syncvar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
@@ -45,14 +56,20 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             OnItemIdChanged?.Invoke(newId);
         }
 
+        private void OnGoldAmountSync(int oldAmount, int newAmount)
+        {
+            OnGoldAmountChanged?.Invoke(newAmount);
+        }
+
         public override void OnStartClient()
         {
             Debug.Log(
-                $"[LootItemStateStorage] Initial sync: position={position}, itemId={itemId}",
+                $"[LootItemStateStorage] Initial sync: position={position}, itemId={itemId}, goldAmount={goldAmount}",
                 this
             );
             OnPositionSync(Vector3.zero, position);
             OnItemIdSync(string.Empty, itemId);
+            OnGoldAmountSync(0, goldAmount);
         }
     }
 }

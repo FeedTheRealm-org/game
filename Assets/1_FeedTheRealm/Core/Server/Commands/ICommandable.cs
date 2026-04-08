@@ -19,7 +19,7 @@ public interface ICommandable
     void OnQuestAccepted(IEventCollectable ec, string questId);
     void OnQuestDecided(IEventCollectable ec);
 
-    void OnPickUp(IEventCollectable ec, string itemId, Action<bool> onComplete);
+    void OnPickUp(IEventCollectable ec, string itemId, int goldAmount, Action<bool> onComplete);
     void OnMoveItem(
         IEventCollectable ec,
         StorageType sourceType,
