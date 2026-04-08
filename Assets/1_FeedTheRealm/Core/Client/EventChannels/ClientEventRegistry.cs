@@ -20,8 +20,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public WorldSetupEvent worldSetupEvent;
 
         [Header("Shop Events")]
+        public ShopToggleEvent shopToggleEvent;
         public ShopInteractedEvent shopInteractedEvent;
-        public ShopOnCloseEvent shopOnCloseEvent;
         public OpenShopEvent openShopEvent;
         public PurchaseRequestEvent purchaseRequestEvent;
 
@@ -66,8 +66,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
         {
             Validate();
 
+            builder.RegisterInstance(shopToggleEvent);
             builder.RegisterInstance(shopInteractedEvent);
-            builder.RegisterInstance(shopOnCloseEvent);
             builder.RegisterInstance(healthChangedEvent);
             builder.RegisterInstance(staminaChangedEvent);
             builder.RegisterInstance(lastAddedEvent);
@@ -98,8 +98,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         private void Validate()
         {
+            ValidateField(shopToggleEvent, nameof(shopToggleEvent));
             ValidateField(shopInteractedEvent, nameof(shopInteractedEvent));
-            ValidateField(shopOnCloseEvent, nameof(shopOnCloseEvent));
             ValidateField(healthChangedEvent, nameof(healthChangedEvent));
             ValidateField(staminaChangedEvent, nameof(staminaChangedEvent));
             ValidateField(lastAddedEvent, nameof(lastAddedEvent));

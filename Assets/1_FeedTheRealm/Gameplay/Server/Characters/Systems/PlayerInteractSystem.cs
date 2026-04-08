@@ -77,6 +77,22 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
             return;
         }
 
+        IInteractable closest = FindClosestInteractable();
+
+        if (closest == null)
+        {
+            FinishInteracting();
+            return;
+        }
+
+        if (closest != CurrentInteractable)
+        {
+            CurrentInteractable.StopInteraction(this);
+            CurrentInteractable = closest;
+            CurrentInteractable.Interact(this);
+            return;
+        }
+
         CurrentInteractable.ContinueInteraction(this);
     }
 

@@ -89,7 +89,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             int count = npcDialogRegistry.GetMessageCount(npcId);
             if (count == 0)
             {
-                logger?.Log($"[NpcInteractSystem] No messages for Npc '{npcId}'.", this);
                 return npcId;
             }
 
@@ -104,22 +103,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return npcId;
             }
 
-            if (npcInteractedEvent == null)
-            {
-                logger?.Log(
-                    "[NpcInteractSystem] npcInteractedEvent is NULL! Cannot notify QuestSystem.",
-                    this,
-                    Logging.LogType.Error
-                );
-            }
-            else
-            {
-                logger?.Log(
-                    $"[NpcInteractSystem] Raising NpcInteractedEvent for player {playerNetId} and npc {npcId}",
-                    this
-                );
-                npcInteractedEvent?.Raise((playerNetId, npcId));
-            }
+            logger?.Log(
+                $"[NpcInteractSystem] Raising NpcInteractedEvent for player {playerNetId} and npc {npcId}",
+                this
+            );
+            npcInteractedEvent?.Raise((playerNetId, npcId));
 
             var questId = npcDialogRegistry.GetQuestIdAt(npcId, 0);
 
@@ -147,7 +135,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 )
             );
 
-            logger?.Log($"[NpcInteractSystem] Interacted by {interactor.GameObject.name}", this);
+            //logger?.Log($"[NpcInteractSystem] Interacted by {interactor.GameObject.name}", this);
             return npcId;
         }
 
