@@ -9,7 +9,7 @@ namespace FTR.UI.Hud.Main
     /// </summary>
     public class HudManager : MonoBehaviour
     {
-        [Header("HUD settings")]
+        /*[Header("HUD settings")]
         [SerializeField]
         private GameObject hudPanel;
 
@@ -106,6 +106,6 @@ namespace FTR.UI.Hud.Main
         {
             questCompletionPanel.ToggleQuestCompletionPanel(true);
             questCompletionPanel.OnQuestCompleted(data);
-        }
+        }*/
     }
 }
