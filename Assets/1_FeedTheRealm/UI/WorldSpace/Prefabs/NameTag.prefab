@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8544674612818321002
+--- !u!1 &4901213077827125947
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,38 +8,38 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7208925596118356869}
-  - component: {fileID: 8399197686760333867}
-  - component: {fileID: 925298929608913867}
-  m_Layer: 5
-  m_Name: Healthbar
+  - component: {fileID: 2652090034649349092}
+  - component: {fileID: 7451635157873525108}
+  - component: {fileID: 6113552093468733399}
+  m_Layer: 0
+  m_Name: NameTag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7208925596118356869
+  m_IsActive: 0
+--- !u!4 &2652090034649349092
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8544674612818321002}
+  m_GameObject: {fileID: 4901213077827125947}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.75, z: 0.36}
-  m_LocalScale: {x: 0.4, y: 0.200875, z: 0.4}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.8, y: 1.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8399197686760333867
+--- !u!114 &7451635157873525108
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8544674612818321002}
+  m_GameObject: {fileID: 4901213077827125947}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
@@ -47,25 +47,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 01adac1ef165460a3a9ca32eaad44b63, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 91d634dc70fb4fbaabb78cc2ca98d5bb, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 3caa3d91b312da649a0f9ebcb059e4ef, type: 3}
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 200
-  m_WorldSpaceHeight: 1
+  m_WorldSpaceHeight: 5
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
---- !u!114 &925298929608913867
+--- !u!114 &6113552093468733399
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8544674612818321002}
+  m_GameObject: {fileID: 4901213077827125947}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 813efc55d2f90fdd3a9ccbce9b534252, type: 3}
+  m_Script: {fileID: 11500000, guid: 629ccab09ff9b0bd0a5c6ab59e6d08dd, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::UIHealthbar
+  m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.WorldSpace.WorldCharacterNameUI
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}

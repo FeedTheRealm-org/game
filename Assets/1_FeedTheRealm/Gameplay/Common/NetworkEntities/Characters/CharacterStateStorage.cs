@@ -27,6 +27,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnCharacterIdSync))]
         private string characterId;
 
+        [SyncVar(hook = nameof(OnCharacterNameSync))]
+        private string characterName;
+
         /* --- Getters --- */
 
         public Vector3 Position => position;
@@ -34,6 +37,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public float Stamina => stamina;
         public float Health => health;
         public string CharacterId => characterId;
+        public string CharacterName => characterName;
         public bool IsLocalPlayer => isLocalPlayer;
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
@@ -45,6 +49,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public event Action<float> OnStaminaChanged;
         public event Action<float> OnHealthChanged;
         public event Action<string> OnCharacterIdChanged;
+        public event Action<string> OnCharacterNameChanged;
         public event Action OnDeath;
         public event Action OnRespawn;
 
@@ -82,6 +87,12 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             characterId = newCharacterId;
         }
 
+        [Server]
+        public void SetCharacterName(string newCharacterName)
+        {
+            characterName = newCharacterName;
+        }
+
         /* --- SyncVar hooks --- */
 
         private void OnPositionSync(Vector3 oldPosition, Vector3 newPosition)
@@ -111,6 +122,12 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnCharacterIdChanged?.Invoke(newId);
         }
 
+        private void OnCharacterNameSync(string oldName, string newName)
+        {
+            characterName = newName;
+            OnCharacterNameChanged?.Invoke(newName);
+        }
+
         /* --- Event Raisers --- */
 
         private void RaiseHealthStatusChanged(float oldHealth, float newHealth)
@@ -124,7 +141,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public override void OnStartClient()
         {
             Debug.Log(
-                $"[CharacterStateStorage] Initial sync: position={position}, direction={direction}, stamina={stamina}, health={health}, characterId={characterId}",
+                $"[CharacterStateStorage] Initial sync: position={position}, direction={direction}, stamina={stamina}, health={health}, characterId={characterId}, characterName={characterName}",
                 this
             );
             OnPositionSync(Vector3.zero, position);
@@ -132,6 +149,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnStaminaSync(0, stamina);
             OnHealthSync(0, health);
             OnCharacterIdSync(null, characterId);
+            OnCharacterNameSync(null, characterName);
         }
     }
 }

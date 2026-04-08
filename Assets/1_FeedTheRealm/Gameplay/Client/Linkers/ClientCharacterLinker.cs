@@ -24,20 +24,21 @@ namespace FTR.Gameplay.Client.Linkers
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
-            var playerComponents = Object.Instantiate(
+            var characterComponent = Object.Instantiate(
                 prefabProvider.ClientCharacterComponents,
                 gameObject.transform
             );
-            resolver.InjectGameObject(playerComponents);
+            resolver.InjectGameObject(characterComponent);
+            SetupNameTag(gameObject, characterComponent);
 
-            var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
-            var movementView = playerComponents.GetComponent<MovementView>();
-            var attackView = playerComponents.GetComponent<AttackView>();
-            var dashView = playerComponents.GetComponent<DashView>();
-            var staminaView = playerComponents.GetComponent<StaminaView>();
-            var healthView = playerComponents.GetComponent<HealthView>();
-            var movementController = playerComponents.GetComponent<MovementController>();
-            var useController = playerComponents.GetComponent<UseController>();
+            var networkEventRouter = characterComponent.GetComponent<NetworkEventRouter>();
+            var movementView = characterComponent.GetComponent<MovementView>();
+            var attackView = characterComponent.GetComponent<AttackView>();
+            var dashView = characterComponent.GetComponent<DashView>();
+            var staminaView = characterComponent.GetComponent<StaminaView>();
+            var healthView = characterComponent.GetComponent<HealthView>();
+            var movementController = characterComponent.GetComponent<MovementController>();
+            var useController = characterComponent.GetComponent<UseController>();
 
             networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
@@ -49,7 +50,18 @@ namespace FTR.Gameplay.Client.Linkers
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 
-            return playerComponents;
+            return characterComponent;
+        }
+
+        private void SetupNameTag(GameObject gameObject, GameObject characterComponent)
+        {
+            var characterBody = characterComponent.transform.Find("CharacterBody");
+            var attachParent = characterBody != null ? characterBody : gameObject.transform;
+
+            prefabProvider.NameTagPrefab.SetActive(false);
+            var nameTagInstance = Object.Instantiate(prefabProvider.NameTagPrefab, attachParent);
+            resolver.InjectGameObject(nameTagInstance);
+            nameTagInstance.SetActive(true);
         }
     }
 }

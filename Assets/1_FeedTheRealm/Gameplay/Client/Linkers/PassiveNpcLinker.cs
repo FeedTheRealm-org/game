@@ -1,7 +1,6 @@
 using FTR.Core.Client;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
-using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -31,18 +30,17 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
     {
         var characterComponent = characterLinker.Link(gameObject);
         var characterBody = characterComponent.transform.Find("CharacterBody");
-        var dialogParent = characterBody != null ? characterBody : gameObject.transform;
+        var attachParent = characterBody != null ? characterBody : gameObject.transform;
 
         var networkEventRouter = characterComponent.GetComponent<NetworkEventRouter>();
         var interactView = characterComponent.AddComponent<InteractView>();
-        resolver.Inject(interactView);
-        interactView.Initialize(networkEventRouter, npcDialogRegistry);
 
         prefabProvider.DialogBox.SetActive(false);
-        var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, dialogParent);
-        dialogBoxComponent.transform.localPosition = new Vector3(1f, -0.2f, 0);
-        dialogBoxComponent.transform.localScale = new Vector3(0.4f, 0.4f, 0);
+        var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, attachParent);
         resolver.InjectGameObject(dialogBoxComponent);
         dialogBoxComponent.SetActive(true);
+
+        resolver.Inject(interactView);
+        interactView.Initialize(networkEventRouter, npcDialogRegistry);
     }
 }
