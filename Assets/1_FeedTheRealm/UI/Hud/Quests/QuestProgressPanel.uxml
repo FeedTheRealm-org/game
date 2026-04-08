@@ -9,7 +9,7 @@
             <ui:Image name="QuestCompletedImage"
                 source="project://database/Assets/6000FantasyIcons/SkillsIcons/Skillicons1/Skill_nobg/Warlock_03_nobg.png?fileID=2800000&amp;guid=1e7b793406a0bf74caa873eb5784623c&amp;type=3#Warlock_03_nobg"
                 class="image" />
-            <ui:Label text="Quest Completed" name="Title" class="title" />
+            <ui:Label text="Quest Progress" name="Title" class="title" />
             <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu"
                 name="QuestTitle" class="quest-title" />
         </ui:VisualElement>
