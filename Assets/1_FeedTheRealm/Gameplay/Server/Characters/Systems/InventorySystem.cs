@@ -213,6 +213,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool AddItemToInventory(string itemId)
         {
+            if (string.IsNullOrEmpty(itemId))
+                return false;
+
             for (int i = 0; i < inventorySize; i++)
             {
                 if (!string.IsNullOrEmpty(inventorySlots[i]))

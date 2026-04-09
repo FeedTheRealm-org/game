@@ -50,7 +50,20 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 npcInteractedEvent = ev2;
 
             resolver.TryResolve<QuestRewardGoldEvent>(out var goldEvent);
+            if (goldEvent == null)
+                logger?.Log(
+                    "[QuestSystem] QuestRewardGoldEvent not registered; gold rewards may be dropped.",
+                    this,
+                    Logging.LogType.Warning
+                );
+
             resolver.TryResolve<QuestRewardItemEvent>(out var itemEvent);
+            if (itemEvent == null)
+                logger?.Log(
+                    "[QuestSystem] QuestRewardItemEvent not registered; item rewards may be dropped.",
+                    this,
+                    Logging.LogType.Warning
+                );
 
             _pendingGoldEvent = goldEvent;
             _pendingItemEvent = itemEvent;
@@ -168,19 +181,26 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void CompleteQuest(QuestProgressState state)
         {
+            var connId = GetConnectionId();
+            if (!connId.HasValue)
+            {
+                logger?.Log(
+                    $"[QuestSystem] Cannot complete quest '{state.Quest.id}' — no connection for Player:{netId}.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
             activeQuests.Remove(state.Quest.id);
 
-            var connId = GetConnectionId();
-            if (connId.HasValue)
-            {
-                worldMonitor.Events.Enqueue(
-                    new QuestCompletedEvent(
-                        ownNetId,
-                        connId.Value,
-                        new QuestCompletedEventContent { QuestId = state.Quest.id }
-                    )
-                );
-            }
+            worldMonitor.Events.Enqueue(
+                new QuestCompletedEvent(
+                    ownNetId,
+                    connId.Value,
+                    new QuestCompletedEventContent { QuestId = state.Quest.id }
+                )
+            );
 
             rewardGranter.Grant(state.Quest);
         }

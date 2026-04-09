@@ -75,7 +75,7 @@ namespace FTR.Gameplay.Server.Utils
         private void GrantLootTable(string lootTableId)
         {
             var lootTable = ServerItemsRegistry.GetLootTableById(lootTableId);
-            if (lootTable?.lootItems == null)
+            if (lootTable?.lootItems == null || lootTable.lootItems.Count == 0)
             {
                 logger?.Log(
                     $"[QuestRewardGranter] LootTable '{lootTableId}' not found or empty.",
