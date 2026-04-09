@@ -223,7 +223,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             {
                 switch (reward.rewardType)
                 {
-                    case QuestData.QuestRewardType.Gold:
+                    case QuestRewardType.Gold:
                         if (reward.goldAmount > 0)
                         {
                             logger?.Log(
@@ -234,7 +234,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         }
                         break;
 
-                    case QuestData.QuestRewardType.Item:
+                    case QuestRewardType.Item:
                         if (!string.IsNullOrEmpty(reward.itemId))
                         {
                             logger?.Log(
@@ -245,7 +245,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         }
                         break;
 
-                    case QuestData.QuestRewardType.LootTable:
+                    case QuestRewardType.LootTable:
                         if (!string.IsNullOrEmpty(reward.lootTableId))
                             GrantLootTableReward(reward.lootTableId);
                         break;
