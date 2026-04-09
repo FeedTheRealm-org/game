@@ -5,6 +5,7 @@ using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Environment.Quest;
+using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
@@ -30,13 +31,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.serverQuestRegistry = serverQuestRegistry;
 
             if (resolver.TryResolve<EnemySlayedEvent>(out var ev1) && ev1 != null)
-                this.enemySlayedEvent = ev1;
+                enemySlayedEvent = ev1;
             if (resolver.TryResolve<NpcInteractedEvent>(out var ev2) && ev2 != null)
-                this.npcInteractedEvent = ev2;
+                npcInteractedEvent = ev2;
+            if (resolver.TryResolve<QuestRewardGoldEvent>(out var ev3) && ev3 != null)
+                questRewardGoldEvent = ev3;
+            if (resolver.TryResolve<QuestRewardItemEvent>(out var ev4) && ev4 != null)
+                questRewardItemEvent = ev4;
         }
 
         private EnemySlayedEvent enemySlayedEvent;
         private NpcInteractedEvent npcInteractedEvent;
+        private QuestRewardGoldEvent questRewardGoldEvent;
+        private QuestRewardItemEvent questRewardItemEvent;
 
         private uint netId;
         private WorldMonitor worldMonitor;
@@ -92,11 +99,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
             activeQuests[questId] = state;
 
             logger?.Log(
-                $"[QuestSystem] Player:{netId} accepted quest '{questData.title}' (type={questData.type}), target: {questData.targetId}, targetInterationId: {questData.targetInteractionId}.",
+                $"[QuestSystem] Player:{netId} accepted '{questData.title}' "
+                    + $"(type={questData.type}, rewards={questData.rewards?.Count ?? 0}).",
                 this
             );
 
-            // Lazy subscription: subscribe to the relevant channel only now.
             if (questData.type == QuestType.EnemySlays)
                 SubscribeToEnemySlayed();
             else if (questData.type == QuestType.NpcInteract)
@@ -107,11 +114,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnEnemySlayed((uint killerNetId, string enemyTypeId) data)
         {
-            logger?.Log(
-                $"[QuestSystem] OnEnemySlayed received. killer={data.killerNetId}, enemyType={data.enemyTypeId}. PlayerNetId={netId}",
-                this
-            );
-
             if (data.killerNetId != netId)
                 return;
 
@@ -131,7 +133,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 anyUpdated = true;
 
                 logger?.Log(
-                    $"[QuestSystem] Player:{netId} progress on '{state.Quest.title}': "
+                    $"[QuestSystem] Player:{netId} '{state.Quest.title}': "
                         + $"{state.Current}/{state.Target}",
                     this
                 );
@@ -143,9 +145,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             foreach (var state in completedQuests)
-            {
                 CompleteQuest(state);
-            }
 
             if (anyUpdated && !HasActiveQuestsOfType(QuestType.EnemySlays))
                 UnsubscribeFromEnemySlayed();
@@ -153,11 +153,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnNpcInteracted((uint playerNetId, string npcId) data)
         {
-            logger?.Log(
-                $"[QuestSystem] OnNpcInteracted received. player={data.playerNetId}, npcId={data.npcId}. Me={netId}",
-                this
-            );
-
             if (data.playerNetId != netId)
                 return;
 
@@ -168,10 +163,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             {
                 if (state.Quest.type != QuestType.NpcInteract)
                     continue;
-
                 if (state.Quest.targetId != data.npcId)
                     continue;
-
                 if (state.IsCompleted)
                     continue;
 
@@ -179,7 +172,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 anyUpdated = true;
 
                 logger?.Log(
-                    $"[QuestSystem] Player:{netId} interacted with target NPC '{data.npcId}' "
+                    $"[QuestSystem] Player:{netId} interacted with '{data.npcId}' "
                         + $"for quest '{state.Quest.title}'.",
                     this
                 );
@@ -191,9 +184,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             foreach (var state in completedQuests)
-            {
                 CompleteQuest(state);
-            }
 
             if (anyUpdated && !HasActiveQuestsOfType(QuestType.NpcInteract))
                 UnsubscribeFromNpcInteracted();
@@ -209,18 +200,86 @@ namespace FTR.Gameplay.Server.Characters.Systems
             );
 
             var connId = GetConnectionId();
-            if (!connId.HasValue)
+            if (connId.HasValue)
+            {
+                worldMonitor.Events.Enqueue(
+                    new QuestCompletedEvent(
+                        ownNetId,
+                        connId.Value,
+                        new QuestCompletedEventContent { QuestId = state.Quest.id }
+                    )
+                );
+            }
+
+            GrantRewards(state.Quest);
+        }
+
+        private void GrantRewards(QuestData quest)
+        {
+            if (quest.rewards == null || quest.rewards.Count == 0)
                 return;
 
-            worldMonitor.Events.Enqueue(
-                new QuestCompletedEvent(
-                    ownNetId,
-                    connId.Value,
-                    new QuestCompletedEventContent { QuestId = state.Quest.id }
-                )
-            );
+            foreach (var reward in quest.rewards)
+            {
+                switch (reward.rewardType)
+                {
+                    case QuestData.QuestRewardType.Gold:
+                        if (reward.goldAmount > 0)
+                        {
+                            logger?.Log(
+                                $"[QuestSystem] Granting {reward.goldAmount} gold to Player:{netId}.",
+                                this
+                            );
+                            questRewardGoldEvent?.Raise((netId, reward.goldAmount));
+                        }
+                        break;
 
-            // TODO: grant rewards
+                    case QuestData.QuestRewardType.Item:
+                        if (!string.IsNullOrEmpty(reward.itemId))
+                        {
+                            logger?.Log(
+                                $"[QuestSystem] Granting item '{reward.itemId}' to Player:{netId}.",
+                                this
+                            );
+                            questRewardItemEvent?.Raise((netId, reward.itemId));
+                        }
+                        break;
+
+                    case QuestData.QuestRewardType.LootTable:
+                        if (!string.IsNullOrEmpty(reward.lootTableId))
+                            GrantLootTableReward(reward.lootTableId);
+                        break;
+                }
+            }
+        }
+
+        private void GrantLootTableReward(string lootTableId)
+        {
+            var lootTable = ServerItemsRegistry.GetLootTableById(lootTableId);
+            if (lootTable?.lootItems == null)
+            {
+                logger?.Log(
+                    $"[QuestSystem] LootTable '{lootTableId}' not found or empty.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            foreach (var entry in lootTable.lootItems)
+            {
+                if (string.IsNullOrEmpty(entry.id))
+                    continue;
+
+                if (Random.Range(0, 100) < entry.dropProbability)
+                {
+                    logger?.Log(
+                        $"[QuestSystem] LootTable '{lootTableId}' → item '{entry.id}' to Player:{netId}.",
+                        this
+                    );
+                    questRewardItemEvent?.Raise((netId, entry.id));
+                }
+            }
         }
 
         private void SendProgressEvent(QuestProgressState state)
@@ -265,10 +324,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             enemySlayedEvent.OnRaised += OnEnemySlayed;
             subscribedToEnemySlayed = true;
-            logger?.Log(
-                $"[QuestSystem] Player:{netId} subscribed to EnemySlayedServerChannel.",
-                this
-            );
         }
 
         private void UnsubscribeFromEnemySlayed()
@@ -277,10 +332,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             enemySlayedEvent.OnRaised -= OnEnemySlayed;
             subscribedToEnemySlayed = false;
-            logger?.Log(
-                $"[QuestSystem] Player:{netId} unsubscribed from EnemySlayedServerChannel.",
-                this
-            );
         }
 
         private void SubscribeToNpcInteracted()
@@ -289,10 +340,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             npcInteractedEvent.OnRaised += OnNpcInteracted;
             subscribedToNpcInteracted = true;
-            logger?.Log(
-                $"[QuestSystem] Player:{netId} subscribed to NpcInteractedServerChannel.",
-                this
-            );
         }
 
         private void UnsubscribeFromNpcInteracted()
@@ -301,16 +348,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             npcInteractedEvent.OnRaised -= OnNpcInteracted;
             subscribedToNpcInteracted = false;
-            logger?.Log(
-                $"[QuestSystem] Player:{netId} unsubscribed from NpcInteractedServerChannel.",
-                this
-            );
         }
     }
 
-    /// <summary>
-    /// Kept server-side only — never serialized.
-    /// </summary>
+    /// <summary>Runtime progress state for a single active quest. Server-side only.</summary>
     public sealed class QuestProgressState
     {
         public QuestData Quest { get; }
