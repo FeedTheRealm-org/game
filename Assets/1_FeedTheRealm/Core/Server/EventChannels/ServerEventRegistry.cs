@@ -12,6 +12,8 @@ namespace FTR.Core.Server.EventChannels
         [Header("Quest Events")]
         public EnemySlayedEvent enemySlayedEvent;
         public NpcInteractedEvent npcInteractedEvent;
+        public QuestRewardGoldEvent questRewardGoldEvent;
+        public QuestRewardItemEvent questRewardItemEvent;
 
         public void RegisterAll(IContainerBuilder builder)
         {
@@ -20,6 +22,8 @@ namespace FTR.Core.Server.EventChannels
             builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(enemySlayedEvent);
             builder.RegisterInstance(npcInteractedEvent);
+            builder.RegisterInstance(questRewardGoldEvent);
+            builder.RegisterInstance(questRewardItemEvent);
         }
 
         private void Validate()
@@ -27,6 +31,8 @@ namespace FTR.Core.Server.EventChannels
             ValidateField(gameTickEvent, nameof(gameTickEvent));
             ValidateField(enemySlayedEvent, nameof(enemySlayedEvent));
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
+            ValidateField(questRewardGoldEvent, nameof(questRewardGoldEvent));
+            ValidateField(questRewardItemEvent, nameof(questRewardItemEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

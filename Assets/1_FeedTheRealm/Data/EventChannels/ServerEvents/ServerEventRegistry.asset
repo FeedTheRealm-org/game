@@ -15,3 +15,5 @@ MonoBehaviour:
   gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
   enemySlayedEvent: {fileID: 11400000, guid: 5deffbf304da44b0781e3eb3b7ecc346, type: 2}
   npcInteractedEvent: {fileID: 11400000, guid: 4ced2ec33581cd7ecabdb75926b73fd6, type: 2}
+  questRewardGoldEvent: {fileID: 11400000, guid: 6e366dc94a8214232bf512705f3677de, type: 2}
+  questRewardItemEvent: {fileID: 11400000, guid: 5e773937a81a4d7008409017ec709fd9, type: 2}
