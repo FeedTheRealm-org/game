@@ -5,8 +5,7 @@ using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Environment.Quest;
-using FTR.Gameplay.Server.Registry;
-using FTRShared.Runtime.Models;
+using FTR.Gameplay.Server.Utils;
 using UnityEngine;
 using VContainer;
 
@@ -19,6 +18,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
     {
         private Logging.Logger logger;
         private ServerQuestRegistry serverQuestRegistry;
+
+        private EnemySlayedEvent enemySlayedEvent;
+        private NpcInteractedEvent npcInteractedEvent;
+
+        private uint netId;
+        private WorldMonitor worldMonitor;
+        private uint ownNetId;
+
+        private QuestRewardGranter rewardGranter;
+
+        private readonly Dictionary<string, QuestProgressState> activeQuests =
+            new Dictionary<string, QuestProgressState>();
+
+        private bool subscribedToEnemySlayed = false;
+        private bool subscribedToNpcInteracted = false;
 
         [Inject]
         public void Construct(
@@ -34,32 +48,29 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 enemySlayedEvent = ev1;
             if (resolver.TryResolve<NpcInteractedEvent>(out var ev2) && ev2 != null)
                 npcInteractedEvent = ev2;
-            if (resolver.TryResolve<QuestRewardGoldEvent>(out var ev3) && ev3 != null)
-                questRewardGoldEvent = ev3;
-            if (resolver.TryResolve<QuestRewardItemEvent>(out var ev4) && ev4 != null)
-                questRewardItemEvent = ev4;
+
+            resolver.TryResolve<QuestRewardGoldEvent>(out var goldEvent);
+            resolver.TryResolve<QuestRewardItemEvent>(out var itemEvent);
+
+            _pendingGoldEvent = goldEvent;
+            _pendingItemEvent = itemEvent;
         }
 
-        private EnemySlayedEvent enemySlayedEvent;
-        private NpcInteractedEvent npcInteractedEvent;
-        private QuestRewardGoldEvent questRewardGoldEvent;
-        private QuestRewardItemEvent questRewardItemEvent;
-
-        private uint netId;
-        private WorldMonitor worldMonitor;
-        private uint ownNetId;
-
-        private readonly Dictionary<string, QuestProgressState> activeQuests =
-            new Dictionary<string, QuestProgressState>();
-
-        private bool subscribedToEnemySlayed = false;
-        private bool subscribedToNpcInteracted = false;
+        private QuestRewardGoldEvent _pendingGoldEvent;
+        private QuestRewardItemEvent _pendingItemEvent;
 
         public void Initialize(uint netId, WorldMonitor worldMonitor, uint ownNetId)
         {
             this.netId = netId;
             this.worldMonitor = worldMonitor;
             this.ownNetId = ownNetId;
+
+            rewardGranter = new QuestRewardGranter(
+                netId,
+                logger,
+                _pendingGoldEvent,
+                _pendingItemEvent
+            );
         }
 
         private void OnDestroy()
@@ -88,21 +99,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             if (activeQuests.ContainsKey(questId))
             {
-                logger?.Log(
-                    $"[QuestSystem] Quest '{questId}' already active for Player:{netId}.",
-                    this
-                );
                 return;
             }
 
             var state = new QuestProgressState(questData);
             activeQuests[questId] = state;
-
-            logger?.Log(
-                $"[QuestSystem] Player:{netId} accepted '{questData.title}' "
-                    + $"(type={questData.type}, rewards={questData.rewards?.Count ?? 0}).",
-                this
-            );
 
             if (questData.type == QuestType.EnemySlays)
                 SubscribeToEnemySlayed();
@@ -117,37 +118,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (data.killerNetId != netId)
                 return;
 
-            bool anyUpdated = false;
-            var completedQuests = new List<QuestProgressState>();
-
-            foreach (var state in activeQuests.Values)
-            {
-                if (state.Quest.type != QuestType.EnemySlays)
-                    continue;
-                if (state.Quest.targetId != data.enemyTypeId)
-                    continue;
-                if (state.IsCompleted)
-                    continue;
-
-                state.Increment();
-                anyUpdated = true;
-
-                logger?.Log(
-                    $"[QuestSystem] Player:{netId} '{state.Quest.title}': "
-                        + $"{state.Current}/{state.Target}",
-                    this
-                );
-
-                SendProgressEvent(state);
-
-                if (state.IsCompleted)
-                    completedQuests.Add(state);
-            }
-
-            foreach (var state in completedQuests)
-                CompleteQuest(state);
-
-            if (anyUpdated && !HasActiveQuestsOfType(QuestType.EnemySlays))
+            if (
+                ProcessQuestsProgress(QuestType.EnemySlays, data.enemyTypeId)
+                && !HasActiveQuestsOfType(QuestType.EnemySlays)
+            )
                 UnsubscribeFromEnemySlayed();
         }
 
@@ -156,26 +130,29 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (data.playerNetId != netId)
                 return;
 
+            if (
+                ProcessQuestsProgress(QuestType.NpcInteract, data.npcId)
+                && !HasActiveQuestsOfType(QuestType.NpcInteract)
+            )
+                UnsubscribeFromNpcInteracted();
+        }
+
+        private bool ProcessQuestsProgress(QuestType type, string targetId)
+        {
             bool anyUpdated = false;
             var completedQuests = new List<QuestProgressState>();
 
             foreach (var state in activeQuests.Values)
             {
-                if (state.Quest.type != QuestType.NpcInteract)
-                    continue;
-                if (state.Quest.targetId != data.npcId)
-                    continue;
-                if (state.IsCompleted)
+                if (
+                    state.Quest.type != type
+                    || state.Quest.targetId != targetId
+                    || state.IsCompleted
+                )
                     continue;
 
                 state.Increment();
                 anyUpdated = true;
-
-                logger?.Log(
-                    $"[QuestSystem] Player:{netId} interacted with '{data.npcId}' "
-                        + $"for quest '{state.Quest.title}'.",
-                    this
-                );
 
                 SendProgressEvent(state);
 
@@ -186,18 +163,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
             foreach (var state in completedQuests)
                 CompleteQuest(state);
 
-            if (anyUpdated && !HasActiveQuestsOfType(QuestType.NpcInteract))
-                UnsubscribeFromNpcInteracted();
+            return anyUpdated;
         }
 
         private void CompleteQuest(QuestProgressState state)
         {
             activeQuests.Remove(state.Quest.id);
-
-            logger?.Log(
-                $"[QuestSystem] Quest '{state.Quest.title}' completed for Player:{netId}.",
-                this
-            );
 
             var connId = GetConnectionId();
             if (connId.HasValue)
@@ -211,75 +182,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 );
             }
 
-            GrantRewards(state.Quest);
-        }
-
-        private void GrantRewards(QuestData quest)
-        {
-            if (quest.rewards == null || quest.rewards.Count == 0)
-                return;
-
-            foreach (var reward in quest.rewards)
-            {
-                switch (reward.rewardType)
-                {
-                    case QuestRewardType.Gold:
-                        if (reward.goldAmount > 0)
-                        {
-                            logger?.Log(
-                                $"[QuestSystem] Granting {reward.goldAmount} gold to Player:{netId}.",
-                                this
-                            );
-                            questRewardGoldEvent?.Raise((netId, reward.goldAmount));
-                        }
-                        break;
-
-                    case QuestRewardType.Item:
-                        if (!string.IsNullOrEmpty(reward.itemId))
-                        {
-                            logger?.Log(
-                                $"[QuestSystem] Granting item '{reward.itemId}' to Player:{netId}.",
-                                this
-                            );
-                            questRewardItemEvent?.Raise((netId, reward.itemId));
-                        }
-                        break;
-
-                    case QuestRewardType.LootTable:
-                        if (!string.IsNullOrEmpty(reward.lootTableId))
-                            GrantLootTableReward(reward.lootTableId);
-                        break;
-                }
-            }
-        }
-
-        private void GrantLootTableReward(string lootTableId)
-        {
-            var lootTable = ServerItemsRegistry.GetLootTableById(lootTableId);
-            if (lootTable?.lootItems == null)
-            {
-                logger?.Log(
-                    $"[QuestSystem] LootTable '{lootTableId}' not found or empty.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                return;
-            }
-
-            foreach (var entry in lootTable.lootItems)
-            {
-                if (string.IsNullOrEmpty(entry.id))
-                    continue;
-
-                if (Random.Range(0, 100) < entry.dropProbability)
-                {
-                    logger?.Log(
-                        $"[QuestSystem] LootTable '{lootTableId}' → item '{entry.id}' to Player:{netId}.",
-                        this
-                    );
-                    questRewardItemEvent?.Raise((netId, entry.id));
-                }
-            }
+            rewardGranter.Grant(state.Quest);
         }
 
         private void SendProgressEvent(QuestProgressState state)
@@ -349,23 +252,5 @@ namespace FTR.Gameplay.Server.Characters.Systems
             npcInteractedEvent.OnRaised -= OnNpcInteracted;
             subscribedToNpcInteracted = false;
         }
-    }
-
-    /// <summary>Runtime progress state for a single active quest. Server-side only.</summary>
-    public sealed class QuestProgressState
-    {
-        public QuestData Quest { get; }
-        public int Current { get; private set; }
-        public int Target { get; }
-        public bool IsCompleted => Current >= Target;
-
-        public QuestProgressState(QuestData quest)
-        {
-            Quest = quest;
-            Current = 0;
-            Target = quest.type == QuestType.EnemySlays ? Mathf.Max(1, quest.targetAmount) : 1;
-        }
-
-        public void Increment() => Current = Mathf.Min(Current + 1, Target);
     }
 }
