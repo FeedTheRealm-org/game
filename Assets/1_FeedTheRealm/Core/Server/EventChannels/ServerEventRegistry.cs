@@ -32,7 +32,7 @@ namespace FTR.Core.Server.EventChannels
         private void ValidateField(Object field, string fieldName)
         {
             if (field == null)
-                throw new System.Exception($"[ClientEventRegistry] {fieldName} is not assigned.");
+                throw new System.Exception($"[ServerEventRegistry] {fieldName} is not assigned.");
         }
     }
 }
