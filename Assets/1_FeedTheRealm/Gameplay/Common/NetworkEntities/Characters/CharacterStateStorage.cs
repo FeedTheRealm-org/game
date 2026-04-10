@@ -10,7 +10,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         : NetworkBehaviour,
             ICharacterHealthSource,
             IGroundable,
-            ICharacterIdentity
+            ICharacterIdentity,
+            ICharacterIdSource
     {
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
@@ -25,7 +26,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private float health;
 
         [SyncVar(hook = nameof(OnCharacterIdSync))]
-        private string characterId;
+        private string characterId = "";
 
         /* --- Getters --- */
 

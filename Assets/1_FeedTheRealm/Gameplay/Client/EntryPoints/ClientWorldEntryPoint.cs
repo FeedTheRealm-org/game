@@ -46,8 +46,15 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public async void Start()
         {
-            await worldLoader.LoadWorld();
+            var loadSucceeded = await worldLoader.LoadWorld();
+            if (!loadSucceeded)
+            {
+                WorldLoadBootstrap.MarkClientFailed();
+                return;
+            }
+
             worldSetup.ExecuteSetup();
+            WorldLoadBootstrap.MarkClientReady();
         }
 
         public void Tick()

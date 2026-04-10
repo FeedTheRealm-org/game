@@ -34,6 +34,8 @@ public static class CommandsFactory
     {
         switch (dto.Type)
         {
+            case TransactionType.SetUserId:
+                return new SetUserIdCommand(dto.NetId, dto.Id);
             case TransactionType.EquipItem:
                 try
                 {

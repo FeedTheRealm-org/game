@@ -1,6 +1,9 @@
 using FTR.Core.Client;
+using FTR.Core.Common.Enums;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Characters.Player;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
+using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -18,17 +21,26 @@ public class ClientPlayerLinker : PlayerLinker
     private readonly IObjectResolver resolver;
     private readonly ClientCharacterLinker characterLinker;
     private readonly NpcDialogRegistry npcDialogRegistry;
+    private readonly Session.Session session;
+    private readonly WorldSelector worldSelector;
+    private readonly PlayerSpriteRepository playerSpriteRepository;
 
     public ClientPlayerLinker(
         ClientPrefabProvider prefabProvider,
         IObjectResolver resolver,
-        NpcDialogRegistry npcDialogRegistry
+        NpcDialogRegistry npcDialogRegistry,
+        Session.Session session,
+        WorldSelector worldSelector,
+        PlayerSpriteRepository playerSpriteRepository
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
         this.npcDialogRegistry = npcDialogRegistry;
+        this.session = session;
+        this.worldSelector = worldSelector;
+        this.playerSpriteRepository = playerSpriteRepository;
     }
 
     public override void Link(GameObject gameObject)
@@ -45,9 +57,23 @@ public class ClientPlayerLinker : PlayerLinker
         }
 
         var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
+        var spriteLoader = playerComponents.GetComponentInChildren<SpriteLoader>();
+        var spriteManager = playerComponents.GetComponentInChildren<SpriteManager>();
+        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+
+        spriteManager.Initialize(spriteLoader, playerSpriteRepository, stateStorage);
 
         if (networkAdapter.IsLocalPlayer)
         {
+            var joinToken = worldSelector?.GetSelectedWorldJoinToken();
+            var setUserIdTransaction = new TransactionCommandDTO
+            {
+                Type = TransactionType.SetUserId,
+                Id = joinToken,
+                content = null,
+            };
+            networkAdapter.DispatchTransaction(setUserIdTransaction);
+
             var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             /* -- Instantiate and inject UI components -- */

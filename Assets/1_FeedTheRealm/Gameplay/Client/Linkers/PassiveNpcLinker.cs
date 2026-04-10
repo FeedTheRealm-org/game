@@ -1,4 +1,5 @@
 using FTR.Core.Client;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -10,7 +11,8 @@ namespace FTR.Gameplay.Client.Linkers;
 
 public class ClientPassiveNpcLinker : PassiveNpcLinker
 {
-    private ClientCharacterLinker characterLinker;
+    private readonly ClientCharacterLinker characterLinker;
+    private readonly ClientNpcEnemySpriteRepository npcEnemySpriteRepository;
     private readonly ClientPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
     private readonly NpcDialogRegistry npcDialogRegistry;
@@ -18,10 +20,12 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
     public ClientPassiveNpcLinker(
         ClientPrefabProvider prefabProvider,
         IObjectResolver resolver,
-        NpcDialogRegistry npcDialogRegistry
+        NpcDialogRegistry npcDialogRegistry,
+        ClientNpcEnemySpriteRepository npcEnemySpriteRepository
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
+        this.npcEnemySpriteRepository = npcEnemySpriteRepository;
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
         this.npcDialogRegistry = npcDialogRegistry;
@@ -30,14 +34,20 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
     public override void Link(GameObject gameObject)
     {
         var characterComponent = characterLinker.Link(gameObject);
-        var characterBody = characterComponent.transform.Find("CharacterBody");
-        var dialogParent = characterBody != null ? characterBody : gameObject.transform;
-
+        var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+        var spriteLoader = characterComponent.GetComponentInChildren<SpriteLoader>();
+        var spriteManager = characterComponent.GetComponentInChildren<SpriteManager>();
         var networkEventRouter = characterComponent.GetComponent<NetworkEventRouter>();
         var interactView = characterComponent.AddComponent<InteractView>();
+
         resolver.Inject(interactView);
+
+        spriteManager.Initialize(spriteLoader, npcEnemySpriteRepository, stateStorage);
         interactView.Initialize(networkEventRouter, npcDialogRegistry);
 
+        // Initialize dialog box
+        var characterBody = characterComponent.transform.Find("CharacterBody");
+        var dialogParent = characterBody != null ? characterBody : gameObject.transform;
         prefabProvider.DialogBox.SetActive(false);
         var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, dialogParent);
         dialogBoxComponent.transform.localPosition = new Vector3(1f, -0.2f, 0);

@@ -57,5 +57,7 @@ namespace FTR.Gameplay.Server.Characters
             int goldAmount,
             System.Action<bool> onComplete
         ) { }
+
+        public virtual void OnSetUserId(IEventCollectable ec, string tokenId) { }
     }
 }

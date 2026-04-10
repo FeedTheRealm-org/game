@@ -21,6 +21,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private API.WorldService worldService;
 
     [SerializeField]
+    private API.PlayerService playerService;
+
+    [SerializeField]
     private SceneReference worldScene;
 
     [SerializeField]
@@ -28,6 +31,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     [SerializeField]
     private ItemAssetsService itemAssetsService;
+
+    [SerializeField]
+    private GameObject worldInfoHUD;
 
     public event Action OnNavigateToWorld;
 
@@ -57,13 +63,16 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             _ = RenderWorldPage(currentOffset, evt.newValue);
         });
 
-        backButton.clicked += OnBackButtonClicked;
-        forwardButton.clicked += OnForwardButtonClicked;
+        if (backButton != null)
+            backButton.clicked += OnBackButtonClicked;
+        if (forwardButton != null)
+            forwardButton.clicked += OnForwardButtonClicked;
     }
 
     private async void OnEnable()
     {
-        await RenderWorldPage(currentOffset);
+        worldSelector?.ClearSelectedWorldJoinToken();
+        await RenderWorldPage(currentOffset, searchField?.value);
     }
 
     private async Task RenderWorldPage(int offset, string filter = null)
@@ -94,8 +103,11 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
                 maxPageOffset = 0;
                 RenderWorlds(new List<WorldData>());
             }
+
             return;
         }
+
+        currentOffset = offset;
 
         if (worlds.Count < PAGE_SIZE)
             maxPageOffset = offset;
@@ -105,6 +117,16 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     private void RenderWorlds(List<WorldData> worlds)
     {
+        if (listOfWorlds == null)
+        {
+            logger.Log(
+                "[WorldFeed] ListOfWorlds UI element not found.",
+                this,
+                Logging.LogType.Error
+            );
+            return;
+        }
+
         listOfWorlds.Clear();
 
         if (worlds.Count == 0)
@@ -129,36 +151,123 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     private VisualElement CreateWorldElement(WorldData worldData)
     {
-        if (worldData == null || string.IsNullOrEmpty(worldData.worldName))
+        if (worldData == null || string.IsNullOrWhiteSpace(worldData.worldName))
             return null;
 
         var element = new VisualElement();
         element.AddToClassList("worldElement");
+        element.name = "WorldElement";
 
-        var label = new Label(worldData.worldName);
+        var label = new Label(worldData.worldName.Split('.')[0]);
         label.AddToClassList("worldName");
+        label.name = "WorldName";
+
+        var aboutButton = new Button();
+        aboutButton.AddToClassList("aboutButton");
+        aboutButton.name = "AboutButton";
+        aboutButton.text = "i";
+        aboutButton.clicked += () => OnClickAboutWorld(worldData);
+        aboutButton.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
 
         element.Add(label);
-        element.AddManipulator(new Clickable(() => OnWorldSelected(worldData)));
+        element.Add(aboutButton);
+        element.AddManipulator(new Clickable(() => _ = OnWorldSelected(worldData)));
 
         return element;
     }
 
-    private void OnWorldSelected(WorldData worldData)
+    private async Task OnWorldSelected(WorldData worldData)
     {
+        if (worldData == null || string.IsNullOrWhiteSpace(worldData.worldId))
+        {
+            logger.Log("[WorldFeed] Selected world is invalid.", this, Logging.LogType.Warning);
+            return;
+        }
+
         logger.Log(
             $"[WorldFeed] Selected world: {worldData.worldName}",
             this,
             Logging.LogType.Info
         );
-        worldSelector.SetSelectedWorldId(worldData.worldId);
-        SetWorldIdForServices(worldData.worldId);
-        SceneManager.LoadScene(worldScene.SceneName);
+
+        try
+        {
+            worldSelector?.SetSelectedWorldId(worldData.worldId);
+            SetWorldIdForServices(worldData.worldId);
+
+            if (playerService == null)
+            {
+                logger.Log(
+                    "[WorldFeed] PlayerService is not assigned; cannot issue world join token.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
+
+            var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(worldData.worldId);
+            if (worldJoinToken == null || string.IsNullOrWhiteSpace(worldJoinToken.token_id))
+            {
+                logger.Log(
+                    "[WorldFeed] Failed to issue world join token; aborting world join.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
+
+            worldSelector?.SetSelectedWorldJoinToken(worldJoinToken.token_id);
+
+            if (OnNavigateToWorld != null)
+                OnNavigateToWorld.Invoke();
+            else
+                SceneManager.LoadScene(worldScene.SceneName);
+        }
+        catch (Exception ex)
+        {
+            logger.Log(
+                $"[WorldFeed] Exception selecting world: {ex.Message}",
+                this,
+                Logging.LogType.Error
+            );
+        }
     }
 
     private void SetWorldIdForServices(string worldId)
     {
-        itemAssetsService.SetCurrentWorldId(worldId);
+        itemAssetsService?.SetCurrentWorldId(worldId);
+    }
+
+    private void OnClickAboutWorld(WorldData world)
+    {
+        if (world == null)
+            return;
+
+        logger.Log($"[WorldFeed] About clicked for world: {world.worldName}", this);
+
+        if (worldInfoHUD == null)
+        {
+            logger.Log(
+                "[WorldFeed] WorldInfoHUD reference is not assigned.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        var worldInfoController = worldInfoHUD.GetComponent<WorldInfoController>();
+        if (worldInfoController == null)
+        {
+            logger.Log(
+                "[WorldFeed] WorldInfoController component not found on WorldInfoHUD.",
+                this,
+                Logging.LogType.Error
+            );
+            return;
+        }
+
+        worldInfoHUD.SetActive(true);
+        worldInfoController.SetCurrentWorld(world);
     }
 
     private void OnBackButtonClicked()
@@ -168,6 +277,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             logger.Log("[WorldFeed] Already on first page.", this, Logging.LogType.Warning);
             return;
         }
+
         currentOffset -= PAGE_SIZE;
         _ = RenderWorldPage(currentOffset, searchField?.value);
     }
@@ -179,6 +289,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             logger.Log("[WorldFeed] Already on last page.", this, Logging.LogType.Warning);
             return;
         }
+
         currentOffset += PAGE_SIZE;
         _ = RenderWorldPage(currentOffset, searchField?.value);
     }

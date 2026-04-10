@@ -6,7 +6,7 @@ namespace FTR.Gameplay.Client.Registry
 {
     /// <summary>
     /// Static registry that exposes the current world's items (consumables, weapons, etc.),
-    /// and enemies to client-side gameplay systems (UI, Tooltips, Visuals).
+    /// NPCs, and enemies to client-side gameplay systems (UI, Tooltips, Visuals).
     /// Strips out server-only concepts like loot tables.
     /// </summary>
     public static class ClientItemsRegistry
@@ -15,6 +15,8 @@ namespace FTR.Gameplay.Client.Registry
 
         private static readonly Dictionary<string, ItemData> itemsById =
             new Dictionary<string, ItemData>();
+        private static readonly Dictionary<string, NPCData> npcsById =
+            new Dictionary<string, NPCData>();
         private static readonly Dictionary<string, EnemyData> enemiesById =
             new Dictionary<string, EnemyData>();
         private static readonly HashSet<string> worldItemIds = new HashSet<string>();
@@ -24,6 +26,7 @@ namespace FTR.Gameplay.Client.Registry
             CurrentWorldData = data;
 
             itemsById.Clear();
+            npcsById.Clear();
             enemiesById.Clear();
             worldItemIds.Clear();
 
@@ -72,8 +75,19 @@ namespace FTR.Gameplay.Client.Registry
                 }
             }
 
+            if (data.npcs != null)
+            {
+                foreach (var npc in data.npcs)
+                {
+                    if (npc != null && !string.IsNullOrEmpty(npc.id))
+                    {
+                        npcsById[npc.id] = npc;
+                    }
+                }
+            }
+
             Debug.Log(
-                $"[ClientItemsRegistry] Registered {registeredItems} items and {enemiesById.Count} enemies visuals for world."
+                $"[ClientItemsRegistry] Registered {registeredItems} items, {npcsById.Count} NPC visuals and {enemiesById.Count} enemy visuals for world."
             );
         }
 
@@ -111,6 +125,14 @@ namespace FTR.Gameplay.Client.Registry
                 return null;
             enemiesById.TryGetValue(id, out var enemy);
             return enemy;
+        }
+
+        public static NPCData GetNpcById(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return null;
+            npcsById.TryGetValue(id, out var npc);
+            return npc;
         }
     }
 }

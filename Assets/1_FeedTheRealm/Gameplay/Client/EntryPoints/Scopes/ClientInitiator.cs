@@ -48,6 +48,9 @@ public class ClientInitiator : LifetimeScope
 
         builder.RegisterInstance(session);
         builder
+            .Register<PlayerSpriteRepository>(Lifetime.Singleton)
+            .As<CharacterSpriteRepository>();
+        builder
             .RegisterEntryPoint<ClientEntryPoint>()
             .WithParameter("mainScene", mainScene)
             .WithParameter("loginPrefab", loginPrefab)

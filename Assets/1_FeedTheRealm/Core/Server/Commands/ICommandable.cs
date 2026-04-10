@@ -27,4 +27,5 @@ public interface ICommandable
         StorageType targetType,
         int targetSlot
     );
+    void OnSetUserId(IEventCollectable ec, string userId);
 }

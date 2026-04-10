@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5951985247975804607}
   - component: {fileID: 2124911000678282174}
-  - component: {fileID: 4190128248899451067}
   - component: {fileID: 8877544300867388926}
   - component: {fileID: 3218634496288659472}
   - component: {fileID: 3772100352833835385}
@@ -39,7 +38,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5293004254245517085}
+  - {fileID: 4031371862684293138}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2124911000678282174
@@ -57,25 +56,7 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
   movementController: {fileID: 3218634496288659472}
   useController: {fileID: 6878487654893383278}
-  interactController: {fileID: 0}
-  characterAnimator: {fileID: 4486304355727522199}
---- !u!114 &4190128248899451067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ae068552dfb671458052c0c93464725, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteLoader
-  spriteManager: {fileID: 11400000, guid: ace9350c5869a9b1492cedfaa5b1b689, type: 2}
-  assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
-  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
-  itemAssetsService: {fileID: 0}
-  logger: {fileID: 11400000, guid: b676533be02c2b6ad907aa5d81cd9fa4, type: 2}
+  characterAnimator: {fileID: 1507848899257751022}
 --- !u!114 &8877544300867388926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 808bc30b7a55d36d499dcbc9bac3f6ad, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementView
-  animator: {fileID: 4486304355727522199}
+  animator: {fileID: 1507848899257751022}
 --- !u!114 &6878487654893383278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1886c23b8bdaf5c4fb1405a433b161b5, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::AttackView
-  animator: {fileID: 4486304355727522199}
+  animator: {fileID: 1507848899257751022}
 --- !u!114 &8113882516953622363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffb6f6a2d0dfad94593a58da6399662a, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::DashView
-  animator: {fileID: 4486304355727522199}
+  animator: {fileID: 1507848899257751022}
 --- !u!114 &5535709811406022713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,9 +160,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c96bc13f63a16baf8e23a598a796ad4, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
-  maxHealth: 100
-  animator: {fileID: 4486304355727522199}
---- !u!1001 &3728965444176374322
+  animator: {fileID: 1507848899257751022}
+--- !u!1001 &5564542974961173821
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -193,10 +173,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterBody
       objectReference: {fileID: 0}
-    - target: {fileID: 6309870974530971492, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
-      propertyPath: m_Controller
-      value:
-      objectReference: {fileID: 9100000, guid: b932593c4f32ff8918ec3e08cbda1f6e, type: 2}
     - target: {fileID: 8848294552524135727, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.049
@@ -237,25 +213,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5342159936205048522, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
---- !u!114 &4486304355727522199 stripped
+--- !u!114 &1507848899257751022 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1008098618709365669, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
-  m_PrefabInstance: {fileID: 3728965444176374322}
+  m_CorrespondingSourceObject: {fileID: 6473307431103107283, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
+  m_PrefabInstance: {fileID: 5564542974961173821}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa3d0a5bb9d3c04d3ac2dc5893220154, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
---- !u!4 &5293004254245517085 stripped
+  m_EditorClassIdentifier: FeedTheRealm_Shared::CharacterAnimator
+--- !u!4 &4031371862684293138 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8848294552524135727, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
-  m_PrefabInstance: {fileID: 3728965444176374322}
+  m_PrefabInstance: {fileID: 5564542974961173821}
   m_PrefabAsset: {fileID: 0}

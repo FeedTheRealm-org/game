@@ -7,6 +7,7 @@ using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using UnityEngine;
@@ -59,6 +60,12 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private GltLoaderService gltfLoaderService;
 
+        [SerializeField]
+        private PlayerService playerService;
+
+        [SerializeField]
+        private AssetsService assetsService;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)
@@ -83,6 +90,10 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(clientQuestRegistry);
             builder.RegisterInstance(modelService);
             builder.RegisterInstance(gltfLoaderService);
+            builder.RegisterInstance(playerService);
+            builder.RegisterInstance(assetsService);
+            builder.Register<PlayerSpriteRepository>(Lifetime.Singleton);
+            builder.Register<ClientNpcEnemySpriteRepository>(Lifetime.Singleton);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();

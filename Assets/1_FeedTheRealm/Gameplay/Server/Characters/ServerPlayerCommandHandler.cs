@@ -1,5 +1,8 @@
+using System.Threading.Tasks;
+using API;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
 using UnityEngine;
@@ -14,6 +17,10 @@ namespace FTR.Gameplay.Server.Characters
         private PlayerInteractSystem interactSystem;
         private InventorySystem inventorySystem;
         private QuestSystem questSystem;
+        private CharacterStateStorage stateStorage;
+        private PlayerService playerService;
+        private string serverAccessToken;
+        private bool isResolvingCharacterId;
         private GoldSystem goldSystem;
 
         public void Initialize(
@@ -23,6 +30,9 @@ namespace FTR.Gameplay.Server.Characters
             PlayerInteractSystem interactSystem,
             InventorySystem inventorySystem,
             QuestSystem questSystem,
+            CharacterStateStorage stateStorage,
+            PlayerService playerService,
+            string serverAccessToken,
             GoldSystem goldSystem
         )
         {
@@ -32,6 +42,9 @@ namespace FTR.Gameplay.Server.Characters
             this.interactSystem = interactSystem;
             this.inventorySystem = inventorySystem;
             this.questSystem = questSystem;
+            this.stateStorage = stateStorage;
+            this.playerService = playerService;
+            this.serverAccessToken = serverAccessToken;
             this.goldSystem = goldSystem;
         }
 
@@ -109,6 +122,22 @@ namespace FTR.Gameplay.Server.Characters
             goldSystem.OnPickUp(ec, goldAmount, onComplete);
         }
 
+        public override void OnSetUserId(IEventCollectable ec, string tokenId)
+        {
+            if (isResolvingCharacterId || !string.IsNullOrEmpty(stateStorage.CharacterId))
+                return;
+
+            if (string.IsNullOrWhiteSpace(tokenId))
+            {
+                Debug.LogWarning(
+                    "[ServerPlayerCommandHandler] Received empty world join token.",
+                    this
+                );
+                return;
+            }
+            _ = ResolveAndSetUserIdFromTokenAsync(tokenId);
+        }
+
         public override void OnPurchase(
             IEventCollectable ec,
             uint netId,
@@ -140,6 +169,26 @@ namespace FTR.Gameplay.Server.Characters
                 {
                     goldSystem.ReduceGold(ec, product.price * amount);
                 }
+            }
+        }
+
+        private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
+        {
+            isResolvingCharacterId = true;
+            try
+            {
+                var consumeResponse = await playerService.ConsumeWorldJoinTokenAsync(
+                    tokenId,
+                    serverAccessToken
+                );
+                if (consumeResponse == null)
+                    return;
+
+                stateStorage.SetCharacterId(consumeResponse.user_id);
+            }
+            finally
+            {
+                isResolvingCharacterId = false;
             }
         }
     }

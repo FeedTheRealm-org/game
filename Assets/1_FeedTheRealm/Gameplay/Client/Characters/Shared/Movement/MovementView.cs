@@ -1,4 +1,3 @@
-using FTR.Core.Client.Enums;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
 using FTR.Gameplay.Common.NetworkEntities.Characters;

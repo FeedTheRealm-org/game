@@ -37,8 +37,15 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
     public async void Start()
     {
-        await worldLoader.LoadWorld();
+        var loadSucceeded = await worldLoader.LoadWorld();
+        if (!loadSucceeded)
+        {
+            WorldLoadBootstrap.MarkServerFailed();
+            return;
+        }
+
         healthcheckServer.Start();
+        WorldLoadBootstrap.MarkServerReady();
     }
 
     public async void Dispose()
