@@ -2,13 +2,15 @@ using System;
 using System.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.EventChannels;
-using FTR.Core.Common.Scopes;
 // using Core.Systems.Worlds;
-// using Core.Systems.Worlds.Loader;
+using FTR.Core.Common.Loaders;
+using FTR.Core.Common.Scopes;
+// using FTRShared.Runtime.Models;
 using kcp2k;
 using Mirror;
 // using FTRShared.Runtime.Models;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 /*
@@ -87,6 +89,9 @@ public class FTRNetworkManager : NetworkManager
 
             logger.Log($"[NetworkManager] Starting server on port {kcp.Port}", this);
             StartServer();
+            NetworkSpawnPendingObjectsRegistry spawnerRegistry =
+                containerScope.Container.Resolve<NetworkSpawnPendingObjectsRegistry>();
+            spawnerRegistry.SpawnAll();
         }
         else if (config.RuntimeRole == RuntimeRole.Client)
         {

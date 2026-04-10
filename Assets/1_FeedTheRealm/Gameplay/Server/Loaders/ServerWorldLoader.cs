@@ -14,7 +14,7 @@ namespace FTR.Gameplay.Server.Scopes
     {
         public ServerWorldLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
         {
-            var structureLoader = new ServerStructureLoader(prefabProvider);
+            var structureLoader = new ServerStructureLoader(prefabProvider, resolver);
             var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
             var aggressiveNpcSpawnerLoader = new AggressiveNpcSpawnerLoader(
                 prefabProvider,

@@ -7,18 +7,21 @@ using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Loaders
 {
-    public class ServerStructureLoader : MonoBehaviour, ILoader
+    public class ServerStructureLoader : ILoader
     {
         private readonly GameObject structurePrefab;
         private readonly GameObject shopPrefab;
+        private readonly IObjectResolver resolver;
 
-        public ServerStructureLoader(ServerPrefabProvider prefabProvider)
+        public ServerStructureLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
         {
             structurePrefab = prefabProvider.StructureComponent;
             shopPrefab = prefabProvider.ShopComponent;
+            this.resolver = resolver;
         }
 
         public virtual async UniTask Load(
@@ -38,20 +41,21 @@ namespace FTR.Gameplay.Server.Loaders
                     structureShopData.Add(structureData);
                     continue;
                 }
-                GameObject instance = Instantiate(structurePrefab);
+                GameObject instance = Object.Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
                 controller.Initialize(structureData);
             }
 
+            NetworkSpawnPendingObjectsRegistry spawnerRegistry =
+                resolver.Resolve<NetworkSpawnPendingObjectsRegistry>();
             foreach (StructureData structureData in structureShopData)
             {
-                GameObject instance = Instantiate(shopPrefab);
+                GameObject instance = Object.Instantiate(shopPrefab);
                 instance.name = structureData.shopId;
                 var controller = instance.GetComponent<StructureController>();
                 controller.Initialize(structureData);
-
-                Mirror.NetworkServer.Spawn(instance);
+                spawnerRegistry.Register(instance);
             }
         }
     }
