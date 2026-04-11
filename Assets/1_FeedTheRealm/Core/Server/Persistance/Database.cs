@@ -8,7 +8,8 @@ public class Database
 
     public Database(string connectionString, string serverId, string zoneId)
     {
-        var client = new MongoClient(connectionString);
+        var settings = MongoClientSettings.FromConnectionString(connectionString);
+        var client = new MongoClient(settings);
 
         _db = client.GetDatabase($"world-{serverId}_zone-{zoneId}");
     }

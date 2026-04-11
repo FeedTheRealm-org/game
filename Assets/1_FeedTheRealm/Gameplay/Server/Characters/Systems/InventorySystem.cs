@@ -3,8 +3,10 @@ using FTR.Core.Common.Utils;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Events;
+using FTR.Core.Server.Persistance;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
@@ -15,6 +17,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private ServerConfig config;
+
+        [Inject]
+        private readonly PlayersRepository playersRepository;
 
         private uint netId;
         private InventoryStateStorage inventoryState;
