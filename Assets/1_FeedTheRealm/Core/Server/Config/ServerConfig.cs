@@ -6,6 +6,9 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
+        [Header("Secrets")]
+        public string MongoConnectionString;
+
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;
         public LayerMask TargetLayer; // Enemies
