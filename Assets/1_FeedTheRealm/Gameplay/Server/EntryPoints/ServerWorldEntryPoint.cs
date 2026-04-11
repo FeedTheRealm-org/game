@@ -1,7 +1,8 @@
 using System;
 using FTR.Core.Common.Scopes;
-using FTR.Core.Server;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Persistance;
 using FTR.Gameplay.Server.Loaders;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
@@ -16,6 +17,11 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     private readonly ServerWorldLoader worldLoader;
     private readonly HealthcheckServer healthcheckServer;
 
+    private readonly ServerConfig serverConfig;
+    private readonly ServerSecretsConfig secretsConfig;
+    private readonly Database database;
+    private readonly PlayersRepository playersRepository;
+
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
 
@@ -25,23 +31,46 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         IObjectResolver resolver,
         ObjectResolverContainer resolverContainer,
         ServerWorldLoader worldLoader,
-        HealthcheckServer healthcheckServer
+        HealthcheckServer healthcheckServer,
+        ServerConfig serverConfig,
+        ServerSecretsConfig secretsConfig,
+        Database database,
+        PlayersRepository playersRepository
     )
     {
         this.serverTickDriver = serverTickDriver;
         this.networkTickDriver = networkTickDriver;
         this.worldLoader = worldLoader;
         this.healthcheckServer = healthcheckServer;
+        this.serverConfig = serverConfig;
+        this.secretsConfig = secretsConfig;
+        this.database = database;
+        this.playersRepository = playersRepository;
         resolverContainer.SetResolver(resolver);
+
+        secretsConfig.LoadEnvironmentVariables(
+            serverConfig.EnvFilePath,
+            serverConfig.LoadFromEnvFile
+        );
     }
 
     public async void Start()
     {
-        var loadSucceeded = await worldLoader.LoadWorld();
-        if (!loadSucceeded)
+        try
         {
+            var loadSucceeded = await worldLoader.LoadWorld();
+            if (!loadSucceeded)
+                throw new Exception("World loading failed");
+
+            string worldId = "world1";
+            string zoneId = "1";
+            database.Connect(secretsConfig.MongoConnectionString, worldId, zoneId);
+            await playersRepository.Connect(database);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to start ServerWorldEntryPoint: {ex}");
             WorldLoadBootstrap.MarkServerFailed();
-            return;
         }
 
         healthcheckServer.Start();

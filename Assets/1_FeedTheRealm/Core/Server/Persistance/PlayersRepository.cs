@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FTR.Core.Server.Config;
 using FTR.Core.Server.Persistance.Schemas;
 using MongoDB.Driver;
 
@@ -8,27 +7,19 @@ namespace FTR.Core.Server.Persistance;
 
 public class PlayersRepository
 {
-    private readonly Database db;
-    private readonly IMongoCollection<PlayerDocument> collection;
     private readonly Logging.Logger logger;
+    private readonly Database db;
 
-    public PlayersRepository(
-        FTR.Core.Common.Config.Config config,
-        ServerConfig serverConfig,
-        Logging.Logger logger
-    )
+    private IMongoCollection<PlayerDocument> collection;
+
+    public PlayersRepository(Database db, Logging.Logger logger)
     {
         this.logger = logger;
+        this.db = db;
+    }
 
-        string worldId = "world1";
-        string zoneId = "1";
-        this.logger.Log(
-            $"Initializing PlayersRepository with worldId: {worldId}, zoneId: {zoneId}"
-        );
-
-        this.db = new Database(serverConfig.MongoConnectionString, worldId, zoneId); // TODO: get world id and zone id from config
-        this.logger.Log($"Connected to {worldId}_{zoneId} Mongo database");
-
+    public async Task Connect(Database db)
+    {
         this.collection = db.GetCollection<PlayerDocument>("players");
         this.logger.Log("Players collection initialized");
 
@@ -64,7 +55,7 @@ public class PlayersRepository
             },
             CompletedQuests = new List<string> { "quest0" },
         };
-        _ = SavePlayerAsync(testPlayer);
+        await SavePlayerAsync(testPlayer);
         this.logger.Log("Test player document saved to MongoDB");
     }
 

@@ -6,8 +6,9 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
-        [Header("Secrets")]
-        public string MongoConnectionString;
+        [Header("Environment Variables Configuration")]
+        public string EnvFilePath = ".env";
+        public bool LoadFromEnvFile = false;
 
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;

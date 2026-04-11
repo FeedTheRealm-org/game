@@ -66,6 +66,8 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
 
+            builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
+            builder.Register<Database>(Lifetime.Singleton);
             builder.Register<PlayersRepository>(Lifetime.Singleton);
             builder.Register<NetworkSpawnPendingObjectsRegistry>(Lifetime.Singleton);
             builder.Register<HealthcheckServer>(Lifetime.Singleton);
