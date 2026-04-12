@@ -2,20 +2,21 @@ services:
   ftr-server:
     profiles: ["all"]
     environment:
-      MONGO_CONNECTION_STRING: "mongodb://admin:admin@mongo/?authSource=admin"
+      MONGO_CONNECTION_STRING: "mongodb://admin:admin@localhost:27017/?authSource=admin"
     build:
       context: .
-    command: ["--world-id", "1", "--zone-id", "1"]
-    ports:
-      - "7777:7777/udp"
-      - "7777:7777/tcp"
+    command: [
+      "-batchmode",
+      "-nographics",
+      "--world-id=${WORLD_ID}",
+      "--zone-id=${ZONE_ID}"
+    ]
+    network_mode: host # Assumes core-service running on localhost:8000
     depends_on:
       mongo:
         condition: service_healthy
     volumes:
       - ./local_buckets:/usr/src/app/local_buckets
-    networks:
-      - dev-app-network
 
   mongo: # For local ftr-servers persistance (game)
     command: ["--quiet", "--logpath", "/dev/null"]
@@ -32,10 +33,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-networks:
-  dev-app-network:
-    driver: bridge
 
 volumes:
   mongo_data:
