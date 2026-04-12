@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Shop;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
 using FTRShared.Runtime.Models;
@@ -25,6 +26,9 @@ namespace FTR.UI.Shop
 
         [Inject]
         private OpenShopEvent openShopEvent;
+
+        [Inject]
+        private ShopToggleEvent shopToggleEvent;
 
         [Inject]
         private PurchaseRequestEvent purchaseRequestEvent;
@@ -69,7 +73,11 @@ namespace FTR.UI.Shop
             }
             else
             {
-                _closeButton.RegisterCallback<ClickEvent>(_ => SetVisible(false));
+                _closeButton.RegisterCallback<ClickEvent>(_ =>
+                {
+                    SetVisible(false);
+                    shopToggleEvent?.Raise(false);
+                });
             }
 
             _shopItemsContainer = _shopPanel.Q<VisualElement>("ShopItemsContainer");
@@ -151,6 +159,7 @@ namespace FTR.UI.Shop
                 PopulateShop(shopId);
 
             SetVisible(show);
+            shopToggleEvent?.Raise(show);
         }
 
         private void PopulateShop(string shopId)

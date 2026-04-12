@@ -14,6 +14,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Logging.Logger logger;
 
         public event Action<uint> OnDeath;
+
         public float CurrentHealth => currentHealth;
 
         private float currentHealth;
@@ -39,36 +40,41 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt) { }
 
-        public bool TakeDamage(float damage)
+        public (bool isDead, string characterId) TakeDamage(float damage, uint attackerNetId = 0)
         {
             if (isImmortal)
-                return false;
+                return (false, null);
 
             if (currentHealth <= 0)
-                return true;
+                return (false, null);
 
             currentHealth -= damage;
             stateStorage.SetHealth(Mathf.Max(0f, currentHealth));
-            logger.Log($"Took {damage} damage, current health: {currentHealth}", this);
+            /*logger.Log(
+                $"Took {damage} damage from netId={attackerNetId}, health: {currentHealth}",
+                this
+            );*/
+
             var isDead = currentHealth <= 0;
             if (isDead)
-                Die();
+                Die(attackerNetId);
 
-            return isDead;
+            return (isDead, stateStorage.CharacterId);
         }
 
         public void ResetHealth()
         {
             currentHealth = MaxHealth;
             stateStorage.SetHealth(MaxHealth);
-            logger.Log($"Health reset to {MaxHealth}", this);
+            //logger.Log($"Health reset to {MaxHealth}", this);
         }
 
-        private void Die()
+        private void Die(uint killerNetId)
         {
             if (!isInitialized)
                 return;
-            logger.Log("Character has died.", this);
+
+            logger.Log($"Character has died. Killer netId={killerNetId}", this);
             OnDeath?.Invoke(netId);
         }
     }

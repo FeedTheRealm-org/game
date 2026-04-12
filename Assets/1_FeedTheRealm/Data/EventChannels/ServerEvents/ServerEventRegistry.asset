@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63114096b4fac6203a54d1358beeded0, type: 3}
+  m_Name: ServerEventRegistry
+  m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.EventChannels.ServerEventRegistry
+  gameTickEvent: {fileID: 11400000, guid: 90328c5681afe68e487fe1efe3884da4, type: 2}
+  enemySlayedEvent: {fileID: 11400000, guid: 5deffbf304da44b0781e3eb3b7ecc346, type: 2}
+  npcInteractedEvent: {fileID: 11400000, guid: 4ced2ec33581cd7ecabdb75926b73fd6, type: 2}
+  questRewardGoldEvent: {fileID: 11400000, guid: 6e366dc94a8214232bf512705f3677de, type: 2}
+  questRewardItemEvent: {fileID: 11400000, guid: 5e773937a81a4d7008409017ec709fd9, type: 2}

@@ -34,10 +34,13 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
     public override void Link(GameObject gameObject)
     {
         var characterComponent = characterLinker.Link(gameObject);
+        var characterBody = characterComponent.transform.Find("CharacterBody");
+        var attachParent = characterBody != null ? characterBody : gameObject.transform;
+
+        var networkEventRouter = characterComponent.GetComponent<NetworkEventRouter>();
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var spriteLoader = characterComponent.GetComponentInChildren<SpriteLoader>();
         var spriteManager = characterComponent.GetComponentInChildren<SpriteManager>();
-        var networkEventRouter = characterComponent.GetComponent<NetworkEventRouter>();
         var interactView = characterComponent.AddComponent<InteractView>();
 
         resolver.Inject(interactView);
@@ -46,13 +49,12 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
         interactView.Initialize(networkEventRouter, npcDialogRegistry);
 
         // Initialize dialog box
-        var characterBody = characterComponent.transform.Find("CharacterBody");
-        var dialogParent = characterBody != null ? characterBody : gameObject.transform;
         prefabProvider.DialogBox.SetActive(false);
-        var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, dialogParent);
-        dialogBoxComponent.transform.localPosition = new Vector3(1f, -0.2f, 0);
-        dialogBoxComponent.transform.localScale = new Vector3(0.4f, 0.4f, 0);
+        var dialogBoxComponent = Object.Instantiate(prefabProvider.DialogBox, attachParent);
         resolver.InjectGameObject(dialogBoxComponent);
         dialogBoxComponent.SetActive(true);
+
+        resolver.Inject(interactView);
+        interactView.Initialize(networkEventRouter, npcDialogRegistry);
     }
 }

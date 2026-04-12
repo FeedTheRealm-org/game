@@ -6,5 +6,10 @@ namespace FTR.Core.Common.Characters
     {
         string CharacterId { get; }
         event Action<string> OnCharacterIdChanged;
+
+        string CharacterName { get; }
+        event Action<string> OnCharacterNameChanged;
+
+        bool IsLocalPlayer { get; }
     }
 }

@@ -1,9 +1,11 @@
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
+using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Gold;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
@@ -14,6 +16,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private ServerConfig config;
+
+        [Inject]
+        public void Construct(IObjectResolver resolver)
+        {
+            if (resolver.TryResolve<QuestRewardGoldEvent>(out var ev) && ev != null)
+                questRewardGoldEvent = ev;
+        }
+
+        private QuestRewardGoldEvent questRewardGoldEvent;
+        private bool subscribedToQuestReward = false;
 
         private uint netId;
         private GoldStateStorage goldState;
@@ -29,16 +41,32 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.worldMonitor = worldMonitor;
             goldState.SetGold(config.StartingGold);
             isInitialized = true;
+
+            SubscribeToQuestReward();
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromQuestReward();
+        }
+
+        private void OnQuestRewardGold((uint playerNetId, int goldAmount) data)
+        {
+            if (data.playerNetId != netId)
+                return;
+
+            logger?.Log(
+                $"[GoldSystem] Quest reward: adding {data.goldAmount} gold to Player:{netId}.",
+                this
+            );
+            goldState.AddGold(data.goldAmount);
         }
 
         public void AddGold(IEventCollectable ec, int amount)
         {
             if (amount <= 0)
             {
-                logger.Log(
-                    $"[GoldSystem] AddGold: invalid amount {amount} for player {netId}",
-                    this
-                );
+                logger.Log($"[GoldSystem] AddGold: invalid amount {amount}", this);
                 return;
             }
 
@@ -50,17 +78,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             if (amount <= 0)
             {
-                logger.Log(
-                    $"[GoldSystem] ReduceGold: invalid amount {amount} for player {netId}",
-                    this
-                );
+                logger.Log($"[GoldSystem] ReduceGold: invalid amount {amount}", this);
                 return false;
             }
 
             if (goldState.Gold < amount)
             {
                 logger.Log(
-                    $"[GoldSystem] ReduceGold: insufficient gold for player {netId}. Requested {amount}, current {goldState.Gold}",
+                    $"[GoldSystem] ReduceGold: insufficient gold for Player:{netId}. "
+                        + $"Requested {amount}, current {goldState.Gold}",
                     this
                 );
                 return false;
@@ -73,15 +99,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public bool HasEnoughGold(uint netId, string productId, int price, int amount)
         {
-            if (goldState.Gold >= (price * amount))
+            if (goldState.Gold >= price * amount)
                 return true;
 
-            uint playerNetId = netId;
-
-            var connId = GetPlayerConnectionId(playerNetId);
+            var connId = GetPlayerConnectionId(netId);
             if (!connId.HasValue)
             {
-                logger?.Log($"[GoldSystem] conn not found, Player:{playerNetId}.", this);
+                logger?.Log($"[GoldSystem] conn not found, Player:{netId}.", this);
                 return false;
             }
 
@@ -93,10 +117,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 )
             );
 
-            worldMonitor.Events.Enqueue(new InteractCompletedEvent(playerNetId, connId.Value));
+            worldMonitor.Events.Enqueue(new InteractCompletedEvent(netId, connId.Value));
 
-            logger?.Log($"[GoldSystem] Player {playerNetId} try to buy '{productId}'.", this);
-
+            logger?.Log(
+                $"[GoldSystem] Player {netId} has insufficient gold for '{productId}'.",
+                this
+            );
             return false;
         }
 
@@ -120,7 +146,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void LoadGold(int savedGold)
         {
             // TODO: restore gold from saved data
-            logger.Log($"[GoldSystem] Loaded gold for player {netId}", this);
+            logger.Log($"[GoldSystem] Loaded gold for Player:{netId}", this);
         }
 
         public void GameTick(float dt)
@@ -128,12 +154,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (isInitialized && !isSettedUp)
             {
                 int currentGold = config.StartingGold > 0 ? config.StartingGold : 0;
-
                 goldState.SetGold(currentGold);
-                logger.Log($"[GoldSystem] Initialized player {netId} with {currentGold}", this);
+                logger.Log(
+                    $"[GoldSystem] Initialized Player:{netId} with {currentGold} gold",
+                    this
+                );
                 isSettedUp = true;
             }
         }
+
+        // ── Private helpers ───────────────────────────────────────────────────
 
         private int? GetPlayerConnectionId(uint playerNetId)
         {
@@ -144,6 +174,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return entity.ConnectionId.Value;
 
             return null;
+        }
+
+        private void SubscribeToQuestReward()
+        {
+            if (subscribedToQuestReward || questRewardGoldEvent == null)
+                return;
+            questRewardGoldEvent.OnRaised += OnQuestRewardGold;
+            subscribedToQuestReward = true;
+        }
+
+        private void UnsubscribeFromQuestReward()
+        {
+            if (!subscribedToQuestReward || questRewardGoldEvent == null)
+                return;
+            questRewardGoldEvent.OnRaised -= OnQuestRewardGold;
+            subscribedToQuestReward = false;
         }
     }
 }

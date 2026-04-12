@@ -16,6 +16,8 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
     public event Action OnInteractFailedEvent;
     public event Action OnInteractCompletedEvent;
+    public event Action<QuestProgressEventContent> OnQuestProgressEvent;
+    public event Action<QuestCompletedEventContent> OnQuestCompletedEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -76,6 +78,18 @@ public class NetworkEventRouter : MonoBehaviour
             case ServerEventType.InteractCompletedEvent:
                 OnInteractCompletedEvent?.Invoke();
                 logger.Log($"Routed InteractCompletedEvent", this);
+                break;
+            case ServerEventType.QuestProgressEvent:
+                OnQuestProgressEvent?.Invoke(
+                    QuestProgressEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log("Routed QuestProgressEvent", this);
+                break;
+            case ServerEventType.QuestCompletedEvent:
+                OnQuestCompletedEvent?.Invoke(
+                    QuestCompletedEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log("Routed QuestCompletedEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);
