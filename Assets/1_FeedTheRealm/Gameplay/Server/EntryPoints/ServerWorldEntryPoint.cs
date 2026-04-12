@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Healthcheck;
@@ -23,6 +24,9 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     private readonly PlayersRepository playersRepository;
 
     private readonly Logging.Logger logger;
+
+    private readonly CancellationTokenSource lifetimeCts = new();
+    private bool disposed;
 
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
@@ -71,24 +75,55 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             logger.Log(
                 $"Connecting to database with connection string: {secretsConfig.MongoConnectionString}"
             );
-            database.Connect(secretsConfig.MongoConnectionString, worldId, zoneId);
+            await database.Connect(
+                secretsConfig.MongoConnectionString,
+                worldId,
+                zoneId,
+                lifetimeCts.Token
+            );
             logger.Log("Database connected successfully");
             await playersRepository.Connect(database);
             logger.Log("PlayersRepository connected successfully");
+
+            if (lifetimeCts.IsCancellationRequested)
+                return;
+
+            healthcheckServer.Start();
+            WorldLoadBootstrap.MarkServerReady();
+        }
+        catch (OperationCanceledException)
+        {
+            logger.Log("ServerWorldEntryPoint startup cancelled.", Logging.LogType.Warning);
+            WorldLoadBootstrap.MarkServerFailed();
         }
         catch (Exception ex)
         {
             logger.Log($"Failed to start ServerWorldEntryPoint: {ex}", Logging.LogType.Error);
             WorldLoadBootstrap.MarkServerFailed();
         }
-
-        healthcheckServer.Start();
-        WorldLoadBootstrap.MarkServerReady();
     }
 
-    public async void Dispose()
+    public void Dispose()
     {
-        await healthcheckServer.CloseAsync();
+        if (disposed)
+            return;
+
+        disposed = true;
+        lifetimeCts.Cancel();
+        WorldLoadBootstrap.MarkServerFailed();
+
+        try
+        {
+            healthcheckServer.CloseAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Failed to close HealthcheckServer: {ex}", Logging.LogType.Error);
+        }
+        finally
+        {
+            lifetimeCts.Dispose();
+        }
     }
 
     /// <summary>
