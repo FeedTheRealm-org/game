@@ -28,67 +28,6 @@ public class PlayersRepository
     {
         this.collection = db.GetCollection<PlayerDocument>("players");
         this.logger.Log("Players collection initialized");
-
-        // save basic player document to test
-        var testPlayer = new PlayerDocument
-        {
-            PlayerId = "player1",
-            Gold = 100,
-            LastPosition = new Vec3
-            {
-                X = 0,
-                Y = 0,
-                Z = 0,
-            },
-            Inventory = new List<InventoryItem>
-            {
-                new InventoryItem
-                {
-                    ItemId = "sword",
-                    Quantity = 1,
-                    Slot = 0,
-                },
-                new InventoryItem
-                {
-                    ItemId = "potion",
-                    Quantity = 5,
-                    Slot = 1,
-                },
-            },
-            ActiveQuests = new List<ActiveQuest>
-            {
-                new ActiveQuest { QuestId = "quest1", Progress = 50 },
-            },
-            CompletedQuests = new List<string> { "quest0" },
-        };
-
-        await SavePlayerAsync(testPlayer);
-        testPlayer.Gold += 50;
-        await SaveInventoryAsync(testPlayer.PlayerId, testPlayer.Inventory, testPlayer.Gold);
-        testPlayer.LastPosition = new Vec3
-        {
-            X = 10,
-            Y = 0,
-            Z = 5,
-        };
-        await SavePositionAsync(testPlayer.PlayerId, testPlayer.LastPosition);
-        testPlayer.ActiveQuests.Add(new ActiveQuest { QuestId = "quest2", Progress = 0 });
-        await SaveQuestsAsync(
-            testPlayer.PlayerId,
-            testPlayer.ActiveQuests,
-            testPlayer.CompletedQuests
-        );
-
-        var retrievedPlayer = await GetPlayerAsync(testPlayer.PlayerId);
-        if (retrievedPlayer == null)
-        {
-            this.logger.Log("Failed to retrieve test player from MongoDB");
-            return;
-        }
-
-        this.logger.Log(
-            $"Test player document saved to MongoDB: {retrievedPlayer.PlayerId}, Gold: {retrievedPlayer.Gold}, Position: ({retrievedPlayer.LastPosition.X}, {retrievedPlayer.LastPosition.Y}, {retrievedPlayer.LastPosition.Z}), Inventory Count: {retrievedPlayer.Inventory.Count}, Active Quests Count: {retrievedPlayer.ActiveQuests.Count}, Completed Quests Count: {retrievedPlayer.CompletedQuests.Count}"
-        );
     }
 
     /// <summary>
