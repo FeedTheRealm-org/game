@@ -2,7 +2,7 @@ using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
-using FTR.Core.Server.Persistance;
+using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;

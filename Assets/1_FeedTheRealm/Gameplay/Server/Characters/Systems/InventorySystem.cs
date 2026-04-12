@@ -3,7 +3,7 @@ using FTR.Core.Common.Utils;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Events;
-using FTR.Core.Server.Persistance;
+using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FTR.Core.Server.Persistance.Schemas;
+using FTR.Core.Server.Persistence.Schemas;
 using MongoDB.Driver;
 
-namespace FTR.Core.Server.Persistance;
+namespace FTR.Core.Server.Persistence;
 
 /// <summary>
 /// Repository for managing player data in MongoDB.

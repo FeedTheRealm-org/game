@@ -5,7 +5,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
-using FTR.Core.Server.Persistance;
+using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Environment.Quest;

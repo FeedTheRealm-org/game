@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace FTR.Core.Server.Persistance.Schemas;
+namespace FTR.Core.Server.Persistence.Schemas;
 
 public class PlayerDocument
 {
