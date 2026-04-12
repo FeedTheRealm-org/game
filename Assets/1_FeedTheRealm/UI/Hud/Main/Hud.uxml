@@ -30,7 +30,7 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:ScrollView name="CurrentQuestsContainer" enabled="false" class="quest-list" style="display: none;">
+        <ui:ScrollView name="CurrentQuestsContainer" class="quest-list" style="display: none;">
             <ui:VisualElement class="quest-item">
                 <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu" class="quest-title"/>
                 <ui:ProgressBar title="0%" class="quest-progress"/>

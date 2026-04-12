@@ -133,4 +133,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 457ad65bb625b5b88b388b409a7cb83d, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.QuestSystem
-  logger: {fileID: 0}
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}

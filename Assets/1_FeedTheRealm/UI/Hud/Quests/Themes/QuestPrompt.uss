@@ -1,3 +1,18 @@
+:root {
+    --teal:          rgb(110, 255, 251);
+    --teal-dim:      rgba(110, 255, 251, 0.18);
+    --teal-glow:     rgba(110, 255, 251, 0.08);
+    --gold:          rgb(255, 210, 80);
+    --gold-dim:      rgba(255, 210, 80, 0.15);
+    --white:         rgb(255, 255, 255);
+    --white-soft:    rgba(255, 255, 255, 0.75);
+    --dark:          rgba(0, 0, 0, 0.72);
+    --darker:        rgba(0, 0, 0, 0.88);
+    --card-bg:       rgba(0, 0, 0, 0.62);
+    --radius:        12px;
+    --radius-sm:     8px;
+}
+
 .body {
     display: flex;
     justify-content: flex-end;
@@ -9,10 +24,11 @@
     width: 100%;
     max-width: 900px;
     max-height: 150px;
-    padding: 5px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.22);
 }
 
 .button-container {
@@ -23,40 +39,57 @@
 }
 
 .quest-button {
-    width: 60px;
+    width: 80px;
     height: 40px;
     padding: 10px 25px;
     font-size: 14px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    border-radius: var(--radius-sm);
+    border-width: 1px;
+    transition-duration: 0.3s;
+    -unity-font-style: bold;
 }
 
 .accept-button {
-    background-color: rgb(60, 179, 113);
+    background-color: var(--teal-dim);
+    border-color: var(--teal);
+    color: var(--teal);
     margin-right: 15px;
 }
 
+.accept-button:hover {
+    background-color: rgba(110, 255, 251, 0.32);
+    color: var(--white);
+}
+
 .reject-button {
-    background-color: rgb(220, 20, 60);
+    background-color: rgba(220, 20, 60, 0.18);
+    border-color: rgb(220, 20, 60);
+    color: rgb(220, 20, 60);
+}
+
+.reject-button:hover {
+    background-color: rgba(220, 20, 60, 0.32);
+    color: var(--white);
 }
 
 .quest-text {
     font-size: 14px;
-    color: rgb(51, 51, 51);
+    color: var(--white-soft);
     white-space: normal;
     overflow: hidden;
-    text-align: center;
+    -unity-text-align: middle-center;
 }
 
 .quest-title {
     font-size: 20px;
-    font-weight: bold;
-    text-align: center;
+    -unity-font-style: bold;
+    color: var(--teal);
+    -unity-text-align: middle-center;
 }
 
 .hl {
-    background-color: rgb(0, 0, 0);
+    background-color: rgba(110, 255, 251, 0.25);
     height: 1px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }

@@ -27,7 +27,9 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
         /// </summary>
         public void Populate(List<NPCData> worldNpcs, List<DialogData> worldDialogs)
         {
-            BuildLookup(worldNpcs, worldDialogs);
+            npcs = worldNpcs ?? new List<NPCData>();
+            dialogs = worldDialogs ?? new List<DialogData>();
+            BuildLookup(npcs, dialogs);
         }
 
         public bool TryGetMessages(string npcId, out List<MessageData> messages)
@@ -53,6 +55,28 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
             if (TryGetMessages(npcId, out var messages))
                 return messages.Count;
             return 0;
+        }
+
+        public bool TryGetNpcName(string npcId, out string npcName)
+        {
+            npcName = string.Empty;
+
+            if (string.IsNullOrEmpty(npcId))
+                return false;
+
+            if (npcs == null)
+                return false;
+
+            foreach (var npc in npcs)
+            {
+                if (npc != null && npc.id == npcId)
+                {
+                    npcName = npc.name;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

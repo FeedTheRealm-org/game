@@ -45,9 +45,9 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         {
             Gizmos.color = Color.green;
 
-            logger.Log(
+            /*logger.Log(
                 $"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {itemId}, ItemID: {itemId})."
-            );
+            );*/
             if (isPickedUp)
                 return;
 
@@ -62,7 +62,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             }
 
             uint playerId = networkIdentity.netId;
-            logger.Log($"[LootItemController] Target PlayerId for PickUpCommand: {playerId}", this);
+            //logger.Log($"[LootItemController] Target PlayerId for PickUpCommand: {playerId}", this);
             SendPickupCommand(playerId);
             isPickedUp = true;
         }

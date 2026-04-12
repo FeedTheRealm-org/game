@@ -1,4 +1,6 @@
+using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.Exceptions;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using Unity.Cinemachine;
@@ -18,12 +20,16 @@ public class PlayerController : MonoBehaviour
     private InventoryToggleEvent inventoryToggleEvent;
 
     [Inject]
+    private ShopToggleEvent shopToggleEvent;
+
+    [Inject]
     private Logging.Logger logger;
 
     private CharacterStateMachine characterStateMachine;
 
     private bool isInitialized = false;
     private bool isInventoryOpen = false;
+    private bool isShopOpen = false;
 
     public void Initialize(CharacterStateMachine characterStateMachine)
     {
@@ -33,14 +39,29 @@ public class PlayerController : MonoBehaviour
         if (inventoryToggleEvent != null)
             inventoryToggleEvent.OnRaised += OnInventoryToggled;
 
+        if (shopToggleEvent != null)
+            shopToggleEvent.OnRaised += OnShopToggled;
+
         StartController();
     }
 
     private void OnInventoryToggled(bool isOpen)
     {
         isInventoryOpen = isOpen;
-        Cursor.visible = isOpen;
-        Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
+        UpdateCursorState();
+    }
+
+    private void OnShopToggled(bool isOpen)
+    {
+        isShopOpen = isOpen;
+        UpdateCursorState();
+    }
+
+    private void UpdateCursorState()
+    {
+        bool shouldShowCursor = isInventoryOpen || isShopOpen;
+        Cursor.visible = shouldShowCursor;
+        Cursor.lockState = shouldShowCursor ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     public void StartController()
@@ -68,6 +89,9 @@ public class PlayerController : MonoBehaviour
 
         if (inventoryToggleEvent != null)
             inventoryToggleEvent.OnRaised -= OnInventoryToggled;
+
+        if (shopToggleEvent != null)
+            shopToggleEvent.OnRaised -= OnShopToggled;
     }
 
     private void ToggleRegisterInputs(bool register)
@@ -90,7 +114,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnUseInput()
     {
-        if (isInventoryOpen)
+        if (isInventoryOpen || isShopOpen)
         {
             return;
         }

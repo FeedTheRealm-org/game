@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/WorldSpace/NameTag/WorldCharacterNameUI.uss?fileID=7433441132597879392&amp;guid=95db055ef28b729878f3eb5bfadef849&amp;type=3#WorldCharacterNameUI"/>
+    <ui:Label name="CharacterNameLabel" text="" class="character-name"/>
+</ui:UXML>
