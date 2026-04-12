@@ -72,18 +72,13 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
             string worldId = "world1";
             string zoneId = "1";
-            logger.Log(
-                $"Connecting to database with connection string: {secretsConfig.MongoConnectionString}"
-            );
             await database.Connect(
                 secretsConfig.MongoConnectionString,
                 worldId,
                 zoneId,
                 lifetimeCts.Token
             );
-            logger.Log("Database connected successfully");
             await playersRepository.Connect(database);
-            logger.Log("PlayersRepository connected successfully");
 
             if (lifetimeCts.IsCancellationRequested)
                 return;
