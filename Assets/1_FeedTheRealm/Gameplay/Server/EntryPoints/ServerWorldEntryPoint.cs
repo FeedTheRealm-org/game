@@ -103,7 +103,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         }
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
         if (disposed)
             return;
@@ -114,16 +114,14 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
         try
         {
-            healthcheckServer.CloseAsync().GetAwaiter().GetResult();
+            await healthcheckServer.CloseAsync();
         }
         catch (Exception ex)
         {
             logger.Log($"Failed to close HealthcheckServer: {ex}", Logging.LogType.Error);
         }
-        finally
-        {
-            lifetimeCts.Dispose();
-        }
+
+        lifetimeCts.Dispose();
     }
 
     /// <summary>
