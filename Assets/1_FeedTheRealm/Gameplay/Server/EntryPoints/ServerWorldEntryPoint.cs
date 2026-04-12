@@ -22,6 +22,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     private readonly Database database;
     private readonly PlayersRepository playersRepository;
 
+    private readonly Logging.Logger logger;
+
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
 
@@ -35,7 +37,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         ServerConfig serverConfig,
         ServerSecretsConfig secretsConfig,
         Database database,
-        PlayersRepository playersRepository
+        PlayersRepository playersRepository,
+        Logging.Logger logger
     )
     {
         this.serverTickDriver = serverTickDriver;
@@ -46,6 +49,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         this.secretsConfig = secretsConfig;
         this.database = database;
         this.playersRepository = playersRepository;
+        this.logger = logger;
         resolverContainer.SetResolver(resolver);
 
         secretsConfig.LoadEnvironmentVariables(
@@ -64,12 +68,17 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
             string worldId = "world1";
             string zoneId = "1";
+            logger.Log(
+                $"Connecting to database with connection string: {secretsConfig.MongoConnectionString}"
+            );
             database.Connect(secretsConfig.MongoConnectionString, worldId, zoneId);
+            logger.Log("Database connected successfully");
             await playersRepository.Connect(database);
+            logger.Log("PlayersRepository connected successfully");
         }
         catch (Exception ex)
         {
-            Debug.LogError($"Failed to start ServerWorldEntryPoint: {ex}");
+            logger.Log($"Failed to start ServerWorldEntryPoint: {ex}", Logging.LogType.Error);
             WorldLoadBootstrap.MarkServerFailed();
         }
 

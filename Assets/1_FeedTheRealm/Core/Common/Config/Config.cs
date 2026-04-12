@@ -23,6 +23,9 @@ namespace FTR.Core.Common.Config
             get => GetRuntimeRole();
         }
 
+        public int MaxWorldLoadRetries = 10;
+        public int WorldLoadRetryDelayMs = 1000;
+
         [Header("API Settings")]
         public ApiConfig ApiConfig;
 

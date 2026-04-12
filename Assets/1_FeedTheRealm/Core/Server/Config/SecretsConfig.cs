@@ -43,8 +43,7 @@ public class ServerSecretsConfig
             var key = line[..separatorIndex].Trim();
             var value = line[(separatorIndex + 1)..].Trim();
 
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(key)))
-                Environment.SetEnvironmentVariable(key, value);
+            Environment.SetEnvironmentVariable(key, value);
         }
     }
 }

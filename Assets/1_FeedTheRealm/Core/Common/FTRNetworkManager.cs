@@ -84,6 +84,7 @@ public class FTRNetworkManager : NetworkManager
                     this,
                     Logging.LogType.Error
                 );
+                Application.Quit();
                 return;
             }
 
@@ -123,11 +124,7 @@ public class FTRNetworkManager : NetworkManager
 
     private async Task<bool> WaitForWorldLoadGateAsync(RuntimeRole runtimeRole)
     {
-        const int retryDelayMs = 100;
-        const int progressLogIntervalMs = 1000;
-        var waitedMs = 0;
-
-        while (true)
+        for (int i = 0; i < config.MaxWorldLoadRetries; i++)
         {
             if (runtimeRole == RuntimeRole.Server)
             {
@@ -148,17 +145,12 @@ public class FTRNetworkManager : NetworkManager
                 return true;
             }
 
-            await Task.Delay(retryDelayMs);
-            waitedMs += retryDelayMs;
-
-            if (waitedMs % progressLogIntervalMs == 0)
-            {
-                logger.Log(
-                    $"[NetworkManager] Waiting for world preload... {waitedMs / 1000f:0.0}s",
-                    this
-                );
-            }
+            logger.Log(
+                $"[NetworkManager] Waiting for world load {i + 1}/{config.MaxWorldLoadRetries}"
+            );
+            await Task.Delay(config.WorldLoadRetryDelayMs);
         }
+        return false;
     }
 
     /// <summary>

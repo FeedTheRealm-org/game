@@ -5,6 +5,9 @@ using MongoDB.Driver;
 
 namespace FTR.Core.Server.Persistance;
 
+/// <summary>
+/// Repository for managing player data in MongoDB.
+/// </summary>
 public class PlayersRepository
 {
     private readonly Logging.Logger logger;
@@ -18,6 +21,9 @@ public class PlayersRepository
         this.db = db;
     }
 
+    /// <summary>
+    /// Initializes the MongoDB collection for player data.
+    /// </summary>
     public async Task Connect(Database db)
     {
         this.collection = db.GetCollection<PlayerDocument>("players");
@@ -85,6 +91,9 @@ public class PlayersRepository
         );
     }
 
+    /// <summary>
+    /// Saves or updates a player's data in MongoDB.
+    /// </summary>
     public async Task SavePlayerAsync(PlayerDocument player)
     {
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, player.PlayerId);
@@ -93,12 +102,18 @@ public class PlayersRepository
         this.logger.Log($"Player {player.PlayerId} saved to MongoDB");
     }
 
+    /// <summary>
+    /// Retrieves a player's data from MongoDB by player ID.
+    /// </summary>
     public async Task<PlayerDocument> GetPlayerAsync(string playerId)
     {
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
         return await this.collection.Find(filter).FirstOrDefaultAsync();
     }
 
+    /// <summary>
+    /// Saves a player's inventory and gold to MongoDB.
+    /// </summary>
     public async Task SaveInventoryAsync(string playerId, List<InventoryItem> inventory, int gold)
     {
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
@@ -108,6 +123,9 @@ public class PlayersRepository
         await this.collection.UpdateOneAsync(filter, update);
     }
 
+    /// <summary>
+    /// Saves a player's active and completed quests to MongoDB.
+    /// </summary>
     public async Task SaveQuestsAsync(
         string playerId,
         List<ActiveQuest> active,
@@ -121,6 +139,9 @@ public class PlayersRepository
         await this.collection.UpdateOneAsync(filter, update);
     }
 
+    /// <summary>
+    /// Saves a player's last known position to MongoDB.
+    /// </summary>
     public async Task SavePositionAsync(string playerId, Vec3 position)
     {
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
