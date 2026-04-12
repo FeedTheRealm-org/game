@@ -82,7 +82,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             stateMachine.SetActionState(null);
         }
 
-        private void OnShowQuestPrompt(QuestData _)
+        private void OnShowQuestPrompt(QuestPromptData data)
         {
             var questState = stateMachine.GetActionStateByType(typeof(CharacterQuestState));
             if (questState != null)

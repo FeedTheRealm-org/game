@@ -14,4 +14,6 @@ public enum ServerEventType
     OpenShopEvent,
     NotEnoughGoldEvent,
     InteractCompletedEvent,
+    QuestProgressEvent,
+    QuestCompletedEvent,
 }

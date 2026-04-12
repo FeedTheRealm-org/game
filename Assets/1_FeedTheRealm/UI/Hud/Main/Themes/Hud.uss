@@ -1,3 +1,18 @@
+:root {
+    --teal:          rgb(110, 255, 251);
+    --teal-dim:      rgba(110, 255, 251, 0.18);
+    --teal-glow:     rgba(110, 255, 251, 0.08);
+    --gold:          rgb(255, 210, 80);
+    --gold-dim:      rgba(255, 210, 80, 0.15);
+    --white:         rgb(255, 255, 255);
+    --white-soft:    rgba(255, 255, 255, 0.75);
+    --dark:          rgba(0, 0, 0, 0.72);
+    --darker:        rgba(0, 0, 0, 0.88);
+    --card-bg:       rgba(0, 0, 0, 0.62);
+    --radius:        12px;
+    --radius-sm:     8px;
+}
+
 #HealthBar .unity-progress-bar__progress {
     background-color: rgb(145, 255, 165);
 }
@@ -13,7 +28,11 @@
     align-items: center;
     justify-content: center;
     flex-direction: row;
-    gap: 12px;
+}
+
+.fast-use-container > * {
+    margin-left: 6px;
+    margin-right: 6px;
 }
 
 .fast-equip-slot {
@@ -40,14 +59,19 @@
     width: 25%;
     padding: 12px;
     flex-direction: column;
-    gap: 12px;
+}
+
+.sidebar > * {
+    margin-bottom: 12px;
 }
 
 .character-data {
     flex-direction: row;
     align-items: center;
-    background-color: rgba(20, 20, 30, 0.7);
-    border-radius: 16px;
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.22);
     padding: 12px;
     margin-bottom: 20px;
 }
@@ -57,34 +81,46 @@
     height: 100px;
     background-image: url("project://database/Assets/6000FantasyIcons/SkillsIcons/SkillIcons3/SkillVol3/Skill_FireElementalSummon.png?fileID=21300000&guid=1fd65c08e915e4f4aa1d46da6055d341&type=3#Skill_FireElementalSummon");
     background-size: cover;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
 }
 
 .character-stats {
     flex-grow: 1;
     margin-left: 12px;
-    gap: 6px;
+}
+
+.character-stats > * {
+    margin-top: 6px;
 }
 
 .username {
     font-size: 18px;
     -unity-font-style: bold;
+    color: var(--gold);
 }
 
 .stat-bar {
     height: 18px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
 }
 
 .currency {
     flex-direction: row;
     align-items: center;
     margin-top: 6px;
+    background-color: var(--dark);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.35);
+    border-radius: 20px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .currency-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     background-image: url("project://database/Assets/6000FantasyIcons/MedievalIcons/ResourcesMedieval/GoldCoinTen.png?fileID=21300000&guid=0045638d99e4f7b4e9b6cae25236df34&type=3#GoldCoinTen");
     background-size: contain;
     background-color: rgba(0, 0, 0, 0);
@@ -95,30 +131,44 @@
     margin-left: 6px;
     font-size: 14px;
     -unity-font-style: bold;
+    color: var(--teal);
 }
 
 .quest-list {
     height: 190px;
-    background-color: rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
+    background-color: var(--dark);
+    border-radius: var(--radius);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.22);
     padding: 10px;
 }
 
 .quest-item {
-    background-color: rgba(37, 45, 96, 0.6);
-    border-radius: 14px;
+    background-color: var(--card-bg);
+    border-radius: var(--radius-sm);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.22);
     padding: 10px;
     margin-bottom: 8px;
     flex-direction: column;
 }
 
 .quest-item:hover {
-    background-color: rgba(60, 80, 140, 0.8);
+    background-color: rgba(0, 0, 0, 0.8);
+    border-color: rgba(110, 255, 251, 0.6);
 }
 
 .quest-title {
     font-size: 14px;
     margin-bottom: 4px;
+    color: var(--teal);
+    -unity-font-style: bold;
+}
+
+.quest-detail {
+    font-size: 12px;
+    color: var(--white-soft);
+    margin-bottom: 6px;
 }
 
 .quest-progress {
@@ -126,11 +176,11 @@
 }
 
 .quest-progress .unity-progress-bar__progress {
-    background-color: rgb(100, 200, 250);
-    border-radius: 10px;
+    background-color: var(--teal);
+    border-radius: var(--radius-sm);
 }
 
 .quest-progress .unity-progress-bar__background {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+    background-color: var(--teal-dim);
+    border-radius: var(--radius-sm);
 }

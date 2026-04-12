@@ -28,7 +28,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private Logging.Logger logger;
 
         [SerializeField]
-        private GameTickEvent gameTickEvent;
+        private ServerEventRegistry serverEventRegistry;
 
         [SerializeField]
         private ServerPrefabProvider prefabProvider;
@@ -55,9 +55,10 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
 
             Validate();
 
+            serverEventRegistry.RegisterAll(builder);
+
             builder.RegisterInstance(serverConfig);
             builder.RegisterInstance(logger);
-            builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(playerService);
@@ -88,7 +89,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         {
             ValidateField(serverConfig, nameof(serverConfig));
             ValidateField(logger, nameof(logger));
-            ValidateField(gameTickEvent, nameof(gameTickEvent));
+            ValidateField(serverEventRegistry, nameof(serverEventRegistry));
             ValidateField(prefabProvider, nameof(prefabProvider));
             ValidateField(worldService, nameof(worldService));
             ValidateField(playerService, nameof(playerService));

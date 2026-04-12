@@ -138,15 +138,15 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             }
 
             playersInside++;
-            logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
+            //logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            logger.Log(
+            /*logger.Log(
                 $"[EnemySpawn] Player exited. Total unique players: {playersInside - 1}",
                 this
-            );
+            );*/
             playersInside = Mathf.Max(0, playersInside - 1);
 
             if (playersInside == 0)
@@ -191,7 +191,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         /// </summary>
         private void SpawnEnemy()
         {
-            logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
+            //logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
             Vector3 point = GetRandomPointInRadius();
             GameObject enemy = resolverContainer.Resolver.Instantiate(
                 enemyPrefab,
@@ -221,11 +221,52 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
             NetworkServer.Spawn(enemy);
 
+            var stateStorage = enemy.GetComponent<CharacterStateStorage>();
+            if (stateStorage != null && !string.IsNullOrEmpty(enemyId))
+            {
+                stateStorage.SetCharacterId(enemyId);
+            }
+
             enemy.name = $"Enemy_{currentEnemies}";
             var netId = enemy.GetComponent<NetworkIdentity>().netId;
             spawnedEnemies[netId] = enemy;
-            var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
-            healthSystem.OnDeath += OnEnemyDeath;
+
+            if (!string.IsNullOrEmpty(enemyId))
+            {
+                var enemyData = ServerItemsRegistry.GetEnemyById(enemyId);
+                if (stateStorage != null && enemyData != null)
+                {
+                    stateStorage.SetCharacterName(enemyData.name);
+                }
+                if (enemyData != null)
+                {
+                    var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                    if (healthSystem != null)
+                    {
+                        healthSystem.MaxHealth = enemyData.healthPoints;
+                        healthSystem.ResetHealth();
+                        healthSystem.OnDeath += OnEnemyDeath;
+                    }
+
+                    var useSystem = enemy.GetComponentInChildren<UseSystem>();
+                    if (useSystem != null)
+                    {
+                        useSystem.SetAttackDamage(enemyData.damage);
+                    }
+                }
+                else
+                {
+                    var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                    if (healthSystem != null)
+                        healthSystem.OnDeath += OnEnemyDeath;
+                }
+            }
+            else
+            {
+                var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                if (healthSystem != null)
+                    healthSystem.OnDeath += OnEnemyDeath;
+            }
         }
 
         /// <summary>

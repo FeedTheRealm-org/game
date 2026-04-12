@@ -67,11 +67,16 @@ namespace FTR.Gameplay.Client.Characters.Player
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
-            showQuestPromptEvent.Raise(questData);
+            showQuestPromptEvent.Raise(new QuestPromptData(questData, networkAdapter.netId));
         }
 
         private void HandleQuestDecision(QuestDecisionData decision)
         {
+            if (decision.TargetNetId != networkAdapter.netId)
+            {
+                return;
+            }
+
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
 

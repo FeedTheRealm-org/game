@@ -1,9 +1,9 @@
 using System.Collections;
 using FTR.Core.Common.EventChannels;
-using FTR.Core.Common.Quests;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 /// <summary>
 /// Controls the UI popup for the quest completion panel.
@@ -12,10 +12,13 @@ public class QuestCompletionPanelController : MonoBehaviour
 {
     [Header("General settings")]
     [SerializeField]
-    private float hideDelay = 3f;
+    private float hideDelay = 6f;
 
     [SerializeField]
     private Logging.Logger logger;
+
+    [Inject]
+    private QuestCompletedEvent completedEvent;
 
     private VisualElement _root;
 
@@ -25,15 +28,38 @@ public class QuestCompletionPanelController : MonoBehaviour
 
     private void Awake()
     {
-        _root = GetComponent<UIDocument>().rootVisualElement;
-        _titleLabel = _root.Q<Label>("QuestTitle");
-        if (_titleLabel == null)
+        var document = GetComponent<UIDocument>();
+        if (document == null)
+        {
+            logger.Log("UIDocument component missing.", this, Logging.LogType.Error);
+            return;
+        }
+
+        _root = document.rootVisualElement;
+        _titleLabel = _root?.Q<Label>("QuestTitle");
+        if (_root == null || _titleLabel == null)
+        {
             logger.Log(
-                "One or more UI elements are not assigned in the inspector.",
+                "One or more UI elements are not assigned in the inspector or UI document is incomplete.",
                 this,
                 Logging.LogType.Error
             );
+            return;
+        }
+
         ToggleQuestCompletionPanel(false);
+    }
+
+    private void OnEnable()
+    {
+        if (completedEvent != null)
+            completedEvent.OnRaised += HandleQuestCompleted;
+    }
+
+    private void OnDisable()
+    {
+        if (completedEvent != null)
+            completedEvent.OnRaised -= HandleQuestCompleted;
     }
 
     private void OnDestroy()
@@ -54,6 +80,15 @@ public class QuestCompletionPanelController : MonoBehaviour
                 StopCoroutine(_hideCoroutine);
             _hideCoroutine = StartCoroutine(HideAfterDelay(hideDelay));
         }
+    }
+
+    /// <summary>
+    /// Handles the quest completed event and shows the completion panel.
+    /// </summary>
+    private void HandleQuestCompleted(QuestData data)
+    {
+        OnQuestCompleted(data);
+        ToggleQuestCompletionPanel(true);
     }
 
     /// <summary>

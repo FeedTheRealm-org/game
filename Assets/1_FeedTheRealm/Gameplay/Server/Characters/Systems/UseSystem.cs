@@ -31,23 +31,26 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [Inject]
         private WorldMonitor world;
 
+        [Inject]
+        private EnemySlayedEvent enemySlayedEvent;
+
         private LayerMask targetLayer;
-
         private bool isAttacking = false;
-
         private Rigidbody _rb;
         private uint netId;
-
         private CharacterStateStorage stateStorage;
 
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
-        // AutoAttack-driven usage
         private int amountOfPlayersInRange = 0;
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
-
         private bool isDead = false;
+
+        public void SetAttackDamage(int damage)
+        {
+            attackDamage = damage;
+        }
 
         public void Initialize(
             uint netId,
@@ -76,10 +79,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
         }
 
-        private void HandleRespawn()
-        {
-            isDead = false;
-        }
+        private void HandleRespawn() => isDead = false;
 
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
         {
@@ -107,25 +107,24 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void OnUse(IEventCollectable ec)
         {
-            logger.Log("Use action triggered", this);
+            //logger.Log("Use action triggered", this);
             if (isAttacking || isDead)
                 return;
             isAttacking = true;
             StartCoroutine(resetAttackCooldown());
-
             Attack();
         }
 
         private void Attack()
         {
             if (isDead)
-                return; // Cant attack while dying
+                return;
 
             var currentHitPoint = HitPoint;
-            logger.Log(
+            /*logger.Log(
                 $"[UseSystem] Attack from netId={netId} | hitPoint={currentHitPoint} | radius={hitRadius} | layerMask={targetLayer.value}",
                 this
-            );
+            );*/
 
             Collider[] hitTargets = Physics.OverlapSphere(currentHitPoint, hitRadius, targetLayer);
             foreach (Collider target in hitTargets)
@@ -133,29 +132,36 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 var targetNetId = target.GetComponent<NetworkIdentity>()?.netId;
                 if (targetNetId.HasValue && targetNetId.Value == netId)
                     continue;
+
                 var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
                 if (healthSystem == null)
                     continue;
 
-                healthSystem.TakeDamage(attackDamage);
+                var (killed, enemyTypeId) = healthSystem.TakeDamage(attackDamage, this.netId);
+
+                if (killed)
+                {
+                    logger?.Log(
+                        $"[UseSystem] Enemy {enemyTypeId} killed by {this.netId}, raising event.",
+                        this
+                    );
+
+                    if (!string.IsNullOrEmpty(enemyTypeId))
+                        enemySlayedEvent.Raise((this.netId, enemyTypeId));
+                }
             }
 
             if (hitTargets.Length == 0)
-            {
                 logger.Log("No targets hit", this);
-            }
 
             world.Events.Enqueue(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
         }
 
         public void StartAutoAttacking(Collider _)
         {
-            logger.Log("Target entered auto attack range", this);
             amountOfPlayersInRange++;
             if (_autoAttackCoroutine == null)
-            {
                 _autoAttackCoroutine = StartCoroutine(KeepAutoAttacking());
-            }
         }
 
         public void PlayerLeftAutoAttackRange(Collider _)
