@@ -170,7 +170,6 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 // Resetting (kill threshold reached)
                 if (totalKills >= resetAfterKills)
                 {
-                    logger.Log($"[EnemySpawn] Spawner is resetting, pausing spawns...", this);
                     totalKills = 0;
                     yield return new WaitForSeconds(resetDelay);
                 }
@@ -220,12 +219,6 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             }
 
             NetworkServer.Spawn(enemy);
-
-            var stateStorage = enemy.GetComponent<CharacterStateStorage>();
-            if (stateStorage != null && !string.IsNullOrEmpty(enemyId))
-            {
-                stateStorage.SetCharacterId(enemyId);
-            }
 
             enemy.name = $"Enemy_{currentEnemies}";
             var netId = enemy.GetComponent<NetworkIdentity>().netId;
@@ -285,31 +278,67 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 this
             );
 
-            if (!string.IsNullOrEmpty(enemyId))
+            if (string.IsNullOrEmpty(enemyId))
             {
-                var currentEnemyData = enemyData ?? ServerItemsRegistry.GetEnemyById(enemyId);
-                if (currentEnemyData != null && !string.IsNullOrEmpty(currentEnemyData.lootTableId))
+                logger.Log(
+                    "[EnemySpawn] enemyId is empty; skipping loot spawn.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            var currentEnemyData = enemyData;
+            if (currentEnemyData == null || string.IsNullOrEmpty(currentEnemyData.lootTableId))
+            {
+                var registryEnemyData = ServerItemsRegistry.GetEnemyById(enemyId);
+                if (registryEnemyData != null)
                 {
-                    var lootTable = ServerItemsRegistry.GetLootTableById(
-                        currentEnemyData.lootTableId
-                    );
-                    if (lootTable != null && lootTable.lootItems != null)
+                    currentEnemyData = registryEnemyData;
+                }
+            }
+
+            if (currentEnemyData == null)
+            {
+                logger.Log(
+                    $"[EnemySpawn] EnemyData not found for enemyId '{enemyId}'.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            if (string.IsNullOrEmpty(currentEnemyData.lootTableId))
+            {
+                logger.Log(
+                    $"[EnemySpawn] EnemyData '{enemyId}' has empty lootTableId. passedLootTableId='{enemyData?.lootTableId ?? "<null>"}' registryLootTableId='{ServerItemsRegistry.GetEnemyById(enemyId)?.lootTableId ?? "<null>"}'",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            var lootTable = ServerItemsRegistry.GetLootTableById(currentEnemyData.lootTableId);
+            if (lootTable == null)
+            {
+                return;
+            }
+            else
+            {
+                foreach (var lootEntry in lootTable.lootItems)
+                {
+                    if (Random.Range(0, 100) < lootEntry.dropProbability)
                     {
-                        foreach (var lootEntry in lootTable.lootItems)
-                        {
-                            if (Random.Range(0, 100) < lootEntry.dropProbability)
-                            {
-                                SpawnLootItem(enemy.transform.position, lootEntry.id);
-                            }
-                        }
-                        int amountOfGold = Random.Range(
-                            lootTable.minGoldDropAmount,
-                            lootTable.maxGoldDropAmount + 1
-                        );
-                        SpawnGold(enemy.transform.position, amountOfGold);
+                        SpawnLootItem(enemy.transform.position, lootEntry.id);
                     }
                 }
             }
+
+            int amountOfGold = Random.Range(
+                lootTable.minGoldDropAmount,
+                lootTable.maxGoldDropAmount + 1
+            );
+            SpawnGold(enemy.transform.position, amountOfGold);
         }
 
         private void SpawnGold(Vector3 position, int amount)
