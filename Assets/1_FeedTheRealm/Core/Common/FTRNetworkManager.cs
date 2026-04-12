@@ -94,7 +94,7 @@ public class FTRNetworkManager : NetworkManager
                         this,
                         Logging.LogType.Error
                     );
-                    Application.Quit();
+                    ShutdownRuntimeAfterServerPreloadFailure();
                     return;
                 }
 
@@ -226,6 +226,20 @@ public class FTRNetworkManager : NetworkManager
             return;
 
         worldLoadGateCts.Cancel();
+    }
+
+    private void ShutdownRuntimeAfterServerPreloadFailure()
+    {
+        CancelWorldLoadGate();
+
+        if (NetworkServer.active)
+            StopServer();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     #endregion
