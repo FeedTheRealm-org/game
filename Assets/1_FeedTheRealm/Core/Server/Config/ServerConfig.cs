@@ -6,6 +6,10 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
+        [Header("Environment Variables Configuration")]
+        public string EnvFilePath = ".env";
+        public bool LoadFromEnvFile = false;
+
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;
         public LayerMask TargetLayer; // Enemies

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.EventChannels;
@@ -40,6 +41,8 @@ public class FTRNetworkManager : NetworkManager
     [SerializeField]
     private Config config;
 
+    private CancellationTokenSource worldLoadGateCts;
+
     /// <summary>
     /// Runs on both Server and Client
     /// Networking is NOT initialized when this fires
@@ -48,6 +51,8 @@ public class FTRNetworkManager : NetworkManager
     {
         base.Awake();
         WorldLoadBootstrap.Reset();
+        worldLoadGateCts?.Dispose();
+        worldLoadGateCts = new CancellationTokenSource();
     }
 
     #region Unity Callbacks
@@ -67,68 +72,86 @@ public class FTRNetworkManager : NetworkManager
         base.Start();
 
         KcpTransport kcp = Transport.active as KcpTransport;
-        if (config.RuntimeRole == RuntimeRole.Server)
+        try
         {
-            networkAddress = "0.0.0.0";
-            kcp.Port = config.ListeningPort;
-
-            logger.Log(
-                "[NetworkManager] Waiting for server world preload before accepting clients...",
-                this
-            );
-            var canStartServer = await WaitForWorldLoadGateAsync(RuntimeRole.Server);
-            if (!canStartServer)
+            if (config.RuntimeRole == RuntimeRole.Server)
             {
-                logger.Log(
-                    "[NetworkManager] Server world preload failed, server will not start.",
-                    this,
-                    Logging.LogType.Error
-                );
-                return;
-            }
+                networkAddress = "0.0.0.0";
+                kcp.Port = config.ListeningPort;
 
-            logger.Log($"[NetworkManager] Starting server on port {kcp.Port}", this);
-            StartServer();
-            NetworkSpawnPendingObjectsRegistry spawnerRegistry =
-                containerScope.Container.Resolve<NetworkSpawnPendingObjectsRegistry>();
-            spawnerRegistry.SpawnAll();
+                logger.Log(
+                    "[NetworkManager] Waiting for server world preload before accepting clients...",
+                    this
+                );
+                var canStartServer = await WaitForWorldLoadGateAsync(
+                    RuntimeRole.Server,
+                    worldLoadGateCts.Token
+                );
+                if (!canStartServer)
+                {
+                    logger.Log(
+                        "[NetworkManager] Server world preload failed, server will not start.",
+                        this,
+                        Logging.LogType.Error
+                    );
+                    ShutdownRuntimeAfterServerPreloadFailure();
+                    return;
+                }
+
+                logger.Log($"[NetworkManager] Starting server on port {kcp.Port}", this);
+                StartServer();
+                NetworkSpawnPendingObjectsRegistry spawnerRegistry =
+                    containerScope.Container.Resolve<NetworkSpawnPendingObjectsRegistry>();
+                spawnerRegistry.SpawnAll();
+            }
+            else if (config.RuntimeRole == RuntimeRole.Client)
+            {
+                networkAddress = config.CurrentServerAddress;
+                kcp.Port = config.CurrentServerPort;
+
+                logger.Log(
+                    "[NetworkManager] Waiting for client world preload before connecting...",
+                    this
+                );
+                var canStartClient = await WaitForWorldLoadGateAsync(
+                    RuntimeRole.Client,
+                    worldLoadGateCts.Token
+                );
+                if (!canStartClient)
+                {
+                    logger.Log(
+                        "[NetworkManager] Client world preload failed, connection was cancelled.",
+                        this,
+                        Logging.LogType.Error
+                    );
+                    return;
+                }
+
+                logger.Log(
+                    $"[NetworkManager] Starting client, connecting to {networkAddress}:{kcp.Port}",
+                    this
+                );
+                StartClient();
+            }
         }
-        else if (config.RuntimeRole == RuntimeRole.Client)
+        catch (OperationCanceledException)
         {
-            networkAddress = config.CurrentServerAddress;
-            kcp.Port = config.CurrentServerPort;
-
             logger.Log(
-                "[NetworkManager] Waiting for client world preload before connecting...",
-                this
+                "[NetworkManager] World preload wait cancelled due to shutdown.",
+                this,
+                Logging.LogType.Warning
             );
-            var canStartClient = await WaitForWorldLoadGateAsync(RuntimeRole.Client);
-            if (!canStartClient)
-            {
-                logger.Log(
-                    "[NetworkManager] Client world preload failed, connection was cancelled.",
-                    this,
-                    Logging.LogType.Error
-                );
-                return;
-            }
-
-            logger.Log(
-                $"[NetworkManager] Starting client, connecting to {networkAddress}:{kcp.Port}",
-                this
-            );
-            StartClient();
         }
     }
 
-    private async Task<bool> WaitForWorldLoadGateAsync(RuntimeRole runtimeRole)
+    private async Task<bool> WaitForWorldLoadGateAsync(
+        RuntimeRole runtimeRole,
+        CancellationToken cancellationToken
+    )
     {
-        const int retryDelayMs = 100;
-        const int progressLogIntervalMs = 1000;
-        var waitedMs = 0;
-
-        while (true)
+        for (int i = 0; i < config.MaxWorldLoadRetries; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (runtimeRole == RuntimeRole.Server)
             {
                 if (WorldLoadBootstrap.ServerReady)
@@ -148,17 +171,12 @@ public class FTRNetworkManager : NetworkManager
                 return true;
             }
 
-            await Task.Delay(retryDelayMs);
-            waitedMs += retryDelayMs;
-
-            if (waitedMs % progressLogIntervalMs == 0)
-            {
-                logger.Log(
-                    $"[NetworkManager] Waiting for world preload... {waitedMs / 1000f:0.0}s",
-                    this
-                );
-            }
+            logger.Log(
+                $"[NetworkManager] Waiting for world load {i + 1}/{config.MaxWorldLoadRetries}"
+            );
+            await Task.Delay(config.WorldLoadRetryDelayMs, cancellationToken);
         }
+        return false;
     }
 
     /// <summary>
@@ -174,6 +192,9 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void OnDestroy()
     {
+        CancelWorldLoadGate();
+        worldLoadGateCts?.Dispose();
+        worldLoadGateCts = null;
         base.OnDestroy();
     }
 
@@ -195,7 +216,30 @@ public class FTRNetworkManager : NetworkManager
     /// </summary>
     public override void OnApplicationQuit()
     {
+        CancelWorldLoadGate();
         base.OnApplicationQuit();
+    }
+
+    private void CancelWorldLoadGate()
+    {
+        if (worldLoadGateCts == null || worldLoadGateCts.IsCancellationRequested)
+            return;
+
+        worldLoadGateCts.Cancel();
+    }
+
+    private void ShutdownRuntimeAfterServerPreloadFailure()
+    {
+        CancelWorldLoadGate();
+
+        if (NetworkServer.active)
+            StopServer();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     #endregion

@@ -5,6 +5,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Environment.Quest;
@@ -66,6 +67,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
 
+            builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
+            builder.Register<Database>(Lifetime.Singleton);
+            builder.Register<PlayersRepository>(Lifetime.Singleton);
             builder.Register<NetworkSpawnPendingObjectsRegistry>(Lifetime.Singleton);
             builder.Register<HealthcheckServer>(Lifetime.Singleton);
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
