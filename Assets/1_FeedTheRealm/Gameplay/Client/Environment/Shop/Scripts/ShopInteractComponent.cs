@@ -5,32 +5,30 @@ using UnityEngine;
 public class ShopInteractComponent : MonoBehaviour, IInteractable
 {
     [SerializeField]
-    private ShopInteractedEvent shopInteractedEvent;
-
-    [SerializeField]
-    private ShopOnCloseEvent shopOnCloseEvent;
+    private ShopToggleEvent shopToggleEvent;
 
     private IInteractor _currentInteractor;
 
     private void OnEnable()
     {
-        shopOnCloseEvent.OnRaised += OnShopClose;
+        shopToggleEvent.OnRaised += OnShopToggled;
     }
 
     private void OnDisable()
     {
-        shopOnCloseEvent.OnRaised -= OnShopClose;
+        shopToggleEvent.OnRaised -= OnShopToggled;
     }
 
-    private void OnShopClose()
+    private void OnShopToggled(bool isOpen)
     {
-        _currentInteractor?.FinishInteracting();
+        if (!isOpen)
+            _currentInteractor?.FinishInteracting();
     }
 
     public string Interact(IInteractor interactor)
     {
         _currentInteractor = interactor;
-        shopInteractedEvent.Raise();
+        shopToggleEvent.Raise(true);
         return "";
     }
 

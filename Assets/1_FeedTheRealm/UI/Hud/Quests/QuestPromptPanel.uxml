@@ -3,7 +3,7 @@
     noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
     editor-extension-mode="False">
     <Style
-        src="project://database/Assets/1_FeedTheRealm/UI/Hud/Themes/QuestPrompt.uss?fileID=7433441132597879392&amp;guid=c695cb15a682674cebd12a595401290a&amp;type=3#QuestPrompt" />
+        src="project://database/Assets/1_FeedTheRealm/UI/Hud/Quests/Themes/QuestPrompt.uss?fileID=7433441132597879392&amp;guid=c695cb15a682674cebd12a595401290a&amp;type=3#QuestPrompt" />
     <ui:VisualElement class="body" name="Body" style="flex-grow: 1;">
         <ui:VisualElement class="quest-container" name="QuestContainer" style="flex-grow: 1;">
             <ui:Label class="quest-title"

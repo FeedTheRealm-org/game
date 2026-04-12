@@ -29,6 +29,7 @@ namespace FTR.Gameplay.Client.Linkers
                 gameObject.transform
             );
             resolver.InjectGameObject(characterComponents);
+            SetupNameTag(gameObject, characterComponents);
 
             var networkEventRouter = characterComponents.GetComponent<NetworkEventRouter>();
             var movementView = characterComponents.GetComponent<MovementView>();
@@ -50,6 +51,17 @@ namespace FTR.Gameplay.Client.Linkers
             useController.Initialize(networkAdapter);
 
             return characterComponents;
+        }
+
+        private void SetupNameTag(GameObject gameObject, GameObject characterComponents)
+        {
+            var characterBody = characterComponents.transform.Find("CharacterBody");
+            var attachParent = characterBody != null ? characterBody : gameObject.transform;
+
+            prefabProvider.NameTagPrefab.SetActive(false);
+            var nameTagInstance = Object.Instantiate(prefabProvider.NameTagPrefab, attachParent);
+            resolver.InjectGameObject(nameTagInstance);
+            nameTagInstance.SetActive(true);
         }
     }
 }

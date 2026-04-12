@@ -35,6 +35,7 @@ namespace FTR.Gameplay.Server.Loaders
         public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
             npcDialogRegistry.Populate(creatablesData.npcs, creatablesData.dialogs);
+            serverQuestRegistry.Populate(creatablesData.quests);
 
             var npcById = BuildNpcLookup(creatablesData.npcs);
             var dialogById = BuildDialogLookup(creatablesData.dialogs);

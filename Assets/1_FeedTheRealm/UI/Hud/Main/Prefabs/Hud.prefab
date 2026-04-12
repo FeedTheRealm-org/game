@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 5715744494289441919}
   - component: {fileID: -4012475295093347594}
   - component: {fileID: -2726370582319225133}
+  - component: {fileID: 3792253667818637069}
+  - component: {fileID: 137168850807359979}
   m_Layer: 0
   m_Name: Hud
   m_TagString: Untagged
@@ -115,3 +117,33 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.Hud.Main.GoldUIController
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  goldChangedEvent: {fileID: 11400000, guid: 75f3afe00bdb988408562d7f115a97b5, type: 2}
+--- !u!114 &3792253667818637069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8198765365136042446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e578a95722426dd828f92bad313129c7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.Hud.Main.QuestProgressPanelController
+  completeQuestDisplayDuration: 3
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+--- !u!114 &137168850807359979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8198765365136042446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6057c2be74af067569c78da1e22449bd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.Hud.Main.HudUsernameController
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
+  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
