@@ -23,7 +23,7 @@ public class ClientPlayerLinker : PlayerLinker
     private readonly NpcDialogRegistry npcDialogRegistry;
     private readonly Session.Session session;
     private readonly WorldSelector worldSelector;
-    private readonly PlayerSpriteRepository playerSpriteRepository;
+    private readonly PlayerInfoRepository playerInfoRepository;
 
     public ClientPlayerLinker(
         ClientPrefabProvider prefabProvider,
@@ -31,7 +31,7 @@ public class ClientPlayerLinker : PlayerLinker
         NpcDialogRegistry npcDialogRegistry,
         Session.Session session,
         WorldSelector worldSelector,
-        PlayerSpriteRepository playerSpriteRepository
+        PlayerInfoRepository playerInfoRepository
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
@@ -40,12 +40,12 @@ public class ClientPlayerLinker : PlayerLinker
         this.npcDialogRegistry = npcDialogRegistry;
         this.session = session;
         this.worldSelector = worldSelector;
-        this.playerSpriteRepository = playerSpriteRepository;
+        this.playerInfoRepository = playerInfoRepository;
     }
 
     public override void Link(GameObject gameObject)
     {
-        var playerComponents = characterLinker.Link(gameObject);
+        var (playerComponents, nameController) = characterLinker.Link(gameObject);
 
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         if (networkAdapter == null)
@@ -61,7 +61,13 @@ public class ClientPlayerLinker : PlayerLinker
         var spriteManager = playerComponents.GetComponentInChildren<SpriteManager>();
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
 
-        spriteManager.Initialize(spriteLoader, playerSpriteRepository, stateStorage);
+        spriteManager.Initialize(
+            spriteLoader,
+            playerInfoRepository,
+            stateStorage,
+            nameController,
+            networkAdapter.IsLocalPlayer
+        );
 
         if (networkAdapter.IsLocalPlayer)
         {

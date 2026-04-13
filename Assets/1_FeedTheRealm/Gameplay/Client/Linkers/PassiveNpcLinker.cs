@@ -12,7 +12,7 @@ namespace FTR.Gameplay.Client.Linkers;
 public class ClientPassiveNpcLinker : PassiveNpcLinker
 {
     private readonly ClientCharacterLinker characterLinker;
-    private readonly ClientNpcEnemySpriteRepository npcEnemySpriteRepository;
+    private readonly ClientNpcInfoRepository npcInfoRepository;
     private readonly ClientPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
     private readonly NpcDialogRegistry npcDialogRegistry;
@@ -21,11 +21,11 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
         ClientPrefabProvider prefabProvider,
         IObjectResolver resolver,
         NpcDialogRegistry npcDialogRegistry,
-        ClientNpcEnemySpriteRepository npcEnemySpriteRepository
+        ClientNpcInfoRepository npcInfoRepository
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
-        this.npcEnemySpriteRepository = npcEnemySpriteRepository;
+        this.npcInfoRepository = npcInfoRepository;
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
         this.npcDialogRegistry = npcDialogRegistry;
@@ -33,7 +33,7 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
 
     public override void Link(GameObject gameObject)
     {
-        var characterComponent = characterLinker.Link(gameObject);
+        var (characterComponent, nameController) = characterLinker.Link(gameObject);
         var characterBody = characterComponent.transform.Find("CharacterBody");
         var attachParent = characterBody != null ? characterBody : gameObject.transform;
 
@@ -45,7 +45,7 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
 
         resolver.Inject(interactView);
 
-        spriteManager.Initialize(spriteLoader, npcEnemySpriteRepository, stateStorage);
+        spriteManager.Initialize(spriteLoader, npcInfoRepository, stateStorage, nameController);
         interactView.Initialize(networkEventRouter, npcDialogRegistry);
 
         // Initialize dialog box

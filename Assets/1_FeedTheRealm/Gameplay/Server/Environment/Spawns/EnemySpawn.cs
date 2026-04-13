@@ -227,10 +227,6 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             if (!string.IsNullOrEmpty(enemyId))
             {
                 var enemyData = ServerItemsRegistry.GetEnemyById(enemyId);
-                if (stateStorage != null && enemyData != null)
-                {
-                    stateStorage.SetCharacterName(enemyData.name);
-                }
                 if (enemyData != null)
                 {
                     var healthSystem = enemy.GetComponentInChildren<HealthSystem>();

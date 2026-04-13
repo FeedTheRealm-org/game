@@ -18,7 +18,9 @@ namespace FTR.Gameplay.Client.Linkers
             this.resolver = resolver;
         }
 
-        public GameObject Link(GameObject gameObject)
+        public (GameObject Components, ICharacterNameController NameController) Link(
+            GameObject gameObject
+        )
         {
             var rb = gameObject.GetComponent<Rigidbody>();
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
@@ -29,7 +31,7 @@ namespace FTR.Gameplay.Client.Linkers
                 gameObject.transform
             );
             resolver.InjectGameObject(characterComponents);
-            SetupNameTag(gameObject, characterComponents);
+            var nameController = SetupNameTag(gameObject, characterComponents);
 
             var networkEventRouter = characterComponents.GetComponent<NetworkEventRouter>();
             var movementView = characterComponents.GetComponent<MovementView>();
@@ -50,10 +52,13 @@ namespace FTR.Gameplay.Client.Linkers
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 
-            return characterComponents;
+            return (characterComponents, nameController);
         }
 
-        private void SetupNameTag(GameObject gameObject, GameObject characterComponents)
+        private ICharacterNameController SetupNameTag(
+            GameObject gameObject,
+            GameObject characterComponents
+        )
         {
             var characterBody = characterComponents.transform.Find("CharacterBody");
             var attachParent = characterBody != null ? characterBody : gameObject.transform;
@@ -62,6 +67,8 @@ namespace FTR.Gameplay.Client.Linkers
             var nameTagInstance = Object.Instantiate(prefabProvider.NameTagPrefab, attachParent);
             resolver.InjectGameObject(nameTagInstance);
             nameTagInstance.SetActive(true);
+
+            return nameTagInstance.GetComponent<ICharacterNameController>();
         }
     }
 }

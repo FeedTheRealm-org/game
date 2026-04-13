@@ -8,14 +8,15 @@ namespace FTR.UI.WorldSpace
     /// Controller that shows character name in world-space.
     /// <summary>
     [RequireComponent(typeof(UIDocument))]
-    public class WorldCharacterNameUI : MonoBehaviour
+    public class WorldCharacterNameUI : MonoBehaviour, ICharacterNameController
     {
         [SerializeField]
         private Logging.Logger logger;
 
         private VisualElement _root;
         private Label _nameLabel;
-        private ICharacterIdentity _identity;
+        private string _pendingName;
+        private bool _isInitialized;
 
         private void Start()
         {
@@ -32,46 +33,42 @@ namespace FTR.UI.WorldSpace
                 return;
             }
 
-            _identity = GetComponentInParent<ICharacterIdentity>();
-            if (_identity == null)
-            {
-                logger.Log("ICharacterIdentity not found in parent.", this, Logging.LogType.Error);
-                return;
-            }
-
-            if (_identity.IsLocalPlayer)
+            var identity = GetComponentInParent<ICharacterIdentity>();
+            if (identity != null && identity.IsLocalPlayer)
             {
                 _root.style.display = DisplayStyle.None;
                 return;
             }
 
-            _identity.OnCharacterNameChanged += OnCharacterNameChanged;
+            _isInitialized = true;
 
-            OnCharacterNameChanged(_identity.CharacterName);
+            if (_pendingName != null)
+            {
+                SetName(_pendingName);
+            }
+            else
+            {
+                _root.style.display = DisplayStyle.None; // Hide initially until name is set
+            }
         }
 
-        private void OnDestroy()
-        {
-            if (_identity != null)
-                _identity.OnCharacterNameChanged -= OnCharacterNameChanged;
-        }
+        private void OnDestroy() { }
 
         public void SetName(string characterName)
         {
-            if (_nameLabel != null)
-                _nameLabel.text = characterName;
-        }
-
-        private void OnCharacterNameChanged(string newName)
-        {
-            if (_nameLabel == null)
+            if (!_isInitialized)
+            {
+                _pendingName = characterName;
                 return;
+            }
 
-            _nameLabel.text = newName;
-
-            _root.style.display = string.IsNullOrEmpty(newName)
-                ? DisplayStyle.None
-                : DisplayStyle.Flex;
+            if (_nameLabel != null)
+            {
+                _nameLabel.text = characterName;
+                _root.style.display = string.IsNullOrEmpty(characterName)
+                    ? DisplayStyle.None
+                    : DisplayStyle.Flex;
+            }
         }
     }
 }

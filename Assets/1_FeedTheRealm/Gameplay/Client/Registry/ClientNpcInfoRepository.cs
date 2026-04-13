@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FTR.Gameplay.Client.Registry
 {
-    public class ClientNpcEnemySpriteRepository : CharacterSpriteRepository
+    public class ClientNpcInfoRepository : CharacterInfoRepository
     {
         private const int RegistryWaitTimeoutMs = 8000;
         private const int RegistryRetryDelayMs = 100;

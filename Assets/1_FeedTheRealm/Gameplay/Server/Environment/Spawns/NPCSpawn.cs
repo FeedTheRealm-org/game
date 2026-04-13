@@ -98,7 +98,6 @@ public class NPCSpawns : MonoBehaviour
         if (stateStorage != null && !string.IsNullOrEmpty(characterId))
         {
             stateStorage.SetCharacterId(characterId);
-            stateStorage.SetCharacterName(npcData.name);
         }
         else if (stateStorage == null)
             Debug.LogWarning(
