@@ -77,7 +77,7 @@ public class ServerPlayerLinker : PlayerLinker
         var teleportSystem = playerComponents.GetComponent<TeleportSystem>();
 
         interactSystem.Initialize(netId, world, networkAdapter.netId);
-        questSystem.Initialize(netId);
+        questSystem.Initialize(netId, world, networkAdapter.netId);
         systems.Health.Initialize(netId, stateStorage, false);
         systems.Use.Initialize(
             netId,

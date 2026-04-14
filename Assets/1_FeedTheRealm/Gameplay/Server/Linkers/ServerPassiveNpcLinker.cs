@@ -46,6 +46,7 @@ public class ServerPassiveNpcLinker : PassiveNpcLinker
         var npcCommandHandler = npcComponents.GetComponent<NpcCommandHandler>();
 
         var npcInteract = gameObject.AddComponent<NpcInteractSystem>();
+        resolver.Inject(npcInteract);
         var logger = resolver.Resolve<Logging.Logger>();
         var npcDialogRegistry = resolver.Resolve<NpcDialogRegistry>();
 

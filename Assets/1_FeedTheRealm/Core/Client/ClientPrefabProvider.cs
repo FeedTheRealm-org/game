@@ -13,6 +13,7 @@ namespace FTR.Core.Client
         public GameObject SettingMenuComponent;
         public GameObject QuestPrompt;
         public GameObject QuestCompletionPanel;
+        public GameObject NameTagPrefab;
         public GameObject PortalVisual;
 
         [Header("Shop Components")]

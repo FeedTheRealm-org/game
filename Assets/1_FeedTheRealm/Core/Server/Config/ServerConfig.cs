@@ -1,4 +1,3 @@
-using FTR.Core.Common.Utils;
 using UnityEngine;
 
 namespace FTR.Core.Server.Config
@@ -6,6 +5,11 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
+        [Header("Environment Variables Configuration")]
+        public string EnvFilePath = ".env";
+        public bool LoadFromEnvFile = false;
+        public bool PersistToDatabase = true;
+
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;
         public LayerMask TargetLayer; // Enemies

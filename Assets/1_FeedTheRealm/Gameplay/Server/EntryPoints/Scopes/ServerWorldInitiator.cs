@@ -5,6 +5,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Environment.Portal;
@@ -29,7 +30,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private Logging.Logger logger;
 
         [SerializeField]
-        private GameTickEvent gameTickEvent;
+        private ServerEventRegistry serverEventRegistry;
 
         [SerializeField]
         private ServerPrefabProvider prefabProvider;
@@ -59,9 +60,10 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
 
             Validate();
 
+            serverEventRegistry.RegisterAll(builder);
+
             builder.RegisterInstance(serverConfig);
             builder.RegisterInstance(logger);
-            builder.RegisterInstance(gameTickEvent);
             builder.RegisterInstance(prefabProvider);
             builder.RegisterInstance(worldService);
             builder.RegisterInstance(playerService);
@@ -70,6 +72,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(serverQuestRegistry);
             builder.RegisterInstance(portalRegistry);
 
+            builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
+            builder.Register<Database>(Lifetime.Singleton);
+            builder.Register<PlayersRepository>(Lifetime.Singleton);
             builder.Register<NetworkSpawnPendingObjectsRegistry>(Lifetime.Singleton);
             builder.Register<HealthcheckServer>(Lifetime.Singleton);
             builder.Register<PlayerSpawnpointManager>(Lifetime.Singleton);
@@ -93,7 +98,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         {
             ValidateField(serverConfig, nameof(serverConfig));
             ValidateField(logger, nameof(logger));
-            ValidateField(gameTickEvent, nameof(gameTickEvent));
+            ValidateField(serverEventRegistry, nameof(serverEventRegistry));
             ValidateField(prefabProvider, nameof(prefabProvider));
             ValidateField(worldService, nameof(worldService));
             ValidateField(playerService, nameof(playerService));

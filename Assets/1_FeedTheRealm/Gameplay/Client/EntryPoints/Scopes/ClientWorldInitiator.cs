@@ -92,8 +92,8 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(gltfLoaderService);
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
-            builder.Register<PlayerSpriteRepository>(Lifetime.Singleton);
-            builder.Register<ClientNpcEnemySpriteRepository>(Lifetime.Singleton);
+            builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
+            builder.Register<ClientNpcInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();

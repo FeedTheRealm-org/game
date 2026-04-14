@@ -2,6 +2,7 @@ using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
+using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
@@ -10,6 +11,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class MovementSystem : MonoBehaviour, IGameTickable
     {
+        [Inject]
+        private readonly PlayersRepository playersRepository;
+
         [SerializeField]
         private GameTickEvent gameTickEvent;
 

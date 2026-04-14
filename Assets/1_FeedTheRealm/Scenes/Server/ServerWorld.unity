@@ -711,6 +711,14 @@ PrefabInstance:
       propertyPath: debugObjectPrefab
       value: 
       objectReference: {fileID: 5803050593894928880, guid: fdd7ce362fcd83eee996fe2464eebbb4, type: 3}
+    - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
+      propertyPath: serverEventRegistry
+      value: 
+      objectReference: {fileID: 11400000, guid: ed402e85f3dbaefcdbb144af76e8fbcb, type: 2}
+    - target: {fileID: 5960020428711547728, guid: f7a031c9de0a32954ae716f2e5e9e368, type: 3}
+      propertyPath: serverQuestRegistry
+      value: 
+      objectReference: {fileID: 11400000, guid: cb7eaedf90f6f46cbbb1364467e18125, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

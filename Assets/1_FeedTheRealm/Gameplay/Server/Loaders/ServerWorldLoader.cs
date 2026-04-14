@@ -19,6 +19,7 @@ namespace FTR.Gameplay.Server.Scopes
             IObjectResolver resolver
         )
         {
+            var serverItemLoader = new ServerItemLoader();
             var structureLoader = new ServerStructureLoader(prefabProvider, resolver);
             var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
             var aggressiveNpcSpawnerLoader = new AggressiveNpcSpawnerLoader(
@@ -26,16 +27,15 @@ namespace FTR.Gameplay.Server.Scopes
                 resolver
             );
             var playerSpawnerLoader = new PlayerSpawnerLoader();
-            var serverItemLoader = new ServerItemLoader();
             var portalLoader = new ServerPortalLoader(portalRegistry, prefabProvider, resolver);
 
             loaders = new List<ILoader>
             {
+                serverItemLoader,
                 structureLoader,
                 friendlyNpcSpawnerLoader,
                 aggressiveNpcSpawnerLoader,
                 playerSpawnerLoader,
-                serverItemLoader,
                 portalLoader,
             };
 

@@ -1,18 +1,23 @@
 using System.Collections;
+using Enums;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
+using FTR.Gameplay.Client.Registry;
+using FTR.Gameplay.Common.Environment.Dialogs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.Hud.Main
 {
     /// <summary>
-    /// Manages the quest progress panel in the UI, updating quest progress based on events.
+    /// Manages the quest progress panel in the HUD.
+    /// Lives on the Hud prefab.
     /// </summary>
     public class QuestProgressPanelController : MonoBehaviour
     {
-        [SerializeField]
+        [Inject]
         private QuestProgressEvent progressEvent;
 
         [SerializeField]
@@ -21,35 +26,36 @@ namespace FTR.UI.Hud.Main
         [SerializeField]
         private Logging.Logger logger;
 
+        [Inject]
+        private NpcDialogRegistry npcDialogRegistry;
+
         private ScrollView _currentQuestsContainer;
 
         private readonly string _questItemClasses = "quest-item";
         private readonly string _questTitleClasses = "quest-title";
+        private readonly string _questDetailClasses = "quest-detail";
         private readonly string _questProgressClasses = "quest-progress";
         private readonly float _questProgressHighValue = 100f;
 
-        void Start()
+        private void Start()
         {
-            var root = GetComponent<UIDocument>().rootVisualElement;
-
-            _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
-            if (_currentQuestsContainer == null)
+            var rootDocument = GetComponent<UIDocument>();
+            if (rootDocument == null)
             {
-                logger.Log(
-                    "CurrentQuestsContainer not found in the UI Document.",
+                logger?.Log(
+                    "[QuestProgressPanel] UIDocument component missing.",
                     this,
                     Logging.LogType.Error
                 );
                 return;
             }
 
-            if (progressEvent == null)
+            var root = rootDocument.rootVisualElement;
+
+            _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
+            if (_currentQuestsContainer == null)
             {
-                logger.Log(
-                    "QuestProgressEvent is not assigned in the inspector.",
-                    this,
-                    Logging.LogType.Error
-                );
+                StartCoroutine(DeferredInitializeContainer());
                 return;
             }
 
@@ -57,23 +63,38 @@ namespace FTR.UI.Hud.Main
             ToggleContainerVisibility(false);
         }
 
+        private IEnumerator DeferredInitializeContainer()
+        {
+            yield return null;
+            var root = GetComponent<UIDocument>().rootVisualElement;
+            _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
+            if (_currentQuestsContainer == null)
+            {
+                logger?.Log(
+                    "[QuestProgressPanel] CurrentQuestsContainer not found in UIDocument even after delay.",
+                    this,
+                    Logging.LogType.Error
+                );
+                yield break;
+            }
+            _currentQuestsContainer.Clear();
+            ToggleContainerVisibility(false);
+        }
+
         private void OnEnable()
         {
-            progressEvent.OnRaised += HandleQuestProgress;
+            if (progressEvent != null)
+                progressEvent.OnRaised += HandleQuestProgress;
         }
 
         private void OnDisable()
         {
-            progressEvent.OnRaised -= HandleQuestProgress;
+            if (progressEvent != null)
+                progressEvent.OnRaised -= HandleQuestProgress;
         }
 
         private void HandleQuestProgress(QuestProgressData questProgress)
         {
-            logger.Log(
-                $"New progress for quest {questProgress.Quest.title} with id {questProgress.Id}",
-                this
-            );
-
             var questItem = _currentQuestsContainer.Q<VisualElement>(questProgress.Id);
 
             if (questItem == null)
@@ -82,11 +103,21 @@ namespace FTR.UI.Hud.Main
                 ToggleContainerVisibility(true);
             }
 
+            var detailLabel = questItem.Q<Label>("QuestProgressDetail");
+            if (detailLabel != null)
+            {
+                detailLabel.text = GetQuestProgressText(
+                    questProgress.Quest,
+                    questProgress.CurrentProgressAmount,
+                    questProgress.TargetProgressAmount
+                );
+            }
+
             var progressBar = questItem.Q<ProgressBar>();
             if (progressBar == null)
             {
-                logger.Log(
-                    $"Progress: Progress bar not found in quest item with ID {questProgress.Id}.",
+                logger?.Log(
+                    $"[QuestProgressPanel] ProgressBar not found for quest '{questProgress.Id}'.",
                     this,
                     Logging.LogType.Warning
                 );
@@ -115,6 +146,14 @@ namespace FTR.UI.Hud.Main
             titleLabel.AddToClassList(_questTitleClasses);
             questItem.Add(titleLabel);
 
+            var detailLabel = new Label
+            {
+                name = "QuestProgressDetail",
+                text = GetQuestProgressText(questData, 0, questData.targetAmount),
+            };
+            detailLabel.AddToClassList(_questDetailClasses);
+            questItem.Add(detailLabel);
+
             var progressBar = new ProgressBar
             {
                 value = 0f,
@@ -133,25 +172,73 @@ namespace FTR.UI.Hud.Main
             return questItem;
         }
 
+        private string GetQuestProgressText(
+            QuestData questData,
+            int currentProgress,
+            int targetProgress
+        )
+        {
+            var targetLabel = GetQuestTargetDescription(questData);
+            return targetProgress > 0
+                ? $"{targetLabel} {currentProgress}/{targetProgress}"
+                : targetLabel;
+        }
+
+        private string GetQuestTargetDescription(QuestData questData)
+        {
+            switch (questData.type)
+            {
+                case QuestType.EnemySlays:
+                {
+                    var enemy = ClientItemsRegistry.GetEnemyById(questData.targetId);
+                    return $"Slay: {(enemy != null && !string.IsNullOrEmpty(enemy.name) ? enemy.name : questData.targetId)}";
+                }
+                case QuestType.NpcInteract:
+                {
+                    var npcId = string.IsNullOrEmpty(questData.targetId)
+                        ? questData.targetInteractionId
+                        : questData.targetId;
+                    return $"Talk with: {GetNpcName(npcId)}";
+                }
+                default:
+                    return questData.content ?? questData.targetId;
+            }
+        }
+
+        private string GetNpcName(string npcId)
+        {
+            if (string.IsNullOrEmpty(npcId))
+                return "Unknown NPC";
+
+            if (npcDialogRegistry != null)
+            {
+                if (npcDialogRegistry.TryGetNpcName(npcId, out string npcName))
+                {
+                    return string.IsNullOrEmpty(npcName) ? npcId : npcName;
+                }
+            }
+
+            return npcId;
+        }
+
         private void ToggleContainerVisibility(bool show)
         {
-            if (_currentQuestsContainer.visible == show)
+            if (_currentQuestsContainer == null)
                 return;
 
-            _currentQuestsContainer.visible = show;
+            _currentQuestsContainer.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private IEnumerator RemoveQuestAfterDelay(float delay, string questId)
         {
             yield return new WaitForSeconds(delay);
-            var questItem = _currentQuestsContainer.Q<VisualElement>(questId);
+            var questItem = _currentQuestsContainer?.Q<VisualElement>(questId);
             if (questItem != null)
             {
                 _currentQuestsContainer.Remove(questItem);
-                logger.Log($"Removed quest item with id {questId} after delay.", this);
             }
 
-            if (_currentQuestsContainer.childCount == 0)
+            if (_currentQuestsContainer != null && _currentQuestsContainer.childCount == 0)
                 ToggleContainerVisibility(false);
         }
     }

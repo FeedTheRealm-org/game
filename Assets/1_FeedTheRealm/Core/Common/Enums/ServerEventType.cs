@@ -15,4 +15,6 @@ public enum ServerEventType
     OpenPortalEvent,
     NotEnoughGoldEvent,
     InteractCompletedEvent,
+    QuestProgressEvent,
+    QuestCompletedEvent,
 }

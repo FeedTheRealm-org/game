@@ -5,8 +5,9 @@ using UnityEngine;
 namespace FTR.Gameplay.Server.Environment.Quest
 {
     /// <summary>
-    /// Lightweight registry that stores only the set of valid quest ids from world data.
-    /// Used server-side to validate AcceptQuest commands without holding full QuestData in memory.
+    /// Server-side registry that stores full QuestData from world data.
+    /// Used by QuestSystem to validate AcceptQuest commands and retrieve
+    /// quest conditions (type, targetId, targetAmount, targetInteractionId).
     /// </summary>
     [CreateAssetMenu(
         fileName = "ServerQuestRegistry",
@@ -14,11 +15,11 @@ namespace FTR.Gameplay.Server.Environment.Quest
     )]
     public class ServerQuestRegistry : ScriptableObject
     {
-        private HashSet<string> _validQuestIds;
+        private Dictionary<string, QuestData> _questById;
 
         public void Populate(List<QuestData> worldQuests)
         {
-            _validQuestIds = new HashSet<string>();
+            _questById = new Dictionary<string, QuestData>();
 
             if (worldQuests == null)
                 return;
@@ -27,18 +28,40 @@ namespace FTR.Gameplay.Server.Environment.Quest
             {
                 if (quest == null || string.IsNullOrEmpty(quest.id))
                     continue;
-                _validQuestIds.Add(quest.id);
+
+                if (_questById.ContainsKey(quest.id))
+                {
+                    Debug.LogWarning(
+                        $"[ServerQuestRegistry] Duplicate quest id '{quest.id}', skipping."
+                    );
+                    continue;
+                }
+
+                _questById[quest.id] = quest;
+                Debug.Log(
+                    $"[ServerQuestRegistry] Registered quest '{quest.id}' of type '{quest.type}'."
+                );
             }
 
-            Debug.Log($"Populated with {_validQuestIds.Count} quest(s).");
+            Debug.Log($"[ServerQuestRegistry] Populated with {_questById.Count} quest(s).");
         }
 
         public bool IsValidQuestId(string questId)
         {
-            if (_validQuestIds == null || string.IsNullOrEmpty(questId))
+            if (_questById == null || string.IsNullOrEmpty(questId))
                 return false;
 
-            return _validQuestIds.Contains(questId);
+            return _questById.ContainsKey(questId);
+        }
+
+        public bool TryGetQuest(string questId, out QuestData questData)
+        {
+            questData = null;
+
+            if (_questById == null || string.IsNullOrEmpty(questId))
+                return false;
+
+            return _questById.TryGetValue(questId, out questData);
         }
     }
 }

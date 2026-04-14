@@ -96,7 +96,9 @@ public class NPCSpawns : MonoBehaviour
         var characterId = !string.IsNullOrEmpty(npcData?.id) ? npcData.id : npcID;
         var stateStorage = npc.GetComponent<CharacterStateStorage>();
         if (stateStorage != null && !string.IsNullOrEmpty(characterId))
+        {
             stateStorage.SetCharacterId(characterId);
+        }
         else if (stateStorage == null)
             Debug.LogWarning(
                 $"[NPCSpawns] CharacterStateStorage component not found on prefab for NPC '{npcID}'."

@@ -10,25 +10,30 @@ namespace FTR.Gameplay.Client.Linkers;
 public class ClientAggresiveNpcLinker : AggresiveNpcLinker
 {
     private readonly ClientCharacterLinker characterLinker;
-    private readonly ClientNpcEnemySpriteRepository npcEnemySpriteRepository;
+    private readonly ClientNpcInfoRepository npcEnemyInfoRepository;
 
     public ClientAggresiveNpcLinker(
         ClientPrefabProvider prefabProvider,
         IObjectResolver resolver,
-        ClientNpcEnemySpriteRepository npcEnemySpriteRepository
+        ClientNpcInfoRepository npcEnemyInfoRepository
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
-        this.npcEnemySpriteRepository = npcEnemySpriteRepository;
+        this.npcEnemyInfoRepository = npcEnemyInfoRepository;
     }
 
     public override void Link(GameObject gameObject)
     {
-        var characterComponent = characterLinker.Link(gameObject);
+        var (characterComponent, nameController) = characterLinker.Link(gameObject);
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var spriteLoader = characterComponent.GetComponentInChildren<SpriteLoader>();
         var spriteManager = characterComponent.GetComponentInChildren<SpriteManager>();
 
-        spriteManager.Initialize(spriteLoader, npcEnemySpriteRepository, stateStorage);
+        spriteManager.Initialize(
+            spriteLoader,
+            npcEnemyInfoRepository,
+            stateStorage,
+            nameController
+        );
     }
 }
