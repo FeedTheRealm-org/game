@@ -24,6 +24,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
         {
             this.eventRouter = eventRouter;
             this.networkAdapter = networkAdapter;
+
             eventRouter.OnOpenPortalEvent += HandleOpenPortalRequest;
         }
 

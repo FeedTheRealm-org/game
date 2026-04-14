@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 8113882516953622363}
   - component: {fileID: 5535709811406022713}
   - component: {fileID: -4974415550214178087}
+  - component: {fileID: 2992336374001346032}
   m_Layer: 7
   m_Name: ClientCharacterComponents
   m_TagString: Player
@@ -161,6 +162,19 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
   animator: {fileID: 1507848899257751022}
+--- !u!114 &2992336374001346032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2f564c88b7f121bb8262fdf2f1f0681, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Characters.Shared.Portal.PortalView
+  openPortalUiEvent: {fileID: 11400000, guid: 32c09063fadc3b10a8e17921710b7b63, type: 2}
 --- !u!1001 &5564542974961173821
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -169,6 +183,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5951985247975804607}
     m_Modifications:
+    - target: {fileID: 116261135208834573, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1139518552022580390, guid: 12a7aff0383246fb48bdb3ed573bc2de, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

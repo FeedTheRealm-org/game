@@ -1,6 +1,7 @@
 using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Common.NetworkEntities.Portal;
 using FTR.Gameplay.Server.Environment.Quest;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -18,6 +19,8 @@ namespace FTR.Gameplay.Server.Environment.Portal
 
         [SerializeField]
         private PortalRegistry portalRegistry;
+
+        private PortalStateStorage portalStateStorage;
 
         private PortalData portalData = null;
         private WorldMonitor worldMonitor;
@@ -37,7 +40,7 @@ namespace FTR.Gameplay.Server.Environment.Portal
             return;
         }
 
-        public void SetPortalId(string portalId)
+        public void Initialize(string portalId)
         {
             if (portalRegistry.TryGetPortal(portalId, out var portalInfo))
             {
@@ -53,19 +56,23 @@ namespace FTR.Gameplay.Server.Environment.Portal
             }
         }
 
-        public void Initialize(WorldMonitor worldMonitor, string portalId)
+        public void Initialize(WorldMonitor worldMonitor, PortalStateStorage portalStateStorage)
         {
             this.worldMonitor = worldMonitor;
-            portalRegistry.TryGetPortal(portalId, out var portalInfo);
-            portalData = portalInfo.Data;
+            this.portalStateStorage = portalStateStorage;
         }
 
         public string Interact(IInteractor interactor)
         {
             if (portalData == null)
             {
-                logger.Log($"[PortalInteractSystem] Portal data not set.", this);
-                return null;
+                PortalInformation portalInfo = portalRegistry.TryGetPortal(
+                    portalStateStorage.PortalId,
+                    out var info
+                )
+                    ? info
+                    : null;
+                portalData = portalInfo.Data;
             }
 
             uint playerNetId = interactor.NetId;

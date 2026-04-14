@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace FTR.Core.Client.EventChannels.Portal
 {
-    [CreateAssetMenu(menuName = "Events/PlayerEvents/Open Portal Request")]
+    [CreateAssetMenu(menuName = "Events/PlayerEvents/Open Portal UI Event")]
     public class OpenPortalUIEvent : EventChannelSO<OpenPortalUiContent> { }
 
     public class OpenPortalUiContent

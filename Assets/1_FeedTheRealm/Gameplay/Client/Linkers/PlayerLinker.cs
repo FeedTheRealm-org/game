@@ -2,6 +2,7 @@ using FTR.Core.Client;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Characters.Player;
+using FTR.Gameplay.Client.Characters.Shared.Portal;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.Environment.Dialogs;
@@ -122,6 +123,13 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.InjectGameObject(shopMenuComponent);
             shopMenuComponent.SetActive(true);
 
+            prefabProvider.PortalVisual.SetActive(false);
+            var portalVisual = resolver.Instantiate(
+                prefabProvider.PortalVisual,
+                gameObject.transform
+            );
+            portalVisual.SetActive(true);
+
             /* -- Instantiate and initialize controllers and views -- */
 
             var playerController = gameObject.AddComponent<PlayerController>();
@@ -138,6 +146,8 @@ public class ClientPlayerLinker : PlayerLinker
             var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
 
+            var portalView = portalVisual.GetComponent<PortalView>();
+
             resolver.Inject(playerController);
             resolver.Inject(interactController);
             resolver.Inject(interactView);
@@ -147,6 +157,7 @@ public class ClientPlayerLinker : PlayerLinker
 
             resolver.Inject(goldView);
             resolver.Inject(goldController);
+            resolver.Inject(portalView);
 
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
@@ -159,6 +170,7 @@ public class ClientPlayerLinker : PlayerLinker
             characterStateMachine?.Initialize(interactController);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);
+            portalView?.Initialize(networkEventRouter, networkAdapter);
         }
     }
 }
