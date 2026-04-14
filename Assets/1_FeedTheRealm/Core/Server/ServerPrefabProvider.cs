@@ -18,6 +18,7 @@ namespace FTR.Core.Server
         public GameObject AggresiveNpcSpawnerComponent;
         public GameObject FriendlyNpcSpawnerComponent;
         public GameObject ShopComponent;
+        public GameObject PortalComponent;
 
         [Header("Utility")]
         public GameObject PlayerTriggerAreaPrefab;

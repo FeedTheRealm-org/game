@@ -22,6 +22,7 @@ namespace FTR.Gameplay.Server.Characters
         private string serverAccessToken;
         private bool isResolvingCharacterId;
         private GoldSystem goldSystem;
+        private TeleportSystem teleportSystem;
 
         public void Initialize(
             MovementSystem movementSystem,
@@ -33,7 +34,8 @@ namespace FTR.Gameplay.Server.Characters
             CharacterStateStorage stateStorage,
             PlayerService playerService,
             string serverAccessToken,
-            GoldSystem goldSystem
+            GoldSystem goldSystem,
+            TeleportSystem teleportSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -46,6 +48,7 @@ namespace FTR.Gameplay.Server.Characters
             this.playerService = playerService;
             this.serverAccessToken = serverAccessToken;
             this.goldSystem = goldSystem;
+            this.teleportSystem = teleportSystem;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -171,6 +174,13 @@ namespace FTR.Gameplay.Server.Characters
                 }
             }
         }
+
+        public override void OnTeleportAccepted(IEventCollectable ec, string portalId, int zoneId)
+        {
+            teleportSystem.OnTeleport(portalId);
+        }
+
+        // --- Private Methods ---
 
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
         {

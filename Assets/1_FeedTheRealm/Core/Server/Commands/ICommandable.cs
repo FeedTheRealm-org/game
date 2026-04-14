@@ -18,7 +18,7 @@ public interface ICommandable
     void OnPurchase(IEventCollectable ec, uint netId, string productId, int amount);
     void OnQuestAccepted(IEventCollectable ec, string questId);
     void OnQuestDecided(IEventCollectable ec);
-
+    void OnTeleportAccepted(IEventCollectable ec, string portalId, int zoneId);
     void OnPickUp(IEventCollectable ec, string itemId, int goldAmount, Action<bool> onComplete);
     void OnMoveItem(
         IEventCollectable ec,
