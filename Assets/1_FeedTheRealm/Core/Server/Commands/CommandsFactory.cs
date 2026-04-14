@@ -109,6 +109,8 @@ public static class CommandsFactory
                     };
                     return new MoveItemCommand(dto.NetId, dto.Id, defaultContent);
                 }
+            case TransactionType.AcceptTeleport:
+                return new AcceptTeleportCommand(dto.NetId, dto.Id);
             default:
                 throw new ArgumentException($"Unsupported transaction type: {dto.Type}");
         }

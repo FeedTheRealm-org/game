@@ -21,6 +21,9 @@ namespace FTR.Gameplay.Common.Linkers
         [Inject]
         private ShopLinker shopLinker;
 
+        [Inject]
+        private PortalLinker portalLinker;
+
         [SerializeField]
         private LinkerType linkerType;
 
@@ -42,6 +45,9 @@ namespace FTR.Gameplay.Common.Linkers
                     break;
                 case LinkerType.Shop:
                     shopLinker.Link(gameObject);
+                    break;
+                case LinkerType.Portal:
+                    portalLinker.Link(gameObject);
                     break;
                 default:
                     throw new System.ArgumentException($"Unsupported LinkerType: {linkerType}");

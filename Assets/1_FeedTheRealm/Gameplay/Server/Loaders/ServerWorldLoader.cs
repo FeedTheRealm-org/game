@@ -3,6 +3,7 @@ using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Core.Server.Utils;
 using FTR.Gameplay.Common.LoaderEntities;
+using FTR.Gameplay.Server.Environment.Portal;
 using FTR.Gameplay.Server.Loaders;
 using UnityEngine;
 using VContainer;
@@ -12,7 +13,11 @@ namespace FTR.Gameplay.Server.Scopes
 {
     public class ServerWorldLoader : ZoneLoaderManager
     {
-        public ServerWorldLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
+        public ServerWorldLoader(
+            PortalRegistry portalRegistry,
+            ServerPrefabProvider prefabProvider,
+            IObjectResolver resolver
+        )
         {
             var serverItemLoader = new ServerItemLoader();
             var structureLoader = new ServerStructureLoader(prefabProvider, resolver);
@@ -22,6 +27,7 @@ namespace FTR.Gameplay.Server.Scopes
                 resolver
             );
             var playerSpawnerLoader = new PlayerSpawnerLoader();
+            var portalLoader = new ServerPortalLoader(portalRegistry, prefabProvider, resolver);
 
             loaders = new List<ILoader>
             {
@@ -30,6 +36,7 @@ namespace FTR.Gameplay.Server.Scopes
                 friendlyNpcSpawnerLoader,
                 aggressiveNpcSpawnerLoader,
                 playerSpawnerLoader,
+                portalLoader,
             };
 
             foreach (var loader in loaders)

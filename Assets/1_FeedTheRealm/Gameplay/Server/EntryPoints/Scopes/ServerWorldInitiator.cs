@@ -8,6 +8,7 @@ using FTR.Core.Server.Healthcheck;
 using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Server.Environment.Portal;
 using FTR.Gameplay.Server.Environment.Quest;
 using FTR.Gameplay.Server.Linkers;
 using FTR.Gameplay.Server.Scopes;
@@ -41,6 +42,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private ServerQuestRegistry serverQuestRegistry;
 
         [SerializeField]
+        private PortalRegistry portalRegistry;
+
+        [SerializeField]
         private WorldService worldService;
 
         [SerializeField]
@@ -66,6 +70,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(zoneService);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
+            builder.RegisterInstance(portalRegistry);
 
             builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
             builder.Register<Database>(Lifetime.Singleton);

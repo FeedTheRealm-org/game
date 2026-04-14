@@ -12,4 +12,7 @@ public enum LinkerType
 
     // Shop
     Shop,
+
+    // Environment
+    Portal,
 }
