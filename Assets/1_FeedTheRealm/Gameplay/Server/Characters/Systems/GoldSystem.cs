@@ -14,7 +14,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private Logging.Logger logger;
 
-        [SerializeField]
+        [Inject]
         private ServerConfig config;
 
         [Inject]

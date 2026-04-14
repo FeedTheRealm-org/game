@@ -15,7 +15,7 @@ public class PlayersRepository
     private readonly Logging.Logger logger;
     private readonly Database db;
 
-    private IMongoCollection<PlayerDocument> collection;
+    private IMongoCollection<PlayerModel> collection;
 
     public PlayersRepository(Database db, ServerConfig serverConfig, Logging.Logger logger)
     {
@@ -31,18 +31,18 @@ public class PlayersRepository
     {
         if (!serverConfig.PersistToDatabase)
             return;
-        this.collection = db.GetCollection<PlayerDocument>("players");
+        this.collection = db.GetCollection<PlayerModel>("players");
         this.logger.Log("Players collection initialized");
     }
 
     /// <summary>
     /// Saves or updates a player's data in MongoDB.
     /// </summary>
-    public async Task SavePlayerAsync(PlayerDocument player)
+    public async Task SavePlayerAsync(PlayerModel player)
     {
         if (!serverConfig.PersistToDatabase)
             return;
-        var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, player.PlayerId);
+        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, player.PlayerId);
         var options = new ReplaceOptions { IsUpsert = true };
         await this.collection.ReplaceOneAsync(filter, player, options);
         this.logger.Log($"Player {player.PlayerId} saved to MongoDB");
@@ -51,23 +51,27 @@ public class PlayersRepository
     /// <summary>
     /// Retrieves a player's data from MongoDB by player ID.
     /// </summary>
-    public async Task<PlayerDocument> GetPlayerAsync(string playerId)
+    public async Task<PlayerModel> GetPlayerAsync(string playerId)
     {
         if (!serverConfig.PersistToDatabase)
             return null;
-        var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
+        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
         return await this.collection.Find(filter).FirstOrDefaultAsync();
     }
 
     /// <summary>
     /// Saves a player's inventory and gold to MongoDB.
     /// </summary>
-    public async Task SaveInventoryAsync(string playerId, List<InventoryItem> inventory, int gold)
+    public async Task SaveInventoryAsync(
+        string playerId,
+        List<InventoryItemModel> inventory,
+        int gold
+    )
     {
         if (!serverConfig.PersistToDatabase)
             return;
-        var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
-        var update = Builders<PlayerDocument>
+        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
+        var update = Builders<PlayerModel>
             .Update.Set(p => p.Inventory, inventory)
             .Set(p => p.Gold, gold);
         await this.collection.UpdateOneAsync(filter, update);
@@ -78,14 +82,14 @@ public class PlayersRepository
     /// </summary>
     public async Task SaveQuestsAsync(
         string playerId,
-        List<ActiveQuest> active,
+        List<QuestModel> active,
         List<string> completed
     )
     {
         if (!serverConfig.PersistToDatabase)
             return;
-        var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
-        var update = Builders<PlayerDocument>
+        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
+        var update = Builders<PlayerModel>
             .Update.Set(p => p.ActiveQuests, active)
             .Set(p => p.CompletedQuests, completed);
         await this.collection.UpdateOneAsync(filter, update);
@@ -94,12 +98,12 @@ public class PlayersRepository
     /// <summary>
     /// Saves a player's last known position to MongoDB.
     /// </summary>
-    public async Task SavePositionAsync(string playerId, Vec3 position)
+    public async Task SavePositionAsync(string playerId, PositionModel position)
     {
         if (!serverConfig.PersistToDatabase)
             return;
-        var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
-        var update = Builders<PlayerDocument>.Update.Set(p => p.LastPosition, position);
+        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
+        var update = Builders<PlayerModel>.Update.Set(p => p.LastPosition, position);
         await this.collection.UpdateOneAsync(filter, update);
     }
 }
