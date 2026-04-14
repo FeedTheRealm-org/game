@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FTR.Core.Server.Config;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -9,12 +10,14 @@ namespace FTR.Core.Server.Persistence;
 public class Database
 {
     private IMongoDatabase _db;
+    private readonly ServerConfig serverConfig;
     private readonly Logging.Logger logger;
 
     private const int connectionTimeoutSeconds = 3;
 
-    public Database(Logging.Logger logger)
+    public Database(ServerConfig serverConfig, Logging.Logger logger)
     {
+        this.serverConfig = serverConfig;
         this.logger = logger;
     }
 
@@ -25,6 +28,8 @@ public class Database
         CancellationToken cancellationToken = default
     )
     {
+        if (!serverConfig.PersistToDatabase)
+            return;
         var settings = MongoClientSettings.FromConnectionString(connectionString);
         settings.ServerSelectionTimeout = TimeSpan.FromSeconds(connectionTimeoutSeconds);
         settings.ConnectTimeout = TimeSpan.FromSeconds(connectionTimeoutSeconds);
@@ -46,6 +51,8 @@ public class Database
 
     public IMongoCollection<T> GetCollection<T>(string name)
     {
+        if (!serverConfig.PersistToDatabase)
+            return null;
         if (_db == null)
             throw new InvalidOperationException("Database connection is not established.");
         return _db.GetCollection<T>(name);

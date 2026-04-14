@@ -1,4 +1,3 @@
-using FTR.Core.Common.Utils;
 using UnityEngine;
 
 namespace FTR.Core.Server.Config
@@ -9,6 +8,7 @@ namespace FTR.Core.Server.Config
         [Header("Environment Variables Configuration")]
         public string EnvFilePath = ".env";
         public bool LoadFromEnvFile = false;
+        public bool PersistToDatabase = true;
 
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;

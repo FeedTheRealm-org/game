@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Persistence.Schemas;
 using MongoDB.Driver;
 
@@ -10,13 +11,15 @@ namespace FTR.Core.Server.Persistence;
 /// </summary>
 public class PlayersRepository
 {
+    private readonly ServerConfig serverConfig;
     private readonly Logging.Logger logger;
     private readonly Database db;
 
     private IMongoCollection<PlayerDocument> collection;
 
-    public PlayersRepository(Database db, Logging.Logger logger)
+    public PlayersRepository(Database db, ServerConfig serverConfig, Logging.Logger logger)
     {
+        this.serverConfig = serverConfig;
         this.logger = logger;
         this.db = db;
     }
@@ -26,6 +29,8 @@ public class PlayersRepository
     /// </summary>
     public async Task Connect(Database db)
     {
+        if (!serverConfig.PersistToDatabase)
+            return;
         this.collection = db.GetCollection<PlayerDocument>("players");
         this.logger.Log("Players collection initialized");
     }
@@ -35,6 +40,8 @@ public class PlayersRepository
     /// </summary>
     public async Task SavePlayerAsync(PlayerDocument player)
     {
+        if (!serverConfig.PersistToDatabase)
+            return;
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, player.PlayerId);
         var options = new ReplaceOptions { IsUpsert = true };
         await this.collection.ReplaceOneAsync(filter, player, options);
@@ -46,6 +53,8 @@ public class PlayersRepository
     /// </summary>
     public async Task<PlayerDocument> GetPlayerAsync(string playerId)
     {
+        if (!serverConfig.PersistToDatabase)
+            return null;
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
         return await this.collection.Find(filter).FirstOrDefaultAsync();
     }
@@ -55,6 +64,8 @@ public class PlayersRepository
     /// </summary>
     public async Task SaveInventoryAsync(string playerId, List<InventoryItem> inventory, int gold)
     {
+        if (!serverConfig.PersistToDatabase)
+            return;
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
         var update = Builders<PlayerDocument>
             .Update.Set(p => p.Inventory, inventory)
@@ -71,6 +82,8 @@ public class PlayersRepository
         List<string> completed
     )
     {
+        if (!serverConfig.PersistToDatabase)
+            return;
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
         var update = Builders<PlayerDocument>
             .Update.Set(p => p.ActiveQuests, active)
@@ -83,6 +96,8 @@ public class PlayersRepository
     /// </summary>
     public async Task SavePositionAsync(string playerId, Vec3 position)
     {
+        if (!serverConfig.PersistToDatabase)
+            return;
         var filter = Builders<PlayerDocument>.Filter.Eq(p => p.PlayerId, playerId);
         var update = Builders<PlayerDocument>.Update.Set(p => p.LastPosition, position);
         await this.collection.UpdateOneAsync(filter, update);
