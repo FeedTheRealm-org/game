@@ -5,7 +5,7 @@ using UnityEngine;
 using VContainer;
 
 /// <summary>
-/// Tracks updates on the local player's gold and notifies the HUD via event channels.
+/// Transforms chat messages received from the server into UI updates on the client.
 /// </summary>
 public class ChatView : MonoBehaviour
 {
