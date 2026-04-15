@@ -1,0 +1,8 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/WorldSpace/ChatBox/Themes/ChatBox.uss?fileID=7433441132597879392&amp;guid=5b77bccb3af3f9348af7fed31245a4a8&amp;type=3#ChatBox"/>
+    <ui:VisualElement name="Body">
+        <ui:VisualElement name="ChatContainer" class="chat-container">
+            <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum LoremL" name="ChatText" class="chat-text"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
