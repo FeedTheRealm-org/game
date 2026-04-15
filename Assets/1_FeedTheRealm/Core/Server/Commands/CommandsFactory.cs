@@ -109,6 +109,22 @@ public static class CommandsFactory
                     };
                     return new MoveItemCommand(dto.NetId, dto.Id, defaultContent);
                 }
+            case TransactionType.SendMessage:
+                try
+                {
+                    SendMessageCommandContent content = SendMessageCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new SendMessageCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    SendMessageCommandContent defaultContent = new SendMessageCommandContent
+                    {
+                        Message = string.Empty,
+                    };
+                    return new SendMessageCommand(dto.NetId, dto.Id, defaultContent);
+                }
             default:
                 throw new ArgumentException($"Unsupported transaction type: {dto.Type}");
         }

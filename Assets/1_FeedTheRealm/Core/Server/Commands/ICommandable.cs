@@ -18,7 +18,6 @@ public interface ICommandable
     void OnPurchase(IEventCollectable ec, uint netId, string productId, int amount);
     void OnQuestAccepted(IEventCollectable ec, string questId);
     void OnQuestDecided(IEventCollectable ec);
-
     void OnPickUp(IEventCollectable ec, string itemId, int goldAmount, Action<bool> onComplete);
     void OnMoveItem(
         IEventCollectable ec,
@@ -28,4 +27,5 @@ public interface ICommandable
         int targetSlot
     );
     void OnSetUserId(IEventCollectable ec, string userId);
+    void OnSendMessage(IEventCollectable ec, string message);
 }
