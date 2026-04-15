@@ -1,5 +1,6 @@
 using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Inventory;
@@ -62,6 +63,10 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public GoldChangedEvent goldChangedEvent;
         public NotEnoughGoldEvent notEnoughGoldEvent;
 
+        [Header("Chat Events")]
+        public ChatMessageRequestEvent chatMessageRequestEvent;
+        public ChatToggleEvent chatToggleEvent;
+
         public void RegisterAll(IContainerBuilder builder)
         {
             Validate();
@@ -93,6 +98,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(interactFailedEvent);
             builder.RegisterInstance(interactCompletedEvent);
             builder.RegisterInstance(notEnoughGoldEvent);
+            builder.RegisterInstance(chatMessageRequestEvent);
+            builder.RegisterInstance(chatToggleEvent);
             builder.RegisterInstance(worldSetupEvent);
         }
 
@@ -126,6 +133,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
             ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
             ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
+            ValidateField(chatMessageRequestEvent, nameof(chatMessageRequestEvent));
+            ValidateField(chatToggleEvent, nameof(chatToggleEvent));
         }
 
         private void ValidateField(Object field, string fieldName)
