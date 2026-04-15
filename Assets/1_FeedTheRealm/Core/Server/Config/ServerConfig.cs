@@ -7,7 +7,14 @@ namespace FTR.Core.Server.Config
     {
         [Header("Environment Variables Configuration")]
         public string EnvFilePath = ".env";
+
+        // LoadFromEnvFile: Load variables from the .env file (e.g. Prod: false, Dev: false).
         public bool LoadFromEnvFile = false;
+
+        // LoadEnvVars: Load system environment variables (e.g. Prod: true, Dev: false).
+        public bool LoadEnvVars = true;
+
+        // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
         public bool PersistToDatabase = true;
 
         [Header("Layer Masks")]

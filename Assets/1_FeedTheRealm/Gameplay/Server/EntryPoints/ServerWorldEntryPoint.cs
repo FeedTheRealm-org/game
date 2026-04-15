@@ -56,10 +56,13 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         this.logger = logger;
         resolverContainer.SetResolver(resolver);
 
-        secretsConfig.LoadEnvironmentVariables(
-            serverConfig.EnvFilePath,
-            serverConfig.LoadFromEnvFile
-        );
+        if (serverConfig.LoadEnvVars)
+        {
+            secretsConfig.LoadEnvironmentVariables(
+                serverConfig.EnvFilePath,
+                serverConfig.LoadFromEnvFile
+            );
+        }
     }
 
     public async void Start()
