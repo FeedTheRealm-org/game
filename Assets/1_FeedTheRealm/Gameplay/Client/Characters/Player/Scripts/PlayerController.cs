@@ -1,4 +1,5 @@
 using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.Exceptions;
@@ -23,6 +24,9 @@ public class PlayerController : MonoBehaviour
     private ShopToggleEvent shopToggleEvent;
 
     [Inject]
+    private ChatToggleEvent chatToggleEvent;
+
+    [Inject]
     private Logging.Logger logger;
 
     private CharacterStateMachine characterStateMachine;
@@ -30,6 +34,7 @@ public class PlayerController : MonoBehaviour
     private bool isInitialized = false;
     private bool isInventoryOpen = false;
     private bool isShopOpen = false;
+    private bool isChatOpen = false;
 
     public void Initialize(CharacterStateMachine characterStateMachine)
     {
@@ -41,6 +46,9 @@ public class PlayerController : MonoBehaviour
 
         if (shopToggleEvent != null)
             shopToggleEvent.OnRaised += OnShopToggled;
+
+        if (chatToggleEvent != null)
+            chatToggleEvent.OnRaised += OnChatToggled;
 
         StartController();
     }
@@ -57,9 +65,15 @@ public class PlayerController : MonoBehaviour
         UpdateCursorState();
     }
 
+    private void OnChatToggled(bool isOpen)
+    {
+        isChatOpen = isOpen;
+        UpdateCursorState();
+    }
+
     private void UpdateCursorState()
     {
-        bool shouldShowCursor = isInventoryOpen || isShopOpen;
+        bool shouldShowCursor = isInventoryOpen || isShopOpen || isChatOpen;
         Cursor.visible = shouldShowCursor;
         Cursor.lockState = shouldShowCursor ? CursorLockMode.None : CursorLockMode.Locked;
     }
@@ -92,6 +106,9 @@ public class PlayerController : MonoBehaviour
 
         if (shopToggleEvent != null)
             shopToggleEvent.OnRaised -= OnShopToggled;
+
+        if (chatToggleEvent != null)
+            chatToggleEvent.OnRaised -= OnChatToggled;
     }
 
     private void ToggleRegisterInputs(bool register)
@@ -114,7 +131,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnUseInput()
     {
-        if (isInventoryOpen || isShopOpen)
+        if (isInventoryOpen || isShopOpen || isChatOpen)
         {
             return;
         }
@@ -124,17 +141,27 @@ public class PlayerController : MonoBehaviour
 
     private void OnMoveInput(Vector2 vec)
     {
+        if (isChatOpen)
+        {
+            return;
+        }
+
         characterStateMachine?.OnMove(vec);
     }
 
     private void OnDashInput()
     {
+        if (isChatOpen)
+        {
+            return;
+        }
+
         characterStateMachine?.OnDash();
     }
 
     private void OnInteractInput()
     {
-        if (isInventoryOpen)
+        if (isInventoryOpen || isChatOpen)
         {
             return;
         }

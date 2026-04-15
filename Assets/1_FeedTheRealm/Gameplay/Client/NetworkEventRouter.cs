@@ -12,6 +12,7 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<DashEventContent> OnDashEvent;
     public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
     public event Action<DialogEventContent> OnDialogEvent;
+    public event Action<ChatMessageBroadcastEventContent> OnChatMessageBroadcastEvent;
     public event Action<OpenShopEventContent> OnOpenShopEvent;
     public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
     public event Action OnInteractFailedEvent;
@@ -90,6 +91,12 @@ public class NetworkEventRouter : MonoBehaviour
                     QuestCompletedEventContent.Parser.ParseFrom(serverEvent.content)
                 );
                 logger.Log("Routed QuestCompletedEvent", this);
+                break;
+            case ServerEventType.ChatMessageBroadcastEvent:
+                OnChatMessageBroadcastEvent?.Invoke(
+                    ChatMessageBroadcastEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log("Routed ChatMessageBroadcastEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);

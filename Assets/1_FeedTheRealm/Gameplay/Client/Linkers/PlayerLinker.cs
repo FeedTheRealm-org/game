@@ -1,3 +1,4 @@
+using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
@@ -55,11 +56,15 @@ public class ClientPlayerLinker : PlayerLinker
             );
             return;
         }
+        var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
         var characterStateMachine = playerComponents.GetComponent<CharacterStateMachine>();
         var spriteLoader = playerComponents.GetComponentInChildren<SpriteLoader>();
         var spriteManager = playerComponents.GetComponentInChildren<SpriteManager>();
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
+
+        var characterBody = playerComponents.transform.Find("CharacterBody");
+        var attachParent = characterBody != null ? characterBody : gameObject.transform;
 
         spriteManager.Initialize(
             spriteLoader,
@@ -67,6 +72,21 @@ public class ClientPlayerLinker : PlayerLinker
             stateStorage,
             nameController,
             networkAdapter.IsLocalPlayer
+        );
+
+        // Initialize chat box
+        prefabProvider.ChatBox.SetActive(false);
+        var chatBoxComponent = Object.Instantiate(prefabProvider.ChatBox, attachParent);
+        resolver.InjectGameObject(chatBoxComponent);
+        chatBoxComponent.SetActive(true);
+
+        var chatView = playerComponents.AddComponent<ChatView>();
+
+        resolver.Inject(chatView);
+        chatView.Initialize(
+            networkEventRouter,
+            networkAdapter.netId,
+            chatBoxComponent.GetComponent<IChatBox>()
         );
 
         if (networkAdapter.IsLocalPlayer)
@@ -79,8 +99,6 @@ public class ClientPlayerLinker : PlayerLinker
                 content = null,
             };
             networkAdapter.DispatchTransaction(setUserIdTransaction);
-
-            var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
 
             /* -- Instantiate and inject UI components -- */
 
@@ -122,6 +140,11 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.InjectGameObject(shopMenuComponent);
             shopMenuComponent.SetActive(true);
 
+            prefabProvider.ChatInput.SetActive(false);
+            var chatInput = Object.Instantiate(prefabProvider.ChatInput, gameObject.transform);
+            resolver.InjectGameObject(chatInput);
+            chatInput.SetActive(true);
+
             /* -- Instantiate and initialize controllers and views -- */
 
             var playerController = gameObject.AddComponent<PlayerController>();
@@ -138,6 +161,8 @@ public class ClientPlayerLinker : PlayerLinker
             var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
 
+            var chatController = playerComponents.AddComponent<ChatController>();
+
             resolver.Inject(playerController);
             resolver.Inject(interactController);
             resolver.Inject(interactView);
@@ -147,6 +172,8 @@ public class ClientPlayerLinker : PlayerLinker
 
             resolver.Inject(goldView);
             resolver.Inject(goldController);
+
+            resolver.Inject(chatController);
 
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState);
@@ -159,6 +186,7 @@ public class ClientPlayerLinker : PlayerLinker
             characterStateMachine?.Initialize(interactController);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);
+            chatController.Initialize(networkAdapter);
         }
     }
 }

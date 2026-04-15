@@ -13,6 +13,7 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
     public event Action CursorToggleEvent;
     public event Action InteractEvent;
     public event Action<int> FastSlotEvent;
+    public event Action ChatToggleEvent;
 
     private PlayerControls controls;
 
@@ -80,6 +81,14 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
         if (context.performed)
         {
             InteractEvent?.Invoke();
+        }
+    }
+
+    public void OnChatToggle(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            ChatToggleEvent?.Invoke();
         }
     }
 
