@@ -22,6 +22,7 @@ namespace FTR.Gameplay.Server.Characters
         private string serverAccessToken;
         private bool isResolvingCharacterId;
         private GoldSystem goldSystem;
+        private ChatSystem chatSystem;
 
         public void Initialize(
             MovementSystem movementSystem,
@@ -33,7 +34,8 @@ namespace FTR.Gameplay.Server.Characters
             CharacterStateStorage stateStorage,
             PlayerService playerService,
             string serverAccessToken,
-            GoldSystem goldSystem
+            GoldSystem goldSystem,
+            ChatSystem chatSystem
         )
         {
             this.movementSystem = movementSystem;
@@ -46,6 +48,7 @@ namespace FTR.Gameplay.Server.Characters
             this.playerService = playerService;
             this.serverAccessToken = serverAccessToken;
             this.goldSystem = goldSystem;
+            this.chatSystem = chatSystem;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -190,6 +193,11 @@ namespace FTR.Gameplay.Server.Characters
             {
                 isResolvingCharacterId = false;
             }
+        }
+
+        public override void OnSendMessage(IEventCollectable ec, string message)
+        {
+            chatSystem.OnSendMessage(ec, message);
         }
     }
 }
