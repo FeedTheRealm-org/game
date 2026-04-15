@@ -61,6 +61,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ChatToggle",
+                    "type": "Button",
+                    "id": "0bf05643-c926-422e-b68f-eb67172dd247",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "FastSlots",
                     "type": "Button",
                     "id": "d098a32f-1999-4870-801b-b244745a1d48",
@@ -321,6 +330,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "FastSlots",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "949c0a2c-a277-45e7-b31a-96075280c757",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChatToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
