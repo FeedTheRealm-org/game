@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.UI.Inventory;
 using UnityEngine;
@@ -38,6 +39,9 @@ namespace FTR.UI.Inventory
         [Inject]
         private ChatToggleEvent chatToggleEvent;
 
+        [Inject]
+        private ShopToggleEvent shopToggleEvent;
+
         [SerializeField]
         private PlayerInputReader inputReader;
 
@@ -67,6 +71,7 @@ namespace FTR.UI.Inventory
         private readonly InventorySlotGhostController ghost = new();
 
         private bool isChatOpen = false;
+        private bool isShopOpen = false;
 
         private void OnEnable()
         {
@@ -102,6 +107,7 @@ namespace FTR.UI.Inventory
 
             inputReader.InventoryEvent += OnInventoryInput;
             chatToggleEvent.OnRaised += OnChatToggled;
+            shopToggleEvent.OnRaised += OnShopToggled;
             lastAddedEvent.OnRaised += OnLastAdded;
             lastSwappedEvent.OnRaised += OnLastSwapped;
             lastRemovedEvent.OnRaised += OnLastRemoved;
@@ -111,6 +117,7 @@ namespace FTR.UI.Inventory
         {
             inputReader.InventoryEvent -= OnInventoryInput;
             chatToggleEvent.OnRaised -= OnChatToggled;
+            shopToggleEvent.OnRaised -= OnShopToggled;
             lastAddedEvent.OnRaised -= OnLastAdded;
             lastSwappedEvent.OnRaised -= OnLastSwapped;
             lastRemovedEvent.OnRaised -= OnLastRemoved;
@@ -155,7 +162,7 @@ namespace FTR.UI.Inventory
 
         private void OnInventoryInput()
         {
-            if (isChatOpen)
+            if (isChatOpen || isShopOpen)
             {
                 return;
             }
@@ -277,6 +284,11 @@ namespace FTR.UI.Inventory
         private void OnChatToggled(bool isChatOpen)
         {
             this.isChatOpen = isChatOpen;
+        }
+
+        private void OnShopToggled(bool isShopOpen)
+        {
+            this.isShopOpen = isShopOpen;
         }
     }
 }

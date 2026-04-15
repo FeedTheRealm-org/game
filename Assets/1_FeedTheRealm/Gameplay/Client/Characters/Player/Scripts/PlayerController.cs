@@ -161,7 +161,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnInteractInput()
     {
-        if (isInventoryOpen || isShopOpen || isChatOpen)
+        if (isInventoryOpen || isChatOpen)
         {
             return;
         }
