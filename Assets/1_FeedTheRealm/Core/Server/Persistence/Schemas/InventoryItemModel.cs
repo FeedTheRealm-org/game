@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -11,7 +10,4 @@ public class InventoryItemModel
 
     [BsonElement("quantity")]
     public int Quantity { get; set; }
-
-    [BsonElement("slot")]
-    public int Slot { get; set; }
 }

@@ -62,37 +62,75 @@ public class PlayersRepository
     /// <summary>
     /// Saves a player's inventory and gold to MongoDB.
     /// </summary>
-    public async Task SaveInventoryAsync(
-        string playerId,
-        List<InventoryItemModel> inventory,
-        int gold
-    )
+    public async Task SaveInventoryAsync(string playerId, List<InventoryItemModel> inventory)
     {
         if (!serverConfig.PersistToDatabase)
             return;
         var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
-        var update = Builders<PlayerModel>
-            .Update.Set(p => p.Inventory, inventory)
-            .Set(p => p.Gold, gold);
+        var update = Builders<PlayerModel>.Update.Set(p => p.Inventory, inventory);
+        await this.collection.UpdateOneAsync(filter, update);
+    }
+
+    /// <summary>
+    /// Saves a player's fast access inventory to MongoDB.
+    /// </summary>
+    public async Task SaveFastAccessAsync(string playerId, List<InventoryItemModel> fastAccess)
+    {
+        if (!serverConfig.PersistToDatabase)
+            return;
+        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
+        var update = Builders<PlayerModel>.Update.Set(p => p.FastAccessInventory, fastAccess);
+        await this.collection.UpdateOneAsync(filter, update);
+    }
+
+    /// <summary>
+    /// Saves a player's gold amount to MongoDB.
+    /// </summary>
+    public async Task SaveGoldAsync(string playerId, int goldAmount)
+    {
+        if (!serverConfig.PersistToDatabase)
+            return;
+        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
+        var update = Builders<PlayerModel>.Update.Set(p => p.Gold, goldAmount);
         await this.collection.UpdateOneAsync(filter, update);
     }
 
     /// <summary>
     /// Saves a player's active and completed quests to MongoDB.
     /// </summary>
-    public async Task SaveQuestsAsync(
+    public async Task SaveQuestAsync(
         string playerId,
-        List<QuestModel> active,
-        List<string> completed
+        string effectiveQuestId,
+        int progress,
+        bool completed
     )
     {
         if (!serverConfig.PersistToDatabase)
             return;
-        var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
-        var update = Builders<PlayerModel>
-            .Update.Set(p => p.ActiveQuests, active)
-            .Set(p => p.CompletedQuests, completed);
-        await this.collection.UpdateOneAsync(filter, update);
+
+        if (completed)
+        {
+            var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
+            var update = Builders<PlayerModel>
+                .Update.PullFilter(p => p.ActiveQuests, q => q.EffectiveQuestId == effectiveQuestId)
+                .AddToSet(p => p.CompletedQuests, effectiveQuestId);
+
+            await this.collection.UpdateOneAsync(filter, update);
+        }
+        else
+        {
+            var filter = Builders<PlayerModel>.Filter.And(
+                Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId),
+                Builders<PlayerModel>.Filter.ElemMatch(
+                    p => p.ActiveQuests,
+                    q => q.EffectiveQuestId == effectiveQuestId
+                )
+            );
+
+            var update = Builders<PlayerModel>.Update.Set("active_quests.$.progress", progress);
+
+            await this.collection.UpdateOneAsync(filter, update);
+        }
     }
 
     /// <summary>

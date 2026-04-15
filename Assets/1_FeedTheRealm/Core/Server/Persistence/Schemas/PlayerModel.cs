@@ -19,6 +19,9 @@ public class PlayerModel
     [BsonElement("inventory")]
     public List<InventoryItemModel> Inventory { get; set; } = new();
 
+    [BsonElement("fast_access_inventory")]
+    public List<InventoryItemModel> FastAccessInventory { get; set; } = new();
+
     [BsonElement("active_quests")]
     public List<QuestModel> ActiveQuests { get; set; } = new();
 
