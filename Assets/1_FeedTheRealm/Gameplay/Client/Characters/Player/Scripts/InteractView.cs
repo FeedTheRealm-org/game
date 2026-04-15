@@ -70,7 +70,7 @@ public class InteractView : MonoBehaviour
     private void HandleDialogEvent(DialogEventContent content)
     {
         Debug.Log(
-            $"[InteractView] HandleDialogEvent. NpcId={content.NpcId}, State={content.DialogState}, Index={content.DialogIndex}, QuestId={content.QuestId}"
+            $"[InteractView] HandleDialogEvent. NpcId={content.NpcId}, State={content.DialogState}, DialogId={content.DialogId}, Index={content.DialogIndex}, QuestId={content.QuestId}"
         );
 
         switch (content.DialogState)
@@ -81,10 +81,10 @@ public class InteractView : MonoBehaviour
 
                 _activeNpcId = content.NpcId;
                 npcDialogToggledEvent.Raise((true, _activeNpcId));
-                ShowDialogLine(content.NpcId, content.DialogIndex);
+                ShowDialogLine(content.NpcId, content.DialogId, content.DialogIndex);
 
                 if (!string.IsNullOrEmpty(content.QuestId))
-                    npcQuestOfferedEvent.Raise(content.QuestId);
+                    npcQuestOfferedEvent.Raise((content.QuestId, content.NpcId));
                 break;
 
             case DialogStateType.DialogTypeAdvanced:
@@ -96,10 +96,10 @@ public class InteractView : MonoBehaviour
                     npcDialogToggledEvent.Raise((true, _activeNpcId));
                 }
 
-                ShowDialogLine(content.NpcId, content.DialogIndex);
+                ShowDialogLine(content.NpcId, content.DialogId, content.DialogIndex);
 
                 if (!string.IsNullOrEmpty(content.QuestId))
-                    npcQuestOfferedEvent.Raise(content.QuestId);
+                    npcQuestOfferedEvent.Raise((content.QuestId, content.NpcId));
                 break;
 
             case DialogStateType.DialogTypeClosed:
@@ -113,36 +113,54 @@ public class InteractView : MonoBehaviour
         }
     }
 
-    private void ShowDialogLine(string npcId, int index)
+    /// <summary>
+    /// Looks up the message by dialogId + index.
+    /// </summary>
+    private void ShowDialogLine(string npcId, string dialogId, int index)
     {
-        if (TryGetMessage(npcId, index, out MessageData message))
+        if (TryGetMessage(npcId, dialogId, index, out var message))
         {
             Debug.Log(
-                $"[InteractView] ShowDialogLine -> raising message for NpcId={npcId}, Index={index}, Sender={message.sender}, Content={message.content}"
+                $"[InteractView] ShowDialogLine -> NpcId={npcId}, DialogId={dialogId}, Index={index}, Sender={message.sender}"
             );
             npcDialogMessageEvent.Raise((npcId, message));
         }
     }
 
-    private bool TryGetMessage(string npcId, int index, out MessageData message)
+    private bool TryGetMessage(string npcId, string dialogId, int index, out MessageData message)
     {
         message = default;
 
-        if (!dialogRegistry.TryGetMessages(npcId, out var messages))
+        if (!string.IsNullOrEmpty(dialogId))
         {
-            Debug.LogWarning($"[InteractView] No messages found for NpcId '{npcId}'.");
-            return false;
+            if (!dialogRegistry.TryGetMessagesByDialogId(dialogId, out var byDialog))
+            {
+                Debug.LogWarning($"[InteractView] No messages for DialogId '{dialogId}'.");
+                return false;
+            }
+
+            if (index < 0 || index >= byDialog.Count)
+            {
+                Debug.LogWarning(
+                    $"[InteractView] Index {index} out of range for DialogId '{dialogId}' (count: {byDialog.Count})."
+                );
+                return false;
+            }
+
+            message = byDialog[index];
+
+            if (string.IsNullOrEmpty(message.sender) && !string.IsNullOrEmpty(npcId))
+            {
+                dialogRegistry.TryGetNpcName(npcId, out var npcName);
+                message.sender = npcName;
+            }
+
+            return true;
         }
 
-        if (index < 0 || index >= messages.Count)
-        {
-            Debug.LogWarning(
-                $"[InteractView] Index {index} out of range for '{npcId}' (count: {messages.Count})."
-            );
-            return false;
-        }
-
-        message = messages[index];
-        return true;
+        Debug.LogWarning(
+            $"[InteractView] DialogId is empty for NpcId='{npcId}', Index={index} — cannot resolve message."
+        );
+        return false;
     }
 }

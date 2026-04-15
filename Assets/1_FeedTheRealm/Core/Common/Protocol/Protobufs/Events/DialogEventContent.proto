@@ -10,6 +10,7 @@ import "DialogStateType.proto";
 message DialogEventContent {
   DialogStateType dialog_state = 1;  // DialogState enum value
   string npc_id      = 2;  // Empty when dialog_state = DialogClosed
-  int32 dialog_index = 3;  // Ignored when dialog_state = DialogClosed
+  int32  dialog_index = 3; // Message index within the active dialog
   string quest_id    = 4;  // Empty when no quest is associated with this message
+  string dialog_id   = 5;  // ID of the DialogData being shown (empty when DialogClosed)
 }

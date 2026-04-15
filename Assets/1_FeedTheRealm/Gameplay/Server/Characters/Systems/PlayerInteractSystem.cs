@@ -34,13 +34,9 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
 
     /// <summary>
     /// Finds the closest IInteractable in range and either starts or continues the interaction.
-    /// If nothing is found, notifies the client via InteractFailedEvent so it can exit
-    /// CharacterInteractingState without waiting for a dialog event.
     /// </summary>
     public void TryInteract(IEventCollectable ec)
     {
-        //logger?.Log("[PlayerInteractSystem] TryInteract triggered.", this);
-
         IInteractable closest = FindClosestInteractable();
 
         if (closest == null)
@@ -53,7 +49,6 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
 
         if (CurrentInteractable == closest)
         {
-            //logger?.Log($"[PlayerInteractSystem] Continuing interaction with: {closest}", this);
             CurrentInteractable.ContinueInteraction(this);
             return;
         }
@@ -62,7 +57,6 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
             CurrentInteractable.StopInteraction(this);
 
         CurrentInteractable = closest;
-        //logger?.Log($"[PlayerInteractSystem] Starting interaction with: {closest}", this);
         CurrentInteractable.Interact(this);
     }
 
@@ -96,27 +90,8 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
         CurrentInteractable.ContinueInteraction(this);
     }
 
-    /// <summary>
-    /// Only forwarded if the interactable opts in via IQuestBlockable.
-    /// </summary>
-    public void NotifyQuestDecided()
-    {
-        if (CurrentInteractable is IQuestBlockable questBlockable)
-        {
-            questBlockable.OnQuestDecided(NetId);
-        }
-        else
-        {
-            logger?.Log(
-                "[PlayerInteractSystem] NotifyQuestDecided — current interactable does not implement IQuestBlockable.",
-                this
-            );
-        }
-    }
-
     public void FinishInteracting()
     {
-        //logger?.Log("[PlayerInteractSystem] FinishInteracting.", this);
         if (CurrentInteractable != null)
         {
             CurrentInteractable.StopInteraction(this);
@@ -139,6 +114,7 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
         {
             IInteractable interactable =
                 col.GetComponent<IInteractable>() ?? col.GetComponentInChildren<IInteractable>();
+
             if (interactable == null || !interactable.CanInteract(this))
                 continue;
 

@@ -12,7 +12,8 @@ namespace FTR.Core.Common.Quests
             EnemySlayedEvent enemySlayedEvent,
             NpcInteractedEvent npcInteractedEvent,
             QuestProgressEvent questProgressEvent,
-            QuestCompletedEvent questCompletedEvent
+            QuestCompletedEvent questCompletedEvent,
+            string effectiveId
         )
         {
             switch (questData.type)
@@ -22,14 +23,16 @@ namespace FTR.Core.Common.Quests
                         questData,
                         enemySlayedEvent,
                         questProgressEvent,
-                        questCompletedEvent
+                        questCompletedEvent,
+                        effectiveId
                     );
                 case QuestType.NpcInteract:
                     return new InteractQuest(
                         questData,
                         npcInteractedEvent,
                         questProgressEvent,
-                        questCompletedEvent
+                        questCompletedEvent,
+                        effectiveId
                     );
                 default:
                     throw new System.Exception("Unsupported quest type: " + questData.type);

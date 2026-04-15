@@ -5,6 +5,8 @@ namespace FTR.Core.Common.Quests
 {
     public class SlayQuest : Quest
     {
+        private string effectiveId;
+
         /* Events */
         private EnemySlayedEvent enemySlayedEvent;
         private QuestProgressEvent questProgressEvent;
@@ -21,9 +23,11 @@ namespace FTR.Core.Common.Quests
             QuestData questData,
             EnemySlayedEvent enemySlayedEvent,
             QuestProgressEvent questProgressEvent,
-            QuestCompletedEvent questCompletedEvent
+            QuestCompletedEvent questCompletedEvent,
+            string effectiveId
         )
         {
+            this.effectiveId = effectiveId;
             this.enemySlayedEvent = enemySlayedEvent;
             this.questProgressEvent = questProgressEvent;
             this.questCompletedEvent = questCompletedEvent;
@@ -31,7 +35,7 @@ namespace FTR.Core.Common.Quests
 
             this.questProgressData = new QuestProgressData
             {
-                Id = questData.id,
+                Id = effectiveId,
                 TargetProgressAmount = questData.targetAmount,
                 CurrentProgressAmount = currentSlayedCount,
                 Quest = questData,
@@ -51,13 +55,16 @@ namespace FTR.Core.Common.Quests
 
         private void OnEnemySlayed()
         {
+            if (currentSlayedCount >= questData.targetAmount)
+                return;
+
             currentSlayedCount++;
 
             RaiseProgress();
 
             if (currentSlayedCount >= questData.targetAmount)
             {
-                questCompletedEvent.Raise(questData);
+                questCompletedEvent.Raise((questData, effectiveId));
                 Dispose();
             }
         }

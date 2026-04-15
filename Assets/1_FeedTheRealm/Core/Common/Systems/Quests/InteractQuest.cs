@@ -6,6 +6,8 @@ namespace FTR.Core.Common.Quests
 {
     public class InteractQuest : Quest
     {
+        private string effectiveId;
+
         /* Events */
         private NpcInteractedEvent npcInteractedEvent;
         private QuestProgressEvent questProgressEvent;
@@ -23,9 +25,11 @@ namespace FTR.Core.Common.Quests
             QuestData questData,
             NpcInteractedEvent npcInteractedEvent,
             QuestProgressEvent questProgressEvent,
-            QuestCompletedEvent questCompletedEvent
+            QuestCompletedEvent questCompletedEvent,
+            string effectiveId
         )
         {
+            this.effectiveId = effectiveId;
             this.npcInteractedEvent = npcInteractedEvent;
             this.questProgressEvent = questProgressEvent;
             this.questCompletedEvent = questCompletedEvent;
@@ -33,7 +37,7 @@ namespace FTR.Core.Common.Quests
 
             this.questProgressData = new QuestProgressData
             {
-                Id = questData.id,
+                Id = effectiveId,
                 TargetProgressAmount = targetProgressAmount,
                 CurrentProgressAmount = 0,
                 Quest = questData,
@@ -58,7 +62,7 @@ namespace FTR.Core.Common.Quests
 
             interactedWithTarget = true;
 
-            questCompletedEvent.Raise(questData);
+            questCompletedEvent.Raise((questData, effectiveId));
             RaiseProgress();
             Dispose();
         }

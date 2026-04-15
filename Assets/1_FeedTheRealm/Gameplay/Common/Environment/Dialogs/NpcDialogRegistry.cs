@@ -4,6 +4,13 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Common.Environment.Dialogs
 {
+    /// <summary>
+    /// Server usage: queries are always scoped to a (npcId, progressionIndex) pair so
+    /// NpcInteractSystem can serve the correct dialog based on each player's quest progress.
+    ///
+    /// Client usage: queries are scoped to a dialogId so InteractView can look up the exact
+    /// MessageData list for any dialog the server tells it to display
+    /// </summary>
     [CreateAssetMenu(
         fileName = "NpcDialogRegistry",
         menuName = "Scriptable Objects/NpcDialogRegistry"
@@ -16,14 +23,40 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
         [SerializeField]
         private List<DialogData> dialogs = new();
 
-        private Dictionary<string, List<MessageData>> _messageLookup;
+        /// <summary>
+        /// npcId → ordered list of ProgressionEntry, one per NPCDialogData slot.
+        /// </summary>
+        private Dictionary<string, List<ProgressionEntry>> _progressionLookup;
 
-        private Dictionary<string, List<string>> _questLookup;
+        /// <summary>
+        /// dialogId → flat list of MessageData (used by the client to display any dialog).
+        /// </summary>
+        private Dictionary<string, List<MessageData>> _dialogMessageLookup;
+
+        /// <summary>npcId → npc name (for sender fallback).</summary>
+        private Dictionary<string, string> _npcNameLookup;
+
+        /// <summary>
+        /// Represents a single slot in an NPC's dialog progression.
+        /// </summary>
+        private class ProgressionEntry
+        {
+            public string DialogId;
+            public List<string> QuestIds = new();
+            public string OnQuestAcceptedDialogId = "";
+
+            /// <summary>
+            /// When true the quest in this step is repeatable and this progression slot never
+            /// advances to the next one. The cooldown value is stored for future use.
+            /// </summary>
+            public bool IsRepeatable;
+            public string RepeatableCooldown;
+        }
 
         private void OnEnable() => BuildLookup(npcs, dialogs);
 
         /// <summary>
-        /// Replaces any previously built lookup with live data.
+        /// Replaces any previously built lookup with live data. Call after the world loads.
         /// </summary>
         public void Populate(List<NPCData> worldNpcs, List<DialogData> worldDialogs)
         {
@@ -32,78 +65,121 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
             BuildLookup(npcs, dialogs);
         }
 
-        public bool TryGetMessages(string npcId, out List<MessageData> messages)
+        public int GetProgressionCount(string npcId)
+        {
+            if (!TryGetProgression(npcId, out var list))
+                return 0;
+            return list.Count;
+        }
+
+        public int GetMessageCount(string npcId, int progressionIndex = 0)
+        {
+            if (!TryGetEntry(npcId, progressionIndex, out var entry))
+                return 0;
+
+            if (!TryGetDialogMessages(entry.DialogId, out var messages))
+                return 0;
+
+            return messages.Count;
+        }
+
+        public string GetDialogId(string npcId, int progressionIndex)
+        {
+            if (!TryGetEntry(npcId, progressionIndex, out var entry))
+                return string.Empty;
+            return entry.DialogId;
+        }
+
+        public string GetQuestIdAt(string npcId, int progressionIndex, int messageIndex)
+        {
+            if (!TryGetEntry(npcId, progressionIndex, out var entry))
+                return string.Empty;
+
+            if (messageIndex < 0 || messageIndex >= entry.QuestIds.Count)
+                return string.Empty;
+
+            return entry.QuestIds[messageIndex] ?? string.Empty;
+        }
+
+        public string GetOnQuestAcceptedDialogId(string npcId, int progressionIndex)
+        {
+            if (!TryGetEntry(npcId, progressionIndex, out var entry))
+                return string.Empty;
+            return entry.OnQuestAcceptedDialogId;
+        }
+
+        public bool IsRepeatableAt(string npcId, int progressionIndex)
+        {
+            if (!TryGetEntry(npcId, progressionIndex, out var entry))
+                return false;
+            return entry.IsRepeatable;
+        }
+
+        public bool TryGetMessagesByDialogId(string dialogId, out List<MessageData> messages)
         {
             messages = null;
 
-            if (string.IsNullOrEmpty(npcId))
-            {
-                Debug.LogWarning(
-                    "[NpcDialogRegistry] TryGetMessages called with null or empty npcId."
-                );
+            if (string.IsNullOrEmpty(dialogId))
                 return false;
-            }
 
-            if (_messageLookup == null)
+            if (_dialogMessageLookup == null)
                 BuildLookup(npcs, dialogs);
 
-            return _messageLookup.TryGetValue(npcId, out messages);
-        }
-
-        public int GetMessageCount(string npcId)
-        {
-            if (TryGetMessages(npcId, out var messages))
-                return messages.Count;
-            return 0;
+            return _dialogMessageLookup.TryGetValue(dialogId, out messages);
         }
 
         public bool TryGetNpcName(string npcId, out string npcName)
         {
             npcName = string.Empty;
 
-            if (string.IsNullOrEmpty(npcId))
+            if (string.IsNullOrEmpty(npcId) || _npcNameLookup == null)
                 return false;
 
-            if (npcs == null)
-                return false;
-
-            foreach (var npc in npcs)
-            {
-                if (npc != null && npc.id == npcId)
-                {
-                    npcName = npc.name;
-                    return true;
-                }
-            }
-
-            return false;
+            return _npcNameLookup.TryGetValue(npcId, out npcName);
         }
 
-        /// <summary>
-        /// Returns the questId associated with the message at the given index for this NPC.
-        /// Returns empty string if no quest is associated with that message.
-        /// </summary>
-        public string GetQuestIdAt(string npcId, int messageIndex)
+        private bool TryGetProgression(string npcId, out List<ProgressionEntry> list)
         {
-            if (string.IsNullOrEmpty(npcId))
-                return string.Empty;
+            list = null;
 
-            if (_questLookup == null)
+            if (string.IsNullOrEmpty(npcId))
+                return false;
+
+            if (_progressionLookup == null)
                 BuildLookup(npcs, dialogs);
 
-            if (!_questLookup.TryGetValue(npcId, out var questIds))
-                return string.Empty;
+            return _progressionLookup.TryGetValue(npcId, out list);
+        }
 
-            if (messageIndex < 0 || messageIndex >= questIds.Count)
-                return string.Empty;
+        private bool TryGetEntry(string npcId, int index, out ProgressionEntry entry)
+        {
+            entry = null;
 
-            return questIds[messageIndex] ?? string.Empty;
+            if (!TryGetProgression(npcId, out var list))
+                return false;
+
+            if (index < 0 || index >= list.Count)
+                return false;
+
+            entry = list[index];
+            return true;
+        }
+
+        private bool TryGetDialogMessages(string dialogId, out List<MessageData> messages)
+        {
+            messages = null;
+
+            if (string.IsNullOrEmpty(dialogId) || _dialogMessageLookup == null)
+                return false;
+
+            return _dialogMessageLookup.TryGetValue(dialogId, out messages);
         }
 
         private void BuildLookup(List<NPCData> npcList, List<DialogData> dialogList)
         {
-            _messageLookup = new Dictionary<string, List<MessageData>>();
-            _questLookup = new Dictionary<string, List<string>>();
+            _progressionLookup = new Dictionary<string, List<ProgressionEntry>>();
+            _dialogMessageLookup = new Dictionary<string, List<MessageData>>();
+            _npcNameLookup = new Dictionary<string, string>();
 
             if (npcList == null || dialogList == null)
                 return;
@@ -126,6 +202,20 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                 dialogById[dialog.id] = dialog;
             }
 
+            foreach (var kvp in dialogById)
+            {
+                var msgList = new List<MessageData>();
+                if (kvp.Value.messages != null)
+                {
+                    foreach (var msg in kvp.Value.messages)
+                    {
+                        if (msg != null)
+                            msgList.Add(msg);
+                    }
+                }
+                _dialogMessageLookup[kvp.Key] = msgList;
+            }
+
             foreach (var npc in npcList)
             {
                 if (npc == null || string.IsNullOrEmpty(npc.id))
@@ -137,7 +227,7 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                     continue;
                 }
 
-                if (_messageLookup.ContainsKey(npc.id))
+                if (_progressionLookup.ContainsKey(npc.id))
                 {
                     Debug.LogWarning(
                         $"[NpcDialogRegistry] Duplicate NPC id '{npc.id}', skipping.",
@@ -146,66 +236,77 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                     continue;
                 }
 
-                var dialogId = npc.npcDialog?.dialogId;
+                _npcNameLookup[npc.id] = npc.name ?? string.Empty;
 
-                if (string.IsNullOrEmpty(dialogId))
+                var progression = new List<ProgressionEntry>();
+
+                if (npc.dialogProgression == null || npc.dialogProgression.Count == 0)
                 {
                     Debug.LogWarning(
-                        $"[NpcDialogRegistry] NPC '{npc.id}' has no dialogId assigned.",
+                        $"[NpcDialogRegistry] NPC '{npc.id}' has no dialogProgression.",
                         this
                     );
-                    _messageLookup[npc.id] = new List<MessageData>();
-                    _questLookup[npc.id] = new List<string>();
+                    _progressionLookup[npc.id] = progression;
                     continue;
                 }
 
-                if (!dialogById.TryGetValue(dialogId, out var dialogMatch))
+                foreach (var slot in npc.dialogProgression)
                 {
-                    Debug.LogWarning(
-                        $"[NpcDialogRegistry] NPC '{npc.id}' references dialogId '{dialogId}' which was not found in the dialog list.",
-                        this
-                    );
-                    _messageLookup[npc.id] = new List<MessageData>();
-                    _questLookup[npc.id] = new List<string>();
-                    continue;
-                }
-
-                if (dialogMatch.messages == null || dialogMatch.messages.Count == 0)
-                {
-                    Debug.LogWarning(
-                        $"[NpcDialogRegistry] Dialog '{dialogId}' for NPC '{npc.id}' has no messages.",
-                        this
-                    );
-                    _messageLookup[npc.id] = new List<MessageData>();
-                    _questLookup[npc.id] = new List<string>();
-                    continue;
-                }
-
-                var messageQuestMap =
-                    npc.npcDialog?.GetMessageQuestMap() ?? new Dictionary<string, string>();
-
-                var messages = new List<MessageData>();
-                var questIds = new List<string>();
-
-                foreach (var msg in dialogMatch.messages)
-                {
-                    if (msg == null)
+                    if (slot == null || string.IsNullOrEmpty(slot.dialogId))
+                    {
+                        Debug.LogWarning(
+                            $"[NpcDialogRegistry] NPC '{npc.id}' has a progression slot with empty dialogId, skipping slot.",
+                            this
+                        );
                         continue;
+                    }
 
-                    if (string.IsNullOrEmpty(msg.sender))
-                        msg.sender = npc.name;
+                    if (!dialogById.TryGetValue(slot.dialogId, out var dialogData))
+                    {
+                        Debug.LogWarning(
+                            $"[NpcDialogRegistry] NPC '{npc.id}' progression references unknown dialogId '{slot.dialogId}', skipping slot.",
+                            this
+                        );
+                        continue;
+                    }
 
-                    messages.Add(msg);
+                    var questMap = slot.GetMessageQuestMap();
+                    var questIds = new List<string>();
 
-                    messageQuestMap.TryGetValue(msg.id, out var questId);
-                    questIds.Add(questId ?? string.Empty);
+                    if (dialogData.messages != null)
+                    {
+                        foreach (var msg in dialogData.messages)
+                        {
+                            if (msg == null)
+                                continue;
+
+                            if (string.IsNullOrEmpty(msg.sender))
+                                msg.sender = npc.name;
+
+                            questMap.TryGetValue(msg.id, out var qId);
+                            questIds.Add(qId ?? string.Empty);
+                        }
+                    }
+
+                    progression.Add(
+                        new ProgressionEntry
+                        {
+                            DialogId = slot.dialogId,
+                            QuestIds = questIds,
+                            OnQuestAcceptedDialogId = slot.onQuestAcceptedDialogId ?? string.Empty,
+                            IsRepeatable = slot.IsRepeatable,
+                            RepeatableCooldown = slot.repeatableQuestCooldown ?? string.Empty,
+                        }
+                    );
                 }
 
-                _messageLookup[npc.id] = messages;
-                _questLookup[npc.id] = questIds;
+                _progressionLookup[npc.id] = progression;
             }
 
-            Debug.Log($"[NpcDialogRegistry] Built lookup for {_messageLookup.Count} NPCs.", this);
+            Debug.Log(
+                $"[NpcDialogRegistry] Built lookup for {_progressionLookup.Count} NPCs, {_dialogMessageLookup.Count} dialogs.",
+                this
+            );
         }
     }
 }
