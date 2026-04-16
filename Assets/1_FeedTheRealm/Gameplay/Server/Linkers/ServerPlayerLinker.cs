@@ -91,7 +91,7 @@ public class ServerPlayerLinker : PlayerLinker
         persistenceSystem.Initialize(systems.Movement, inventorySystem);
         chatSystem.Initialize(netId, world);
 
-        teleportSystem.Initialize(systems.Movement, stateStorage);
+        teleportSystem.Initialize(systems.Movement, stateStorage, world, netId);
 
         serverPlayerCommandHandler.Initialize(
             systems.Movement,

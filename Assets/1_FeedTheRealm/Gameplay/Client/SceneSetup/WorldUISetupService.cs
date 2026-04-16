@@ -10,6 +10,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
     public class WorldUISetupService : SetupService
     {
         private readonly GameObject settingsMenu;
+        private readonly GameObject loadingScreenPrefab;
         private readonly IObjectResolver objectResolver;
         private readonly PlayerInputReader playerInputReader;
 
@@ -27,6 +28,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
                 return;
             }
             settingsMenu = clientPrefabProvider.SettingMenuComponent;
+            loadingScreenPrefab = clientPrefabProvider.LoadingScreenPrefab;
             this.objectResolver = objectResolver;
             this.playerInputReader = playerInputReader;
         }
@@ -38,6 +40,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
                     "SettingsMenu GameObject not set in WorldUIObjectProvider!"
                 );
 
+            objectResolver.Instantiate(loadingScreenPrefab).name = "LoadingScreen";
             var instantiatedMenu = objectResolver.Instantiate(settingsMenu);
             instantiatedMenu.name = "SettingsMenu";
             instantiatedMenu.SetActive(false);

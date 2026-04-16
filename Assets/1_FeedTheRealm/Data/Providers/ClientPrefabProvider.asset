@@ -26,6 +26,7 @@ MonoBehaviour:
   ShopItemVisual: {fileID: 6961499021917701889, guid: 52c0895cf118ac446ad844f6a5cf7e7b, type: 3}
   ShopMenuComponent: {fileID: 6588888558913600653, guid: a74dc9d7d96a877419cac698a0382779, type: 3}
   ShopPrefab: {fileID: 3922623790710069857, guid: 202f4e6245ef36c438f836aa55664307, type: 3}
+  LoadingScreenPrefab: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
   StructurePrefab: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
   PortalPrefab: {fileID: 3012644098720053192, guid: d397050cae8444f0ab9b3e3ac6dd6083, type: 3}
   ChatBox: {fileID: 2064266005079064116, guid: 7d1297eb1d3418c488143b4d77f772b5, type: 3}

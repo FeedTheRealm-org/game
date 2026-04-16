@@ -16,8 +16,8 @@ GameObject:
   - component: {fileID: -6092960948305914432}
   - component: {fileID: 1850319690480553907}
   - component: {fileID: 3048399595981223076}
-  - component: {fileID: 6214088763058333801}
   - component: {fileID: 4760017420091117616}
+  - component: {fileID: -3679336093027539435}
   m_Layer: 0
   m_Name: ServerPlayerComponents
   m_TagString: Untagged
@@ -148,6 +148,15 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.TeleportSystem
   portalRegistry: {fileID: 11400000, guid: f0664cc563bbc04a9a0f72681b8fbc51, type: 2}
+--- !u!114 &-3679336093027539435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056940003155735034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ebaf8d832fb28794f85245404f3547e4, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.ChatSystem

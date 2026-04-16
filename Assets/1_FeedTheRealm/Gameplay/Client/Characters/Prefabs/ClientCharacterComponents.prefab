@@ -175,6 +175,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Characters.Shared.Portal.PortalView
   openPortalUiEvent: {fileID: 11400000, guid: 32c09063fadc3b10a8e17921710b7b63, type: 2}
+  loadingEvent: {fileID: 11400000, guid: 1cec1a897e68dcf23a55c68b44607013, type: 2}
 --- !u!1001 &5564542974961173821
 PrefabInstance:
   m_ObjectHideFlags: 0

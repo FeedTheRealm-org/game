@@ -24,8 +24,6 @@ namespace FTR.Gameplay.Server.Environment.Portal
                 return false;
             }
 
-            Debug.Log($"[PortalRegistry] Attempting to retrieve portal with ID: {portalId}.");
-
             return registeredPortals.TryGetValue(portalId, out portalInfo);
         }
 

@@ -1,11 +1,9 @@
 using System;
-using FTR.Core.Client.EventChannels;
+using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels.Portal;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
-using FTRShared.Runtime.Models;
 using UnityEngine;
-using VContainer;
 
 namespace FTR.Gameplay.Client.Characters.Shared.Portal
 {
@@ -17,6 +15,9 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
     {
         [SerializeField]
         private OpenPortalUIEvent openPortalUiEvent;
+
+        [SerializeField]
+        private LoadingEvent loadingEvent;
         private NetworkEventRouter eventRouter;
         private NetworkAdapter networkAdapter;
 
@@ -30,9 +31,22 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
 
         private void AcceptPortalRequest(string portalId)
         {
-            networkAdapter.DispatchTransaction(
-                new TransactionCommandDTO { Type = TransactionType.AcceptTeleport, Id = portalId }
-            );
+            try
+            {
+                networkAdapter.DispatchTransaction(
+                    new TransactionCommandDTO
+                    {
+                        Type = TransactionType.AcceptTeleport,
+                        Id = portalId,
+                    }
+                );
+                TogglePortalLoading(true);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[PortalView] Failed to accept portal request: {ex.Message}");
+                loadingEvent.Raise(false);
+            }
         }
 
         private void OnDestroy()
@@ -44,6 +58,15 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
         {
             Debug.Log($"[PortalView] HandleOpenPortalRequest received.");
 
+            if (
+                string.IsNullOrEmpty(content.PortalId)
+                && string.IsNullOrEmpty(content.DestinationName)
+            )
+            {
+                TogglePortalLoading(false);
+                return;
+            }
+
             // we raise an event to the UI to open the portal dialog,
             // and we pass it an action that will be called if the player accepts the portal request and the destination name to display on the UI.
             //  The action will send the AcceptTeleport transaction to the server with the correct portal id.
@@ -54,6 +77,11 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
             };
 
             openPortalUiEvent.Raise(uiContent);
+        }
+
+        private void TogglePortalLoading(bool isLoading)
+        {
+            loadingEvent.Raise(isLoading);
         }
     }
 }
