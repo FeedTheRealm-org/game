@@ -27,6 +27,8 @@ namespace FTR.UI.WorldSpace
         [SerializeField]
         private OpenPortalUIEvent openPortalEvent;
 
+        private bool isOpen = false;
+
         private VisualElement root;
         private Label destinationLabel;
         private Button acceptButton;
@@ -48,15 +50,20 @@ namespace FTR.UI.WorldSpace
 
         private void OnDisable()
         {
-            openPortalEvent.OnRaised -= HandleOpenPortalRequest;
+            acceptButton.clicked -= () => HandleButtonClicked(null);
+            declineButton.clicked -= () => HandleButtonClicked(null);
         }
 
         private void HandleOpenPortalRequest(OpenPortalUiContent content)
         {
             logger.Log($"[PortalRequestController] Received OpenPortalRequest", this);
 
+            if (isOpen)
+                return;
+
             destinationLabel.text = content.DestinationName;
             root.style.display = DisplayStyle.Flex;
+            isOpen = true;
 
             acceptButton.clicked += () => HandleButtonClicked(content);
             declineButton.clicked += () => HandleButtonClicked(null);
@@ -67,13 +74,7 @@ namespace FTR.UI.WorldSpace
             root.style.display = DisplayStyle.None;
             destinationLabel.text = string.Empty;
             content?.OnAccept.Invoke();
-            CleanupEventSubscriptions();
-        }
-
-        private void CleanupEventSubscriptions()
-        {
-            acceptButton.clicked -= () => HandleButtonClicked(null);
-            declineButton.clicked -= () => HandleButtonClicked(null);
+            isOpen = false;
         }
     }
 }

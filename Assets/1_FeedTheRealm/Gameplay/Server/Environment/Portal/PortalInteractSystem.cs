@@ -20,9 +20,7 @@ namespace FTR.Gameplay.Server.Environment.Portal
         [SerializeField]
         private PortalRegistry portalRegistry;
 
-        private PortalStateStorage portalStateStorage;
-
-        private PortalData portalData = null;
+        private PortalInformation portalInfo = null;
         private WorldMonitor worldMonitor;
 
         public bool CanInteract(IInteractor interactor)
@@ -32,7 +30,7 @@ namespace FTR.Gameplay.Server.Environment.Portal
 
         public void ContinueInteraction(IInteractor interactor)
         {
-            return;
+            TogglePortalRequest(interactor);
         }
 
         public void StopInteraction(IInteractor interactor)
@@ -40,70 +38,71 @@ namespace FTR.Gameplay.Server.Environment.Portal
             return;
         }
 
-        public void Initialize(string portalId)
+        public void Initialize(WorldMonitor worldMonitor, PortalStateStorage portalStateStorage)
         {
-            if (portalRegistry.TryGetPortal(portalId, out var portalInfo))
+            this.worldMonitor = worldMonitor;
+
+            var portalId = portalStateStorage.portalId;
+            portalInfo = portalRegistry.TryGetPortal(portalId, out var info) ? info : null;
+            logger.Log($"[PortalInteractSystem] Initializing with Portal ID: {portalId}.", this);
+
+            logger.Log($"[PortalInteractSystem] Portal data: {portalId}.", this);
+
+            if (portalInfo == null)
             {
-                portalData = portalInfo.Data;
-                logger.Log($"[PortalInteractSystem] Portal ID set to {portalId}.", this);
+                logger.Log(
+                    $"[PortalInteractSystem] Portal information not found for ID: {portalId}.",
+                    this
+                );
             }
             else
             {
                 logger.Log(
-                    $"[PortalInteractSystem] Failed to set Portal ID. No portal found with ID: {portalId}.",
+                    $"[PortalInteractSystem] Portal information updated for ID: {portalId}.",
                     this
                 );
             }
         }
 
-        public void Initialize(WorldMonitor worldMonitor, PortalStateStorage portalStateStorage)
-        {
-            this.worldMonitor = worldMonitor;
-            this.portalStateStorage = portalStateStorage;
-        }
-
         public string Interact(IInteractor interactor)
         {
-            if (portalData == null)
-            {
-                PortalInformation portalInfo = portalRegistry.TryGetPortal(
-                    portalStateStorage.PortalId,
-                    out var info
-                )
-                    ? info
-                    : null;
-                portalData = portalInfo.Data;
-            }
+            TogglePortalRequest(interactor);
+            return portalInfo.Id;
+        }
 
+        // If executed once, it will open the portal request UI. If executed again while the UI is open, it will close it.
+        private void TogglePortalRequest(IInteractor interactor)
+        {
+            logger?.Log(
+                $"[PortalInteractSystem] Interact called by Player:{interactor.NetId}.",
+                this
+            );
             uint playerNetId = interactor.NetId;
-
             var connId = GetPlayerConnectionId(playerNetId);
             if (!connId.HasValue)
             {
-                logger?.Log($"[PortalInteractSystem] conn not found, Player:{playerNetId}.", this);
-                return portalData.id;
+                logger.Log($"[PortalInteractSystem] conn not found, Player:{playerNetId}.", this);
+                return;
             }
+
+            // TODO: VALIDATE THAT THE USER IS IN THE PORTAL
 
             worldMonitor.Events.Enqueue(
                 new OpenPortalEvent(
                     playerNetId,
                     new OpenPortalEventContent
                     {
-                        PortalId = portalData.id,
-                        DestinationName = portalData.targetPortalName,
+                        PortalId = portalInfo.Id,
+                        DestinationName = portalInfo.DestinationName,
                     },
                     connId.Value
                 )
             );
-
             worldMonitor.Events.Enqueue(new InteractCompletedEvent(playerNetId, connId.Value));
-
             logger?.Log(
-                $"[PortalInteractSystem] Player {playerNetId} interacted with portal '{portalData.id}'.",
+                $"[PortalInteractSystem] Player {playerNetId} interacted with portal '{portalInfo.Id}'.",
                 this
             );
-
-            return portalData.id;
         }
 
         // TODO: move this to a utility class since it's used in ShopInteractSystem as well

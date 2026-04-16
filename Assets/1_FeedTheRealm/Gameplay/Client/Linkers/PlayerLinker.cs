@@ -146,7 +146,7 @@ public class ClientPlayerLinker : PlayerLinker
             var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
 
-            var portalView = portalVisual.GetComponent<PortalView>();
+            var portalView = playerComponents.GetComponent<PortalView>();
 
             resolver.Inject(playerController);
             resolver.Inject(interactController);

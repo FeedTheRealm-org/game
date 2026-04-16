@@ -100,6 +100,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
             builder.Register<ClientShopLinker>(Lifetime.Singleton).As<ShopLinker>();
+            builder.Register<ClientPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
 
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
         }

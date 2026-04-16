@@ -11,20 +11,17 @@ using VContainer;
 namespace FTR.Gameplay.Server.Environment.Portal
 {
     /// <summary>
-    /// Portal represents a portal in the game world that can be interacted with by players.
-    /// It is responsible for sending teleport commands to the server when a player interacts with it.
+    /// The portal controller is responsible for handling the portal's trigger events and executing teleportation logic.
+    /// Currently it only just renders the portal's trigger area and logs trigger events
     /// </summary>
     public class PortalController : MonoBehaviour
     {
         [SerializeField]
         Logging.Logger logger;
-
-        private string portalId;
         private uint netId;
 
-        public void Initialize(uint netId, string portalId)
+        public void Initialize(uint netId)
         {
-            this.portalId = portalId;
             this.netId = netId;
         }
 
@@ -33,7 +30,7 @@ namespace FTR.Gameplay.Server.Environment.Portal
             Gizmos.color = Color.lightBlue;
 
             logger.Log(
-                $"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {portalId})."
+                $"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {netId})."
             );
 
             var playerIdentity = other.GetComponentInParent<NetworkIdentity>();
@@ -56,7 +53,9 @@ namespace FTR.Gameplay.Server.Environment.Portal
         {
             var radius = GetComponentInParent<SphereCollider>().radius;
             Gizmos.color = Color.purple;
-            Gizmos.DrawWireSphere(transform.position, radius);
+            var scale = transform.parent != null ? transform.parent.lossyScale : Vector3.one;
+            Gizmos.matrix = Matrix4x4.TRS(transform.position, Quaternion.identity, scale);
+            Gizmos.DrawWireSphere(Vector3.zero, radius);
             Gizmos.matrix = Matrix4x4.identity;
         }
     }

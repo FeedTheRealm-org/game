@@ -7,41 +7,24 @@ using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.Linkers;
 
-public class ClientPortalItemLinker : LootItemLinker
+public class ClientPortalLinker : PortalLinker
 {
     private readonly ClientPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
 
-    public ClientPortalItemLinker(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
+    public ClientPortalLinker(ClientPrefabProvider prefabProvider, IObjectResolver resolver)
     {
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
-
-        Debug.Log(
-            "ClientPortalItemLinker created with prefabProvider: " + (prefabProvider != null)
-        );
-        Debug.Log("ClientPortalItemLinker created with resolver: " + (resolver != null));
     }
 
     public override void Link(GameObject gameObject)
     {
-        // Get references to required components
-        var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
-
-        var clientLootItemComponents = Object.Instantiate(
-            prefabProvider.PortalVisual,
+        var clientPortalComponents = Object.Instantiate(
+            prefabProvider.portalLinkComponents,
             gameObject.transform
         );
-        clientLootItemComponents.layer = gameObject.layer;
-
-        resolver.InjectGameObject(clientLootItemComponents);
-
-        // Get references to the client-side components
-        var networkEventRouter = clientLootItemComponents.GetComponent<NetworkEventRouter>();
-        var portalView = clientLootItemComponents.GetComponent<PortalView>();
-
-        // Initialize components
-        portalView.Initialize(networkEventRouter, networkAdapter);
-        networkEventRouter.Initialize(networkAdapter);
+        clientPortalComponents.layer = gameObject.layer;
+        resolver.InjectGameObject(clientPortalComponents);
     }
 }

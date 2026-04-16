@@ -29,7 +29,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     Vector3.Distance(stateStorage.Position, portalInfo.PlacementData.position)
                     <= portalInfo.PlacementData.radius
                 )
-                    movementSystem.LoadPosition(portalInfo.Data.targetPosition);
+                    movementSystem.LoadPosition(portalInfo.Destination);
                 else
                     Debug.LogError(
                         $"[TeleportSystem] Player is not within portal radius for {portalId}. | Cannot teleport player."

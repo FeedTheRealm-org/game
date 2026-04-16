@@ -6,8 +6,8 @@
                 <ui:Label text="Destination" name="Destination" style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 20px;"/>
             </ui:VisualElement>
             <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-around; align-self: center; align-items: stretch; max-height: 20%; min-height: 10%; height: 10%; width: 60%;">
-                <ui:Button text="Lets Go!" name="Accept" style="width: 45%; background-color: rgb(45, 170, 38); -unity-font-style: bold; color: rgb(255, 255, 255); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; font-size: 15px;"/>
-                <ui:Button text="No Thanks" name="Deny" style="width: 45%; background-color: rgb(144, 40, 34); -unity-font-style: bold; color: rgb(255, 255, 255); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; font-size: 15px;"/>
+                <ui:Button text="Lets Go!" name="AcceptButton" style="width: 45%; background-color: rgb(45, 170, 38); -unity-font-style: bold; color: rgb(255, 255, 255); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; font-size: 15px;"/>
+                <ui:Button text="No Thanks" name="DeclineButton" style="width: 45%; background-color: rgb(144, 40, 34); -unity-font-style: bold; color: rgb(255, 255, 255); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; font-size: 15px;"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

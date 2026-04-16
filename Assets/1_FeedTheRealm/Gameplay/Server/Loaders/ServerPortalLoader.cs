@@ -1,6 +1,8 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
+using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.Portal;
 using FTR.Gameplay.Server.Environment.Portal;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -14,13 +16,8 @@ namespace FTR.Gameplay.Server.Loaders
     /// </summary>
     public class ServerPortalLoader : ILoader
     {
-        [Inject]
         private PortalRegistry portalRegistry;
-
-        [Inject]
         private GameObject portalPrefab;
-
-        [Inject]
         private IObjectResolver resolver;
 
         public ServerPortalLoader(
@@ -30,7 +27,7 @@ namespace FTR.Gameplay.Server.Loaders
         )
         {
             this.portalRegistry = portalRegistry;
-            this.portalPrefab = prefabProvider.PortalComponent;
+            portalPrefab = prefabProvider.PortalPrefab;
             this.resolver = resolver;
         }
 
@@ -44,19 +41,23 @@ namespace FTR.Gameplay.Server.Loaders
 
             portalRegistry.Populate(creatablesData.portals, zoneData.portalPlacements);
             Debug.Log(
-                $"[ServerPortalLoader] Registry populated with {zoneData.portalPlacements.Count} portal(s)."
+                $"[ServerPortalLoader] Registry populated with these ids: {string.Join(", ", portalRegistry.GetAllPortalIds())}"
             );
 
-            foreach (var placement in zoneData.portalPlacements)
+            foreach (var portal in zoneData.portalPlacements)
             {
                 GameObject instance = resolver.Instantiate(portalPrefab);
-                instance.name = $"Portal_{placement.id}";
-                instance.transform.position = placement.position;
+                instance.name = $"Portal_{portal.id}";
+                instance.transform.position = portal.position;
                 instance.transform.localScale = new Vector3(
-                    placement.radius,
+                    portal.radius,
                     instance.transform.localScale.y,
-                    placement.radius
+                    portal.radius
                 );
+                var portalStorage = instance.GetComponent<PortalStateStorage>();
+                portalStorage.portalId = portal.id;
+
+                instance.GetComponent<GameObjectLinker>().Initialize();
             }
 
             await UniTask.CompletedTask;

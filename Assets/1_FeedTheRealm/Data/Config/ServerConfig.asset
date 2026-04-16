@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16cbbb4f97f4215ff9829a9e945214d4, type: 3}
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
+  EnvFilePath: .env
+  LoadFromEnvFile: 0
+  LoadEnvVars: 0
+  PersistToDatabase: 0
   PlayerLayer:
     serializedVersion: 2
     m_Bits: 128

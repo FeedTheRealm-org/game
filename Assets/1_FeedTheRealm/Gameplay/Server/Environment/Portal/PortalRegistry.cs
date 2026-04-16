@@ -24,7 +24,21 @@ namespace FTR.Gameplay.Server.Environment.Portal
                 return false;
             }
 
+            Debug.Log($"[PortalRegistry] Attempting to retrieve portal with ID: {portalId}.");
+
             return registeredPortals.TryGetValue(portalId, out portalInfo);
+        }
+
+        public List<string> GetAllPortalIds()
+        {
+            if (registeredPortals == null)
+            {
+                Debug.LogError(
+                    "PortalRegistry not populated. Call Populate() with world data before using."
+                );
+                return new List<string>();
+            }
+            return new List<string>(registeredPortals.Keys);
         }
 
         public void Populate(
@@ -34,6 +48,16 @@ namespace FTR.Gameplay.Server.Environment.Portal
         {
             registeredPortals = new Dictionary<string, PortalInformation>();
 
+            ValidateAndRegisterPortals(portalData, portalPlacementData);
+
+            ResolvePortalConnections();
+        }
+
+        private void ValidateAndRegisterPortals(
+            List<PortalData> portalData,
+            List<PortalPlacementData> portalPlacementData
+        )
+        {
             // Create a lookup for portalData for quick access
             var portalDataLookup = new Dictionary<string, PortalData>();
             foreach (var portal in portalData)
@@ -84,6 +108,21 @@ namespace FTR.Gameplay.Server.Environment.Portal
                 $"Successfully registered {successCount}/{portalPlacementData.Count} portals."
             );
         }
+
+        private void ResolvePortalConnections()
+        {
+            foreach (var portal in registeredPortals.Values)
+            {
+                if (
+                    !string.IsNullOrEmpty(portal.Data?.targetPortalId)
+                    && registeredPortals.TryGetValue(portal.Data.targetPortalId, out var target)
+                )
+                {
+                    portal.Destination = target.PlacementData.position;
+                    portal.DestinationName = target.PlacementData.name;
+                }
+            }
+        }
     }
 
     public class PortalInformation
@@ -91,6 +130,9 @@ namespace FTR.Gameplay.Server.Environment.Portal
         private PortalData _data;
         private PortalPlacementData _placementData;
         private bool _isComplete;
+        public Vector3 Destination;
+        public string DestinationName;
+        public string Id => _data?.id;
 
         public PortalData Data
         {
@@ -113,6 +155,12 @@ namespace FTR.Gameplay.Server.Environment.Portal
         }
 
         public bool IsComplete => _isComplete;
+
+        public void SetDestination(Vector3 destinationPosition, string destinationName)
+        {
+            Destination = destinationPosition;
+            DestinationName = destinationName;
+        }
 
         private void UpdateCompletion()
         {
