@@ -55,12 +55,18 @@ namespace FTR.Gameplay.Server.Loaders
                 }
 
                 DialogData dialogData = null;
-                if (npcData.npcDialog != null && !string.IsNullOrEmpty(npcData.npcDialog.dialogId))
+                if (
+                    npcData.dialogProgression != null
+                    && npcData.dialogProgression.Count > 0
+                    && npcData.dialogProgression[0] != null
+                    && !string.IsNullOrEmpty(npcData.dialogProgression[0].dialogId)
+                )
                 {
-                    if (!dialogById.TryGetValue(npcData.npcDialog.dialogId, out dialogData))
+                    var dialogId = npcData.dialogProgression[0].dialogId;
+                    if (!dialogById.TryGetValue(dialogId, out dialogData))
                     {
                         Debug.LogWarning(
-                            $"DialogId '{npcData.npcDialog.dialogId}' not found for NPC '{npcData.id}'."
+                            $"DialogId '{dialogId}' not found for NPC '{npcData.id}'."
                         );
                     }
                 }

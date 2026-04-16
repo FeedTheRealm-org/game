@@ -68,9 +68,6 @@ public class QuestCompletionPanelController : MonoBehaviour
             StopCoroutine(_hideCoroutine);
     }
 
-    /// <summary>
-    /// Toggles the visibility of the quest completion panel.
-    /// </summary>
     public void ToggleQuestCompletionPanel(bool show)
     {
         _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
@@ -82,18 +79,12 @@ public class QuestCompletionPanelController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Handles the quest completed event and shows the completion panel.
-    /// </summary>
-    private void HandleQuestCompleted(QuestData data)
+    private void HandleQuestCompleted((QuestData Quest, string EffectiveId) payload)
     {
-        OnQuestCompleted(data);
+        OnQuestCompleted(payload.Quest);
         ToggleQuestCompletionPanel(true);
     }
 
-    /// <summary>
-    /// Updates the quest completion panel with the completed quest data.
-    /// </summary>
     public void OnQuestCompleted(QuestData data)
     {
         _titleLabel.text = data.title;

@@ -21,6 +21,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private EnemySlayedEvent enemySlayedEvent;
         private NpcInteractedEvent npcInteractedEvent;
+        private NpcQuestCompletedEvent npcQuestCompletedEvent;
 
         private uint netId;
         private WorldMonitor worldMonitor;
@@ -48,6 +49,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 enemySlayedEvent = ev1;
             if (resolver.TryResolve<NpcInteractedEvent>(out var ev2) && ev2 != null)
                 npcInteractedEvent = ev2;
+
+            if (resolver.TryResolve<NpcQuestCompletedEvent>(out var ev3) && ev3 != null)
+                npcQuestCompletedEvent = ev3;
 
             resolver.TryResolve<QuestRewardGoldEvent>(out var goldEvent);
             if (goldEvent == null)
@@ -92,13 +96,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
             UnsubscribeFromNpcInteracted();
         }
 
-        public void OnQuestAccepted(IEventCollectable ec, string questId)
+        public void OnQuestAccepted(IEventCollectable ec, string questId, string npcId = "")
         {
             if (string.IsNullOrEmpty(questId))
             {
                 logger?.Log("[QuestSystem] OnQuestAccepted called with empty questId.", this);
                 return;
             }
+
+            string effectiveQuestId = string.IsNullOrEmpty(npcId) ? questId : $"{questId}_{npcId}";
 
             if (!serverQuestRegistry.TryGetQuest(questId, out var questData))
             {
@@ -110,13 +116,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            if (activeQuests.ContainsKey(questId))
-            {
+            if (activeQuests.ContainsKey(effectiveQuestId))
                 return;
-            }
 
-            var state = new QuestProgressState(questData);
-            activeQuests[questId] = state;
+            var state = new QuestProgressState(questData, npcId);
+            activeQuests[effectiveQuestId] = state;
 
             if (questData.type == QuestType.EnemySlays)
                 SubscribeToEnemySlayed();
@@ -192,17 +196,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            activeQuests.Remove(state.Quest.id);
+            activeQuests.Remove(state.EffectiveQuestId);
 
             worldMonitor.Events.Enqueue(
                 new QuestCompletedEvent(
                     ownNetId,
                     connId.Value,
-                    new QuestCompletedEventContent { QuestId = state.Quest.id }
+                    new QuestCompletedEventContent
+                    {
+                        QuestId = state.Quest.id,
+                        EffectiveQuestId = state.EffectiveQuestId,
+                    }
                 )
             );
 
             rewardGranter.Grant(state.Quest);
+
+            npcQuestCompletedEvent?.Raise((netId, state.Quest.id, state.NpcId));
         }
 
         private void SendProgressEvent(QuestProgressState state)
@@ -220,6 +230,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         QuestId = state.Quest.id,
                         Current = state.Current,
                         Target = state.Target,
+                        EffectiveQuestId = state.EffectiveQuestId,
                     }
                 )
             );

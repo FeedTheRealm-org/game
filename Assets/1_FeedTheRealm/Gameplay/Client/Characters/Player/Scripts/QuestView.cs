@@ -46,9 +46,9 @@ namespace FTR.Gameplay.Client.Characters.Player
                 questDecisionEvent.OnRaised -= HandleQuestDecision;
         }
 
-        private void HandleQuestOffered(string questId)
+        private void HandleQuestOffered((string questId, string npcId) data)
         {
-            if (!isInitialized || string.IsNullOrEmpty(questId))
+            if (!isInitialized || string.IsNullOrEmpty(data.questId))
             {
                 Debug.LogWarning(
                     $"[QuestView] Aborting HandleQuestOffered. initialized: {isInitialized}"
@@ -56,10 +56,10 @@ namespace FTR.Gameplay.Client.Characters.Player
                 return;
             }
 
-            if (!clientQuestRegistry.TryGetQuest(questId, out var questData))
+            if (!clientQuestRegistry.TryGetQuest(data.questId, out var questData))
             {
                 Debug.LogWarning(
-                    $"[QuestView] Quest '{questId}' not found in ClientQuestRegistry."
+                    $"[QuestView] Quest '{data.questId}' not found in ClientQuestRegistry."
                 );
                 return;
             }
@@ -67,7 +67,9 @@ namespace FTR.Gameplay.Client.Characters.Player
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
-            showQuestPromptEvent.Raise(new QuestPromptData(questData, networkAdapter.netId));
+            showQuestPromptEvent.Raise(
+                new QuestPromptData(questData, networkAdapter.netId, data.npcId)
+            );
         }
 
         private void HandleQuestDecision(QuestDecisionData decision)

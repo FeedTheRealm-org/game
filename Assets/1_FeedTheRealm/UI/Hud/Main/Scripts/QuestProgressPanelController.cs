@@ -99,7 +99,7 @@ namespace FTR.UI.Hud.Main
 
             if (questItem == null)
             {
-                questItem = CreateQuestItem(questProgress.Quest);
+                questItem = CreateQuestItem(questProgress);
                 ToggleContainerVisibility(true);
             }
 
@@ -124,12 +124,21 @@ namespace FTR.UI.Hud.Main
                 return;
             }
 
-            float percentComplete =
-                ((float)questProgress.CurrentProgressAmount / questProgress.TargetProgressAmount)
-                * _questProgressHighValue;
+            float percentComplete = 0f;
+            if (questProgress.TargetProgressAmount > 0)
+            {
+                percentComplete =
+                    (
+                        (float)questProgress.CurrentProgressAmount
+                        / questProgress.TargetProgressAmount
+                    ) * _questProgressHighValue;
+            }
+
+            percentComplete = Mathf.Clamp(percentComplete, 0f, _questProgressHighValue);
+            percentComplete = Mathf.Round(percentComplete * 100f) / 100f;
 
             progressBar.value = percentComplete;
-            progressBar.title = $"{percentComplete}%";
+            progressBar.title = $"{percentComplete:F2}%";
 
             if (questProgress.CurrentProgressAmount >= questProgress.TargetProgressAmount)
                 StartCoroutine(
@@ -137,19 +146,23 @@ namespace FTR.UI.Hud.Main
                 );
         }
 
-        private VisualElement CreateQuestItem(QuestData questData)
+        private VisualElement CreateQuestItem(QuestProgressData questProgress)
         {
-            var questItem = new VisualElement { name = questData.id };
+            var questItem = new VisualElement { name = questProgress.Id };
             questItem.AddToClassList(_questItemClasses);
 
-            var titleLabel = new Label { text = questData.title };
+            var titleLabel = new Label { text = questProgress.Quest.title };
             titleLabel.AddToClassList(_questTitleClasses);
             questItem.Add(titleLabel);
 
             var detailLabel = new Label
             {
                 name = "QuestProgressDetail",
-                text = GetQuestProgressText(questData, 0, questData.targetAmount),
+                text = GetQuestProgressText(
+                    questProgress.Quest,
+                    0,
+                    questProgress.TargetProgressAmount
+                ),
             };
             detailLabel.AddToClassList(_questDetailClasses);
             questItem.Add(detailLabel);
@@ -157,17 +170,13 @@ namespace FTR.UI.Hud.Main
             var progressBar = new ProgressBar
             {
                 value = 0f,
-                title = "0%",
+                title = "0.00%",
                 highValue = _questProgressHighValue,
             };
             progressBar.AddToClassList(_questProgressClasses);
             questItem.Add(progressBar);
 
             _currentQuestsContainer.Add(questItem);
-            logger.Log(
-                $"Created new quest item for quest {questData.title} with id {questData.id}",
-                this
-            );
 
             return questItem;
         }

@@ -1,11 +1,13 @@
 using System.Threading.Tasks;
 using API;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters
 {
@@ -23,6 +25,17 @@ namespace FTR.Gameplay.Server.Characters
         private bool isResolvingCharacterId;
         private GoldSystem goldSystem;
         private ChatSystem chatSystem;
+
+        private PlayerQuestDecisionEvent playerQuestDecisionEvent;
+
+        [Inject]
+        public void Construct(IObjectResolver resolver)
+        {
+            if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var ev) && ev != null)
+            {
+                playerQuestDecisionEvent = ev;
+            }
+        }
 
         public void Initialize(
             MovementSystem movementSystem,
@@ -78,13 +91,16 @@ namespace FTR.Gameplay.Server.Characters
 
         public override void OnQuestAccepted(IEventCollectable ec, string questId)
         {
-            questSystem.OnQuestAccepted(ec, questId);
-            interactSystem.NotifyQuestDecided();
+            string npcId = (interactSystem.CurrentInteractable as NpcInteractSystem)?.NpcId;
+
+            questSystem.OnQuestAccepted(ec, questId, npcId);
+
+            playerQuestDecisionEvent?.Raise((interactSystem.NetId, true));
         }
 
         public override void OnQuestDecided(IEventCollectable ec)
         {
-            interactSystem.NotifyQuestDecided();
+            playerQuestDecisionEvent?.Raise((interactSystem.NetId, false));
         }
 
         public override void OnEquipItem(IEventCollectable ec, int slotIndex)
@@ -169,9 +185,7 @@ namespace FTR.Gameplay.Server.Characters
                     $"[ServerPlayerCommandHandler] Processing purchase of {productId} x{amount}"
                 );
                 if (inventorySystem.OnPurchase(ec, productId, amount))
-                {
                     goldSystem.ReduceGold(ec, product.price * amount);
-                }
             }
         }
 

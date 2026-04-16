@@ -25,15 +25,15 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9FdmVudHMvRGlhbG9nRXZlbnRDb250ZW50LnByb3RvEghwcm90b2NvbBoV",
-            "RGlhbG9nU3RhdGVUeXBlLnByb3RvIn0KEkRpYWxvZ0V2ZW50Q29udGVudBIv",
-            "CgxkaWFsb2dfc3RhdGUYASABKA4yGS5wcm90b2NvbC5EaWFsb2dTdGF0ZVR5",
-            "cGUSDgoGbnBjX2lkGAIgASgJEhQKDGRpYWxvZ19pbmRleBgDIAEoBRIQCghx",
-            "dWVzdF9pZBgEIAEoCUInqgIkRlRSLkNvcmUuQ29tbW9uLlByb3RvY29sLlJw",
-            "Y01lc3NhZ2VzYgZwcm90bzM="));
+            "RGlhbG9nU3RhdGVUeXBlLnByb3RvIpABChJEaWFsb2dFdmVudENvbnRlbnQS",
+            "LwoMZGlhbG9nX3N0YXRlGAEgASgOMhkucHJvdG9jb2wuRGlhbG9nU3RhdGVU",
+            "eXBlEg4KBm5wY19pZBgCIAEoCRIUCgxkaWFsb2dfaW5kZXgYAyABKAUSEAoI",
+            "cXVlc3RfaWQYBCABKAkSEQoJZGlhbG9nX2lkGAUgASgJQieqAiRGVFIuQ29y",
+            "ZS5Db21tb24uUHJvdG9jb2wuUnBjTWVzc2FnZXNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::FTR.Core.Common.Protocol.RpcMessages.DialogStateTypeReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent), global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent.Parser, new[]{ "DialogState", "NpcId", "DialogIndex", "QuestId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent), global::FTR.Core.Common.Protocol.RpcMessages.DialogEventContent.Parser, new[]{ "DialogState", "NpcId", "DialogIndex", "QuestId", "DialogId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -82,6 +82,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       npcId_ = other.npcId_;
       dialogIndex_ = other.dialogIndex_;
       questId_ = other.questId_;
+      dialogId_ = other.dialogId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -125,7 +126,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     public const int DialogIndexFieldNumber = 3;
     private int dialogIndex_;
     /// <summary>
-    /// Ignored when dialog_state = DialogClosed
+    /// Message index within the active dialog
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -151,6 +152,21 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
     }
 
+    /// <summary>Field number for the "dialog_id" field.</summary>
+    public const int DialogIdFieldNumber = 5;
+    private string dialogId_ = "";
+    /// <summary>
+    /// ID of the DialogData being shown (empty when DialogClosed)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string DialogId {
+      get { return dialogId_; }
+      set {
+        dialogId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -170,6 +186,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (NpcId != other.NpcId) return false;
       if (DialogIndex != other.DialogIndex) return false;
       if (QuestId != other.QuestId) return false;
+      if (DialogId != other.DialogId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -181,6 +198,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (NpcId.Length != 0) hash ^= NpcId.GetHashCode();
       if (DialogIndex != 0) hash ^= DialogIndex.GetHashCode();
       if (QuestId.Length != 0) hash ^= QuestId.GetHashCode();
+      if (DialogId.Length != 0) hash ^= DialogId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -215,6 +233,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(34);
         output.WriteString(QuestId);
       }
+      if (DialogId.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(DialogId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -241,6 +263,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(34);
         output.WriteString(QuestId);
       }
+      if (DialogId.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(DialogId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -262,6 +288,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (QuestId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(QuestId);
+      }
+      if (DialogId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(DialogId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -286,6 +315,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (other.QuestId.Length != 0) {
         QuestId = other.QuestId;
+      }
+      if (other.DialogId.Length != 0) {
+        DialogId = other.DialogId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -322,6 +354,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             QuestId = input.ReadString();
             break;
           }
+          case 42: {
+            DialogId = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -355,6 +391,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
           }
           case 34: {
             QuestId = input.ReadString();
+            break;
+          }
+          case 42: {
+            DialogId = input.ReadString();
             break;
           }
         }

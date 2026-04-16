@@ -14,6 +14,8 @@ namespace FTR.Core.Server.EventChannels
         public NpcInteractedEvent npcInteractedEvent;
         public QuestRewardGoldEvent questRewardGoldEvent;
         public QuestRewardItemEvent questRewardItemEvent;
+        public NpcQuestCompletedEvent npcQuestCompletedEvent;
+        public PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         public void RegisterAll(IContainerBuilder builder)
         {
@@ -24,6 +26,8 @@ namespace FTR.Core.Server.EventChannels
             builder.RegisterInstance(npcInteractedEvent);
             builder.RegisterInstance(questRewardGoldEvent);
             builder.RegisterInstance(questRewardItemEvent);
+            builder.RegisterInstance(npcQuestCompletedEvent);
+            builder.RegisterInstance(playerQuestDecisionEvent);
         }
 
         private void Validate()
@@ -33,6 +37,8 @@ namespace FTR.Core.Server.EventChannels
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
             ValidateField(questRewardGoldEvent, nameof(questRewardGoldEvent));
             ValidateField(questRewardItemEvent, nameof(questRewardItemEvent));
+            ValidateField(npcQuestCompletedEvent, nameof(npcQuestCompletedEvent));
+            ValidateField(playerQuestDecisionEvent, nameof(playerQuestDecisionEvent));
         }
 
         private void ValidateField(Object field, string fieldName)
