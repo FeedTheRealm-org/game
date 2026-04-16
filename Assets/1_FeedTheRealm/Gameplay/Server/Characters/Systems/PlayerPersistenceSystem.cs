@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Persistence;
 using FTR.Core.Server.Persistence.Schemas;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -18,6 +19,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [Inject]
         PlayerSpawnpointManager playerSpawnpointManager;
+
+        [Inject]
+        private ServerConfig serverConfig;
 
         private CharacterStateStorage characterStateStorage;
         private InventorySystem inventorySystem;
@@ -144,24 +148,43 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            var spawnPoint = new Vector3(
-                player.LastPosition.X,
-                player.LastPosition.Y,
-                player.LastPosition.Z
+            inventorySystem.LoadInventory(
+                ToSizedArray(player.Inventory, serverConfig.InventorySize),
+                ToSizedArray(player.FastAccessInventory, serverConfig.FastSlotSize)
             );
-
-            inventorySystem.LoadInventory(new string[0], new string[0]);
             goldSystem.LoadGold(player.Gold);
             // questSystem.LoadQuestProgress();
-            movementSystem.LoadPosition(spawnPoint);
+            movementSystem.LoadPosition(
+                player.LastPosition != null
+                    ? new Vector3(
+                        player.LastPosition.X,
+                        player.LastPosition.Y,
+                        player.LastPosition.Z
+                    )
+                    : playerSpawnpointManager.GetRandomSpawnpoint()
+            );
         }
 
         private void LoadDefaultStates()
         {
-            inventorySystem.LoadInventory(new string[0], new string[0]);
+            inventorySystem.LoadInventory(
+                ToSizedArray(null, serverConfig.InventorySize),
+                ToSizedArray(null, serverConfig.FastSlotSize)
+            );
             goldSystem.LoadGold(0);
             // questSystem.LoadQuestProgress(new Dictionary<string, (int progress, bool completed)>());
             movementSystem.LoadPosition(playerSpawnpointManager.GetRandomSpawnpoint());
+        }
+
+        private InventoryItemModel[] ToSizedArray(List<InventoryItemModel> source, int size)
+        {
+            var result = new InventoryItemModel[size];
+            for (int i = 0; i < size; i++)
+                result[i] =
+                    (source != null && i < source.Count)
+                        ? source[i]
+                        : new InventoryItemModel { ItemId = string.Empty, Quantity = 0 };
+            return result;
         }
     }
 }
