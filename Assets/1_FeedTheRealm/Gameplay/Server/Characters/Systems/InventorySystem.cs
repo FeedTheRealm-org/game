@@ -1,3 +1,4 @@
+using System;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server;
@@ -13,6 +14,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class InventorySystem : MonoBehaviour, IGameTickable
     {
+        public event Action<InventoryItemModel[], InventoryItemModel[]> OnSaveInventory;
+
         [SerializeField]
         private Logging.Logger logger;
 
@@ -310,7 +313,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            var lootInstance = Object.Instantiate(lootPrefab, dropPosition, Quaternion.identity);
+            var lootInstance = UnityEngine.Object.Instantiate(
+                lootPrefab,
+                dropPosition,
+                Quaternion.identity
+            );
             var stateStorage = lootInstance.GetComponent<LootItemStateStorage>();
             if (stateStorage != null)
                 stateStorage.SetItemId(itemId);

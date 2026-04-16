@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enums;
@@ -16,6 +17,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
     /// </summary>
     public class QuestSystem : MonoBehaviour
     {
+        public event Action<string, int, bool> OnSaveQuestProgress;
+
         private Logging.Logger logger;
         private ServerQuestRegistry serverQuestRegistry;
 

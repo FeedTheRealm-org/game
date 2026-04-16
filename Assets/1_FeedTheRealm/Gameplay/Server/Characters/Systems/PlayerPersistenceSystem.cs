@@ -43,9 +43,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.movementSystem = movementSystem;
             this.questSystem = questSystem;
 
-            // this.inventorySystem.OnSaveInventory += SaveInventory;
-            // this.goldSystem.OnSaveGold += SaveGold;
-            // this.questSystem += SaveQuestProgress;
+            this.inventorySystem.OnSaveInventory += SaveInventory;
+            this.goldSystem.OnSaveGold += SaveGold;
+            this.questSystem.OnSaveQuestProgress += SaveQuestProgress;
 
             if (!string.IsNullOrEmpty(characterStateStorage.CharacterId))
                 LoadPlayer(characterStateStorage.CharacterId).Forget();
@@ -55,11 +55,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnDestroy()
         {
-            // this.inventorySystem.OnSaveInventory -= SaveInventory;
-            // this.goldSystem.OnSaveGold -= SaveGold;
-            // this.questSystem -= SaveQuestProgress;
-            // characterStateStorage.OnPositionCorrected -= SavePosition;
-            characterStateStorage.OnCharacterIdChanged -= OnCharacterIdChanged;
+            this.inventorySystem.OnSaveInventory -= SaveInventory;
+            this.goldSystem.OnSaveGold -= SaveGold;
+            this.questSystem.OnSaveQuestProgress -= SaveQuestProgress;
+            this.characterStateStorage.OnCharacterIdChanged -= OnCharacterIdChanged;
         }
 
         /// <summary>

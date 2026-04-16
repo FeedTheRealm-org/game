@@ -1,3 +1,4 @@
+using System;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
@@ -11,6 +12,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class GoldSystem : MonoBehaviour, IGameTickable
     {
+        public event Action<int> OnSaveGold;
+
         [SerializeField]
         private Logging.Logger logger;
 
