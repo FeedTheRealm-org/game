@@ -144,8 +144,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 inventorySystem.GetCurrentFastAccess()
             );
             SaveGold(goldSystem.GetCurrentGold());
-            // SaveQuestProgress() is called on each quest progress change, so no need to call it here.
             SavePosition(movementSystem.GetCurrentPosition());
+            // Quests are saved as they progress so no need to save at disconnect
         }
 
         private void OnCharacterIdChanged(string characterId) => LoadPlayer(characterId).Forget();
@@ -165,7 +165,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 ToSizedArray(player.FastAccessInventory, serverConfig.FastSlotSize)
             );
             goldSystem.LoadGold(player.Gold);
-            // questSystem.LoadQuestProgress();
+            questSystem.LoadQuests(player.ActiveQuests, player.CompletedQuests);
             movementSystem.LoadPosition(
                 player.LastPosition != null
                     ? new Vector3(
@@ -184,7 +184,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 ToSizedArray(null, serverConfig.FastSlotSize)
             );
             goldSystem.LoadGold(0);
-            // questSystem.LoadQuestProgress(new Dictionary<string, (int progress, bool completed)>());
+            questSystem.LoadQuests(new List<QuestModel>(), new List<string>());
             movementSystem.LoadPosition(playerSpawnpointManager.GetRandomSpawnpoint());
         }
 

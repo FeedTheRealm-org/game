@@ -5,6 +5,7 @@ using Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
+using FTR.Core.Server.Persistence.Schemas;
 using FTR.Gameplay.Server.Environment.Quest;
 using FTR.Gameplay.Server.Utils;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private readonly Dictionary<string, QuestProgressState> activeQuests =
             new Dictionary<string, QuestProgressState>();
+        private readonly HashSet<string> completedQuests = new HashSet<string>();
 
         private bool subscribedToEnemySlayed = false;
         private bool subscribedToNpcInteracted = false;
@@ -99,6 +101,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
             UnsubscribeFromNpcInteracted();
         }
 
+        public void LoadQuests(List<QuestModel> activeQuests, List<string> completedQuests)
+        {
+            foreach (var quest in activeQuests)
+            {
+                var questId = quest.EffectiveQuestId.Split('_')[0];
+                var npcId = quest.EffectiveQuestId.Split('_')[1];
+                if (!serverQuestRegistry.TryGetQuest(questId, out var questData))
+                    continue;
+                var state = new QuestProgressState(questData, npcId);
+                this.activeQuests[state.EffectiveQuestId] = state;
+                SendProgressEvent(state);
+            }
+            foreach (var questId in completedQuests)
+                this.completedQuests.Add(questId);
+        }
+
         public void OnQuestAccepted(IEventCollectable ec, string questId, string npcId = "")
         {
             if (string.IsNullOrEmpty(questId))
@@ -119,7 +137,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            if (activeQuests.ContainsKey(effectiveQuestId))
+            if (
+                activeQuests.ContainsKey(effectiveQuestId)
+                || completedQuests.Contains(effectiveQuestId)
+            )
                 return;
 
             var state = new QuestProgressState(questData, npcId);
