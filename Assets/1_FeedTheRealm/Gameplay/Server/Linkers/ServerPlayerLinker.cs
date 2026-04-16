@@ -104,7 +104,7 @@ public class ServerPlayerLinker : PlayerLinker
             playerService,
             commonConfig.ServerAccessToken,
             goldSystem,
-            teleportSystem
+            teleportSystem,
             chatSystem
         );
 

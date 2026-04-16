@@ -146,7 +146,7 @@ public class ClientPlayerLinker : PlayerLinker
                 prefabProvider.PortalVisual,
                 gameObject.transform
             );
-            
+
             portalVisual.SetActive(true);
             prefabProvider.ChatInput.SetActive(false);
             var chatInput = Object.Instantiate(prefabProvider.ChatInput, gameObject.transform);

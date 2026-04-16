@@ -36,7 +36,7 @@ namespace FTR.Gameplay.Server.Characters
             PlayerService playerService,
             string serverAccessToken,
             GoldSystem goldSystem,
-            TeleportSystem teleportSystem
+            TeleportSystem teleportSystem,
             ChatSystem chatSystem
         )
         {
