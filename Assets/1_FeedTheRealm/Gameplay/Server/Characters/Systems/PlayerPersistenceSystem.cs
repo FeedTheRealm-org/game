@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using FTR.Core.Common.Interfaces;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Persistence;
 using FTR.Core.Server.Persistence.Schemas;
@@ -9,7 +10,7 @@ using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
-    public class PlayerPersistenceSystem : MonoBehaviour
+    public class PlayerPersistenceSystem : MonoBehaviour, IPlayerSaveAllHandler
     {
         [Inject]
         private Logging.Logger logger;
@@ -28,6 +29,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private GoldSystem goldSystem;
         private MovementSystem movementSystem;
         private QuestSystem questSystem;
+        private bool hasSavedOnDisconnect;
 
         public void Initialize(
             CharacterStateStorage characterStateStorage,
@@ -133,6 +135,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 )
                 .AsUniTask()
                 .Forget(ex => logger.Log($"SavePosition failed: {ex}", Logging.LogType.Error));
+        }
+
+        public void SaveAll()
+        {
+            SaveInventory(
+                inventorySystem.GetCurrentInventory(),
+                inventorySystem.GetCurrentFastAccess()
+            );
+            SaveGold(goldSystem.GetCurrentGold());
+            // SaveQuestProgress() is called on each quest progress change, so no need to call it here.
+            SavePosition(movementSystem.GetCurrentPosition());
         }
 
         private void OnCharacterIdChanged(string characterId) => LoadPlayer(characterId).Forget();

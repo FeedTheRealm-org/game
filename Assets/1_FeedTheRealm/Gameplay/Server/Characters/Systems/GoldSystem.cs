@@ -37,6 +37,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private bool isInitialized = false;
         private bool isSettedUp = false;
 
+        public int GetCurrentGold() => goldState.Gold;
+
         public void Initialize(uint netId, GoldStateStorage goldState, WorldMonitor worldMonitor)
         {
             this.netId = netId;

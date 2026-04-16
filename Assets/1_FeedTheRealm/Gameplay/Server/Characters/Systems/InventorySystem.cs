@@ -40,6 +40,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private InventoryItemModel[] inventorySlots;
         private InventoryItemModel[] fastSlots;
 
+        public InventoryItemModel[] GetCurrentInventory() => inventorySlots;
+
+        public InventoryItemModel[] GetCurrentFastAccess() => fastSlots;
+
         public void Initialize(uint netId, InventoryStateStorage inventoryState)
         {
             this.netId = netId;

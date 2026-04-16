@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.EventChannels;
 // using Core.Systems.Worlds;
+using FTR.Core.Common.Interfaces;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Common.Scopes;
 // using FTRShared.Runtime.Models;
@@ -354,8 +355,18 @@ public class FTRNetworkManager : NetworkManager
     /// <param name="conn">Connection from client.</param>
     public override void OnServerDisconnect(NetworkConnectionToClient conn)
     {
+        if (conn != null && conn.identity != null)
+        {
+            var persistenceHandler = conn.identity.GetComponentInChildren<IPlayerSaveAllHandler>(
+                true
+            );
+            if (persistenceHandler == null)
+                return;
+            persistenceHandler.SaveAll();
+        }
+
         logger.Log(
-            $"[NetworkManager] Client disconnected: connectionId={conn.connectionId}, address={conn.address}",
+            $"[NetworkManager] Client disconnected: connectionId={conn?.connectionId}, address={conn?.address}",
             this,
             Logging.LogType.Warning
         );
