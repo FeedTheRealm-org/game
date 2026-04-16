@@ -16,6 +16,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [Inject]
         private PlayersRepository playersRepository;
 
+        [Inject]
+        PlayerSpawnpointManager playerSpawnpointManager;
+
         private CharacterStateStorage characterStateStorage;
         private InventorySystem inventorySystem;
         private GoldSystem goldSystem;
@@ -136,13 +139,29 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var player = await playersRepository.GetPlayerAsync(playerId).AsUniTask();
             if (player == null)
             {
-                logger.Log($"No saved data found for player {playerId}");
+                LoadDefaultStates();
+                logger.Log($"No saved data found for player {playerId} - default states");
                 return;
             }
-            // inventorySystem.LoadInventory();
-            // goldSystem.LoadGold();
+
+            var spawnPoint = new Vector3(
+                player.LastPosition.X,
+                player.LastPosition.Y,
+                player.LastPosition.Z
+            );
+
+            inventorySystem.LoadInventory(new string[0], new string[0]);
+            goldSystem.LoadGold(player.Gold);
             // questSystem.LoadQuestProgress();
-            // movementSystem.LoadPosition();
+            movementSystem.LoadPosition(spawnPoint);
+        }
+
+        private void LoadDefaultStates()
+        {
+            inventorySystem.LoadInventory(new string[0], new string[0]);
+            goldSystem.LoadGold(0);
+            // questSystem.LoadQuestProgress(new Dictionary<string, (int progress, bool completed)>());
+            movementSystem.LoadPosition(playerSpawnpointManager.GetRandomSpawnpoint());
         }
     }
 }

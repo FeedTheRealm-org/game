@@ -4,7 +4,6 @@ using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
-using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;
@@ -16,14 +15,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private Logging.Logger logger;
 
-        [SerializeField]
         private ServerConfig config;
 
         [Inject]
-        public void Construct(IObjectResolver resolver)
+        public void Construct(IObjectResolver resolver, ServerConfig config)
         {
             if (resolver.TryResolve<QuestRewardItemEvent>(out var ev) && ev != null)
                 questRewardItemEvent = ev;
+            this.config = config;
         }
 
         private QuestRewardItemEvent questRewardItemEvent;
