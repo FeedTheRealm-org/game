@@ -24,22 +24,25 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     static QuestEventContentReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Ch5FdmVudHMvUXVlc3RFdmVudENvbnRlbnQucHJvdG8SCHByb3RvY29sIk4K",
+            "Ch5FdmVudHMvUXVlc3RFdmVudENvbnRlbnQucHJvdG8SCHByb3RvY29sImoK",
             "GVF1ZXN0UHJvZ3Jlc3NFdmVudENvbnRlbnQSEAoIcXVlc3RfaWQYASABKAkS",
-            "DwoHY3VycmVudBgCIAEoBRIOCgZ0YXJnZXQYAyABKAUiLgoaUXVlc3RDb21w",
-            "bGV0ZWRFdmVudENvbnRlbnQSEAoIcXVlc3RfaWQYASABKAlCJ6oCJEZUUi5D",
-            "b3JlLkNvbW1vbi5Qcm90b2NvbC5ScGNNZXNzYWdlc2IGcHJvdG8z"));
+            "DwoHY3VycmVudBgCIAEoBRIOCgZ0YXJnZXQYAyABKAUSGgoSZWZmZWN0aXZl",
+            "X3F1ZXN0X2lkGAQgASgJIkoKGlF1ZXN0Q29tcGxldGVkRXZlbnRDb250ZW50",
+            "EhAKCHF1ZXN0X2lkGAEgASgJEhoKEmVmZmVjdGl2ZV9xdWVzdF9pZBgCIAEo",
+            "CUInqgIkRlRSLkNvcmUuQ29tbW9uLlByb3RvY29sLlJwY01lc3NhZ2VzYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.QuestProgressEventContent), global::FTR.Core.Common.Protocol.RpcMessages.QuestProgressEventContent.Parser, new[]{ "QuestId", "Current", "Target" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.QuestCompletedEventContent), global::FTR.Core.Common.Protocol.RpcMessages.QuestCompletedEventContent.Parser, new[]{ "QuestId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.QuestProgressEventContent), global::FTR.Core.Common.Protocol.RpcMessages.QuestProgressEventContent.Parser, new[]{ "QuestId", "Current", "Target", "EffectiveQuestId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.QuestCompletedEventContent), global::FTR.Core.Common.Protocol.RpcMessages.QuestCompletedEventContent.Parser, new[]{ "QuestId", "EffectiveQuestId" }, null, null, null, null)
           }));
     }
     #endregion
 
   }
   #region Messages
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class QuestProgressEventContent : pb::IMessage<QuestProgressEventContent>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -77,6 +80,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       questId_ = other.questId_;
       current_ = other.current_;
       target_ = other.target_;
+      effectiveQuestId_ = other.effectiveQuestId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -131,6 +135,21 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
     }
 
+    /// <summary>Field number for the "effective_quest_id" field.</summary>
+    public const int EffectiveQuestIdFieldNumber = 4;
+    private string effectiveQuestId_ = "";
+    /// <summary>
+    /// Uniquely identifies the quest instance (e.g. questId_npcId)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EffectiveQuestId {
+      get { return effectiveQuestId_; }
+      set {
+        effectiveQuestId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -149,6 +168,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (QuestId != other.QuestId) return false;
       if (Current != other.Current) return false;
       if (Target != other.Target) return false;
+      if (EffectiveQuestId != other.EffectiveQuestId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -159,6 +179,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (QuestId.Length != 0) hash ^= QuestId.GetHashCode();
       if (Current != 0) hash ^= Current.GetHashCode();
       if (Target != 0) hash ^= Target.GetHashCode();
+      if (EffectiveQuestId.Length != 0) hash ^= EffectiveQuestId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -189,6 +210,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(24);
         output.WriteInt32(Target);
       }
+      if (EffectiveQuestId.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(EffectiveQuestId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -211,6 +236,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(24);
         output.WriteInt32(Target);
       }
+      if (EffectiveQuestId.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(EffectiveQuestId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -229,6 +258,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (Target != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Target);
+      }
+      if (EffectiveQuestId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EffectiveQuestId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -251,6 +283,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (other.Target != 0) {
         Target = other.Target;
       }
+      if (other.EffectiveQuestId.Length != 0) {
+        EffectiveQuestId = other.EffectiveQuestId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -262,7 +297,11 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -278,6 +317,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             Target = input.ReadInt32();
             break;
           }
+          case 34: {
+            EffectiveQuestId = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -289,7 +332,11 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -305,6 +352,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             Target = input.ReadInt32();
             break;
           }
+          case 34: {
+            EffectiveQuestId = input.ReadString();
+            break;
+          }
         }
       }
     }
@@ -312,6 +363,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
 
   }
 
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class QuestCompletedEventContent : pb::IMessage<QuestCompletedEventContent>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -347,6 +399,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public QuestCompletedEventContent(QuestCompletedEventContent other) : this() {
       questId_ = other.questId_;
+      effectiveQuestId_ = other.effectiveQuestId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -368,6 +421,21 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
     }
 
+    /// <summary>Field number for the "effective_quest_id" field.</summary>
+    public const int EffectiveQuestIdFieldNumber = 2;
+    private string effectiveQuestId_ = "";
+    /// <summary>
+    /// Uniquely identifies the quest instance (e.g. questId_npcId)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EffectiveQuestId {
+      get { return effectiveQuestId_; }
+      set {
+        effectiveQuestId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -384,6 +452,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         return true;
       }
       if (QuestId != other.QuestId) return false;
+      if (EffectiveQuestId != other.EffectiveQuestId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -392,6 +461,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     public override int GetHashCode() {
       int hash = 1;
       if (QuestId.Length != 0) hash ^= QuestId.GetHashCode();
+      if (EffectiveQuestId.Length != 0) hash ^= EffectiveQuestId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -414,6 +484,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(10);
         output.WriteString(QuestId);
       }
+      if (EffectiveQuestId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(EffectiveQuestId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -428,6 +502,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(10);
         output.WriteString(QuestId);
       }
+      if (EffectiveQuestId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(EffectiveQuestId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -440,6 +518,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       int size = 0;
       if (QuestId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(QuestId);
+      }
+      if (EffectiveQuestId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EffectiveQuestId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -456,6 +537,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (other.QuestId.Length != 0) {
         QuestId = other.QuestId;
       }
+      if (other.EffectiveQuestId.Length != 0) {
+        EffectiveQuestId = other.EffectiveQuestId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -467,12 +551,20 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
             QuestId = input.ReadString();
+            break;
+          }
+          case 18: {
+            EffectiveQuestId = input.ReadString();
             break;
           }
         }
@@ -486,12 +578,20 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
             QuestId = input.ReadString();
+            break;
+          }
+          case 18: {
+            EffectiveQuestId = input.ReadString();
             break;
           }
         }

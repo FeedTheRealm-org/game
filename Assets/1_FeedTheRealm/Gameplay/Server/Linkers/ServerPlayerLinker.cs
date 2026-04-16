@@ -74,6 +74,7 @@ public class ServerPlayerLinker : PlayerLinker
         var goldSystem = playerComponents.GetComponent<GoldSystem>();
         var interactSystem = playerComponents.GetComponent<PlayerInteractSystem>();
         var questSystem = playerComponents.GetComponent<QuestSystem>();
+        var chatSystem = playerComponents.GetComponent<ChatSystem>();
 
         interactSystem.Initialize(netId, world, networkAdapter.netId);
         questSystem.Initialize(netId, world, networkAdapter.netId);
@@ -93,6 +94,7 @@ public class ServerPlayerLinker : PlayerLinker
             sharedSystems.Movement,
             questSystem
         );
+        chatSystem.Initialize(netId, world);
 
         serverPlayerCommandHandler.Initialize(
             sharedSystems.Movement,
@@ -104,7 +106,8 @@ public class ServerPlayerLinker : PlayerLinker
             stateStorage,
             playerService,
             commonConfig.ServerAccessToken,
-            goldSystem
+            goldSystem,
+            chatSystem
         );
 
         respawnSystem.Initialize(

@@ -58,7 +58,7 @@ public class QuestProgressView : MonoBehaviour
         questProgressEvent.Raise(
             new QuestProgressData
             {
-                Id = questData.id,
+                Id = content.EffectiveQuestId,
                 Quest = questData,
                 CurrentProgressAmount = content.Current,
                 TargetProgressAmount = content.Target,
@@ -78,6 +78,6 @@ public class QuestProgressView : MonoBehaviour
             return;
         }
 
-        questCompletedEvent.Raise(questData);
+        questCompletedEvent.Raise((questData, content.EffectiveQuestId));
     }
 }

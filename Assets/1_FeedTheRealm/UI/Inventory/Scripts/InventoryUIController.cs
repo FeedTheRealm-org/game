@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.UI.Inventory;
 using UnityEngine;
@@ -34,6 +36,12 @@ namespace FTR.UI.Inventory
         [Inject]
         private InventoryToggleEvent inventoryToggleEvent;
 
+        [Inject]
+        private ChatToggleEvent chatToggleEvent;
+
+        [Inject]
+        private ShopToggleEvent shopToggleEvent;
+
         [SerializeField]
         private PlayerInputReader inputReader;
 
@@ -61,6 +69,9 @@ namespace FTR.UI.Inventory
         private StorageType selectedStorage;
 
         private readonly InventorySlotGhostController ghost = new();
+
+        private bool isChatOpen = false;
+        private bool isShopOpen = false;
 
         private void OnEnable()
         {
@@ -95,6 +106,8 @@ namespace FTR.UI.Inventory
             root.Q("Drop")?.RegisterCallback<ClickEvent>(_ => OnDropClicked());
 
             inputReader.InventoryEvent += OnInventoryInput;
+            chatToggleEvent.OnRaised += OnChatToggled;
+            shopToggleEvent.OnRaised += OnShopToggled;
             lastAddedEvent.OnRaised += OnLastAdded;
             lastSwappedEvent.OnRaised += OnLastSwapped;
             lastRemovedEvent.OnRaised += OnLastRemoved;
@@ -103,6 +116,8 @@ namespace FTR.UI.Inventory
         private void OnDisable()
         {
             inputReader.InventoryEvent -= OnInventoryInput;
+            chatToggleEvent.OnRaised -= OnChatToggled;
+            shopToggleEvent.OnRaised -= OnShopToggled;
             lastAddedEvent.OnRaised -= OnLastAdded;
             lastSwappedEvent.OnRaised -= OnLastSwapped;
             lastRemovedEvent.OnRaised -= OnLastRemoved;
@@ -147,6 +162,11 @@ namespace FTR.UI.Inventory
 
         private void OnInventoryInput()
         {
+            if (isChatOpen || isShopOpen)
+            {
+                return;
+            }
+
             bool show = !animationController.IsVisible;
             animationController.Toggle();
             inventoryToggleEvent?.Raise(show);
@@ -259,6 +279,16 @@ namespace FTR.UI.Inventory
                 return null;
             string iconName = t == StorageType.FastSlot ? "FastEquipIcon" : "ItemIcon";
             return slots[index].Q(iconName) ?? slots[index];
+        }
+
+        private void OnChatToggled(bool isChatOpen)
+        {
+            this.isChatOpen = isChatOpen;
+        }
+
+        private void OnShopToggled(bool isShopOpen)
+        {
+            this.isShopOpen = isShopOpen;
         }
     }
 }

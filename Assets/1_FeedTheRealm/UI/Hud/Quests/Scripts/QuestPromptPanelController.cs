@@ -26,6 +26,7 @@ public class QuestPromptController : MonoBehaviour
 
     private QuestData _currentQuestData;
     private uint _netId;
+    private string _npcId;
 
     public void Initialize(uint netId)
     {
@@ -104,6 +105,7 @@ public class QuestPromptController : MonoBehaviour
 
         _currentQuestData = promptData.Quest;
         _netId = promptData.TargetNetId;
+        _npcId = promptData.NpcId;
         _titleLabel.text = _currentQuestData.title;
         _descriptionLabel.text = _currentQuestData.content;
         ToggleQuestPrompt(true);
@@ -120,7 +122,7 @@ public class QuestPromptController : MonoBehaviour
         );
         if (eventRegistry != null && eventRegistry.questDecisionEvent != null)
             eventRegistry.questDecisionEvent.Raise(
-                new QuestDecisionData(_currentQuestData, true, _netId)
+                new QuestDecisionData(_currentQuestData, true, _netId, _npcId)
             );
 
         ToggleQuestPrompt(false);
@@ -138,7 +140,7 @@ public class QuestPromptController : MonoBehaviour
         );
         if (eventRegistry != null && eventRegistry.questDecisionEvent != null)
             eventRegistry.questDecisionEvent.Raise(
-                new QuestDecisionData(_currentQuestData, false, _netId)
+                new QuestDecisionData(_currentQuestData, false, _netId, _npcId)
             );
 
         ToggleQuestPrompt(false);

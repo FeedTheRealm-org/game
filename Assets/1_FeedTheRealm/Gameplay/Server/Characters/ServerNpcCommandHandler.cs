@@ -61,5 +61,7 @@ namespace FTR.Gameplay.Server.Characters
         ) { }
 
         public void OnSetUserId(IEventCollectable ec, string tokenId) { }
+
+        public void OnSendMessage(IEventCollectable ec, string message) { }
     }
 }

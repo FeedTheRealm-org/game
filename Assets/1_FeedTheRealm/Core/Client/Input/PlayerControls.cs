@@ -147,6 +147,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""ChatToggle"",
+                    ""type"": ""Button"",
+                    ""id"": ""0bf05643-c926-422e-b68f-eb67172dd247"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""FastSlots"",
                     ""type"": ""Button"",
                     ""id"": ""d098a32f-1999-4870-801b-b244745a1d48"",
@@ -409,6 +418,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""FastSlots"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""949c0a2c-a277-45e7-b31a-96075280c757"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChatToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -423,6 +443,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Inventory = m_Player.FindAction("Inventory", throwIfNotFound: true);
         m_Player_CursorToggle = m_Player.FindAction("CursorToggle", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
+        m_Player_ChatToggle = m_Player.FindAction("ChatToggle", throwIfNotFound: true);
         m_Player_FastSlots = m_Player.FindAction("FastSlots", throwIfNotFound: true);
     }
 
@@ -510,6 +531,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Inventory;
     private readonly InputAction m_Player_CursorToggle;
     private readonly InputAction m_Player_Interact;
+    private readonly InputAction m_Player_ChatToggle;
     private readonly InputAction m_Player_FastSlots;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
@@ -546,6 +568,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Interact".
         /// </summary>
         public InputAction @Interact => m_Wrapper.m_Player_Interact;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ChatToggle".
+        /// </summary>
+        public InputAction @ChatToggle => m_Wrapper.m_Player_ChatToggle;
         /// <summary>
         /// Provides access to the underlying input action "Player/FastSlots".
         /// </summary>
@@ -594,6 +620,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
+            @ChatToggle.started += instance.OnChatToggle;
+            @ChatToggle.performed += instance.OnChatToggle;
+            @ChatToggle.canceled += instance.OnChatToggle;
             @FastSlots.started += instance.OnFastSlots;
             @FastSlots.performed += instance.OnFastSlots;
             @FastSlots.canceled += instance.OnFastSlots;
@@ -626,6 +655,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
+            @ChatToggle.started -= instance.OnChatToggle;
+            @ChatToggle.performed -= instance.OnChatToggle;
+            @ChatToggle.canceled -= instance.OnChatToggle;
             @FastSlots.started -= instance.OnFastSlots;
             @FastSlots.performed -= instance.OnFastSlots;
             @FastSlots.canceled -= instance.OnFastSlots;
@@ -711,6 +743,13 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ChatToggle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnChatToggle(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "FastSlots" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

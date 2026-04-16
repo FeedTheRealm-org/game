@@ -59,27 +59,41 @@ namespace FTR.Core.Common.Quests
             );
             if (decisionData.IsAccepted)
             {
+                string effectiveId = string.IsNullOrEmpty(decisionData.NpcId)
+                    ? decisionData.Quest.id
+                    : $"{decisionData.Quest.id}_{decisionData.NpcId}";
                 var newQuest = QuestFactory.CreateQuest(
                     decisionData.Quest,
                     enemySlayedEvent,
                     npcInteractedEvent,
                     questProgressEvent,
-                    questCompletedEvent
+                    questCompletedEvent,
+                    effectiveId
                 );
                 newQuest.Start();
-                activeQuests.Add(decisionData.Quest.id, newQuest);
-                logger.Log($"Quest '{decisionData.Quest.title}' accepted & started.", this);
+                activeQuests.Add(effectiveId, newQuest);
+                logger.Log(
+                    $"Quest '{decisionData.Quest.title}' (Effective: {effectiveId}) accepted & started.",
+                    this
+                );
             }
         }
 
-        private void OnQuestCompleted(QuestData questData)
+        private void OnQuestCompleted((QuestData Quest, string EffectiveId) payload)
         {
-            if (activeQuests.ContainsKey(questData.id))
+            if (activeQuests.TryGetValue(payload.EffectiveId, out var quest))
             {
-                activeQuests[questData.id].Dispose();
-                activeQuests.Remove(questData.id);
                 logger.Log(
-                    $"Quest '{questData.title}' completed and removed from active quests.",
+                    $"QUEST MANAGER: Quest '{payload.Quest.title}' (Effective: {payload.EffectiveId}) completed.",
+                    this
+                );
+                quest.Dispose();
+                activeQuests.Remove(payload.EffectiveId);
+            }
+            else
+            {
+                logger.Log(
+                    $"QUEST MANAGER: Completed quest '{payload.Quest.title}' but effective ID {payload.EffectiveId} was not active.",
                     this
                 );
             }
