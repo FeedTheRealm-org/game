@@ -28,4 +28,5 @@ public interface ICommandable
         int targetSlot
     );
     void OnSetUserId(IEventCollectable ec, string userId);
+    void OnSendMessage(IEventCollectable ec, string message);
 }

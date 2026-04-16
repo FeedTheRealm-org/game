@@ -28,5 +28,9 @@ namespace FTR.Core.Client
         [Header("Loader Components")]
         public GameObject StructurePrefab;
         public GameObject PortalPrefab;
+
+        [Header("Chat")]
+        public GameObject ChatBox;
+        public GameObject ChatInput;
     }
 }

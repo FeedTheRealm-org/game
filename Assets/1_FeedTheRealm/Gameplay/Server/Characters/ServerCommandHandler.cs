@@ -65,5 +65,6 @@ namespace FTR.Gameplay.Server.Characters
             string portalId,
             int zoneId
         ) { }
+        public virtual void OnSendMessage(IEventCollectable ec, string message) { }
     }
 }

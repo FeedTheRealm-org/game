@@ -111,6 +111,22 @@ public static class CommandsFactory
                 }
             case TransactionType.AcceptTeleport:
                 return new AcceptTeleportCommand(dto.NetId, dto.Id);
+            case TransactionType.SendMessage:
+                try
+                {
+                    SendMessageCommandContent content = SendMessageCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new SendMessageCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    SendMessageCommandContent defaultContent = new SendMessageCommandContent
+                    {
+                        Message = string.Empty,
+                    };
+                    return new SendMessageCommand(dto.NetId, dto.Id, defaultContent);
+                }
             default:
                 throw new ArgumentException($"Unsupported transaction type: {dto.Type}");
         }

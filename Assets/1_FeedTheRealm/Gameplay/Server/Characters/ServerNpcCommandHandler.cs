@@ -67,5 +67,6 @@ namespace FTR.Gameplay.Server.Characters
         {
             throw new System.NotImplementedException();
         }
+        public void OnSendMessage(IEventCollectable ec, string message) { }
     }
 }

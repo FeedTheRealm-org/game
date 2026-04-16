@@ -14,4 +14,5 @@ public enum TransactionType
     RejectQuest,
     AcceptTeleport,
     MoveItem,
+    SendMessage,
 }

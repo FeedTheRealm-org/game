@@ -17,4 +17,5 @@ public enum ServerEventType
     InteractCompletedEvent,
     QuestProgressEvent,
     QuestCompletedEvent,
+    ChatMessageBroadcastEvent,
 }

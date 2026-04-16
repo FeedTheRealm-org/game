@@ -28,3 +28,5 @@ MonoBehaviour:
   ShopPrefab: {fileID: 3922623790710069857, guid: 202f4e6245ef36c438f836aa55664307, type: 3}
   StructurePrefab: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
   PortalPrefab: {fileID: 3012644098720053192, guid: d397050cae8444f0ab9b3e3ac6dd6083, type: 3}
+  ChatBox: {fileID: 2064266005079064116, guid: 7d1297eb1d3418c488143b4d77f772b5, type: 3}
+  ChatInput: {fileID: 1348964074043700, guid: 793b588860968f94aac32692866bb2c9, type: 3}
