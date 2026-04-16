@@ -132,8 +132,10 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
         {
             npcName = string.Empty;
 
-            if (string.IsNullOrEmpty(npcId) || _npcNameLookup == null)
+            if (string.IsNullOrEmpty(npcId))
                 return false;
+            if (_npcNameLookup == null)
+                BuildLookup(npcs, dialogs);
 
             return _npcNameLookup.TryGetValue(npcId, out npcName);
         }
@@ -279,9 +281,6 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
                         {
                             if (msg == null)
                                 continue;
-
-                            if (string.IsNullOrEmpty(msg.sender))
-                                msg.sender = npc.name;
 
                             questMap.TryGetValue(msg.id, out var qId);
                             questIds.Add(qId ?? string.Empty);

@@ -161,7 +161,7 @@ namespace FTR.UI.Hud.Main
                 text = GetQuestProgressText(
                     questProgress.Quest,
                     0,
-                    questProgress.Quest.targetAmount
+                    questProgress.TargetProgressAmount
                 ),
             };
             detailLabel.AddToClassList(_questDetailClasses);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using FTR.Core.Common.Interactions;
 using UnityEngine;
 
-namespace FTR.Gameplay.Server.Characters.Systems
+namespace FTR.Gameplay.Server.Utils
 {
     public class NpcDialogInactivityTimer
     {

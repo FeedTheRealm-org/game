@@ -117,6 +117,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 );
                 _activeSessions.Remove(playerNetId);
                 UpdateMovementBlockedState();
+                interactor.FinishInteracting();
                 return npcId;
             }
 
