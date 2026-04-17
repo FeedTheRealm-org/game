@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Interfaces;
@@ -30,6 +31,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private MovementSystem movementSystem;
         private QuestSystem questSystem;
         private bool hasSavedOnDisconnect;
+        private Coroutine periodicSaveCoroutine;
 
         public void Initialize(
             CharacterStateStorage characterStateStorage,
@@ -50,9 +52,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.questSystem.OnSaveQuestProgress += SaveQuestProgress;
 
             if (!string.IsNullOrEmpty(characterStateStorage.CharacterId))
-                LoadPlayer(characterStateStorage.CharacterId).Forget();
+                OnCharacterIdChanged(characterStateStorage.CharacterId);
             else
                 characterStateStorage.OnCharacterIdChanged += OnCharacterIdChanged;
+
+            periodicSaveCoroutine = StartCoroutine(PeriodicSaveCoroutine());
         }
 
         private void OnDestroy()
@@ -61,6 +65,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.goldSystem.OnSaveGold -= SaveGold;
             this.questSystem.OnSaveQuestProgress -= SaveQuestProgress;
             this.characterStateStorage.OnCharacterIdChanged -= OnCharacterIdChanged;
+            if (periodicSaveCoroutine != null)
+                StopCoroutine(periodicSaveCoroutine);
         }
 
         /// <summary>
@@ -80,6 +86,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 )
                 .AsUniTask()
                 .Forget(ex => logger.Log($"SaveQuestProgress failed: {ex}", Logging.LogType.Error));
+            logger.Log($"Saved quest progress for Player:{characterStateStorage.CharacterId}");
         }
 
         /// <summary>
@@ -146,12 +153,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
             SaveGold(goldSystem.GetCurrentGold());
             SavePosition(movementSystem.GetCurrentPosition());
             // Quests are saved as they progress so no need to save at disconnect
+            logger.Log($"Saved all player data for Player:{characterStateStorage.CharacterId}");
         }
 
-        private void OnCharacterIdChanged(string characterId) => LoadPlayer(characterId).Forget();
+        private void OnCharacterIdChanged(string characterId)
+        {
+            logger.Log($"CharacterId changed to {characterId} - loading player");
+            LoadPlayer(characterId).Forget();
+        }
 
         private async UniTask LoadPlayer(string playerId)
         {
+            logger.Log($"Loading player data for Player:{playerId}");
             var player = await playersRepository.GetPlayerAsync(playerId).AsUniTask();
             if (player == null)
             {
@@ -179,13 +192,43 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void LoadDefaultStates()
         {
-            inventorySystem.LoadInventory(
-                ToSizedArray(null, serverConfig.InventorySize),
-                ToSizedArray(null, serverConfig.FastSlotSize)
-            );
-            goldSystem.LoadGold(0);
-            questSystem.LoadQuests(new List<QuestModel>(), new List<string>());
-            movementSystem.LoadPosition(playerSpawnpointManager.GetRandomSpawnpoint());
+            var inventory = ToSizedArray(null, serverConfig.InventorySize);
+            var fastAccess = ToSizedArray(null, serverConfig.FastSlotSize);
+            var gold = serverConfig.StartingGold;
+            var activeQuests = new List<QuestModel>();
+            var completedQuests = new List<string>();
+            var position = playerSpawnpointManager.GetRandomSpawnpoint();
+
+            inventorySystem.LoadInventory(inventory, fastAccess);
+            goldSystem.LoadGold(gold);
+            questSystem.LoadQuests(activeQuests, completedQuests);
+            movementSystem.LoadPosition(position);
+
+            var newPlayer = new PlayerModel
+            {
+                PlayerId = characterStateStorage.CharacterId,
+                Gold = gold,
+                LastPosition = new PositionModel
+                {
+                    X = position.x,
+                    Y = position.y,
+                    Z = position.z,
+                },
+                Inventory = new List<InventoryItemModel>(inventory),
+                FastAccessInventory = new List<InventoryItemModel>(fastAccess),
+                ActiveQuests = activeQuests,
+                CompletedQuests = completedQuests,
+            };
+            playersRepository.SavePlayerAsync(newPlayer).AsUniTask().Forget();
+        }
+
+        private IEnumerator PeriodicSaveCoroutine()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(serverConfig.AutoSaveIntervalSeconds);
+                SaveAll();
+            }
         }
 
         private InventoryItemModel[] ToSizedArray(List<InventoryItemModel> source, int size)

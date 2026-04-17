@@ -121,11 +121,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return npcId;
             }
 
-            /*logger?.Log(
-                $"[NpcInteractSystem] Player:{playerNetId} interacting with NPC:{npcId} (progression={state.ProgressionIndex}).",
-                this
-            );*/
-
             npcInteractedEvent?.Raise((playerNetId, npcId));
             SendDialogMessage(playerNetId, connId.Value, state, DialogStateType.DialogTypeStarted);
             return npcId;

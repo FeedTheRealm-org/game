@@ -26,6 +26,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private EnemySlayedEvent enemySlayedEvent;
         private NpcInteractedEvent npcInteractedEvent;
         private NpcQuestCompletedEvent npcQuestCompletedEvent;
+        private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         private uint netId;
         private WorldMonitor worldMonitor;
@@ -54,9 +55,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 enemySlayedEvent = ev1;
             if (resolver.TryResolve<NpcInteractedEvent>(out var ev2) && ev2 != null)
                 npcInteractedEvent = ev2;
-
             if (resolver.TryResolve<NpcQuestCompletedEvent>(out var ev3) && ev3 != null)
                 npcQuestCompletedEvent = ev3;
+            if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var ev4) && ev4 != null)
+                playerQuestDecisionEvent = ev4;
 
             resolver.TryResolve<QuestRewardGoldEvent>(out var goldEvent);
             if (goldEvent == null)
@@ -109,8 +111,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 var npcId = quest.EffectiveQuestId.Split('_')[1];
                 if (!serverQuestRegistry.TryGetQuest(questId, out var questData))
                     continue;
-                var state = new QuestProgressState(questData, npcId);
+                var state = new QuestProgressState(questData, npcId, quest.Progress);
                 this.activeQuests[state.EffectiveQuestId] = state;
+
+                if (questData.type == QuestType.EnemySlays)
+                    SubscribeToEnemySlayed();
+                else if (questData.type == QuestType.NpcInteract)
+                    SubscribeToNpcInteracted();
+
                 SendProgressEvent(state);
             }
             foreach (var questId in completedQuests)
@@ -119,6 +127,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void OnQuestAccepted(IEventCollectable ec, string questId, string npcId = "")
         {
+            playerQuestDecisionEvent?.Raise((netId, true));
+
             if (string.IsNullOrEmpty(questId))
             {
                 logger?.Log("[QuestSystem] OnQuestAccepted called with empty questId.", this);
@@ -221,6 +231,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             activeQuests.Remove(state.EffectiveQuestId);
+            completedQuests.Add(state.EffectiveQuestId);
 
             worldMonitor.Events.Enqueue(
                 new QuestCompletedEvent(
@@ -258,6 +269,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     }
                 )
             );
+            OnSaveQuestProgress.Invoke(state.EffectiveQuestId, state.Current, state.IsCompleted);
         }
 
         private int? GetConnectionId()

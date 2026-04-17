@@ -126,10 +126,18 @@ public class PlayersRepository
                     q => q.EffectiveQuestId == effectiveQuestId
                 )
             );
-
             var update = Builders<PlayerModel>.Update.Set("active_quests.$.progress", progress);
 
-            await this.collection.UpdateOneAsync(filter, update);
+            var res = await this.collection.UpdateOneAsync(filter, update);
+            if (res.MatchedCount == 0)
+            {
+                var insertFilter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
+                var insertUpdate = Builders<PlayerModel>.Update.Push(
+                    p => p.ActiveQuests,
+                    new QuestModel { EffectiveQuestId = effectiveQuestId, Progress = progress }
+                );
+                await this.collection.UpdateOneAsync(insertFilter, insertUpdate);
+            }
         }
     }
 
