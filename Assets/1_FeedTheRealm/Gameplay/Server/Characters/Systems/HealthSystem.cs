@@ -1,7 +1,9 @@
 using System;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
@@ -12,6 +14,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private Logging.Logger logger;
+
+        [Inject]
+        public void Construct(IObjectResolver resolver)
+        {
+            if (resolver.TryResolve<PlayerHealEvent>(out var healEv) && healEv != null)
+                playerHealEvent = healEv;
+        }
+
+        private PlayerHealEvent playerHealEvent;
+        private bool subscribedToHealEvent = false;
 
         public event Action<uint> OnDeath;
 
@@ -31,6 +43,37 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.isImmortal = isImmortal;
             isInitialized = true;
             stateStorage.SetHealth(currentHealth);
+
+            SubscribeToHealEvent();
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromHealEvent();
+        }
+
+        private void SubscribeToHealEvent()
+        {
+            if (subscribedToHealEvent || playerHealEvent == null)
+                return;
+            playerHealEvent.OnRaised += OnHealEvent;
+            subscribedToHealEvent = true;
+        }
+
+        private void UnsubscribeFromHealEvent()
+        {
+            if (!subscribedToHealEvent || playerHealEvent == null)
+                return;
+            playerHealEvent.OnRaised -= OnHealEvent;
+            subscribedToHealEvent = false;
+        }
+
+        private void OnHealEvent((uint playerNetId, float amount) data)
+        {
+            if (data.playerNetId == netId)
+            {
+                Heal(data.amount);
+            }
         }
 
         private void Awake()
@@ -39,6 +82,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
         }
 
         public void GameTick(float dt) { }
+
+        public void Heal(float amount)
+        {
+            if (currentHealth <= 0 || amount <= 0)
+                return;
+
+            currentHealth = Mathf.Min(MaxHealth, currentHealth + amount);
+            stateStorage.SetHealth(currentHealth);
+            logger?.Log(
+                $"Character netId={netId} healed by {amount}. Health: {currentHealth}",
+                this
+            );
+        }
 
         public (bool isDead, string characterId) TakeDamage(float damage, uint attackerNetId = 0)
         {

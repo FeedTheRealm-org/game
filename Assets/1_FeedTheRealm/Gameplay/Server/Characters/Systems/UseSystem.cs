@@ -8,6 +8,7 @@ using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.Utils;
 using FTR.Gameplay.Server.Registry;
+using FTRShared.Runtime.Models;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -32,10 +33,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private WorldMonitor world;
 
         [Inject]
-        private ItemEquippedEvent itemEquippedEvent;
+        public void Construct(IObjectResolver resolver)
+        {
+            if (resolver.TryResolve<ItemEquippedEvent>(out var itemEqEv) && itemEqEv != null)
+                itemEquippedEvent = itemEqEv;
+            if (resolver.TryResolve<ConsumeItemEvent>(out var consumeEv) && consumeEv != null)
+                consumeItemEvent = consumeEv;
+            if (resolver.TryResolve<PlayerHealEvent>(out var healEv) && healEv != null)
+                playerHealEvent = healEv;
+            if (resolver.TryResolve<PlayerBuffSpeedEvent>(out var buffEv) && buffEv != null)
+                playerBuffSpeedEvent = buffEv;
+            if (resolver.TryResolve<EnemySlayedEvent>(out var slayEv) && slayEv != null)
+                enemySlayedEvent = slayEv;
+        }
 
-        [Inject]
+        private ItemEquippedEvent itemEquippedEvent;
         private EnemySlayedEvent enemySlayedEvent;
+        private ConsumeItemEvent consumeItemEvent;
+        private PlayerHealEvent playerHealEvent;
+        private PlayerBuffSpeedEvent playerBuffSpeedEvent;
 
         private LayerMask targetLayer;
         private bool isAttacking = false;
@@ -49,6 +65,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
         private bool isDead = false;
+
+        private ConsumableItemData equippedConsumableData;
+        private EquipmentType currentEquipmentType = EquipmentType.None;
 
         // Could be a config function instead of each one but enemies have other stats
         // could be changed on future if they can equip items or have buffs/debuffs that change their stats
@@ -128,8 +147,56 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (isAttacking || isDead)
                 return;
             isAttacking = true;
-            StartCoroutine(resetAttackCooldown());
-            Attack();
+
+            if (currentEquipmentType == EquipmentType.Consumable && equippedConsumableData != null)
+            {
+                StartCoroutine(resetAttackCooldown(equippedConsumableData.cooldown));
+                Consume();
+            }
+            else
+            {
+                StartCoroutine(resetAttackCooldown(attackCooldown));
+                Attack();
+            }
+        }
+
+        private void Consume()
+        {
+            if (isDead || equippedConsumableData == null)
+                return;
+
+            logger.Log(
+                $"[UseSystem] Player:{netId} consuming item '{equippedConsumableData.id}' with effect '{equippedConsumableData.effectType}'.",
+                this
+            );
+
+            switch (equippedConsumableData.effectType)
+            {
+                case EffectType.Heal:
+                    playerHealEvent?.Raise((netId, equippedConsumableData.value));
+                    break;
+                case EffectType.Damage:
+                    //TODO: add to use system more damage (like new stat bonus dmg for duration)
+                    break;
+                case EffectType.Buff:
+                    playerBuffSpeedEvent?.Raise(
+                        (netId, equippedConsumableData.value, equippedConsumableData.duration)
+                    );
+                    break;
+                case EffectType.RestoreMana:
+                case EffectType.DrainMana:
+                case EffectType.Debuff:
+                case EffectType.None:
+                    logger.Log(
+                        $"[UseSystem] Consuming effect '{equippedConsumableData.effectType}' - no logic yet.",
+                        this
+                    );
+                    break;
+            }
+
+            string consumedItemId = equippedConsumableData.id;
+
+            consumeItemEvent?.Raise((netId, consumedItemId));
         }
 
         private void Attack()
@@ -203,9 +270,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         /// <summary>
         /// Resets the attack cooldown after a delay.
         /// </summary>
-        private IEnumerator resetAttackCooldown()
+        private IEnumerator resetAttackCooldown(float cooldown)
         {
-            yield return new WaitForSeconds(attackCooldown);
+            yield return new WaitForSeconds(cooldown);
             isAttacking = false;
         }
 
@@ -225,8 +292,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 this
             );
             var itemType = ServerItemsRegistry.GetItemTypeById(data.itemId);
+            currentEquipmentType = itemType;
+
             if (itemType == EquipmentType.None)
             {
+                equippedConsumableData = null;
                 logger?.Log(
                     $"[UseSystem] No item type found for equipped item '{data.itemId}'.",
                     this,
@@ -246,6 +316,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
             if (itemType == EquipmentType.Weapon)
             {
+                equippedConsumableData = null;
                 var weaponData = ServerItemsRegistry.GetWeaponById(data.itemId);
                 if (weaponData != null)
                 {
@@ -258,12 +329,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     );
                 }
             }
-            else
+            else if (itemType == EquipmentType.Consumable)
             {
                 var consumableData = ServerItemsRegistry.GetConsumableById(data.itemId);
+                equippedConsumableData = consumableData;
                 if (consumableData != null)
                 {
-                    //TODO: implement buffs/debuffs from consumables that can affect attack stats
+                    logger?.Log(
+                        $"[UseSystem] Equipped consumable '{data.itemId}': effect={consumableData.effectType}, value={consumableData.value}, duration={consumableData.duration}, cooldown={consumableData.cooldown}.",
+                        this
+                    );
                 }
             }
         }
