@@ -5,6 +5,7 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Core.Server.Persistence;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;
@@ -31,6 +32,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private uint netId;
         private InventoryStateStorage inventoryState;
+        private CharacterStateStorage characterState;
 
         private int inventorySize = 12;
         private int fastSlotSize = 5;
@@ -39,10 +41,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private string[] inventorySlots;
         private string[] fastSlots;
 
-        public void Initialize(uint netId, InventoryStateStorage inventoryState)
+        public void Initialize(
+            uint netId,
+            InventoryStateStorage inventoryState,
+            CharacterStateStorage characterState
+        )
         {
             this.netId = netId;
             this.inventoryState = inventoryState;
+            this.characterState = characterState;
 
             inventorySize = config.InventorySize > 0 ? config.InventorySize : 12;
             fastSlotSize = config.FastSlotSize > 0 ? config.FastSlotSize : 5;
@@ -187,6 +194,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 targetSlot,
                 targetItemId
             );
+
+            if (sourceType == StorageType.FastSlot && sourceSlot == activeSlot)
+            {
+                characterState.SetEquippedItemId(fastSlots[activeSlot]);
+            }
+            else if (targetType == StorageType.FastSlot && targetSlot == activeSlot)
+            {
+                characterState.SetEquippedItemId(fastSlots[activeSlot]);
+            }
         }
 
         public string OnDropItem(
@@ -216,6 +232,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (prefabProvider != null)
                 SpawnItem(dropPosition, prefabProvider, itemId);
 
+            if (storageType == StorageType.FastSlot && slotIndex == activeSlot)
+            {
+                characterState.SetEquippedItemId(string.Empty);
+            }
+
             return itemId;
         }
 
@@ -230,6 +251,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
             activeSlot = slotIndex;
             logger.Log($"Player:{netId} equipped fast slot {slotIndex}", this);
             inventoryState.SetActiveSlot(slotIndex);
+
+            var itemId = fastSlots[slotIndex];
+            characterState.SetEquippedItemId(itemId);
+            Debug.Log($"Player:{netId} equipped item {itemId} from fast slot {slotIndex}");
         }
 
         public void LoadInventory(string[] inventoryData, string[] fastSlotData)

@@ -66,6 +66,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private AssetsService assetsService;
 
+        [SerializeField]
+        private ItemAssetsService itemAssetsService;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)
@@ -92,6 +95,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(gltfLoaderService);
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
+            builder.RegisterInstance(itemAssetsService);
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientNpcInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
@@ -118,6 +122,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(session, "Session");
             ValidateField(modelService, "ModelService");
             ValidateField(gltfLoaderService, "GLTFLoaderService");
+            ValidateField(itemAssetsService, "ItemAssetsService");
         }
 
         private void ValidateField(object field, string fieldName)
