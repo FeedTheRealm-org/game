@@ -2,12 +2,12 @@ using System.Collections;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
-using FTR.Core.Server.Config;
+using FTR.Core.Server.Enums;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.Utils;
-using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Registry;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -32,6 +32,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private WorldMonitor world;
 
         [Inject]
+        private ItemEquippedEvent itemEquippedEvent;
+
+        [Inject]
         private EnemySlayedEvent enemySlayedEvent;
 
         private LayerMask targetLayer;
@@ -47,9 +50,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Coroutine _autoAttackCoroutine;
         private bool isDead = false;
 
+        // Could be a config function instead of each one but enemies have other stats
+        // could be changed on future if they can equip items or have buffs/debuffs that change their stats
         public void SetAttackDamage(int damage)
         {
             attackDamage = damage;
+        }
+
+        public void SetRange(float radius)
+        {
+            hitRadius = radius;
+        }
+
+        public void SetAttackCooldown(float cooldown)
+        {
+            attackCooldown = cooldown;
         }
 
         public void Initialize(
@@ -66,6 +81,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             this.stateStorage.OnDeath += HandleDeath;
             this.stateStorage.OnRespawn += HandleRespawn;
+            SubscribeToItemEquipped();
         }
 
         private void HandleDeath()
@@ -101,6 +117,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.OnDeath -= HandleDeath;
                 stateStorage.OnRespawn -= HandleRespawn;
             }
+            UnsubscribeFromItemEquipped();
         }
 
         public void GameTick(float dt) { }
@@ -196,6 +213,73 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(HitPoint, hitRadius);
+        }
+
+        private void OnItemEquipped((uint playerNetId, string itemId) data)
+        {
+            if (data.playerNetId != netId)
+                return;
+
+            logger?.Log(
+                $"[InventorySystem] Item equipped: Player:{netId} equipped item '{data.itemId}'.",
+                this
+            );
+            var itemType = ServerItemsRegistry.GetItemTypeById(data.itemId);
+            if (itemType == EquipmentType.None)
+            {
+                logger?.Log(
+                    $"[UseSystem] No item type found for equipped item '{data.itemId}'.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+            var itemData = ServerItemsRegistry.GetItemById(data.itemId);
+            if (itemData == null)
+            {
+                logger?.Log(
+                    $"[UseSystem] No item data found for equipped item '{data.itemId}'. Cannot update stats.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+            if (itemType == EquipmentType.Weapon)
+            {
+                var weaponData = ServerItemsRegistry.GetWeaponById(data.itemId);
+                if (weaponData != null)
+                {
+                    SetAttackDamage(weaponData.damage);
+                    SetRange(weaponData.range);
+                    SetAttackCooldown(weaponData.attackSpeed);
+                    logger?.Log(
+                        $"[UseSystem] Updated stats from equipped weapon '{data.itemId}': damage={weaponData.damage}, range={weaponData.range}, attackSpeed={weaponData.attackSpeed}.",
+                        this
+                    );
+                }
+            }
+            else
+            {
+                var consumableData = ServerItemsRegistry.GetConsumableById(data.itemId);
+                if (consumableData != null)
+                {
+                    //TODO: implement buffs/debuffs from consumables that can affect attack stats
+                }
+            }
+        }
+
+        private void SubscribeToItemEquipped()
+        {
+            if (itemEquippedEvent == null)
+                return;
+            itemEquippedEvent.OnRaised += OnItemEquipped;
+        }
+
+        private void UnsubscribeFromItemEquipped()
+        {
+            if (itemEquippedEvent == null)
+                return;
+            itemEquippedEvent.OnRaised -= OnItemEquipped;
         }
     }
 }

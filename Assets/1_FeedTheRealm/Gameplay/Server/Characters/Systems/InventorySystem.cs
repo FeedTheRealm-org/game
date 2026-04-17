@@ -25,9 +25,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             if (resolver.TryResolve<QuestRewardItemEvent>(out var ev) && ev != null)
                 questRewardItemEvent = ev;
+            if (resolver.TryResolve<ItemEquippedEvent>(out var equipEv) && equipEv != null)
+                itemEquippedEvent = equipEv;
         }
 
         private QuestRewardItemEvent questRewardItemEvent;
+        private ItemEquippedEvent itemEquippedEvent;
         private bool subscribedToQuestReward = false;
 
         private uint netId;
@@ -255,6 +258,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var itemId = fastSlots[slotIndex];
             characterState.SetEquippedItemId(itemId);
             Debug.Log($"Player:{netId} equipped item {itemId} from fast slot {slotIndex}");
+            itemEquippedEvent.Raise((netId, itemId));
         }
 
         public void LoadInventory(string[] inventoryData, string[] fastSlotData)

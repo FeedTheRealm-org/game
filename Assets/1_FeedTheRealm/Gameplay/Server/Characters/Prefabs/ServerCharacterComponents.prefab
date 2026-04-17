@@ -65,9 +65,6 @@ MonoBehaviour:
   attackCooldown: 0.4
   attackDamage: 40
   hitRadius: 1.5
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 384
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!114 &6862505364610922874
 MonoBehaviour:
