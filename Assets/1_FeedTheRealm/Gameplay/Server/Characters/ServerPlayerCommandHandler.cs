@@ -86,7 +86,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public override void OnDialogNext(IEventCollectable ec)
         {
-            interactSystem.TryContinue(ec);
+            interactSystem.TryInteract(ec);
         }
 
         public override void OnQuestAccepted(IEventCollectable ec, string questId)

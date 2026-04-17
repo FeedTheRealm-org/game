@@ -147,11 +147,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            if (
-                activeQuests.ContainsKey(effectiveQuestId)
-                || completedQuests.Contains(effectiveQuestId)
-            )
+            if (activeQuests.ContainsKey(effectiveQuestId))
                 return;
+
+            if (completedQuests.Contains(effectiveQuestId))
+            {
+                completedQuests.Remove(effectiveQuestId);
+            }
 
             var state = new QuestProgressState(questData, npcId);
             activeQuests[effectiveQuestId] = state;
@@ -287,6 +289,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool HasActiveQuestsOfType(QuestType type) =>
             activeQuests.Values.Any(s => s.Quest.type == type && !s.IsCompleted);
+
+        public bool IsQuestCompleted(string questId, string npcId = "")
+        {
+            string effectiveId = string.IsNullOrEmpty(npcId) ? questId : $"{questId}_{npcId}";
+            return completedQuests.Contains(effectiveId);
+        }
+
+        public bool IsQuestActive(string questId, string npcId = "")
+        {
+            string effectiveId = string.IsNullOrEmpty(npcId) ? questId : $"{questId}_{npcId}";
+            return activeQuests.TryGetValue(effectiveId, out var state) && !state.IsCompleted;
+        }
 
         private void SubscribeToEnemySlayed()
         {
