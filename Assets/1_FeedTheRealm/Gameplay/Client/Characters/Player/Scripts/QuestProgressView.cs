@@ -1,7 +1,6 @@
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
 using FTR.Gameplay.Client.Environment.Quest;
-using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
 
