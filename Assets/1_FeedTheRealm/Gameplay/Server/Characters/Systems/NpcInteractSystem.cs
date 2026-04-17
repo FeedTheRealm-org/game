@@ -206,20 +206,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             if (nextIndex >= currentCount)
             {
-                CleanupPlayerSession(playerNetId);
                 interactor.FinishInteracting();
                 return;
             }
 
             state.MessageIndex = nextIndex;
             SendDialogMessage(playerNetId, connId.Value, state, DialogStateType.DialogTypeAdvanced);
-        }
-
-        private void CleanupPlayerSession(uint playerNetId)
-        {
-            _sessions.Remove(playerNetId);
-            _activeSessions.Remove(playerNetId);
-            inactivityTimer.Stop(playerNetId);
         }
 
         private string ResolveActiveDialog(QuestSystem questSystem)
