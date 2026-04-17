@@ -17,6 +17,8 @@ namespace FTR.Core.Server.Config
         // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
         public bool PersistToDatabase = true;
 
+        public int AutoSaveIntervalSeconds = 30;
+
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;
         public LayerMask TargetLayer; // Enemies

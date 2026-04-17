@@ -58,7 +58,7 @@ public class ServerPlayerLinker : PlayerLinker
         var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
         tracker.Initialize(world, netId);
 
-        var systems = characterLinker.Link(gameObject, netId);
+        var sharedSystems = characterLinker.Link(gameObject, netId);
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
 
         var playerComponents = resolver.Instantiate(
@@ -69,7 +69,7 @@ public class ServerPlayerLinker : PlayerLinker
         var serverPlayerCommandHandler =
             playerComponents.GetComponent<ServerPlayerCommandHandler>();
         var respawnSystem = playerComponents.GetComponent<RespawnSystem>();
-        var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
+        var playerPersistenceSystem = playerComponents.GetComponent<PlayerPersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
         var goldSystem = playerComponents.GetComponent<GoldSystem>();
         var interactSystem = playerComponents.GetComponent<PlayerInteractSystem>();
@@ -78,8 +78,8 @@ public class ServerPlayerLinker : PlayerLinker
 
         interactSystem.Initialize(netId, world, networkAdapter.netId);
         questSystem.Initialize(netId, world, networkAdapter.netId);
-        systems.Health.Initialize(netId, stateStorage, false);
-        systems.Use.Initialize(
+        sharedSystems.Health.Initialize(netId, stateStorage, false);
+        sharedSystems.Use.Initialize(
             netId,
             rb,
             serverConfig.PlayerLayer | serverConfig.TargetLayer,
@@ -87,13 +87,19 @@ public class ServerPlayerLinker : PlayerLinker
         );
         inventorySystem.Initialize(netId, inventoryStateStorage);
         goldSystem.Initialize(netId, goldStateStorage, world);
-        persistenceSystem.Initialize(systems.Movement, inventorySystem);
+        playerPersistenceSystem.Initialize(
+            stateStorage,
+            inventorySystem,
+            goldSystem,
+            sharedSystems.Movement,
+            questSystem
+        );
         chatSystem.Initialize(netId, world);
 
         serverPlayerCommandHandler.Initialize(
-            systems.Movement,
-            systems.Dash,
-            systems.Use,
+            sharedSystems.Movement,
+            sharedSystems.Dash,
+            sharedSystems.Use,
             interactSystem,
             inventorySystem,
             questSystem,
@@ -109,7 +115,7 @@ public class ServerPlayerLinker : PlayerLinker
             networkAdapter,
             serverPlayerCommandHandler,
             rb,
-            systems.Health
+            sharedSystems.Health
         );
 
         characterLinker.RegisterEntity(

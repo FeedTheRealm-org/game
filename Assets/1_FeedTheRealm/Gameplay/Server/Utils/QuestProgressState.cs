@@ -15,11 +15,11 @@ namespace FTR.Gameplay.Server.Utils
         public int Target { get; }
         public bool IsCompleted => Current >= Target;
 
-        public QuestProgressState(QuestData quest, string npcId = "")
+        public QuestProgressState(QuestData quest, string npcId = "", int initialProgress = 0)
         {
             Quest = quest;
             NpcId = npcId;
-            Current = 0;
+            Current = initialProgress;
             Target = quest.type == QuestType.EnemySlays ? Mathf.Max(1, quest.targetAmount) : 1;
         }
 

@@ -86,19 +86,16 @@ namespace FTR.Gameplay.Server.Characters
 
         public override void OnDialogNext(IEventCollectable ec)
         {
-            interactSystem.TryContinue(ec);
+            interactSystem.TryInteract(ec);
         }
 
         public override void OnQuestAccepted(IEventCollectable ec, string questId)
         {
             string npcId = (interactSystem.CurrentInteractable as NpcInteractSystem)?.NpcId;
-
             questSystem.OnQuestAccepted(ec, questId, npcId);
-
-            playerQuestDecisionEvent?.Raise((interactSystem.NetId, true));
         }
 
-        public override void OnQuestDecided(IEventCollectable ec)
+        public override void OnQuestRejected(IEventCollectable ec)
         {
             playerQuestDecisionEvent?.Raise((interactSystem.NetId, false));
         }

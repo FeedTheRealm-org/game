@@ -101,6 +101,36 @@ namespace FTR.Gameplay.Common.Environment.Dialogs
             return entry.QuestIds[messageIndex] ?? string.Empty;
         }
 
+        public string GetQuestIdForSlot(string npcId, int progressionIndex)
+        {
+            if (!TryGetEntry(npcId, progressionIndex, out var entry))
+                return string.Empty;
+
+            foreach (var qId in entry.QuestIds)
+            {
+                if (!string.IsNullOrEmpty(qId))
+                    return qId;
+            }
+            return string.Empty;
+        }
+
+        public string GetQuestIdForDialogAndMessage(string npcId, string dialogId, int messageIndex)
+        {
+            if (!TryGetProgression(npcId, out var list))
+                return string.Empty;
+
+            foreach (var entry in list)
+            {
+                if (entry.DialogId == dialogId)
+                {
+                    if (messageIndex >= 0 && messageIndex < entry.QuestIds.Count)
+                        return entry.QuestIds[messageIndex] ?? string.Empty;
+                    break;
+                }
+            }
+            return string.Empty;
+        }
+
         public string GetOnQuestAcceptedDialogId(string npcId, int progressionIndex)
         {
             if (!TryGetEntry(npcId, progressionIndex, out var entry))
