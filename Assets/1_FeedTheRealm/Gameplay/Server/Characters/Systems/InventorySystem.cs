@@ -178,8 +178,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return null;
 
             InventoryItemModel[] storage = GetStorage(storageType);
-            var item = storage[slotIndex];
-            if (string.IsNullOrEmpty(item.ItemId))
+            var itemId = storage[slotIndex].ItemId;
+            if (string.IsNullOrEmpty(itemId))
                 return null;
 
             storage[slotIndex].ItemId = string.Empty;
@@ -187,14 +187,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
             inventoryState.DropItem(storageType, slotIndex);
 
             logger.Log(
-                $"Dropped item {item} from {storageType}[{slotIndex}] for Player:{netId}",
+                $"Dropped item {itemId} from {storageType}[{slotIndex}] for Player:{netId}",
                 this
             );
 
             if (prefabProvider != null)
-                SpawnItem(dropPosition, prefabProvider, item.ItemId);
+                SpawnItem(dropPosition, prefabProvider, itemId);
 
-            return item.ItemId;
+            return itemId;
         }
 
         public void OnEquipItem(IEventCollectable ec, int slotIndex)

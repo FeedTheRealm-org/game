@@ -271,7 +271,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     }
                 )
             );
-            OnSaveQuestProgress.Invoke(state.EffectiveQuestId, state.Current, state.IsCompleted);
+            OnSaveQuestProgress?.Invoke(state.EffectiveQuestId, state.Current, state.IsCompleted);
         }
 
         private int? GetConnectionId()

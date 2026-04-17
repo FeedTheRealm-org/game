@@ -361,7 +361,10 @@ public class FTRNetworkManager : NetworkManager
                 true
             );
             if (persistenceHandler == null)
+            {
+                base.OnServerDisconnect(conn);
                 return;
+            }
             persistenceHandler.SaveAll();
             logger.Log(
                 $"[NetworkManager] Saved player data for connection {conn.connectionId} before disconnecting.",
