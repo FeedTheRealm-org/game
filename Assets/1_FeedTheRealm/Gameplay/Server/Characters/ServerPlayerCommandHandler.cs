@@ -95,7 +95,7 @@ namespace FTR.Gameplay.Server.Characters
             questSystem.OnQuestAccepted(ec, questId, npcId);
         }
 
-        public override void OnQuestDecided(IEventCollectable ec)
+        public override void OnQuestRejected(IEventCollectable ec)
         {
             playerQuestDecisionEvent?.Raise((interactSystem.NetId, false));
         }
