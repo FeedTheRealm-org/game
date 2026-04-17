@@ -7,5 +7,6 @@ namespace FTR.Core.Server.EventChannels
         fileName = "ItemEquippedEvent",
         menuName = "Events/Server/Inventory/ItemEquippedEvent"
     )]
-    public class ItemEquippedEvent : EventChannelSO<(uint playerNetId, string itemId)> { }
+    public class ItemEquippedEvent
+        : EventChannelSO<(uint playerNetId, string itemId, int slotIndex)> { }
 }

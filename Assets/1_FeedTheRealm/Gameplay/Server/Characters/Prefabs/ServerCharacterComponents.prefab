@@ -66,6 +66,7 @@ MonoBehaviour:
   attackDamage: 40
   hitRadius: 1.5
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
 --- !u!114 &6862505364610922874
 MonoBehaviour:
   m_ObjectHideFlags: 0

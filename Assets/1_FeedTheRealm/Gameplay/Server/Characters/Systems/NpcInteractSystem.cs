@@ -27,28 +27,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private float inactivityTimeout = 10f;
 
-        [Inject]
-        public void Construct(IObjectResolver resolver)
-        {
-            if (resolver.TryResolve<NpcInteractedEvent>(out var ev) && ev != null)
-                npcInteractedEvent = ev;
-
-            if (resolver.TryResolve<NpcQuestCompletedEvent>(out var qev) && qev != null)
-            {
-                npcQuestCompletedEvent = qev;
-                npcQuestCompletedEvent.OnRaised += OnQuestCompletedGlobal;
-            }
-
-            if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var pqde) && pqde != null)
-            {
-                playerQuestDecisionEvent = pqde;
-                playerQuestDecisionEvent.OnRaised += OnQuestDecisionGlobal;
-            }
-        }
-
         private NpcInteractedEvent npcInteractedEvent;
         private NpcQuestCompletedEvent npcQuestCompletedEvent;
         private PlayerQuestDecisionEvent playerQuestDecisionEvent;
+
+        [Inject]
+        public void Construct(
+            IObjectResolver resolver,
+            NpcInteractedEvent npcInteractedEvent,
+            NpcQuestCompletedEvent npcQuestCompletedEvent,
+            PlayerQuestDecisionEvent playerQuestDecisionEvent
+        )
+        {
+            this.npcInteractedEvent = resolver.Resolve<NpcInteractedEvent>();
+            this.npcQuestCompletedEvent = resolver.Resolve<NpcQuestCompletedEvent>();
+            this.playerQuestDecisionEvent = resolver.Resolve<PlayerQuestDecisionEvent>();
+        }
 
         private string npcId;
         public string NpcId => npcId;

@@ -18,11 +18,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
     {
         private Logging.Logger logger;
         private ServerQuestRegistry serverQuestRegistry;
-
+        private QuestRewardItemEvent questRewardItemEvent;
+        private QuestRewardGoldEvent questRewardGoldEvent;
         private EnemySlayedEvent enemySlayedEvent;
         private NpcInteractedEvent npcInteractedEvent;
         private NpcQuestCompletedEvent npcQuestCompletedEvent;
-
         private uint netId;
         private WorldMonitor worldMonitor;
         private uint ownNetId;
@@ -39,42 +39,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void Construct(
             Logging.Logger logger,
             ServerQuestRegistry serverQuestRegistry,
+            QuestRewardGoldEvent questRewardGoldEvent,
+            QuestRewardItemEvent questRewardItemEvent,
+            EnemySlayedEvent enemySlayedEvent,
+            NpcInteractedEvent npcInteractedEvent,
+            NpcQuestCompletedEvent npcQuestCompletedEvent,
             IObjectResolver resolver
         )
         {
             this.logger = logger;
-            this.serverQuestRegistry = serverQuestRegistry;
-
-            if (resolver.TryResolve<EnemySlayedEvent>(out var ev1) && ev1 != null)
-                enemySlayedEvent = ev1;
-            if (resolver.TryResolve<NpcInteractedEvent>(out var ev2) && ev2 != null)
-                npcInteractedEvent = ev2;
-
-            if (resolver.TryResolve<NpcQuestCompletedEvent>(out var ev3) && ev3 != null)
-                npcQuestCompletedEvent = ev3;
-
-            resolver.TryResolve<QuestRewardGoldEvent>(out var goldEvent);
-            if (goldEvent == null)
-                logger?.Log(
-                    "[QuestSystem] QuestRewardGoldEvent not registered; gold rewards may be dropped.",
-                    this,
-                    Logging.LogType.Warning
-                );
-
-            resolver.TryResolve<QuestRewardItemEvent>(out var itemEvent);
-            if (itemEvent == null)
-                logger?.Log(
-                    "[QuestSystem] QuestRewardItemEvent not registered; item rewards may be dropped.",
-                    this,
-                    Logging.LogType.Warning
-                );
-
-            _pendingGoldEvent = goldEvent;
-            _pendingItemEvent = itemEvent;
+            this.serverQuestRegistry = resolver.Resolve<ServerQuestRegistry>();
+            this.questRewardGoldEvent = resolver.Resolve<QuestRewardGoldEvent>();
+            this.questRewardItemEvent = resolver.Resolve<QuestRewardItemEvent>();
+            this.enemySlayedEvent = resolver.Resolve<EnemySlayedEvent>();
+            this.npcInteractedEvent = resolver.Resolve<NpcInteractedEvent>();
+            this.npcQuestCompletedEvent = resolver.Resolve<NpcQuestCompletedEvent>();
         }
-
-        private QuestRewardGoldEvent _pendingGoldEvent;
-        private QuestRewardItemEvent _pendingItemEvent;
 
         public void Initialize(uint netId, WorldMonitor worldMonitor, uint ownNetId)
         {
@@ -85,8 +65,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             rewardGranter = new QuestRewardGranter(
                 netId,
                 logger,
-                _pendingGoldEvent,
-                _pendingItemEvent
+                questRewardGoldEvent,
+                questRewardItemEvent
             );
         }
 

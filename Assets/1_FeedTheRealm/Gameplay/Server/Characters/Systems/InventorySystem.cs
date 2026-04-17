@@ -264,7 +264,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var itemId = fastSlots[slotIndex];
             characterState.SetEquippedItemId(itemId);
             Debug.Log($"Player:{netId} equipped item {itemId} from fast slot {slotIndex}");
-            itemEquippedEvent.Raise((netId, itemId));
+
+            // slotIndex is now included so UseSystem can maintain per-slot cooldowns
+            itemEquippedEvent.Raise((netId, itemId, slotIndex));
         }
 
         public void LoadInventory(string[] inventoryData, string[] fastSlotData)
@@ -370,7 +372,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     this
                 );
                 fastSlots[activeSlot] = string.Empty;
-                inventoryState.DropItem(StorageType.FastSlot, activeSlot); // Notify state storage to clear it
+                inventoryState.DropItem(StorageType.FastSlot, activeSlot);
                 characterState.SetEquippedItemId(string.Empty);
             }
         }
