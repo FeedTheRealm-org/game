@@ -105,17 +105,17 @@ public class FTRNetworkManager : NetworkManager
                     containerScope.Container.Resolve<NetworkSpawnPendingObjectsRegistry>();
                 spawnerRegistry.SpawnAll();
             }
-            else if (config.RuntimeRole == RuntimeRole.Client)
+            else if (
+                config.RuntimeRole == RuntimeRole.Client
+                || config.RuntimeRole == RuntimeRole.Bot
+            )
             {
                 networkAddress = config.CurrentServerAddress;
                 kcp.Port = config.CurrentServerPort;
 
-                logger.Log(
-                    "[NetworkManager] Waiting for client world preload before connecting...",
-                    this
-                );
+                logger.Log("[NetworkManager] Waiting for world preload before connecting...", this);
                 var canStartClient = await WaitForWorldLoadGateAsync(
-                    RuntimeRole.Client,
+                    config.RuntimeRole,
                     worldLoadGateCts.Token
                 );
                 if (!canStartClient)

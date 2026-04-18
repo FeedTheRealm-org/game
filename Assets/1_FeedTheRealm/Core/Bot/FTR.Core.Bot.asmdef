@@ -1,0 +1,22 @@
+{
+  "name": "FTR.Core.Bot",
+  "references": [
+    "FeedTheRealm_Shared",
+    "FTR.Core.Common",
+    "UnityEngine",
+    "Mirror",
+    "VContainer",
+    "UniTask"
+  ],
+  "includePlatforms": [
+    "Editor",
+    "WindowsStandalone64",
+    "LinuxStandalone64"
+  ],
+  "defineConstraints": [
+    "BOT_BUILD"
+  ],
+  "autoReferenced": false,
+  "noEngineReferences": false,
+  "languageVersion": "10.0"
+}

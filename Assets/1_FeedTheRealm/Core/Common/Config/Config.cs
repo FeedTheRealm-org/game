@@ -8,6 +8,7 @@ namespace FTR.Core.Common.Config
     {
         Server,
         Client,
+        Bot,
     }
 
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/Config")]
@@ -68,10 +69,12 @@ namespace FTR.Core.Common.Config
 
         private RuntimeRole GetRuntimeRole()
         {
-#if SERVER_BUILD && !CLIENT_BUILD
+#if SERVER_BUILD && !CLIENT_BUILD && !BOT_BUILD
             return RuntimeRole.Server;
-#elif CLIENT_BUILD && !SERVER_BUILD
+#elif CLIENT_BUILD && !SERVER_BUILD && !BOT_BUILD
             return RuntimeRole.Client;
+#elif BOT_BUILD && !SERVER_BUILD && !CLIENT_BUILD
+            return RuntimeRole.Bot;
 #else // SERVER & CLIENT || None (debugging)
             return editorRuntimeRole;
 #endif

@@ -66,6 +66,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private AssetsService assetsService;
 
+        public RuntimeRole CurrentRuntimeRole =>
+            config != null ? config.RuntimeRole : RuntimeRole.Client;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)

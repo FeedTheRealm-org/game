@@ -1,3 +1,4 @@
+using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints.Scopes;
 using FTR.Gameplay.Common.Linkers;
 using Mirror;
@@ -17,11 +18,18 @@ namespace FTR.Gameplay.Client.Characters
         public override void OnStartClient()
         {
             base.OnStartClient();
+
+            var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
+            if (
+                clientWorldInitiator == null
+                || clientWorldInitiator.CurrentRuntimeRole != RuntimeRole.Client
+            )
+                return;
+
             Debug.Log(
                 $"ClientCharacterNetworkInitializer: OnStartClient - Injecting {gameObject.name}"
             );
 
-            var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
             clientWorldInitiator.Container.InjectGameObject(gameObject);
 
             GetComponent<GameObjectLinker>()?.Initialize();

@@ -1,3 +1,4 @@
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.EntryPoints.Scopes;
 using FTR.Gameplay.Common.Linkers;
@@ -27,6 +28,12 @@ namespace FTR.Gameplay.Client.Environment.LootItem
         private void InjectDependencies()
         {
             var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
+            if (
+                clientWorldInitiator == null
+                || clientWorldInitiator.CurrentRuntimeRole != RuntimeRole.Client
+            )
+                return;
+
             clientWorldInitiator.Container.InjectGameObject(gameObject);
             var identity = netIdentity;
             if (identity != null)
@@ -36,7 +43,7 @@ namespace FTR.Gameplay.Client.Environment.LootItem
                     $"ClientLootItemNetworkInitializer: No NetworkIdentity found on '{gameObject.name}'."
                 );
 
-            GetComponent<GameObjectLinker>().Initialize();
+            GetComponent<GameObjectLinker>()?.Initialize();
         }
     }
 }
