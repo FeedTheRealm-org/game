@@ -24,7 +24,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void LoadPlayerInventory(InventorySystem inventorySystem)
         {
             // TODO: call the db to get the player's inventory, for now we will just initialize with an empty inventory
-            inventorySystem.LoadInventory(new string[0], new string[0]);
+            // inventorySystem.LoadInventory(new string[0], new string[0]);
         }
 
         public void GameTick(float dt) { }

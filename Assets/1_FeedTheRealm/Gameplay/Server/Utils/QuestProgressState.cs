@@ -8,14 +8,18 @@ namespace FTR.Gameplay.Server.Utils
     public sealed class QuestProgressState
     {
         public QuestData Quest { get; }
+        public string NpcId { get; }
+        public string EffectiveQuestId =>
+            string.IsNullOrEmpty(NpcId) ? Quest.id : $"{Quest.id}_{NpcId}";
         public int Current { get; private set; }
         public int Target { get; }
         public bool IsCompleted => Current >= Target;
 
-        public QuestProgressState(QuestData quest)
+        public QuestProgressState(QuestData quest, string npcId = "", int initialProgress = 0)
         {
             Quest = quest;
-            Current = 0;
+            NpcId = npcId;
+            Current = initialProgress;
             Target = quest.type == QuestType.EnemySlays ? Mathf.Max(1, quest.targetAmount) : 1;
         }
 

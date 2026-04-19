@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
+using FTR.Core.Server.Persistence.Schemas;
 using FTR.Gameplay.Server.Environment.Quest;
 using FTR.Gameplay.Server.Utils;
 using UnityEngine;
@@ -16,11 +18,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
     /// </summary>
     public class QuestSystem : MonoBehaviour
     {
+        public event Action<string, int, bool> OnSaveQuestProgress;
+
         private Logging.Logger logger;
         private ServerQuestRegistry serverQuestRegistry;
 
         private EnemySlayedEvent enemySlayedEvent;
         private NpcInteractedEvent npcInteractedEvent;
+        private NpcQuestCompletedEvent npcQuestCompletedEvent;
+        private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         private uint netId;
         private WorldMonitor worldMonitor;
@@ -30,6 +36,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private readonly Dictionary<string, QuestProgressState> activeQuests =
             new Dictionary<string, QuestProgressState>();
+        private readonly HashSet<string> completedQuests = new HashSet<string>();
 
         private bool subscribedToEnemySlayed = false;
         private bool subscribedToNpcInteracted = false;
@@ -48,6 +55,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 enemySlayedEvent = ev1;
             if (resolver.TryResolve<NpcInteractedEvent>(out var ev2) && ev2 != null)
                 npcInteractedEvent = ev2;
+            if (resolver.TryResolve<NpcQuestCompletedEvent>(out var ev3) && ev3 != null)
+                npcQuestCompletedEvent = ev3;
+            if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var ev4) && ev4 != null)
+                playerQuestDecisionEvent = ev4;
 
             resolver.TryResolve<QuestRewardGoldEvent>(out var goldEvent);
             if (goldEvent == null)
@@ -92,13 +103,39 @@ namespace FTR.Gameplay.Server.Characters.Systems
             UnsubscribeFromNpcInteracted();
         }
 
-        public void OnQuestAccepted(IEventCollectable ec, string questId)
+        public void LoadQuests(List<QuestModel> activeQuests, List<string> completedQuests)
         {
+            foreach (var quest in activeQuests)
+            {
+                var questId = quest.EffectiveQuestId.Split('_')[0];
+                var npcId = quest.EffectiveQuestId.Split('_')[1];
+                if (!serverQuestRegistry.TryGetQuest(questId, out var questData))
+                    continue;
+                var state = new QuestProgressState(questData, npcId, quest.Progress);
+                this.activeQuests[state.EffectiveQuestId] = state;
+
+                if (questData.type == QuestType.EnemySlays)
+                    SubscribeToEnemySlayed();
+                else if (questData.type == QuestType.NpcInteract)
+                    SubscribeToNpcInteracted();
+
+                SendProgressEvent(state);
+            }
+            foreach (var questId in completedQuests)
+                this.completedQuests.Add(questId);
+        }
+
+        public void OnQuestAccepted(IEventCollectable ec, string questId, string npcId = "")
+        {
+            playerQuestDecisionEvent?.Raise((netId, true));
+
             if (string.IsNullOrEmpty(questId))
             {
                 logger?.Log("[QuestSystem] OnQuestAccepted called with empty questId.", this);
                 return;
             }
+
+            string effectiveQuestId = string.IsNullOrEmpty(npcId) ? questId : $"{questId}_{npcId}";
 
             if (!serverQuestRegistry.TryGetQuest(questId, out var questData))
             {
@@ -110,13 +147,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            if (activeQuests.ContainsKey(questId))
-            {
+            if (activeQuests.ContainsKey(effectiveQuestId))
                 return;
+
+            if (completedQuests.Contains(effectiveQuestId))
+            {
+                completedQuests.Remove(effectiveQuestId);
             }
 
-            var state = new QuestProgressState(questData);
-            activeQuests[questId] = state;
+            var state = new QuestProgressState(questData, npcId);
+            activeQuests[effectiveQuestId] = state;
 
             if (questData.type == QuestType.EnemySlays)
                 SubscribeToEnemySlayed();
@@ -192,17 +232,24 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            activeQuests.Remove(state.Quest.id);
+            activeQuests.Remove(state.EffectiveQuestId);
+            completedQuests.Add(state.EffectiveQuestId);
 
             worldMonitor.Events.Enqueue(
                 new QuestCompletedEvent(
                     ownNetId,
                     connId.Value,
-                    new QuestCompletedEventContent { QuestId = state.Quest.id }
+                    new QuestCompletedEventContent
+                    {
+                        QuestId = state.Quest.id,
+                        EffectiveQuestId = state.EffectiveQuestId,
+                    }
                 )
             );
 
             rewardGranter.Grant(state.Quest);
+
+            npcQuestCompletedEvent?.Raise((netId, state.Quest.id, state.NpcId));
         }
 
         private void SendProgressEvent(QuestProgressState state)
@@ -220,9 +267,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         QuestId = state.Quest.id,
                         Current = state.Current,
                         Target = state.Target,
+                        EffectiveQuestId = state.EffectiveQuestId,
                     }
                 )
             );
+            OnSaveQuestProgress?.Invoke(state.EffectiveQuestId, state.Current, state.IsCompleted);
         }
 
         private int? GetConnectionId()
@@ -240,6 +289,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool HasActiveQuestsOfType(QuestType type) =>
             activeQuests.Values.Any(s => s.Quest.type == type && !s.IsCompleted);
+
+        public bool IsQuestCompleted(string questId, string npcId = "")
+        {
+            string effectiveId = string.IsNullOrEmpty(npcId) ? questId : $"{questId}_{npcId}";
+            return completedQuests.Contains(effectiveId);
+        }
+
+        public bool IsQuestActive(string questId, string npcId = "")
+        {
+            string effectiveId = string.IsNullOrEmpty(npcId) ? questId : $"{questId}_{npcId}";
+            return activeQuests.TryGetValue(effectiveId, out var state) && !state.IsCompleted;
+        }
 
         private void SubscribeToEnemySlayed()
         {

@@ -1,5 +1,5 @@
+using System;
 using FTR.Core.Common.Protocol.RpcMessages;
-using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
@@ -9,12 +9,14 @@ using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
-    public class GoldSystem : MonoBehaviour, IGameTickable
+    public class GoldSystem : MonoBehaviour
     {
+        public event Action<int> OnSaveGold;
+
         [SerializeField]
         private Logging.Logger logger;
 
-        [SerializeField]
+        [Inject]
         private ServerConfig config;
 
         [Inject]
@@ -34,12 +36,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private bool isInitialized = false;
         private bool isSettedUp = false;
 
+        public int GetCurrentGold() => goldState.Gold;
+
         public void Initialize(uint netId, GoldStateStorage goldState, WorldMonitor worldMonitor)
         {
             this.netId = netId;
             this.goldState = goldState;
             this.worldMonitor = worldMonitor;
-            goldState.SetGold(config.StartingGold);
             isInitialized = true;
 
             SubscribeToQuestReward();
@@ -92,8 +95,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return false;
             }
 
-            goldState.ReduceGold(amount);
             logger.Log($"[GoldSystem] Player {netId} reduced {amount} gold", this);
+            goldState.ReduceGold(amount);
             return true;
         }
 
@@ -145,22 +148,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void LoadGold(int savedGold)
         {
-            // TODO: restore gold from saved data
-            logger.Log($"[GoldSystem] Loaded gold for Player:{netId}", this);
-        }
-
-        public void GameTick(float dt)
-        {
-            if (isInitialized && !isSettedUp)
-            {
-                int currentGold = config.StartingGold > 0 ? config.StartingGold : 0;
-                goldState.SetGold(currentGold);
-                logger.Log(
-                    $"[GoldSystem] Initialized Player:{netId} with {currentGold} gold",
-                    this
-                );
-                isSettedUp = true;
-            }
+            goldState.SetGold(savedGold);
         }
 
         // ── Private helpers ───────────────────────────────────────────────────

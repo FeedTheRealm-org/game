@@ -1,7 +1,6 @@
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
 using FTR.Gameplay.Client.Environment.Quest;
-using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
 
@@ -58,7 +57,7 @@ public class QuestProgressView : MonoBehaviour
         questProgressEvent.Raise(
             new QuestProgressData
             {
-                Id = questData.id,
+                Id = content.EffectiveQuestId,
                 Quest = questData,
                 CurrentProgressAmount = content.Current,
                 TargetProgressAmount = content.Target,
@@ -78,6 +77,6 @@ public class QuestProgressView : MonoBehaviour
             return;
         }
 
-        questCompletedEvent.Raise(questData);
+        questCompletedEvent.Raise((questData, content.EffectiveQuestId));
     }
 }

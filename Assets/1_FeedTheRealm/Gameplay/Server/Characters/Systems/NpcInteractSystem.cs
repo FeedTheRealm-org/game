@@ -1,21 +1,19 @@
-using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.Enums;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Server.Utils;
 using UnityEngine;
 using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
     /// <summary>
-    /// Server-side interactable for passive NPCs with dialog sequences.
-    /// Implements IInteractable for the standard interaction lifecycle,
-    /// IQuestBlockable to pause dialog while waiting for a quest decision,
-    /// and publishes to NpcInteractedServerChannel so QuestSystem can track NpcInteract quests.
+    /// Server-side interactable for passive NPCs with dialog progression.
     /// </summary>
     public class NpcInteractSystem : MonoBehaviour, IInteractable, IQuestBlockable
     {
@@ -32,20 +30,32 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [Inject]
         public void Construct(IObjectResolver resolver)
         {
-            var hasEvent = resolver.TryResolve<NpcInteractedEvent>(out var ev);
-            if (hasEvent && ev != null)
-                this.npcInteractedEvent = ev;
+            if (resolver.TryResolve<NpcInteractedEvent>(out var ev) && ev != null)
+                npcInteractedEvent = ev;
+
+            if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var pqde) && pqde != null)
+            {
+                playerQuestDecisionEvent = pqde;
+                playerQuestDecisionEvent.OnRaised += OnQuestDecisionGlobal;
+            }
         }
 
         private NpcInteractedEvent npcInteractedEvent;
+        private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         private string npcId;
+        public string NpcId => npcId;
+
         private WorldMonitor worldMonitor;
         private uint ownNetId;
-        private Dictionary<uint, int> playerDialogStates = new Dictionary<uint, int>();
-        private HashSet<uint> _questPendingPlayers = new HashSet<uint>();
-        private Dictionary<uint, Coroutine> playerTimeouts = new Dictionary<uint, Coroutine>();
         private CharacterStateStorage stateStorage;
+
+        private NpcDialogInactivityTimer inactivityTimer;
+
+        private readonly Dictionary<uint, PlayerDialogState> _sessions =
+            new Dictionary<uint, PlayerDialogState>();
+
+        private readonly HashSet<uint> _activeSessions = new HashSet<uint>();
 
         public void Initialize(
             Logging.Logger logger,
@@ -61,14 +71,253 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.ownNetId = ownNetId;
             this.npcId = npcId;
             this.stateStorage = GetComponent<CharacterStateStorage>();
+
+            inactivityTimer = new NpcDialogInactivityTimer(this, inactivityTimeout);
         }
 
-        private void UpdateMovementBlockedState()
+        private void OnDestroy()
         {
-            if (stateStorage != null)
+            if (playerQuestDecisionEvent != null)
+                playerQuestDecisionEvent.OnRaised -= OnQuestDecisionGlobal;
+
+            inactivityTimer?.StopAll();
+        }
+
+        public bool CanInteract(IInteractor interactor) => true;
+
+        public string Interact(IInteractor interactor)
+        {
+            uint playerNetId = interactor.NetId;
+
+            if (_activeSessions.Contains(playerNetId))
             {
-                stateStorage.IsMovementBlocked = playerDialogStates.Count > 0;
+                ContinueSession(playerNetId, interactor);
+                return npcId;
             }
+
+            var questSystem = interactor.GameObject.GetComponent<QuestSystem>();
+            string activeDialogId = ResolveActiveDialog(questSystem);
+
+            if (string.IsNullOrEmpty(activeDialogId))
+            {
+                logger?.Log(
+                    $"[NpcInteractSystem] No dialog resolved for NPC '{npcId}', Player:{playerNetId}.",
+                    this
+                );
+                interactor.FinishInteracting();
+                return npcId;
+            }
+
+            if (
+                !npcDialogRegistry.TryGetMessagesByDialogId(activeDialogId, out var messages)
+                || messages.Count == 0
+            )
+            {
+                logger?.Log(
+                    $"[NpcInteractSystem] Dialog '{activeDialogId}' has no messages for NPC '{npcId}'.",
+                    this
+                );
+                interactor.FinishInteracting();
+                return npcId;
+            }
+
+            if (!_sessions.TryGetValue(playerNetId, out var state))
+            {
+                state = new PlayerDialogState();
+                _sessions[playerNetId] = state;
+            }
+
+            state.Interactor = interactor;
+            state.MessageIndex = 0;
+            state.Phase = PlayerPhase.Normal;
+            state.ActiveDialogId = activeDialogId;
+
+            _activeSessions.Add(playerNetId);
+
+            var connId = GetPlayerConnectionId(playerNetId);
+            if (!connId.HasValue)
+            {
+                logger?.Log($"[NpcInteractSystem] conn not found, Player:{playerNetId}.", this);
+                return npcId;
+            }
+
+            npcInteractedEvent?.Raise((playerNetId, npcId));
+            SendDialogMessage(playerNetId, connId.Value, state, DialogStateType.DialogTypeStarted);
+            return npcId;
+        }
+
+        public void StopInteraction(IInteractor interactor)
+        {
+            uint playerNetId = interactor.NetId;
+
+            _sessions.Remove(playerNetId);
+            if (!_activeSessions.Remove(playerNetId))
+                return;
+
+            inactivityTimer.Stop(playerNetId);
+
+            var connId = GetPlayerConnectionId(playerNetId);
+            if (connId.HasValue)
+            {
+                worldMonitor.Events.Enqueue(
+                    new DialogEvent(
+                        ownNetId,
+                        new DialogEventContent
+                        {
+                            DialogState = DialogStateType.DialogTypeClosed,
+                            NpcId = npcId,
+                            DialogIndex = 0,
+                        },
+                        connId.Value
+                    )
+                );
+            }
+        }
+
+        public void OnQuestDecided(uint playerNetId)
+        {
+            if (!_sessions.TryGetValue(playerNetId, out var state))
+                return;
+            if (state.Phase != PlayerPhase.WaitingForQuestDecision)
+                return;
+            state.Phase = PlayerPhase.Normal;
+        }
+
+        private void ContinueSession(uint playerNetId, IInteractor interactor)
+        {
+            if (!_sessions.TryGetValue(playerNetId, out var state))
+                return;
+
+            if (state.Phase == PlayerPhase.WaitingForQuestDecision)
+            {
+                logger?.Log(
+                    $"[NpcInteractSystem] Continue ignored — quest pending for Player:{playerNetId}.",
+                    this
+                );
+                return;
+            }
+
+            var connId = GetPlayerConnectionId(playerNetId);
+            if (!connId.HasValue)
+                return;
+
+            int currentCount = GetCurrentMessageCount(state);
+            int nextIndex = state.MessageIndex + 1;
+
+            if (nextIndex >= currentCount)
+            {
+                interactor.FinishInteracting();
+                return;
+            }
+
+            state.MessageIndex = nextIndex;
+            SendDialogMessage(playerNetId, connId.Value, state, DialogStateType.DialogTypeAdvanced);
+        }
+
+        private string ResolveActiveDialog(QuestSystem questSystem)
+        {
+            int count = npcDialogRegistry.GetProgressionCount(npcId);
+
+            if (count == 0)
+                return string.Empty;
+
+            for (int i = 0; i < count; i++)
+            {
+                string dialogId = npcDialogRegistry.GetDialogId(npcId, i);
+                string questId = npcDialogRegistry.GetQuestIdForSlot(npcId, i);
+                bool hasQuest = !string.IsNullOrEmpty(questId);
+
+                if (!hasQuest)
+                {
+                    return dialogId;
+                }
+
+                bool completed =
+                    questSystem != null && questSystem.IsQuestCompleted(questId, npcId);
+
+                bool repeatable = npcDialogRegistry.IsRepeatableAt(npcId, i);
+
+                if (completed && !repeatable)
+                    continue;
+
+                bool active = questSystem != null && questSystem.IsQuestActive(questId, npcId);
+
+                if (active)
+                {
+                    string onAccepted = npcDialogRegistry.GetOnQuestAcceptedDialogId(npcId, i);
+                    if (!string.IsNullOrEmpty(onAccepted))
+                    {
+                        return onAccepted;
+                    }
+                }
+
+                return dialogId;
+            }
+
+            return string.Empty;
+        }
+
+        private void OnQuestDecisionGlobal((uint playerNetId, bool isAccepted) data)
+        {
+            if (playerQuestDecisionEvent == null)
+                return;
+            if (!_activeSessions.Contains(data.playerNetId))
+                return;
+
+            OnQuestDecided(data.playerNetId);
+        }
+
+        private void SendDialogMessage(
+            uint playerNetId,
+            int connId,
+            PlayerDialogState state,
+            DialogStateType dialogState
+        )
+        {
+            string questId = GetQuestIdForCurrentMessage(state);
+            bool hasQuest = !string.IsNullOrEmpty(questId);
+
+            if (hasQuest)
+            {
+                state.Phase = PlayerPhase.WaitingForQuestDecision;
+                inactivityTimer.Stop(playerNetId);
+            }
+            else
+            {
+                state.Phase = PlayerPhase.Normal;
+                inactivityTimer.Restart(playerNetId, state.Interactor);
+            }
+
+            worldMonitor.Events.Enqueue(
+                new DialogEvent(
+                    ownNetId,
+                    new DialogEventContent
+                    {
+                        DialogState = dialogState,
+                        NpcId = npcId,
+                        DialogIndex = state.MessageIndex,
+                        QuestId = hasQuest ? questId : string.Empty,
+                        DialogId = state.ActiveDialogId,
+                    },
+                    connId
+                )
+            );
+        }
+
+        private string GetQuestIdForCurrentMessage(PlayerDialogState state)
+        {
+            return npcDialogRegistry.GetQuestIdForDialogAndMessage(
+                npcId,
+                state.ActiveDialogId,
+                state.MessageIndex
+            );
+        }
+
+        private int GetCurrentMessageCount(PlayerDialogState state)
+        {
+            if (npcDialogRegistry.TryGetMessagesByDialogId(state.ActiveDialogId, out var msgs))
+                return msgs.Count;
+            return 0;
         }
 
         private int? GetPlayerConnectionId(uint playerNetId)
@@ -78,186 +327,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 && entity.ConnectionId.HasValue
             )
                 return entity.ConnectionId.Value;
-
             return null;
-        }
-
-        public string Interact(IInteractor interactor)
-        {
-            uint playerNetId = interactor.NetId;
-
-            int count = npcDialogRegistry.GetMessageCount(npcId);
-            if (count == 0)
-            {
-                return npcId;
-            }
-
-            playerDialogStates[playerNetId] = 0;
-            _questPendingPlayers.Remove(playerNetId);
-            UpdateMovementBlockedState();
-
-            var connId = GetPlayerConnectionId(playerNetId);
-            if (!connId.HasValue)
-            {
-                logger?.Log($"[NpcInteractSystem] conn not found, Player:{playerNetId}.", this);
-                return npcId;
-            }
-
-            logger?.Log(
-                $"[NpcInteractSystem] Raising NpcInteractedEvent for player {playerNetId} and npc {npcId}",
-                this
-            );
-            npcInteractedEvent?.Raise((playerNetId, npcId));
-
-            var questId = npcDialogRegistry.GetQuestIdAt(npcId, 0);
-
-            if (!string.IsNullOrEmpty(questId))
-            {
-                _questPendingPlayers.Add(playerNetId);
-                StopInactivityTimer(playerNetId);
-            }
-            else
-            {
-                RestartInactivityTimer(playerNetId, interactor);
-            }
-
-            worldMonitor.Events.Enqueue(
-                new DialogEvent(
-                    ownNetId,
-                    new DialogEventContent
-                    {
-                        DialogState = DialogStateType.DialogTypeStarted,
-                        NpcId = npcId,
-                        DialogIndex = 0,
-                        QuestId = questId,
-                    },
-                    connId.Value
-                )
-            );
-
-            //logger?.Log($"[NpcInteractSystem] Interacted by {interactor.GameObject.name}", this);
-            return npcId;
-        }
-
-        public void ContinueInteraction(IInteractor interactor)
-        {
-            uint playerNetId = interactor.NetId;
-
-            if (_questPendingPlayers.Contains(playerNetId))
-            {
-                logger?.Log(
-                    $"[NpcInteractSystem] ContinueInteraction ignored — quest pending for Player:{playerNetId}.",
-                    this
-                );
-                return;
-            }
-
-            if (!playerDialogStates.TryGetValue(playerNetId, out int currentIndex))
-                return;
-
-            int count = npcDialogRegistry.GetMessageCount(npcId);
-            int nextIndex = currentIndex + 1;
-
-            if (nextIndex >= count)
-            {
-                interactor.FinishInteracting();
-                return;
-            }
-
-            playerDialogStates[playerNetId] = nextIndex;
-
-            var questId = npcDialogRegistry.GetQuestIdAt(npcId, nextIndex);
-
-            if (!string.IsNullOrEmpty(questId))
-            {
-                _questPendingPlayers.Add(playerNetId);
-                StopInactivityTimer(playerNetId);
-            }
-            else
-            {
-                RestartInactivityTimer(playerNetId, interactor);
-            }
-
-            worldMonitor.Events.Enqueue(
-                new DialogEvent(
-                    ownNetId,
-                    new DialogEventContent
-                    {
-                        DialogState = DialogStateType.DialogTypeAdvanced,
-                        NpcId = npcId,
-                        DialogIndex = nextIndex,
-                        QuestId = questId,
-                    },
-                    GetPlayerConnectionId(playerNetId)
-                )
-            );
-        }
-
-        public void StopInteraction(IInteractor interactor)
-        {
-            uint playerNetId = interactor.NetId;
-
-            if (!playerDialogStates.ContainsKey(playerNetId))
-                return;
-
-            playerDialogStates.Remove(playerNetId);
-            _questPendingPlayers.Remove(playerNetId);
-            StopInactivityTimer(playerNetId);
-            UpdateMovementBlockedState();
-
-            worldMonitor.Events.Enqueue(
-                new DialogEvent(
-                    ownNetId,
-                    new DialogEventContent
-                    {
-                        DialogState = DialogStateType.DialogTypeClosed,
-                        NpcId = npcId,
-                        DialogIndex = 0,
-                    },
-                    GetPlayerConnectionId(playerNetId)
-                )
-            );
-        }
-
-        public bool CanInteract(IInteractor interactor) => true;
-
-        public void OnQuestDecided(uint playerNetId)
-        {
-            if (!_questPendingPlayers.Remove(playerNetId))
-                return;
-
-            logger?.Log(
-                $"[NpcInteractSystem] Quest decided — unblocking dialog for Player:{playerNetId}.",
-                this
-            );
-        }
-
-        private void RestartInactivityTimer(uint playerNetId, IInteractor interactor)
-        {
-            StopInactivityTimer(playerNetId);
-            playerTimeouts[playerNetId] = StartCoroutine(
-                InactivityCoroutine(playerNetId, interactor)
-            );
-        }
-
-        private void StopInactivityTimer(uint playerNetId)
-        {
-            if (
-                playerTimeouts.TryGetValue(playerNetId, out Coroutine coroutine)
-                && coroutine != null
-            )
-            {
-                StopCoroutine(coroutine);
-                playerTimeouts.Remove(playerNetId);
-            }
-        }
-
-        private IEnumerator InactivityCoroutine(uint playerNetId, IInteractor interactor)
-        {
-            yield return new WaitForSeconds(inactivityTimeout);
-
-            if (playerDialogStates.ContainsKey(playerNetId))
-                interactor.FinishInteracting();
         }
     }
 }

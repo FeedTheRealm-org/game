@@ -19,8 +19,6 @@ namespace FTR.Gameplay.Server.Characters
 
         public virtual void OnInteract(IEventCollectable ec) { }
 
-        public virtual void OnCancelInteract(IEventCollectable ec) { }
-
         public virtual void OnDialogNext(IEventCollectable ec) { }
 
         public virtual void OnEquipItem(IEventCollectable ec, int slotIndex) { }
@@ -41,7 +39,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public virtual void OnQuestAccepted(IEventCollectable ec, string questId) { }
 
-        public virtual void OnQuestDecided(IEventCollectable ec) { }
+        public virtual void OnQuestRejected(IEventCollectable ec) { }
 
         public virtual void OnMoveItem(
             IEventCollectable ec,

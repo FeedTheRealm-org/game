@@ -1,4 +1,3 @@
-using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
@@ -29,6 +28,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float gameTickCounter = 0;
 
         private bool isDead = false;
+
+        public Vector3 GetCurrentPosition() => rb.position;
 
         private void OnDestroy()
         {

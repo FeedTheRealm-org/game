@@ -17,3 +17,5 @@ MonoBehaviour:
   npcInteractedEvent: {fileID: 11400000, guid: 4ced2ec33581cd7ecabdb75926b73fd6, type: 2}
   questRewardGoldEvent: {fileID: 11400000, guid: 6e366dc94a8214232bf512705f3677de, type: 2}
   questRewardItemEvent: {fileID: 11400000, guid: 5e773937a81a4d7008409017ec709fd9, type: 2}
+  npcQuestCompletedEvent: {fileID: 11400000, guid: 6df8d0a9873019fadb63e5f25c3b61d3, type: 2}
+  playerQuestDecisionEvent: {fileID: 11400000, guid: ade05b689ab3e356ba17976f8ae7ee9d, type: 2}
