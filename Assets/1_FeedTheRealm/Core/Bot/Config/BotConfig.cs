@@ -1,11 +1,15 @@
-using FTR.Core.Server.Utils;
+using FTR.Core.Common.Utils;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Core.Bot.Config
 {
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/BotConfig")]
     public class BotConfig : ScriptableObject
     {
+        [Inject]
+        private Logging.Logger logger;
+
         public string BotId;
         public string WorldId;
         public string ZoneId;
@@ -20,6 +24,10 @@ namespace FTR.Core.Bot.Config
             BotId = ParamsSerializer.GetArgs("bot-id", "1");
             WorldId = ParamsSerializer.GetArgs("world-id", string.Empty);
             ZoneId = ParamsSerializer.GetArgs("zone-id", string.Empty);
+
+            logger.Log(
+                $"[BotConfig] Loaded bot parameters: botId={BotId}, worldId={WorldId}, zoneId={ZoneId}"
+            );
         }
     }
 }

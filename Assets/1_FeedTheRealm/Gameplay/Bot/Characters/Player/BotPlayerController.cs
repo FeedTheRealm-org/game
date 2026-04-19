@@ -29,9 +29,6 @@ namespace FTR.Gameplay.Bot.Characters.Player
 
             moveDirection = GetRandomMoveDirection();
             StartBehaviorRoutines();
-            logger.Log(
-                $"[BotPlayerController] Bot player controller initialized. botId={botConfig.BotId}, worldId={botConfig.WorldId}, zoneId={botConfig.ZoneId}, netId={networkAdapter.netId}"
-            );
         }
 
         private void OnDisable()
