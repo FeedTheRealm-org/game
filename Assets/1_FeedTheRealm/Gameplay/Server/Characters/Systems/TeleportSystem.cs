@@ -2,7 +2,7 @@ using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
-using FTR.Gameplay.Server.Environment.Portal;
+using FTR.Gameplay.Server.Registry;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems
@@ -36,32 +36,39 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             if (portalRegistry.TryGetPortal(portalId, out var portalInfo))
             {
-                if (
-                    Vector3.Distance(stateStorage.Position, portalInfo.PlacementData.position)
-                    <= portalInfo.PlacementData.radius
-                )
-                {
-                    movementSystem.LoadPosition(portalInfo.Destination);
+                // TODO: we have to validate the last position of the player.
+                // The main issue is that if we teleport between zones, we need to load the last position saved
+                // in the world DB to validate the position.
+                // For now we wont validate the last position before TP but that logic can be added here
 
-                    // We send an empty message to notify to stop displaying the teleportation animation and hide the loading screen.
-                    // The actual teleportation is handled by the movement system, so we don't need to send the new position here.
-                    worldMonitor.Events.Enqueue(
-                        new OpenPortalEvent(
-                            netId,
-                            new OpenPortalEventContent { PortalId = "", DestinationName = "" },
-                            GetPlayerConnectionId(netId).Value
-                        )
-                    );
+                if (portalRegistry.TryGetPortal(portalInfo.DestinationId, out var targetInfo))
+                {
+                    movementSystem.LoadPosition(targetInfo.Position);
                 }
                 else
+                {
                     Debug.LogError(
-                        $"[TeleportSystem] Player is not within portal radius for {portalId}. | Cannot teleport player."
+                        $"[TeleportSystem] No destination portal found with id {portalInfo.DestinationId} | Cannot teleport player."
                     );
+                    return;
+                }
+                FinishTeleport();
             }
             else
                 Debug.LogError(
                     $"[TeleportSystem] No portal found with id {portalId} | Cannot teleport player."
                 );
+        }
+
+        private void FinishTeleport()
+        {
+            worldMonitor.Events.Enqueue(
+                new OpenPortalEvent(
+                    netId,
+                    new OpenPortalEventContent { PortalId = "", DestinationName = "" },
+                    GetPlayerConnectionId(netId).Value
+                )
+            );
         }
 
         private int? GetPlayerConnectionId(uint playerNetId)

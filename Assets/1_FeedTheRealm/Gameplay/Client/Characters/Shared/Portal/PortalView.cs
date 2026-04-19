@@ -1,11 +1,18 @@
 using System;
+using System.Threading.Tasks;
+using API;
 using FeedTheRealm.Core.EventChannels.Setup;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Portal;
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.EntryPoints;
+using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace FTR.Gameplay.Client.Characters.Shared.Portal
+namespace FTR.Gameplay.Common.Characters.Shared.Portal
 {
     /// <summary>
     /// View component for the Portal. Listens to OpenPortalEvents and displays the portal UI when they are received.
@@ -18,6 +25,34 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
 
         [SerializeField]
         private LoadingEvent loadingEvent;
+
+        // ---------------------------------------------------------------------------------------------
+        // These will be removed in the future when we refactor teleportation
+        // to be server-driven and not have the client be in charge of loading scenes on teleport
+        [Header("TEMPORARY TELEPORTATION FIELDS - TO BE REFACTORED")]
+        [SerializeField]
+        private WorldSelector worldSelector;
+
+        [SerializeField]
+        private SceneReference worldScene;
+
+        [SerializeField]
+        private TeleportDataPersistence teleportDataPersistence;
+
+        [SerializeField]
+        private Session.Session session;
+
+        [SerializeField]
+        private WorldService worldService;
+
+        [SerializeField]
+        private PlayerService playerService;
+
+        [SerializeField]
+        private Config config;
+
+        // ---------------------------------------------------------------------------------------------
+
         private NetworkEventRouter eventRouter;
         private NetworkAdapter networkAdapter;
 
@@ -25,28 +60,63 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
         {
             this.eventRouter = eventRouter;
             this.networkAdapter = networkAdapter;
-
             eventRouter.OnOpenPortalEvent += HandleOpenPortalRequest;
+
+            if (teleportDataPersistence.PortalId != null)
+            {
+                TeleportPlayer(teleportDataPersistence.PortalId);
+                teleportDataPersistence.PortalId = null;
+            }
         }
 
-        private void AcceptPortalRequest(string portalId)
+        private async Task AcceptPortalRequest(OpenPortalEventContent content, int destinationZone)
         {
             try
             {
-                networkAdapter.DispatchTransaction(
-                    new TransactionCommandDTO
-                    {
-                        Type = TransactionType.AcceptTeleport,
-                        Id = portalId,
-                    }
-                );
-                TogglePortalLoading(true);
+                // TODO: CURRENT TELEPORT REFACTOR
+                // for now, if teleporing between zones, we will have the client be in charge of doing so,
+                // but this is unsafe and can lead to exploits regarding tp destination. This will be refactored in the future
+                // but for now we will implement this way to progress with portal development and have a working version of it in the game.
+
+                if (worldSelector.GetSelectedZoneId() != destinationZone)
+                {
+                    Debug.Log(
+                        $"[PortalView] Teleporting to {content.PortalId} in zone {destinationZone}. Loading new scene."
+                    );
+                    NetworkManager.singleton.StopClient();
+                    worldSelector.SetSelectedZoneId(destinationZone);
+                    teleportDataPersistence.PortalId = content.PortalId;
+                    var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(
+                        worldSelector.GetSelectedWorldId()
+                    );
+                    worldSelector.SetSelectedWorldJoinToken(worldJoinToken.token_id);
+
+                    var (ip, port, error, statusCode) = await worldService.GetZoneAddress(
+                        worldSelector.GetSelectedWorldId(),
+                        destinationZone,
+                        session.APIToken
+                    );
+                    config.CurrentServerAddress = ip;
+                    config.CurrentServerPort = (ushort)port;
+
+                    SceneManager.LoadScene(worldScene.SceneName);
+                }
+                else
+                    TeleportPlayer(content.PortalId);
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[PortalView] Failed to accept portal request: {ex.Message}");
                 loadingEvent.Raise(false);
             }
+        }
+
+        private void TeleportPlayer(string portalId)
+        {
+            networkAdapter.DispatchTransaction(
+                new TransactionCommandDTO { Type = TransactionType.AcceptTeleport, Id = portalId }
+            );
+            TogglePortalLoading(true);
         }
 
         private void OnDestroy()
@@ -56,7 +126,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
 
         private void HandleOpenPortalRequest(OpenPortalEventContent content)
         {
-            Debug.Log($"[PortalView] HandleOpenPortalRequest received.");
+            Debug.Log($"[PortalView] HandleOpenPortalRequest received. {content.PortalName}");
 
             if (
                 string.IsNullOrEmpty(content.PortalId)
@@ -73,7 +143,8 @@ namespace FTR.Gameplay.Client.Characters.Shared.Portal
             OpenPortalUiContent uiContent = new()
             {
                 DestinationName = content.DestinationName,
-                OnAccept = () => AcceptPortalRequest(content.PortalId),
+                PortalName = content.PortalName,
+                OnAccept = async () => await AcceptPortalRequest(content, content.DestinationZone),
             };
 
             openPortalUiEvent.Raise(uiContent);

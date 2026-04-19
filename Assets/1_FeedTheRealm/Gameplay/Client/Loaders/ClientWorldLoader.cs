@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FTR.Core.Client;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.LoaderEntities;
@@ -54,6 +55,13 @@ namespace FTR.Gameplay.Client.Loaders
                     ? config.ServerAccessToken
                     : session.APIToken;
             return session.APIToken;
+        }
+
+        public override int GetZoneId()
+        {
+            if (config.IsDebugWorld)
+                return (config.ZoneID > 0) ? config.ZoneID : worldSelector.GetSelectedZoneId();
+            return worldSelector.GetSelectedZoneId();
         }
     }
 }

@@ -1,11 +1,12 @@
 using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Characters.Player;
-using FTR.Gameplay.Client.Characters.Shared.Portal;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Client.EntryPoints;
+using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;

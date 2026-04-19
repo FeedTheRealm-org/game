@@ -31,6 +31,8 @@ namespace FTR.Gameplay.Common.LoaderEntities
         public abstract string GetWorldId();
         public abstract string GetAccessToken();
 
+        public abstract int GetZoneId();
+
         public async UniTask<bool> LoadWorld()
         {
             if (config.DoNotLoadWorld)
@@ -54,13 +56,18 @@ namespace FTR.Gameplay.Common.LoaderEntities
         {
             try
             {
-                (string worldId, string accessToken) = (GetWorldId(), GetAccessToken());
+                (string worldId, string accessToken, int zoneId) = (
+                    GetWorldId(),
+                    GetAccessToken(),
+                    GetZoneId()
+                );
                 ValidateArgs(worldId, "worldId");
                 ValidateArgs(accessToken, "accessToken");
+                ValidateArgs(zoneId, "zoneId");
                 logger.Log(
-                    $"[ZONE-LOAD] Starting zone loading with Zone ID: {worldId} | Access Token: {accessToken}"
+                    $"[ZONE-LOAD] Starting zone loading with Zone ID: {zoneId} | World ID: {worldId} | Access Token: {accessToken}"
                 );
-                await Load(worldId, accessToken);
+                await Load(zoneId, worldId, accessToken);
                 return true;
             }
             catch (System.Exception ex)
@@ -73,13 +80,13 @@ namespace FTR.Gameplay.Common.LoaderEntities
             }
         }
 
-        private async UniTask Load(string worldId, string accessToken)
+        private async UniTask Load(int zoneId, string worldId, string accessToken)
         {
             if (loaders == null || loaders.Count == 0)
                 return;
 
             ZoneData zoneData =
-                await LoadZoneData(worldId, accessToken)
+                await LoadZoneData(zoneId, worldId, accessToken)
                 ?? throw new System.InvalidOperationException("Failed to load zone data");
 
             CreatablesData creatablesData =
@@ -95,11 +102,11 @@ namespace FTR.Gameplay.Common.LoaderEntities
             logger.Log("World loading complete!");
         }
 
-        private async UniTask<ZoneData> LoadZoneData(string worldId, string accessToken)
+        private async UniTask<ZoneData> LoadZoneData(int zoneId, string worldId, string accessToken)
         {
             (ZoneData data, string errorMessage, long responseCode) = await zoneService.GetZoneData(
                 worldId,
-                1,
+                zoneId,
                 accessToken
             );
             if (data == null || !string.IsNullOrEmpty(errorMessage))
@@ -129,6 +136,16 @@ namespace FTR.Gameplay.Common.LoaderEntities
             if (args == null || string.IsNullOrEmpty(args))
             {
                 throw new System.ArgumentException($"Empty or null value for: {argName}");
+            }
+        }
+
+        private void ValidateArgs(int args, string argName)
+        {
+            if (args <= 0)
+            {
+                throw new System.ArgumentException(
+                    $"Invalid value for: {argName}. Value must be greater than 0."
+                );
             }
         }
     }

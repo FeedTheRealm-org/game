@@ -3,7 +3,7 @@ using FTR.Core.Common.Loaders;
 using FTR.Core.Server;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Portal;
-using FTR.Gameplay.Server.Environment.Portal;
+using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;

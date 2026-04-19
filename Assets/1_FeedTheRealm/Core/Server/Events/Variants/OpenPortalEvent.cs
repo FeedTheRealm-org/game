@@ -26,7 +26,9 @@ public class OpenPortalEvent : BaseServerEvent
             content = new OpenPortalEventContent
             {
                 PortalId = content.PortalId,
+                PortalName = content.PortalName,
                 DestinationName = content.DestinationName,
+                DestinationZone = content.DestinationZone,
             }.ToByteArray(),
         };
     }

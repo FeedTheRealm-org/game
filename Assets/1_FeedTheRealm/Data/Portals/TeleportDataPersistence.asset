@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8541003cdc0217b6abdb728bf932ea9d, type: 3}
-  m_Name: WorldSelector
-  m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.EntryPoints.WorldSelector
-  SelectedWorldId: 
-  SelectedWorldJoinToken: 
+  m_Script: {fileID: 11500000, guid: a6c1e02c761e43e77a0f735ab7333f92, type: 3}
+  m_Name: TeleportDataPersistence
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Characters.Shared.Portal.TeleportDataPersistence
+  PortalId: 

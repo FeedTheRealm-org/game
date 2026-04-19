@@ -1,5 +1,5 @@
 using FTR.Core.Client;
-using FTR.Gameplay.Client.Characters.Shared.Portal;
+using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTR.Gameplay.Common.Linkers;
 using UnityEngine;
 using VContainer;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FTR.Gameplay.Client.EntryPoints
+namespace FTR.Core.Client.EntryPoints
 {
     /// <summary>
     /// ScriptableObject used to store the selected world ID across different scenes and components in the client application.
@@ -10,6 +10,9 @@ namespace FTR.Gameplay.Client.EntryPoints
     {
         [SerializeField]
         private string SelectedWorldId = "";
+
+        [SerializeField]
+        private int SelectedZoneId = 1;
 
         [SerializeField]
         private string SelectedWorldJoinToken = "";
@@ -23,5 +26,9 @@ namespace FTR.Gameplay.Client.EntryPoints
         public void SetSelectedWorldJoinToken(string tokenId) => SelectedWorldJoinToken = tokenId;
 
         public void ClearSelectedWorldJoinToken() => SelectedWorldJoinToken = string.Empty;
+
+        public int GetSelectedZoneId() => SelectedZoneId;
+
+        public void SetSelectedZoneId(int zoneId) => SelectedZoneId = zoneId;
     }
 }

@@ -25,13 +25,14 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiNFdmVudHMvT3BlblBvcnRhbEV2ZW50Q29udGVudC5wcm90bxIIcHJvdG9j",
-            "b2wiRQoWT3BlblBvcnRhbEV2ZW50Q29udGVudBIRCglwb3J0YWxfaWQYASAB",
-            "KAkSGAoQZGVzdGluYXRpb25fbmFtZRgCIAEoCUInqgIkRlRSLkNvcmUuQ29t",
-            "bW9uLlByb3RvY29sLlJwY01lc3NhZ2VzYgZwcm90bzM="));
+            "b2widAoWT3BlblBvcnRhbEV2ZW50Q29udGVudBIRCglwb3J0YWxfaWQYASAB",
+            "KAkSEwoLcG9ydGFsX25hbWUYAiABKAkSGAoQZGVzdGluYXRpb25fbmFtZRgD",
+            "IAEoCRIYChBkZXN0aW5hdGlvbl96b25lGAQgASgFQieqAiRGVFIuQ29yZS5D",
+            "b21tb24uUHJvdG9jb2wuUnBjTWVzc2FnZXNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.OpenPortalEventContent), global::FTR.Core.Common.Protocol.RpcMessages.OpenPortalEventContent.Parser, new[]{ "PortalId", "DestinationName" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.OpenPortalEventContent), global::FTR.Core.Common.Protocol.RpcMessages.OpenPortalEventContent.Parser, new[]{ "PortalId", "PortalName", "DestinationName", "DestinationZone" }, null, null, null, null)
           }));
     }
     #endregion
@@ -73,7 +74,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OpenPortalEventContent(OpenPortalEventContent other) : this() {
       portalId_ = other.portalId_;
+      portalName_ = other.portalName_;
       destinationName_ = other.destinationName_;
+      destinationZone_ = other.destinationZone_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -95,8 +98,20 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
     }
 
+    /// <summary>Field number for the "portal_name" field.</summary>
+    public const int PortalNameFieldNumber = 2;
+    private string portalName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string PortalName {
+      get { return portalName_; }
+      set {
+        portalName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     /// <summary>Field number for the "destination_name" field.</summary>
-    public const int DestinationNameFieldNumber = 2;
+    public const int DestinationNameFieldNumber = 3;
     private string destinationName_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -104,6 +119,18 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       get { return destinationName_; }
       set {
         destinationName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "destination_zone" field.</summary>
+    public const int DestinationZoneFieldNumber = 4;
+    private int destinationZone_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int DestinationZone {
+      get { return destinationZone_; }
+      set {
+        destinationZone_ = value;
       }
     }
 
@@ -123,7 +150,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         return true;
       }
       if (PortalId != other.PortalId) return false;
+      if (PortalName != other.PortalName) return false;
       if (DestinationName != other.DestinationName) return false;
+      if (DestinationZone != other.DestinationZone) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -132,7 +161,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     public override int GetHashCode() {
       int hash = 1;
       if (PortalId.Length != 0) hash ^= PortalId.GetHashCode();
+      if (PortalName.Length != 0) hash ^= PortalName.GetHashCode();
       if (DestinationName.Length != 0) hash ^= DestinationName.GetHashCode();
+      if (DestinationZone != 0) hash ^= DestinationZone.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -155,9 +186,17 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(10);
         output.WriteString(PortalId);
       }
-      if (DestinationName.Length != 0) {
+      if (PortalName.Length != 0) {
         output.WriteRawTag(18);
+        output.WriteString(PortalName);
+      }
+      if (DestinationName.Length != 0) {
+        output.WriteRawTag(26);
         output.WriteString(DestinationName);
+      }
+      if (DestinationZone != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(DestinationZone);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -173,9 +212,17 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(10);
         output.WriteString(PortalId);
       }
-      if (DestinationName.Length != 0) {
+      if (PortalName.Length != 0) {
         output.WriteRawTag(18);
+        output.WriteString(PortalName);
+      }
+      if (DestinationName.Length != 0) {
+        output.WriteRawTag(26);
         output.WriteString(DestinationName);
+      }
+      if (DestinationZone != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(DestinationZone);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -190,8 +237,14 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (PortalId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PortalId);
       }
+      if (PortalName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PortalName);
+      }
       if (DestinationName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(DestinationName);
+      }
+      if (DestinationZone != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DestinationZone);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -208,8 +261,14 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       if (other.PortalId.Length != 0) {
         PortalId = other.PortalId;
       }
+      if (other.PortalName.Length != 0) {
+        PortalName = other.PortalName;
+      }
       if (other.DestinationName.Length != 0) {
         DestinationName = other.DestinationName;
+      }
+      if (other.DestinationZone != 0) {
+        DestinationZone = other.DestinationZone;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -231,7 +290,15 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             break;
           }
           case 18: {
+            PortalName = input.ReadString();
+            break;
+          }
+          case 26: {
             DestinationName = input.ReadString();
+            break;
+          }
+          case 32: {
+            DestinationZone = input.ReadInt32();
             break;
           }
         }
@@ -254,7 +321,15 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             break;
           }
           case 18: {
+            PortalName = input.ReadString();
+            break;
+          }
+          case 26: {
             DestinationName = input.ReadString();
+            break;
+          }
+          case 32: {
+            DestinationZone = input.ReadInt32();
             break;
           }
         }

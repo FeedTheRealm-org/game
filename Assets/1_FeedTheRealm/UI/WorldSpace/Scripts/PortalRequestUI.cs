@@ -31,12 +31,14 @@ namespace FTR.UI.WorldSpace
 
         private VisualElement root;
         private Label destinationLabel;
+        private Label portalNameLabel;
         private Button acceptButton;
         private Button declineButton;
 
         private void Awake()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
+            portalNameLabel = root.Q<Label>("PortalName");
             destinationLabel = root.Q<Label>("Destination");
             acceptButton = root.Q<Button>("AcceptButton");
             declineButton = root.Q<Button>("DeclineButton");
@@ -62,6 +64,7 @@ namespace FTR.UI.WorldSpace
                 return;
 
             destinationLabel.text = content.DestinationName;
+            portalNameLabel.text = content.PortalName;
             root.style.display = DisplayStyle.Flex;
             isOpen = true;
 

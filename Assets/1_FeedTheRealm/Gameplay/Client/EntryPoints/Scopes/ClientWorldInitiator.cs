@@ -3,6 +3,7 @@ using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.Config;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;

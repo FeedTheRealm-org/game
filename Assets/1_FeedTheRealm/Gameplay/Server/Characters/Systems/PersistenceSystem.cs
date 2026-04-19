@@ -17,7 +17,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void LoadPlayerPosition(MovementSystem movementSystem)
         {
-            // TODO: call the db to get the last position of the player, for now we will just get a random spawn point
             Vector3 spawnPoint = playerSpawnpointManager.GetRandomSpawnpoint();
             movementSystem.LoadPosition(spawnPoint);
         }

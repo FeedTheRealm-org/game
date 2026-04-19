@@ -3,11 +3,9 @@ using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Portal;
-using FTR.Gameplay.Server.Environment.Quest;
-using FTRShared.Runtime.Models;
+using FTR.Gameplay.Server.Registry;
 using Mirror;
 using UnityEngine;
-using VContainer;
 
 namespace FTR.Gameplay.Server.Environment.Portal
 {
@@ -73,14 +71,12 @@ namespace FTR.Gameplay.Server.Environment.Portal
         }
 
         // If executed once, it will open the portal request UI. If executed again while the UI is open, it will close it.
+        // TODO: we are ginving the portal the portal ID and then reolsving the destination,
+        // why not just give the user the destinaion and teleport whare taht portal is
         private void TogglePortalRequest(IInteractor interactor)
         {
             try
             {
-                logger?.Log(
-                    $"[PortalInteractSystem] Interact called by Player:{interactor.NetId}.",
-                    this
-                );
                 uint playerNetId = interactor.NetId;
                 var connId = GetPlayerConnectionId(playerNetId);
                 if (!connId.HasValue)
@@ -96,16 +92,10 @@ namespace FTR.Gameplay.Server.Environment.Portal
                 if (NetworkServer.spawned.TryGetValue(playerNetId, out NetworkIdentity identity))
                 {
                     GameObject player = identity.gameObject;
-                    if (
-                        player.transform.position != null
-                        && Vector3.Distance(
-                            player.transform.position,
-                            portalInfo.PlacementData.position
-                        ) > portalInfo.PlacementData.radius
-                    )
+                    if (!portalInfo.IsInPortalRadius(player.transform.position))
                     {
                         logger.Log(
-                            $"[PortalInteractSystem] Player {playerNetId} is too far from the portal to interact. Distance: {Vector3.Distance(player.transform.position, portalInfo.PlacementData.position)}, Allowed Radius: {portalInfo.PlacementData.radius}",
+                            $"[PortalInteractSystem] Player {playerNetId} is too far from the portal to interact.",
                             this
                         );
                         return;
@@ -120,27 +110,39 @@ namespace FTR.Gameplay.Server.Environment.Portal
                     return;
                 }
 
-                worldMonitor.Events.Enqueue(
-                    new OpenPortalEvent(
-                        playerNetId,
-                        new OpenPortalEventContent
-                        {
-                            PortalId = portalInfo.Id,
-                            DestinationName = portalInfo.DestinationName,
-                        },
-                        connId.Value
+                if (
+                    portalRegistry.TryGetPortal(
+                        portalInfo.DestinationId,
+                        out PortalInformation targetInfo
                     )
-                );
-                worldMonitor.Events.Enqueue(new InteractCompletedEvent(playerNetId, connId.Value));
-                logger?.Log(
-                    $"[PortalInteractSystem] Player {playerNetId} interacted with portal '{portalInfo.Id}'.",
-                    this
-                );
+                )
+                {
+                    worldMonitor.Events.Enqueue(
+                        new OpenPortalEvent(
+                            playerNetId,
+                            new OpenPortalEventContent
+                            {
+                                PortalId = portalInfo.Id,
+                                PortalName = portalInfo.Name,
+                                DestinationZone = targetInfo.ZoneId,
+                                DestinationName = targetInfo.Name,
+                            },
+                            connId.Value
+                        )
+                    );
+                    worldMonitor.Events.Enqueue(
+                        new InteractCompletedEvent(playerNetId, connId.Value)
+                    );
+                    logger?.Log(
+                        $"[PortalInteractSystem] Player {playerNetId} interacted with portal '{portalInfo.Id}'.",
+                        this
+                    );
+                }
             }
             catch (Exception ex)
             {
                 Debug.LogError(
-                    $"[PortalInteractSystem] An error occured during teleportation: {ex.Message}"
+                    $"[PortalInteractSystem] An error occured during teleportation request: {ex.Message}"
                 );
             }
         }
