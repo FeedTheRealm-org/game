@@ -1,6 +1,6 @@
 using FTRShared.Runtime.Models;
 
-namespace FTR.Gameplay.Server.Utils.UseEquipment
+namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
 {
     public abstract class EquippedItem { }
 

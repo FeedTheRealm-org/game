@@ -240,7 +240,8 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                     var useSystem = enemy.GetComponentInChildren<UseSystem>();
                     if (useSystem != null)
                     {
-                        useSystem.SetAttackDamage(enemyData.damage);
+                        //TODO: implement enemy attack patterns and assign appropriate strategies based on enemyData
+                        //useSystem.SetAttackDamage(enemyData.damage);
                     }
                 }
                 else

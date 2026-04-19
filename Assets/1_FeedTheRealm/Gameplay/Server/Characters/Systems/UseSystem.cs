@@ -2,12 +2,10 @@ using System.Collections;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
-using FTR.Core.Server.Enums;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.Utils;
-using FTR.Gameplay.Server.Registry;
 using FTR.Gameplay.Server.Utils.UseEquipment;
 using FTRShared.Runtime.Models;
 using Mirror;
@@ -18,15 +16,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class UseSystem : MonoBehaviour, IGameTickable
     {
-        [SerializeField]
-        private float attackCooldown = 0.4f;
-
-        [SerializeField]
-        private int attackDamage = 40;
-
-        [SerializeField]
-        private float hitRadius;
-
         [SerializeField]
         private Logging.Logger logger;
 
@@ -61,7 +50,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool isDead = false;
         private int activeSlot = 0;
+
         private EquippedItem currentEquipped;
+
+        private IUseStrategy currentStrategy;
+
         private SlotCooldownTracker cooldowns;
 
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
@@ -69,12 +62,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private int amountOfPlayersInRange = 0;
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
-
-        public void SetAttackDamage(int damage) => attackDamage = damage;
-
-        public void SetRange(float radius) => hitRadius = radius;
-
-        public void SetAttackCooldown(float cd) => attackCooldown = cd;
 
         // ── Initialization ────────────────────────────────────────────────────
 
@@ -91,6 +78,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.stateStorage = stateStorage;
 
             cooldowns = new SlotCooldownTracker(slotCount: 5);
+            currentStrategy = new BareHandsStrategy();
 
             stateStorage.OnDeath += HandleDeath;
             stateStorage.OnRespawn += HandleRespawn;
@@ -149,98 +137,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            switch (currentEquipped)
-            {
-                case ConsumableEquipped consumable:
-                    if (cooldowns.IsConsumableCoolingDown(consumable.Data.id, out float cdLeft))
-                    {
-                        logger?.Log(
-                            $"[UseSystem] Player:{netId} consumable '{consumable.Data.id}' on cooldown ({cdLeft:F2}s remaining).",
-                            this
-                        );
-                        return;
-                    }
-                    //cooldowns.RecordSlotUsed(activeSlot, consumable.Data.cooldown); uncomment if you want the slot to also be on cooldown when using a consumable
-                    cooldowns.RecordConsumableUsed(consumable.Data.id, consumable.Data.cooldown);
-                    Consume(consumable.Data);
-                    break;
+            var ctx = BuildContext();
 
-                case WeaponEquipped weapon:
-                    cooldowns.RecordSlotUsed(activeSlot, weapon.Data.attackSpeed);
-                    Attack();
-                    break;
-
-                default:
-                    cooldowns.RecordSlotUsed(activeSlot, config.AttackCooldown);
-                    Attack();
-                    break;
-            }
-        }
-
-        private void Consume(ConsumableItemData data)
-        {
-            if (isDead)
+            if (!currentStrategy.CanExecute(ctx, cooldowns, out float strategyRemaining))
                 return;
 
-            logger.Log(
-                $"[UseSystem] Player:{netId} consuming '{data.id}' (effect={data.effectType}).",
-                this
-            );
-
-            switch (data.effectType)
-            {
-                case EffectType.Heal:
-                    playerHealEvent?.Raise((netId, data.value));
-                    break;
-                case EffectType.Buff:
-                    playerBuffSpeedEvent?.Raise((netId, data.value, data.duration));
-                    break;
-                case EffectType.Damage:
-                    // TODO: bonus damage stat for duration
-                    break;
-                case EffectType.RestoreMana:
-                case EffectType.DrainMana:
-                case EffectType.Debuff:
-                case EffectType.None:
-                    logger.Log(
-                        $"[UseSystem] Consuming effect '{data.effectType}' - no logic yet.",
-                        this
-                    );
-                    break;
-            }
-
-            consumeItemEvent?.Raise((netId, data.id));
-        }
-
-        private void Attack()
-        {
-            if (isDead)
-                return;
-
-            Collider[] hitTargets = Physics.OverlapSphere(HitPoint, hitRadius, targetLayer);
-
-            foreach (Collider target in hitTargets)
-            {
-                var targetNetId = target.GetComponent<NetworkIdentity>()?.netId;
-                if (targetNetId.HasValue && targetNetId.Value == netId)
-                    continue;
-
-                var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
-                if (healthSystem == null)
-                    continue;
-
-                var (killed, enemyTypeId) = healthSystem.TakeDamage(attackDamage, netId);
-
-                if (killed && !string.IsNullOrEmpty(enemyTypeId))
-                {
-                    enemySlayedEvent.Raise((netId, enemyTypeId));
-                }
-            }
-
-            if (hitTargets.Length == 0)
-                logger.Log("No targets hit", this);
-
-            world.Events.Enqueue(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
+            currentStrategy.RecordCooldown(ctx, cooldowns, activeSlot);
+            currentStrategy.Execute(ctx);
         }
 
         public void StartAutoAttacking(Collider _)
@@ -264,8 +167,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             while (amountOfPlayersInRange > 0)
             {
-                Attack();
-                yield return new WaitForSeconds(attackCooldown * 2);
+                var ctx = BuildContext();
+                currentStrategy.Execute(ctx);
+                yield return new WaitForSeconds(currentStrategy.GetCooldown(ctx) * 2);
             }
         }
 
@@ -275,7 +179,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
 
             activeSlot = data.slotIndex;
-            currentEquipped = BuildEquippedItem(data.itemId);
+
+            var result = EquippedItemFactory.Build(data.itemId, config, logger, this);
+            currentEquipped = result.Item;
+            currentStrategy = result.Strategy;
 
             logger?.Log(
                 $"[UseSystem] Player:{netId} equipped '{data.itemId}' in slot {data.slotIndex}.",
@@ -283,68 +190,20 @@ namespace FTR.Gameplay.Server.Characters.Systems
             );
         }
 
-        private EquippedItem BuildEquippedItem(string itemId)
-        {
-            if (string.IsNullOrEmpty(itemId))
-            {
-                SetAttackDamage(config.UnequippedDamage);
-                SetRange(config.UnequippedRange);
-                SetAttackCooldown(config.AttackCooldown);
-                logger?.Log(
-                    $"[UseSystem] No item equipped. Using default attack: dmg={config.UnequippedDamage} range={config.UnequippedRange} speed={config.AttackCooldown}.",
-                    this
-                );
-                return null;
-            }
-
-            switch (ServerItemsRegistry.GetItemTypeById(itemId))
-            {
-                case EquipmentType.Weapon:
-                    var weaponData = ServerItemsRegistry.GetWeaponById(itemId);
-                    if (weaponData == null)
-                    {
-                        logger?.Log(
-                            $"[UseSystem] No weapon data for '{itemId}'.",
-                            this,
-                            Logging.LogType.Warning
-                        );
-                        return null;
-                    }
-                    SetAttackDamage(weaponData.damage);
-                    SetRange(weaponData.range);
-                    SetAttackCooldown(weaponData.attackSpeed);
-                    logger?.Log(
-                        $"[UseSystem] Weapon '{itemId}': dmg={weaponData.damage} range={weaponData.range} speed={weaponData.attackSpeed}.",
-                        this
-                    );
-                    return new WeaponEquipped(weaponData);
-
-                case EquipmentType.Consumable:
-                    var consumableData = ServerItemsRegistry.GetConsumableById(itemId);
-                    if (consumableData == null)
-                    {
-                        logger?.Log(
-                            $"[UseSystem] No consumable data for '{itemId}'.",
-                            this,
-                            Logging.LogType.Warning
-                        );
-                        return null;
-                    }
-                    logger?.Log(
-                        $"[UseSystem] Consumable '{itemId}': effect={consumableData.effectType} value={consumableData.value} cd={consumableData.cooldown}.",
-                        this
-                    );
-                    return new ConsumableEquipped(consumableData);
-
-                default:
-                    logger?.Log(
-                        $"[UseSystem] Unknown item type for '{itemId}'.",
-                        this,
-                        Logging.LogType.Warning
-                    );
-                    return null;
-            }
-        }
+        private UseContext BuildContext() =>
+            new UseContext(
+                netId: netId,
+                hitPoint: HitPoint,
+                targetLayer: targetLayer,
+                config: config,
+                enemySlayedEvent: enemySlayedEvent,
+                consumeItemEvent: consumeItemEvent,
+                playerHealEvent: playerHealEvent,
+                playerBuffSpeedEvent: playerBuffSpeedEvent,
+                world: world,
+                logger: logger,
+                logSource: this
+            );
 
         private void SubscribeToItemEquipped()
         {
@@ -360,8 +219,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnDrawGizmos()
         {
+            if (config == null)
+                return;
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(HitPoint, hitRadius);
+            Gizmos.DrawWireSphere(HitPoint, config.UnequippedRange);
         }
     }
 }
