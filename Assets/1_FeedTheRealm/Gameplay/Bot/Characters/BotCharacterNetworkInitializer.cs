@@ -30,7 +30,6 @@ namespace FTR.Gameplay.Bot.Characters
                 throw new System.NullReferenceException(
                     "BotPlayerLinker not found in BotWorldInitiator container."
                 );
-                return;
             }
 
             botPlayerLinker.Link(gameObject);

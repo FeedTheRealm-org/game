@@ -7,8 +7,11 @@ using VContainer.Unity;
 
 namespace FTR.Gameplay.Bot.EntryPoints.Scopes
 {
-    public class BotWorldInitiator : LifetimeScope
+    public class BotInitiator : LifetimeScope
     {
+        [SerializeField]
+        private SceneReference mainScene;
+
         [SerializeField]
         private Config config;
 
@@ -22,21 +25,26 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
         {
             if (config.RuntimeRole != RuntimeRole.Bot)
                 throw new System.InvalidOperationException(
-                    "BotWorldInitiator should only be used in Bot runtime role."
+                    "BotInitiator should only be used in Bot runtime role."
                 );
 
             ValidateSerializeFields();
 
+            builder.RegisterInstance(mainScene);
             builder.RegisterInstance(config);
             builder.RegisterInstance(botConfig);
             builder.RegisterInstance(logger);
 
-            builder.Register<BotPlayerLinker>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<BotWorldEntryPoint>();
+            builder.RegisterEntryPoint<BotEntryPoint>();
         }
 
         private void ValidateSerializeFields()
         {
+            if (mainScene == null)
+                throw new System.NullReferenceException(
+                    "MainScene is not assigned in BotWorldInitiator."
+                );
+
             if (config == null)
                 throw new System.NullReferenceException(
                     "Config is not assigned in BotWorldInitiator."

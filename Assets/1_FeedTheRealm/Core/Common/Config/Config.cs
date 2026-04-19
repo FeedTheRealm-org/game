@@ -27,6 +27,9 @@ namespace FTR.Core.Common.Config
         public int MaxWorldLoadRetries = 10;
         public int WorldLoadRetryDelayMs = 1000;
 
+        public string TestJoinToken = "test_join_token";
+        public bool EnableActionLogging = true;
+
         [Header("API Settings")]
         public ApiConfig ApiConfig;
 

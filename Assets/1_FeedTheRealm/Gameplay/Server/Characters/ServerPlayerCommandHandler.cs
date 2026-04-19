@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using API;
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
@@ -26,15 +27,17 @@ namespace FTR.Gameplay.Server.Characters
         private GoldSystem goldSystem;
         private ChatSystem chatSystem;
 
+        private Config config;
         private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         [Inject]
-        public void Construct(IObjectResolver resolver)
+        public void Construct(IObjectResolver resolver, Config config)
         {
             if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var ev) && ev != null)
             {
                 playerQuestDecisionEvent = ev;
             }
+            this.config = config;
         }
 
         public void Initialize(
@@ -188,7 +191,12 @@ namespace FTR.Gameplay.Server.Characters
 
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
         {
-            isResolvingCharacterId = true;
+            if (tokenId == config.TestJoinToken) // TODO: add TEST flag for servers
+            {
+                stateStorage.SetCharacterId(tokenId);
+                return;
+            }
+
             try
             {
                 var consumeResponse = await playerService.ConsumeWorldJoinTokenAsync(

@@ -3,29 +3,35 @@ using FTR.Core.Bot.Config;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Bot.Characters.Player
 {
     public class BotPlayerController : MonoBehaviour
     {
-        private NetworkAdapter networkAdapter;
-        private BotRuntimeConfig runtimeConfig;
+        [Inject]
+        private Logging.Logger logger;
 
-        private bool isInitialized;
+        [Inject]
+        private BotConfig botConfig;
+
+        private NetworkAdapter networkAdapter;
+
         private Vector3 moveDirection;
         private Coroutine directionRoutine;
         private Coroutine moveRoutine;
         private Coroutine actionRoutine;
         private Coroutine interactRoutine;
 
-        public void Initialize(NetworkAdapter networkAdapter, BotRuntimeConfig runtimeConfig)
+        public void Initialize(NetworkAdapter networkAdapter)
         {
             this.networkAdapter = networkAdapter;
-            this.runtimeConfig = runtimeConfig;
 
-            isInitialized = true;
             moveDirection = GetRandomMoveDirection();
             StartBehaviorRoutines();
+            logger.Log(
+                $"[BotPlayerController] Bot player controller initialized. botId={botConfig.BotId}, worldId={botConfig.WorldId}, zoneId={botConfig.ZoneId}, netId={networkAdapter.netId}"
+            );
         }
 
         private void OnDisable()
@@ -41,7 +47,6 @@ namespace FTR.Gameplay.Bot.Characters.Player
         private void StartBehaviorRoutines()
         {
             StopBehaviorRoutines();
-            isInitialized = true;
 
             directionRoutine = StartCoroutine(DirectionLoop());
             moveRoutine = StartCoroutine(MoveLoop());
@@ -51,7 +56,6 @@ namespace FTR.Gameplay.Bot.Characters.Player
 
         private void StopBehaviorRoutines()
         {
-            isInitialized = false;
             StopRoutine(ref directionRoutine);
             StopRoutine(ref moveRoutine);
             StopRoutine(ref actionRoutine);
@@ -67,74 +71,53 @@ namespace FTR.Gameplay.Bot.Characters.Player
             routine = null;
         }
 
+        /* --- Behaviour Routines --- */
+
         private IEnumerator DirectionLoop()
         {
-            var wait = new WaitForSeconds(
-                Mathf.Max(0.25f, runtimeConfig.DirectionChangeIntervalSeconds)
-            );
-
-            while (isInitialized)
+            while (true)
             {
-                yield return wait;
-                if (!CanDispatch())
-                    continue;
-
+                yield return new WaitForSeconds(botConfig.DirectionChangeIntervalSeconds);
                 moveDirection = GetRandomMoveDirection();
             }
         }
 
         private IEnumerator MoveLoop()
         {
-            var wait = new WaitForSeconds(Mathf.Max(0.05f, runtimeConfig.MoveIntervalSeconds));
-
-            while (isInitialized)
+            while (true)
             {
                 DispatchAction(ActionType.Move);
-                yield return wait;
+                yield return new WaitForSeconds(botConfig.MoveIntervalSeconds);
             }
         }
 
         private IEnumerator ActionLoop()
         {
-            yield return new WaitForSeconds(0.5f);
-
-            var wait = new WaitForSeconds(Mathf.Max(0.2f, runtimeConfig.ActionIntervalSeconds));
-
-            while (isInitialized)
+            while (true)
             {
-                var actionType = UnityEngine.Random.value > 0.8f ? ActionType.Dash : ActionType.Use;
+                var actionType = UnityEngine.Random.value > 0.5f ? ActionType.Dash : ActionType.Use;
                 DispatchAction(actionType);
-                yield return wait;
+                yield return new WaitForSeconds(botConfig.ActionIntervalSeconds);
             }
         }
 
         private IEnumerator InteractLoop()
         {
-            yield return new WaitForSeconds(1.0f);
-
-            var wait = new WaitForSeconds(Mathf.Max(0.5f, runtimeConfig.InteractIntervalSeconds));
-
-            while (isInitialized)
+            while (true)
             {
                 DispatchAction(ActionType.Interact);
 
                 if (UnityEngine.Random.value > 0.5f)
                     DispatchAction(ActionType.DialogNext);
 
-                yield return wait;
+                yield return new WaitForSeconds(botConfig.InteractIntervalSeconds);
             }
         }
 
-        private bool CanDispatch()
-        {
-            return isInitialized && networkAdapter != null && networkAdapter.IsLocalPlayer;
-        }
+        /* --- Utils --- */
 
         private void DispatchAction(ActionType type)
         {
-            if (!CanDispatch())
-                return;
-
             networkAdapter.DispatchAction(
                 new ActionCommandDTO
                 {
@@ -145,7 +128,7 @@ namespace FTR.Gameplay.Bot.Characters.Player
             );
         }
 
-        private static Vector3 GetRandomMoveDirection()
+        private Vector3 GetRandomMoveDirection()
         {
             var direction = new Vector3(
                 UnityEngine.Random.Range(-1f, 1f),
