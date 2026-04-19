@@ -4,16 +4,11 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Server.Registry
 {
-    //TODO: this can be refactored into a static class since we load the scene again when changing zones.
     /// <summary>
-    /// Lightweight registry that stores only the set of valid quest ids from world data.
-    /// Used server-side to validate Acce|tQuest commands without holding full QuestData in memory.
+    /// Lightweight registry that stores portal information for quick access during gameplay.
+    ///  This registry is populated at the start of the game with data from the world loader.
     /// </summary>
-    [CreateAssetMenu(
-        fileName = "PortalRegistry",
-        menuName = "Scriptable Objects/Server/PortalRegistry"
-    )]
-    public class PortalRegistry : ScriptableObject
+    public class PortalRegistry
     {
         private Dictionary<string, PortalPlacementData> portalPlacementDataLookup;
         private Dictionary<string, PortalInformation> registeredPortals;
@@ -99,6 +94,7 @@ namespace FTR.Gameplay.Server.Registry
                 }
                 registeredPortals[portal.id] = portalInfo;
             }
+            Debug.Log($"PortalRegistry populated with {registeredPortals.Count} portals.");
         }
     }
 

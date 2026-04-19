@@ -42,9 +42,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private ServerQuestRegistry serverQuestRegistry;
 
         [SerializeField]
-        private PortalRegistry portalRegistry;
-
-        [SerializeField]
         private WorldService worldService;
 
         [SerializeField]
@@ -70,7 +67,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(zoneService);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
-            builder.RegisterInstance(portalRegistry);
 
             builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
             builder.Register<Database>(Lifetime.Singleton);
@@ -86,6 +82,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
             builder.Register<ServerShopLinker>(Lifetime.Singleton).As<ShopLinker>();
             builder.Register<ServerPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
+            builder.Register<PortalRegistry>(Lifetime.Singleton);
 
             builder.Register<GameLoop>(Lifetime.Singleton);
             builder.Register<NetworkService>(Lifetime.Singleton);
@@ -105,7 +102,6 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             ValidateField(playerService, nameof(playerService));
             ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
             ValidateField(serverQuestRegistry, nameof(serverQuestRegistry));
-            ValidateField(portalRegistry, nameof(portalRegistry));
         }
 
         private void ValidateField(Object field, string fieldName)

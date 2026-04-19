@@ -69,14 +69,18 @@ namespace FTR.UI.WorldSpace
             isOpen = true;
 
             acceptButton.clicked += () => HandleButtonClicked(content);
-            declineButton.clicked += () => HandleButtonClicked(null);
+            declineButton.clicked += () => HandleButtonClicked(content, false);
         }
 
-        private void HandleButtonClicked(OpenPortalUiContent content)
+        private void HandleButtonClicked(OpenPortalUiContent content, bool isAccept = true)
         {
             root.style.display = DisplayStyle.None;
             destinationLabel.text = string.Empty;
-            content?.OnAccept.Invoke();
+
+            if (isAccept)
+                content.OnAccept?.Invoke();
+            else
+                content.OnReject?.Invoke();
             isOpen = false;
         }
     }

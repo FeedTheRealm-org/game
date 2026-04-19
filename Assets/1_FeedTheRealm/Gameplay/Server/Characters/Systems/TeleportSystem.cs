@@ -4,30 +4,28 @@ using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Server.Registry;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class TeleportSystem : MonoBehaviour, IGameTickable
     {
-        [SerializeField]
-        private PortalRegistry portalRegistry;
-
         private MovementSystem movementSystem;
-        private CharacterStateStorage stateStorage;
+        private PortalRegistry portalRegistry;
         private uint netId;
         private WorldMonitor worldMonitor;
 
         public void Initialize(
             MovementSystem movementSystem,
-            CharacterStateStorage stateStorage,
+            PortalRegistry portalRegistry,
             WorldMonitor worldMonitor,
             uint netId
         )
         {
             this.movementSystem = movementSystem;
-            this.stateStorage = stateStorage;
             this.worldMonitor = worldMonitor;
             this.netId = netId;
+            this.portalRegistry = portalRegistry;
         }
 
         public void GameTick(float dt) { }

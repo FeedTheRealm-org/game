@@ -3,6 +3,7 @@ using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Portal;
 using FTR.Gameplay.Server.Environment.Portal;
+using FTR.Gameplay.Server.Registry;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -15,15 +16,18 @@ public class ServerPortalLinker : PortalLinker
     private readonly WorldMonitor world;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private readonly PortalRegistry portalRegistry;
 
     public ServerPortalLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
+        PortalRegistry portalRegistry,
         IObjectResolver resolver
     )
     {
         this.world = world;
         this.prefabProvider = prefabProvider;
+        this.portalRegistry = portalRegistry;
         this.resolver = resolver;
     }
 
@@ -42,7 +46,9 @@ public class ServerPortalLinker : PortalLinker
         serverComponents.layer = gameObject.layer;
         resolver.InjectGameObject(serverComponents);
 
-        serverComponents.GetComponent<PortalInteractSystem>().Initialize(world, portalStateStorage);
+        serverComponents
+            .GetComponent<PortalInteractSystem>()
+            .Initialize(world, portalStateStorage, portalRegistry);
         serverComponents.GetComponent<PortalController>().Initialize(netId);
 
         RegisterEntity(netId, networkAdapter);

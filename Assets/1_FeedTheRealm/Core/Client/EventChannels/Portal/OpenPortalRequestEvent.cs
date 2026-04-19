@@ -12,6 +12,7 @@ namespace FTR.Core.Client.EventChannels.Portal
     public class OpenPortalUiContent
     {
         public Action OnAccept;
+        public Action OnReject;
         public string PortalName;
         public string DestinationName;
     }

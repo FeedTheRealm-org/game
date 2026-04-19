@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using API;
 using FeedTheRealm.Core.EventChannels.Setup;
@@ -11,6 +12,7 @@ using FTR.Gameplay.Client.EntryPoints;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 namespace FTR.Gameplay.Common.Characters.Shared.Portal
 {
@@ -20,10 +22,13 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
     /// </summary>
     public class PortalView : MonoBehaviour
     {
-        [SerializeField]
+        [Inject]
         private OpenPortalUIEvent openPortalUiEvent;
 
-        [SerializeField]
+        [Inject]
+        private PortalToggleEvent portalToggleEvent;
+
+        [Inject]
         private LoadingEvent loadingEvent;
 
         // ---------------------------------------------------------------------------------------------
@@ -103,12 +108,19 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
                 }
                 else
                     TeleportPlayer(content.PortalId);
+
+                portalToggleEvent.Raise(false);
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[PortalView] Failed to accept portal request: {ex.Message}");
                 loadingEvent.Raise(false);
             }
+        }
+
+        private void RejectPortalRequest()
+        {
+            portalToggleEvent.Raise(false);
         }
 
         private void TeleportPlayer(string portalId)
@@ -145,8 +157,10 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
                 DestinationName = content.DestinationName,
                 PortalName = content.PortalName,
                 OnAccept = async () => await AcceptPortalRequest(content, content.DestinationZone),
+                OnReject = () => RejectPortalRequest(),
             };
 
+            portalToggleEvent.Raise(true);
             openPortalUiEvent.Raise(uiContent);
         }
 

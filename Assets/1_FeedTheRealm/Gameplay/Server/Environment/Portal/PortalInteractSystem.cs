@@ -3,9 +3,11 @@ using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Portal;
+using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
 using Mirror;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Environment.Portal
 {
@@ -16,12 +18,9 @@ namespace FTR.Gameplay.Server.Environment.Portal
     {
         [SerializeField]
         private Logging.Logger logger;
-
-        [SerializeField]
         private PortalRegistry portalRegistry;
-
-        private PortalInformation portalInfo = null;
         private WorldMonitor worldMonitor;
+        private PortalInformation portalInfo = null;
 
         public bool CanInteract(IInteractor interactor)
         {
@@ -38,9 +37,14 @@ namespace FTR.Gameplay.Server.Environment.Portal
             return;
         }
 
-        public void Initialize(WorldMonitor worldMonitor, PortalStateStorage portalStateStorage)
+        public void Initialize(
+            WorldMonitor worldMonitor,
+            PortalStateStorage portalStateStorage,
+            PortalRegistry portalRegistry
+        )
         {
             this.worldMonitor = worldMonitor;
+            this.portalRegistry = portalRegistry;
 
             var portalId = portalStateStorage.portalId;
             portalInfo = portalRegistry.TryGetPortal(portalId, out var info) ? info : null;
@@ -87,28 +91,20 @@ namespace FTR.Gameplay.Server.Environment.Portal
                     );
                     return;
                 }
-
-                // Validate that the player is within the portal radius before allowing them to interact with it.
-                if (NetworkServer.spawned.TryGetValue(playerNetId, out NetworkIdentity identity))
-                {
-                    GameObject player = identity.gameObject;
-                    if (!portalInfo.IsInPortalRadius(player.transform.position))
-                    {
-                        logger.Log(
-                            $"[PortalInteractSystem] Player {playerNetId} is too far from the portal to interact.",
-                            this
-                        );
-                        return;
-                    }
-                }
-                else
+                var player = GetPlayerGameObject(playerNetId);
+                if (player == null || !portalInfo.IsInPortalRadius(player.transform.position))
                 {
                     logger.Log(
-                        $"[PortalInteractSystem] Player GameObject not found for NetId: {playerNetId}.",
+                        $"[PortalInteractSystem] Player {playerNetId} is too far from the portal to interact.",
                         this
                     );
                     return;
                 }
+
+                // Here we freeze the player movement by sending a move command with a zero vector,
+                // this is to prevent the player from moving while the portal request UI is open.
+                var playerMovementSystem = player.GetComponent<MovementSystem>();
+                playerMovementSystem?.OnMove(Vector3.zero);
 
                 if (
                     portalRegistry.TryGetPortal(
@@ -145,6 +141,15 @@ namespace FTR.Gameplay.Server.Environment.Portal
                     $"[PortalInteractSystem] An error occured during teleportation request: {ex.Message}"
                 );
             }
+        }
+
+        private GameObject GetPlayerGameObject(uint playerNetId)
+        {
+            if (NetworkServer.spawned.TryGetValue(playerNetId, out NetworkIdentity identity))
+            {
+                return identity.gameObject;
+            }
+            return null;
         }
 
         // TODO: move this to a utility class since it's used in ShopInteractSystem as well
