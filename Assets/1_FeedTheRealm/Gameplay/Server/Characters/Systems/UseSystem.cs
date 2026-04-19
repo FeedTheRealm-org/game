@@ -92,6 +92,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
             _attackTriggerArea.OnPlayerExit += PlayerLeftAutoAttackRange;
         }
 
+        public void SetStrategy(IUseStrategy strategy)
+        {
+            currentStrategy = strategy ?? new BareHandsStrategy();
+        }
+
         private void HandleDeath()
         {
             isDead = true;

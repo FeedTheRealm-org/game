@@ -6,6 +6,7 @@ using FTR.Core.Server.Config;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies;
 using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using Mirror;
@@ -238,11 +239,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                     }
 
                     var useSystem = enemy.GetComponentInChildren<UseSystem>();
-                    if (useSystem != null)
-                    {
-                        //TODO: implement enemy attack patterns and assign appropriate strategies based on enemyData
-                        //useSystem.SetAttackDamage(enemyData.damage);
-                    }
+                    useSystem?.SetStrategy(new EnemyMeleeStrategy(enemyData));
                 }
                 else
                 {
