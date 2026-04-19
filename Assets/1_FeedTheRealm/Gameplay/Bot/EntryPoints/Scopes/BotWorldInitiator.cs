@@ -15,12 +15,9 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
         [SerializeField]
         private Logging.Logger logger;
 
-        public RuntimeRole CurrentRuntimeRole =>
-            config != null ? config.RuntimeRole : RuntimeRole.Client;
-
         protected override void Configure(IContainerBuilder builder)
         {
-            if (CurrentRuntimeRole != RuntimeRole.Bot)
+            if (config.RuntimeRole != RuntimeRole.Bot)
                 return;
 
             ValidateSerializeFields();

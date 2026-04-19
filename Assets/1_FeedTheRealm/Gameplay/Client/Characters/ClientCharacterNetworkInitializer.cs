@@ -10,6 +10,9 @@ namespace FTR.Gameplay.Client.Characters
 {
     public class ClientCharacterNetworkInitializer : NetworkBehaviour
     {
+        [SerializeField]
+        private Config config;
+
         /// <summary>
         /// Called on the client when any character (local or remote) is spawned.
         /// Injects dependencies via VContainer and initializes client-side scripts for
@@ -20,10 +23,7 @@ namespace FTR.Gameplay.Client.Characters
             base.OnStartClient();
 
             var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
-            if (
-                clientWorldInitiator == null
-                || clientWorldInitiator.CurrentRuntimeRole != RuntimeRole.Client
-            )
+            if (config.RuntimeRole != RuntimeRole.Client)
                 return;
 
             Debug.Log(

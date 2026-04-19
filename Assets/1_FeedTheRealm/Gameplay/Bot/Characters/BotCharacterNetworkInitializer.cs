@@ -8,15 +8,15 @@ namespace FTR.Gameplay.Bot.Characters
 {
     public class BotCharacterNetworkInitializer : NetworkBehaviour
     {
+        [SerializeField]
+        private Config config;
+
         public override void OnStartClient()
         {
             base.OnStartClient();
 
             var botWorldInitiator = FindFirstObjectByType<BotWorldInitiator>();
-            if (
-                botWorldInitiator == null
-                || botWorldInitiator.CurrentRuntimeRole != RuntimeRole.Bot
-            )
+            if (config.RuntimeRole != RuntimeRole.Bot)
                 return;
 
             var networkAdapter = GetComponent<NetworkAdapter>();

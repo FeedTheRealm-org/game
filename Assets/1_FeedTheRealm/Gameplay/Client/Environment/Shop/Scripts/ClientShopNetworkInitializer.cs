@@ -11,6 +11,9 @@ namespace FTR.Gameplay.Client.Environment.Shop
 {
     public class ClientShopNetworkInitializer : NetworkBehaviour
     {
+        [SerializeField]
+        private Config config;
+
         /// <summary>
         /// Called on the client when any shop (local or remote) is spawned.
         /// Injects dependencies via VContainer and initializes client-side scripts for
@@ -26,10 +29,7 @@ namespace FTR.Gameplay.Client.Environment.Shop
         private void InjectDependencies()
         {
             var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
-            if (
-                clientWorldInitiator == null
-                || clientWorldInitiator.CurrentRuntimeRole != RuntimeRole.Client
-            )
+            if (config.RuntimeRole != RuntimeRole.Client)
                 return;
 
             clientWorldInitiator.Container.InjectGameObject(gameObject);

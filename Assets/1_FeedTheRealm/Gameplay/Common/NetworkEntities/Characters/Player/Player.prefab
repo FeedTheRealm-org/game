@@ -244,6 +244,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
 --- !u!114 &6489399200151354170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,6 +275,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
 --- !u!114 &6809830748454114207
 MonoBehaviour:
   m_ObjectHideFlags: 0
