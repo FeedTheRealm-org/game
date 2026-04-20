@@ -3,6 +3,7 @@ using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.Config;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
@@ -100,6 +101,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
             builder.Register<ClientShopLinker>(Lifetime.Singleton).As<ShopLinker>();
+            builder.Register<ClientPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
 
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
         }

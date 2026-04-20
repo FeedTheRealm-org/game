@@ -1,10 +1,12 @@
 using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Characters.Player;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Client.EntryPoints;
+using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -140,6 +142,13 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.InjectGameObject(shopMenuComponent);
             shopMenuComponent.SetActive(true);
 
+            prefabProvider.PortalVisual.SetActive(false);
+            var portalVisual = resolver.Instantiate(
+                prefabProvider.PortalVisual,
+                gameObject.transform
+            );
+
+            portalVisual.SetActive(true);
             prefabProvider.ChatInput.SetActive(false);
             var chatInput = Object.Instantiate(prefabProvider.ChatInput, gameObject.transform);
             resolver.InjectGameObject(chatInput);
@@ -161,6 +170,7 @@ public class ClientPlayerLinker : PlayerLinker
             var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
 
+            var portalView = playerComponents.GetComponent<PortalView>();
             var chatController = playerComponents.AddComponent<ChatController>();
 
             resolver.Inject(playerController);
@@ -172,6 +182,7 @@ public class ClientPlayerLinker : PlayerLinker
 
             resolver.Inject(goldView);
             resolver.Inject(goldController);
+            resolver.Inject(portalView);
 
             resolver.Inject(chatController);
 
@@ -186,6 +197,7 @@ public class ClientPlayerLinker : PlayerLinker
             characterStateMachine?.Initialize(interactController);
             interactView?.Initialize(networkEventRouter, npcDialogRegistry);
             playerController.Initialize(characterStateMachine);
+            portalView?.Initialize(networkEventRouter, networkAdapter);
             chatController.Initialize(networkAdapter);
         }
     }

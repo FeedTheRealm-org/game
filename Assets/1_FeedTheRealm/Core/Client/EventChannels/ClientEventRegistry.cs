@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Portal;
 using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
@@ -19,6 +20,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
     {
         [Header("Setup Events")]
         public WorldSetupEvent worldSetupEvent;
+        public LoadingEvent loadingEvent;
 
         [Header("Shop Events")]
         public ShopToggleEvent shopToggleEvent;
@@ -67,6 +69,10 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public ChatMessageRequestEvent chatMessageRequestEvent;
         public ChatToggleEvent chatToggleEvent;
 
+        [Header("Portal Events")]
+        public PortalToggleEvent portalToggleEvent;
+        public OpenPortalUIEvent openPortalUIEvent;
+
         public void RegisterAll(IContainerBuilder builder)
         {
             Validate();
@@ -100,7 +106,10 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(notEnoughGoldEvent);
             builder.RegisterInstance(chatMessageRequestEvent);
             builder.RegisterInstance(chatToggleEvent);
+            builder.RegisterInstance(portalToggleEvent);
+            builder.RegisterInstance(openPortalUIEvent);
             builder.RegisterInstance(worldSetupEvent);
+            builder.RegisterInstance(loadingEvent);
         }
 
         private void Validate()
@@ -135,6 +144,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
             ValidateField(chatMessageRequestEvent, nameof(chatMessageRequestEvent));
             ValidateField(chatToggleEvent, nameof(chatToggleEvent));
+            ValidateField(portalToggleEvent, nameof(portalToggleEvent));
+            ValidateField(openPortalUIEvent, nameof(openPortalUIEvent));
+            ValidateField(loadingEvent, nameof(loadingEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

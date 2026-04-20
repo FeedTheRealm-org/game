@@ -30,8 +30,14 @@ namespace FTR.Core.Common.Config
         public ApiConfig ApiConfig;
 
         [Header("Server Settings")]
-        public ushort ListeningPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
-        public ushort HealthcheckPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7778"));
+        private ushort? _listeningPort = 7777;
+        public ushort ListeningPort =>
+            ushort.Parse(ParamsSerializer.GetArgs("port", _listeningPort?.ToString()));
+
+        [SerializeField]
+        private ushort? _healthcheckPort = 7778;
+        public ushort HealthcheckPort =>
+            ushort.Parse(ParamsSerializer.GetArgs("hport", _healthcheckPort?.ToString()));
 
 #if SERVER_BUILD || DEBUG
         [SerializeField]
@@ -58,10 +64,15 @@ namespace FTR.Core.Common.Config
         [SerializeField]
         private string worldID = "world_1";
         public string WorldID => worldID;
+
+        [SerializeField]
+        private int zoneID = 1;
+        public int ZoneID => zoneID;
 #else
         public bool IsDebugWorld => false;
         public bool DoNotLoadWorld => false;
         public string WorldID => string.Empty;
+        public int ZoneID => 0;
 #endif
 
         /* HELPERS */

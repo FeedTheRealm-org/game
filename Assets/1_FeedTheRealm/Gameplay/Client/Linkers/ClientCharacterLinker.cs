@@ -39,6 +39,7 @@ namespace FTR.Gameplay.Client.Linkers
             var dashView = characterComponents.GetComponent<DashView>();
             var staminaView = characterComponents.GetComponent<StaminaView>();
             var healthView = characterComponents.GetComponent<HealthView>();
+
             var movementController = characterComponents.GetComponent<MovementController>();
             var useController = characterComponents.GetComponent<UseController>();
 
