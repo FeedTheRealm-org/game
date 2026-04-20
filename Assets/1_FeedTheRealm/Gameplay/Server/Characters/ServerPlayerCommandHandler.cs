@@ -191,9 +191,12 @@ namespace FTR.Gameplay.Server.Characters
 
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
         {
-            if (tokenId == config.TestJoinToken) // TODO: add TEST flag for servers
+            var splitedToken = tokenId.Split('_');
+            if (splitedToken[0] == config.TestJoinToken) // TODO: add TEST flag for servers
             {
-                stateStorage.SetCharacterId(tokenId);
+                var botId = splitedToken.Length > 1 ? splitedToken[1] : "UnknownBot";
+                stateStorage.SetCharacterId($"bot_{botId}");
+                gameObject.name = $"BotPlayer_{botId}";
                 return;
             }
 

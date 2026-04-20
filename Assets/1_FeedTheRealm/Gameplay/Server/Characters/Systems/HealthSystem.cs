@@ -1,7 +1,9 @@
 using System;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
@@ -12,6 +14,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private Logging.Logger logger;
+
+        [Inject]
+        private GameTickEvent gameTickEvent;
 
         public event Action<uint> OnDeath;
 
@@ -36,9 +41,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void Awake()
         {
             currentHealth = MaxHealth;
+            gameTickEvent.OnRaised += GameTick;
         }
 
-        public void GameTick(float dt) { }
+        private void OnDestroy()
+        {
+            if (gameTickEvent != null)
+                gameTickEvent.OnRaised -= GameTick;
+        }
+
+        public void GameTick(float dt)
+        {
+            if (gameObject.transform.position.y < -10f)
+            {
+                logger.Log($"Character fell out of bounds. Resetting health.", this);
+                Die(0);
+            }
+        }
 
         public (bool isDead, string characterId) TakeDamage(float damage, uint attackerNetId = 0)
         {

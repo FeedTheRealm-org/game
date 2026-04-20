@@ -7,7 +7,7 @@ namespace FTR.Core.Bot.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/BotConfig")]
     public class BotConfig : ScriptableObject
     {
-        [Inject]
+        [SerializeField]
         private Logging.Logger logger;
 
         public string BotId;

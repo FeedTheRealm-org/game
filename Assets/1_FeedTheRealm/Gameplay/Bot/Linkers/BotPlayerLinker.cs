@@ -40,14 +40,14 @@ namespace FTR.Gameplay.Bot.Linkers
             if (!networkAdapter.IsLocalPlayer)
                 return;
 
-            gameObject.name = $"BotPlayer-{networkAdapter.netId}";
+            gameObject.name = $"BotPlayer_{networkAdapter.netId}";
 
             networkAdapter.DispatchTransaction(
                 new TransactionCommandDTO
                 {
                     Type = TransactionType.SetUserId,
                     NetId = networkAdapter.netId,
-                    Id = config.TestJoinToken,
+                    Id = $"{config.TestJoinToken}_{botConfig.BotId}",
                     content = null,
                 }
             );

@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a9b5f3caeffc93a99f9f1b26ccaf73, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
-  editorRuntimeRole: 1
+  editorRuntimeRole: 0
+  MaxWorldLoadRetries: 10
+  WorldLoadRetryDelayMs: 1000
+  TestJoinToken: test-join-token
+  EnableActionLogging: 1
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   ListeningPort: 7777
   HealthcheckPort: 7778
@@ -21,4 +25,4 @@ MonoBehaviour:
   CurrentServerPort: 7777
   isDebugWorld: 1
   doNotLoadWorld: 0
-  worldID: afa76c15-04f0-41ea-a117-5b67407534c9
+  worldID: 17086466-905a-4018-bf20-9311077766db

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3247d67a995d0c11b8cdc1c896970e2, type: 3}
   m_Name: BotConfig
   m_EditorClassIdentifier: FTR.Core.Bot::FTR.Core.Bot.Config.BotConfig
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   BotId: 
   WorldId: 
   ZoneId: 
