@@ -1,6 +1,5 @@
 using System;
 using FTR.Core.Common.Utils;
-using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
@@ -14,16 +13,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private Logging.Logger logger;
-
-        [Inject]
-        public void Construct(IObjectResolver resolver)
-        {
-            if (resolver.TryResolve<PlayerHealEvent>(out var healEv) && healEv != null)
-                playerHealEvent = healEv;
-        }
-
-        private PlayerHealEvent playerHealEvent;
-        private bool subscribedToHealEvent = false;
 
         public event Action<uint> OnDeath;
 
@@ -43,38 +32,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.isImmortal = isImmortal;
             isInitialized = true;
             stateStorage.SetHealth(currentHealth);
-
-            SubscribeToHealEvent();
         }
 
-        private void OnDestroy()
-        {
-            UnsubscribeFromHealEvent();
-        }
-
-        private void SubscribeToHealEvent()
-        {
-            if (subscribedToHealEvent || playerHealEvent == null)
-                return;
-            playerHealEvent.OnRaised += OnHealEvent;
-            subscribedToHealEvent = true;
-        }
-
-        private void UnsubscribeFromHealEvent()
-        {
-            if (!subscribedToHealEvent || playerHealEvent == null)
-                return;
-            playerHealEvent.OnRaised -= OnHealEvent;
-            subscribedToHealEvent = false;
-        }
-
-        private void OnHealEvent((uint playerNetId, float amount) data)
-        {
-            if (data.playerNetId == netId)
-            {
-                Heal(data.amount);
-            }
-        }
+        private void OnDestroy() { }
 
         private void Awake()
         {

@@ -20,7 +20,6 @@ namespace FTR.Core.Server.EventChannels
         public ItemEquippedEvent itemEquippedEvent;
         public PlayerBuffSpeedEvent playerBuffSpeedEvent;
         public PlayerHealEvent playerHealEvent;
-        public ConsumeItemEvent consumeItemEvent;
 
         public void RegisterAll(IContainerBuilder builder)
         {
@@ -36,7 +35,6 @@ namespace FTR.Core.Server.EventChannels
             builder.RegisterInstance(itemEquippedEvent);
             builder.RegisterInstance(playerBuffSpeedEvent);
             builder.RegisterInstance(playerHealEvent);
-            builder.RegisterInstance(consumeItemEvent);
         }
 
         private void Validate()
@@ -51,7 +49,6 @@ namespace FTR.Core.Server.EventChannels
             ValidateField(itemEquippedEvent, nameof(itemEquippedEvent));
             ValidateField(playerBuffSpeedEvent, nameof(playerBuffSpeedEvent));
             ValidateField(playerHealEvent, nameof(playerHealEvent));
-            ValidateField(consumeItemEvent, nameof(consumeItemEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

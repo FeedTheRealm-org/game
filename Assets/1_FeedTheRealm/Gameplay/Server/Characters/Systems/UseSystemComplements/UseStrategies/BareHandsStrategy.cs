@@ -17,7 +17,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
         public void Execute(UseContext ctx) =>
             MeleeWeaponStrategy.PerformMeleeAttack(
                 ctx,
-                ctx.Config.UnequippedDamage,
+                ctx.Config.UnequippedDamage + ctx.StatMods.FlatDamageBonus,
                 ctx.Config.UnequippedRange
             );
     }

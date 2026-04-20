@@ -1,52 +1,58 @@
+using System;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
+using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Registry;
+using FTR.Gameplay.Server.Utils.UseEquipment;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
 {
     /// <summary>
-    /// Snapshot of everything a use-strategy needs to execute.
-    /// Built once per OnUse call and passed down — strategies never hold
-    /// a reference to UseSystem.
+    /// Built once in UseSystem.Initialize and reused for every Execute call.
     /// </summary>
     public sealed class UseContext
     {
         public readonly uint NetId;
-        public readonly Vector3 HitPoint;
-        public readonly LayerMask TargetLayer;
+        private readonly Func<Vector3> _hitPointProvider;
+        private readonly Func<LayerMask> _targetLayerProvider;
+        public Vector3 HitPoint => _hitPointProvider();
+        public LayerMask TargetLayer => _targetLayerProvider();
         public readonly ServerConfig Config;
+        public readonly MovementSystem Movement;
+        public readonly HealthSystem Health;
+        public readonly InventorySystem Inventory;
+        public readonly StatModifierBag StatMods;
         public readonly EnemySlayedEvent EnemySlayedEvent;
-        public readonly ConsumeItemEvent ConsumeItemEvent;
-        public readonly PlayerHealEvent PlayerHealEvent;
-        public readonly PlayerBuffSpeedEvent PlayerBuffSpeedEvent;
         public readonly WorldMonitor World;
         public readonly Logging.Logger Logger;
         public readonly object LogSource;
 
         public UseContext(
             uint netId,
-            Vector3 hitPoint,
-            LayerMask targetLayer,
+            Func<Vector3> hitPointProvider,
+            Func<LayerMask> targetLayerProvider,
             ServerConfig config,
+            MovementSystem movement,
+            HealthSystem health,
+            InventorySystem inventory,
+            StatModifierBag statMods,
             EnemySlayedEvent enemySlayedEvent,
-            ConsumeItemEvent consumeItemEvent,
-            PlayerHealEvent playerHealEvent,
-            PlayerBuffSpeedEvent playerBuffSpeedEvent,
             WorldMonitor world,
             Logging.Logger logger,
             object logSource
         )
         {
             NetId = netId;
-            HitPoint = hitPoint;
-            TargetLayer = targetLayer;
+            _hitPointProvider = hitPointProvider;
+            _targetLayerProvider = targetLayerProvider;
             Config = config;
+            Movement = movement;
+            Health = health;
+            Inventory = inventory;
+            StatMods = statMods;
             EnemySlayedEvent = enemySlayedEvent;
-            ConsumeItemEvent = consumeItemEvent;
-            PlayerHealEvent = playerHealEvent;
-            PlayerBuffSpeedEvent = playerBuffSpeedEvent;
             World = world;
             Logger = logger;
             LogSource = logSource;

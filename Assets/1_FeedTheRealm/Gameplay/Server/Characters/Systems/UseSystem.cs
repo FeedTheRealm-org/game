@@ -27,21 +27,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private ItemEquippedEvent itemEquippedEvent;
         private EnemySlayedEvent enemySlayedEvent;
-        private ConsumeItemEvent consumeItemEvent;
-        private PlayerHealEvent playerHealEvent;
-        private PlayerBuffSpeedEvent playerBuffSpeedEvent;
 
         [Inject]
         public void Construct(IObjectResolver resolver)
         {
             itemEquippedEvent = resolver.Resolve<ItemEquippedEvent>();
-            consumeItemEvent = resolver.Resolve<ConsumeItemEvent>();
-            playerHealEvent = resolver.Resolve<PlayerHealEvent>();
-            playerBuffSpeedEvent = resolver.Resolve<PlayerBuffSpeedEvent>();
             enemySlayedEvent = resolver.Resolve<EnemySlayedEvent>();
         }
-
-        // ── Runtime state ─────────────────────────────────────────────────────
 
         private LayerMask targetLayer;
         private Rigidbody _rb;
@@ -52,10 +44,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private int activeSlot = 0;
 
         private EquippedItem currentEquipped;
-
         private IUseStrategy currentStrategy;
-
         private SlotCooldownTracker cooldowns;
+        private UseContext _context;
 
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
@@ -79,6 +70,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             cooldowns = new SlotCooldownTracker(slotCount: 5);
             currentStrategy = new BareHandsStrategy();
+
+            var movement = GetComponentInParent<MovementSystem>();
+            var health = GetComponentInParent<HealthSystem>();
+            var inventory = GetComponentInParent<InventorySystem>();
+
+            _context = new UseContext(
+                netId: netId,
+                hitPointProvider: () => HitPoint,
+                targetLayerProvider: () => this.targetLayer,
+                config: config,
+                movement: movement,
+                health: health,
+                inventory: inventory,
+                statMods: new StatModifierBag(),
+                enemySlayedEvent: enemySlayedEvent,
+                world: world,
+                logger: logger,
+                logSource: this
+            );
 
             stateStorage.OnDeath += HandleDeath;
             stateStorage.OnRespawn += HandleRespawn;
@@ -142,7 +152,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            var ctx = BuildContext();
+            var ctx = _context;
 
             if (!currentStrategy.CanExecute(ctx, cooldowns, out float strategyRemaining))
                 return;
@@ -172,9 +182,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             while (amountOfPlayersInRange > 0)
             {
-                var ctx = BuildContext();
-                currentStrategy.Execute(ctx);
-                yield return new WaitForSeconds(currentStrategy.GetCooldown(ctx) * 2);
+                currentStrategy.Execute(_context);
+                yield return new WaitForSeconds(currentStrategy.GetCooldown(_context) * 2);
             }
         }
 
@@ -194,21 +203,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 this
             );
         }
-
-        private UseContext BuildContext() =>
-            new UseContext(
-                netId: netId,
-                hitPoint: HitPoint,
-                targetLayer: targetLayer,
-                config: config,
-                enemySlayedEvent: enemySlayedEvent,
-                consumeItemEvent: consumeItemEvent,
-                playerHealEvent: playerHealEvent,
-                playerBuffSpeedEvent: playerBuffSpeedEvent,
-                world: world,
-                logger: logger,
-                logSource: this
-            );
 
         private void SubscribeToItemEquipped()
         {

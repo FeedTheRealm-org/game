@@ -1,6 +1,7 @@
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Enums;
 using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies;
 using FTR.Gameplay.Server.Registry;
 using UnityEngine;
 
@@ -83,7 +84,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
                     );
                     return new Result(
                         new ConsumableEquipped(consumableData),
-                        new ConsumableStrategy(consumableData)
+                        ConsumableStrategyFactory.Build(consumableData)
                     );
 
                 default:

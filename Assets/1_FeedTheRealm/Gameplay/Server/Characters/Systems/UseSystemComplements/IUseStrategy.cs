@@ -1,8 +1,7 @@
-using FTR.Gameplay.Server.Characters;
-using FTR.Gameplay.Server.Utils.UseEquipment;
-using FTRShared.Runtime.Models;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
+using UnityEngine;
 
-namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
+namespace FTR.Gameplay.Server.Utils.UseEquipment
 {
     // ── Strategy interface ────────────────────────────────────────────────────
 
@@ -16,13 +15,13 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
         void Execute(UseContext ctx);
 
         /// <summary>
-        /// Returns the cooldown in seconds that should be applied after execution.
+        /// Cooldown in seconds applied after execution.
         /// UseSystem applies it to the appropriate tracker (slot or consumable-specific).
         /// </summary>
         float GetCooldown(UseContext ctx);
 
         /// <summary>
-        /// Optional per-strategy cooldown guard called by UseSystem before Execute.
+        /// Per-strategy cooldown guard called by UseSystem before Execute.
         /// Return false (and populate <paramref name="remaining"/>) to block the action.
         /// Default implementation always allows execution.
         /// </summary>
@@ -33,8 +32,8 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
         }
 
         /// <summary>
-        /// Called by UseSystem after CanExecute passes, before Execute,
-        /// so each strategy can record its own cooldown entry.
+        /// Called by UseSystem after CanExecute passes, before Execute.
+        /// Each strategy records its own cooldown entry here.
         /// </summary>
         void RecordCooldown(UseContext ctx, SlotCooldownTracker cooldowns, int activeSlot) { }
     }

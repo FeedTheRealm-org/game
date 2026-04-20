@@ -27,15 +27,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 questRewardItemEvent = ev;
             if (resolver.TryResolve<ItemEquippedEvent>(out var equipEv) && equipEv != null)
                 itemEquippedEvent = equipEv;
-            if (resolver.TryResolve<ConsumeItemEvent>(out var consumeEv) && consumeEv != null)
-                consumeItemEvent = consumeEv;
         }
 
         private QuestRewardItemEvent questRewardItemEvent;
         private ItemEquippedEvent itemEquippedEvent;
-        private ConsumeItemEvent consumeItemEvent;
         private bool subscribedToQuestReward = false;
-        private bool subscribedToConsumeItem = false;
 
         private uint netId;
         private InventoryStateStorage inventoryState;
@@ -70,13 +66,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 fastSlots[i] = string.Empty;
 
             SubscribeToQuestReward();
-            SubscribeToConsumeItem();
         }
 
         private void OnDestroy()
         {
             UnsubscribeFromQuestReward();
-            UnsubscribeFromConsumeItem();
         }
 
         private void OnQuestRewardItem((uint playerNetId, string itemId) data)
@@ -343,27 +337,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             subscribedToQuestReward = false;
         }
 
-        private void SubscribeToConsumeItem()
+        private void ConsumeItem(string itemId)
         {
-            if (subscribedToConsumeItem || consumeItemEvent == null)
-                return;
-            consumeItemEvent.OnRaised += OnConsumeItemEvent;
-            subscribedToConsumeItem = true;
-        }
-
-        private void UnsubscribeFromConsumeItem()
-        {
-            if (!subscribedToConsumeItem || consumeItemEvent == null)
-                return;
-            consumeItemEvent.OnRaised -= OnConsumeItemEvent;
-            subscribedToConsumeItem = false;
-        }
-
-        private void OnConsumeItemEvent((uint playerNetId, string itemId) data)
-        {
-            if (data.playerNetId != netId)
-                return;
-
             string equippedItemId = fastSlots[activeSlot];
             if (equippedItemId == data.itemId)
             {

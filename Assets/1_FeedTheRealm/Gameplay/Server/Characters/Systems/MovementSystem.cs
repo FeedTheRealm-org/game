@@ -1,7 +1,6 @@
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
-using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
@@ -14,18 +13,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [Inject]
         private readonly PlayersRepository playersRepository;
 
-        [Inject]
-        public void Construct(IObjectResolver resolver)
-        {
-            if (resolver.TryResolve<PlayerBuffSpeedEvent>(out var buffEv) && buffEv != null)
-                playerBuffSpeedEvent = buffEv;
-        }
-
         [SerializeField]
         private GameTickEvent gameTickEvent;
-
-        private PlayerBuffSpeedEvent playerBuffSpeedEvent;
-        private bool subscribedToBuffEvent;
         private uint netId;
 
         [SerializeField]
@@ -54,7 +43,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.OnDeath -= HandleDeath;
                 stateStorage.OnRespawn -= HandleRespawn;
             }
-            UnsubscribeFromBuffEvent();
         }
 
         public void Initialize(uint netId, Rigidbody rb, CharacterStateStorage stateStorage)
@@ -69,32 +57,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             moveSpeed = config.PlayerSpeed > 0 ? config.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
 
-            SubscribeToBuffEvent();
             isInitialized = true;
-        }
-
-        private void SubscribeToBuffEvent()
-        {
-            if (subscribedToBuffEvent || playerBuffSpeedEvent == null)
-                return;
-            playerBuffSpeedEvent.OnRaised += OnBuffEvent;
-            subscribedToBuffEvent = true;
-        }
-
-        private void UnsubscribeFromBuffEvent()
-        {
-            if (!subscribedToBuffEvent || playerBuffSpeedEvent == null)
-                return;
-            playerBuffSpeedEvent.OnRaised -= OnBuffEvent;
-            subscribedToBuffEvent = false;
-        }
-
-        private void OnBuffEvent((uint playerNetId, float speedBoost, float duration) data)
-        {
-            if (data.playerNetId == netId)
-            {
-                ApplySpeedBuff(data.speedBoost, data.duration);
-            }
         }
 
         private void HandleDeath()

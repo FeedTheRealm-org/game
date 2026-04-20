@@ -20,7 +20,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
 
         public void Execute(UseContext ctx)
         {
-            PerformMeleeAttack(ctx, _data.damage, _data.range);
+            PerformMeleeAttack(ctx, _data.damage + ctx.StatMods.FlatDamageBonus, _data.range);
         }
 
         internal static void PerformMeleeAttack(UseContext ctx, int damage, float radius)
@@ -30,10 +30,12 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
             foreach (Collider target in hitTargets)
             {
                 var targetNetId = target.GetComponent<NetworkIdentity>()?.netId;
+
                 if (targetNetId.HasValue && targetNetId.Value == ctx.NetId)
                     continue;
 
                 var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
+
                 if (healthSystem == null)
                     continue;
 
