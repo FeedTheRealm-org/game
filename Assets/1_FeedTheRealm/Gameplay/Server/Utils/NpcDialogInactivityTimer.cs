@@ -34,9 +34,20 @@ namespace FTR.Gameplay.Server.Utils
             _coroutines.Remove(playerNetId);
         }
 
+        public void StopAll()
+        {
+            foreach (var coroutine in _coroutines.Values)
+            {
+                if (coroutine != null)
+                    owner.StopCoroutine(coroutine);
+            }
+            _coroutines.Clear();
+        }
+
         private IEnumerator TimerCoroutine(uint playerNetId, IInteractor interactor)
         {
             yield return new WaitForSeconds(timeout);
+            _coroutines.Remove(playerNetId);
             interactor.FinishInteracting();
         }
     }

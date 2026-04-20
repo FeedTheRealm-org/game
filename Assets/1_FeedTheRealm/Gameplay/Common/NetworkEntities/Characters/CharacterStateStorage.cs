@@ -86,6 +86,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public void SetCharacterId(string newCharacterId)
         {
             characterId = newCharacterId;
+            OnCharacterIdChanged?.Invoke(newCharacterId);
         }
 
         [Server]

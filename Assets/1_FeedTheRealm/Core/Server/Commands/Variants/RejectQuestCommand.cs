@@ -13,6 +13,6 @@ public class RejectQuestCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnQuestDecided(eventCollector);
+        commandable.OnQuestRejected(eventCollector);
     }
 }

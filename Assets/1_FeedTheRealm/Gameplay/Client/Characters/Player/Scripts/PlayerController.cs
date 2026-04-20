@@ -1,6 +1,7 @@
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Portal;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.Exceptions;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
@@ -27,14 +28,23 @@ public class PlayerController : MonoBehaviour
     private ChatToggleEvent chatToggleEvent;
 
     [Inject]
+    private PortalToggleEvent portalToggleEvent;
+
+    [Inject]
     private Logging.Logger logger;
 
     private CharacterStateMachine characterStateMachine;
 
     private bool isInitialized = false;
+
+    // TODO: these are all UI realted states, we should
+    // unify this into a single UI state manager or something similar to avoid having a million bools here.
     private bool isInventoryOpen = false;
     private bool isShopOpen = false;
     private bool isChatOpen = false;
+    private bool isPortalOpen = false;
+
+    private bool isUiOpen => isInventoryOpen || isShopOpen || isChatOpen || isPortalOpen;
 
     public void Initialize(CharacterStateMachine characterStateMachine)
     {
@@ -49,6 +59,9 @@ public class PlayerController : MonoBehaviour
 
         if (chatToggleEvent != null)
             chatToggleEvent.OnRaised += OnChatToggled;
+
+        if (portalToggleEvent != null)
+            portalToggleEvent.OnRaised += OnPortalToggled;
 
         StartController();
     }
@@ -71,9 +84,15 @@ public class PlayerController : MonoBehaviour
         UpdateCursorState();
     }
 
+    private void OnPortalToggled(bool isOpen)
+    {
+        isPortalOpen = isOpen;
+        UpdateCursorState();
+    }
+
     private void UpdateCursorState()
     {
-        bool shouldShowCursor = isInventoryOpen || isShopOpen || isChatOpen;
+        bool shouldShowCursor = isInventoryOpen || isShopOpen || isChatOpen || isPortalOpen;
         Cursor.visible = shouldShowCursor;
         Cursor.lockState = shouldShowCursor ? CursorLockMode.None : CursorLockMode.Locked;
     }
@@ -109,6 +128,9 @@ public class PlayerController : MonoBehaviour
 
         if (chatToggleEvent != null)
             chatToggleEvent.OnRaised -= OnChatToggled;
+
+        if (portalToggleEvent != null)
+            portalToggleEvent.OnRaised -= OnPortalToggled;
     }
 
     private void ToggleRegisterInputs(bool register)
@@ -131,7 +153,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnUseInput()
     {
-        if (isInventoryOpen || isShopOpen || isChatOpen)
+        if (isInventoryOpen || isShopOpen || isChatOpen || isPortalOpen)
         {
             return;
         }
@@ -141,17 +163,17 @@ public class PlayerController : MonoBehaviour
 
     private void OnMoveInput(Vector2 vec)
     {
-        if (isChatOpen)
+        if (isUiOpen)
         {
+            characterStateMachine?.OnMove(Vector2.zero);
             return;
         }
-
         characterStateMachine?.OnMove(vec);
     }
 
     private void OnDashInput()
     {
-        if (isChatOpen)
+        if (isUiOpen)
         {
             return;
         }
@@ -161,7 +183,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnInteractInput()
     {
-        if (isInventoryOpen || isChatOpen)
+        if (isInventoryOpen || isChatOpen || isPortalOpen)
         {
             return;
         }

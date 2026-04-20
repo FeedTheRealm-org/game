@@ -8,6 +8,7 @@ using FTR.Gameplay.Common.NetworkEntities.Gold;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Registry;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -24,6 +25,7 @@ public class ServerPlayerLinker : PlayerLinker
     private readonly ServerConfig serverConfig;
     private readonly Config commonConfig;
     private readonly PlayerService playerService;
+    private readonly PortalRegistry portalRegistry;
 
     public ServerPlayerLinker(
         WorldMonitor world,
@@ -31,7 +33,8 @@ public class ServerPlayerLinker : PlayerLinker
         IObjectResolver resolver,
         ServerConfig serverConfig,
         Config commonConfig,
-        PlayerService playerService
+        PlayerService playerService,
+        PortalRegistry portalRegistry
     )
     {
         this.world = world;
@@ -41,6 +44,7 @@ public class ServerPlayerLinker : PlayerLinker
         this.serverConfig = serverConfig;
         this.commonConfig = commonConfig;
         this.playerService = playerService;
+        this.portalRegistry = portalRegistry;
     }
 
     public override void Link(GameObject gameObject)
@@ -58,7 +62,7 @@ public class ServerPlayerLinker : PlayerLinker
         var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
         tracker.Initialize(world, netId);
 
-        var systems = characterLinker.Link(gameObject, netId);
+        var sharedSystems = characterLinker.Link(gameObject, netId);
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
 
         var playerComponents = resolver.Instantiate(
@@ -69,17 +73,18 @@ public class ServerPlayerLinker : PlayerLinker
         var serverPlayerCommandHandler =
             playerComponents.GetComponent<ServerPlayerCommandHandler>();
         var respawnSystem = playerComponents.GetComponent<RespawnSystem>();
-        var persistenceSystem = playerComponents.GetComponent<PersistenceSystem>();
+        var playerPersistenceSystem = playerComponents.GetComponent<PlayerPersistenceSystem>();
         var inventorySystem = playerComponents.GetComponent<InventorySystem>();
         var goldSystem = playerComponents.GetComponent<GoldSystem>();
         var interactSystem = playerComponents.GetComponent<PlayerInteractSystem>();
         var questSystem = playerComponents.GetComponent<QuestSystem>();
+        var teleportSystem = playerComponents.GetComponent<TeleportSystem>();
         var chatSystem = playerComponents.GetComponent<ChatSystem>();
 
         interactSystem.Initialize(netId, world, networkAdapter.netId);
         questSystem.Initialize(netId, world, networkAdapter.netId);
-        systems.Health.Initialize(netId, stateStorage, false);
-        systems.Use.Initialize(
+        sharedSystems.Health.Initialize(netId, stateStorage, false);
+        sharedSystems.Use.Initialize(
             netId,
             rb,
             serverConfig.PlayerLayer | serverConfig.TargetLayer,
@@ -87,13 +92,21 @@ public class ServerPlayerLinker : PlayerLinker
         );
         inventorySystem.Initialize(netId, inventoryStateStorage, stateStorage);
         goldSystem.Initialize(netId, goldStateStorage, world);
-        persistenceSystem.Initialize(systems.Movement, inventorySystem);
+        playerPersistenceSystem.Initialize(
+            stateStorage,
+            inventorySystem,
+            goldSystem,
+            sharedSystems.Movement,
+            questSystem
+        );
         chatSystem.Initialize(netId, world);
 
+        teleportSystem.Initialize(sharedSystems.Movement, portalRegistry, world, netId);
+
         serverPlayerCommandHandler.Initialize(
-            systems.Movement,
-            systems.Dash,
-            systems.Use,
+            sharedSystems.Movement,
+            sharedSystems.Dash,
+            sharedSystems.Use,
             interactSystem,
             inventorySystem,
             questSystem,
@@ -101,6 +114,7 @@ public class ServerPlayerLinker : PlayerLinker
             playerService,
             commonConfig.ServerAccessToken,
             goldSystem,
+            teleportSystem,
             chatSystem
         );
 
@@ -109,7 +123,7 @@ public class ServerPlayerLinker : PlayerLinker
             networkAdapter,
             serverPlayerCommandHandler,
             rb,
-            systems.Health
+            sharedSystems.Health
         );
 
         characterLinker.RegisterEntity(

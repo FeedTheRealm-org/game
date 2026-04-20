@@ -33,6 +33,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool isDead = false;
 
+        public Vector3 GetCurrentPosition() => rb.position;
+
         private void OnDestroy()
         {
             if (gameTickEvent != null)

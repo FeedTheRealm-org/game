@@ -10,6 +10,7 @@ using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Environment.Quest;
 using FTR.Gameplay.Server.Linkers;
+using FTR.Gameplay.Server.Registry;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
@@ -80,6 +81,8 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ServerLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
             builder.Register<ServerShopLinker>(Lifetime.Singleton).As<ShopLinker>();
+            builder.Register<ServerPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
+            builder.Register<PortalRegistry>(Lifetime.Singleton);
 
             builder.Register<GameLoop>(Lifetime.Singleton);
             builder.Register<NetworkService>(Lifetime.Singleton);

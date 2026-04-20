@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+message OpenPortalEventContent {
+  string portal_id = 1;
+  string portal_name = 2;
+  string destination_name = 3;
+  int32 destination_zone = 4;
+}

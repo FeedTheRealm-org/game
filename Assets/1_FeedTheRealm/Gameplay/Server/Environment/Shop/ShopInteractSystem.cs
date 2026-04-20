@@ -69,8 +69,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             return shopId;
         }
 
-        public void ContinueInteraction(IInteractor interactor) { }
-
         public void StopInteraction(IInteractor interactor) { }
 
         public bool CanInteract(IInteractor interactor) => true;

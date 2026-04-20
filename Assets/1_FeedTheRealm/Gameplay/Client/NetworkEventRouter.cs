@@ -14,6 +14,7 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<DialogEventContent> OnDialogEvent;
     public event Action<ChatMessageBroadcastEventContent> OnChatMessageBroadcastEvent;
     public event Action<OpenShopEventContent> OnOpenShopEvent;
+    public event Action<OpenPortalEventContent> OnOpenPortalEvent;
     public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
     public event Action OnInteractFailedEvent;
     public event Action OnInteractCompletedEvent;
@@ -69,6 +70,11 @@ public class NetworkEventRouter : MonoBehaviour
                 break;
             case ServerEventType.OpenShopEvent:
                 OnOpenShopEvent?.Invoke(OpenShopEventContent.Parser.ParseFrom(serverEvent.content));
+                break;
+            case ServerEventType.OpenPortalEvent:
+                OnOpenPortalEvent?.Invoke(
+                    OpenPortalEventContent.Parser.ParseFrom(serverEvent.content)
+                );
                 break;
             case ServerEventType.NotEnoughGoldEvent:
                 OnNotEnoughGoldEvent?.Invoke(

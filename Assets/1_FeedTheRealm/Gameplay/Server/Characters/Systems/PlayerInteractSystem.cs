@@ -47,47 +47,11 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
             return;
         }
 
-        if (CurrentInteractable == closest)
-        {
-            CurrentInteractable.ContinueInteraction(this);
-            return;
-        }
-
-        if (CurrentInteractable != null)
+        if (CurrentInteractable != null && CurrentInteractable != closest)
             CurrentInteractable.StopInteraction(this);
 
         CurrentInteractable = closest;
         CurrentInteractable.Interact(this);
-    }
-
-    public void TryContinue(IEventCollectable ec)
-    {
-        if (CurrentInteractable == null)
-        {
-            logger?.Log(
-                "[PlayerInteractSystem] TryContinue received but no active interaction.",
-                this
-            );
-            return;
-        }
-
-        IInteractable closest = FindClosestInteractable();
-
-        if (closest == null)
-        {
-            FinishInteracting();
-            return;
-        }
-
-        if (closest != CurrentInteractable)
-        {
-            CurrentInteractable.StopInteraction(this);
-            CurrentInteractable = closest;
-            CurrentInteractable.Interact(this);
-            return;
-        }
-
-        CurrentInteractable.ContinueInteraction(this);
     }
 
     public void FinishInteracting()

@@ -21,8 +21,6 @@ public static class CommandsFactory
                 return new UseCommand(dto.NetId, dto.Direction);
             case ActionType.Interact:
                 return new InteractCommand(dto.NetId);
-            case ActionType.CancelInteract:
-                return new CancelInteractCommand(dto.NetId);
             case ActionType.DialogNext:
                 return new DialogNextCommand(dto.NetId);
             default:
@@ -109,6 +107,8 @@ public static class CommandsFactory
                     };
                     return new MoveItemCommand(dto.NetId, dto.Id, defaultContent);
                 }
+            case TransactionType.AcceptTeleport:
+                return new AcceptTeleportCommand(dto.NetId, dto.Id);
             case TransactionType.SendMessage:
                 try
                 {

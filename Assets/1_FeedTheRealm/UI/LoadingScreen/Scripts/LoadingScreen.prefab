@@ -68,8 +68,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1774a1de6421ca54ca7e7c4353fe342e, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LoadingScreenController
-  loadingScreenDocument: {fileID: 8825251092678051217}
-  displayDuration: 2
-  fadeOutDuration: 1
-  hideOnStart: 1
-  logger: {fileID: 11400000, guid: 89a40de6843109e618e33501724bb512, type: 2}
+  loadingEvent: {fileID: 11400000, guid: 1cec1a897e68dcf23a55c68b44607013, type: 2}

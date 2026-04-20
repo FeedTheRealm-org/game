@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
 {
+    // TODO: why does this not implement ServerCommandHandler like the ServerPlayerCommandHandler
+
     public class EnemyCommandHandler : MonoBehaviour, ICommandable
     {
         private MovementSystem movementSystem;
@@ -40,8 +42,6 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnInteract(IEventCollectable ec) { }
 
-        public void OnCancelInteract(IEventCollectable ec) { }
-
         public void OnDialogNext(IEventCollectable ec) { }
 
         public void OnEquipItem(IEventCollectable ec, int slotIndex) { }
@@ -57,7 +57,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnQuestAccepted(IEventCollectable ec, string questId) { }
 
-        public void OnQuestDecided(IEventCollectable ec) { }
+        public void OnQuestRejected(IEventCollectable ec) { }
 
         public void OnQuestAccepted(IEventCollectable ec) { }
 
@@ -79,5 +79,7 @@ namespace FTR.Gameplay.Server.Characters
         public void OnSetUserId(IEventCollectable ec, string tokenId) { }
 
         public void OnSendMessage(IEventCollectable ec, string message) { }
+
+        public void OnTeleportAccepted(IEventCollectable ec, string portalId) { }
     }
 }
