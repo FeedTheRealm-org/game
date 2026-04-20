@@ -61,10 +61,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public void OnSetUserId(IEventCollectable ec, string tokenId) { }
 
-        public void OnTeleportAccepted(IEventCollectable ec, string portalId, int zoneId)
-        {
-            throw new System.NotImplementedException();
-        }
+        public void OnTeleportAccepted(IEventCollectable ec, string portalId) { }
 
         public void OnSendMessage(IEventCollectable ec, string message) { }
     }

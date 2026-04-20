@@ -26,6 +26,9 @@ namespace FTR.Gameplay.Client.Loaders
 
         public async UniTask Load(string world_id, ZoneData zoneData, CreatablesData creatablesData)
         {
+            if (zoneData.portalPlacements == null || zoneData.portalPlacements.Count == 0)
+                return;
+
             foreach (var placement in zoneData.portalPlacements)
             {
                 GameObject instance = resolver.Instantiate(portalPrefab);

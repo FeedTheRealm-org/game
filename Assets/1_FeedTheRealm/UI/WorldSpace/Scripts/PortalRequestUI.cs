@@ -52,6 +52,7 @@ namespace FTR.UI.WorldSpace
 
         private void OnDisable()
         {
+            openPortalEvent.OnRaised -= HandleOpenPortalRequest;
             acceptButton.clicked -= () => HandleButtonClicked(null);
             declineButton.clicked -= () => HandleButtonClicked(null);
         }
