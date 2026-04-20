@@ -12,8 +12,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
         protected override void ExecuteConsumable(UseContext ctx)
         {
             ctx.Logger?.Log(
-                $"[NoOpConsumable] Player:{ctx.NetId} used '{_data.id}' (effect={_data.effectType}) — no logic yet.",
-                ctx.LogSource
+                $"[NoOpConsumable] Player:{ctx.NetId} used '{_data.id}' (effect={_data.effectType}) — no logic yet."
             );
         }
     }

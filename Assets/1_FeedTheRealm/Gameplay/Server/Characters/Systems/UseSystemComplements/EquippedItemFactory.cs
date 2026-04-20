@@ -39,8 +39,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
             if (string.IsNullOrEmpty(itemId))
             {
                 logger?.Log(
-                    $"[EquippedItemFactory] No item — default: dmg={config.UnequippedDamage} range={config.UnequippedRange} cd={config.AttackCooldown}.",
-                    logSource
+                    $"[EquippedItemFactory] No item — default: dmg={config.UnequippedDamage} range={config.UnequippedRange} cd={config.AttackCooldown}."
                 );
                 return new Result(null, new BareHandsStrategy());
             }
@@ -53,14 +52,12 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
                     {
                         logger?.Log(
                             $"[EquippedItemFactory] No weapon data for '{itemId}'. Falling back to bare hands.",
-                            logSource,
                             Logging.LogType.Warning
                         );
                         return new Result(null, new BareHandsStrategy());
                     }
                     logger?.Log(
-                        $"[EquippedItemFactory] Weapon '{itemId}': dmg={weaponData.damage} range={weaponData.range} speed={weaponData.attackSpeed}.",
-                        logSource
+                        $"[EquippedItemFactory] Weapon '{itemId}': dmg={weaponData.damage} range={weaponData.range} speed={weaponData.attackSpeed}."
                     );
                     return new Result(
                         new WeaponEquipped(weaponData),
@@ -73,14 +70,12 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
                     {
                         logger?.Log(
                             $"[EquippedItemFactory] No consumable data for '{itemId}'. Falling back to bare hands.",
-                            logSource,
                             Logging.LogType.Warning
                         );
                         return new Result(null, new BareHandsStrategy());
                     }
                     logger?.Log(
-                        $"[EquippedItemFactory] Consumable '{itemId}': effect={consumableData.effectType} value={consumableData.value} cd={consumableData.cooldown}.",
-                        logSource
+                        $"[EquippedItemFactory] Consumable '{itemId}': effect={consumableData.effectType} value={consumableData.value} cd={consumableData.cooldown}."
                     );
                     return new Result(
                         new ConsumableEquipped(consumableData),
@@ -90,7 +85,6 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
                 default:
                     logger?.Log(
                         $"[EquippedItemFactory] Unknown item type for '{itemId}'. Falling back to bare hands.",
-                        logSource,
                         Logging.LogType.Warning
                     );
                     return new Result(null, new BareHandsStrategy());

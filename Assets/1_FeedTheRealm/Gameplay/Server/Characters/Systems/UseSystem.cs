@@ -1,14 +1,13 @@
 using System.Collections;
-using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.Utils;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies;
 using FTR.Gameplay.Server.Utils.UseEquipment;
-using FTRShared.Runtime.Models;
-using Mirror;
 using UnityEngine;
 using VContainer;
 
@@ -73,7 +72,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             var movement = GetComponentInParent<MovementSystem>();
             var health = GetComponentInParent<HealthSystem>();
-            var inventory = GetComponentInParent<InventorySystem>();
+            var inventory = transform.root.GetComponentInChildren<InventorySystem>();
 
             _context = new UseContext(
                 netId: netId,

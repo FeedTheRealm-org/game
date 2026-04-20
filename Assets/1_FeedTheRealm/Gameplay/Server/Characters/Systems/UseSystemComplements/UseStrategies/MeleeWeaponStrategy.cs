@@ -1,9 +1,11 @@
-using FTR.Core.Server.Enums;
-using FTR.Core.Server.EventChannels;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
 using FTR.Gameplay.Server.Utils.UseEquipment;
+using FTRShared.Runtime.Models;
+using Mirror;
+using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies
 {
@@ -46,7 +48,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
             }
 
             if (hitTargets.Length == 0)
-                ctx.Logger?.Log("No targets hit", ctx.LogSource);
+                ctx.Logger?.Log("No targets hit");
 
             ctx.World?.Events.Enqueue(
                 new AttackEvent(ctx.NetId, new AttackEventContent { AttackType = 0 })

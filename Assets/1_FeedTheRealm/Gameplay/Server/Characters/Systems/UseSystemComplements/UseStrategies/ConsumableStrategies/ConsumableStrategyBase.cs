@@ -39,8 +39,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
             if (cooldowns.IsConsumableCoolingDown(_data.id, out remaining))
             {
                 ctx.Logger?.Log(
-                    $"[UseSystem] Player:{ctx.NetId} consumable '{_data.id}' on cooldown ({remaining:F2}s remaining).",
-                    ctx.LogSource
+                    $"[UseSystem] Player:{ctx.NetId} consumable '{_data.id}' on cooldown ({remaining:F2}s remaining)."
                 );
                 return false;
             }

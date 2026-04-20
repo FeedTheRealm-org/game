@@ -16,8 +16,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
         protected override void ExecuteConsumable(UseContext ctx)
         {
             ctx.Logger?.Log(
-                $"[BuffSpeedConsumable] Player:{ctx.NetId} speed buff +{_data.value} for {_data.duration}s.",
-                ctx.LogSource
+                $"[BuffSpeedConsumable] Player:{ctx.NetId} speed buff +{_data.value} for {_data.duration}s."
             );
             ctx.Movement?.ApplySpeedBuff(_data.value, _data.duration);
         }

@@ -337,13 +337,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
             subscribedToQuestReward = false;
         }
 
-        private void ConsumeItem(string itemId)
+        public void ConsumeItem(string itemId)
         {
             string equippedItemId = fastSlots[activeSlot];
-            if (equippedItemId == data.itemId)
+            if (equippedItemId == itemId)
             {
                 logger?.Log(
-                    $"[InventorySystem] Consuming item '{data.itemId}' from fast slot {activeSlot}.",
+                    $"[InventorySystem] Consuming item '{itemId}' from fast slot {activeSlot}.",
                     this
                 );
                 fastSlots[activeSlot] = string.Empty;

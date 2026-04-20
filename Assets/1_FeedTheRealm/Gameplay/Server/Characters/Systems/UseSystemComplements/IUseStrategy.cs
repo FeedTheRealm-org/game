@@ -1,7 +1,6 @@
-using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
-using UnityEngine;
+using FTR.Gameplay.Server.Utils.UseEquipment;
 
-namespace FTR.Gameplay.Server.Utils.UseEquipment
+namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
 {
     // ── Strategy interface ────────────────────────────────────────────────────
 

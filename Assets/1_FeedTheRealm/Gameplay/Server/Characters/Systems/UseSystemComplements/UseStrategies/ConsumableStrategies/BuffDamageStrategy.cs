@@ -15,8 +15,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
         protected override void ExecuteConsumable(UseContext ctx)
         {
             ctx.Logger?.Log(
-                $"[BuffDamageConsumable] Player:{ctx.NetId} damage buff +{_data.value} for {_data.duration}s.",
-                ctx.LogSource
+                $"[BuffDamageConsumable] Player:{ctx.NetId} damage buff +{_data.value} for {_data.duration}s."
             );
             ctx.StatMods.ApplyFlatDamage(_data.value, _data.duration);
         }
