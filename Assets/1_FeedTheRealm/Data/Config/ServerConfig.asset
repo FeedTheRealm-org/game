@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   EnvFilePath: /home/niko/Documents/tpf/feed_the_realm/client/.env
-  LoadFromEnvFile: 1
+  LoadFromEnvFile: 0
+  LoadEnvVars: 0
   PersistToDatabase: 0
   PlayerLayer:
     serializedVersion: 2
@@ -36,6 +37,9 @@ MonoBehaviour:
   dashStaminaCost: 25
   staminaRecoveryRate: 1
   staminaRecoveryAmount: 50
+  attackCooldown: 0.4
+  unequippedDamage: 10
+  unequippedRange: 1.5
   groundCheckDistance: 1
   groundCheckSphereRadius: 0.4
   fastSlotSize: 5
