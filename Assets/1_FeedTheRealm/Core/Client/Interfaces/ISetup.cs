@@ -2,7 +2,7 @@ using System;
 
 namespace FeedTheRealm.Core.Interfaces
 {
-    public interface ISetup : IDisposable
+    public interface ISetup
     {
         void Setup();
     }

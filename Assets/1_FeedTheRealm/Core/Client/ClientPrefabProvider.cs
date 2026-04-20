@@ -26,7 +26,6 @@ namespace FTR.Core.Client
         public GameObject ShopPrefab;
 
         [Header("Loader Components")]
-        public GameObject LoadingScreenPrefab;
         public GameObject StructurePrefab;
         public GameObject PortalPrefab;
 

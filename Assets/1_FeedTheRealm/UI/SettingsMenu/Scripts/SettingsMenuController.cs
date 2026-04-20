@@ -1,23 +1,28 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using FTR.Core.Client.EventChannels.UI;
+using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class SettingsMenuController : MonoBehaviour
 {
-    [Header("Scenes")]
+    [Header("General settings")]
     [SerializeField]
     private SceneReference homeScene;
 
-    [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
 
-    [Header("Input")]
-    [SerializeField]
+    [Inject]
     private PlayerInputReader playerInputReader;
+
+    [Inject]
+    private OnWorldLeaveEvent onWorldLeaveEvent;
 
     /* General settings */
     private Button _homeButton;
@@ -190,12 +195,14 @@ public class SettingsMenuController : MonoBehaviour
     private void onHomeButtonClicked()
     {
         logger.Log("Home button clicked", this, Logging.LogType.Info);
+        onWorldLeaveEvent.Raise();
         SceneManager.LoadScene(homeScene.SceneName);
     }
 
     private void onExitButtonClicked()
     {
         logger.Log("Exit button clicked", this, Logging.LogType.Info);
+        onWorldLeaveEvent.Raise();
         Application.Quit();
     }
 

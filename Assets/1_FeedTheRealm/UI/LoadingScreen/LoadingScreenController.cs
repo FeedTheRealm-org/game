@@ -17,7 +17,6 @@ public class LoadingScreenController : MonoBehaviour
     private void OnEnable()
     {
         rootElement = GetComponent<UIDocument>().rootVisualElement;
-        ToggleLoadingScreen(false);
         loadingEvent.OnRaised += ToggleLoadingScreen;
         Debug.Log($"[LoadingScreenController] OnEnable called. Subscribing to loading event.");
     }
