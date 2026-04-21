@@ -28,6 +28,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float inactivityTimeout = 10f;
 
         private NpcInteractedEvent npcInteractedEvent;
+        private NpcQuestCompletedEvent npcQuestCompletedEvent;
         private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         [Inject]
@@ -38,6 +39,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         )
         {
             this.npcInteractedEvent = resolver.Resolve<NpcInteractedEvent>();
+            this.npcQuestCompletedEvent = resolver.Resolve<NpcQuestCompletedEvent>();
             this.playerQuestDecisionEvent = resolver.Resolve<PlayerQuestDecisionEvent>();
         }
 
@@ -72,12 +74,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             inactivityTimer = new NpcDialogInactivityTimer(this, inactivityTimeout);
             playerQuestDecisionEvent.OnRaised += OnQuestDecisionGlobal;
+            npcQuestCompletedEvent.OnRaised += OnQuestCompletedGlobal;
         }
 
         private void OnDestroy()
         {
             if (playerQuestDecisionEvent != null)
                 playerQuestDecisionEvent.OnRaised -= OnQuestDecisionGlobal;
+
+            if (npcQuestCompletedEvent != null)
+                npcQuestCompletedEvent.OnRaised -= OnQuestCompletedGlobal;
 
             inactivityTimer?.StopAll();
         }
@@ -259,6 +265,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void OnQuestDecisionGlobal((uint playerNetId, bool isAccepted) data)
         {
             if (playerQuestDecisionEvent == null)
+                return;
+            if (!_activeSessions.Contains(data.playerNetId))
+                return;
+
+            OnQuestDecided(data.playerNetId);
+        }
+
+        private void OnQuestCompletedGlobal((uint playerNetId, string questId, string npcId) data)
+        {
+            if (npcQuestCompletedEvent == null)
+                return;
+            if (data.npcId != npcId)
                 return;
             if (!_activeSessions.Contains(data.playerNetId))
                 return;

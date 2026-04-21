@@ -65,7 +65,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.targetLayer = targetLayer;
             this.stateStorage = stateStorage;
 
-            cooldowns = new SlotCooldownTracker(slotCount: 5);
+            cooldowns = new SlotCooldownTracker(config.FastSlotSize);
             currentStrategy = new BareHandsStrategy();
 
             var movement = GetComponentInParent<MovementSystem>();

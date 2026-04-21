@@ -2,7 +2,6 @@ using System;
 using FTR.Core.Common.Utils;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
-using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
@@ -33,8 +32,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             isInitialized = true;
             stateStorage.SetHealth(currentHealth);
         }
-
-        private void OnDestroy() { }
 
         private void Awake()
         {

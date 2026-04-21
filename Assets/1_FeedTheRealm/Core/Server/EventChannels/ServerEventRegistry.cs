@@ -1,4 +1,3 @@
-using Assets.HeroEditor4D.InventorySystem.Scripts.Data;
 using UnityEngine;
 using VContainer;
 

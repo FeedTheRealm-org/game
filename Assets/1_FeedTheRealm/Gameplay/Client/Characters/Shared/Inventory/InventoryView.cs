@@ -122,6 +122,15 @@ public class InventoryView : MonoBehaviour
 
         Debug.Log($"InventoryView applying equipped item: {itemId} with spriteId: {spriteId}");
         var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
+
+        if (this == null || spriteManager == null)
+        {
+            Debug.Log(
+                $"InventoryView no longer valid after sprite download, aborting apply for {itemId}"
+            );
+            return;
+        }
+
         spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
     }
 }
