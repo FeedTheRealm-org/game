@@ -64,9 +64,9 @@ public class InventoryView : MonoBehaviour
     private void OnInventoryChanged(LastItemData value)
     {
         Debug.Log(
-            $"InventoryView item added: {value.itemId} at {value.storageType}[{value.itemPosition}]"
+            $"InventoryView item added: {value.itemId} at {value.storageType}[{value.itemPosition}] quantity: {value.quantity}"
         );
-        lastAddedEvent.Raise((value.storageType, value.itemId, value.itemPosition));
+        lastAddedEvent.Raise((value.storageType, value.itemId, value.itemPosition, value.quantity));
     }
 
     private void OnInventorySwapped(LastSwappedItemData value)
@@ -79,9 +79,11 @@ public class InventoryView : MonoBehaviour
                 value.sourceType,
                 value.sourcePosition,
                 value.sourceItemId,
+                value.sourceQuantity,
                 value.targetType,
                 value.targetPosition,
-                value.targetItemId
+                value.targetItemId,
+                value.targetQuantity
             )
         );
     }

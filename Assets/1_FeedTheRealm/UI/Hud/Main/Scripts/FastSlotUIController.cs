@@ -98,11 +98,18 @@ namespace FTR.UI.Hud.Main
         }
 
         // ────────────────────────── Inventory events ─────────────────────────────────────
-        private void OnLastAdded((StorageType storageType, string itemId, int position) data)
+        private void OnLastAdded(
+            (StorageType storageType, string itemId, int position, int quantity) data
+        )
         {
             if (data.storageType != StorageType.FastSlot)
                 return;
-            SlotItemLoader.LoadItem(Icon(data.position), data.itemId, itemAssetsService);
+            SlotItemLoader.LoadItem(
+                Icon(data.position),
+                data.itemId,
+                itemAssetsService,
+                data.quantity
+            );
         }
 
         private void OnLastRemoved((StorageType storageType, string itemId, int position) data)
@@ -117,9 +124,11 @@ namespace FTR.UI.Hud.Main
                 StorageType sourceType,
                 int sourceSlot,
                 string sourceItemId,
+                int sourceQuantity,
                 StorageType targetType,
                 int targetSlot,
-                string targetItemId
+                string targetItemId,
+                int targetQuantity
             ) data
         )
         {
@@ -127,13 +136,15 @@ namespace FTR.UI.Hud.Main
                 SlotItemLoader.LoadItem(
                     Icon(data.targetSlot),
                     data.sourceItemId,
-                    itemAssetsService
+                    itemAssetsService,
+                    data.sourceQuantity
                 );
             if (data.sourceType == StorageType.FastSlot)
                 SlotItemLoader.LoadItem(
                     Icon(data.sourceSlot),
                     data.targetItemId,
-                    itemAssetsService
+                    itemAssetsService,
+                    data.targetQuantity
                 );
         }
 

@@ -6,5 +6,5 @@ namespace FTR.Core.Client.EventChannels.Inventory
 {
     [CreateAssetMenu(menuName = "Events/Client/Inventory/LastSwapped")]
     public class LastSwappedEvent
-        : EventChannelSO<(StorageType, int, string, StorageType, int, string)> { }
+        : EventChannelSO<(StorageType, int, string, int, StorageType, int, string, int)> { }
 }

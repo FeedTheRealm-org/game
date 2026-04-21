@@ -24,13 +24,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [Inject]
         private WorldMonitor world;
 
-        private ItemEquippedEvent itemEquippedEvent;
         private EnemySlayedEvent enemySlayedEvent;
 
         [Inject]
         public void Construct(IObjectResolver resolver)
         {
-            itemEquippedEvent = resolver.Resolve<ItemEquippedEvent>();
             enemySlayedEvent = resolver.Resolve<EnemySlayedEvent>();
         }
 
@@ -91,7 +89,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             stateStorage.OnDeath += HandleDeath;
             stateStorage.OnRespawn += HandleRespawn;
-            SubscribeToItemEquipped();
         }
 
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
@@ -131,8 +128,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.OnDeath -= HandleDeath;
                 stateStorage.OnRespawn -= HandleRespawn;
             }
-
-            UnsubscribeFromItemEquipped();
         }
 
         public void GameTick(float dt) { }
@@ -186,11 +181,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
         }
 
-        private void OnItemEquipped((uint playerNetId, string itemId, int slotIndex) data)
+        public void EquipItem((string itemId, int slotIndex) data)
         {
-            if (data.playerNetId != netId)
-                return;
-
             activeSlot = data.slotIndex;
 
             var result = EquippedItemFactory.Build(data.itemId, config, logger, this);
@@ -201,18 +193,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 $"[UseSystem] Player:{netId} equipped '{data.itemId}' in slot {data.slotIndex}.",
                 this
             );
-        }
-
-        private void SubscribeToItemEquipped()
-        {
-            if (itemEquippedEvent != null)
-                itemEquippedEvent.OnRaised += OnItemEquipped;
-        }
-
-        private void UnsubscribeFromItemEquipped()
-        {
-            if (itemEquippedEvent != null)
-                itemEquippedEvent.OnRaised -= OnItemEquipped;
         }
 
         private void OnDrawGizmos()
