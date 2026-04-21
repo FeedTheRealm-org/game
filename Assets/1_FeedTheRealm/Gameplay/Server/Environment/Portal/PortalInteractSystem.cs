@@ -54,16 +54,8 @@ namespace FTR.Gameplay.Server.Environment.Portal
 
             if (portalInfo == null)
             {
-                logger.Log(
-                    $"[PortalInteractSystem] Portal information not found for ID: {portalId}.",
-                    this
-                );
-            }
-            else
-            {
-                logger.Log(
-                    $"[PortalInteractSystem] Portal information updated for ID: {portalId}.",
-                    this
+                throw new Exception(
+                    $"Portal with ID {portalId} not found in registry. Check if the portal is properly registered."
                 );
             }
         }

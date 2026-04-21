@@ -37,7 +37,7 @@ public class SettingsMenuController : MonoBehaviour
     private List<Resolution> _availableResolutions;
     private const float baseHeight = 800f;
 
-    private void Awake()
+    private void Start()
     {
         if (playerInputReader != null)
         {

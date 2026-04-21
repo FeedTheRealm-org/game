@@ -60,11 +60,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void FinishTeleport()
         {
+            int? connectionId = GetPlayerConnectionId(netId);
+
+            if (connectionId == null)
+            {
+                Debug.LogError(
+                    $"[TeleportSystem] No connection found for player with netId {netId} | Cannot send teleport event."
+                );
+                return;
+            }
+
             worldMonitor.Events.Enqueue(
                 new OpenPortalEvent(
                     netId,
                     new OpenPortalEventContent { PortalId = "", DestinationName = "" },
-                    GetPlayerConnectionId(netId).Value
+                    connectionId.Value
                 )
             );
         }

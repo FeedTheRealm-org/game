@@ -15,6 +15,8 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
         private readonly GameObject settingsMenu;
         private readonly IObjectResolver objectResolver;
 
+        private OnWorldLeaveEvent onExitEvent;
+
         public WorldUISetupService(
             ClientPrefabProvider clientPrefabProvider,
             OnWorldLeaveEvent onExitEvent,
@@ -26,9 +28,15 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
                 Debug.LogError("ClientPrefabProvider not set!");
                 return;
             }
-            onExitEvent.OnRaised += DisconnectPlayer;
+            this.onExitEvent = onExitEvent;
+            this.onExitEvent.OnRaised += DisconnectPlayer;
             settingsMenu = clientPrefabProvider.SettingMenuComponent;
             this.objectResolver = objectResolver;
+        }
+
+        public void Dispose()
+        {
+            onExitEvent.OnRaised -= DisconnectPlayer;
         }
 
         public void Setup()
