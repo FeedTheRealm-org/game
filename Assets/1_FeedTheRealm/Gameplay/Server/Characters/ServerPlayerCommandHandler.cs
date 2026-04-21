@@ -189,7 +189,7 @@ namespace FTR.Gameplay.Server.Characters
             }
         }
 
-        public override void OnTeleportAccepted(IEventCollectable ec, string portalId, int zoneId)
+        public override void OnTeleportAccepted(IEventCollectable ec, string portalId)
         {
             teleportSystem.OnTeleport(portalId);
         }

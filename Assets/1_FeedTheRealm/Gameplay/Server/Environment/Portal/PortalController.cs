@@ -27,7 +27,7 @@ namespace FTR.Gameplay.Server.Environment.Portal
 
         private void OnTriggerEnter(Collider other)
         {
-            Gizmos.color = Color.lightBlue;
+            Gizmos.color = Color.blue;
 
             logger.Log(
                 $"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {netId})."

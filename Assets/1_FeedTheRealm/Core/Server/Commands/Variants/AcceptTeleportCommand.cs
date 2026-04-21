@@ -14,6 +14,6 @@ public class AcceptTeleportCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnTeleportAccepted(eventCollector, portalId, 1);
+        commandable.OnTeleportAccepted(eventCollector, portalId);
     }
 }
