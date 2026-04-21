@@ -76,6 +76,7 @@ namespace FTR.Gameplay.Server.Loaders
                     new Vector3(spawnData.Position.x, spawnData.Position.y, spawnData.Position.z),
                     Quaternion.identity
                 );
+                instance.transform.localScale = new Vector3(spawnData.Radius, 1, spawnData.Radius);
                 instance.name = $"NPCSpawner_{npcData.id}";
 
                 var npcSpawns = instance.GetComponent<NPCSpawns>();

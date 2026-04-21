@@ -14,7 +14,7 @@ namespace FTR.Gameplay.Common.Environment.Structures
 
             transform.position = structureData.position;
             transform.rotation = Quaternion.Euler(structureData.rotation);
-            transform.localScale = Vector3.one;
+            transform.localScale = structureData.size;
             SetupCollider();
         }
 
@@ -31,7 +31,7 @@ namespace FTR.Gameplay.Common.Environment.Structures
             var visualInstance = Instantiate(visualPrefab, transform);
             visualInstance.SetActive(true);
             visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            visualInstance.transform.localScale = structureData.size;
+            visualInstance.transform.localScale = Vector3.one;
         }
 
         private void OnDrawGizmos()
@@ -43,7 +43,7 @@ namespace FTR.Gameplay.Common.Environment.Structures
             Matrix4x4 rotationMatrix = Matrix4x4.TRS(
                 transform.position,
                 transform.rotation,
-                Vector3.one
+                transform.localScale
             );
             Gizmos.matrix = rotationMatrix;
             Gizmos.DrawWireCube(structureData.colliderCenter, structureData.colliderSize);

@@ -133,7 +133,8 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
 
         private void OnDestroy()
         {
-            eventRouter.OnOpenPortalEvent -= HandleOpenPortalRequest;
+            if (eventRouter != null)
+                eventRouter.OnOpenPortalEvent -= HandleOpenPortalRequest;
         }
 
         private void HandleOpenPortalRequest(OpenPortalEventContent content)

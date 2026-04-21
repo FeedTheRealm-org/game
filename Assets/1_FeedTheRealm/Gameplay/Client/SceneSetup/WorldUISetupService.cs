@@ -1,49 +1,60 @@
+using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Core.EventChannels.Setup;
+using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client;
-using NUnit.Framework.Internal.Commands;
+using FTR.Core.Client.EventChannels.UI;
+using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
 namespace FeedTheRealm.Gameplay.Client.SceneSetup
 {
-    public class WorldUISetupService : SetupService
+    public class WorldUISetupService : ISetup
     {
         private readonly GameObject settingsMenu;
-        private readonly GameObject loadingScreenPrefab;
         private readonly IObjectResolver objectResolver;
-        private readonly PlayerInputReader playerInputReader;
+
+        private OnWorldLeaveEvent onExitEvent;
 
         public WorldUISetupService(
             ClientPrefabProvider clientPrefabProvider,
-            IObjectResolver objectResolver,
-            PlayerInputReader playerInputReader,
-            WorldSetupEvent setupEvent
+            OnWorldLeaveEvent onExitEvent,
+            IObjectResolver objectResolver
         )
-            : base(setupEvent)
         {
             if (clientPrefabProvider == null)
             {
                 Debug.LogError("ClientPrefabProvider not set!");
                 return;
             }
+            this.onExitEvent = onExitEvent;
+            this.onExitEvent.OnRaised += DisconnectPlayer;
             settingsMenu = clientPrefabProvider.SettingMenuComponent;
-            loadingScreenPrefab = clientPrefabProvider.LoadingScreenPrefab;
             this.objectResolver = objectResolver;
-            this.playerInputReader = playerInputReader;
         }
 
-        public override void Setup()
+        public void Dispose()
+        {
+            onExitEvent.OnRaised -= DisconnectPlayer;
+        }
+
+        public void Setup()
         {
             if (settingsMenu == null)
                 throw new System.Exception(
                     "SettingsMenu GameObject not set in WorldUIObjectProvider!"
                 );
 
-            objectResolver.Instantiate(loadingScreenPrefab).name = "LoadingScreen";
             var instantiatedMenu = objectResolver.Instantiate(settingsMenu);
             instantiatedMenu.name = "SettingsMenu";
             instantiatedMenu.SetActive(false);
+        }
+
+        private void DisconnectPlayer()
+        {
+            Debug.Log("Disconnecting player from server...");
+            NetworkManager.singleton.StopClient();
         }
     }
 }

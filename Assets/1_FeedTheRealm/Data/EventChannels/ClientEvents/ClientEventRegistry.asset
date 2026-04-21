@@ -45,3 +45,4 @@ MonoBehaviour:
   chatToggleEvent: {fileID: 11400000, guid: 2455ce08d97e1d84fbcfd63ed74f4bb1, type: 2}
   portalToggleEvent: {fileID: 11400000, guid: 68a331b3e06ec625495807569e93bc60, type: 2}
   openPortalUIEvent: {fileID: 11400000, guid: 32c09063fadc3b10a8e17921710b7b63, type: 2}
+  onExitEvent: {fileID: 11400000, guid: b73de8ca690a2880da97d4d5b5f72e4c, type: 2}

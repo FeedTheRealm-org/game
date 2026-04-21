@@ -9,6 +9,7 @@ using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Common.EventChannels;
 using UnityEngine;
 using VContainer;
@@ -19,7 +20,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
     public class ClientEventRegistry : ScriptableObject
     {
         [Header("Setup Events")]
-        public WorldSetupEvent worldSetupEvent;
         public LoadingEvent loadingEvent;
 
         [Header("Shop Events")]
@@ -73,6 +73,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public PortalToggleEvent portalToggleEvent;
         public OpenPortalUIEvent openPortalUIEvent;
 
+        [Header("UI Related Events")]
+        public OnWorldLeaveEvent onExitEvent;
+
         public void RegisterAll(IContainerBuilder builder)
         {
             Validate();
@@ -108,8 +111,8 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(chatToggleEvent);
             builder.RegisterInstance(portalToggleEvent);
             builder.RegisterInstance(openPortalUIEvent);
-            builder.RegisterInstance(worldSetupEvent);
             builder.RegisterInstance(loadingEvent);
+            builder.RegisterInstance(onExitEvent);
         }
 
         private void Validate()
@@ -134,7 +137,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
-            ValidateField(worldSetupEvent, nameof(worldSetupEvent));
             ValidateField(goldChangedEvent, nameof(goldChangedEvent));
             ValidateField(openShopEvent, nameof(openShopEvent));
             ValidateField(purchaseRequestEvent, nameof(purchaseRequestEvent));
@@ -147,6 +149,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(portalToggleEvent, nameof(portalToggleEvent));
             ValidateField(openPortalUIEvent, nameof(openPortalUIEvent));
             ValidateField(loadingEvent, nameof(loadingEvent));
+            ValidateField(onExitEvent, nameof(onExitEvent));
         }
 
         private void ValidateField(Object field, string fieldName)
