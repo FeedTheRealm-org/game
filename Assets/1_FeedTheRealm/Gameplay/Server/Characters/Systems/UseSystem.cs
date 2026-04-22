@@ -1,14 +1,13 @@
 using System.Collections;
-using FTR.Core.Common.Config;
-using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.Utils;
-using FTR.Gameplay.Server.Characters.Systems;
-using Mirror;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies;
+using FTR.Gameplay.Server.Utils.UseEquipment;
 using UnityEngine;
 using VContainer;
 
@@ -17,40 +16,42 @@ namespace FTR.Gameplay.Server.Characters.Systems
     public class UseSystem : MonoBehaviour, IGameTickable
     {
         [SerializeField]
-        private float attackCooldown = 0.4f;
-
-        [SerializeField]
-        private int attackDamage = 40;
-
-        [SerializeField]
-        private float hitRadius;
-
-        [SerializeField]
         private Logging.Logger logger;
+
+        [SerializeField]
+        private ServerConfig config;
 
         [Inject]
         private WorldMonitor world;
 
-        [Inject]
         private EnemySlayedEvent enemySlayedEvent;
 
+        [Inject]
+        public void Construct(IObjectResolver resolver)
+        {
+            enemySlayedEvent = resolver.Resolve<EnemySlayedEvent>();
+        }
+
         private LayerMask targetLayer;
-        private bool isAttacking = false;
         private Rigidbody _rb;
         private uint netId;
         private CharacterStateStorage stateStorage;
+
+        private bool isDead = false;
+        private int activeSlot = 0;
+
+        private EquippedItem currentEquipped;
+        private IUseStrategy currentStrategy;
+        private SlotCooldownTracker cooldowns;
+        private UseContext _context;
 
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
         private int amountOfPlayersInRange = 0;
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
-        private bool isDead = false;
 
-        public void SetAttackDamage(int damage)
-        {
-            attackDamage = damage;
-        }
+        // ── Initialization ────────────────────────────────────────────────────
 
         public void Initialize(
             uint netId,
@@ -64,14 +65,47 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.targetLayer = targetLayer;
             this.stateStorage = stateStorage;
 
-            this.stateStorage.OnDeath += HandleDeath;
-            this.stateStorage.OnRespawn += HandleRespawn;
+            cooldowns = new SlotCooldownTracker(config.FastSlotSize);
+            currentStrategy = new BareHandsStrategy();
+
+            var movement = GetComponentInParent<MovementSystem>();
+            var health = GetComponentInParent<HealthSystem>();
+            var inventory = transform.root.GetComponentInChildren<InventorySystem>();
+
+            _context = new UseContext(
+                netId: netId,
+                hitPointProvider: () => HitPoint,
+                targetLayerProvider: () => this.targetLayer,
+                config: config,
+                movement: movement,
+                health: health,
+                inventory: inventory,
+                statMods: new StatModifierBag(),
+                enemySlayedEvent: enemySlayedEvent,
+                world: world,
+                logger: logger,
+                logSource: this
+            );
+
+            stateStorage.OnDeath += HandleDeath;
+            stateStorage.OnRespawn += HandleRespawn;
+        }
+
+        public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
+        {
+            _attackTriggerArea = attackTriggerArea;
+            _attackTriggerArea.OnPlayerEnter += StartAutoAttacking;
+            _attackTriggerArea.OnPlayerExit += PlayerLeftAutoAttackRange;
+        }
+
+        public void SetStrategy(IUseStrategy strategy)
+        {
+            currentStrategy = strategy ?? new BareHandsStrategy();
         }
 
         private void HandleDeath()
         {
             isDead = true;
-            isAttacking = false;
             if (_autoAttackCoroutine != null)
             {
                 StopCoroutine(_autoAttackCoroutine);
@@ -80,13 +114,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         }
 
         private void HandleRespawn() => isDead = false;
-
-        public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
-        {
-            _attackTriggerArea = attackTriggerArea;
-            _attackTriggerArea.OnPlayerEnter += StartAutoAttacking;
-            _attackTriggerArea.OnPlayerExit += PlayerLeftAutoAttackRange;
-        }
 
         private void OnDestroy()
         {
@@ -107,54 +134,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void OnUse(IEventCollectable ec)
         {
-            //logger.Log("Use action triggered", this);
-            if (isAttacking || isDead)
-                return;
-            isAttacking = true;
-            StartCoroutine(resetAttackCooldown());
-            Attack();
-        }
-
-        private void Attack()
-        {
             if (isDead)
                 return;
 
-            var currentHitPoint = HitPoint;
-            /*logger.Log(
-                $"[UseSystem] Attack from netId={netId} | hitPoint={currentHitPoint} | radius={hitRadius} | layerMask={targetLayer.value}",
-                this
-            );*/
-
-            Collider[] hitTargets = Physics.OverlapSphere(currentHitPoint, hitRadius, targetLayer);
-            foreach (Collider target in hitTargets)
+            if (!cooldowns.IsSlotReady(activeSlot, out float slotRemaining))
             {
-                var targetNetId = target.GetComponent<NetworkIdentity>()?.netId;
-                if (targetNetId.HasValue && targetNetId.Value == netId)
-                    continue;
-
-                var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
-                if (healthSystem == null)
-                    continue;
-
-                var (killed, enemyTypeId) = healthSystem.TakeDamage(attackDamage, this.netId);
-
-                if (killed)
-                {
-                    logger?.Log(
-                        $"[UseSystem] Enemy {enemyTypeId} killed by {this.netId}, raising event.",
-                        this
-                    );
-
-                    if (!string.IsNullOrEmpty(enemyTypeId))
-                        enemySlayedEvent.Raise((this.netId, enemyTypeId));
-                }
+                logger?.Log(
+                    $"[UseSystem] Player:{netId} slot {activeSlot} on cooldown ({slotRemaining:F2}s remaining).",
+                    this
+                );
+                return;
             }
 
-            if (hitTargets.Length == 0)
-                logger.Log("No targets hit", this);
+            var ctx = _context;
 
-            world.Events.Enqueue(new AttackEvent(netId, new AttackEventContent { AttackType = 0 }));
+            if (!currentStrategy.CanExecute(ctx, cooldowns, out float strategyRemaining))
+                return;
+
+            currentStrategy.RecordCooldown(ctx, cooldowns, activeSlot);
+            currentStrategy.Execute(ctx);
         }
 
         public void StartAutoAttacking(Collider _)
@@ -178,24 +176,31 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             while (amountOfPlayersInRange > 0)
             {
-                Attack();
-                yield return new WaitForSeconds(attackCooldown * 2);
+                currentStrategy.Execute(_context);
+                yield return new WaitForSeconds(currentStrategy.GetCooldown(_context) * 2);
             }
         }
 
-        /// <summary>
-        /// Resets the attack cooldown after a delay.
-        /// </summary>
-        private IEnumerator resetAttackCooldown()
+        public void EquipItem((string itemId, int slotIndex) data)
         {
-            yield return new WaitForSeconds(attackCooldown);
-            isAttacking = false;
+            activeSlot = data.slotIndex;
+
+            var result = EquippedItemFactory.Build(data.itemId, config, logger, this);
+            currentEquipped = result.Item;
+            currentStrategy = result.Strategy;
+
+            logger?.Log(
+                $"[UseSystem] Player:{netId} equipped '{data.itemId}' in slot {data.slotIndex}.",
+                this
+            );
         }
 
         private void OnDrawGizmos()
         {
+            if (config == null)
+                return;
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(HitPoint, hitRadius);
+            Gizmos.DrawWireSphere(HitPoint, config.UnequippedRange);
         }
     }
 }

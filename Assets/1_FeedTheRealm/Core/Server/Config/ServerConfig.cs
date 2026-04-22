@@ -65,6 +65,19 @@ namespace FTR.Core.Server.Config
         private float staminaRecoveryAmount = 5f;
         public float StaminaRecoveryAmount => staminaRecoveryAmount;
 
+        [Header("Combat")]
+        [SerializeField]
+        private float attackCooldown = 0.4f;
+        public float AttackCooldown => attackCooldown;
+
+        [SerializeField]
+        private int unequippedDamage = 10;
+        public int UnequippedDamage => unequippedDamage;
+
+        [SerializeField]
+        private float unequippedRange = 1.5f;
+        public float UnequippedRange => unequippedRange;
+
         [Header("Ground Check")]
         [SerializeField]
         private float groundCheckDistance = 1f;

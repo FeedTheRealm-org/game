@@ -227,10 +227,10 @@ namespace FTR.UI.Inventory
                 slots[index].style.backgroundImage = new StyleBackground(sprite);
         }
 
-        private void OnLastAdded((StorageType t, string id, int pos) data)
+        private void OnLastAdded((StorageType t, string id, int pos, int qty) data)
         {
             var icon = Icon(data.t, data.pos);
-            SlotItemLoader.LoadItem(icon, data.id, itemAssetsService);
+            SlotItemLoader.LoadItem(icon, data.id, itemAssetsService, data.qty);
             TrackSlotItem(Slots(data.t), data.pos, data.id);
         }
 
@@ -246,14 +246,26 @@ namespace FTR.UI.Inventory
                 StorageType srcT,
                 int srcI,
                 string srcId,
+                int srcQty,
                 StorageType tgtT,
                 int tgtI,
-                string tgtId
+                string tgtId,
+                int tgtQty
             ) data
         )
         {
-            SlotItemLoader.LoadItem(Icon(data.srcT, data.srcI), data.tgtId, itemAssetsService);
-            SlotItemLoader.LoadItem(Icon(data.tgtT, data.tgtI), data.srcId, itemAssetsService);
+            SlotItemLoader.LoadItem(
+                Icon(data.srcT, data.srcI),
+                data.tgtId,
+                itemAssetsService,
+                data.tgtQty
+            );
+            SlotItemLoader.LoadItem(
+                Icon(data.tgtT, data.tgtI),
+                data.srcId,
+                itemAssetsService,
+                data.srcQty
+            );
             TrackSlotItem(Slots(data.srcT), data.srcI, data.tgtId);
             TrackSlotItem(Slots(data.tgtT), data.tgtI, data.srcId);
         }

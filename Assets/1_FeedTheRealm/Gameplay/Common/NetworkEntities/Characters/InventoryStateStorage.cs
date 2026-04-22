@@ -35,27 +35,33 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public StorageType sourceType;
         public int sourcePosition;
         public string sourceItemId;
+        public int sourceQuantity;
         public StorageType targetType;
         public int targetPosition;
         public string targetItemId;
+        public int targetQuantity;
         public uint version;
 
         public LastSwappedItemData(
             StorageType sourceType,
             int sourcePosition,
             string sourceItemId,
+            int sourceQuantity,
             StorageType targetType,
             int targetPosition,
             string targetItemId,
+            int targetQuantity,
             uint version
         )
         {
             this.sourceType = sourceType;
             this.sourcePosition = sourcePosition;
             this.sourceItemId = sourceItemId;
+            this.sourceQuantity = sourceQuantity;
             this.targetType = targetType;
             this.targetPosition = targetPosition;
             this.targetItemId = targetItemId;
+            this.targetQuantity = targetQuantity;
             this.version = version;
         }
     }
@@ -131,18 +137,22 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             StorageType sourceType,
             int sourcePosition,
             string sourceItemId,
+            int sourceQuantity,
             StorageType targetType,
             int targetPosition,
-            string targetItemId
+            string targetItemId,
+            int targetQuantity
         )
         {
             lastSwappedItemData = new LastSwappedItemData(
                 sourceType,
                 sourcePosition,
                 sourceItemId,
+                sourceQuantity,
                 targetType,
                 targetPosition,
                 targetItemId,
+                targetQuantity,
                 ++_swapVersion
             );
         }

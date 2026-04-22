@@ -9,6 +9,8 @@ namespace FTR.UI.Inventory
     /// </summary>
     public static class InventoryItemVisualController
     {
+        private const string StackLabelName = "StackLabel";
+
         public static VisualElement CreateItemElement(
             Texture2D itemTexture,
             string itemId = null,
@@ -37,7 +39,54 @@ namespace FTR.UI.Inventory
 
             itemElement.userData = new InventoryItemUIData(itemId, itemTexture);
 
+            var stackLabel = new Label();
+            stackLabel.name = StackLabelName;
+            stackLabel.pickingMode = PickingMode.Ignore;
+            stackLabel.style.display = DisplayStyle.None;
+            stackLabel.style.position = Position.Absolute;
+            stackLabel.style.top = new Length(0, LengthUnit.Pixel);
+            stackLabel.style.right = new Length(0, LengthUnit.Pixel);
+            stackLabel.style.rotate = new Rotate(-45);
+            stackLabel.style.translate = new Translate(
+                new Length(-20, LengthUnit.Pixel),
+                new Length(0, LengthUnit.Pixel)
+            );
+            stackLabel.style.fontSize = 20;
+            stackLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            stackLabel.style.color = new StyleColor(Color.white);
+            stackLabel.style.unityTextOutlineColor = new StyleColor(Color.black);
+            stackLabel.style.unityTextOutlineWidth = 1f;
+            itemElement.Add(stackLabel);
+
             return itemElement;
+        }
+
+        public static void SetStackCount(VisualElement itemElement, int quantity)
+        {
+            if (itemElement == null)
+                return;
+
+            var label = itemElement.Q<Label>(StackLabelName);
+            if (label == null)
+                return;
+
+            if (quantity > 1)
+            {
+                label.text = quantity.ToString();
+                label.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                label.style.display = DisplayStyle.None;
+            }
+        }
+
+        public static void SetStackCountOnIcon(VisualElement icon, int quantity)
+        {
+            if (icon == null)
+                return;
+            var itemElement = icon.Q("InventoryItem");
+            SetStackCount(itemElement, quantity);
         }
 
         /// <summary>

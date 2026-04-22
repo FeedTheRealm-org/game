@@ -52,7 +52,7 @@ public class ServerCharacterLinker
         var useSystem = serverComponents.GetComponent<UseSystem>();
         var groundCheckSystem = serverComponents.GetComponent<GroundCheckSystem>();
 
-        movementSystem.Initialize(rb, stateStorage);
+        movementSystem.Initialize(netId, rb, stateStorage);
         dashSystem.Initialize(netId, rb, stateStorage);
         groundCheckSystem.Initialize(col, stateStorage);
 

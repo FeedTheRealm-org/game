@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Assets.HeroEditor4D.InventorySystem.Scripts.Enums;
+using FTR.Core.Server.Enums;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
@@ -111,6 +113,16 @@ namespace FTR.Gameplay.Server.Registry
         public static WeaponItemData GetWeaponById(string id)
         {
             return GetItemById(id) as WeaponItemData;
+        }
+
+        public static EquipmentType GetItemTypeById(string id)
+        {
+            var item = GetItemById(id);
+            if (item is ConsumableItemData)
+                return EquipmentType.Consumable;
+            if (item is WeaponItemData)
+                return EquipmentType.Weapon;
+            return EquipmentType.None;
         }
 
         public static EnemyData GetEnemyById(string id)

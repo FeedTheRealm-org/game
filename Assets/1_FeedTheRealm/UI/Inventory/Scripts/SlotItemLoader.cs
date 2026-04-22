@@ -20,7 +20,8 @@ namespace FTR.UI.Inventory
         public static async void LoadItem(
             VisualElement icon,
             string itemId,
-            API.ItemAssetsService itemAssetsService
+            API.ItemAssetsService itemAssetsService,
+            int quantity = 1
         )
         {
             if (icon == null)
@@ -44,6 +45,8 @@ namespace FTR.UI.Inventory
 
             var itemElement = InventoryItemVisualController.CreateItemElement(null, itemId);
             icon.Add(itemElement);
+
+            InventoryItemVisualController.SetStackCount(itemElement, quantity);
 
             if (itemAssetsService == null)
                 return;
@@ -72,6 +75,7 @@ namespace FTR.UI.Inventory
 
             itemElement.style.backgroundImage = new StyleBackground(texture);
             itemElement.userData = new InventoryItemUIData(itemId, texture);
+            InventoryItemVisualController.SetStackCount(itemElement, quantity);
             Debug.Log($"[SlotItemLoader] SUCCESS icon={icon.name} itemId={itemId}");
         }
     }

@@ -1,4 +1,7 @@
+using System.Threading.Tasks;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Gameplay.Client.Registry;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using UnityEngine;
 using VContainer;
@@ -20,33 +23,50 @@ public class InventoryView : MonoBehaviour
     [Inject]
     private ActiveSlotChangedEvent ActiveSlotChangedEvent;
 
-    private InventoryStateStorage stateStorage;
+    [Inject]
+    private API.ItemAssetsService itemsAssetsService;
 
-    public void Initialize(InventoryStateStorage stateStorage)
+    private InventoryStateStorage stateStorage;
+    private CharacterStateStorage characterState;
+    private SpriteManager spriteManager;
+
+    public void Initialize(
+        InventoryStateStorage stateStorage,
+        CharacterStateStorage characterState,
+        SpriteManager spriteManager
+    )
     {
+        this.spriteManager = spriteManager;
         this.stateStorage = stateStorage;
+        this.characterState = characterState;
         stateStorage.OnLastItemChanged += OnInventoryChanged;
         stateStorage.OnLastSwappedItemChanged += OnInventorySwapped;
         stateStorage.OnLastDroppedItemChanged += OnInventoryDropped;
         stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
+        characterState.OnEquippedItemChanged += OnEquippedItemChanged;
     }
 
     private void OnDestroy()
     {
-        if (stateStorage == null)
-            return;
-        stateStorage.OnLastItemChanged -= OnInventoryChanged;
-        stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
-        stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
-        stateStorage.OnActiveSlotChanged -= OnActiveSlotChanged;
+        if (stateStorage != null)
+        {
+            stateStorage.OnLastItemChanged -= OnInventoryChanged;
+            stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
+            stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
+            stateStorage.OnActiveSlotChanged -= OnActiveSlotChanged;
+        }
+        if (characterState != null)
+        {
+            characterState.OnEquippedItemChanged -= OnEquippedItemChanged;
+        }
     }
 
     private void OnInventoryChanged(LastItemData value)
     {
         Debug.Log(
-            $"InventoryView item added: {value.itemId} at {value.storageType}[{value.itemPosition}]"
+            $"InventoryView item added: {value.itemId} at {value.storageType}[{value.itemPosition}] quantity: {value.quantity}"
         );
-        lastAddedEvent.Raise((value.storageType, value.itemId, value.itemPosition));
+        lastAddedEvent.Raise((value.storageType, value.itemId, value.itemPosition, value.quantity));
     }
 
     private void OnInventorySwapped(LastSwappedItemData value)
@@ -59,9 +79,11 @@ public class InventoryView : MonoBehaviour
                 value.sourceType,
                 value.sourcePosition,
                 value.sourceItemId,
+                value.sourceQuantity,
                 value.targetType,
                 value.targetPosition,
-                value.targetItemId
+                value.targetItemId,
+                value.targetQuantity
             )
         );
     }
@@ -76,5 +98,39 @@ public class InventoryView : MonoBehaviour
     {
         Debug.Log($"InventoryView active slot changed: {slotIndex}");
         ActiveSlotChangedEvent.Raise(slotIndex);
+    }
+
+    private void OnEquippedItemChanged(string itemId)
+    {
+        _ = ApplyEquippedItemAsync(itemId);
+    }
+
+    private async Task ApplyEquippedItemAsync(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId))
+        {
+            Debug.Log($"InventoryView equipped item removed");
+            spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
+            return;
+        }
+
+        var itemData = ClientItemsRegistry.GetItemById(itemId);
+        string spriteId =
+            itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
+                ? itemData.spriteFilePath
+                : itemId;
+
+        Debug.Log($"InventoryView applying equipped item: {itemId} with spriteId: {spriteId}");
+        var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
+
+        if (this == null || spriteManager == null)
+        {
+            Debug.Log(
+                $"InventoryView no longer valid after sprite download, aborting apply for {itemId}"
+            );
+            return;
+        }
+
+        spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
     }
 }

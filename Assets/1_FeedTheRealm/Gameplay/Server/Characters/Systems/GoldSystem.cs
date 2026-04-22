@@ -33,9 +33,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private GoldStateStorage goldState;
         private WorldMonitor worldMonitor;
 
-        private bool isInitialized = false;
-        private bool isSettedUp = false;
-
         public int GetCurrentGold() => goldState.Gold;
 
         public void Initialize(uint netId, GoldStateStorage goldState, WorldMonitor worldMonitor)
@@ -43,7 +40,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.netId = netId;
             this.goldState = goldState;
             this.worldMonitor = worldMonitor;
-            isInitialized = true;
 
             SubscribeToQuestReward();
         }

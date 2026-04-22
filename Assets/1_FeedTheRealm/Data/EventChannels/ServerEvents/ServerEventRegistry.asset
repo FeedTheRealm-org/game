@@ -19,3 +19,6 @@ MonoBehaviour:
   questRewardItemEvent: {fileID: 11400000, guid: 5e773937a81a4d7008409017ec709fd9, type: 2}
   npcQuestCompletedEvent: {fileID: 11400000, guid: 6df8d0a9873019fadb63e5f25c3b61d3, type: 2}
   playerQuestDecisionEvent: {fileID: 11400000, guid: ade05b689ab3e356ba17976f8ae7ee9d, type: 2}
+  itemEquippedEvent: {fileID: 11400000, guid: f6acf06eeb7f88cdd93ff455464364c6, type: 2}
+  playerBuffSpeedEvent: {fileID: 11400000, guid: 55c8201f90cc1a1729d529961006867b, type: 2}
+  playerHealEvent: {fileID: 11400000, guid: 54d1f3680581b220d90493db2f6d3f31, type: 2}

@@ -27,21 +27,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [SerializeField]
         private float inactivityTimeout = 10f;
 
-        [Inject]
-        public void Construct(IObjectResolver resolver)
-        {
-            if (resolver.TryResolve<NpcInteractedEvent>(out var ev) && ev != null)
-                npcInteractedEvent = ev;
-
-            if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var pqde) && pqde != null)
-            {
-                playerQuestDecisionEvent = pqde;
-                playerQuestDecisionEvent.OnRaised += OnQuestDecisionGlobal;
-            }
-        }
-
         private NpcInteractedEvent npcInteractedEvent;
+        private NpcQuestCompletedEvent npcQuestCompletedEvent;
         private PlayerQuestDecisionEvent playerQuestDecisionEvent;
+
+        [Inject]
+        public void Construct(
+            IObjectResolver resolver,
+            NpcInteractedEvent npcInteractedEvent,
+            PlayerQuestDecisionEvent playerQuestDecisionEvent
+        )
+        {
+            this.npcInteractedEvent = resolver.Resolve<NpcInteractedEvent>();
+            this.npcQuestCompletedEvent = resolver.Resolve<NpcQuestCompletedEvent>();
+            this.playerQuestDecisionEvent = resolver.Resolve<PlayerQuestDecisionEvent>();
+        }
 
         private string npcId;
         public string NpcId => npcId;
@@ -73,12 +73,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.stateStorage = GetComponent<CharacterStateStorage>();
 
             inactivityTimer = new NpcDialogInactivityTimer(this, inactivityTimeout);
+            playerQuestDecisionEvent.OnRaised += OnQuestDecisionGlobal;
+            npcQuestCompletedEvent.OnRaised += OnQuestCompletedGlobal;
         }
 
         private void OnDestroy()
         {
             if (playerQuestDecisionEvent != null)
                 playerQuestDecisionEvent.OnRaised -= OnQuestDecisionGlobal;
+
+            if (npcQuestCompletedEvent != null)
+                npcQuestCompletedEvent.OnRaised -= OnQuestCompletedGlobal;
 
             inactivityTimer?.StopAll();
         }
@@ -260,6 +265,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void OnQuestDecisionGlobal((uint playerNetId, bool isAccepted) data)
         {
             if (playerQuestDecisionEvent == null)
+                return;
+            if (!_activeSessions.Contains(data.playerNetId))
+                return;
+
+            OnQuestDecided(data.playerNetId);
+        }
+
+        private void OnQuestCompletedGlobal((uint playerNetId, string questId, string npcId) data)
+        {
+            if (npcQuestCompletedEvent == null)
+                return;
+            if (data.npcId != npcId)
                 return;
             if (!_activeSessions.Contains(data.playerNetId))
                 return;

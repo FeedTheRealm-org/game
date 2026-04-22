@@ -40,6 +40,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt) { }
 
+        public void Heal(float amount)
+        {
+            if (currentHealth <= 0 || amount <= 0)
+                return;
+
+            currentHealth = Mathf.Min(MaxHealth, currentHealth + amount);
+            stateStorage.SetHealth(currentHealth);
+            logger?.Log(
+                $"Character netId={netId} healed by {amount}. Health: {currentHealth}",
+                this
+            );
+        }
+
         public (bool isDead, string characterId) TakeDamage(float damage, uint attackerNetId = 0)
         {
             if (isImmortal)

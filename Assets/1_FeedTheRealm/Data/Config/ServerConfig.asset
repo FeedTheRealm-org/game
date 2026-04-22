@@ -37,6 +37,9 @@ MonoBehaviour:
   dashStaminaCost: 25
   staminaRecoveryRate: 1
   staminaRecoveryAmount: 50
+  attackCooldown: 0.4
+  unequippedDamage: 10
+  unequippedRange: 1.5
   groundCheckDistance: 1
   groundCheckSphereRadius: 0.4
   fastSlotSize: 5

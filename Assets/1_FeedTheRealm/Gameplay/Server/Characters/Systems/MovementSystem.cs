@@ -15,6 +15,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         [SerializeField]
         private GameTickEvent gameTickEvent;
+        private uint netId;
 
         [SerializeField]
         private ServerConfig config;
@@ -26,6 +27,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float moveSpeed = 5f;
         private float positionCorrectionCounter = 3;
         private float gameTickCounter = 0;
+
+        private float speedBuffAmount = 0f;
+        private float speedBuffTimer = 0f;
 
         private bool isDead = false;
 
@@ -43,8 +47,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
         }
 
-        public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
+        public void Initialize(uint netId, Rigidbody rb, CharacterStateStorage stateStorage)
         {
+            this.netId = netId;
             this.rb = rb;
             this.stateStorage = stateStorage;
 
@@ -53,6 +58,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             moveSpeed = config.PlayerSpeed > 0 ? config.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
+
             isInitialized = true;
         }
 
@@ -73,7 +79,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
 
             this.direction = direction.normalized;
-            stateStorage.SetDirection(this.direction * moveSpeed);
+            float totalSpeed = moveSpeed + speedBuffAmount;
+            stateStorage.SetDirection(this.direction * totalSpeed);
+        }
+
+        public void ApplySpeedBuff(float boost, float duration)
+        {
+            speedBuffAmount = boost;
+            speedBuffTimer = duration;
         }
 
         public void GameTick(float dt)
@@ -81,7 +94,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!isInitialized || stateStorage.IsMovementBlocked || isDead)
                 return;
 
-            Vector3 nextPosition = rb.position + dt * moveSpeed * direction;
+            if (speedBuffTimer > 0)
+            {
+                speedBuffTimer -= dt;
+                if (speedBuffTimer <= 0)
+                {
+                    speedBuffAmount = 0f;
+                }
+            }
+
+            float currentSpeed = moveSpeed + speedBuffAmount;
+            Vector3 nextPosition = rb.position + dt * currentSpeed * direction;
             rb.MovePosition(nextPosition);
             if (gameTickCounter % positionCorrectionCounter == 0)
                 stateStorage.CorrectPosition(rb.position);
