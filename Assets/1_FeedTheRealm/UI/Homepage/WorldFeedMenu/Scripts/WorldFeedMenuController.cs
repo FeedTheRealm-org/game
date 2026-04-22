@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using API;
+using FTR.Core.Client.EntryPoints;
+using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
+using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,6 +16,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 {
     [SerializeField]
     private Logging.Logger logger;
+
+    [SerializeField]
+    private Config config;
 
     [SerializeField]
     private Session.Session session;
@@ -28,6 +34,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     [SerializeField]
     private WorldSelector worldSelector;
+
+    [SerializeField]
+    private TeleportDataPersistence teleportDataPersistence;
 
     [SerializeField]
     private ItemAssetsService itemAssetsService;
@@ -50,6 +59,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private void Awake()
     {
         ui = GetComponent<UIDocument>().rootVisualElement;
+        teleportDataPersistence.PortalId = null;
 
         searchField = ui.Q<TextField>("SearchField");
         backButton = ui.Q<Button>("BackButton");
@@ -71,17 +81,23 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     private async void OnEnable()
     {
+        logger.Log("[WorldFeed] World feed menu opened.", this);
         worldSelector?.ClearSelectedWorldJoinToken();
         await RenderWorldPage(currentOffset, searchField?.value);
+        logger.Log("[WorldFeed] World feed menu rendered.", this);
     }
 
     private async Task RenderWorldPage(int offset, string filter = null)
     {
-        var (amount, worlds, error) = await worldService.GetWorldPage(
+        var (activeWorlds, error) = await worldService.GetActiveWorlds(
             offset,
             PAGE_SIZE,
             filter,
             session.APIToken
+        );
+
+        logger.Log(
+            $"[WorldFeed] Fetched worlds with offset {offset}, filter '{filter}'. Received {activeWorlds?.Count ?? 0} worlds. Error: {error}"
         );
 
         if (!string.IsNullOrEmpty(error))
@@ -90,7 +106,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             return;
         }
 
-        if (worlds == null || worlds.Count == 0)
+        if (activeWorlds == null || activeWorlds.Count == 0)
         {
             if (offset > 0)
             {
@@ -101,21 +117,20 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             else
             {
                 maxPageOffset = 0;
-                RenderWorlds(new List<WorldData>());
+                RenderWorlds(new List<ActiveWorldData>());
             }
-
             return;
         }
 
         currentOffset = offset;
 
-        if (worlds.Count < PAGE_SIZE)
+        if (activeWorlds.Count < PAGE_SIZE)
             maxPageOffset = offset;
 
-        RenderWorlds(worlds);
+        RenderWorlds(activeWorlds);
     }
 
-    private void RenderWorlds(List<WorldData> worlds)
+    private void RenderWorlds(List<ActiveWorldData> activeWorlds)
     {
         if (listOfWorlds == null)
         {
@@ -129,28 +144,29 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
         listOfWorlds.Clear();
 
-        if (worlds.Count == 0)
+        if (activeWorlds.Count == 0)
         {
-            var noResults = new Label("No worlds found");
+            var noResults = new Label("No active worlds found");
             noResults.AddToClassList("noResultsMessage");
             listOfWorlds.Add(noResults);
             SetPaginationVisible(false);
             return;
         }
 
-        foreach (var world in worlds)
+        foreach (var activeWorld in activeWorlds)
         {
-            var element = CreateWorldElement(world);
+            var element = CreateWorldElement(activeWorld);
             if (element != null)
                 listOfWorlds.Add(element);
         }
 
-        bool showPagination = worlds.Count >= PAGE_SIZE || currentOffset > 0;
+        bool showPagination = activeWorlds.Count >= PAGE_SIZE || currentOffset > 0;
         SetPaginationVisible(showPagination);
     }
 
-    private VisualElement CreateWorldElement(WorldData worldData)
+    private VisualElement CreateWorldElement(ActiveWorldData activeWorld)
     {
+        var worldData = activeWorld.worldData;
         if (worldData == null || string.IsNullOrWhiteSpace(worldData.worldName))
             return null;
 
@@ -171,13 +187,15 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
         element.Add(label);
         element.Add(aboutButton);
-        element.AddManipulator(new Clickable(() => _ = OnWorldSelected(worldData)));
+        element.AddManipulator(new Clickable(() => _ = OnWorldSelected(activeWorld)));
 
         return element;
     }
 
-    private async Task OnWorldSelected(WorldData worldData)
+    private async Task OnWorldSelected(ActiveWorldData activeWorld)
     {
+        var worldData = activeWorld.worldData;
+
         if (worldData == null || string.IsNullOrWhiteSpace(worldData.worldId))
         {
             logger.Log("[WorldFeed] Selected world is invalid.", this, Logging.LogType.Warning);
@@ -192,31 +210,31 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
         try
         {
-            worldSelector?.SetSelectedWorldId(worldData.worldId);
+            worldSelector.SetSelectedWorldId(worldData.worldId);
+            worldSelector.SetSelectedZoneId(worldData.startingZone);
+            config.CurrentServerAddress = activeWorld.zoneAddress.ip;
+            config.CurrentServerPort = (ushort)activeWorld.zoneAddress.port;
             SetWorldIdForServices(worldData.worldId);
-
-            if (playerService == null)
-            {
-                logger.Log(
-                    "[WorldFeed] PlayerService is not assigned; cannot issue world join token.",
-                    this,
-                    Logging.LogType.Error
-                );
-                return;
-            }
 
             var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(worldData.worldId);
             if (worldJoinToken == null || string.IsNullOrWhiteSpace(worldJoinToken.token_id))
             {
                 logger.Log(
-                    "[WorldFeed] Failed to issue world join token; aborting world join.",
+                    "[WorldFeed] Failed to issue world join token.",
                     this,
                     Logging.LogType.Error
                 );
                 return;
             }
 
-            worldSelector?.SetSelectedWorldJoinToken(worldJoinToken.token_id);
+            worldSelector.SetSelectedWorldJoinToken(worldJoinToken.token_id);
+
+            // activeWorld.zoneAddress is ready here for your zone addressing logic
+            logger.Log(
+                $"[WorldFeed] Zone address: {activeWorld.zoneAddress.ip}:{activeWorld.zoneAddress.port}",
+                this,
+                Logging.LogType.Info
+            );
 
             if (OnNavigateToWorld != null)
                 OnNavigateToWorld.Invoke();

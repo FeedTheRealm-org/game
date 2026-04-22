@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 6489399200151354170}
   - component: {fileID: -4170376404047795974}
   - component: {fileID: 6809830748454114207}
+  - component: {fileID: 2702517086216154850}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -289,3 +290,16 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
   linkerType: 0
+--- !u!114 &2702517086216154850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1874e7fe2b849f7f8e6aedadf705fdc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.TeleportSystem
+  portalRegistry: {fileID: 11400000, guid: f0664cc563bbc04a9a0f72681b8fbc51, type: 2}

@@ -4,10 +4,12 @@ using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.EventChannels.Portal;
 using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Common.EventChannels;
 using UnityEngine;
 using VContainer;
@@ -18,7 +20,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
     public class ClientEventRegistry : ScriptableObject
     {
         [Header("Setup Events")]
-        public WorldSetupEvent worldSetupEvent;
+        public LoadingEvent loadingEvent;
 
         [Header("Shop Events")]
         public ShopToggleEvent shopToggleEvent;
@@ -67,6 +69,13 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public ChatMessageRequestEvent chatMessageRequestEvent;
         public ChatToggleEvent chatToggleEvent;
 
+        [Header("Portal Events")]
+        public PortalToggleEvent portalToggleEvent;
+        public OpenPortalUIEvent openPortalUIEvent;
+
+        [Header("UI Related Events")]
+        public OnWorldLeaveEvent onExitEvent;
+
         public void RegisterAll(IContainerBuilder builder)
         {
             Validate();
@@ -100,7 +109,10 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(notEnoughGoldEvent);
             builder.RegisterInstance(chatMessageRequestEvent);
             builder.RegisterInstance(chatToggleEvent);
-            builder.RegisterInstance(worldSetupEvent);
+            builder.RegisterInstance(portalToggleEvent);
+            builder.RegisterInstance(openPortalUIEvent);
+            builder.RegisterInstance(loadingEvent);
+            builder.RegisterInstance(onExitEvent);
         }
 
         private void Validate()
@@ -125,7 +137,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(showQuestPromptEvent, nameof(showQuestPromptEvent));
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
-            ValidateField(worldSetupEvent, nameof(worldSetupEvent));
             ValidateField(goldChangedEvent, nameof(goldChangedEvent));
             ValidateField(openShopEvent, nameof(openShopEvent));
             ValidateField(purchaseRequestEvent, nameof(purchaseRequestEvent));
@@ -135,6 +146,10 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
             ValidateField(chatMessageRequestEvent, nameof(chatMessageRequestEvent));
             ValidateField(chatToggleEvent, nameof(chatToggleEvent));
+            ValidateField(portalToggleEvent, nameof(portalToggleEvent));
+            ValidateField(openPortalUIEvent, nameof(openPortalUIEvent));
+            ValidateField(loadingEvent, nameof(loadingEvent));
+            ValidateField(onExitEvent, nameof(onExitEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

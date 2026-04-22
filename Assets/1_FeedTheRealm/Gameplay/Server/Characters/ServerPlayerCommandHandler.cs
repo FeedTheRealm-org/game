@@ -25,6 +25,7 @@ namespace FTR.Gameplay.Server.Characters
         private string serverAccessToken;
         private bool isResolvingCharacterId;
         private GoldSystem goldSystem;
+        private TeleportSystem teleportSystem;
         private ChatSystem chatSystem;
 
         private Config config;
@@ -51,6 +52,7 @@ namespace FTR.Gameplay.Server.Characters
             PlayerService playerService,
             string serverAccessToken,
             GoldSystem goldSystem,
+            TeleportSystem teleportSystem,
             ChatSystem chatSystem
         )
         {
@@ -64,6 +66,7 @@ namespace FTR.Gameplay.Server.Characters
             this.playerService = playerService;
             this.serverAccessToken = serverAccessToken;
             this.goldSystem = goldSystem;
+            this.teleportSystem = teleportSystem;
             this.chatSystem = chatSystem;
         }
 
@@ -188,6 +191,13 @@ namespace FTR.Gameplay.Server.Characters
                     goldSystem.ReduceGold(ec, product.price * amount);
             }
         }
+
+        public override void OnTeleportAccepted(IEventCollectable ec, string portalId)
+        {
+            teleportSystem.OnTeleport(portalId);
+        }
+
+        // --- Private Methods ---
 
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
         {

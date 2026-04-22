@@ -18,11 +18,10 @@ MonoBehaviour:
   TestJoinToken: test-join-token
   EnableActionLogging: 1
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
-  ListeningPort: 7777
-  HealthcheckPort: 7778
-  serverAccessToken: atus
-  CurrentServerAddress: localhost
+  serverAccessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
+  CurrentServerAddress: 127.0.0.1
   CurrentServerPort: 7777
   isDebugWorld: 1
   doNotLoadWorld: 0
   worldID: 17086466-905a-4018-bf20-9311077766db
+  zoneID: 1

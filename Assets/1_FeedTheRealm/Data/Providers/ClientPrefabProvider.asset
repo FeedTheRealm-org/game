@@ -21,9 +21,13 @@ MonoBehaviour:
   QuestPrompt: {fileID: 8504447414605347183, guid: 12414a26c35ba05f18c2075f2061f9bb, type: 3}
   QuestCompletionPanel: {fileID: 8504447414605347183, guid: a81b988673b5b191e8120233871c1208, type: 3}
   NameTagPrefab: {fileID: 4901213077827125947, guid: 44d76e247aa5031d090d6ab1d5ba05ec, type: 3}
+  PortalVisual: {fileID: 4901213077827125947, guid: 4387c43339d72bff2b4a177dfadc24de, type: 3}
+  portalLinkComponents: {fileID: 3012644098720053192, guid: 0b34bac23618fcc6cbc242c6d23b5520, type: 3}
   ShopItemVisual: {fileID: 6961499021917701889, guid: 52c0895cf118ac446ad844f6a5cf7e7b, type: 3}
   ShopMenuComponent: {fileID: 6588888558913600653, guid: a74dc9d7d96a877419cac698a0382779, type: 3}
   ShopPrefab: {fileID: 3922623790710069857, guid: 202f4e6245ef36c438f836aa55664307, type: 3}
+  LoadingScreenPrefab: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
   StructurePrefab: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
+  PortalPrefab: {fileID: 3012644098720053192, guid: d397050cae8444f0ab9b3e3ac6dd6083, type: 3}
   ChatBox: {fileID: 2064266005079064116, guid: 7d1297eb1d3418c488143b4d77f772b5, type: 3}
   ChatInput: {fileID: 1348964074043700, guid: 793b588860968f94aac32692866bb2c9, type: 3}

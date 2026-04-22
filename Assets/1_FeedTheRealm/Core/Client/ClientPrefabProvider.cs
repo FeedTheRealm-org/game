@@ -5,6 +5,7 @@ namespace FTR.Core.Client
     [CreateAssetMenu(menuName = "Scriptable Objects/Client/Prefab Provider")]
     public class ClientPrefabProvider : ScriptableObject
     {
+        [Header("Character Components")]
         public GameObject ClientCharacterComponents;
         public GameObject HudComponent;
         public GameObject LootItemVisual;
@@ -14,6 +15,10 @@ namespace FTR.Core.Client
         public GameObject QuestPrompt;
         public GameObject QuestCompletionPanel;
         public GameObject NameTagPrefab;
+        public GameObject PortalVisual;
+
+        [Header("Aditional Link Components")]
+        public GameObject portalLinkComponents;
 
         [Header("Shop Components")]
         public GameObject ShopItemVisual;
@@ -22,6 +27,7 @@ namespace FTR.Core.Client
 
         [Header("Loader Components")]
         public GameObject StructurePrefab;
+        public GameObject PortalPrefab;
 
         [Header("Chat")]
         public GameObject ChatBox;

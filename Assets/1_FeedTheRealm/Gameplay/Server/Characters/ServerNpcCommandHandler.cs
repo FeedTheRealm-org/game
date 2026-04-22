@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
 {
+    // TODO: why does this not implement ServerCommandHandler like the ServerPlayerCommandHandler
     public class NpcCommandHandler : MonoBehaviour, ICommandable
     {
         private MovementSystem movementSystem;
@@ -59,6 +60,8 @@ namespace FTR.Gameplay.Server.Characters
         ) { }
 
         public void OnSetUserId(IEventCollectable ec, string tokenId) { }
+
+        public void OnTeleportAccepted(IEventCollectable ec, string portalId) { }
 
         public void OnSendMessage(IEventCollectable ec, string message) { }
     }
