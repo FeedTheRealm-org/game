@@ -38,11 +38,15 @@ namespace FTR.Gameplay.Bot.EntryPoints
 
             try
             {
-                await worldService.GetZoneAddress(
+                var (ip, port, err, _) = await worldService.GetZoneAddress(
                     botConfig.WorldId,
                     botConfig.ZoneId,
                     config.ServerAccessToken
                 );
+                if (!string.IsNullOrEmpty(err))
+                    throw new System.Exception($"Failed to get zone address: {err}");
+                config.CurrentServerAddress = ip;
+                config.CurrentServerPort = (ushort)port;
                 await LoadMainScene();
             }
             catch (System.Exception ex)
