@@ -1,3 +1,4 @@
+using API;
 using FTR.Core.Bot.Config;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Bot.Linkers;
@@ -19,6 +20,9 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
         private BotConfig botConfig;
 
         [SerializeField]
+        private WorldService worldService;
+
+        [SerializeField]
         private Logging.Logger logger;
 
         protected override void Configure(IContainerBuilder builder)
@@ -33,6 +37,7 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
             builder.RegisterInstance(mainScene);
             builder.RegisterInstance(config);
             builder.RegisterInstance(botConfig);
+            builder.RegisterInstance(worldService);
             builder.RegisterInstance(logger);
 
             builder.RegisterEntryPoint<BotEntryPoint>();
@@ -48,6 +53,16 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
             if (config == null)
                 throw new System.NullReferenceException(
                     "Config is not assigned in BotWorldInitiator."
+                );
+
+            if (botConfig == null)
+                throw new System.NullReferenceException(
+                    "BotConfig is not assigned in BotWorldInitiator."
+                );
+
+            if (worldService == null)
+                throw new System.NullReferenceException(
+                    "WorldService is not assigned in BotWorldInitiator."
                 );
 
             if (logger == null)
