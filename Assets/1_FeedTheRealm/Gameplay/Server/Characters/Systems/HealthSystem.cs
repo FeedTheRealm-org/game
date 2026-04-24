@@ -34,14 +34,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.netId = netId;
             this.stateStorage = stateStorage;
             this.isImmortal = isImmortal;
-            isInitialized = true;
-            stateStorage.SetHealth(currentHealth);
-        }
-
-        private void Awake()
-        {
-            currentHealth = MaxHealth;
+            this.currentHealth = MaxHealth;
             gameTickEvent.OnRaised += GameTick;
+            stateStorage.SetHealth(currentHealth);
+            isInitialized = true;
         }
 
         private void OnDestroy()
