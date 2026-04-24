@@ -104,7 +104,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             bool isGrounded = stateStorage.IsGrounded;
             bool justLanded = isGrounded && !wasGroundedLastTick;
 
-            rb.useGravity = !stateStorage.IsOnSlope;
+            rb.useGravity = !(isGrounded && stateStorage.IsOnSlope);
 
             if (isGrounded)
             {

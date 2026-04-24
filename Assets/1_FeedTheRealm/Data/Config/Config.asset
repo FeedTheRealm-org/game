@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a9b5f3caeffc93a99f9f1b26ccaf73, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
-  editorRuntimeRole: 1
+  editorRuntimeRole: 0
   MaxWorldLoadRetries: 10
   WorldLoadRetryDelayMs: 1000
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}

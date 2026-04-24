@@ -85,15 +85,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 groundCheckSphereOrigin,
                 groundCheckSphereOrigin + Vector3.down * config.GroundCheckDistance
             );
-            Gizmos.DrawLine(
-                groundCheckSphereOrigin,
-                groundCheckSphereOrigin + Vector3.down * config.GroundCheckDistance
-            );
             Gizmos.DrawWireSphere(
                 groundCheckSphereOrigin + Vector3.down * config.GroundCheckDistance,
                 config.GroundCheckSphereRadius
             );
-
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(
                 groundCheckSphereOrigin,
