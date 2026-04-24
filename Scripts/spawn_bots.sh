@@ -12,12 +12,25 @@ CMD="$2"
 WORLD_ID=$3
 ZONE_ID=$4
 
-trap "kill 0" SIGINT SIGTERM
+PIDS=()
+
+cleanup() {
+  echo "Stopping ${#PIDS[@]} processes..."
+  for pid in "${PIDS[@]}"; do
+    if kill -0 "$pid" 2>/dev/null; then
+      kill "$pid"
+    fi
+  done
+  wait
+  echo "All processes stopped."
+}
+
+trap cleanup SIGINT SIGTERM
 
 echo "Starting $N processes: $CMD"
-
 for ((i=0; i<N; i++)); do
   "$CMD" --world-id=${WORLD_ID} --zone-id=${ZONE_ID} --bot-id=${i} -batchmode -nographics &
+  PIDS+=($!)
 done
 
 wait
