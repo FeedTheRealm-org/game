@@ -116,6 +116,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             rb.position = position;
             stateStorage.CorrectPosition(rb.position);
+            Debug.Log($"Loaded position for player {stateStorage.CharacterId}: {position}");
         }
     }
 }

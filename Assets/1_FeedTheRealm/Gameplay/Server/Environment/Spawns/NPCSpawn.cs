@@ -66,6 +66,9 @@ public class NPCSpawns : MonoBehaviour
 
         if (!isInitialized)
         {
+            if (!gameObject.activeSelf)
+                gameObject.SetActive(true);
+
             BuildNavMesh(radius + 5f);
             StartCoroutine(SpawnWhenServerActive());
             isInitialized = true;

@@ -15,11 +15,13 @@ MonoBehaviour:
   editorRuntimeRole: 0
   MaxWorldLoadRetries: 10
   WorldLoadRetryDelayMs: 1000
+  TestJoinToken: test-join-token
+  EnableActionLogging: 1
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   serverAccessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
   CurrentServerAddress: 127.0.0.1
   CurrentServerPort: 7777
   isDebugWorld: 1
   doNotLoadWorld: 0
-  worldID: 07e15a76-f362-4eaa-8fb9-0ee8760b45fb
+  worldID: 17086466-905a-4018-bf20-9311077766db
   zoneID: 1

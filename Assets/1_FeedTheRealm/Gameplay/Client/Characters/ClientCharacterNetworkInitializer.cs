@@ -1,3 +1,4 @@
+using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints.Scopes;
 using FTR.Gameplay.Common.Linkers;
 using Mirror;
@@ -9,6 +10,9 @@ namespace FTR.Gameplay.Client.Characters
 {
     public class ClientCharacterNetworkInitializer : NetworkBehaviour
     {
+        [SerializeField]
+        private Config config;
+
         /// <summary>
         /// Called on the client when any character (local or remote) is spawned.
         /// Injects dependencies via VContainer and initializes client-side scripts for
@@ -17,11 +21,15 @@ namespace FTR.Gameplay.Client.Characters
         public override void OnStartClient()
         {
             base.OnStartClient();
+
+            var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
+            if (config.RuntimeRole != RuntimeRole.Client)
+                return;
+
             Debug.Log(
                 $"ClientCharacterNetworkInitializer: OnStartClient - Injecting {gameObject.name}"
             );
 
-            var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
             clientWorldInitiator.Container.InjectGameObject(gameObject);
 
             GetComponent<GameObjectLinker>()?.Initialize();

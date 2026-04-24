@@ -19,10 +19,12 @@
   <Project Path="FTR.UI.Client.csproj" />
   <Project Path="Telepathy.csproj" />
   <Project Path="FeedTheRealm_Shared.H4D.Editor.csproj" />
+  <Project Path="FTR.Gameplay.Bot.csproj" />
   <Project Path="FTR.Gameplay.Common.csproj" />
   <Project Path="Mirror.CompilerSymbols.csproj" />
   <Project Path="EditorTools.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="FTR.Core.Bot.csproj" />
   <Project Path="EncryptionTransportEditor.csproj" />
   <Project Path="FeedTheRealm_Editor.csproj" />
 </Solution>

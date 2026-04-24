@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   EnvFilePath: .env
-  LoadFromEnvFile: 0
-  LoadEnvVars: 0
-  PersistToDatabase: 0
+  LoadFromEnvFile: 1
+  LoadEnvVars: 1
+  PersistToDatabase: 1
+  AutoSaveIntervalSeconds: 30
   PlayerLayer:
     serializedVersion: 2
     m_Bits: 128

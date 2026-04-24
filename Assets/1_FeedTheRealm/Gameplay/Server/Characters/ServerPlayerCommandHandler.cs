@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using API;
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
@@ -27,15 +28,17 @@ namespace FTR.Gameplay.Server.Characters
         private TeleportSystem teleportSystem;
         private ChatSystem chatSystem;
 
+        private Config config;
         private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         [Inject]
-        public void Construct(IObjectResolver resolver)
+        public void Construct(IObjectResolver resolver, Config config)
         {
             if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var ev) && ev != null)
             {
                 playerQuestDecisionEvent = ev;
             }
+            this.config = config;
         }
 
         public void Initialize(
@@ -199,16 +202,24 @@ namespace FTR.Gameplay.Server.Characters
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
         {
             isResolvingCharacterId = true;
+            var splitedToken = tokenId.Split('_');
+            if (splitedToken[0] == config.TestJoinToken) // TODO: add TEST flag for servers
+            {
+                var botId = splitedToken.Length > 1 ? splitedToken[1] : "UnknownBot";
+                stateStorage.SetCharacterId($"bot_{botId}");
+                gameObject.name = $"BotPlayer_{botId}";
+                isResolvingCharacterId = false;
+                return;
+            }
+
             try
             {
                 var consumeResponse = await playerService.ConsumeWorldJoinTokenAsync(
                     tokenId,
                     serverAccessToken
                 );
-                if (consumeResponse == null)
-                    return;
-
-                stateStorage.SetCharacterId(consumeResponse.user_id);
+                if (consumeResponse != null)
+                    stateStorage.SetCharacterId(consumeResponse.user_id);
             }
             finally
             {
