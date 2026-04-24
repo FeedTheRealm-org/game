@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3247d67a995d0c11b8cdc1c896970e2, type: 3}
+  m_Name: BotConfig
+  m_EditorClassIdentifier: FTR.Core.Bot::FTR.Core.Bot.Config.BotConfig
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  BotId: 
+  WorldId: 
+  ZoneId: 
+  MoveIntervalSeconds: 0.2
+  ActionIntervalSeconds: 1.1
+  InteractIntervalSeconds: 3.5
+  DirectionChangeIntervalSeconds: 1.8

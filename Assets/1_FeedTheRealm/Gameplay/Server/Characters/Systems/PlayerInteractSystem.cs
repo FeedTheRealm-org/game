@@ -41,7 +41,6 @@ public class PlayerInteractSystem : MonoBehaviour, IInteractor
 
         if (closest == null)
         {
-            logger?.Log("[PlayerInteractSystem] No interactable found — notifying client.", this);
             SendInteractFailed();
             FinishInteracting();
             return;

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace FTR.Core.Server.Utils
+namespace FTR.Core.Common.Utils
 {
     public static class ParamsSerializer
     {

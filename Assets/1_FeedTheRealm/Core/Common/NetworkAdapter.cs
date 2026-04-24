@@ -1,4 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 using Mirror;
@@ -26,10 +30,30 @@ public class NetworkAdapter : NetworkBehaviour
     public bool IsLocalPlayer => isLocalPlayer;
 
     [Inject]
-    ReceivedActionCommandEvent receivedActionCommandEvent;
+    private ReceivedActionCommandEvent receivedActionCommandEvent;
 
     [Inject]
-    ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
+    private ReceivedTransactionCommandEvent receivedTransactionCommandEvent;
+
+    [Inject]
+    private Config config;
+
+    private Dictionary<ActionType, int> actionsSent = new Dictionary<ActionType, int>();
+    private Dictionary<TransactionType, int> transactionsSent =
+        new Dictionary<TransactionType, int>();
+    private Coroutine actionLogRoutine;
+
+    private void Start()
+    {
+        if (isLocalPlayer && config.EnableActionLogging)
+            actionLogRoutine = StartCoroutine(ShowActionLog());
+    }
+
+    private void OnDestroy()
+    {
+        if (actionLogRoutine != null)
+            StopCoroutine(actionLogRoutine);
+    }
 
     /* --- DISPATCHERS --- */
 
@@ -43,6 +67,10 @@ public class NetworkAdapter : NetworkBehaviour
         if (!isLocalPlayer)
             return;
 
+        if (!actionsSent.ContainsKey(command.Type))
+            actionsSent[command.Type] = 0;
+        actionsSent[command.Type]++;
+
         CmdActionRequest(command);
     }
 
@@ -55,6 +83,10 @@ public class NetworkAdapter : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
+
+        if (!transactionsSent.ContainsKey(command.Type))
+            transactionsSent[command.Type] = 0;
+        transactionsSent[command.Type]++;
 
         CmdTransactionRequest(command);
     }
@@ -125,5 +157,20 @@ public class NetworkAdapter : NetworkBehaviour
     private void TargetRpcServerEvent(NetworkConnectionToClient target, ServerEventDTO response)
     {
         OnServerEvent?.Invoke(response);
+    }
+
+    private IEnumerator ShowActionLog()
+    {
+        while (true)
+        {
+            logger.Log("=== Action Log ===");
+            foreach (var action in actionsSent)
+                logger.Log($"Action: {action.Key}, Times Sent: {action.Value}");
+            logger.Log("=== Transaction Log ===");
+            foreach (var transaction in transactionsSent)
+                logger.Log($"Transaction: {transaction.Key}, Times Sent: {transaction.Value}");
+            logger.Log("======================");
+            yield return new WaitForSeconds(5f);
+        }
     }
 }

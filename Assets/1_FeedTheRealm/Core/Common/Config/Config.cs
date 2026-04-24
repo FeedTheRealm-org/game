@@ -1,5 +1,4 @@
 using FTR.Core.Common.Utils;
-using FTR.Core.Server.Utils;
 using UnityEngine;
 
 namespace FTR.Core.Common.Config
@@ -8,6 +7,7 @@ namespace FTR.Core.Common.Config
     {
         Server,
         Client,
+        Bot,
     }
 
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/Config")]
@@ -25,6 +25,9 @@ namespace FTR.Core.Common.Config
 
         public int MaxWorldLoadRetries = 10;
         public int WorldLoadRetryDelayMs = 1000;
+
+        public string TestJoinToken = "test_join_token";
+        public bool EnableActionLogging = true;
 
         [Header("API Settings")]
         public ApiConfig ApiConfig;
@@ -79,10 +82,12 @@ namespace FTR.Core.Common.Config
 
         private RuntimeRole GetRuntimeRole()
         {
-#if SERVER_BUILD && !CLIENT_BUILD
+#if SERVER_BUILD && !CLIENT_BUILD && !BOT_BUILD
             return RuntimeRole.Server;
-#elif CLIENT_BUILD && !SERVER_BUILD
+#elif CLIENT_BUILD && !SERVER_BUILD && !BOT_BUILD
             return RuntimeRole.Client;
+#elif BOT_BUILD && !SERVER_BUILD && !CLIENT_BUILD
+            return RuntimeRole.Bot;
 #else // SERVER & CLIENT || None (debugging)
             return editorRuntimeRole;
 #endif
