@@ -30,6 +30,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool isDead = false;
 
+        private bool wasGroundedLastTick = false;
+
         public Vector3 GetCurrentPosition() => rb.position;
 
         private void OnDestroy()
@@ -99,12 +101,20 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             float currentSpeed = moveSpeed + speedBuffAmount;
+            bool isGrounded = stateStorage.IsGrounded;
+            bool justLanded = isGrounded && !wasGroundedLastTick;
 
             rb.useGravity = !stateStorage.IsOnSlope;
 
-            if (stateStorage.IsGrounded)
+            if (isGrounded)
             {
-                if (direction != Vector3.zero) // if im moving
+                if (justLanded)
+                {
+                    direction = Vector3.zero;
+                    stateStorage.SetDirection(Vector3.zero);
+                    rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+                }
+                else if (direction != Vector3.zero)
                 {
                     Vector3 moveDirection = stateStorage.IsOnSlope
                         ? Vector3.ProjectOnPlane(direction, stateStorage.GroundNormal).normalized
@@ -113,11 +123,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     Vector3 nextPosition = rb.position + dt * currentSpeed * moveDirection;
                     rb.MovePosition(nextPosition);
                 }
-                else if (stateStorage.IsOnSlope)
+                else
                 {
-                    rb.linearVelocity = Vector3.zero;
+                    rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+                    stateStorage.SetDirection(rb.linearVelocity);
                 }
             }
+            else
+            {
+                // allow movement in air but don't auto-move — apply direction only if actively set
+                if (direction != Vector3.zero)
+                {
+                    Vector3 nextPosition = rb.position + dt * currentSpeed * direction;
+                    rb.MovePosition(nextPosition);
+                }
+            }
+
+            wasGroundedLastTick = isGrounded;
 
             if (gameTickCounter % positionCorrectionCounter == 0)
                 stateStorage.CorrectPosition(rb.position);
