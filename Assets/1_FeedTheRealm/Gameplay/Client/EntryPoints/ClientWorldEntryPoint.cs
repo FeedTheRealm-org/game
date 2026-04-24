@@ -1,3 +1,4 @@
+using System;
 using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;

@@ -24,6 +24,7 @@ namespace FTR.Core.Server.Config
         public LayerMask TargetLayer; // Enemies
         public LayerMask GroundLayer;
         public LayerMask ObstacleLayer;
+        public LayerMask SlopeLayer;
 
         [Header("Movement")]
         [SerializeField]

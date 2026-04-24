@@ -70,6 +70,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private ItemAssetsService itemAssetsService;
 
+        [SerializeField]
+        private ColliderRegistry colliderRegistry;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)
@@ -97,6 +100,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
             builder.RegisterInstance(itemAssetsService);
+            builder.RegisterInstance(colliderRegistry);
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientNpcInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
@@ -125,6 +129,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(modelService, "ModelService");
             ValidateField(gltfLoaderService, "GLTFLoaderService");
             ValidateField(itemAssetsService, "ItemAssetsService");
+            ValidateField(assetsService, "AssetsService");
+            ValidateField(zoneService, "ZoneService");
+            ValidateField(npcDialogRegistry, "NpcDialogRegistry");
         }
 
         private void ValidateField(object field, string fieldName)

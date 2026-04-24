@@ -42,6 +42,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
         public string EquippedItemId => equippedItemId;
+        public bool IsOnSlope { get; set; }
+        public Vector3 GroundNormal { get; set; }
 
         /* --- Events --- */
 

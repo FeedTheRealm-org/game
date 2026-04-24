@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a9b5f3caeffc93a99f9f1b26ccaf73, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
-  editorRuntimeRole: 0
+  editorRuntimeRole: 1
   MaxWorldLoadRetries: 10
   WorldLoadRetryDelayMs: 1000
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
@@ -21,5 +21,5 @@ MonoBehaviour:
   CurrentServerPort: 7777
   isDebugWorld: 1
   doNotLoadWorld: 0
-  worldID: 07e15a76-f362-4eaa-8fb9-0ee8760b45fb
+  worldID: 90a5770b-f355-4d0f-b64b-e4346f6a213a
   zoneID: 1

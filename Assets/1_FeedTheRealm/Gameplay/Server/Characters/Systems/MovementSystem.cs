@@ -10,9 +10,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class MovementSystem : MonoBehaviour, IGameTickable
     {
-        [Inject]
-        private readonly PlayersRepository playersRepository;
-
         [SerializeField]
         private GameTickEvent gameTickEvent;
         private uint netId;
@@ -98,14 +95,30 @@ namespace FTR.Gameplay.Server.Characters.Systems
             {
                 speedBuffTimer -= dt;
                 if (speedBuffTimer <= 0)
-                {
                     speedBuffAmount = 0f;
-                }
             }
 
             float currentSpeed = moveSpeed + speedBuffAmount;
-            Vector3 nextPosition = rb.position + dt * currentSpeed * direction;
-            rb.MovePosition(nextPosition);
+
+            rb.useGravity = !stateStorage.IsOnSlope;
+
+            if (stateStorage.IsGrounded)
+            {
+                if (direction != Vector3.zero) // if im moving
+                {
+                    Vector3 moveDirection = stateStorage.IsOnSlope
+                        ? Vector3.ProjectOnPlane(direction, stateStorage.GroundNormal).normalized
+                        : direction;
+
+                    Vector3 nextPosition = rb.position + dt * currentSpeed * moveDirection;
+                    rb.MovePosition(nextPosition);
+                }
+                else if (stateStorage.IsOnSlope)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                }
+            }
+
             if (gameTickCounter % positionCorrectionCounter == 0)
                 stateStorage.CorrectPosition(rb.position);
 
