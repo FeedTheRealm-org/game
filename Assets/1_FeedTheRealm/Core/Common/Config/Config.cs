@@ -71,11 +71,16 @@ namespace FTR.Core.Common.Config
         [SerializeField]
         private int zoneID = 1;
         public int ZoneID => zoneID;
+
+        [Header("Common Debug Settings")]
+        [SerializeField]
+        public bool enableColliderView = false;
 #else
         public bool IsDebugWorld => false;
         public bool DoNotLoadWorld => false;
         public string WorldID => string.Empty;
         public int ZoneID => 0;
+        public bool enableColliderView = false;
 #endif
 
         /* HELPERS */
@@ -92,5 +97,9 @@ namespace FTR.Core.Common.Config
             return editorRuntimeRole;
 #endif
         }
+
+        [Header("Common Layer Masks")]
+        public LayerMask cubeColliderLayerMask;
+        public LayerMask slopeColliderLayerMask;
     }
 }
