@@ -130,7 +130,8 @@ public class ServerPlayerLinker : PlayerLinker
             netId,
             networkAdapter,
             serverPlayerCommandHandler,
-            connectionId
+            connectionId,
+            isPlayer: true
         );
     }
 }

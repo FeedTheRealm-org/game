@@ -8,7 +8,7 @@ public sealed class ServerEntity
 {
     public uint NetId { get; }
 
-    public EntityState State;
+    public bool IsPlayer { get; private set; }
 
     public NetworkAdapter NetworkAdapter { get; }
     public ICommandable Commandable { get; }
@@ -21,12 +21,14 @@ public sealed class ServerEntity
         uint netId,
         NetworkAdapter networkAdapter,
         ICommandable commandable,
-        int? connectionId = null
+        int? connectionId = null,
+        bool isPlayer = false
     )
     {
         NetId = netId;
         NetworkAdapter = networkAdapter;
         this.Commandable = commandable;
         this.ConnectionId = connectionId;
+        this.IsPlayer = isPlayer;
     }
 }

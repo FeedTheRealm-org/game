@@ -3,6 +3,7 @@ using System.Threading;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Metrics;
 using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Server.Loaders;
 using FTR.Gameplay.Server.Scopes;
@@ -85,6 +86,12 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
             if (lifetimeCts.IsCancellationRequested)
                 return;
+
+            DogStatsd.Configure(
+                "localhost",
+                8125,
+                new[] { $"world_id:{worldId}", $"zone_id:{zoneId}" }
+            );
 
             healthcheckServer.Start();
             WorldLoadBootstrap.MarkServerReady();
