@@ -441,8 +441,7 @@ namespace FTR.UI.Shop
             {
                 buyButton.RegisterCallback<ClickEvent>(_ =>
                 {
-                    int amount = Mathf.Max(1, amountField.value);
-                    StartCoroutine(ProcessGemPurchase(capturedId, amount));
+                    StartCoroutine(ProcessGemPurchase(capturedId));
                 });
             }
             else
@@ -457,7 +456,8 @@ namespace FTR.UI.Shop
             row.Add(icon);
             row.Add(nameLabel);
             row.Add(priceLabel);
-            row.Add(amountField);
+            if (!isGem)
+                row.Add(amountField);
             row.Add(buyButton);
 
             icon.RegisterCallback<PointerEnterEvent>(_ =>
@@ -484,7 +484,7 @@ namespace FTR.UI.Shop
             icon.style.backgroundImage = new StyleBackground(sprite);
         }
 
-        private IEnumerator ProcessGemPurchase(string productId, int amount)
+        private IEnumerator ProcessGemPurchase(string productId)
         {
             if (_currentGemBalance >= 0)
             {
@@ -492,7 +492,7 @@ namespace FTR.UI.Shop
                 string itemName = itemData != null ? itemData.name : productId;
             }
 
-            var task = paymentService.PurchaseWithGems(productId, amount, session.APIToken);
+            var task = paymentService.PurchaseWithGems(productId, session.APIToken);
             yield return new WaitUntil(() => task.IsCompleted);
 
             var (success, message, updatedBalance) = task.Result;
@@ -507,7 +507,7 @@ namespace FTR.UI.Shop
 
                 var itemData = ClientItemsRegistry.GetItemById(productId);
                 string itemName = itemData != null ? itemData.name : productId;
-                ShowFeedback($"Purchased {itemName} x{amount}!");
+                ShowFeedback($"Purchased {itemName}!");
             }
             else
             {
