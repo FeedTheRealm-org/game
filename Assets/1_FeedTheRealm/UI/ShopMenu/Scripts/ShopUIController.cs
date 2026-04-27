@@ -99,14 +99,12 @@ namespace FTR.UI.Shop
 
             _panel = _shopRoot.Q<VisualElement>("Panel");
 
-            // Header
             _closeButton = _shopRoot.Q<VisualElement>("CloseButton");
             _gemBalanceContainer = _shopRoot.Q<VisualElement>("GemBalanceContainer");
             _gemBalanceLabel = _shopRoot.Q<Label>("GemBalanceLabel");
 
             _closeButton?.RegisterCallback<ClickEvent>(_ => CloseShop());
 
-            // Tabs
             _tabGold = _shopRoot.Q<VisualElement>("TabGold");
             _tabCosmetic = _shopRoot.Q<VisualElement>("TabCosmetic");
             _tabGoldLabel = _shopRoot.Q<Label>("TabGoldLabel");
@@ -117,11 +115,9 @@ namespace FTR.UI.Shop
             _tabGold?.RegisterCallback<ClickEvent>(_ => SwitchTab(true));
             _tabCosmetic?.RegisterCallback<ClickEvent>(_ => SwitchTab(false));
 
-            // Containers
             _shopItemsContainer = _shopRoot.Q<VisualElement>("ShopItemsContainer");
             _cosmeticItemsContainer = _shopRoot.Q<VisualElement>("CosmeticItemsContainer");
 
-            // Message area
             _messageArea = _shopRoot.Q<VisualElement>("MessageArea");
             SetupFeedbackLabel();
 
@@ -147,6 +143,9 @@ namespace FTR.UI.Shop
             if (_panel != null && !_panel.worldBound.Contains(evt.position))
                 CloseShop();
         }
+
+        // ─────────────────────────────────────────────────────────────
+        // Tabs
 
         private void SwitchTab(bool goldTab)
         {
@@ -185,6 +184,9 @@ namespace FTR.UI.Shop
                     : new StyleColor(new Color(0.7f, 0.7f, 0.7f));
         }
 
+        // ─────────────────────────────────────────────────────────────
+        // Gem balance
+
         private IEnumerator FetchGemBalance()
         {
             if (_gemBalanceLabel != null)
@@ -212,6 +214,9 @@ namespace FTR.UI.Shop
                 _gemBalanceLabel.text =
                     _currentGemBalance >= 0 ? _currentGemBalance.ToString("N0") : "—";
         }
+
+        // ─────────────────────────────────────────────────────────────
+        // Feedback
 
         private void SetupFeedbackLabel()
         {
@@ -250,6 +255,9 @@ namespace FTR.UI.Shop
             _hideMessageCoroutine = null;
         }
 
+        // ─────────────────────────────────────────────────────────────
+        // Open / Close
+
         private void OnOpenShop(string shopId)
         {
             bool isVisible = _shopRoot.style.display == DisplayStyle.Flex;
@@ -283,6 +291,9 @@ namespace FTR.UI.Shop
                 StopCoroutine(_animationCoroutine);
             _animationCoroutine = StartCoroutine(AnimateClose());
         }
+
+        // ─────────────────────────────────────────────────────────────
+        // Animation
 
         private IEnumerator AnimateOpen()
         {
@@ -346,6 +357,9 @@ namespace FTR.UI.Shop
             }
         }
 
+        // ─────────────────────────────────────────────────────────────
+        // Population
+
         private void PopulateShop(string shopId)
         {
             if (_shopItemsContainer == null || _cosmeticItemsContainer == null)
@@ -377,16 +391,17 @@ namespace FTR.UI.Shop
 
             int goldCount = 0,
                 gemCount = 0;
+
             foreach (var product in products)
             {
                 if (product.currency == CurrencyType.Gold)
                 {
-                    _shopItemsContainer.Add(CreateProductRow(product, isGem: false));
+                    _shopItemsContainer.Add(CreateGoldRow(product));
                     goldCount++;
                 }
                 else if (product.currency == CurrencyType.Gems)
                 {
-                    _cosmeticItemsContainer.Add(CreateProductRow(product, isGem: true));
+                    _cosmeticItemsContainer.Add(CreateCosmeticRow(product));
                     gemCount++;
                 }
             }
@@ -397,18 +412,17 @@ namespace FTR.UI.Shop
             );
         }
 
-        private VisualElement CreateProductRow(ProductData product, bool isGem)
+        // ─────────────────────────────────────────────────────────────
+        // Gold row — uses ClientItemsRegistry for name, ItemAssetsService for icon
+
+        private VisualElement CreateGoldRow(ProductData product)
         {
             var row = new VisualElement();
             row.AddToClassList("shop-item");
 
             var icon = new VisualElement();
             icon.AddToClassList("shop-item-icon");
-
-            if (isGem)
-                StartCoroutine(LoadCosmeticIcon(icon, product.productId));
-            else
-                SlotItemLoader.LoadItem(icon, product.productId, itemAssetsService);
+            SlotItemLoader.LoadItem(icon, product.productId, itemAssetsService);
 
             var nameLabel = new Label(product.productId);
             nameLabel.AddToClassList("shop-item-name");
@@ -416,8 +430,7 @@ namespace FTR.UI.Shop
             if (itemData != null)
                 nameLabel.text = itemData.name;
 
-            string currencySymbol = isGem ? "💎" : "🪙";
-            var priceLabel = new Label($"{product.price} {currencySymbol}");
+            var priceLabel = new Label($"{product.price} 🪙");
             priceLabel.AddToClassList("shop-item-price");
 
             var amountField = new IntegerField();
@@ -429,7 +442,6 @@ namespace FTR.UI.Shop
                     amountField.SetValueWithoutNotify(1);
             });
 
-            // Buy button
             var buyButton = new VisualElement();
             buyButton.AddToClassList("shop-buy-button");
             var buyLabel = new Label("Buy");
@@ -437,27 +449,16 @@ namespace FTR.UI.Shop
             buyButton.Add(buyLabel);
 
             string capturedId = product.productId;
-            if (isGem)
+            buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                buyButton.RegisterCallback<ClickEvent>(_ =>
-                {
-                    StartCoroutine(ProcessGemPurchase(capturedId));
-                });
-            }
-            else
-            {
-                buyButton.RegisterCallback<ClickEvent>(_ =>
-                {
-                    int amount = Mathf.Max(1, amountField.value);
-                    purchaseRequestEvent?.Raise((capturedId, amount));
-                });
-            }
+                int amount = Mathf.Max(1, amountField.value);
+                purchaseRequestEvent?.Raise((capturedId, amount));
+            });
 
             row.Add(icon);
             row.Add(nameLabel);
             row.Add(priceLabel);
-            if (!isGem)
-                row.Add(amountField);
+            row.Add(amountField);
             row.Add(buyButton);
 
             icon.RegisterCallback<PointerEnterEvent>(_ =>
@@ -468,9 +469,72 @@ namespace FTR.UI.Shop
             return row;
         }
 
-        private IEnumerator LoadCosmeticIcon(VisualElement icon, string productId)
+        // ─────────────────────────────────────────────────────────────
+        // Cosmetic row — uses displayName/categoryName from ProductData,
+        //                downloads icon via AssetsService using productId (sprite/cosmetic ID),
+        //                no amount field (cosmetics are bought once)
+
+        private VisualElement CreateCosmeticRow(ProductData product)
         {
-            var task = assetsService.DownloadTexture2D(productId);
+            var row = new VisualElement();
+            row.AddToClassList("shop-item");
+
+            // Icon downloaded from CDN using productId as the cosmetic/sprite ID
+            var icon = new VisualElement();
+            icon.AddToClassList("shop-item-icon");
+            StartCoroutine(LoadCosmeticIcon(icon, product.productId));
+
+            // displayName comes directly from the product data (e.g. "halo chest - ArmorBody")
+            var nameLabel = new Label(
+                !string.IsNullOrEmpty(product.displayName) ? product.displayName : product.productId
+            );
+            nameLabel.AddToClassList("shop-item-name");
+
+            // categoryName shown as a small subtitle (e.g. "ArmorBody")
+            var categoryLabel = new Label(product.categoryName ?? "");
+            categoryLabel.AddToClassList("shop-item-category");
+
+            var namesColumn = new VisualElement();
+            namesColumn.AddToClassList("shop-item-names-column");
+            namesColumn.Add(nameLabel);
+            if (!string.IsNullOrEmpty(product.categoryName))
+                namesColumn.Add(categoryLabel);
+
+            var priceLabel = new Label($"{product.price} 💎");
+            priceLabel.AddToClassList("shop-item-price");
+
+            // No amount field — cosmetics are one-time purchases
+            var buyButton = new VisualElement();
+            buyButton.AddToClassList("shop-buy-button");
+            var buyLabel = new Label("Buy");
+            buyLabel.AddToClassList("shop-buy-button-label");
+            buyButton.Add(buyLabel);
+
+            string capturedId = product.productId;
+            buyButton.RegisterCallback<ClickEvent>(_ =>
+            {
+                StartCoroutine(ProcessGemPurchase(capturedId, product.displayName));
+            });
+
+            row.Add(icon);
+            row.Add(namesColumn);
+            row.Add(priceLabel);
+            row.Add(buyButton);
+
+            icon.RegisterCallback<PointerEnterEvent>(_ =>
+                _itemStatsTooltip?.ShowTooltip(capturedId, icon)
+            );
+            icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip?.HideTooltip());
+
+            return row;
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // Cosmetic icon — downloads texture from CDN via AssetsService
+
+        private IEnumerator LoadCosmeticIcon(VisualElement icon, string cosmeticId)
+        {
+            var task = assetsService.DownloadTexture2D(cosmeticId);
             yield return new WaitUntil(() => task.IsCompleted);
 
             if (task.Result == null)
@@ -484,15 +548,12 @@ namespace FTR.UI.Shop
             icon.style.backgroundImage = new StyleBackground(sprite);
         }
 
-        private IEnumerator ProcessGemPurchase(string productId)
-        {
-            if (_currentGemBalance >= 0)
-            {
-                var itemData = ClientItemsRegistry.GetItemById(productId);
-                string itemName = itemData != null ? itemData.name : productId;
-            }
+        // ─────────────────────────────────────────────────────────────
+        // Gem purchase
 
-            var task = paymentService.PurchaseWithGems(productId, session.APIToken);
+        private IEnumerator ProcessGemPurchase(string cosmeticId, string displayName)
+        {
+            var task = paymentService.PurchaseWithGems(cosmeticId, session.APIToken);
             yield return new WaitUntil(() => task.IsCompleted);
 
             var (success, message, updatedBalance) = task.Result;
@@ -505,9 +566,8 @@ namespace FTR.UI.Shop
                     UpdateGemBalanceLabel();
                 }
 
-                var itemData = ClientItemsRegistry.GetItemById(productId);
-                string itemName = itemData != null ? itemData.name : productId;
-                ShowFeedback($"Purchased {itemName}!");
+                string label = !string.IsNullOrEmpty(displayName) ? displayName : cosmeticId;
+                ShowFeedback($"Purchased {label}!");
             }
             else
             {
