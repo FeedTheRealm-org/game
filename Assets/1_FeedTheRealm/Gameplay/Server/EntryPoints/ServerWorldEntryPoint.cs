@@ -5,7 +5,6 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.Healthcheck;
 using FTR.Core.Server.Metrics;
 using FTR.Core.Server.Persistence;
-using FTR.Gameplay.Server.Loaders;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
@@ -64,6 +63,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
                 serverConfig.LoadFromEnvFile
             );
         }
+
+        serverConfig.LoadParams();
     }
 
     public async void Start()
@@ -74,12 +75,10 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             if (!loadSucceeded)
                 throw new Exception("World loading failed");
 
-            string worldId = "world1";
-            string zoneId = "1";
             await database.Connect(
                 secretsConfig.MongoConnectionString,
-                worldId,
-                zoneId,
+                serverConfig.WorldId,
+                serverConfig.ZoneId.ToString(),
                 lifetimeCts.Token
             );
             await playersRepository.Connect(database);
@@ -90,7 +89,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             DogStatsd.Configure(
                 "localhost",
                 8125,
-                new[] { $"world_id:{worldId}", $"zone_id:{zoneId}" }
+                new[] { $"world_id:{serverConfig.WorldId}", $"zone_id:{serverConfig.ZoneId}" }
             );
 
             healthcheckServer.Start();

@@ -112,7 +112,6 @@ public class ServerPlayerLinker : PlayerLinker
             questSystem,
             stateStorage,
             playerService,
-            commonConfig.ServerAccessToken,
             goldSystem,
             teleportSystem,
             chatSystem

@@ -58,26 +58,24 @@ namespace FTR.Gameplay.Client.Loaders
 
         public override string GetWorldId()
         {
-            if (config.IsDebugWorld)
-                return !string.IsNullOrEmpty(config.WorldID)
-                    ? config.WorldID
+            if (config.DEBUG_IsDebugWorld)
+                return !string.IsNullOrEmpty(config.DEBUG_WorldId)
+                    ? config.DEBUG_WorldId
                     : worldSelector.GetSelectedWorldId();
             return worldSelector.GetSelectedWorldId();
         }
 
         public override string GetAccessToken()
         {
-            if (config.IsDebugWorld)
-                return !string.IsNullOrEmpty(config.ServerAccessToken)
-                    ? config.ServerAccessToken
-                    : session.APIToken;
             return session.APIToken;
         }
 
         public override int GetZoneId()
         {
-            if (config.IsDebugWorld)
-                return (config.ZoneID > 0) ? config.ZoneID : worldSelector.GetSelectedZoneId();
+            if (config.DEBUG_IsDebugWorld)
+                return (config.DEBUG_ZoneId > 0)
+                    ? config.DEBUG_ZoneId
+                    : worldSelector.GetSelectedZoneId();
             return worldSelector.GetSelectedZoneId();
         }
     }

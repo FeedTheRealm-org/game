@@ -1,8 +1,8 @@
 services:
   ftr-server:
     profiles: ["all"]
-    environment:
-      MONGO_CONNECTION_STRING: "mongodb://admin:admin@localhost:27017/?authSource=admin"
+    env_file:
+      - .env
     build:
       context: .
     command: [

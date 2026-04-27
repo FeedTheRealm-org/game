@@ -11,11 +11,11 @@
   <Project Path="Mirror.csproj" />
   <Project Path="Unity.Mirror.CodeGen.csproj" />
   <Project Path="SimpleWebTransport.csproj" />
+  <Project Path="FTR.Core.Server.csproj" />
   <Project Path="Mirror.Authenticators.csproj" />
   <Project Path="kcp2k.csproj" />
   <Project Path="Mirror.Transports.csproj" />
   <Project Path="FTR.Core.Client.csproj" />
-  <Project Path="FTR.Core.Server.csproj" />
   <Project Path="FTR.UI.Client.csproj" />
   <Project Path="Telepathy.csproj" />
   <Project Path="FeedTheRealm_Shared.H4D.Editor.csproj" />

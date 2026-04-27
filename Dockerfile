@@ -26,8 +26,12 @@ COPY --from=deps /lib/x86_64-linux-gnu /lib/x86_64-linux-gnu
 COPY --from=deps /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
 COPY Build/Server/ /app/
 
+# Game protocol
 EXPOSE 7777/tcp
 EXPOSE 7777/udp
+
+# Healthcheck
+EXPOSE 7778/tcp
 
 ENTRYPOINT ["./server.x86_64"]
 CMD ["-batchmode", "-nographics"]

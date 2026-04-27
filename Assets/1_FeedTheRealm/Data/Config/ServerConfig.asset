@@ -14,8 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   EnvFilePath: .env
   LoadFromEnvFile: 0
-  LoadEnvVars: 0
-  PersistToDatabase: 0
+  LoadEnvVars: 1
+  WorldId: 
+  ZoneId: 0
+  AllowBots: 0
+  PersistToDatabase: 1
   AutoSaveIntervalSeconds: 30
   PlayerLayer:
     serializedVersion: 2

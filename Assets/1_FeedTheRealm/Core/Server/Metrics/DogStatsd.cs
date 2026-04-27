@@ -10,12 +10,21 @@ public static class DogStatsd
     private static UdpClient _udp;
     private static IPEndPoint _endpoint;
     private static string _constantTags;
+    private static bool configured = false;
 
     public static void Configure(string host, int port, string[] tags)
     {
         _udp = new UdpClient();
-        _endpoint = new IPEndPoint(IPAddress.Parse(host), port);
+
+        var resolved_host_ips = Dns.GetHostEntry(host).AddressList;
+        if (resolved_host_ips.Length == 0)
+        {
+            throw new Exception($"Could not resolve host: {host}");
+        }
+
+        _endpoint = new IPEndPoint(resolved_host_ips[0], port);
         _constantTags = tags != null ? string.Join(",", tags) : "";
+        configured = true;
     }
 
     private static void Send(string metric)
@@ -41,12 +50,24 @@ public static class DogStatsd
         return _constantTags.Length > 0 ? $"|#{_constantTags}" : "";
     }
 
-    public static void Gauge(string name, double value, string[] tags = null) =>
+    public static void Gauge(string name, double value, string[] tags = null)
+    {
+        if (!configured)
+            return;
         Send($"{name}:{value}|g{Tags(tags)}");
+    }
 
-    public static void Histogram(string name, double value, string[] tags = null) =>
+    public static void Histogram(string name, double value, string[] tags = null)
+    {
+        if (!configured)
+            return;
         Send($"{name}:{value}|h{Tags(tags)}");
+    }
 
-    public static void Increment(string name, int value = 1, string[] tags = null) =>
+    public static void Increment(string name, int value = 1, string[] tags = null)
+    {
+        if (!configured)
+            return;
         Send($"{name}:{value}|c{Tags(tags)}");
+    }
 }
