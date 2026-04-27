@@ -22,6 +22,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         [Inject]
         private WorldMonitor world;
 
+        [Inject]
+        PlayerSpawnpointManager playerSpawnpointManager;
+
         private uint netId;
         private NetworkAdapter networkAdapter;
         private ICommandable commandHandler;
@@ -68,9 +71,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             healthSystem.ResetHealth();
 
-            // TODO: Replace with a spawn-point lookup (spawner provider could help, but need
-            // spawn loading system to be implemented first).
-            rb.position = Vector3.zero;
+            rb.position = playerSpawnpointManager.GetRandomSpawnpoint();
 
             logger.Log($"[RespawnSystem] Player {netId} respawned.", this);
         }
