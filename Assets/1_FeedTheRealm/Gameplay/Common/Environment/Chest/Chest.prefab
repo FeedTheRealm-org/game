@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2030160061148398745}
   - component: {fileID: -1440579095415108825}
   - component: {fileID: 553781506082321419}
-  - component: {fileID: 1362144543502037016}
+  - component: {fileID: 4590442698162533338}
   m_Layer: 10
   m_Name: Chest
   m_TagString: Untagged
@@ -102,8 +102,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76981e5a927d4ee3ea4df54936378c64, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
-  linkerType: 5
---- !u!114 &1362144543502037016
+  linkerType: 6
+--- !u!114 &4590442698162533338
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -112,10 +112,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3012644098720053192}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 836afff83eac94630a7590ab21ccb22a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d0c6838ef5fdcffcad6a5fbceb48575, type: 3}
   m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Portal.PortalStateStorage
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.NetworkEntities.Chest.ChestStateStorage
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  portalId:

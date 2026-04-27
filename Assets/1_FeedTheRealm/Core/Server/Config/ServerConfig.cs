@@ -109,5 +109,8 @@ namespace FTR.Core.Server.Config
         public float StoppingDistance = 0.5f;
         public float AggressiveChaseRadius = 5f;
         public float AggressiveAttackRadius = 2f;
+
+        [Header("World Environment")]
+        public float ChestItemSpawnRateSeconds = 0.5f;
     }
 }

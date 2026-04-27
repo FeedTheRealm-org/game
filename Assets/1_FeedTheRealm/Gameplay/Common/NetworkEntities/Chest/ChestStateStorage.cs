@@ -15,6 +15,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Chest
 
         public event Action<bool> OnChestStateChanged;
 
+        public bool IsOpen => isOpen;
+
         [Server]
         public void SetChestState(bool isOpen)
         {
