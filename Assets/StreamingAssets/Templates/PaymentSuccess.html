@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Payment Confirmed</title>
+    <style>
+      body,
+      table,
+      td {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      img {
+        border: 0;
+        display: block;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;
+      }
+      body {
+        width: 100% !important;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background: #ffffff;
+        color: #222;
+      }
+      .ExternalClass {
+        width: 100%;
+      }
+      @media only screen and (max-width: 600px) {
+        .container {
+          width: 100% !important;
+        }
+        .content {
+          padding: 20px !important;
+        }
+        .footer-box {
+          padding: 18px !important;
+        }
+        .headline {
+          font-size: 22px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center" style="padding: 28px 12px">
+          <table
+            class="container"
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            role="presentation"
+            style="max-width: 600px"
+          >
+            <tr>
+              <td align="center" style="padding: 10px 18px">
+                <h1
+                  class="headline"
+                  style="
+                    margin: 0;
+                    font-weight: 600;
+                    font-size: 28px;
+                    color: #111827;
+                  "
+                >
+                  Feed The Realm -
+                  <strong
+                    style="
+                      background: #d1fae5;
+                      padding: 0 4px;
+                      border-radius: 2px;
+                    "
+                    >Payment Confirmed</strong
+                  >
+                </h1>
+                <img
+                  src="https://avatars.githubusercontent.com/u/231922724?s=400&u=5f4eb45fb6dc7cfa42333bfe1dc64a376122e3d0&v=4"
+                  alt="Feed The Realm Logo"
+                  style="
+                    max-width: 150px;
+                    border-radius: 12%;
+                    margin: 20px auto;
+                    display: block;
+                  "
+                />
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                class="content"
+                style="
+                  padding: 18px 28px 28px 28px;
+                  text-align: center;
+                  color: #374151;
+                "
+              >
+                <p
+                  style="margin: 0 0 10px 0; font-size: 15px; line-height: 1.5"
+                >
+                  Thank you! Your purchase for
+                  <strong
+                    style="
+                      background: #fff2b8;
+                      padding: 0 4px;
+                      border-radius: 2px;
+                    "
+                    >Feed the Realm</strong
+                  >
+                  was successful.
+                </p>
+
+                <div
+                  style="
+                    display: block;
+                    margin-top: 14px;
+                    padding: 16px 28px;
+                    border-radius: 8px;
+                    background: #f3f4f6;
+                    color: #0f172a;
+                    text-align: center;
+                  "
+                >
+                  <div
+                    style="
+                      font-size: 13px;
+                      color: #6b7280;
+                      margin-bottom: 6px;
+                      letter-spacing: 1px;
+                      text-transform: uppercase;
+                    "
+                  >
+                    Pack purchased
+                  </div>
+                  <div
+                    style="
+                      font-weight: 700;
+                      font-size: 22px;
+                      letter-spacing: 1px;
+                    "
+                  >
+                    💎 {{.GemAmount}} Gems
+                  </div>
+                  <div style="margin-top: 8px; font-size: 13px; color: #6b7280">
+                    Pack: <strong style="color: #0f172a">{{.PackName}}</strong>
+                  </div>
+                  <div style="margin-top: 4px; font-size: 13px; color: #6b7280">
+                    Amount charged:
+                    <strong style="color: #0f172a">${{.Price}}</strong>
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    display: inline-block;
+                    margin-top: 16px;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    background: #ecfdf5;
+                    border: 1px solid #d1fae5;
+                    font-size: 14px;
+                    color: #065f46;
+                  "
+                >
+                  Your new gem balance: <strong>💎 {{.NewBalance}}</strong>
+                </div>
+
+                <p style="margin: 18px 0 0 0; font-size: 13px; color: #6b7280">
+                  If you didn't make this purchase, please contact our support
+                  team immediately.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding: 0 28px 28px 28px">
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  role="presentation"
+                  style="
+                    background: #f3f6f9;
+                    border-radius: 6px;
+                    overflow: hidden;
+                  "
+                >
+                  <tr>
+                    <td
+                      class="footer-box"
+                      style="padding: 22px; text-align: center"
+                    >
+                      <strong style="font-size: 16px; color: #0f172a"
+                        >Feed the Realm</strong
+                      ><br /><br />
+
+                      <div
+                        style="
+                          font-size: 13px;
+                          color: #6b7280;
+                          line-height: 1.5;
+                        "
+                      >
+                        Ciudad Autónoma de Buenos Aires, Argentina
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style="
+                  text-align: center;
+                  font-size: 12px;
+                  color: #9ca3af;
+                  padding: 8px 0 28px 0;
+                "
+              >
+                &copy; Feed the Realm. All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+using System;
+using System.Linq;
+
+namespace FTR.Core.Server.Utils
+{
+    public static class ParamsSerializer
+    {
+        public static string GetArgs(string key, string defaultValue = "")
+        {
+            var args = Environment.GetCommandLineArgs();
+            var arg = args.FirstOrDefault(a => a.StartsWith($"--{key}="));
+
+            return arg != null ? arg.Split('=', 2)[1] : defaultValue;
+        }
+    }
+}

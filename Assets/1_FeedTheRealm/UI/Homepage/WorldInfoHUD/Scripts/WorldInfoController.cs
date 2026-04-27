@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -23,52 +25,47 @@ public class WorldInfoController : MonoBehaviour
     private Coroutine sidebarAnimationCoroutine;
     private float sidebarWidthPx = 0f;
 
-    public void SetCurrentWorld(Models.WorldMetadata world)
+    public void SetCurrentWorld(WorldData world)
     {
-        logger.Log($"Setting current world info: {world.name}", this);
+        logger.Log($"Setting current world info: {world.worldName}", this);
 
-        WorldNameLabel.text = world.name.Split('.')[0];
+        WorldNameLabel.text = world.worldName.Split('.')[0];
         WorldDescriptionLabel.text = world.description;
-        WorldCreatedAtLabel.text = $"Created {makeHumanReadableCreatedAt(world.createdAt)}";
+        WorldCreatedAtLabel.text =
+            $"Created {makeHumanReadableCreatedAt(world.created_at.ToString())}";
 
-        string displayName = getUserDisplayName(world.userId);
-        WorldCreatorLabel.text = $"Created By {displayName}";
+        // TODO: the user id is not in the "metadata" its in the get worlds response
+        // _ = getUserDisplayName(world.user_id);
     }
 
-    private string getUserDisplayName(string userId)
+    private async Task getUserDisplayName(string userId)
     {
-        string displayName = "Unknown User";
+        API.CharacterInfoResponse characterInfo = await playerService.GetCharacterInfoAsync(userId);
 
-        playerService.GetCharacterInfo(
-            (characterInfo, error) =>
-            {
-                if (!string.IsNullOrEmpty(error))
-                {
-                    logger.Log(
-                        $"Error fetching character info for userId {userId}: {error}",
-                        this,
-                        Logging.LogType.Error
-                    );
-                    return;
-                }
+        if (characterInfo == null)
+        {
+            logger.Log(
+                $"Failed to fetch character info for userId '{userId}'; using fallback display name.",
+                this,
+                Logging.LogType.Warning
+            );
+            WorldCreatorLabel.text = "Created By Unknown User";
+            return;
+        }
 
-                if (characterInfo != null && !string.IsNullOrEmpty(characterInfo.character_name))
-                {
-                    displayName = characterInfo.character_name;
-                }
-                else
-                {
-                    logger.Log(
-                        $"Character info is null or displayName is empty for userId {userId}",
-                        this,
-                        Logging.LogType.Warning
-                    );
-                }
-            },
-            userId
-        );
+        string displayName = characterInfo.character_name;
+        if (string.IsNullOrEmpty(displayName))
+        {
+            logger.Log(
+                $"Character info for userId '{userId}' has no character_name; using fallback display name.",
+                this,
+                Logging.LogType.Warning
+            );
+            WorldCreatorLabel.text = "Created By Unknown User";
+            return;
+        }
 
-        return displayName;
+        WorldCreatorLabel.text = $"Created By {displayName}";
     }
 
     private string makeHumanReadableCreatedAt(string createdAt)

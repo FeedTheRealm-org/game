@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+message HitEventContent {
+  uint32 target_net_id = 1;
+  float current_health = 2;
+  float max_health = 3;
+}

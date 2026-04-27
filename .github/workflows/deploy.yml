@@ -1,0 +1,53 @@
+name: Deploy
+on:
+  workflow_call:
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+      AWS_REGION:
+        required: true
+      ECR_REGISTRY:
+        required: true
+      ECR_REPOSITORY:
+        required: true
+      INSTANCE_IDS:
+        required: true
+    inputs:
+      image_tag:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy ftr-server via SSM # TODO: change when adding nomad
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --instance-ids ${{ secrets.INSTANCE_IDS }} \
+            --comment "Deploy ftr-server" \
+            --parameters '{"commands": [
+              "set -e",
+              "SERVICE=ftr-server",
+              "IMAGE=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}",
+              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
+              "docker stop $SERVICE || true",
+              "docker rm $SERVICE || true",
+              "docker image prune -af || true",
+              "docker pull $IMAGE",
+              "aws ssm get-parameters-by-path --path \"/ftr-server/\" --with-decryption --region ${{ secrets.AWS_REGION }} --query \"Parameters[*].[Name,Value]\" --output text | sed \"s#/ftr-server/##g; s#\\t#=#g\" > /tmp/ftr_server_env",
+              "docker run -d --restart always --name $SERVICE -p 10000:7777/udp --env-file /tmp/ftr_server_env $IMAGE",
+              "rm /tmp/ftr_server_env"
+            ]}'

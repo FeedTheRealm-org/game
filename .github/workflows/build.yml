@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+      AWS_REGION:
+        required: true
+      ECR_REGISTRY:
+        required: true
+      ECR_REPOSITORY:
+        required: true
+    outputs:
+      image_tag:
+        value: ${{ jobs.build.outputs.image_tag }}
+
+permissions:
+  contents: read
+  packages: read
+  id-token: write # OIDC required
+
+env:
+  IMAGE_NAME: ftr-server
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare image variables
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}:latest"
+
+          echo "OWNER=$OWNER" >> $GITHUB_ENV
+          echo "GHCR_IMAGE=$GHCR_IMAGE" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        run: |
+          GHCR_USER="${{ github.actor }}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+      - name: Pull image from GHCR
+        run: |
+          docker pull "$GHCR_IMAGE"
+
+      - name: Set Image Tag for ECR
+        id: tag
+        run: echo "image_tag=latest" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Tag & Push to ECR
+        run: |
+          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.tag.outputs.image_tag }}
+
+          docker tag "$GHCR_IMAGE" "$IMAGE_URI"
+          docker push "$IMAGE_URI"
