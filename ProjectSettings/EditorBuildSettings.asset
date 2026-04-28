@@ -24,7 +24,7 @@ EditorBuildSettings:
     path: Assets/1_FeedTheRealm/Scenes/Multiplayer-REMOVE/MPMenuScene.unity
     guid: 3991a19a00ad0137bb51525d3ae77f98
   - enabled: 0
-    path: Assets/1_FeedTheRealm/Scenes/Testing/DebugWorld-DEPRECATED.unity
+    path: Assets/1_FeedTheRealm/Scenes/Testing/DebugWorld.unity
     guid: f22cd7a8ddd2cd20fa36b10cf899878d
   - enabled: 0
     path: Assets/1_FeedTheRealm/Scenes/Testing/NetworkRefactorSampleScene.unity
