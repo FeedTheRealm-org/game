@@ -44,6 +44,7 @@ namespace FTR.Gameplay.Server.Scopes
             );
             var playerSpawnerLoader = new PlayerSpawnerLoader();
             var portalLoader = new ServerPortalLoader(portalRegistry, prefabProvider, resolver);
+            var chestLoader = new ServerChestLoader(prefabProvider, resolver);
 
             loaders = new List<ILoader>
             {
@@ -53,6 +54,7 @@ namespace FTR.Gameplay.Server.Scopes
                 aggressiveNpcSpawnerLoader,
                 playerSpawnerLoader,
                 portalLoader,
+                chestLoader,
             };
 
             foreach (var loader in loaders)

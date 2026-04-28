@@ -1,5 +1,6 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
+using FTR.Gameplay.Common.Environment.Chests;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTR.Gameplay.Common.NetworkEntities.Portal;
@@ -13,24 +14,21 @@ using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Linkers;
 
-public class ServerChestLinker : PortalLinker
+public class ServerChestLinker : ChestLinker
 {
     private readonly WorldMonitor world;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
-    private readonly PortalRegistry portalRegistry;
 
     public ServerChestLinker(
-        WorldMonitor world,
         ServerPrefabProvider prefabProvider,
-        PortalRegistry portalRegistry,
-        IObjectResolver resolver
+        IObjectResolver resolver,
+        WorldMonitor world
     )
     {
-        this.world = world;
         this.prefabProvider = prefabProvider;
-        this.portalRegistry = portalRegistry;
         this.resolver = resolver;
+        this.world = world;
     }
 
     public override void Link(GameObject gameObject)
@@ -47,7 +45,10 @@ public class ServerChestLinker : PortalLinker
         serverComponents.layer = gameObject.layer;
         resolver.InjectGameObject(serverComponents);
 
-        serverComponents.GetComponent<ChestInteractSystem>().Initialize(chestStateStorage);
+        var chestController = gameObject.GetComponent<ChestController>();
+        serverComponents
+            .GetComponent<ChestInteractSystem>()
+            .Initialize(chestController, chestStateStorage);
 
         RegisterEntity(netId, networkAdapter);
 

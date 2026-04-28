@@ -9,11 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2550932867975355103}
-  - component: {fileID: 327285108848149221}
+  - component: {fileID: 5179965576551881651}
   - component: {fileID: 2030160061148398745}
   - component: {fileID: -1440579095415108825}
   - component: {fileID: 553781506082321419}
   - component: {fileID: 4590442698162533338}
+  - component: {fileID: -9112945265235383460}
   m_Layer: 10
   m_Name: Chest
   m_TagString: Untagged
@@ -36,8 +37,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &327285108848149221
-SphereCollider:
+--- !u!65 &5179965576551881651
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -51,11 +52,11 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2030160061148398745
 MonoBehaviour:
@@ -118,3 +119,32 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+--- !u!114 &-9112945265235383460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3012644098720053192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e29416410a291e96f813d888adfbfc0a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Environment.Chests.ChestController
+  chestData:
+    id:
+    name: Chest
+    lootTableId:
+    size: {x: 1, y: 1, z: 1}
+    rotation: {x: 0, y: 0, z: 0}
+    position: {x: 0, y: 0, z: 0}
+    opendedChestModelData:
+      modelId:
+      relativePosition: {x: 0, y: 0, z: 0}
+      relativeRotation: {x: 0, y: 0, z: 0}
+      relativeSize: {x: 1, y: 1, z: 1}
+    closedChestModelData:
+      modelId:
+      relativePosition: {x: 0, y: 0, z: 0}
+      relativeRotation: {x: 0, y: 0, z: 0}
+      relativeSize: {x: 1, y: 1, z: 1}

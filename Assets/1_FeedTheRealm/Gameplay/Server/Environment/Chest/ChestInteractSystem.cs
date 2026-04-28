@@ -5,6 +5,7 @@ using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
+using FTR.Gameplay.Common.Environment.Chests;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Registry;
@@ -33,11 +34,12 @@ namespace FTR.Gameplay.Server.Environment.Chest
         private int chestResetTimeSeconds = 60;
 
         private ChestStateStorage chestStateStorage;
+        private ChestController chestController;
         private ServerPrefabProvider prefabProvider;
+        private Vector3 chestTopPosition;
 
-        public string ChestId { get; set; }
-        public string LootTableId { get; set; }
-        public Vector3 chestTopPosition;
+        private string ChestId => chestController.chestData.id;
+        private string LootTableId => chestController.chestData.lootTableId;
 
         public bool CanInteract(IInteractor interactor)
         {
@@ -49,9 +51,10 @@ namespace FTR.Gameplay.Server.Environment.Chest
             return;
         }
 
-        public void Initialize(ChestStateStorage chestStateStorage)
+        public void Initialize(ChestController chestController, ChestStateStorage chestStateStorage)
         {
             this.chestStateStorage = chestStateStorage;
+            this.chestController = chestController;
             prefabProvider = resolverContainer.Resolver.Resolve<ServerPrefabProvider>();
             chestTopPosition = GetChestTopPosition();
         }

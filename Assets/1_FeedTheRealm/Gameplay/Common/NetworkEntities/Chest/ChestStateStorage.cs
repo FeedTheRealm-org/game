@@ -6,7 +6,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Chest
     public class ChestStateStorage : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnChestSync))]
-        private bool isOpen;
+        private bool isOpen = false;
 
         private void OnChestSync(bool oldState, bool newState)
         {
