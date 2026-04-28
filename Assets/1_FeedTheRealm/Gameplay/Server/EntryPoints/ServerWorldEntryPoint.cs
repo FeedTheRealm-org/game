@@ -87,7 +87,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
                 return;
 
             DogStatsd.Configure(
-                "localhost",
+                secretsConfig.DDAgentHost,
                 8125,
                 new[] { $"world_id:{serverConfig.WorldId}", $"zone_id:{serverConfig.ZoneId}" }
             );

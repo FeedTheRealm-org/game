@@ -16,13 +16,19 @@ public static class DogStatsd
     {
         _udp = new UdpClient();
 
-        var resolved_host_ips = Dns.GetHostEntry(host).AddressList;
-        if (resolved_host_ips.Length == 0)
+        if (IPAddress.TryParse(host, out var ip))
         {
-            throw new Exception($"Could not resolve host: {host}");
+            _endpoint = new IPEndPoint(ip, port);
+        }
+        else
+        {
+            var resolved_host_ips = Dns.GetHostEntry(host).AddressList;
+            if (resolved_host_ips.Length == 0)
+                throw new Exception($"Could not resolve host: {host}");
+
+            _endpoint = new IPEndPoint(resolved_host_ips[0], port);
         }
 
-        _endpoint = new IPEndPoint(resolved_host_ips[0], port);
         _constantTags = tags != null ? string.Join(",", tags) : "";
         configured = true;
     }

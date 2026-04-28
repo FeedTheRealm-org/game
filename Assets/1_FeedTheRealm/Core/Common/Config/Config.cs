@@ -29,7 +29,7 @@ namespace FTR.Core.Common.Config
             ushort.Parse(ParamsSerializer.GetArgs("port", _listeningPort.ToString()));
 
         [SerializeField]
-        private ushort _healthcheckPort = 6001;
+        private ushort _healthcheckPort = 7778;
         public ushort HealthcheckPort =>
             ushort.Parse(ParamsSerializer.GetArgs("hport", _healthcheckPort.ToString()));
 

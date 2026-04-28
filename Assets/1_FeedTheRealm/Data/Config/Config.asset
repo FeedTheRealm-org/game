@@ -16,7 +16,7 @@ MonoBehaviour:
   MaxWorldLoadRetries: 10
   WorldLoadRetryDelayMs: 1000
   _listeningPort: 7777
-  _healthcheckPort: 6001
+  _healthcheckPort: 7778
   BotJoinToken: test_join_token
   EnableActionLogging: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
@@ -30,6 +30,6 @@ MonoBehaviour:
   CurrentServerPort: 7777
   DEBUG_IsDebugWorld: 0
   DEBUG_DoNotLoadWorld: 0
-  DEBUG_WorldId: world-1
-  DEBUG_ZoneId: 0
+  DEBUG_WorldId: 17086466-905a-4018-bf20-9311077766db
+  DEBUG_ZoneId: 1
   DEBUG_EnableColliderView: 0
