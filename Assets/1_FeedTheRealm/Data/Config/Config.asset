@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a9b5f3caeffc93a99f9f1b26ccaf73, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
-  editorRuntimeRole: 0
+  _editorRuntimeRole: 1
   MaxWorldLoadRetries: 10
   WorldLoadRetryDelayMs: 1000
   _listeningPort: 7777
@@ -20,22 +20,16 @@ MonoBehaviour:
   BotJoinToken: test_join_token
   EnableActionLogging: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
-  serverAccessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
-  CurrentServerAddress: 0.0.0.0
-  CurrentServerPort: 7777
-  isDebugWorld: 1
-  doNotLoadWorld: 0
-  worldID: 755fdc0d-32f5-4578-bdc5-8d83e9353557
-  zoneID: 1
-  enableColliderView: 0
-  cubeColliderLayerMask:
+  CubeColliderLayerMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   SlopeColliderLayerMask:
     serializedVersion: 2
     m_Bits: 16384
-  DEBUG_IsDebugWorld: 0
+  CurrentServerAddress: 127.0.0.1
+  CurrentServerPort: 7777
+  DEBUG_IsDebugWorld: 1
   DEBUG_DoNotLoadWorld: 0
-  DEBUG_WorldId: world-1
-  DEBUG_ZoneId: 0
+  DEBUG_WorldId: 5e164aba-e0ad-4296-92f8-71e75b4268e9
+  DEBUG_ZoneId: 1
   DEBUG_EnableColliderView: 0
