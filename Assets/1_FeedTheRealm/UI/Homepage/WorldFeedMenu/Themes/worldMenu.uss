@@ -1,162 +1,177 @@
 :root {
+    --teal: rgb(110, 255, 251);
+    --teal-dim: rgba(110, 255, 251, 0.18);
+    --teal-strong: rgba(110, 255, 251, 0.32);
+    --white: rgb(255, 255, 255);
+    --white-soft: rgba(255, 255, 255, 0.8);
+    --gold: rgb(255, 210, 80);
+    --dark: rgba(0, 0, 0, 0.72);
+    --darker: rgba(0, 0, 0, 0.84);
+    --radius: 12px;
 }
 
-.categoryList {
+.background {
     flex-grow: 1;
-    height: auto;
+    background-image: url("project://database/Assets/1_FeedTheRealm/VisualAssets/bg_feed.jpg?fileID=2800000&guid=8d8f8fd241019e57b9aee8d2035bd722&type=3#bg_feed");
+    background-color: rgb(0, 0, 0);
+    -unity-background-image-tint-color: rgb(110, 255, 251);
+}
+
+.title {
+    min-height: 58px;
+    max-height: 58px;
+}
+
+.worldListContainer {
     width: 100%;
-    margin-top: 1%;
-    margin-right: 1%;
-    margin-bottom: 1%;
-    margin-left: 1%;
-    background-color: rgba(255, 255, 255, 0);
-    flex-wrap: wrap;
+    height: 100%;
+    padding: 10px 16px 14px 16px;
+    flex-direction: column;
+}
+
+#SearchContainer {
+    width: 100%;
     flex-direction: row;
-    padding-right: 10%;
-    padding-left: 10%;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-content: auto;
-    position: relative;
-    flex-basis: auto;
-    overflow: hidden;
-    padding-top: 1%;
-    padding-bottom: 1%;
-    flex-shrink: 1;
+    justify-content: flex-end;
+    margin-bottom: 10px;
 }
 
-.worldElement {
-    flex-grow: 0;
-    flex-shrink: 0;
-    width: 22%;
-    height: 90px;
-    margin-top: 1%;
-    margin-right: 1%;
-    margin-bottom: 1%;
-    margin-left: 1%;
-    background-color: rgba(255, 255, 255, 0.61);
-    align-items: center;
-    align-self: flex-start;
-    justify-content: center;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    border-left-color: rgb(255, 255, 255);
-    border-right-color: rgb(255, 255, 255);
-    border-top-color: rgb(255, 255, 255);
-    border-bottom-color: rgb(255, 255, 255);
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    flex-wrap: nowrap;
-    text-overflow: clip;
-    align-content: flex-start;
+.searchBar {
+    width: 360px;
+    max-width: 46%;
+    min-width: 220px;
 }
-
-.worldName {
-    align-content: flex-start;
-    -unity-text-align: upper-center;
-    text-overflow: clip;
-}
-
-.categoryName {
-    width: 100%;
-    -unity-background-image-tint-color: rgb(55, 55, 55);
-    background-color: rgba(75, 75, 75, 0);
-    margin-top: 0%;
-    margin-right: 0%;
-    margin-bottom: 0%;
-    margin-left: 0%;
-    padding-top: 0.5%;
-    padding-right: 1%;
-    padding-bottom: 0.5%;
-    padding-left: 1%;
-    flex-wrap: nowrap;
-}
-
-.noResultsMessage {
-    -unity-text-align: upper-center;
-    font-size: 24px;
-    width: 100%;
-    color: rgb(255, 255, 255);
-    margin-top: 10%;
-    margin-bottom: 5%;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    -unity-font-style: bold;
-}
-
-.aboutButton {
-    width: 3%;
-    height: 5%;
-    border-top-left-radius: 50%;
-    border-top-right-radius: 50%;
-    border-bottom-right-radius: 50%;
-    border-bottom-left-radius: 50%;
-    top: -50%;
-    left: 40%;
-    right: 0;
-    bottom: 0;
-}
-
-.mainContainer {
-    width: 100%;
-}
-
-
 
 #SearchContainer > #SearchField > #unity-text-input {
-    background-color: rgb(0, 0, 0);
-    border-left-color: rgb(255, 255, 255);
-    border-right-color: rgb(255, 255, 255);
-    border-top-color: rgb(255, 255, 255);
-    border-bottom-color: rgb(255, 255, 255);
-    color: rgb(255, 255, 255);
+    height: 38px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
-    font-size: 10px;
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 11px;
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    height: 30px;
-    width: auto;
-}
-
-.worldListContainer {
-    height: 100%;
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-top: 2%;
-    padding-right: 2%;
-    padding-bottom: 2%;
-    padding-left: 2%;
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.4);
+    background-color: var(--dark);
+    color: var(--white);
+    padding-left: 12px;
+    font-size: 13px;
 }
 
 .worldList {
-    background-color: rgba(0, 0, 0, 0.29);
-    border-top-left-radius: 25px;
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
-    border-bottom-left-radius: 25px;
+    flex-grow: 1;
+    background-color: var(--darker);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.24);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    padding: 8px;
+}
+
+.categoryList {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 2px;
+    column-gap: 10px;
+    row-gap: 10px;
+}
+
+.worldElement {
+    min-width: 280px;
+    flex-basis: 31%;
+    max-width: 31%;
+    flex-shrink: 1;
+    min-height: 78px;
+    max-height: 78px;
+    background-color: rgba(0, 0, 0, 0.56);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.3);
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+    border-bottom-left-radius: var(--radius);
+    padding: 10px 12px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.worldName,
+.categoryName {
+    flex-grow: 1;
+    color: var(--white);
+    font-size: 14px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 10px;
+}
+
+.aboutButton {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.38);
+    background-color: var(--teal-dim);
+    color: var(--teal);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.aboutButton:hover {
+    background-color: var(--teal-strong);
+    color: var(--white);
+}
+
+.noResultsMessage {
+    width: 100%;
+    color: var(--white-soft);
+    -unity-font-style: bold;
+    font-size: 18px;
+    -unity-text-align: upper-center;
+    margin-top: 24px;
+    margin-bottom: 12px;
+}
+
+.page-buttons {
+    height: 58px;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
 }
 
 .pageButton {
-    color: rgb(255, 255, 255);
-    background-color: rgb(0, 0, 0);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-    border-bottom-left-radius: 6px;
+    width: 42px;
+    height: 38px;
+    margin-left: 6px;
+    margin-right: 6px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.4);
+    background-color: rgba(110, 255, 251, 0.15);
+    color: var(--teal);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.pageButton:hover {
+    background-color: rgba(110, 255, 251, 0.3);
+    color: var(--white);
 }

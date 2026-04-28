@@ -6,5 +6,5 @@ using UnityEngine;
 namespace FTR.Core.Common.EventChannels
 {
     [CreateAssetMenu(menuName = "Events/Quests/Quest Completed")]
-    public class QuestCompletedEvent : EventChannelSO<QuestData> { }
+    public class QuestCompletedEvent : EventChannelSO<(QuestData Quest, string EffectiveId)> { }
 }

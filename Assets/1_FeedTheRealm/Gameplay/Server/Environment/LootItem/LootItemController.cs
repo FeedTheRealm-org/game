@@ -24,15 +24,20 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         private WorldMonitor worldMonitor;
         private uint despawnTime = 10; // default despawn time in seconds
         private string itemId;
+        private int goldAmount;
         private bool isPickedUp = false;
         public bool IsPickedUp => isPickedUp;
 
-        public void Initialize(uint netId, string actualItemId)
+        public void Initialize(uint netId, string actualItemId, int goldAmount)
         {
             itemId = $"LootItem-{netId}";
             this.itemId = actualItemId;
+            this.goldAmount = goldAmount;
             despawnTime = config.ItemDespawnTime > 0 ? config.ItemDespawnTime : despawnTime;
-            logger.Log($"Initialized LootItemController with ID: {itemId}, ItemID: {itemId}", this);
+            logger.Log(
+                $"Initialized LootItemController with ID: {itemId}, ItemID: {itemId}, GoldAmount: {goldAmount}",
+                this
+            );
             StartCoroutine(DespawnAfterTimeout());
         }
 
@@ -40,9 +45,9 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         {
             Gizmos.color = Color.green;
 
-            logger.Log(
+            /*logger.Log(
                 $"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {itemId}, ItemID: {itemId})."
-            );
+            );*/
             if (isPickedUp)
                 return;
 
@@ -57,7 +62,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             }
 
             uint playerId = networkIdentity.netId;
-            logger.Log($"[LootItemController] Target PlayerId for PickUpCommand: {playerId}", this);
+            //logger.Log($"[LootItemController] Target PlayerId for PickUpCommand: {playerId}", this);
             SendPickupCommand(playerId);
             isPickedUp = true;
         }
@@ -69,7 +74,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
         private void SendPickupCommand(uint playerId)
         {
-            PickUpCommand command = new(playerId, itemId, AfterPickup);
+            PickUpCommand command = new(playerId, itemId, goldAmount, AfterPickup);
             worldMonitor.Commands.Enqueue(command);
         }
 

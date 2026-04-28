@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters.Systems;
+using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies;
 using FTR.Gameplay.Server.Registry;
 using FTRShared.Runtime.Models;
 using Mirror;
@@ -59,9 +61,16 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         private bool isInitialized = false;
         private bool navMeshReady = false;
         private string enemyId;
+        private EnemyData enemyData;
 
-        public void Initialize(EnemySpawnerData data)
+        public void Initialize(EnemySpawnerData data, EnemyData enemyData)
         {
+            if (data == null)
+                throw new System.ArgumentNullException(
+                    nameof(data),
+                    "EnemySpawnerData cannot be null when initializing EnemySpawn."
+                );
+
             config = resolverContainer.Resolver.Resolve<ServerConfig>();
 
             if (config == null)
@@ -75,7 +84,14 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             resetAfterKills = data.ResetAfterKills;
             resetDelay = data.ResetDelay;
             spawnArea.radius = data.Radius;
-            enemyId = data.EnemyId;
+            this.enemyData = enemyData;
+            enemyId = !string.IsNullOrEmpty(enemyData?.id) ? enemyData.id : data.EnemyId;
+
+            if (string.IsNullOrEmpty(enemyId))
+                Debug.LogWarning(
+                    "[EnemySpawn] Enemy spawner initialized without a valid EnemyId.",
+                    this
+                );
 
             prefabProvider = resolverContainer.Resolver.Resolve<ServerPrefabProvider>();
 
@@ -123,15 +139,15 @@ namespace FTR.Gameplay.Server.Environment.Spawns
             }
 
             playersInside++;
-            logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
+            //logger.Log($"[EnemySpawn] Player entered. Total unique players: {playersInside}", this);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            logger.Log(
+            /*logger.Log(
                 $"[EnemySpawn] Player exited. Total unique players: {playersInside - 1}",
                 this
-            );
+            );*/
             playersInside = Mathf.Max(0, playersInside - 1);
 
             if (playersInside == 0)
@@ -155,7 +171,6 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 // Resetting (kill threshold reached)
                 if (totalKills >= resetAfterKills)
                 {
-                    logger.Log($"[EnemySpawn] Spawner is resetting, pausing spawns...", this);
                     totalKills = 0;
                     yield return new WaitForSeconds(resetDelay);
                 }
@@ -176,20 +191,69 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         /// </summary>
         private void SpawnEnemy()
         {
-            logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
+            //logger.Log($"[EnemySpawn] Spawning enemy. Current enemies: {currentEnemies + 1}", this);
             Vector3 point = GetRandomPointInRadius();
             GameObject enemy = resolverContainer.Resolver.Instantiate(
                 enemyPrefab,
                 point,
                 Quaternion.identity
             );
+
+            var characterId = !string.IsNullOrEmpty(enemyData?.id) ? enemyData.id : enemyId;
+            var stateStorage = enemy.GetComponent<CharacterStateStorage>();
+            if (stateStorage != null && !string.IsNullOrEmpty(characterId))
+            {
+                stateStorage.SetCharacterId(characterId);
+            }
+            else if (stateStorage == null)
+            {
+                Debug.LogWarning(
+                    $"[EnemySpawn] CharacterStateStorage component not found on prefab for enemy '{enemyId}'."
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[EnemySpawn] CharacterId is empty, enemy sprite sync may fail.",
+                    this
+                );
+            }
+
             NetworkServer.Spawn(enemy);
 
             enemy.name = $"Enemy_{currentEnemies}";
             var netId = enemy.GetComponent<NetworkIdentity>().netId;
             spawnedEnemies[netId] = enemy;
-            var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
-            healthSystem.OnDeath += OnEnemyDeath;
+
+            if (!string.IsNullOrEmpty(enemyId))
+            {
+                var enemyData = ServerItemsRegistry.GetEnemyById(enemyId);
+                if (enemyData != null)
+                {
+                    var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                    if (healthSystem != null)
+                    {
+                        healthSystem.MaxHealth = enemyData.healthPoints;
+                        healthSystem.ResetHealth();
+                        healthSystem.OnDeath += OnEnemyDeath;
+                    }
+
+                    var useSystem = enemy.GetComponentInChildren<UseSystem>();
+                    useSystem?.SetStrategy(new EnemyMeleeStrategy(enemyData));
+                }
+                else
+                {
+                    var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                    if (healthSystem != null)
+                        healthSystem.OnDeath += OnEnemyDeath;
+                }
+            }
+            else
+            {
+                var healthSystem = enemy.GetComponentInChildren<HealthSystem>();
+                if (healthSystem != null)
+                    healthSystem.OnDeath += OnEnemyDeath;
+            }
         }
 
         /// <summary>
@@ -208,23 +272,94 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 this
             );
 
-            if (!string.IsNullOrEmpty(enemyId))
+            if (string.IsNullOrEmpty(enemyId))
             {
-                var enemyData = ServerItemsRegistry.GetEnemyById(enemyId);
-                if (enemyData != null && !string.IsNullOrEmpty(enemyData.lootTableId))
+                logger.Log(
+                    "[EnemySpawn] enemyId is empty; skipping loot spawn.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            var currentEnemyData = enemyData;
+            if (currentEnemyData == null || string.IsNullOrEmpty(currentEnemyData.lootTableId))
+            {
+                var registryEnemyData = ServerItemsRegistry.GetEnemyById(enemyId);
+                if (registryEnemyData != null)
                 {
-                    var lootTable = ServerItemsRegistry.GetLootTableById(enemyData.lootTableId);
-                    if (lootTable != null && lootTable.lootItems != null)
+                    currentEnemyData = registryEnemyData;
+                }
+            }
+
+            if (currentEnemyData == null)
+            {
+                logger.Log(
+                    $"[EnemySpawn] EnemyData not found for enemyId '{enemyId}'.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            if (string.IsNullOrEmpty(currentEnemyData.lootTableId))
+            {
+                logger.Log(
+                    $"[EnemySpawn] EnemyData '{enemyId}' has empty lootTableId. passedLootTableId='{enemyData?.lootTableId ?? "<null>"}' registryLootTableId='{ServerItemsRegistry.GetEnemyById(enemyId)?.lootTableId ?? "<null>"}'",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            var lootTable = ServerItemsRegistry.GetLootTableById(currentEnemyData.lootTableId);
+            if (lootTable == null)
+            {
+                return;
+            }
+            else
+            {
+                foreach (var lootEntry in lootTable.lootItems)
+                {
+                    if (Random.Range(0, 100) < lootEntry.dropProbability)
                     {
-                        foreach (var lootEntry in lootTable.lootItems)
-                        {
-                            if (Random.Range(0, 100) < lootEntry.dropProbability)
-                            {
-                                SpawnLootItem(enemy.transform.position, lootEntry.id);
-                            }
-                        }
+                        SpawnLootItem(enemy.transform.position, lootEntry.id);
                     }
                 }
+            }
+
+            int amountOfGold = Random.Range(
+                lootTable.minGoldDropAmount,
+                lootTable.maxGoldDropAmount + 1
+            );
+            SpawnGold(enemy.transform.position, amountOfGold);
+        }
+
+        private void SpawnGold(Vector3 position, int amount)
+        {
+            var lootItemPrefab = prefabProvider?.LootItemPrefab;
+            if (lootItemPrefab != null)
+            {
+                GameObject lootInstance = resolverContainer.Resolver.Instantiate(
+                    lootItemPrefab,
+                    position,
+                    Quaternion.identity
+                );
+
+                if (lootInstance != null)
+                {
+                    var stateStorage = lootInstance.GetComponent<LootItemStateStorage>();
+                    if (stateStorage != null)
+                    {
+                        stateStorage.SetItemId("");
+                        stateStorage.SetGoldAmount(amount);
+                    }
+                    NetworkServer.Spawn(lootInstance);
+                }
+            }
+            else
+            {
+                logger.Log("[EnemySpawn] LootItem prefab not assigned on EnemySpawn!", this);
             }
         }
 
@@ -245,6 +380,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                     if (stateStorage != null)
                     {
                         stateStorage.SetItemId(itemId);
+                        stateStorage.SetGoldAmount(0);
                     }
                     NetworkServer.Spawn(lootInstance);
                 }
@@ -328,8 +464,23 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         {
             yield return new WaitUntil(() => NetworkServer.active);
 
-            var enemyData = new EnemySpawnerData(transform.position, spawnArea.radius, enemyId);
-            Initialize(enemyData);
+            var enemySpawnerData = new EnemySpawnerData(
+                transform.position,
+                spawnArea.radius,
+                enemyId
+            );
+            var debugEnemyData = new EnemyData(
+                enemyId,
+                $"Enemy_{enemyId}",
+                "A hostile enemy.",
+                0,
+                0,
+                0,
+                0,
+                "",
+                new Dictionary<string, string>()
+            );
+            Initialize(enemySpawnerData, debugEnemyData);
         }
 #endif
 

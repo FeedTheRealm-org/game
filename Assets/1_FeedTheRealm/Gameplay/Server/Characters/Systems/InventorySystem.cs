@@ -1,133 +1,135 @@
+using System;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
+using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
+using FTR.Core.Server.Persistence.Schemas;
+using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using FTR.Gameplay.Server.Registry;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class InventorySystem : MonoBehaviour, IGameTickable
     {
+        public event Action<InventoryItemModel[], InventoryItemModel[]> OnSaveInventory;
+
         [SerializeField]
         private Logging.Logger logger;
 
-        [SerializeField]
         private ServerConfig config;
+
+        [Inject]
+        public void Construct(IObjectResolver resolver, ServerConfig config)
+        {
+            if (resolver.TryResolve<QuestRewardItemEvent>(out var ev) && ev != null)
+                questRewardItemEvent = ev;
+            this.config = config;
+        }
+
+        private QuestRewardItemEvent questRewardItemEvent;
+        private bool subscribedToQuestReward = false;
 
         private uint netId;
         private InventoryStateStorage inventoryState;
+        private CharacterStateStorage characterState;
+        private UseSystem useSystem;
 
-        private int inventorySize = 12;
-        private int fastSlotSize = 5;
         private int activeSlot = 0;
 
-        private string[] inventorySlots;
-        private string[] fastSlots;
+        private InventoryItemModel[] inventorySlots;
+        private InventoryItemModel[] fastSlots;
 
-        public void Initialize(uint netId, InventoryStateStorage inventoryState)
+        public InventoryItemModel[] GetCurrentInventory() => inventorySlots;
+
+        public InventoryItemModel[] GetCurrentFastAccess() => fastSlots;
+
+        public void Initialize(
+            uint netId,
+            InventoryStateStorage inventoryState,
+            CharacterStateStorage characterState
+        )
         {
             this.netId = netId;
             this.inventoryState = inventoryState;
-
-            inventorySize = config.InventorySize > 0 ? config.InventorySize : 12;
-            fastSlotSize = config.FastSlotSize > 0 ? config.FastSlotSize : 5;
-
-            inventorySlots = new string[inventorySize];
-            fastSlots = new string[fastSlotSize];
-
-            for (int i = 0; i < inventorySize; i++)
-                inventorySlots[i] = string.Empty;
-            for (int i = 0; i < fastSlotSize; i++)
-                fastSlots[i] = string.Empty;
+            this.characterState = characterState;
+            SubscribeToQuestReward();
+            useSystem = transform.root.GetComponentInChildren<UseSystem>();
         }
 
-        private string[] GetStorage(StorageType type)
+        private void OnDestroy()
         {
-            return type == StorageType.FastSlot ? fastSlots : inventorySlots;
+            UnsubscribeFromQuestReward();
         }
 
-        private int GetStorageSize(StorageType type)
+        private void OnQuestRewardItem((uint playerNetId, string itemId) data)
         {
-            return type == StorageType.FastSlot ? fastSlotSize : inventorySize;
-        }
+            if (data.playerNetId != netId)
+                return;
 
-        private bool IsValidSlot(StorageType type, int slot)
-        {
-            return slot >= 0 && slot < GetStorageSize(type);
+            logger?.Log(
+                $"[InventorySystem] Quest reward: adding item '{data.itemId}' to Player:{netId}.",
+                this
+            );
+
+            AddItemToInventory(data.itemId);
         }
 
         public void OnPickUp(IEventCollectable ec, string itemId, System.Action<bool> onComplete)
         {
             logger.Log($"Attempting to pick up item {itemId} for player {netId}", this);
-
-            for (int i = 0; i < inventorySize; i++)
+            if (string.IsNullOrEmpty(itemId))
             {
-                if (string.IsNullOrEmpty(inventorySlots[i]))
-                {
-                    inventorySlots[i] = itemId;
-                    inventoryState.AddItem(StorageType.Inventory, i, itemId);
-                    logger.Log(
-                        $"[InventorySystem] Item {itemId} added to inventory slot {i}",
-                        this
-                    );
-                    onComplete(true);
-                    return;
-                }
+                logger.Log($"Invalid itemId '{itemId}' for player {netId}", this);
+                onComplete(false);
+                return;
             }
 
-            logger.Log($"Inventory full, cannot pick up item {itemId}", this);
-            onComplete(false);
+            bool added = AddItemToInventory(itemId);
+            if (added)
+                logger.Log($"Picked up item {itemId} for player {netId}", this);
+            else
+                logger.Log($"Inventory full, cannot pick up item {itemId}", this);
+
+            onComplete(added);
         }
 
-        public void OnPurchase(IEventCollectable ec, string itemId, int amount)
+        public bool OnPurchase(IEventCollectable ec, string itemId, int amount)
         {
             logger.Log(
-                $"Attempting to add purchased item {itemId} x{amount} to inventory for player {netId}",
+                $"[InventorySystem] Purchase: item {itemId} x{amount} for Player:{netId}",
                 this
             );
 
             if (amount <= 0)
             {
                 logger.Log(
-                    $"Invalid purchase amount {amount} for item {itemId} and player {netId}",
+                    $"[InventorySystem] Invalid purchase amount {amount} for item {itemId}",
                     this
                 );
-                return;
+                return false;
             }
 
-            int emptySlots = 0;
-            for (int i = 0; i < inventorySize; i++)
-            {
-                if (string.IsNullOrEmpty(inventorySlots[i]))
-                    emptySlots++;
-            }
-
-            if (emptySlots < amount)
+            if (!CanAddItemToInventory(itemId))
             {
                 logger.Log(
-                    $"Inventory has insufficient space for purchased item {itemId} x{amount} (free={emptySlots})",
+                    $"Inventory has insufficient space for purchased item {itemId} x {amount}",
                     this
                 );
-                return;
+                return false;
             }
 
-            for (int i = 0; i < inventorySize; i++)
-            {
-                if (string.IsNullOrEmpty(inventorySlots[i]))
-                {
-                    inventorySlots[i] = itemId;
-                    inventoryState.AddItem(StorageType.Inventory, i, itemId);
-                    logger.Log(
-                        $"[InventorySystem] Purchased item {itemId} added to inventory slot {i}",
-                        this
-                    );
-                    return;
-                }
-            }
+            AddItemToInventory(itemId, amount);
 
-            logger.Log($"Inventory full, cannot add purchased item {itemId}", this);
+            logger.Log(
+                $"[InventorySystem] Purchased item {itemId} x{amount} added to inventory for Player:{netId}",
+                this
+            );
+            return true;
         }
 
         public void OnMoveItem(
@@ -141,37 +143,48 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!IsValidSlot(sourceType, sourceSlot) || !IsValidSlot(targetType, targetSlot))
             {
                 logger.Log(
-                    $"OnMoveItem: invalid slot indices "
+                    $"OnMoveItem: invalid slots "
                         + $"src={sourceSlot}({sourceType}) tgt={targetSlot}({targetType})",
                     this
                 );
                 return;
             }
 
-            string[] src = GetStorage(sourceType);
-            string[] tgt = GetStorage(targetType);
+            InventoryItemModel[] src = GetStorage(sourceType);
+            InventoryItemModel[] tgt = GetStorage(targetType);
 
-            string sourceItemId = src[sourceSlot];
-            string targetItemId = tgt[targetSlot];
+            var sourceItem = src[sourceSlot];
+            var targetItem = tgt[targetSlot];
 
-            src[sourceSlot] = targetItemId;
-            tgt[targetSlot] = sourceItemId;
+            src[sourceSlot] = targetItem;
+            tgt[targetSlot] = sourceItem;
 
             logger.Log(
-                $"Swapped player {netId}: "
-                    + $"{sourceType}[{sourceSlot}]({sourceItemId}) <-> "
-                    + $"{targetType}[{targetSlot}]({targetItemId})",
+                $"Swapped Player:{netId}: "
+                    + $"{sourceType}[{sourceSlot}]({sourceItem.ItemId}) <-> "
+                    + $"{targetType}[{targetSlot}]({targetItem.ItemId})",
                 this
             );
 
             inventoryState.SwapItems(
                 sourceType,
                 sourceSlot,
-                sourceItemId,
+                sourceItem.ItemId,
+                sourceItem.Quantity,
                 targetType,
                 targetSlot,
-                targetItemId
+                targetItem.ItemId,
+                targetItem.Quantity
             );
+
+            if (sourceType == StorageType.FastSlot && sourceSlot == activeSlot)
+            {
+                characterState.SetEquippedItemId(fastSlots[activeSlot].ItemId);
+            }
+            else if (targetType == StorageType.FastSlot && targetSlot == activeSlot)
+            {
+                characterState.SetEquippedItemId(fastSlots[activeSlot].ItemId);
+            }
         }
 
         public string OnDropItem(
@@ -185,26 +198,152 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!IsValidSlot(storageType, slotIndex))
                 return null;
 
-            string[] storage = GetStorage(storageType);
-            string itemId = storage[slotIndex];
+            InventoryItemModel[] storage = GetStorage(storageType);
+            var itemId = storage[slotIndex].ItemId;
             if (string.IsNullOrEmpty(itemId))
                 return null;
 
-            storage[slotIndex] = string.Empty;
+            storage[slotIndex].ItemId = string.Empty;
+            storage[slotIndex].Quantity = 0;
             inventoryState.DropItem(storageType, slotIndex);
 
             logger.Log(
-                $"Dropped item {itemId} from {storageType}[{slotIndex}] for player {netId}",
+                $"Dropped item {itemId} from {storageType}[{slotIndex}] for Player:{netId}",
                 this
             );
 
             if (prefabProvider != null)
-            {
                 SpawnItem(dropPosition, prefabProvider, itemId);
+
+            if (storageType == StorageType.FastSlot && slotIndex == activeSlot)
+            {
+                characterState.SetEquippedItemId(string.Empty);
             }
 
             return itemId;
         }
+
+        public void OnEquipItem(IEventCollectable ec, int slotIndex)
+        {
+            if (!IsValidSlot(StorageType.FastSlot, slotIndex))
+            {
+                logger.Log($"OnEquipItem: invalid fast slot {slotIndex}", this);
+                return;
+            }
+
+            activeSlot = slotIndex;
+            logger.Log($"Player:{netId} equipped fast slot {slotIndex}", this);
+            inventoryState.SetActiveSlot(slotIndex);
+
+            var itemId = fastSlots[slotIndex].ItemId;
+            characterState.SetEquippedItemId(itemId);
+            Debug.Log($"Player:{netId} equipped item {itemId} from fast slot {slotIndex}");
+
+            useSystem?.EquipItem((itemId, slotIndex));
+        }
+
+        public void LoadInventory(
+            InventoryItemModel[] inventoryData,
+            InventoryItemModel[] fastSlotData
+        )
+        {
+            this.inventorySlots = inventoryData;
+            this.fastSlots = fastSlotData;
+
+            for (int i = 0; i < inventorySlots.Length; i++)
+            {
+                var item = inventorySlots[i];
+                if (!string.IsNullOrEmpty(item.ItemId))
+                    inventoryState.AddItem(StorageType.Inventory, i, item.ItemId, item.Quantity);
+            }
+            for (int i = 0; i < fastSlots.Length; i++)
+            {
+                var item = fastSlots[i];
+                if (!string.IsNullOrEmpty(item.ItemId))
+                    inventoryState.AddItem(StorageType.FastSlot, i, item.ItemId, item.Quantity);
+            }
+
+            logger.Log($"Loaded inventory for Player:{netId}", this);
+        }
+
+        public void GameTick(float dt) { }
+
+        // ── Private helpers ───────────────────────────────────────────────────
+
+        private bool CanAddItemToInventory(string itemId)
+        {
+            if (string.IsNullOrEmpty(itemId))
+                return false;
+
+            int maxStack = GetMaxStack(itemId);
+
+            for (int i = 0; i < config.InventorySize; i++)
+            {
+                var slot = inventorySlots[i];
+                if (string.IsNullOrEmpty(slot.ItemId))
+                    return true;
+                if (slot.ItemId == itemId && slot.Quantity < maxStack)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool AddItemToInventory(string itemId, int quantity = 1)
+        {
+            if (string.IsNullOrEmpty(itemId))
+                return false;
+
+            int maxStack = GetMaxStack(itemId);
+            int remaining = quantity;
+
+            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
+            {
+                var slot = inventorySlots[i];
+                if (slot.ItemId != itemId)
+                    continue;
+
+                int space = maxStack - slot.Quantity;
+                if (space <= 0)
+                    continue;
+
+                int toAdd = Mathf.Min(space, remaining);
+                slot.Quantity += toAdd;
+                remaining -= toAdd;
+                inventoryState.AddItem(StorageType.Inventory, i, itemId, slot.Quantity);
+            }
+
+            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
+            {
+                var slot = inventorySlots[i];
+                if (!string.IsNullOrEmpty(slot.ItemId))
+                    continue;
+
+                int toAdd = Mathf.Min(maxStack, remaining);
+                slot.ItemId = itemId;
+                slot.Quantity = toAdd;
+                remaining -= toAdd;
+                inventoryState.AddItem(StorageType.Inventory, i, itemId, slot.Quantity);
+            }
+
+            return remaining < quantity;
+        }
+
+        private int GetMaxStack(string itemId)
+        {
+            var data = ServerItemsRegistry.GetItemById(itemId);
+            int maxStack = data?.maxStack ?? 1;
+            return maxStack > 0 ? maxStack : 1;
+        }
+
+        private InventoryItemModel[] GetStorage(StorageType type) =>
+            type == StorageType.FastSlot ? fastSlots : inventorySlots;
+
+        private int GetStorageSize(StorageType type) =>
+            type == StorageType.FastSlot ? config.FastSlotSize : config.InventorySize;
+
+        private bool IsValidSlot(StorageType type, int slot) =>
+            slot >= 0 && slot < GetStorageSize(type);
 
         private static void SpawnItem(
             Vector3 dropPosition,
@@ -213,47 +352,70 @@ namespace FTR.Gameplay.Server.Characters.Systems
         )
         {
             var lootPrefab = prefabProvider.LootItemPrefab;
-            if (lootPrefab != null)
+            if (lootPrefab == null)
             {
-                GameObject lootInstance = Object.Instantiate(
-                    lootPrefab,
-                    dropPosition,
-                    Quaternion.identity
-                );
-                var stateStorage = lootInstance.GetComponent<LootItemStateStorage>();
-                if (stateStorage != null)
-                {
-                    stateStorage.SetItemId(itemId);
-                }
-                Mirror.NetworkServer.Spawn(lootInstance);
-            }
-            else
-            {
-                Debug.LogWarning(
-                    "[InventorySystem] LootItem prefab not found in NetworkManager spawnPrefabs!"
-                );
-            }
-        }
-
-        public void OnEquipItem(IEventCollectable ec, int slotIndex)
-        {
-            if (!IsValidSlot(StorageType.FastSlot, slotIndex))
-            {
-                logger.Log($"OnEquipItem: invalid fast slot {slotIndex} for player {netId}", this);
+                Debug.LogWarning("[InventorySystem] LootItem prefab not assigned.");
                 return;
             }
 
-            activeSlot = slotIndex;
-            logger.Log($"Player {netId} equipped fast slot {slotIndex}", this);
-            inventoryState.SetActiveSlot(slotIndex);
+            var lootInstance = UnityEngine.Object.Instantiate(
+                lootPrefab,
+                dropPosition,
+                Quaternion.identity
+            );
+            var stateStorage = lootInstance.GetComponent<LootItemStateStorage>();
+            if (stateStorage != null)
+                stateStorage.SetItemId(itemId);
+
+            Mirror.NetworkServer.Spawn(lootInstance);
         }
 
-        public void LoadInventory(string[] inventoryData, string[] fastSlotData)
+        private void SubscribeToQuestReward()
         {
-            // TODO: populate inventorySlots / fastSlots from saved data
-            logger.Log($"Loaded inventory for player {netId}", this);
+            if (subscribedToQuestReward || questRewardItemEvent == null)
+                return;
+            questRewardItemEvent.OnRaised += OnQuestRewardItem;
+            subscribedToQuestReward = true;
         }
 
-        public void GameTick(float dt) { }
+        private void UnsubscribeFromQuestReward()
+        {
+            if (!subscribedToQuestReward || questRewardItemEvent == null)
+                return;
+            questRewardItemEvent.OnRaised -= OnQuestRewardItem;
+            subscribedToQuestReward = false;
+        }
+
+        public void ConsumeItem(string itemId)
+        {
+            string equippedItemId = fastSlots[activeSlot].ItemId;
+            if (equippedItemId == itemId)
+            {
+                logger?.Log(
+                    $"[InventorySystem] Consuming item '{itemId}' from fast slot {activeSlot}. Remaining quantity: {fastSlots[activeSlot].Quantity - 1}",
+                    this
+                );
+
+                if (fastSlots[activeSlot].Quantity > 1)
+                {
+                    fastSlots[activeSlot].Quantity--;
+                    inventoryState.AddItem(
+                        StorageType.FastSlot,
+                        activeSlot,
+                        fastSlots[activeSlot].ItemId,
+                        fastSlots[activeSlot].Quantity
+                    );
+                }
+                else
+                {
+                    fastSlots[activeSlot].ItemId = string.Empty;
+                    fastSlots[activeSlot].Quantity = 0;
+                    inventoryState.DropItem(StorageType.FastSlot, activeSlot);
+                    characterState.SetEquippedItemId(string.Empty);
+
+                    useSystem?.EquipItem((string.Empty, activeSlot));
+                }
+            }
+        }
     }
 }

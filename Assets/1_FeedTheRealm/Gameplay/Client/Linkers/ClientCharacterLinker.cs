@@ -18,26 +18,30 @@ namespace FTR.Gameplay.Client.Linkers
             this.resolver = resolver;
         }
 
-        public GameObject Link(GameObject gameObject)
+        public (GameObject Components, ICharacterNameController NameController) Link(
+            GameObject gameObject
+        )
         {
             var rb = gameObject.GetComponent<Rigidbody>();
             var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
             var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
 
-            var playerComponents = Object.Instantiate(
+            var characterComponents = Object.Instantiate(
                 prefabProvider.ClientCharacterComponents,
                 gameObject.transform
             );
-            resolver.InjectGameObject(playerComponents);
+            resolver.InjectGameObject(characterComponents);
+            var nameController = SetupNameTag(gameObject, characterComponents);
 
-            var networkEventRouter = playerComponents.GetComponent<NetworkEventRouter>();
-            var movementView = playerComponents.GetComponent<MovementView>();
-            var attackView = playerComponents.GetComponent<AttackView>();
-            var dashView = playerComponents.GetComponent<DashView>();
-            var staminaView = playerComponents.GetComponent<StaminaView>();
-            var healthView = playerComponents.GetComponent<HealthView>();
-            var movementController = playerComponents.GetComponent<MovementController>();
-            var useController = playerComponents.GetComponent<UseController>();
+            var networkEventRouter = characterComponents.GetComponent<NetworkEventRouter>();
+            var movementView = characterComponents.GetComponent<MovementView>();
+            var attackView = characterComponents.GetComponent<AttackView>();
+            var dashView = characterComponents.GetComponent<DashView>();
+            var staminaView = characterComponents.GetComponent<StaminaView>();
+            var healthView = characterComponents.GetComponent<HealthView>();
+
+            var movementController = characterComponents.GetComponent<MovementController>();
+            var useController = characterComponents.GetComponent<UseController>();
 
             networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
@@ -49,7 +53,23 @@ namespace FTR.Gameplay.Client.Linkers
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 
-            return playerComponents;
+            return (characterComponents, nameController);
+        }
+
+        private ICharacterNameController SetupNameTag(
+            GameObject gameObject,
+            GameObject characterComponents
+        )
+        {
+            var characterBody = characterComponents.transform.Find("CharacterBody");
+            var attachParent = characterBody != null ? characterBody : gameObject.transform;
+
+            prefabProvider.NameTagPrefab.SetActive(false);
+            var nameTagInstance = Object.Instantiate(prefabProvider.NameTagPrefab, attachParent);
+            resolver.InjectGameObject(nameTagInstance);
+            nameTagInstance.SetActive(true);
+
+            return nameTagInstance.GetComponent<ICharacterNameController>();
         }
     }
 }

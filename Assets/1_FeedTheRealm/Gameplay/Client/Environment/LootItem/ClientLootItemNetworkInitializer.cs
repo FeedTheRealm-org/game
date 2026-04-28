@@ -1,3 +1,4 @@
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.EntryPoints.Scopes;
 using FTR.Gameplay.Common.Linkers;
@@ -10,6 +11,9 @@ namespace FTR.Gameplay.Client.Environment.LootItem
 {
     public class ClientLootItemNetworkInitializer : NetworkBehaviour
     {
+        [SerializeField]
+        private Config config;
+
         /// <summary>
         /// Called on the client when any loot item (local or remote) is spawned.
         /// Injects dependencies via VContainer and initializes client-side scripts for
@@ -27,6 +31,9 @@ namespace FTR.Gameplay.Client.Environment.LootItem
         private void InjectDependencies()
         {
             var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
+            if (config.RuntimeRole != RuntimeRole.Client)
+                return;
+
             clientWorldInitiator.Container.InjectGameObject(gameObject);
             var identity = netIdentity;
             if (identity != null)
@@ -36,7 +43,7 @@ namespace FTR.Gameplay.Client.Environment.LootItem
                     $"ClientLootItemNetworkInitializer: No NetworkIdentity found on '{gameObject.name}'."
                 );
 
-            GetComponent<GameObjectLinker>().Initialize();
+            GetComponent<GameObjectLinker>()?.Initialize();
         }
     }
 }

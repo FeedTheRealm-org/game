@@ -10,10 +10,7 @@ public class ShopMenuController : MonoBehaviour
     VisualElement panel;
 
     [SerializeField]
-    private ShopInteractedEvent shopInteractedEvent;
-
-    [SerializeField]
-    private ShopOnCloseEvent shopOnCloseEvent;
+    private ShopToggleEvent shopToggleEvent;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -36,7 +33,7 @@ public class ShopMenuController : MonoBehaviour
         root = uiDocument.rootVisualElement;
         panel = root.Q<VisualElement>("Panel");
 
-        shopInteractedEvent.OnRaised += () => ToggleShopMenu(true);
+        shopToggleEvent.OnRaised += ToggleShopMenu;
 
         PopulateShopItems();
         ToggleShopMenu(false);
@@ -59,7 +56,7 @@ public class ShopMenuController : MonoBehaviour
     private void OnCloseMenu()
     {
         ToggleShopMenu(false);
-        shopOnCloseEvent.Raise();
+        shopToggleEvent.Raise(false);
     }
 
     private async Task AddProductToUI(FTRShared.Runtime.Models.ProductData product)

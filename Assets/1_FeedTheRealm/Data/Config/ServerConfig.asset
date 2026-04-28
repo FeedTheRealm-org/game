@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16cbbb4f97f4215ff9829a9e945214d4, type: 3}
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
+  EnvFilePath: .env
+  LoadFromEnvFile: 0
+  LoadEnvVars: 0
+  PersistToDatabase: 0
+  AutoSaveIntervalSeconds: 30
   PlayerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -24,15 +29,21 @@ MonoBehaviour:
   ObstacleLayer:
     serializedVersion: 2
     m_Bits: 4096
+  SlopeLayer:
+    serializedVersion: 2
+    m_Bits: 16384
   playerSpeed: 5
   itemDespawnTime: 60
   maxInitialForce: 2
   dashSpeed: 25
   dashDuration: 0.1
-  maxStamina: 100
+  maxStamina: 200
   dashStaminaCost: 25
   staminaRecoveryRate: 1
-  staminaRecoveryAmount: 5
+  staminaRecoveryAmount: 50
+  attackCooldown: 0.4
+  unequippedDamage: 10
+  unequippedRange: 1.5
   groundCheckDistance: 1
   groundCheckSphereRadius: 0.4
   fastSlotSize: 5

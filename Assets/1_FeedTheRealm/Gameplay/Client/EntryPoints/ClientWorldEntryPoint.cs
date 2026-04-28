@@ -1,3 +1,5 @@
+using System;
+using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
@@ -18,7 +20,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private FixedTickEvent fixedTickEvent;
 
         private LateTickEvent lateTickEvent;
-
+        private LoadingEvent loadingEvent;
         private bool isInitialized = false;
 
         private readonly ClientWorldLoader worldLoader;
@@ -29,6 +31,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             TickEvent tickEvent,
             FixedTickEvent fixedTickEvent,
             LateTickEvent lateTickEvent,
+            LoadingEvent loadingEvent,
             IObjectResolver resolver,
             ObjectResolverContainer resolverContainer,
             ClientWorldLoader worldLoader,
@@ -41,13 +44,23 @@ namespace FTR.Gameplay.Client.EntryPoints
             resolverContainer.SetResolver(resolver);
             this.worldLoader = worldLoader;
             this.worldSetup = worldSetup;
+            this.loadingEvent = loadingEvent;
             isInitialized = true;
         }
 
         public async void Start()
         {
-            await worldLoader.LoadWorld();
+            loadingEvent.Raise(true);
+            var loadSucceeded = await worldLoader.LoadWorld();
+            if (!loadSucceeded)
+            {
+                WorldLoadBootstrap.MarkClientFailed();
+                return;
+            }
+
             worldSetup.ExecuteSetup();
+            WorldLoadBootstrap.MarkClientReady();
+            loadingEvent.Raise(false);
         }
 
         public void Tick()

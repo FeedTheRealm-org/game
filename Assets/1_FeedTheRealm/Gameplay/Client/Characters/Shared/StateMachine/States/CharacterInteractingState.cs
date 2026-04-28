@@ -8,8 +8,8 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
 {
     /// <summary>
     /// Active while the player is interacting with any server-side IInteractable.
-    /// While active, pressing Interact dispatches ContinueInteraction (DialogNext) to the server
-    /// rather than starting a new interaction, so the server drives all progression logic.
+    /// While active, pressing Interact dispatches DialogNext to the server
+    /// to either advance the dialog or start a new one.
     /// </summary>
     public class CharacterInteractingState : IActionState
     {
@@ -82,7 +82,7 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine.States
             stateMachine.SetActionState(null);
         }
 
-        private void OnShowQuestPrompt(QuestData _)
+        private void OnShowQuestPrompt(QuestPromptData data)
         {
             var questState = stateMachine.GetActionStateByType(typeof(CharacterQuestState));
             if (questState != null)

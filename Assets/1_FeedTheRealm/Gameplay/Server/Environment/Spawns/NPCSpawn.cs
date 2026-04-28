@@ -60,12 +60,15 @@ public class NPCSpawns : MonoBehaviour
                 "ServerConfig cannot be null when initializing NPCSpawns."
             );
 
-        this.npcID = spawnData.NpcId;
+        this.npcID = !string.IsNullOrEmpty(npcData.id) ? npcData.id : spawnData.NpcId;
         this.npcData = npcData;
         this.radius = spawnData.Radius;
 
         if (!isInitialized)
         {
+            if (!gameObject.activeSelf)
+                gameObject.SetActive(true);
+
             BuildNavMesh(radius + 5f);
             StartCoroutine(SpawnWhenServerActive());
             isInitialized = true;
@@ -93,13 +96,18 @@ public class NPCSpawns : MonoBehaviour
         );
         npc.name = $"NPC_{npcID}";
 
+        var characterId = !string.IsNullOrEmpty(npcData?.id) ? npcData.id : npcID;
         var stateStorage = npc.GetComponent<CharacterStateStorage>();
-        if (stateStorage != null)
-            stateStorage.SetCharacterId(npcData.id);
-        else
+        if (stateStorage != null && !string.IsNullOrEmpty(characterId))
+        {
+            stateStorage.SetCharacterId(characterId);
+        }
+        else if (stateStorage == null)
             Debug.LogWarning(
                 $"[NPCSpawns] CharacterStateStorage component not found on prefab for NPC '{npcID}'."
             );
+        else
+            Debug.LogWarning("[NPCSpawns] CharacterId is empty, NPC sprite sync may fail.", this);
 
         NetworkServer.Spawn(npc);
     }
@@ -174,8 +182,8 @@ public class NPCSpawns : MonoBehaviour
             npcID,
             $"NPC_{npcID}",
             "A friendly NPC.",
-            "Sprites/NPCs/Default",
-            null
+            null,
+            new Dictionary<string, string>()
         );
         Initialize(npcSpawnerData, npcData);
     }

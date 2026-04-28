@@ -12,10 +12,14 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<DashEventContent> OnDashEvent;
     public event Action<InitialForceEventContent> OnLootItemSpawnEvent;
     public event Action<DialogEventContent> OnDialogEvent;
+    public event Action<ChatMessageBroadcastEventContent> OnChatMessageBroadcastEvent;
     public event Action<OpenShopEventContent> OnOpenShopEvent;
+    public event Action<OpenPortalEventContent> OnOpenPortalEvent;
     public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
     public event Action OnInteractFailedEvent;
     public event Action OnInteractCompletedEvent;
+    public event Action<QuestProgressEventContent> OnQuestProgressEvent;
+    public event Action<QuestCompletedEventContent> OnQuestCompletedEvent;
 
     private NetworkAdapter networkAdapter;
 
@@ -67,6 +71,11 @@ public class NetworkEventRouter : MonoBehaviour
             case ServerEventType.OpenShopEvent:
                 OnOpenShopEvent?.Invoke(OpenShopEventContent.Parser.ParseFrom(serverEvent.content));
                 break;
+            case ServerEventType.OpenPortalEvent:
+                OnOpenPortalEvent?.Invoke(
+                    OpenPortalEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                break;
             case ServerEventType.NotEnoughGoldEvent:
                 OnNotEnoughGoldEvent?.Invoke(
                     NotEnoughGoldEventContent.Parser.ParseFrom(serverEvent.content)
@@ -76,6 +85,24 @@ public class NetworkEventRouter : MonoBehaviour
             case ServerEventType.InteractCompletedEvent:
                 OnInteractCompletedEvent?.Invoke();
                 logger.Log($"Routed InteractCompletedEvent", this);
+                break;
+            case ServerEventType.QuestProgressEvent:
+                OnQuestProgressEvent?.Invoke(
+                    QuestProgressEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log("Routed QuestProgressEvent", this);
+                break;
+            case ServerEventType.QuestCompletedEvent:
+                OnQuestCompletedEvent?.Invoke(
+                    QuestCompletedEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log("Routed QuestCompletedEvent", this);
+                break;
+            case ServerEventType.ChatMessageBroadcastEvent:
+                OnChatMessageBroadcastEvent?.Invoke(
+                    ChatMessageBroadcastEventContent.Parser.ParseFrom(serverEvent.content)
+                );
+                logger.Log("Routed ChatMessageBroadcastEvent", this);
                 break;
             default:
                 logger.Log($"Received unhandled server event type: {serverEvent.Type}", this);

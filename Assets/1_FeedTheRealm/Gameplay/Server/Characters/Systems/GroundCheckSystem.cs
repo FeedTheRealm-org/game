@@ -50,10 +50,50 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 Vector3.down,
                 out RaycastHit _,
                 config.GroundCheckDistance,
-                config.GroundLayer
+                config.GroundLayer | config.SlopeLayer
             );
 
+            if (
+                Physics.Raycast(
+                    groundCheckSphereOrigin,
+                    Vector3.down,
+                    out RaycastHit slopeHit,
+                    config.GroundCheckDistance + config.GroundCheckSphereRadius,
+                    config.SlopeLayer
+                )
+            )
+            {
+                stateStorage.IsOnSlope = true;
+                stateStorage.GroundNormal = slopeHit.normal;
+            }
+            else
+            {
+                stateStorage.IsOnSlope = false;
+                stateStorage.GroundNormal = Vector3.up;
+            }
+
             return result;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (col == null)
+                return;
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(
+                groundCheckSphereOrigin,
+                groundCheckSphereOrigin + Vector3.down * config.GroundCheckDistance
+            );
+            Gizmos.DrawWireSphere(
+                groundCheckSphereOrigin + Vector3.down * config.GroundCheckDistance,
+                config.GroundCheckSphereRadius
+            );
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(
+                groundCheckSphereOrigin,
+                groundCheckSphereOrigin + stateStorage.GroundNormal * 2f
+            );
         }
     }
 }

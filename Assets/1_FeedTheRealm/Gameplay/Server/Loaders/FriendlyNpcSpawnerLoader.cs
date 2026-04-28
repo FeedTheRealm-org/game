@@ -35,6 +35,7 @@ namespace FTR.Gameplay.Server.Loaders
         public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
             npcDialogRegistry.Populate(creatablesData.npcs, creatablesData.dialogs);
+            serverQuestRegistry.Populate(creatablesData.quests);
 
             var npcById = BuildNpcLookup(creatablesData.npcs);
             var dialogById = BuildDialogLookup(creatablesData.dialogs);
@@ -54,12 +55,18 @@ namespace FTR.Gameplay.Server.Loaders
                 }
 
                 DialogData dialogData = null;
-                if (npcData.npcDialog != null && !string.IsNullOrEmpty(npcData.npcDialog.dialogId))
+                if (
+                    npcData.dialogProgression != null
+                    && npcData.dialogProgression.Count > 0
+                    && npcData.dialogProgression[0] != null
+                    && !string.IsNullOrEmpty(npcData.dialogProgression[0].dialogId)
+                )
                 {
-                    if (!dialogById.TryGetValue(npcData.npcDialog.dialogId, out dialogData))
+                    var dialogId = npcData.dialogProgression[0].dialogId;
+                    if (!dialogById.TryGetValue(dialogId, out dialogData))
                     {
                         Debug.LogWarning(
-                            $"DialogId '{npcData.npcDialog.dialogId}' not found for NPC '{npcData.id}'."
+                            $"DialogId '{dialogId}' not found for NPC '{npcData.id}'."
                         );
                     }
                 }
@@ -69,6 +76,7 @@ namespace FTR.Gameplay.Server.Loaders
                     new Vector3(spawnData.Position.x, spawnData.Position.y, spawnData.Position.z),
                     Quaternion.identity
                 );
+                instance.transform.localScale = new Vector3(spawnData.Radius, 1, spawnData.Radius);
                 instance.name = $"NPCSpawner_{npcData.id}";
 
                 var npcSpawns = instance.GetComponent<NPCSpawns>();

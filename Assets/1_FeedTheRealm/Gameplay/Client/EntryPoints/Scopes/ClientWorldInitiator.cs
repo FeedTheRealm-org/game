@@ -3,10 +3,12 @@ using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.Config;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using UnityEngine;
@@ -59,6 +61,18 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private GltLoaderService gltfLoaderService;
 
+        [SerializeField]
+        private PlayerService playerService;
+
+        [SerializeField]
+        private AssetsService assetsService;
+
+        [SerializeField]
+        private ItemAssetsService itemAssetsService;
+
+        [SerializeField]
+        private ColliderRegistry colliderRegistry;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)
@@ -83,12 +97,19 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(clientQuestRegistry);
             builder.RegisterInstance(modelService);
             builder.RegisterInstance(gltfLoaderService);
+            builder.RegisterInstance(playerService);
+            builder.RegisterInstance(assetsService);
+            builder.RegisterInstance(itemAssetsService);
+            builder.RegisterInstance(colliderRegistry);
+            builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
+            builder.Register<ClientNpcInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
             builder.Register<ClientLootItemLinker>(Lifetime.Singleton).As<LootItemLinker>();
             builder.Register<ClientShopLinker>(Lifetime.Singleton).As<ShopLinker>();
+            builder.Register<ClientPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
 
             builder.RegisterEntryPoint<ClientWorldEntryPoint>();
         }
@@ -107,6 +128,10 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(session, "Session");
             ValidateField(modelService, "ModelService");
             ValidateField(gltfLoaderService, "GLTFLoaderService");
+            ValidateField(itemAssetsService, "ItemAssetsService");
+            ValidateField(assetsService, "AssetsService");
+            ValidateField(zoneService, "ZoneService");
+            ValidateField(npcDialogRegistry, "NpcDialogRegistry");
         }
 
         private void ValidateField(object field, string fieldName)

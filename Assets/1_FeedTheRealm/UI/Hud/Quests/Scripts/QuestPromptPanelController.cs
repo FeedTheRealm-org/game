@@ -25,6 +25,13 @@ public class QuestPromptController : MonoBehaviour
     private Button _rejectButton;
 
     private QuestData _currentQuestData;
+    private uint _netId;
+    private string _npcId;
+
+    public void Initialize(uint netId)
+    {
+        _netId = netId;
+    }
 
     private void Awake()
     {
@@ -91,14 +98,16 @@ public class QuestPromptController : MonoBehaviour
     /// Populates and shows the quest prompt panel.
     /// Called by QuestView via showQuestPromptEvent.
     /// </summary>
-    public void OnQuestOffered(QuestData data)
+    public void OnQuestOffered(QuestPromptData promptData)
     {
-        if (data == null)
+        if (promptData.Quest == null)
             return;
 
-        _currentQuestData = data;
-        _titleLabel.text = data.title;
-        _descriptionLabel.text = data.content;
+        _currentQuestData = promptData.Quest;
+        _netId = promptData.TargetNetId;
+        _npcId = promptData.NpcId;
+        _titleLabel.text = _currentQuestData.title;
+        _descriptionLabel.text = _currentQuestData.content;
         ToggleQuestPrompt(true);
     }
 
@@ -107,9 +116,14 @@ public class QuestPromptController : MonoBehaviour
         if (_currentQuestData == null)
             return;
 
-        logger.Log($"Quest '{_currentQuestData.title}' was accepted.", this);
+        logger?.Log(
+            $"Quest '{_currentQuestData.title}' was accepted. Dispatched by NetId: {_netId}",
+            this
+        );
         if (eventRegistry != null && eventRegistry.questDecisionEvent != null)
-            eventRegistry.questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, true));
+            eventRegistry.questDecisionEvent.Raise(
+                new QuestDecisionData(_currentQuestData, true, _netId, _npcId)
+            );
 
         ToggleQuestPrompt(false);
         _currentQuestData = null;
@@ -120,9 +134,14 @@ public class QuestPromptController : MonoBehaviour
         if (_currentQuestData == null)
             return;
 
-        logger.Log($"Quest '{_currentQuestData.title}' was rejected.", this);
+        logger?.Log(
+            $"Quest '{_currentQuestData.title}' was rejected. Dispatched by NetId: {_netId}",
+            this
+        );
         if (eventRegistry != null && eventRegistry.questDecisionEvent != null)
-            eventRegistry.questDecisionEvent.Raise(new QuestDecisionData(_currentQuestData, false));
+            eventRegistry.questDecisionEvent.Raise(
+                new QuestDecisionData(_currentQuestData, false, _netId, _npcId)
+            );
 
         ToggleQuestPrompt(false);
         _currentQuestData = null;

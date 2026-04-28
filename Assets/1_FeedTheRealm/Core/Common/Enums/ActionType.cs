@@ -10,5 +10,4 @@ public enum ActionType
     Use,
     Interact,
     DialogNext,
-    CancelInteract,
 }

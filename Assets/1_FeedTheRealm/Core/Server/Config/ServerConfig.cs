@@ -1,4 +1,3 @@
-using FTR.Core.Common.Utils;
 using UnityEngine;
 
 namespace FTR.Core.Server.Config
@@ -6,11 +5,26 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
+        [Header("Environment Variables Configuration")]
+        public string EnvFilePath = ".env";
+
+        // LoadFromEnvFile: Load variables from the .env file (e.g. Prod: false, Dev: false).
+        public bool LoadFromEnvFile = false;
+
+        // LoadEnvVars: Load system environment variables (e.g. Prod: true, Dev: false).
+        public bool LoadEnvVars = true;
+
+        // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
+        public bool PersistToDatabase = true;
+
+        public int AutoSaveIntervalSeconds = 30;
+
         [Header("Layer Masks")]
         public LayerMask PlayerLayer;
         public LayerMask TargetLayer; // Enemies
         public LayerMask GroundLayer;
         public LayerMask ObstacleLayer;
+        public LayerMask SlopeLayer;
 
         [Header("Movement")]
         [SerializeField]
@@ -51,6 +65,19 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private float staminaRecoveryAmount = 5f;
         public float StaminaRecoveryAmount => staminaRecoveryAmount;
+
+        [Header("Combat")]
+        [SerializeField]
+        private float attackCooldown = 0.4f;
+        public float AttackCooldown => attackCooldown;
+
+        [SerializeField]
+        private int unequippedDamage = 10;
+        public int UnequippedDamage => unequippedDamage;
+
+        [SerializeField]
+        private float unequippedRange = 1.5f;
+        public float UnequippedRange => unequippedRange;
 
         [Header("Ground Check")]
         [SerializeField]

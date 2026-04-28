@@ -1,35 +1,45 @@
 using System.Collections.Generic;
 using FTR.Core.Common.Loaders;
+using FTR.Core.Common.Utils;
 using FTR.Core.Server;
-using FTR.Core.Server.Utils;
 using FTR.Gameplay.Common.LoaderEntities;
 using FTR.Gameplay.Server.Loaders;
-using UnityEngine;
+using FTR.Gameplay.Server.Registry;
 using VContainer;
-using VContainer.Unity;
 
 namespace FTR.Gameplay.Server.Scopes
 {
     public class ServerWorldLoader : ZoneLoaderManager
     {
-        public ServerWorldLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
+        public ServerWorldLoader(
+            PortalRegistry portalRegistry,
+            ServerPrefabProvider prefabProvider,
+            ColliderRegistry colliderRegistry,
+            IObjectResolver resolver
+        )
         {
-            var structureLoader = new ServerStructureLoader(prefabProvider);
+            var serverItemLoader = new ServerItemLoader();
+            var structureLoader = new ServerStructureLoader(
+                prefabProvider,
+                colliderRegistry,
+                resolver
+            );
             var friendlyNpcSpawnerLoader = new FriendlyNpcSpawnerLoader(prefabProvider, resolver);
             var aggressiveNpcSpawnerLoader = new AggressiveNpcSpawnerLoader(
                 prefabProvider,
                 resolver
             );
             var playerSpawnerLoader = new PlayerSpawnerLoader();
-            var serverItemLoader = new ServerItemLoader();
+            var portalLoader = new ServerPortalLoader(portalRegistry, prefabProvider, resolver);
 
             loaders = new List<ILoader>
             {
+                serverItemLoader,
                 structureLoader,
                 friendlyNpcSpawnerLoader,
                 aggressiveNpcSpawnerLoader,
                 playerSpawnerLoader,
-                serverItemLoader,
+                portalLoader,
             };
 
             foreach (var loader in loaders)
@@ -52,6 +62,13 @@ namespace FTR.Gameplay.Server.Scopes
                     "Access token is required to load the world. Please provide it in the config or as a command line argument."
                 );
             return config.ServerAccessToken;
+        }
+
+        public override int GetZoneId()
+        {
+            if (config.IsDebugWorld)
+                return int.Parse(ParamsSerializer.GetArgs("zone-id", config.ZoneID.ToString()));
+            return int.Parse(ParamsSerializer.GetArgs("zone-id", null));
         }
     }
 }

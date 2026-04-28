@@ -1,0 +1,8 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/ChatInput/Themes/ChatInput.uss?fileID=7433441132597879392&amp;guid=0d4f1174166fed045b627a7c9c15bbcd&amp;type=3#ChatInput"/>
+        <ui:VisualElement name="ChatInputPanel" class="chat-input-panel">
+        <ui:TextField name="ChatInputField"
+                      class="chat-input-field"
+                      placeholder-text="Type a message..." />
+    </ui:VisualElement>
+</ui:UXML>

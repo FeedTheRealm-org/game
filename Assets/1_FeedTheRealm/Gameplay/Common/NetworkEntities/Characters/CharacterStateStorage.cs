@@ -10,7 +10,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         : NetworkBehaviour,
             ICharacterHealthSource,
             IGroundable,
-            ICharacterIdentity
+            ICharacterIdentity,
+            ICharacterIdSource
     {
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
@@ -25,7 +26,10 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         private float health;
 
         [SyncVar(hook = nameof(OnCharacterIdSync))]
-        private string characterId;
+        private string characterId = "";
+
+        [SyncVar(hook = nameof(OnEquippedItemSync))]
+        private string equippedItemId = "";
 
         /* --- Getters --- */
 
@@ -37,6 +41,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public bool IsLocalPlayer => isLocalPlayer;
         public bool IsGrounded { get; set; }
         public bool IsMovementBlocked { get; set; }
+        public string EquippedItemId => equippedItemId;
+        public bool IsOnSlope { get; set; }
+        public Vector3 GroundNormal { get; set; }
 
         /* --- Events --- */
 
@@ -45,6 +52,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public event Action<float> OnStaminaChanged;
         public event Action<float> OnHealthChanged;
         public event Action<string> OnCharacterIdChanged;
+        public event Action<string> OnEquippedItemChanged;
         public event Action OnDeath;
         public event Action OnRespawn;
 
@@ -80,6 +88,13 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public void SetCharacterId(string newCharacterId)
         {
             characterId = newCharacterId;
+            OnCharacterIdChanged?.Invoke(newCharacterId);
+        }
+
+        [Server]
+        public void SetEquippedItemId(string newEquippedItemId)
+        {
+            equippedItemId = newEquippedItemId;
         }
 
         /* --- SyncVar hooks --- */
@@ -111,6 +126,13 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnCharacterIdChanged?.Invoke(newId);
         }
 
+        private void OnEquippedItemSync(string oldId, string newId)
+        {
+            equippedItemId = newId;
+            Debug.Log($"CharacterStateStorage: Equipped item changed to {newId}");
+            OnEquippedItemChanged?.Invoke(newId);
+        }
+
         /* --- Event Raisers --- */
 
         private void RaiseHealthStatusChanged(float oldHealth, float newHealth)
@@ -132,6 +154,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnStaminaSync(0, stamina);
             OnHealthSync(0, health);
             OnCharacterIdSync(null, characterId);
+            OnEquippedItemSync(null, equippedItemId);
         }
     }
 }

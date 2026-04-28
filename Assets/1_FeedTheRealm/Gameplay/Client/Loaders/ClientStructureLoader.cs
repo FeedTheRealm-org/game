@@ -14,23 +14,28 @@ namespace FTR.Gameplay.Client.Loaders
 {
     public class ClientStructureLoader : ILoader
     {
-        [Inject]
         readonly Config config;
-
-        [Inject]
         private readonly Session.Session session;
-
-        [Inject]
         private readonly ModelService modelService;
-
-        [Inject]
         private readonly GltLoaderService gltfLoaderService;
-
         private readonly GameObject structurePrefab;
         private readonly GameObject shopPrefab;
+        private readonly ColliderRegistry colliderRegistry;
 
-        public ClientStructureLoader(ClientPrefabProvider prefabProvider)
+        public ClientStructureLoader(
+            ClientPrefabProvider prefabProvider,
+            ColliderRegistry colliderRegistry,
+            ModelService modelService,
+            GltLoaderService gltfLoaderService,
+            Session.Session session,
+            Config config
+        )
         {
+            this.config = config;
+            this.session = session;
+            this.modelService = modelService;
+            this.gltfLoaderService = gltfLoaderService;
+            this.colliderRegistry = colliderRegistry;
             structurePrefab = prefabProvider.StructurePrefab;
             shopPrefab = prefabProvider.ShopPrefab;
         }
@@ -61,8 +66,10 @@ namespace FTR.Gameplay.Client.Loaders
                 GameObject instance = Object.Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
-
-                controller.Initialize(structureData);
+                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
+                    structureData.colliderType
+                );
+                controller.Initialize(structureData, colliderPrefab, colliderLayer);
                 controller.SetupMesh(visual);
             }
 
@@ -74,8 +81,10 @@ namespace FTR.Gameplay.Client.Loaders
                 GameObject instance = Object.Instantiate(shopPrefab);
                 instance.name = shopData.structureName;
                 var controller = instance.GetComponent<StructureController>();
-
-                controller.Initialize(shopData);
+                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
+                    shopData.colliderType
+                );
+                controller.Initialize(shopData, colliderPrefab, colliderLayer);
                 controller.SetupMesh(visual);
             }
 

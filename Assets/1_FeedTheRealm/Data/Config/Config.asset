@@ -13,12 +13,22 @@ MonoBehaviour:
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
   editorRuntimeRole: 1
+  MaxWorldLoadRetries: 10
+  WorldLoadRetryDelayMs: 1000
+  TestJoinToken: test-join-token
+  EnableActionLogging: 1
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
-  ListeningPort: 7777
-  HealthcheckPort: 7778
-  serverAccessToken: M1Lo6HtJvFIETs2vnJwfUuaAgR4ggxYFnSJIsQTp7mQo68I15N0kTTwPa3ixNMm2IECqUL2FA14ohGgM0zgcL0K6fIwRbL3F84pq
-  CurrentServerAddress: 3.134.81.186
-  CurrentServerPort: 10046
+  serverAccessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
+  CurrentServerAddress: 127.0.0.1
+  CurrentServerPort: 7777
   isDebugWorld: 1
   doNotLoadWorld: 0
-  worldID: 43476ad4-671b-4ba4-8315-760d9a58c86d
+  worldID: 90a5770b-f355-4d0f-b64b-e4346f6a213a
+  zoneID: 1
+  enableColliderView: 0
+  cubeColliderLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  slopeColliderLayerMask:
+    serializedVersion: 2
+    m_Bits: 16384

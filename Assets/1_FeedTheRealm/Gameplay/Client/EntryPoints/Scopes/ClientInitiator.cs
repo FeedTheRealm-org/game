@@ -47,6 +47,7 @@ public class ClientInitiator : LifetimeScope
             throw new System.InvalidOperationException("Invalid runtime role for ClientInitiator");
 
         builder.RegisterInstance(session);
+        builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder
             .RegisterEntryPoint<ClientEntryPoint>()
             .WithParameter("mainScene", mainScene)

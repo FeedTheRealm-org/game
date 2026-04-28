@@ -10,18 +10,20 @@ namespace FTR.Core.Server.Commands;
 public class PickUpCommand : BaseServerCommand
 {
     private string itemId;
+    private int goldAmount;
 
     private Action<bool> onComplete;
 
-    public PickUpCommand(uint netId, string itemId, Action<bool> onComplete)
+    public PickUpCommand(uint netId, string itemId, int goldAmount, Action<bool> onComplete)
         : base(netId)
     {
         this.itemId = itemId;
+        this.goldAmount = goldAmount;
         this.onComplete = onComplete;
     }
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnPickUp(eventCollector, itemId, onComplete);
+        commandable.OnPickUp(eventCollector, itemId, goldAmount, onComplete);
     }
 }

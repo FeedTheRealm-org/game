@@ -12,6 +12,10 @@ public enum ServerEventType
     InteractFailedEvent,
     DialogEvent,
     OpenShopEvent,
+    OpenPortalEvent,
     NotEnoughGoldEvent,
     InteractCompletedEvent,
+    QuestProgressEvent,
+    QuestCompletedEvent,
+    ChatMessageBroadcastEvent,
 }

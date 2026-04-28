@@ -1,5 +1,4 @@
 using FTR.Core.Common.Utils;
-using FTR.Core.Server.Utils;
 using UnityEngine;
 
 namespace FTR.Core.Common.Config
@@ -8,6 +7,7 @@ namespace FTR.Core.Common.Config
     {
         Server,
         Client,
+        Bot,
     }
 
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/Config")]
@@ -23,12 +23,24 @@ namespace FTR.Core.Common.Config
             get => GetRuntimeRole();
         }
 
+        public int MaxWorldLoadRetries = 10;
+        public int WorldLoadRetryDelayMs = 1000;
+
+        public string TestJoinToken = "test_join_token";
+        public bool EnableActionLogging = true;
+
         [Header("API Settings")]
         public ApiConfig ApiConfig;
 
         [Header("Server Settings")]
-        public ushort ListeningPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7777"));
-        public ushort HealthcheckPort = ushort.Parse(ParamsSerializer.GetArgs("port", "7778"));
+        private ushort? _listeningPort = 7777;
+        public ushort ListeningPort =>
+            ushort.Parse(ParamsSerializer.GetArgs("port", _listeningPort?.ToString()));
+
+        [SerializeField]
+        private ushort? _healthcheckPort = 7778;
+        public ushort HealthcheckPort =>
+            ushort.Parse(ParamsSerializer.GetArgs("hport", _healthcheckPort?.ToString()));
 
 #if SERVER_BUILD || DEBUG
         [SerializeField]
@@ -55,23 +67,39 @@ namespace FTR.Core.Common.Config
         [SerializeField]
         private string worldID = "world_1";
         public string WorldID => worldID;
+
+        [SerializeField]
+        private int zoneID = 1;
+        public int ZoneID => zoneID;
+
+        [Header("Common Debug Settings")]
+        [SerializeField]
+        public bool enableColliderView = false;
 #else
         public bool IsDebugWorld => false;
         public bool DoNotLoadWorld => false;
         public string WorldID => string.Empty;
+        public int ZoneID => 0;
+        public bool enableColliderView = false;
 #endif
 
         /* HELPERS */
 
         private RuntimeRole GetRuntimeRole()
         {
-#if SERVER_BUILD && !CLIENT_BUILD
+#if SERVER_BUILD && !CLIENT_BUILD && !BOT_BUILD
             return RuntimeRole.Server;
-#elif CLIENT_BUILD && !SERVER_BUILD
+#elif CLIENT_BUILD && !SERVER_BUILD && !BOT_BUILD
             return RuntimeRole.Client;
+#elif BOT_BUILD && !SERVER_BUILD && !CLIENT_BUILD
+            return RuntimeRole.Bot;
 #else // SERVER & CLIENT || None (debugging)
             return editorRuntimeRole;
 #endif
         }
+
+        [Header("Common Layer Masks")]
+        public LayerMask cubeColliderLayerMask;
+        public LayerMask slopeColliderLayerMask;
     }
 }

@@ -7,23 +7,38 @@ namespace FTR.Gameplay.Common.Environment.Structures
     {
         private StructureData structureData;
         public StructureData Data => structureData;
+        private GameObject colliderInstance;
 
-        public void Initialize(StructureData structureData)
+        public void Initialize(
+            StructureData structureData,
+            GameObject colliderPrefab,
+            int colliderLayer
+        )
         {
             this.structureData = structureData;
 
             transform.position = structureData.position;
             transform.rotation = Quaternion.Euler(structureData.rotation);
-            transform.localScale = Vector3.one;
-            SetupCollider();
+            transform.localScale = structureData.size;
+            SetupCollider(colliderPrefab, colliderLayer);
         }
 
-        private void SetupCollider()
+        private void SetupCollider(GameObject colliderPrefab, int layer)
         {
-            var boxCollider = gameObject.AddComponent<BoxCollider>();
-            boxCollider.size = structureData.colliderSize;
-            boxCollider.center = structureData.colliderCenter;
-            boxCollider.includeLayers = LayerMask.GetMask("Player");
+            if (!structureData.hasColliders)
+                return;
+
+            colliderInstance = Instantiate(colliderPrefab, transform);
+
+            transform.gameObject.layer = layer;
+            foreach (Transform child in transform.GetComponentsInChildren<Transform>(true))
+                child.gameObject.layer = layer;
+
+            colliderInstance.transform.localPosition = structureData.colliderCenter;
+            colliderInstance.transform.localRotation = Quaternion.Euler(
+                structureData.colliderRotation
+            );
+            colliderInstance.transform.localScale = structureData.colliderSize;
         }
 
         public void SetupMesh(GameObject visualPrefab)
@@ -31,22 +46,21 @@ namespace FTR.Gameplay.Common.Environment.Structures
             var visualInstance = Instantiate(visualPrefab, transform);
             visualInstance.SetActive(true);
             visualInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            visualInstance.transform.localScale = structureData.size;
+            visualInstance.transform.localScale = Vector3.one;
         }
 
         private void OnDrawGizmos()
         {
-            if (structureData == null)
+            if (structureData == null || colliderInstance == null)
                 return;
 
-            Gizmos.color = Color.silver;
-            Matrix4x4 rotationMatrix = Matrix4x4.TRS(
-                transform.position,
-                transform.rotation,
-                Vector3.one
-            );
-            Gizmos.matrix = rotationMatrix;
-            Gizmos.DrawWireCube(structureData.colliderCenter, structureData.colliderSize);
+            Gizmos.color = Color.green;
+            var meshFilter = colliderInstance.GetComponentInChildren<MeshFilter>();
+            if (meshFilter != null)
+            {
+                Gizmos.matrix = meshFilter.transform.localToWorldMatrix;
+                Gizmos.DrawWireMesh(meshFilter.sharedMesh);
+            }
         }
     }
 }

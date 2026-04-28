@@ -3,7 +3,6 @@ using System.Collections;
 using System.Threading.Tasks;
 using FTRShared.Runtime.Models;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
@@ -24,22 +23,131 @@ public class WorldInfoController : MonoBehaviour
     private Label WorldCreatorLabel;
     private Coroutine sidebarAnimationCoroutine;
     private float sidebarWidthPx = 0f;
+    private WorldData pendingWorld;
 
     public void SetCurrentWorld(WorldData world)
     {
+        if (world == null)
+        {
+            logger.Log("SetCurrentWorld called with null world.", this, Logging.LogType.Warning);
+            return;
+        }
+
+        pendingWorld = world;
+
+        if (!TryInitializeUiReferences())
+        {
+            logger.Log(
+                "WorldInfo UI references are not ready yet; world info will be applied when available.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        ApplyWorldInfo(world);
+        pendingWorld = null;
+    }
+
+    private void ApplyWorldInfo(WorldData world)
+    {
         logger.Log($"Setting current world info: {world.worldName}", this);
 
-        WorldNameLabel.text = world.worldName.Split('.')[0];
-        WorldDescriptionLabel.text = world.description;
-        WorldCreatedAtLabel.text =
-            $"Created {makeHumanReadableCreatedAt(world.created_at.ToString())}";
+        string worldName = string.IsNullOrWhiteSpace(world.worldName)
+            ? "Unknown World"
+            : world.worldName;
+        WorldNameLabel.text = worldName.Split('.')[0];
+        WorldDescriptionLabel.text = string.IsNullOrWhiteSpace(world.description)
+            ? "No description provided."
+            : world.description;
 
-        // TODO: the user id is not in the "metadata" its in the get worlds response
-        // _ = getUserDisplayName(world.user_id);
+        string createdAtText = world.created_at == default ? "" : world.created_at.ToString("o");
+        WorldCreatedAtLabel.text = string.IsNullOrWhiteSpace(createdAtText)
+            ? "Created unknown date"
+            : $"Created {makeHumanReadableCreatedAt(createdAtText)}";
+
+        if (string.IsNullOrWhiteSpace(world.created_by))
+        {
+            WorldCreatorLabel.text = "Created By Unknown User";
+            return;
+        }
+
+        _ = getUserDisplayName(world.created_by);
+    }
+
+    private bool TryInitializeUiReferences()
+    {
+        if (ui == null)
+        {
+            var document = GetComponent<UIDocument>();
+            if (document == null || document.rootVisualElement == null)
+            {
+                logger.Log("UIDocument root is not available.", this, Logging.LogType.Warning);
+                return false;
+            }
+
+            ui = document.rootVisualElement;
+        }
+
+        SideBar = ui.Q<VisualElement>("SideBar");
+        if (SideBar == null)
+        {
+            logger.Log("SideBar element not found in UI", this, Logging.LogType.Warning);
+            return false;
+        }
+
+        SideBar.UnregisterCallback<GeometryChangedEvent>(OnSideBarGeometryChanged);
+        SideBar.RegisterCallback<GeometryChangedEvent>(OnSideBarGeometryChanged);
+
+        CloseButton = ui.Q<Button>("CloseButton");
+        if (CloseButton == null)
+        {
+            logger.Log("CloseButton not found in UI", this, Logging.LogType.Warning);
+            return false;
+        }
+
+        CloseButton.clicked -= OnCloseButtonClicked;
+        CloseButton.clicked += OnCloseButtonClicked;
+
+        WorldNameLabel = ui.Q<Label>("Title");
+        WorldDescriptionLabel = ui.Q<Label>("Description");
+        WorldCreatedAtLabel = ui.Q<Label>("CreatedAt");
+        WorldCreatorLabel = ui.Q<Label>("CreatedBy");
+
+        if (
+            WorldNameLabel == null
+            || WorldDescriptionLabel == null
+            || WorldCreatedAtLabel == null
+            || WorldCreatorLabel == null
+        )
+        {
+            logger.Log(
+                "One or more world info labels are missing in the UI.",
+                this,
+                Logging.LogType.Warning
+            );
+            return false;
+        }
+
+        return true;
     }
 
     private async Task getUserDisplayName(string userId)
     {
+        if (WorldCreatorLabel == null)
+            return;
+
+        if (playerService == null)
+        {
+            logger.Log(
+                "PlayerService is not assigned in WorldInfoController.",
+                this,
+                Logging.LogType.Warning
+            );
+            WorldCreatorLabel.text = "Created By Unknown User";
+            return;
+        }
+
         API.CharacterInfoResponse characterInfo = await playerService.GetCharacterInfoAsync(userId);
 
         if (characterInfo == null)
@@ -92,59 +200,41 @@ public class WorldInfoController : MonoBehaviour
             int years = (int)(span.TotalDays / 365);
             return $"{years} year{(years == 1 ? "" : "s")} ago";
         }
-        else
-        {
-            logger.Log(
-                $"Failed to parse createdAt date: {createdAt}",
-                this,
-                Logging.LogType.Warning
-            );
-            return createdAt;
-        }
+
+        logger.Log($"Failed to parse createdAt date: {createdAt}", this, Logging.LogType.Warning);
+        return createdAt;
     }
 
     private void OnEnable()
     {
-        ui = GetComponent<UIDocument>().rootVisualElement;
-
-        SideBar = ui.Q<VisualElement>("SideBar");
-        if (SideBar == null)
+        if (!TryInitializeUiReferences())
         {
-            logger.Log("SideBar element not found in UI", this, Logging.LogType.Warning);
             return;
         }
-        SideBar.RegisterCallback<GeometryChangedEvent>(OnSideBarGeometryChanged);
 
-        CloseButton = ui.Q<Button>("CloseButton");
-        if (CloseButton == null)
+        if (pendingWorld != null)
         {
-            logger.Log("CloseButton not found in UI", this, Logging.LogType.Warning);
-            return;
+            ApplyWorldInfo(pendingWorld);
+            pendingWorld = null;
         }
-        CloseButton.clicked += OnCloseButtonClicked;
+    }
 
-        WorldNameLabel = ui.Q<Label>("Title");
-        if (WorldNameLabel == null)
+    private void OnDisable()
+    {
+        if (CloseButton != null)
         {
-            logger.Log("WorldNameLabel not found in UI", this, Logging.LogType.Warning);
-        }
-
-        WorldDescriptionLabel = ui.Q<Label>("Description");
-        if (WorldDescriptionLabel == null)
-        {
-            logger.Log("WorldDescriptionLabel not found in UI", this, Logging.LogType.Warning);
+            CloseButton.clicked -= OnCloseButtonClicked;
         }
 
-        WorldCreatedAtLabel = ui.Q<Label>("CreatedAt");
-        if (WorldCreatedAtLabel == null)
+        if (SideBar != null)
         {
-            logger.Log("WorldCreatedAtLabel not found in UI", this, Logging.LogType.Warning);
+            SideBar.UnregisterCallback<GeometryChangedEvent>(OnSideBarGeometryChanged);
         }
 
-        WorldCreatorLabel = ui.Q<Label>("CreatedBy");
-        if (WorldCreatorLabel == null)
+        if (sidebarAnimationCoroutine != null)
         {
-            logger.Log("WorldCreatorLabel not found in UI", this, Logging.LogType.Warning);
+            StopCoroutine(sidebarAnimationCoroutine);
+            sidebarAnimationCoroutine = null;
         }
     }
 
@@ -157,13 +247,13 @@ public class WorldInfoController : MonoBehaviour
             return;
         }
 
-        CloseButton.SetEnabled(false);
+        CloseButton?.SetEnabled(false);
 
         if (sidebarAnimationCoroutine != null)
             StopCoroutine(sidebarAnimationCoroutine);
         sidebarAnimationCoroutine = StartCoroutine(
             AnimateSidebar(
-                sidebarWidthPx > 0 ? 0f : 0f,
+                0f,
                 -sidebarWidthPx,
                 0.28f,
                 () =>
@@ -204,12 +294,18 @@ public class WorldInfoController : MonoBehaviour
         float fromPx,
         float toPx,
         float duration,
-        System.Action onComplete = null
+        Action onComplete = null
     )
     {
         float elapsed = 0f;
         while (elapsed < duration)
         {
+            if (SideBar == null)
+            {
+                sidebarAnimationCoroutine = null;
+                yield break;
+            }
+
             float t = Mathf.Clamp01(elapsed / duration);
             float eased = 1f - Mathf.Pow(1f - t, 3f);
             float x = Mathf.Lerp(fromPx, toPx, eased);
@@ -217,6 +313,13 @@ public class WorldInfoController : MonoBehaviour
             elapsed += Time.deltaTime;
             yield return null;
         }
+
+        if (SideBar == null)
+        {
+            sidebarAnimationCoroutine = null;
+            yield break;
+        }
+
         SideBar.style.left = new StyleLength(new Length(toPx, LengthUnit.Pixel));
         onComplete?.Invoke();
         sidebarAnimationCoroutine = null;

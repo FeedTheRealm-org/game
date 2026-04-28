@@ -21,8 +21,6 @@ public static class CommandsFactory
                 return new UseCommand(dto.NetId, dto.Direction);
             case ActionType.Interact:
                 return new InteractCommand(dto.NetId);
-            case ActionType.CancelInteract:
-                return new CancelInteractCommand(dto.NetId);
             case ActionType.DialogNext:
                 return new DialogNextCommand(dto.NetId);
             default:
@@ -34,6 +32,8 @@ public static class CommandsFactory
     {
         switch (dto.Type)
         {
+            case TransactionType.SetUserId:
+                return new SetUserIdCommand(dto.NetId, dto.Id);
             case TransactionType.EquipItem:
                 try
                 {
@@ -106,6 +106,24 @@ public static class CommandsFactory
                         TargetPosition = -1,
                     };
                     return new MoveItemCommand(dto.NetId, dto.Id, defaultContent);
+                }
+            case TransactionType.AcceptTeleport:
+                return new AcceptTeleportCommand(dto.NetId, dto.Id);
+            case TransactionType.SendMessage:
+                try
+                {
+                    SendMessageCommandContent content = SendMessageCommandContent.Parser.ParseFrom(
+                        dto.content
+                    );
+                    return new SendMessageCommand(dto.NetId, dto.Id, content);
+                }
+                catch
+                {
+                    SendMessageCommandContent defaultContent = new SendMessageCommandContent
+                    {
+                        Message = string.Empty,
+                    };
+                    return new SendMessageCommand(dto.NetId, dto.Id, defaultContent);
                 }
             default:
                 throw new ArgumentException($"Unsupported transaction type: {dto.Type}");

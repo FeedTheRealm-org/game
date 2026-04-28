@@ -1,7 +1,9 @@
 using System;
+using System.Threading;
 using FTR.Core.Common.Scopes;
-using FTR.Core.Server;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Server.Loaders;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
@@ -16,6 +18,16 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     private readonly ServerWorldLoader worldLoader;
     private readonly HealthcheckServer healthcheckServer;
 
+    private readonly ServerConfig serverConfig;
+    private readonly ServerSecretsConfig secretsConfig;
+    private readonly Database database;
+    private readonly PlayersRepository playersRepository;
+
+    private readonly Logging.Logger logger;
+
+    private readonly CancellationTokenSource lifetimeCts = new();
+    private bool disposed;
+
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
 
@@ -25,25 +37,89 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         IObjectResolver resolver,
         ObjectResolverContainer resolverContainer,
         ServerWorldLoader worldLoader,
-        HealthcheckServer healthcheckServer
+        HealthcheckServer healthcheckServer,
+        ServerConfig serverConfig,
+        ServerSecretsConfig secretsConfig,
+        Database database,
+        PlayersRepository playersRepository,
+        Logging.Logger logger
     )
     {
         this.serverTickDriver = serverTickDriver;
         this.networkTickDriver = networkTickDriver;
         this.worldLoader = worldLoader;
         this.healthcheckServer = healthcheckServer;
+        this.serverConfig = serverConfig;
+        this.secretsConfig = secretsConfig;
+        this.database = database;
+        this.playersRepository = playersRepository;
+        this.logger = logger;
         resolverContainer.SetResolver(resolver);
+
+        if (serverConfig.LoadEnvVars)
+        {
+            secretsConfig.LoadEnvironmentVariables(
+                serverConfig.EnvFilePath,
+                serverConfig.LoadFromEnvFile
+            );
+        }
     }
 
     public async void Start()
     {
-        await worldLoader.LoadWorld();
-        healthcheckServer.Start();
+        try
+        {
+            var loadSucceeded = await worldLoader.LoadWorld();
+            if (!loadSucceeded)
+                throw new Exception("World loading failed");
+
+            string worldId = "world1";
+            string zoneId = "1";
+            await database.Connect(
+                secretsConfig.MongoConnectionString,
+                worldId,
+                zoneId,
+                lifetimeCts.Token
+            );
+            await playersRepository.Connect(database);
+
+            if (lifetimeCts.IsCancellationRequested)
+                return;
+
+            healthcheckServer.Start();
+            WorldLoadBootstrap.MarkServerReady();
+        }
+        catch (OperationCanceledException)
+        {
+            logger.Log("ServerWorldEntryPoint startup cancelled.", Logging.LogType.Warning);
+            WorldLoadBootstrap.MarkServerFailed();
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Failed to start ServerWorldEntryPoint: {ex}", Logging.LogType.Error);
+            WorldLoadBootstrap.MarkServerFailed();
+        }
     }
 
     public async void Dispose()
     {
-        await healthcheckServer.CloseAsync();
+        if (disposed)
+            return;
+
+        disposed = true;
+        lifetimeCts.Cancel();
+        WorldLoadBootstrap.MarkServerFailed();
+
+        try
+        {
+            await healthcheckServer.CloseAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Failed to close HealthcheckServer: {ex}", Logging.LogType.Error);
+        }
+
+        lifetimeCts.Dispose();
     }
 
     /// <summary>

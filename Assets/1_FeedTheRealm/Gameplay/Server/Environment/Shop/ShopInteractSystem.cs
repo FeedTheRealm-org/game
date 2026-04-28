@@ -62,12 +62,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             worldMonitor.Events.Enqueue(new InteractCompletedEvent(playerNetId, connId.Value));
 
+            interactor.FinishInteracting();
+
             logger?.Log($"[ShopInteractSystem] Player {playerNetId} opened shop '{shopId}'.", this);
 
             return shopId;
         }
-
-        public void ContinueInteraction(IInteractor interactor) { }
 
         public void StopInteraction(IInteractor interactor) { }
 

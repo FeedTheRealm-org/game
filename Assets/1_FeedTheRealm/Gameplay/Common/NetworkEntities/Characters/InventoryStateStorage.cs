@@ -11,13 +11,21 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public StorageType storageType;
         public int itemPosition;
         public string itemId;
+        public int quantity;
         public uint version;
 
-        public LastItemData(StorageType storageType, int itemPosition, string itemId, uint version)
+        public LastItemData(
+            StorageType storageType,
+            int itemPosition,
+            string itemId,
+            int quantity,
+            uint version
+        )
         {
             this.storageType = storageType;
             this.itemPosition = itemPosition;
             this.itemId = itemId;
+            this.quantity = quantity;
             this.version = version;
         }
     }
@@ -27,27 +35,33 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public StorageType sourceType;
         public int sourcePosition;
         public string sourceItemId;
+        public int sourceQuantity;
         public StorageType targetType;
         public int targetPosition;
         public string targetItemId;
+        public int targetQuantity;
         public uint version;
 
         public LastSwappedItemData(
             StorageType sourceType,
             int sourcePosition,
             string sourceItemId,
+            int sourceQuantity,
             StorageType targetType,
             int targetPosition,
             string targetItemId,
+            int targetQuantity,
             uint version
         )
         {
             this.sourceType = sourceType;
             this.sourcePosition = sourcePosition;
             this.sourceItemId = sourceItemId;
+            this.sourceQuantity = sourceQuantity;
             this.targetType = targetType;
             this.targetPosition = targetPosition;
             this.targetItemId = targetItemId;
+            this.targetQuantity = targetQuantity;
             this.version = version;
         }
     }
@@ -109,9 +123,9 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         /* --- Setters (server only) --- */
 
         [Server]
-        public void AddItem(StorageType storageType, int position, string itemId)
+        public void AddItem(StorageType storageType, int position, string itemId, int quantity)
         {
-            var data = new LastItemData(storageType, position, itemId, ++_itemVersion);
+            var data = new LastItemData(storageType, position, itemId, quantity, ++_itemVersion);
             addedItems.Add(data);
 
             while (addedItems.Count > 50)
@@ -123,18 +137,22 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
             StorageType sourceType,
             int sourcePosition,
             string sourceItemId,
+            int sourceQuantity,
             StorageType targetType,
             int targetPosition,
-            string targetItemId
+            string targetItemId,
+            int targetQuantity
         )
         {
             lastSwappedItemData = new LastSwappedItemData(
                 sourceType,
                 sourcePosition,
                 sourceItemId,
+                sourceQuantity,
                 targetType,
                 targetPosition,
                 targetItemId,
+                targetQuantity,
                 ++_swapVersion
             );
         }
@@ -146,6 +164,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
                 storageType,
                 position,
                 string.Empty,
+                0,
                 ++_dropVersion
             );
         }

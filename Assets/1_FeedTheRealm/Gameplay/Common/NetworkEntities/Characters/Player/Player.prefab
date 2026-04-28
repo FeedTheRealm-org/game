@@ -20,7 +20,9 @@ GameObject:
   - component: {fileID: 7477461968242626205}
   - component: {fileID: 5320877551239362344}
   - component: {fileID: 6489399200151354170}
+  - component: {fileID: -4170376404047795974}
   - component: {fileID: 6809830748454114207}
+  - component: {fileID: 2702517086216154850}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -145,7 +147,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
@@ -243,6 +245,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
 --- !u!114 &6489399200151354170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,6 +261,22 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+--- !u!114 &-4170376404047795974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1af7eb4382383b5bb154b0f20885076, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Bot::FTR.Gameplay.Bot.Characters.BotCharacterNetworkInitializer
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
 --- !u!114 &6809830748454114207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,3 +290,15 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Common::FTR.Gameplay.Common.Linkers.GameObjectLinker
   linkerType: 0
+--- !u!114 &2702517086216154850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1874e7fe2b849f7f8e6aedadf705fdc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.TeleportSystem
