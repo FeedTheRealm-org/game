@@ -15,8 +15,10 @@ MonoBehaviour:
   editorRuntimeRole: 0
   MaxWorldLoadRetries: 10
   WorldLoadRetryDelayMs: 1000
-  TestJoinToken: test-join-token
-  EnableActionLogging: 1
+  _listeningPort: 7777
+  _healthcheckPort: 6001
+  BotJoinToken: test_join_token
+  EnableActionLogging: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   serverAccessToken: c250895686f728863efdf3a973442fd2cadd4cc8af4fc398a64c89264765ff31b7a7f0527040095bbc4feb48d2a8c3587e8bb0db9e91c1f5a284c26688029332
   CurrentServerAddress: 0.0.0.0
@@ -29,6 +31,11 @@ MonoBehaviour:
   cubeColliderLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  slopeColliderLayerMask:
+  SlopeColliderLayerMask:
     serializedVersion: 2
     m_Bits: 16384
+  DEBUG_IsDebugWorld: 0
+  DEBUG_DoNotLoadWorld: 0
+  DEBUG_WorldId: world-1
+  DEBUG_ZoneId: 0
+  DEBUG_EnableColliderView: 0

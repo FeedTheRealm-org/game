@@ -23,7 +23,7 @@ public class ColliderRegistry : ScriptableObject
         {
             case ColliderType.Slope:
                 prefab = slopeColliderPrefab;
-                layer = (int)Mathf.Log(config.slopeColliderLayerMask.value, 2);
+                layer = (int)Mathf.Log(config.SlopeColliderLayerMask.value, 2);
                 break;
             case ColliderType.Cube:
             default:
@@ -32,12 +32,12 @@ public class ColliderRegistry : ScriptableObject
                         $"ColliderRegistry: No prefab found for collider type {colliderType}, defaulting to cube."
                     );
                 prefab = cubeColliderPrefab;
-                layer = (int)Mathf.Log(config.cubeColliderLayerMask.value, 2);
+                layer = (int)Mathf.Log(config.CubeColliderLayerMask.value, 2);
                 break;
         }
         prefab.SetActive(true);
         foreach (var renderer in prefab.GetComponentsInChildren<Renderer>())
-            renderer.enabled = config.enableColliderView;
+            renderer.enabled = config.DEBUG_EnableColliderView;
 
         return (prefab, layer);
     }

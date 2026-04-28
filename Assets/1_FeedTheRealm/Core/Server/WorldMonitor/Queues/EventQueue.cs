@@ -5,6 +5,8 @@ public sealed class EventQueue
 {
     private readonly Queue<BaseServerEvent> queue = new();
 
+    public int Count => queue.Count;
+
     public void Enqueue(BaseServerEvent evt)
     {
         queue.Enqueue(evt);

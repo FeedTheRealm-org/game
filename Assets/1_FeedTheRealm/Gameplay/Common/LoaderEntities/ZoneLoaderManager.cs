@@ -35,7 +35,7 @@ namespace FTR.Gameplay.Common.LoaderEntities
 
         public async UniTask<bool> LoadWorld()
         {
-            if (config.DoNotLoadWorld)
+            if (config.DEBUG_DoNotLoadWorld)
             {
                 LastLoadSucceeded = true;
                 return true;
