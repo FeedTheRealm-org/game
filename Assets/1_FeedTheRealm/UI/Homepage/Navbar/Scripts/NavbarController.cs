@@ -159,6 +159,7 @@ namespace FTR.UI.Homepage.Navbar
                     );
                 }
 
+                characterEditorController.SetAssetsWorldId(new System.Guid().ToString());
                 characterEditorController.SetAssetsPlayerId(playerId);
             }
         }
