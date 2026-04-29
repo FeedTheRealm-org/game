@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Enums;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
@@ -447,7 +448,7 @@ namespace FTR.UI.Shop
 
             var icon = new VisualElement();
             icon.AddToClassList("shop-item-icon");
-            StartCoroutine(LoadCosmeticIcon(icon, product.productId));
+            StartCoroutine(LoadCosmeticIcon(icon, ResolveCosmeticSpriteReference(product)));
 
             var nameLabel = new Label(
                 !string.IsNullOrEmpty(product.displayName) ? product.displayName : product.productId
@@ -472,10 +473,11 @@ namespace FTR.UI.Shop
             buyLabel.AddToClassList("shop-buy-button-label");
             buyButton.Add(buyLabel);
 
-            string capturedId = product.productId;
+            string purchaseId = ResolveCosmeticPurchaseProductId(product);
+            string tooltipId = product.productId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                StartCoroutine(ProcessGemPurchase(capturedId, product.displayName));
+                StartCoroutine(ProcessGemPurchase(purchaseId, product.displayName));
             });
 
             row.Add(icon);
@@ -484,11 +486,57 @@ namespace FTR.UI.Shop
             row.Add(buyButton);
 
             icon.RegisterCallback<PointerEnterEvent>(_ =>
-                _itemStatsTooltip?.ShowTooltip(capturedId, icon)
+                _itemStatsTooltip?.ShowTooltip(tooltipId, icon)
             );
             icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip?.HideTooltip());
 
             return row;
+        }
+
+        private string ResolveCosmeticPurchaseProductId(ProductData product)
+        {
+            if (
+                product == null
+                || string.IsNullOrEmpty(product.productId)
+                || string.IsNullOrEmpty(product.categoryName)
+            )
+                return product?.productId;
+
+            var cosmetics = ClientShopRegistry.CurrentWorldData?.cosmetics;
+            if (cosmetics == null)
+                return product.productId;
+
+            var cosmetic = cosmetics.FirstOrDefault(c => c.id == product.productId);
+            if (cosmetic == null)
+                return product.productId;
+
+            var urlId = cosmetic.GetUrlId(product.categoryName);
+            return string.IsNullOrEmpty(urlId) ? product.productId : urlId;
+        }
+
+        private string ResolveCosmeticSpriteReference(ProductData product)
+        {
+            if (
+                product == null
+                || string.IsNullOrEmpty(product.productId)
+                || string.IsNullOrEmpty(product.categoryName)
+            )
+                return product?.productId;
+
+            var cosmetics = ClientShopRegistry.CurrentWorldData?.cosmetics;
+            if (cosmetics == null)
+                return product.productId;
+
+            var cosmetic = cosmetics.FirstOrDefault(c => c.id == product.productId);
+            if (cosmetic == null)
+                return product.productId;
+
+            var urlId = cosmetic.GetUrlId(product.categoryName);
+            if (!string.IsNullOrEmpty(urlId))
+                return urlId;
+
+            var spritePath = cosmetic.GetSpritePath(product.categoryName);
+            return string.IsNullOrEmpty(spritePath) ? product.productId : spritePath;
         }
 
         private IEnumerator LoadCosmeticIcon(VisualElement icon, string cosmeticId)
