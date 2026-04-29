@@ -46,7 +46,6 @@ namespace FTR.UI.Shop
         [Inject]
         private NotEnoughGoldEvent notEnoughGoldEvent;
 
-        // Root
         private VisualElement _shopRoot;
         private VisualElement _panel;
 
@@ -64,11 +63,9 @@ namespace FTR.UI.Shop
         private VisualElement _shopItemsContainer;
         private VisualElement _cosmeticItemsContainer;
 
-        // Message area
         private VisualElement _messageArea;
         private Label _feedbackLabel;
 
-        // State
         private bool _isGoldTabActive = true;
         private int _currentGemBalance = -1;
         private ItemStatsTooltip _itemStatsTooltip;
@@ -76,8 +73,6 @@ namespace FTR.UI.Shop
         private Coroutine _animationCoroutine;
 
         private const float AnimationDuration = 0.25f;
-
-        // ─────────────────────────────────────────────────────────────
 
         private void OnEnable()
         {
@@ -135,17 +130,11 @@ namespace FTR.UI.Shop
             notEnoughGoldEvent.OnRaised -= OnNotEnoughGold;
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // Backdrop
-
         private void OnBackdropClick(ClickEvent evt)
         {
             if (_panel != null && !_panel.worldBound.Contains(evt.position))
                 CloseShop();
         }
-
-        // ─────────────────────────────────────────────────────────────
-        // Tabs
 
         private void SwitchTab(bool goldTab)
         {
@@ -184,9 +173,6 @@ namespace FTR.UI.Shop
                     : new StyleColor(new Color(0.7f, 0.7f, 0.7f));
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // Gem balance
-
         private IEnumerator FetchGemBalance()
         {
             if (_gemBalanceLabel != null)
@@ -214,9 +200,6 @@ namespace FTR.UI.Shop
                 _gemBalanceLabel.text =
                     _currentGemBalance >= 0 ? _currentGemBalance.ToString("N0") : "—";
         }
-
-        // ─────────────────────────────────────────────────────────────
-        // Feedback
 
         private void SetupFeedbackLabel()
         {
@@ -255,9 +238,6 @@ namespace FTR.UI.Shop
             _hideMessageCoroutine = null;
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // Open / Close
-
         private void OnOpenShop(string shopId)
         {
             bool isVisible = _shopRoot.style.display == DisplayStyle.Flex;
@@ -291,9 +271,6 @@ namespace FTR.UI.Shop
                 StopCoroutine(_animationCoroutine);
             _animationCoroutine = StartCoroutine(AnimateClose());
         }
-
-        // ─────────────────────────────────────────────────────────────
-        // Animation
 
         private IEnumerator AnimateOpen()
         {
@@ -357,9 +334,6 @@ namespace FTR.UI.Shop
             }
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // Population
-
         private void PopulateShop(string shopId)
         {
             if (_shopItemsContainer == null || _cosmeticItemsContainer == null)
@@ -411,9 +385,6 @@ namespace FTR.UI.Shop
                 this
             );
         }
-
-        // ─────────────────────────────────────────────────────────────
-        // Gold row — uses ClientItemsRegistry for name, ItemAssetsService for icon
 
         private VisualElement CreateGoldRow(ProductData product)
         {
@@ -469,28 +440,20 @@ namespace FTR.UI.Shop
             return row;
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // Cosmetic row — uses displayName/categoryName from ProductData,
-        //                downloads icon via AssetsService using productId (sprite/cosmetic ID),
-        //                no amount field (cosmetics are bought once)
-
         private VisualElement CreateCosmeticRow(ProductData product)
         {
             var row = new VisualElement();
             row.AddToClassList("shop-item");
 
-            // Icon downloaded from CDN using productId as the cosmetic/sprite ID
             var icon = new VisualElement();
             icon.AddToClassList("shop-item-icon");
             StartCoroutine(LoadCosmeticIcon(icon, product.productId));
 
-            // displayName comes directly from the product data (e.g. "halo chest - ArmorBody")
             var nameLabel = new Label(
                 !string.IsNullOrEmpty(product.displayName) ? product.displayName : product.productId
             );
             nameLabel.AddToClassList("shop-item-name");
 
-            // categoryName shown as a small subtitle (e.g. "ArmorBody")
             var categoryLabel = new Label(product.categoryName ?? "");
             categoryLabel.AddToClassList("shop-item-category");
 
@@ -503,7 +466,6 @@ namespace FTR.UI.Shop
             var priceLabel = new Label($"{product.price} 💎");
             priceLabel.AddToClassList("shop-item-price");
 
-            // No amount field — cosmetics are one-time purchases
             var buyButton = new VisualElement();
             buyButton.AddToClassList("shop-buy-button");
             var buyLabel = new Label("Buy");
@@ -529,9 +491,6 @@ namespace FTR.UI.Shop
             return row;
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // Cosmetic icon — downloads texture from CDN via AssetsService
-
         private IEnumerator LoadCosmeticIcon(VisualElement icon, string cosmeticId)
         {
             var task = assetsService.DownloadTexture2D(cosmeticId);
@@ -547,9 +506,6 @@ namespace FTR.UI.Shop
             );
             icon.style.backgroundImage = new StyleBackground(sprite);
         }
-
-        // ─────────────────────────────────────────────────────────────
-        // Gem purchase
 
         private IEnumerator ProcessGemPurchase(string cosmeticId, string displayName)
         {
