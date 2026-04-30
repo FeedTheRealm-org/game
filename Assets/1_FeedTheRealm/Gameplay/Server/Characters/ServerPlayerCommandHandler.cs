@@ -210,7 +210,7 @@ namespace FTR.Gameplay.Server.Characters
         {
             isResolvingCharacterId = true;
             var splitedToken = tokenId.Split('_');
-            if (serverConfig.AllowBots && splitedToken[0] == config.BotJoinToken)
+            if (serverConfig.IsTestWorld && splitedToken[0] == config.BotJoinToken)
             {
                 var botId = splitedToken.Length > 1 ? splitedToken[1] : "UnknownBot";
                 stateStorage.SetCharacterId($"bot_{botId}");

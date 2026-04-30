@@ -24,7 +24,7 @@ namespace FTR.Core.Server.Config
         public int ZoneId;
 
         [HideInInspector]
-        public bool AllowBots;
+        public bool IsTestWorld;
 
         [Header("Database Settings")]
         // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
@@ -126,7 +126,7 @@ namespace FTR.Core.Server.Config
         {
             this.WorldId = ParamsSerializer.GetArgs("world-id", string.Empty);
             this.ZoneId = int.Parse(ParamsSerializer.GetArgs("zone-id", "0"));
-            this.AllowBots = bool.Parse(ParamsSerializer.GetArgs("allow-bots", "false"));
+            this.IsTestWorld = bool.Parse(ParamsSerializer.GetArgs("is-test-world", "false"));
         }
     }
 }

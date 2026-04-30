@@ -2,6 +2,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Commands;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 using VContainer;
@@ -37,6 +38,9 @@ public class ServerCharacterLinker
     /// </summary>
     public ServerCharacterSystems Link(GameObject gameObject, uint netId)
     {
+        var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
+        tracker.Initialize(world, netId);
+
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
         var rb = gameObject.GetComponent<Rigidbody>();
         var col = gameObject.GetComponent<Collider>();

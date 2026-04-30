@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Entities;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
@@ -13,23 +15,47 @@ using UnityEngine;
 public class GameLoop : IGameTickable
 {
     private readonly WorldMonitor worldMonitor;
+    private readonly GameTickEvent gameTickEvent;
+    private Logging.Logger logger;
+    private readonly ServerConfig serverConfig;
 
     private readonly long maxCommandsTimePerTick = Stopwatch.Frequency / 1000 * 10; // 10ms
     private readonly long maxCommandsPerTick = 100;
 
     private readonly EventCollector eventCollector = new();
 
-    private readonly GameTickEvent gameTickEvent;
+    private Action<float> _tickHandler;
 
-    public GameLoop(WorldMonitor worldMonitor, GameTickEvent gameTickEvent)
+    // Metrics
+    private readonly Stopwatch _sw = new Stopwatch();
+    private readonly Stopwatch _sectionSw = new Stopwatch();
+    private int _lastGen0,
+        _lastGen1,
+        _lastGen2;
+
+    public GameLoop(
+        WorldMonitor worldMonitor,
+        GameTickEvent gameTickEvent,
+        Logging.Logger logger,
+        ServerConfig serverConfig
+    )
     {
         this.worldMonitor = worldMonitor;
         this.gameTickEvent = gameTickEvent;
+        this.logger = logger;
+        this.serverConfig = serverConfig;
+
+        _tickHandler = serverConfig.IsTestWorld ? TestGameTick : RegularGameTick;
     }
 
     public void GameTick(float dt)
     {
-        var sw = Stopwatch.StartNew();
+        _tickHandler(dt);
+    }
+
+    private void RegularGameTick(float dt)
+    {
+        _sw.Restart();
 
         ProcessCommands();
 
@@ -40,8 +66,71 @@ public class GameLoop : IGameTickable
         eventCollector.ForEach(serverEvent => worldMonitor.Events.Enqueue(serverEvent));
         eventCollector.Clear();
 
-        sw.Stop();
-        DogStatsd.Histogram("server.tick_duration_ms", sw.Elapsed.TotalMilliseconds);
+        _sw.Stop();
+
+        if (_sw.Elapsed.TotalMilliseconds > 20) // delayed tick
+            logger.Log(
+                $"[DELAYED TICK] total={_sw.Elapsed.TotalMilliseconds:F2}ms",
+                Logging.LogType.Warning
+            );
+    }
+
+    private void TestGameTick(float dt)
+    {
+        int gen0 = GC.CollectionCount(0);
+        int gen1 = GC.CollectionCount(1);
+        int gen2 = GC.CollectionCount(2);
+        bool gcHappened = gen0 != _lastGen0 || gen1 != _lastGen1 || gen2 != _lastGen2;
+
+        _sw.Restart();
+        _sectionSw.Restart();
+        ProcessCommands();
+        _sectionSw.Stop();
+        double processCommandsMs = _sectionSw.Elapsed.TotalMilliseconds;
+
+        _sectionSw.Restart();
+        Physics.Simulate(dt);
+        _sectionSw.Stop();
+        double physicsMs = _sectionSw.Elapsed.TotalMilliseconds;
+
+        _sectionSw.Restart();
+        gameTickEvent.Raise(dt);
+        _sectionSw.Stop();
+        double gameTickEventMs = _sectionSw.Elapsed.TotalMilliseconds;
+
+        // Push new events to NetworkQueue
+        eventCollector.ForEach(serverEvent => worldMonitor.Events.Enqueue(serverEvent));
+        eventCollector.Clear();
+
+        _sw.Stop();
+        double totalMs = _sw.Elapsed.TotalMilliseconds;
+
+        int dGen0 = gen0 - _lastGen0;
+        int dGen1 = gen1 - _lastGen1;
+        int dGen2 = gen2 - _lastGen2;
+        _lastGen0 = gen0;
+        _lastGen1 = gen1;
+        _lastGen2 = gen2;
+
+        bool slowTick = totalMs > 20;
+        if (slowTick || gcHappened)
+        {
+            logger.Log(
+                $"[TICK] total={totalMs:F2}ms "
+                    + $"commands={processCommandsMs:F2}ms "
+                    + $"physics={physicsMs:F2}ms "
+                    + $"tickEvent={gameTickEventMs:F2}ms"
+                    + (gcHappened ? $" | [GC] d0={dGen0} d1={dGen1} d2={dGen2}" : "")
+            );
+        }
+
+        DogStatsd.Histogram("server.tick_duration_ms", totalMs);
+        DogStatsd.Histogram("server.commands_ms", processCommandsMs);
+        DogStatsd.Histogram("server.physics_ms", physicsMs);
+        DogStatsd.Histogram("server.tick_event_ms", gameTickEventMs);
+        DogStatsd.Gauge("server.gc.gen0", dGen0);
+        DogStatsd.Gauge("server.gc.gen1", dGen1);
+        DogStatsd.Gauge("server.gc.gen2", dGen2);
         DogStatsd.Gauge("server.entities_count", worldMonitor.Entities.Count);
         DogStatsd.Gauge("server.players_count", worldMonitor.Entities.PlayerCount);
         DogStatsd.Gauge("server.commands_queue_length", worldMonitor.Commands.Count);

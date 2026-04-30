@@ -1,6 +1,4 @@
-using FTR.Core.Server;
 using Mirror;
-using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters;
 
@@ -30,9 +28,6 @@ public class ServerEntityCleanupTracker : NetworkBehaviour
 
     private void Cleanup()
     {
-        if (worldMonitor != null)
-        {
-            worldMonitor.Entities.Unregister(trackedNetId);
-        }
+        worldMonitor?.Entities.Unregister(trackedNetId);
     }
 }
