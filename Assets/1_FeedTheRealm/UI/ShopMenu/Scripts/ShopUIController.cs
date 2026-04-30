@@ -74,6 +74,7 @@ namespace FTR.UI.Shop
         private ItemStatsTooltip _itemStatsTooltip;
         private Coroutine _hideMessageCoroutine;
         private Coroutine _animationCoroutine;
+        private Coroutine _fetchGemBalanceCoroutine;
 
         private const float AnimationDuration = 0.25f;
 
@@ -154,8 +155,8 @@ namespace FTR.UI.Shop
                     ? DisplayStyle.None
                     : DisplayStyle.Flex;
 
-            if (!goldTab && _currentGemBalance < 0)
-                StartCoroutine(FetchGemBalance());
+            if (!goldTab && _currentGemBalance < 0 && _fetchGemBalanceCoroutine == null)
+                _fetchGemBalanceCoroutine = StartCoroutine(FetchGemBalance());
 
             RefreshTabStyles();
         }
@@ -195,6 +196,8 @@ namespace FTR.UI.Shop
                 if (_gemBalanceLabel != null)
                     _gemBalanceLabel.text = "?";
             }
+
+            _fetchGemBalanceCoroutine = null;
         }
 
         private void UpdateGemBalanceLabel()
