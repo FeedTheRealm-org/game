@@ -3,10 +3,7 @@ using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.Environment.Chests;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
-using FTR.Gameplay.Common.NetworkEntities.Portal;
 using FTR.Gameplay.Server.Environment.Chest;
-using FTR.Gameplay.Server.Environment.Portal;
-using FTR.Gameplay.Server.Registry;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -45,10 +42,7 @@ public class ServerChestLinker : ChestLinker
         serverComponents.layer = gameObject.layer;
         resolver.InjectGameObject(serverComponents);
 
-        var chestController = gameObject.GetComponent<ChestController>();
-        serverComponents
-            .GetComponent<ChestInteractSystem>()
-            .Initialize(chestController, chestStateStorage);
+        serverComponents.GetComponent<ChestInteractSystem>().Initialize(chestStateStorage, world);
 
         RegisterEntity(netId, networkAdapter);
 

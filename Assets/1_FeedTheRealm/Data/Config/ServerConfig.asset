@@ -37,7 +37,7 @@ MonoBehaviour:
     m_Bits: 16384
   playerSpeed: 5
   itemDespawnTime: 60
-  maxInitialForce: 2
+  maxInitialForce: 5
   dashSpeed: 25
   dashDuration: 0.1
   maxStamina: 200

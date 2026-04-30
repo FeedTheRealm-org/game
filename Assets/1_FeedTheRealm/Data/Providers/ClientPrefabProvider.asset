@@ -23,7 +23,7 @@ MonoBehaviour:
   NameTagPrefab: {fileID: 4901213077827125947, guid: 44d76e247aa5031d090d6ab1d5ba05ec, type: 3}
   PortalVisual: {fileID: 4901213077827125947, guid: 4387c43339d72bff2b4a177dfadc24de, type: 3}
   portalLinkComponents: {fileID: 3012644098720053192, guid: 0b34bac23618fcc6cbc242c6d23b5520, type: 3}
-  chestLinkComponents: {fileID: 0}
+  chestLinkComponents: {fileID: 3012644098720053192, guid: 08ca3f7e52205754c9f89429b9b95cfc, type: 3}
   ShopItemVisual: {fileID: 6961499021917701889, guid: 52c0895cf118ac446ad844f6a5cf7e7b, type: 3}
   ShopMenuComponent: {fileID: 6588888558913600653, guid: a74dc9d7d96a877419cac698a0382779, type: 3}
   ShopPrefab: {fileID: 3922623790710069857, guid: 202f4e6245ef36c438f836aa55664307, type: 3}

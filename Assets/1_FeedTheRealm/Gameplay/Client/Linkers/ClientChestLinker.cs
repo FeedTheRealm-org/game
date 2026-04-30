@@ -1,13 +1,16 @@
 using FTR.Core.Client;
 using FTR.Gameplay.Common.Characters.Shared.Portal;
+using FTR.Gameplay.Common.Environment.Chests;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Common.NetworkEntities.Chest;
+using FTR.Gameplay.Environment.Chest;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.Linkers;
 
-public class ClientChestLinker : PortalLinker
+public class ClientChestLinker : ChestLinker
 {
     private readonly ClientPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
@@ -24,7 +27,11 @@ public class ClientChestLinker : PortalLinker
             prefabProvider.chestLinkComponents,
             gameObject.transform
         );
-        clientPortalComponents.layer = gameObject.layer;
+        var chestView = clientPortalComponents.GetComponent<ChestView>();
+        var chestController = gameObject.GetComponent<ChestController>();
+        var chestStateStorage = gameObject.GetComponent<ChestStateStorage>();
         resolver.InjectGameObject(clientPortalComponents);
+        chestController.Initialize(chestStateStorage);
+        _ = chestView.Initialize(chestStateStorage);
     }
 }

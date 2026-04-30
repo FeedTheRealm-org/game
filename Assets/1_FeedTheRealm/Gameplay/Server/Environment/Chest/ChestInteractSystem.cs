@@ -5,7 +5,7 @@ using FTR.Core.Common.Interactions;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server;
 using FTR.Core.Server.Config;
-using FTR.Gameplay.Common.Environment.Chests;
+using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Registry;
@@ -30,16 +30,15 @@ namespace FTR.Gameplay.Server.Environment.Chest
         [SerializeField]
         private ObjectResolverContainer resolverContainer;
 
-        [SerializeField]
-        private int chestResetTimeSeconds = 60;
+        private WorldMonitor worldMonitor;
 
         private ChestStateStorage chestStateStorage;
-        private ChestController chestController;
         private ServerPrefabProvider prefabProvider;
         private Vector3 chestTopPosition;
-
-        private string ChestId => chestController.chestData.id;
-        private string LootTableId => chestController.chestData.lootTableId;
+        private string chestId => chestStateStorage.ChestData.id;
+        private string lootTableId => chestStateStorage.ChestData.lootTableId;
+        private float chestResetTimeSeconds =>
+            chestStateStorage.ChestData.chestCooldownMinutes * 60f;
 
         public bool CanInteract(IInteractor interactor)
         {
@@ -51,35 +50,38 @@ namespace FTR.Gameplay.Server.Environment.Chest
             return;
         }
 
-        public void Initialize(ChestController chestController, ChestStateStorage chestStateStorage)
+        public void Initialize(ChestStateStorage chestStateStorage, WorldMonitor worldMonitor)
         {
             this.chestStateStorage = chestStateStorage;
-            this.chestController = chestController;
+            this.worldMonitor = worldMonitor;
             prefabProvider = resolverContainer.Resolver.Resolve<ServerPrefabProvider>();
-            chestTopPosition = GetChestTopPosition();
+            GetChestTopPosition();
         }
 
         public string Interact(IInteractor interactor)
         {
-            OpenChest(interactor.NetId);
-            return ChestId;
+            uint playerNetId = interactor.NetId;
+            var connId = GetPlayerConnectionId(playerNetId);
+            OpenChest(playerNetId);
+            worldMonitor.Events.Enqueue(new InteractCompletedEvent(playerNetId, connId.Value));
+            return chestId;
         }
 
         private void OpenChest(uint playerNetId)
         {
             if (chestStateStorage.IsOpen)
             {
-                logger.Log($"Chest {ChestId} is already open. Ignoring interaction.");
+                logger.Log($"Chest {chestId} is already open. Ignoring interaction.");
                 return;
             }
-            logger.Log($"Player {playerNetId} opened chest {ChestId}.");
+            logger.Log($"Player {playerNetId} opened chest {chestId}.");
             chestStateStorage.SetChestState(true);
             OnOpenChest();
         }
 
         private void OnOpenChest()
         {
-            var lootTable = ServerItemsRegistry.GetLootTableById(LootTableId);
+            var lootTable = ServerItemsRegistry.GetLootTableById(lootTableId);
             if (lootTable == null)
                 return;
 
@@ -95,41 +97,20 @@ namespace FTR.Gameplay.Server.Environment.Chest
                 lootTable.maxGoldDropAmount + 1
             );
 
-            StartCoroutine(SpawnLootItemsCoroutine(itemsToSpawn, amountOfGold));
-        }
-
-        private IEnumerator SpawnLootItemsCoroutine(List<string> itemIds, int goldAmount)
-        {
-            SpawnGold(chestTopPosition, goldAmount);
-            foreach (string itemId in itemIds)
+            SpawnGold(chestTopPosition, amountOfGold);
+            foreach (string itemId in itemsToSpawn)
             {
                 SpawnLootItem(chestTopPosition, itemId);
-                yield return new WaitForSeconds(serverConfig.ChestItemSpawnRateSeconds);
             }
-            yield return ChestResetCoroutine();
+            StartCoroutine(ChestResetCoroutine());
         }
 
         private IEnumerator ChestResetCoroutine()
         {
-            logger.Log($"Chest {ChestId} will reset in {chestResetTimeSeconds} seconds.");
+            logger.Log($"Chest {chestId} will reset in {chestResetTimeSeconds} seconds.");
             yield return new WaitForSeconds(chestResetTimeSeconds);
             chestStateStorage.SetChestState(false);
-            logger.Log($"Chest {ChestId} has reset.");
-        }
-
-        // Helper Functions
-
-        private Vector3 GetChestTopPosition()
-        {
-            var renderers = GetComponentsInChildren<Renderer>();
-            if (renderers.Length == 0)
-                return transform.position;
-
-            Bounds combined = renderers[0].bounds;
-            foreach (var r in renderers)
-                combined.Encapsulate(r.bounds);
-
-            return new Vector3(transform.position.x, combined.max.y, transform.position.z);
+            logger.Log($"Chest {chestId} has reset.");
         }
 
         // Spawn Functions
@@ -183,25 +164,39 @@ namespace FTR.Gameplay.Server.Environment.Chest
                         stateStorage.SetItemId(itemId);
                         stateStorage.SetGoldAmount(0);
                     }
-
-                    var rb = lootInstance.GetComponent<Rigidbody>();
-                    if (rb != null)
-                    {
-                        float angle = UnityEngine.Random.Range(30f, 60f);
-                        float horizontalAngle = UnityEngine.Random.Range(0f, 360f);
-                        Vector3 direction =
-                            Quaternion.Euler(-angle, horizontalAngle, 0f) * Vector3.up;
-                        float force = UnityEngine.Random.Range(3f, 6f);
-                        rb.AddForce(direction * force, ForceMode.Impulse);
-                    }
-
                     NetworkServer.Spawn(lootInstance);
                 }
             }
             else
             {
-                logger.Log("[Chest] LootItem prefab not assigned on Chest!", this);
+                logger.Log("[EnemySpawn] LootItem prefab not assigned on EnemySpawn!", this);
             }
+        }
+
+        private void GetChestTopPosition()
+        {
+            var chestCollider = transform.parent.GetComponent<BoxCollider>();
+            chestTopPosition =
+                chestCollider != null
+                    ? new Vector3(
+                        chestCollider.bounds.center.x,
+                        chestCollider.bounds.max.y + 0.5f,
+                        chestCollider.bounds.center.z
+                    )
+                    : transform.parent.position + Vector3.up;
+        }
+
+        // TODO: move this to a utility class since it's used in ShopInteractSystem as well
+        private int? GetPlayerConnectionId(uint playerNetId)
+        {
+            if (
+                worldMonitor.Entities.TryGet(playerNetId, out var entity)
+                && entity.ConnectionId.HasValue
+            )
+            {
+                return entity.ConnectionId.Value;
+            }
+            return null;
         }
     }
 }

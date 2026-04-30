@@ -122,8 +122,9 @@ namespace FTR.Core.Server.Config
         public float AggressiveChaseRadius = 5f;
         public float AggressiveAttackRadius = 2f;
 
-        [Header("World Environment")]
+        [Header("Chest")]
         public float ChestItemSpawnRateSeconds = 0.5f;
+        public float ChestItemSpawnHeight = 1f;
 
         public void LoadParams()
         {

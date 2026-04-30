@@ -39,7 +39,7 @@ namespace FTR.Gameplay.Client.Loaders
             var clientNpcDialogLoader = new ClientNpcDialogLoader();
             var clientItemLoader = new ClientItemLoader();
             var clientQuestLoader = new ClientQuestLoader();
-            var ClientPortalLoader = new ClientPortalLoader(prefabProvider, resolver);
+            var clientPortalLoader = new ClientPortalLoader(prefabProvider, resolver);
 
             loaders = new List<ILoader>
             {
@@ -47,7 +47,7 @@ namespace FTR.Gameplay.Client.Loaders
                 clientNpcDialogLoader,
                 clientItemLoader,
                 clientQuestLoader,
-                ClientPortalLoader,
+                clientPortalLoader,
             };
 
             foreach (var loader in loaders)
