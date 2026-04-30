@@ -75,7 +75,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public bool ReduceGold(IEventCollectable ec, int amount)
         {
-            if (amount <= 0)
+            if (amount < 0)
             {
                 logger.Log($"[GoldSystem] ReduceGold: invalid amount {amount}", this);
                 return false;

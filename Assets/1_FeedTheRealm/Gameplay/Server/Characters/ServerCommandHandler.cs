@@ -34,7 +34,8 @@ namespace FTR.Gameplay.Server.Characters
             IEventCollectable ec,
             uint netId,
             string productId,
-            int amount
+            int amount,
+            string shopId
         ) { }
 
         public virtual void OnQuestAccepted(IEventCollectable ec, string questId) { }

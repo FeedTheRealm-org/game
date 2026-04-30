@@ -69,6 +69,8 @@ namespace FTR.UI.Shop
 
         private bool _isGoldTabActive = true;
         private int _currentGemBalance = -1;
+        private string _currentShopId;
+
         private ItemStatsTooltip _itemStatsTooltip;
         private Coroutine _hideMessageCoroutine;
         private Coroutine _animationCoroutine;
@@ -337,6 +339,7 @@ namespace FTR.UI.Shop
 
         private void PopulateShop(string shopId)
         {
+            _currentShopId = shopId;
             if (_shopItemsContainer == null || _cosmeticItemsContainer == null)
                 return;
 
@@ -424,7 +427,7 @@ namespace FTR.UI.Shop
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
                 int amount = Mathf.Max(1, amountField.value);
-                purchaseRequestEvent?.Raise((capturedId, amount));
+                purchaseRequestEvent?.Raise((_currentShopId, capturedId, amount));
             });
 
             row.Add(icon);
