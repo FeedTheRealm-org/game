@@ -46,6 +46,10 @@ public class GameLoop : IGameTickable
         this.serverConfig = serverConfig;
 
         _tickHandler = serverConfig.IsTestWorld ? TestGameTick : RegularGameTick;
+        logger.Log(
+            $"GameLoop initialized with tick handler: {_tickHandler.Method.Name}",
+            Logging.LogType.Info
+        );
     }
 
     public void GameTick(float dt)
@@ -77,11 +81,6 @@ public class GameLoop : IGameTickable
 
     private void TestGameTick(float dt)
     {
-        int gen0 = GC.CollectionCount(0);
-        int gen1 = GC.CollectionCount(1);
-        int gen2 = GC.CollectionCount(2);
-        bool gcHappened = gen0 != _lastGen0 || gen1 != _lastGen1 || gen2 != _lastGen2;
-
         _sw.Restart();
         _sectionSw.Restart();
         ProcessCommands();
@@ -105,6 +104,10 @@ public class GameLoop : IGameTickable
         _sw.Stop();
         double totalMs = _sw.Elapsed.TotalMilliseconds;
 
+        int gen0 = GC.CollectionCount(0);
+        int gen1 = GC.CollectionCount(1);
+        int gen2 = GC.CollectionCount(2);
+
         int dGen0 = gen0 - _lastGen0;
         int dGen1 = gen1 - _lastGen1;
         int dGen2 = gen2 - _lastGen2;
@@ -112,11 +115,13 @@ public class GameLoop : IGameTickable
         _lastGen1 = gen1;
         _lastGen2 = gen2;
 
+        bool gcHappened = dGen0 > 0 || dGen1 > 0 || dGen2 > 0;
+
         bool slowTick = totalMs > 20;
         if (slowTick || gcHappened)
         {
             logger.Log(
-                $"[TICK] total={totalMs:F2}ms "
+                $"[TICK] total={totalMs}ms "
                     + $"commands={processCommandsMs:F2}ms "
                     + $"physics={physicsMs:F2}ms "
                     + $"tickEvent={gameTickEventMs:F2}ms"

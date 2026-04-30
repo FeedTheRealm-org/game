@@ -11,7 +11,6 @@ help: # Show this help message
 
 down: # Stop and remove containers
 	docker compose -f $(COMPOSE) down --remove-orphans -t 2
-	docker network prune -f
 .PHONY: down
 
 build: down # Build containers

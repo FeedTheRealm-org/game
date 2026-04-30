@@ -31,6 +31,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
 
+    private bool IsInitialized = false;
+
     public ServerWorldEntryPoint(
         ServerTickDriver serverTickDriver,
         NetworkTickDriver networkTickDriver,
@@ -94,6 +96,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
             healthcheckServer.Start();
             WorldLoadBootstrap.MarkServerReady();
+            IsInitialized = true;
         }
         catch (OperationCanceledException)
         {
@@ -134,6 +137,9 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     /// </summary>
     public void Tick()
     {
+        if (!IsInitialized)
+            return;
+
         networkTickDriver.TickBefore();
 
         accumulator += Time.deltaTime;
