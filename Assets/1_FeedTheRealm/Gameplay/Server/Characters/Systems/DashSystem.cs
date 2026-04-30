@@ -54,7 +54,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (stateStorage.Stamina < config.DashStaminaCost || !stateStorage.IsGrounded)
                 return;
 
-            Vector3 force = direction.normalized * config.DashSpeed;
+            Vector3 dashDirection = stateStorage.IsOnSlope
+                ? Vector3.ProjectOnPlane(direction, stateStorage.GroundNormal).normalized
+                : direction.normalized;
+
+            Vector3 force = dashDirection * config.DashSpeed;
             if (force == Vector3.zero)
                 return;
 

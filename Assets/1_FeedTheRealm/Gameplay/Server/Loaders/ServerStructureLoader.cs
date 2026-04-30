@@ -15,12 +15,18 @@ namespace FTR.Gameplay.Server.Loaders
     {
         private readonly GameObject structurePrefab;
         private readonly GameObject shopPrefab;
+        private readonly ColliderRegistry colliderRegistry;
         private readonly IObjectResolver resolver;
 
-        public ServerStructureLoader(ServerPrefabProvider prefabProvider, IObjectResolver resolver)
+        public ServerStructureLoader(
+            ServerPrefabProvider prefabProvider,
+            ColliderRegistry colliderRegistry,
+            IObjectResolver resolver
+        )
         {
             structurePrefab = prefabProvider.StructureComponent;
             shopPrefab = prefabProvider.ShopComponent;
+            this.colliderRegistry = colliderRegistry;
             this.resolver = resolver;
         }
 
@@ -42,9 +48,12 @@ namespace FTR.Gameplay.Server.Loaders
                     continue;
                 }
                 GameObject instance = Object.Instantiate(structurePrefab);
+                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
+                    structureData.colliderType
+                );
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
-                controller.Initialize(structureData);
+                controller.Initialize(structureData, colliderPrefab, colliderLayer);
             }
 
             NetworkSpawnPendingObjectsRegistry spawnerRegistry =
@@ -54,7 +63,10 @@ namespace FTR.Gameplay.Server.Loaders
                 GameObject instance = Object.Instantiate(shopPrefab);
                 instance.name = structureData.shopId;
                 var controller = instance.GetComponent<StructureController>();
-                controller.Initialize(structureData);
+                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
+                    structureData.colliderType
+                );
+                controller.Initialize(structureData, colliderPrefab, colliderLayer);
                 spawnerRegistry.Register(instance);
             }
         }

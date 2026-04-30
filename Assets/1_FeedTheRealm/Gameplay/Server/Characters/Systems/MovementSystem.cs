@@ -10,9 +10,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class MovementSystem : MonoBehaviour, IGameTickable
     {
-        [Inject]
-        private readonly PlayersRepository playersRepository;
-
         [SerializeField]
         private GameTickEvent gameTickEvent;
         private uint netId;
@@ -32,6 +29,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float speedBuffTimer = 0f;
 
         private bool isDead = false;
+
+        private bool wasGroundedLastTick = false;
 
         public Vector3 GetCurrentPosition() => rb.position;
 
@@ -98,14 +97,50 @@ namespace FTR.Gameplay.Server.Characters.Systems
             {
                 speedBuffTimer -= dt;
                 if (speedBuffTimer <= 0)
-                {
                     speedBuffAmount = 0f;
-                }
             }
 
             float currentSpeed = moveSpeed + speedBuffAmount;
-            Vector3 nextPosition = rb.position + dt * currentSpeed * direction;
-            rb.MovePosition(nextPosition);
+            bool isGrounded = stateStorage.IsGrounded;
+            bool justLanded = isGrounded && !wasGroundedLastTick;
+
+            rb.useGravity = !(isGrounded && stateStorage.IsOnSlope);
+
+            if (isGrounded)
+            {
+                if (justLanded)
+                {
+                    direction = Vector3.zero;
+                    stateStorage.SetDirection(Vector3.zero);
+                    rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+                }
+                else if (direction != Vector3.zero)
+                {
+                    Vector3 moveDirection = stateStorage.IsOnSlope
+                        ? Vector3.ProjectOnPlane(direction, stateStorage.GroundNormal).normalized
+                        : direction;
+
+                    Vector3 nextPosition = rb.position + dt * currentSpeed * moveDirection;
+                    rb.MovePosition(nextPosition);
+                }
+                else
+                {
+                    rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+                    stateStorage.SetDirection(rb.linearVelocity);
+                }
+            }
+            else
+            {
+                // allow movement in air but don't auto-move — apply direction only if actively set
+                if (direction != Vector3.zero)
+                {
+                    Vector3 nextPosition = rb.position + dt * currentSpeed * direction;
+                    rb.MovePosition(nextPosition);
+                }
+            }
+
+            wasGroundedLastTick = isGrounded;
+
             if (gameTickCounter % positionCorrectionCounter == 0)
                 stateStorage.CorrectPosition(rb.position);
 

@@ -36,6 +36,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private ServerPrefabProvider prefabProvider;
 
         [SerializeField]
+        private ColliderRegistry colliderRegistry;
+
+        [SerializeField]
         private NpcDialogRegistry npcDialogRegistry;
 
         [SerializeField]
@@ -67,6 +70,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(zoneService);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
+            builder.RegisterInstance(colliderRegistry);
 
             builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
             builder.Register<Database>(Lifetime.Singleton);
@@ -102,6 +106,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             ValidateField(playerService, nameof(playerService));
             ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
             ValidateField(serverQuestRegistry, nameof(serverQuestRegistry));
+            ValidateField(colliderRegistry, nameof(colliderRegistry));
         }
 
         private void ValidateField(Object field, string fieldName)

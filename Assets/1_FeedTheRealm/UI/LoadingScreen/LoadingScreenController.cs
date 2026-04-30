@@ -14,11 +14,11 @@ public class LoadingScreenController : MonoBehaviour
 
     private VisualElement rootElement;
 
-    private void OnEnable()
+    private void Awake()
     {
         rootElement = GetComponent<UIDocument>().rootVisualElement;
         loadingEvent.OnRaised += ToggleLoadingScreen;
-        Debug.Log($"[LoadingScreenController] OnEnable called. Subscribing to loading event.");
+        Debug.Log($"[LoadingScreenController] Awake called. Subscribing to loading event.");
     }
 
     private void OnDisable()

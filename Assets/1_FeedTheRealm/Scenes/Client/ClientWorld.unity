@@ -145,7 +145,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8760325099734416004, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 21.7
       objectReference: {fileID: 0}
     - target: {fileID: 8760325099734416004, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -176,7 +176,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7077238349757189132, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
+    - {fileID: 6019528572457785345, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
+    - {fileID: 2648445199524404192, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
+    - {fileID: 5112876594928239674, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
+    - {fileID: 25121639176578626, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab0d7154f621ca1b293c209adbf6a61c, type: 3}
@@ -542,6 +547,10 @@ PrefabInstance:
       propertyPath: loaderProvider
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
+      propertyPath: colliderRegistry
+      value: 
+      objectReference: {fileID: 11400000, guid: deebf1077aab9e9e79437e21d4e3f5a4, type: 2}
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: clientWorldLoader
       value: 

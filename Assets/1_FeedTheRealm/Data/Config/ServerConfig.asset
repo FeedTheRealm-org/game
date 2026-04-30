@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   EnvFilePath: .env
-  LoadFromEnvFile: 1
-  LoadEnvVars: 1
-  PersistToDatabase: 1
+  LoadFromEnvFile: 0
+  LoadEnvVars: 0
+  PersistToDatabase: 0
   AutoSaveIntervalSeconds: 30
   PlayerLayer:
     serializedVersion: 2
@@ -29,6 +29,9 @@ MonoBehaviour:
   ObstacleLayer:
     serializedVersion: 2
     m_Bits: 4096
+  SlopeLayer:
+    serializedVersion: 2
+    m_Bits: 16384
   playerSpeed: 5
   itemDespawnTime: 60
   maxInitialForce: 2

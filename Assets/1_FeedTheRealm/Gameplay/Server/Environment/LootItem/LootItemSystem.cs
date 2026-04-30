@@ -48,6 +48,9 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             }
         }
 
+        public bool IsOnSlope { get; set; }
+        public Vector3 GroundNormal { get; set; }
+
         public void Initialize(Rigidbody rb, uint netId, LootItemStateStorage stateStorage)
         {
             this.rb = rb;
