@@ -448,7 +448,13 @@ namespace FTR.UI.Shop
 
             var icon = new VisualElement();
             icon.AddToClassList("shop-item-icon");
-            StartCoroutine(LoadCosmeticIcon(icon, ResolveCosmeticSpriteReference(product)));
+            StartCoroutine(
+                LoadCosmeticIcon(
+                    icon,
+                    ResolveCosmeticSpriteReference(product),
+                    product.categoryName
+                )
+            );
 
             var nameLabel = new Label(
                 !string.IsNullOrEmpty(product.displayName) ? product.displayName : product.productId
@@ -539,7 +545,11 @@ namespace FTR.UI.Shop
             return string.IsNullOrEmpty(spritePath) ? product.productId : spritePath;
         }
 
-        private IEnumerator LoadCosmeticIcon(VisualElement icon, string cosmeticId)
+        private IEnumerator LoadCosmeticIcon(
+            VisualElement icon,
+            string cosmeticId,
+            string categoryName
+        )
         {
             var task = assetsService.DownloadTexture2D(cosmeticId);
             yield return new WaitUntil(() => task.IsCompleted);
@@ -547,12 +557,27 @@ namespace FTR.UI.Shop
             if (task.Result == null)
                 yield break;
 
-            var sprite = Sprite.Create(
-                task.Result,
-                new Rect(0, 0, task.Result.width, task.Result.height),
-                new Vector2(0.5f, 0.5f)
-            );
+            Sprite sprite;
+
+            if (!string.IsNullOrEmpty(categoryName))
+            {
+                var cropped = CosmeticIconLoader.CreateCroppedSprite(task.Result, categoryName);
+                if (cropped != null)
+                {
+                    sprite = cropped;
+                }
+                else
+                {
+                    sprite = CosmeticIconLoader.CreateFullSprite(task.Result);
+                }
+            }
+            else
+            {
+                sprite = CosmeticIconLoader.CreateFullSprite(task.Result);
+            }
+
             icon.style.backgroundImage = new StyleBackground(sprite);
+            icon.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
         }
 
         private IEnumerator ProcessGemPurchase(string cosmeticId, string displayName)
