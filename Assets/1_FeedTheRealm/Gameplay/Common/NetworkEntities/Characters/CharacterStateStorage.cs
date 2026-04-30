@@ -156,5 +156,13 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
             OnCharacterIdSync(null, characterId);
             OnEquippedItemSync(null, equippedItemId);
         }
+
+        public float GetGroundCheckDistance()
+        {
+            var capsuleCollider = GetComponent<CapsuleCollider>();
+            return capsuleCollider != null
+                ? (capsuleCollider.height / 2) * transform.lossyScale.y
+                : 0f;
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace FTR.Core.Common.Systems.Status
         bool IsGrounded { get; set; }
         bool IsOnSlope { get; set; }
         Vector3 GroundNormal { get; set; }
+        float GetGroundCheckDistance();
     }
 }

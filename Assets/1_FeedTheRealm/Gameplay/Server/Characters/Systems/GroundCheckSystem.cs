@@ -17,6 +17,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Collider col;
         private IGroundable stateStorage;
         private Vector3 groundCheckSphereOrigin;
+        private float groundCheckDistance => stateStorage.GetGroundCheckDistance();
 
         private void OnDisable()
         {
@@ -44,24 +45,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool IsCollidedWithGround()
         {
-            bool result = Physics.SphereCast(
+            bool result = Physics.Raycast(
                 groundCheckSphereOrigin,
-                config.GroundCheckSphereRadius,
                 Vector3.down,
-                out RaycastHit _,
-                config.GroundCheckDistance,
+                out RaycastHit slopeHit,
+                groundCheckDistance,
                 config.GroundLayer | config.SlopeLayer
             );
 
-            if (
-                Physics.Raycast(
-                    groundCheckSphereOrigin,
-                    Vector3.down,
-                    out RaycastHit slopeHit,
-                    config.GroundCheckDistance + config.GroundCheckSphereRadius,
-                    config.SlopeLayer
-                )
-            )
+            if (result)
             {
                 stateStorage.IsOnSlope = true;
                 stateStorage.GroundNormal = slopeHit.normal;
@@ -83,11 +75,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             Gizmos.color = Color.red;
             Gizmos.DrawLine(
                 groundCheckSphereOrigin,
-                groundCheckSphereOrigin + Vector3.down * config.GroundCheckDistance
-            );
-            Gizmos.DrawWireSphere(
-                groundCheckSphereOrigin + Vector3.down * config.GroundCheckDistance,
-                config.GroundCheckSphereRadius
+                groundCheckSphereOrigin + Vector3.down * groundCheckDistance
             );
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(

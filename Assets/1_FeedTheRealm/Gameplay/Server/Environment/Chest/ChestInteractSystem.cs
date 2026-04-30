@@ -30,6 +30,9 @@ namespace FTR.Gameplay.Server.Environment.Chest
         [SerializeField]
         private ObjectResolverContainer resolverContainer;
 
+        [SerializeField]
+        private float chestTopOffset = 0.5f;
+
         private WorldMonitor worldMonitor;
 
         private ChestStateStorage chestStateStorage;
@@ -180,7 +183,7 @@ namespace FTR.Gameplay.Server.Environment.Chest
                 chestCollider != null
                     ? new Vector3(
                         chestCollider.bounds.center.x,
-                        chestCollider.bounds.max.y + 0.5f,
+                        chestCollider.bounds.max.y + chestTopOffset,
                         chestCollider.bounds.center.z
                     )
                     : transform.parent.position + Vector3.up;

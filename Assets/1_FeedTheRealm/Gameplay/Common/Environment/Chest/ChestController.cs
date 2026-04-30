@@ -7,6 +7,7 @@ namespace FTR.Gameplay.Common.Environment.Chests
     public class ChestController : MonoBehaviour
     {
         public ChestData chestData;
+        private ChestStateStorage chestStateStorage;
 
         public void Initialize(ChestStateStorage chestStateStorage)
         {
@@ -15,6 +16,7 @@ namespace FTR.Gameplay.Common.Environment.Chests
             transform.position = chestData.position;
             transform.rotation = Quaternion.Euler(chestData.rotation);
             transform.localScale = chestData.size;
+            this.chestStateStorage = chestStateStorage;
         }
 
         private void OnDrawGizmos()
@@ -22,7 +24,7 @@ namespace FTR.Gameplay.Common.Environment.Chests
             if (chestData == null)
                 return;
 
-            Gizmos.color = Color.orange;
+            Gizmos.color = chestStateStorage.IsOpen ? Color.green : Color.orange;
             Gizmos.matrix = Matrix4x4.TRS(
                 transform.position,
                 transform.rotation,

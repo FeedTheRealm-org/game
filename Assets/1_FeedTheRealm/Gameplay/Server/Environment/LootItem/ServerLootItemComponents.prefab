@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6455529643805704973}
   - component: {fileID: 8196851557143137295}
   - component: {fileID: -49938262019055674}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: ServerLootItemComponents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87,10 +87,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 3894
+    m_Bits: 32566
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0

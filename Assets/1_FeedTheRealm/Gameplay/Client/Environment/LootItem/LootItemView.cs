@@ -9,6 +9,8 @@ public class LootItemView : MonoBehaviour
     private NetworkEventRouter eventRouter;
     private LootItemStateStorage stateStorage;
 
+    private bool readyToFreeze;
+
     public void Initialize(
         Rigidbody rb,
         NetworkEventRouter eventRouter,
@@ -26,7 +28,11 @@ public class LootItemView : MonoBehaviour
     {
         Debug.Log($"[LootItemView] Position corrected to {targetPosition}", this);
         rb.position = targetPosition;
-        rb.constraints = RigidbodyConstraints.FreezePosition;
+
+        if (readyToFreeze)
+            rb.constraints = RigidbodyConstraints.FreezePosition;
+        else
+            readyToFreeze = true;
     }
 
     private void OnDisable()
@@ -39,6 +45,10 @@ public class LootItemView : MonoBehaviour
     /// </summary>
     private void OnInitialForceCorrection(InitialForceEventContent initialForceEventContent)
     {
+        Debug.Log(
+            $"[LootItemView] Received InitialForceEventContent for LootItem {stateStorage.ItemId}. Applying force correction.",
+            this
+        );
         Vector3 initialPosition = new(
             initialForceEventContent.InitialPosition.X,
             initialForceEventContent.InitialPosition.Y,

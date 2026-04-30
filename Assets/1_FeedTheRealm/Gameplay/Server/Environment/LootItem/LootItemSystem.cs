@@ -97,9 +97,15 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         public void GroundItem()
         {
             stateStorage.CorrectPosition(rb.position);
-            rb.constraints = RigidbodyConstraints.FreezeAll;
+            //rb.constraints = RigidbodyConstraints.FreezeAll;
         }
 
         public void GameTick(float dt) { }
+
+        public float GetGroundCheckDistance()
+        {
+            var collider = GetComponentInParent<SphereCollider>();
+            return collider != null ? collider.radius : 0f;
+        }
     }
 }

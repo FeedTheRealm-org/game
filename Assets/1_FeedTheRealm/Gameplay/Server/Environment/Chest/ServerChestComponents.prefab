@@ -47,5 +47,4 @@ MonoBehaviour:
   serverConfig: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
   logger: {fileID: 11400000, guid: 1b1c76477efaa0f58882421429bf3376, type: 2}
   resolverContainer: {fileID: 11400000, guid: 516a84517789d9686ab929076a130e6f, type: 2}
-  chestResetTimeSeconds: 10
-  chestTopPosition: {x: 0, y: 0, z: 0}
+  chestTopOffset: 0.5
