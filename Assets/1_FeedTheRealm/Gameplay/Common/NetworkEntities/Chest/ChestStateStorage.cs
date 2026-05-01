@@ -32,7 +32,6 @@ namespace FTR.Gameplay.Common.NetworkEntities.Chest
         [Server]
         public void SetChestState(bool isOpen)
         {
-            Debug.Log($"[Server] Setting chest state to: {isOpen}");
             this.isOpen = isOpen;
         }
 

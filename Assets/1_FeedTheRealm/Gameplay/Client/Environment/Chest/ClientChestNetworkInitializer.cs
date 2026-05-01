@@ -8,7 +8,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace FTR.Gameplay.Client.Environment.Shop
+namespace FTR.Gameplay.Client.Environment.Chest
 {
     public class ClientChestNetworkInitializer : NetworkBehaviour
     {
@@ -26,9 +26,6 @@ namespace FTR.Gameplay.Client.Environment.Shop
             if (config.RuntimeRole != RuntimeRole.Client)
                 return;
 
-            Debug.Log(
-                $"ClientChestNetworkInitializer: OnStartClient - Injecting {gameObject.name}"
-            );
             var clientWorldInitiator = FindFirstObjectByType<ClientWorldInitiator>();
             clientWorldInitiator.Container.InjectGameObject(gameObject);
             GetComponent<GameObjectLinker>().Initialize();

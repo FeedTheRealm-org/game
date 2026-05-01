@@ -4,7 +4,7 @@ using Mirror;
 using UnityEngine;
 using VContainer.Unity;
 
-namespace FTR.Gameplay.Server.Shop
+namespace FTR.Gameplay.Server.Chest
 {
     public class ServerChestNetworkInitializer : NetworkBehaviour
     {
@@ -16,10 +16,6 @@ namespace FTR.Gameplay.Server.Shop
         public override void OnStartServer()
         {
             base.OnStartServer();
-            Debug.Log(
-                $"ServerChestNetworkInitializer: OnStartServer - Injecting {gameObject.name}"
-            );
-
             var serverWorldInitiator = FindFirstObjectByType<ServerWorldInitiator>();
             serverWorldInitiator.Container.InjectGameObject(gameObject);
             GetComponent<GameObjectLinker>().Initialize();
