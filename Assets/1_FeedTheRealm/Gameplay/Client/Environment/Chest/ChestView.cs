@@ -50,8 +50,8 @@ namespace FTR.Gameplay.Environment.Chest
 
             chestStateStorage.OnChestStateChanged += ToggleChestState;
 
-            modelCache.Clear();
             modelsInfo.Clear();
+            ClearModelCache();
         }
 
         private void ToggleChestState(bool isOpen)
@@ -97,6 +97,14 @@ namespace FTR.Gameplay.Environment.Chest
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return Instantiate(visual);
+        }
+
+        public static void ClearModelCache()
+        {
+            foreach (var model in modelCache.Values)
+                if (model != null)
+                    Destroy(model);
+            modelCache.Clear();
         }
 
         void OnDestroy()

@@ -172,7 +172,7 @@ namespace FTR.Gameplay.Server.Environment.Chest
             }
             else
             {
-                logger.Log("[EnemySpawn] LootItem prefab not assigned on EnemySpawn!", this);
+                logger.Log("[Chest] LootItem prefab not assigned on ChestInteractSystem!", this);
             }
         }
 

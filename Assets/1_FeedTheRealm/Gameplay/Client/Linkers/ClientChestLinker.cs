@@ -1,5 +1,4 @@
 using FTR.Core.Client;
-using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTR.Gameplay.Common.Environment.Chests;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Chest;

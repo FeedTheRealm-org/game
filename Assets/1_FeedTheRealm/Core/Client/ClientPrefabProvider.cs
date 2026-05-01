@@ -17,7 +17,7 @@ namespace FTR.Core.Client
         public GameObject NameTagPrefab;
         public GameObject PortalVisual;
 
-        [Header("Enviorment Link Components")]
+        [Header("Environment Link Components")]
         public GameObject portalLinkComponents;
         public GameObject chestLinkComponents;
 

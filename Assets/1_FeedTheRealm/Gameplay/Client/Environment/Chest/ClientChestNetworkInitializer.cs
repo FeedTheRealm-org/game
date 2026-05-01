@@ -16,7 +16,7 @@ namespace FTR.Gameplay.Client.Environment.Shop
         private Config config;
 
         /// <summary>
-        /// Called on the client when any shop (local or remote) is spawned.
+        /// Called on the client when any chest (local or remote) is spawned.
         /// Injects dependencies via VContainer and initializes client-side scripts for
         /// every spawned character, not just the local player.
         /// </summary>

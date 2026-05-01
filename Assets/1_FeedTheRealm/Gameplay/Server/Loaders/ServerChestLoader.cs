@@ -11,7 +11,7 @@ using VContainer.Unity;
 namespace FTR.Gameplay.Server.Loaders
 {
     /// <summary>
-    /// Loader that populates ChestRegistry with portal data.
+    /// Loader that instantiates chest GameObjects on the server based on the chest placements defined in the zone data.
     /// </summary>
     public class ServerChestLoader : ILoader
     {
