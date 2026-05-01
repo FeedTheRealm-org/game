@@ -65,7 +65,7 @@ namespace FTR.Gameplay.Common.LoaderEntities
                 ValidateArgs(accessToken, "accessToken");
                 ValidateArgs(zoneId, "zoneId");
                 logger.Log(
-                    $"[ZONE-LOAD] Starting zone loading with Zone ID: {zoneId} | World ID: {worldId} | Access Token: {accessToken}"
+                    $"[ZONE-LOAD] Starting zone loading with Zone ID: {zoneId} | World ID: {worldId}"
                 );
                 await Load(zoneId, worldId, accessToken);
                 return true;

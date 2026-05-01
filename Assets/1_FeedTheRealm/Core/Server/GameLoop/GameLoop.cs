@@ -98,8 +98,11 @@ public class GameLoop : IGameTickable
         double gameTickEventMs = _sectionSw.Elapsed.TotalMilliseconds;
 
         // Push new events to NetworkQueue
+        _sectionSw.Restart();
         eventCollector.ForEach(serverEvent => worldMonitor.Events.Enqueue(serverEvent));
         eventCollector.Clear();
+        _sectionSw.Stop();
+        double eventEnqueuedMs = _sectionSw.Elapsed.TotalMilliseconds;
 
         _sw.Stop();
         double totalMs = _sw.Elapsed.TotalMilliseconds;
@@ -118,7 +121,7 @@ public class GameLoop : IGameTickable
         bool gcHappened = dGen0 > 0 || dGen1 > 0 || dGen2 > 0;
 
         bool slowTick = totalMs > 20;
-        if (slowTick || gcHappened)
+        if (slowTick)
         {
             logger.Log(
                 $"[TICK] total={totalMs}ms "
@@ -133,6 +136,7 @@ public class GameLoop : IGameTickable
         DogStatsd.Histogram("server.commands_ms", processCommandsMs);
         DogStatsd.Histogram("server.physics_ms", physicsMs);
         DogStatsd.Histogram("server.tick_event_ms", gameTickEventMs);
+        DogStatsd.Histogram("server.events_enqueued_ms", eventEnqueuedMs);
         DogStatsd.Gauge("server.gc.gen0", dGen0);
         DogStatsd.Gauge("server.gc.gen1", dGen1);
         DogStatsd.Gauge("server.gc.gen2", dGen2);
