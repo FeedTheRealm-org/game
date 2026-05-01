@@ -97,6 +97,9 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             healthcheckServer.Start();
             WorldLoadBootstrap.MarkServerReady();
             IsInitialized = true;
+            logger.Log(
+                $"ServerWorldEntryPoint started successfully with worldId={serverConfig.WorldId}, zoneId={serverConfig.ZoneId}, isTestWorld={serverConfig.IsTestWorld}"
+            );
         }
         catch (OperationCanceledException)
         {

@@ -7,12 +7,13 @@ using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Core.Server.Metrics;
 using UnityEngine;
+using VContainer.Unity;
 
 /// <summary>
 /// GameLoop is responsible for processing game logic,
 /// and should be called in a fixed update loop, **RUNS IN MAIN THREAD**.
 /// </summary>
-public class GameLoop : IGameTickable
+public class GameLoop : IGameTickable, IStartable
 {
     private readonly WorldMonitor worldMonitor;
     private readonly GameTickEvent gameTickEvent;
@@ -45,7 +46,12 @@ public class GameLoop : IGameTickable
         this.logger = logger;
         this.serverConfig = serverConfig;
 
-        _tickHandler = serverConfig.IsTestWorld ? TestGameTick : RegularGameTick;
+        this._tickHandler = RegularGameTick;
+    }
+
+    public void Start()
+    {
+        this._tickHandler = serverConfig.IsTestWorld ? TestGameTick : RegularGameTick;
         logger.Log(
             $"GameLoop initialized with tick handler: {_tickHandler.Method.Name}",
             Logging.LogType.Info

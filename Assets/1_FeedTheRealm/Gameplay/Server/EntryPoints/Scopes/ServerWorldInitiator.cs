@@ -88,7 +88,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
             builder.Register<PortalRegistry>(Lifetime.Singleton);
 
-            builder.Register<GameLoop>(Lifetime.Singleton);
+            builder.Register<GameLoop>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<NetworkService>(Lifetime.Singleton);
             builder.Register<ServerTickDriver>(Lifetime.Singleton);
             builder.Register<NetworkTickDriver>(Lifetime.Singleton);
