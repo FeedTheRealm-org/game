@@ -27,10 +27,14 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
+mkdir ./bots_logs/ -p
+
 echo "Starting $N processes: $CMD"
 for ((i=0; i<N; i++)); do
-  "$CMD" --world-id=${WORLD_ID} --zone-id=${ZONE_ID} --bot-id=${i} -batchmode -nographics &
+  "$CMD" --world-id=${WORLD_ID} --zone-id=${ZONE_ID} --bot-id=${i} -batchmode -nographics \
+      > "./bots_logs/bot_${i}.log" 2>&1 &
   PIDS+=($!)
 done
+echo "Finished starting bots."
 
 wait

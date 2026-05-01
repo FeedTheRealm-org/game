@@ -2,7 +2,7 @@
 set -eu
 
 read -r PAT
-echo "$PAT" | docker login ghcr.io -u maxogod --password-stdin
+echo "$PAT" | docker login ghcr.io -u atusgames --password-stdin
 
 docker build -t ghcr.io/feedtherealm-org/ftr-server:latest .
 docker push ghcr.io/feedtherealm-org/ftr-server:latest
