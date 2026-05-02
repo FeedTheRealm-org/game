@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using API;
 using FTR.Core.Common.Config;
@@ -28,6 +29,7 @@ namespace FTR.Gameplay.Server.Characters
         private GoldSystem goldSystem;
         private TeleportSystem teleportSystem;
         private ChatSystem chatSystem;
+        private NetworkAdapter networkAdapter;
 
         private Config config;
         private ServerConfig serverConfig;
@@ -61,7 +63,8 @@ namespace FTR.Gameplay.Server.Characters
             PlayerService playerService,
             GoldSystem goldSystem,
             TeleportSystem teleportSystem,
-            ChatSystem chatSystem
+            ChatSystem chatSystem,
+            NetworkAdapter networkAdapter
         )
         {
             this.movementSystem = movementSystem;
@@ -75,6 +78,7 @@ namespace FTR.Gameplay.Server.Characters
             this.goldSystem = goldSystem;
             this.teleportSystem = teleportSystem;
             this.chatSystem = chatSystem;
+            this.networkAdapter = networkAdapter;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -162,6 +166,7 @@ namespace FTR.Gameplay.Server.Characters
                     "[ServerPlayerCommandHandler] Received empty world join token.",
                     this
                 );
+                this.networkAdapter.DisconnectClient();
                 return;
             }
             _ = ResolveAndSetUserIdFromTokenAsync(tokenId);
@@ -209,12 +214,26 @@ namespace FTR.Gameplay.Server.Characters
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
         {
             isResolvingCharacterId = true;
-            var splitedToken = tokenId.Split('_');
+            var splitedToken = tokenId.Split('_'); // test-join-token_uuid
             if (serverConfig.IsTestWorld && splitedToken[0] == config.BotJoinToken)
             {
-                var botId = splitedToken.Length > 1 ? splitedToken[1] : "UnknownBot";
-                stateStorage.SetCharacterId($"bot_{botId}");
-                gameObject.name = $"BotPlayer_{botId}";
+                if (splitedToken.Length == 2)
+                {
+                    stateStorage.SetCharacterId(splitedToken[1]);
+                    gameObject.name = $"BotPlayer_{splitedToken[1]}";
+                }
+                else
+                {
+                    this.networkAdapter.DisconnectClient();
+                }
+
+                isResolvingCharacterId = false;
+                return;
+            }
+
+            if (!Guid.TryParse(tokenId, out Guid _))
+            {
+                this.networkAdapter.DisconnectClient();
                 isResolvingCharacterId = false;
                 return;
             }

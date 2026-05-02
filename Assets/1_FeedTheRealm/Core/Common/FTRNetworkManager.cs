@@ -442,6 +442,10 @@ public class FTRNetworkManager : NetworkManager
             this,
             Logging.LogType.Warning
         );
+        if (config.RuntimeRole == RuntimeRole.Bot)
+        {
+            Application.Quit();
+        }
     }
 
     /// <summary>

@@ -35,7 +35,8 @@ namespace FTR.Core.Common.Config
 
         [Header("Test Settings")]
         // Even if this is set, BOTS will not be allowed to join unless server starts with `--allow-bots=true`
-        public string BotJoinToken = "test_join_token";
+        // IF YOU CHANGE THIS VALUE UPDATE IT IF USED ELSEWHERE (e.g. core-service)
+        public string BotJoinToken = "test-join-token";
         public bool EnableActionLogging = false;
 
         [Header("API Settings")]

@@ -16,6 +16,9 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
         private BotConfig botConfig;
 
         [SerializeField]
+        private Session.Session session;
+
+        [SerializeField]
         private Logging.Logger logger;
 
         protected override void Configure(IContainerBuilder builder)
@@ -29,6 +32,7 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
 
             builder.RegisterInstance(config);
             builder.RegisterInstance(botConfig);
+            builder.RegisterInstance(session);
             builder.RegisterInstance(logger);
 
             builder.Register<BotPlayerLinker>(Lifetime.Singleton);
@@ -45,6 +49,16 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
             if (logger == null)
                 throw new System.NullReferenceException(
                     "Logger is not assigned in BotWorldInitiator."
+                );
+
+            if (botConfig == null)
+                throw new System.NullReferenceException(
+                    "BotConfig is not assigned in BotWorldInitiator."
+                );
+
+            if (session == null)
+                throw new System.NullReferenceException(
+                    "Session is not assigned in BotWorldInitiator."
                 );
         }
     }

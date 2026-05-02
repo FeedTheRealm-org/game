@@ -23,6 +23,12 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
         private WorldService worldService;
 
         [SerializeField]
+        private AuthService authService;
+
+        [SerializeField]
+        private Session.Session session;
+
+        [SerializeField]
         private Logging.Logger logger;
 
         protected override void Configure(IContainerBuilder builder)
@@ -38,6 +44,8 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
             builder.RegisterInstance(config);
             builder.RegisterInstance(botConfig);
             builder.RegisterInstance(worldService);
+            builder.RegisterInstance(authService);
+            builder.RegisterInstance(session);
             builder.RegisterInstance(logger);
 
             builder.RegisterEntryPoint<BotEntryPoint>();
@@ -49,22 +57,26 @@ namespace FTR.Gameplay.Bot.EntryPoints.Scopes
                 throw new System.NullReferenceException(
                     "MainScene is not assigned in BotWorldInitiator."
                 );
-
             if (config == null)
                 throw new System.NullReferenceException(
                     "Config is not assigned in BotWorldInitiator."
                 );
-
             if (botConfig == null)
                 throw new System.NullReferenceException(
                     "BotConfig is not assigned in BotWorldInitiator."
                 );
-
             if (worldService == null)
                 throw new System.NullReferenceException(
                     "WorldService is not assigned in BotWorldInitiator."
                 );
-
+            if (authService == null)
+                throw new System.NullReferenceException(
+                    "AuthService is not assigned in BotWorldInitiator."
+                );
+            if (session == null)
+                throw new System.NullReferenceException(
+                    "Session is not assigned in BotWorldInitiator."
+                );
             if (logger == null)
                 throw new System.NullReferenceException(
                     "Logger is not assigned in BotWorldInitiator."

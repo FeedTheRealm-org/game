@@ -17,13 +17,19 @@ namespace FTR.Core.Bot.Config
         public string BotId;
 
         [HideInInspector]
+        public string BotEmail => $"bot_{BotId}@feedtherealm.world";
+
+        [HideInInspector]
+        public string BotPassword => "qwerty123";
+
+        [HideInInspector]
         public string WorldId;
 
         [HideInInspector]
         public int ZoneId;
 
         [HideInInspector]
-        public string ServerFixedToken;
+        public string AdminToken;
 
         public float MoveIntervalSeconds = 0.2f;
         public float ActionIntervalSeconds = 1.1f;
@@ -37,7 +43,7 @@ namespace FTR.Core.Bot.Config
                 this.BotId = ParamsSerializer.GetArgs("bot-id", "1");
                 this.WorldId = ParamsSerializer.GetArgs("world-id", string.Empty);
                 this.ZoneId = int.Parse(ParamsSerializer.GetArgs("zone-id", "0"));
-                this.ServerFixedToken = Environment.GetEnvironmentVariable("SERVER_FIXED_TOKEN");
+                this.AdminToken = Environment.GetEnvironmentVariable("ADMIN_TOKEN");
 
                 logger.Log(
                     $"[BotConfig] Loaded bot parameters: botId={BotId}, worldId={WorldId}, zoneId={ZoneId}"

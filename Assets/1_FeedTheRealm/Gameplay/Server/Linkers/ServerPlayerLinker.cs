@@ -111,7 +111,8 @@ public class ServerPlayerLinker : PlayerLinker
             playerService,
             goldSystem,
             teleportSystem,
-            chatSystem
+            chatSystem,
+            networkAdapter
         );
 
         respawnSystem.Initialize(

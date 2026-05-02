@@ -7,6 +7,19 @@ if [ $# -ne 4 ]; then
   exit 1
 fi
 
+if [ -z "${ADMIN_TOKEN:-}" ]; then
+  cat <<'EOF'
+Error: ADMIN_TOKEN environment variable is required.
+
+Example to obtain a token:
+export ADMIN_TOKEN=$(curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@admin.admin","password":"admin123"}' \
+  | jq -r '.data.access_token')
+EOF
+  exit 1
+fi
+
 N=$1
 CMD="$2"
 WORLD_ID=$3
@@ -31,7 +44,7 @@ mkdir ./bots_logs/ -p
 
 echo "Starting $N processes: $CMD"
 for ((i=0; i<N; i++)); do
-  "$CMD" --world-id=${WORLD_ID} --zone-id=${ZONE_ID} --bot-id=${i} -batchmode -nographics \
+  ADMIN_TOKEN="$ADMIN_TOKEN" "$CMD" --world-id=${WORLD_ID} --zone-id=${ZONE_ID} --bot-id=${i} -batchmode -nographics \
       > "./bots_logs/bot_${i}.log" 2>&1 &
   PIDS+=($!)
 done
