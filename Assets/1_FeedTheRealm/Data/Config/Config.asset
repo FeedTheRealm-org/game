@@ -17,7 +17,7 @@ MonoBehaviour:
   WorldLoadRetryDelayMs: 1000
   _listeningPort: 7777
   _healthcheckPort: 7778
-  BotJoinToken: test_join_token
+  BotJoinToken: test-join-token
   EnableActionLogging: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   CubeColliderLayerMask:
