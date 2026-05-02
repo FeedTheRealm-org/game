@@ -11,6 +11,10 @@ on:
         required: true
       ECR_REPOSITORY:
         required: true
+      WEBHOOK_AUDIENCE:
+        required: true
+      WEBHOOK_URL:
+        required: true
     outputs:
       image_tag:
         value: ${{ jobs.build.outputs.image_tag }}
@@ -69,3 +73,13 @@ jobs:
 
           docker tag "$GHCR_IMAGE" "$IMAGE_URI"
           docker push "$IMAGE_URI"
+
+      - name: Call updated-server webhook
+        run: |
+          TOKEN=$(curl -s \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ secrets.WEBHOOK_AUDIENCE }}" \
+            | jq -r '.value')
+
+          curl -X POST "${{ secrets.WEBHOOK_BASE_URL }}/world/webhook/servers/update" \
+            -H "Authorization: Bearer $TOKEN"
