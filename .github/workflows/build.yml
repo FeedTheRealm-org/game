@@ -13,7 +13,7 @@ on:
         required: true
       WEBHOOK_AUDIENCE:
         required: true
-      WEBHOOK_URL:
+      WEBHOOK_BASE_URL:
         required: true
     outputs:
       image_tag:
