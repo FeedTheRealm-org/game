@@ -38,7 +38,7 @@ dev: # Starts DEBUG built server via entrypoint [DEVELOPMENT]
 		--zone-id=$$ZONE_ID \
 		--is-test-world=$$IS_TEST_WORLD
 	docker compose -f $(COMPOSE) --profile db-only down
-.PHONY: run
+.PHONY: dev
 
 clean: # Remove all containers, images and volumes
 	docker compose -f $(COMPOSE) down --remove-orphans -v
@@ -52,6 +52,6 @@ logs-%: # Tail logs of a specific service. Usage: make logs-service_name
 	docker compose -f $(COMPOSE) logs -f $*
 .PHONY: logs-%
 
-db: # Open a psql shell in the postgres container
+db: # Open a mongosh shell in the mongo container
 	docker compose -f $(COMPOSE) exec mongo mongosh -u admin -p admin
 .PHONY: db

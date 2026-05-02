@@ -40,12 +40,12 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-mkdir ./bots_logs/ -p
+mkdir -p ./bot_logs/
 
 echo "Starting $N processes: $CMD"
 for ((i=0; i<N; i++)); do
   ADMIN_TOKEN="$ADMIN_TOKEN" "$CMD" --world-id=${WORLD_ID} --zone-id=${ZONE_ID} --bot-id=${i} -batchmode -nographics \
-      > "./bots_logs/bot_${i}.log" 2>&1 &
+      > "./bot_logs/bot_${i}.log" 2>&1 &
   PIDS+=($!)
 done
 echo "Finished starting bots."

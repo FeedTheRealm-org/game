@@ -54,7 +54,9 @@ namespace FTR.Gameplay.Bot.EntryPoints
                     botConfig.AdminToken
                 );
                 if (!string.IsNullOrEmpty(authErr))
-                    throw new System.Exception($"Failed to login bot {botConfig.BotEmail}: {err}");
+                    throw new System.Exception(
+                        $"Failed to login bot {botConfig.BotEmail}: {authErr}"
+                    );
                 config.CurrentServerAddress = ip;
                 config.CurrentServerPort = (ushort)port;
                 await LoadMainScene();

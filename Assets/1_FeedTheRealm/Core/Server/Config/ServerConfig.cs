@@ -132,6 +132,8 @@ namespace FTR.Core.Server.Config
 
 #if UNITY_EDITOR
             // In case its running from the editor this is useful
+            if (!LoadFromEnvFile)
+                return;
             EnvironmentVariablesUtils.LoadFromEnvFile(this.EnvFilePath);
             if (string.IsNullOrEmpty(this.WorldId))
                 this.WorldId = Environment.GetEnvironmentVariable("WORLD_ID");
