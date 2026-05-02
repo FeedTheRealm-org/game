@@ -10,7 +10,7 @@ help: # Show this help message
 .PHONY: help
 
 down: # Stop and remove containers
-	docker compose -f $(COMPOSE) down --remove-orphans -t 2
+	docker compose -f $(COMPOSE) --profile all down --remove-orphans -t 2
 .PHONY: down
 
 build: down # Build containers
@@ -30,7 +30,14 @@ up-db: down # Build and start mongo db
 .PHONY: up-db
 
 dev: # Starts DEBUG built server via entrypoint [DEVELOPMENT]
-	$(EXEC_APP) ./Build/Dev/server.x86_64 -batchmode -nographics
+	docker compose -f $(COMPOSE) --profile db-only up --build --wait -d
+	. ./.env && $(EXEC_APP) ./Build/Dev/server.x86_64 \
+		-batchmode \
+		-nographics \
+		--world-id=$$WORLD_ID \
+		--zone-id=$$ZONE_ID \
+		--is-test-world=$$IS_TEST_WORLD
+	docker compose -f $(COMPOSE) --profile db-only down
 .PHONY: run
 
 clean: # Remove all containers, images and volumes
