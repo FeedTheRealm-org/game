@@ -70,10 +70,17 @@ public class ServerCharacterLinker
         uint netId,
         NetworkAdapter networkAdapter,
         ICommandable commandHandler,
-        int? connectionId = null
+        int? connectionId = null,
+        bool isPlayer = false
     )
     {
-        var entity = new ServerEntity(netId, networkAdapter, commandHandler, connectionId);
+        var entity = new ServerEntity(
+            netId,
+            networkAdapter,
+            commandHandler,
+            connectionId,
+            isPlayer
+        );
         world.Entities.Register(netId, entity);
     }
 }

@@ -30,9 +30,9 @@ namespace API
 
         private string currentWorldId;
 
-        private string GetBaseUrl() => $"http://{apiConfig.Hostname}:{apiConfig.Port}/assets/items";
+        private string GetBaseUrl() => $"{apiConfig.Hostname}:{apiConfig.Port}/assets/items";
 
-        private string GetBaseCdnUrl() => $"http://{apiConfig.ModelsCDN}/worlds";
+        private string GetBaseCdnUrl() => $"{apiConfig.ModelsCDN}/worlds";
 
         // Simple in-memory cache to avoid downloading the same sprite multiple times
         private readonly System.Collections.Generic.Dictionary<string, Texture2D> spriteCache =

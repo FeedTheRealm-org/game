@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using API;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -22,23 +23,31 @@ namespace FTR.Gameplay.Server.Characters
         private QuestSystem questSystem;
         private CharacterStateStorage stateStorage;
         private PlayerService playerService;
-        private string serverAccessToken;
+        private ServerSecretsConfig secretsConfig;
         private bool isResolvingCharacterId;
         private GoldSystem goldSystem;
         private TeleportSystem teleportSystem;
         private ChatSystem chatSystem;
 
         private Config config;
+        private ServerConfig serverConfig;
         private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         [Inject]
-        public void Construct(IObjectResolver resolver, Config config)
+        public void Construct(
+            IObjectResolver resolver,
+            Config config,
+            ServerConfig serverConfig,
+            ServerSecretsConfig secretsConfig
+        )
         {
             if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var ev) && ev != null)
             {
                 playerQuestDecisionEvent = ev;
             }
             this.config = config;
+            this.serverConfig = serverConfig;
+            this.secretsConfig = secretsConfig;
         }
 
         public void Initialize(
@@ -50,7 +59,6 @@ namespace FTR.Gameplay.Server.Characters
             QuestSystem questSystem,
             CharacterStateStorage stateStorage,
             PlayerService playerService,
-            string serverAccessToken,
             GoldSystem goldSystem,
             TeleportSystem teleportSystem,
             ChatSystem chatSystem
@@ -64,7 +72,6 @@ namespace FTR.Gameplay.Server.Characters
             this.questSystem = questSystem;
             this.stateStorage = stateStorage;
             this.playerService = playerService;
-            this.serverAccessToken = serverAccessToken;
             this.goldSystem = goldSystem;
             this.teleportSystem = teleportSystem;
             this.chatSystem = chatSystem;
@@ -203,7 +210,7 @@ namespace FTR.Gameplay.Server.Characters
         {
             isResolvingCharacterId = true;
             var splitedToken = tokenId.Split('_');
-            if (splitedToken[0] == config.TestJoinToken) // TODO: add TEST flag for servers
+            if (serverConfig.AllowBots && splitedToken[0] == config.BotJoinToken)
             {
                 var botId = splitedToken.Length > 1 ? splitedToken[1] : "UnknownBot";
                 stateStorage.SetCharacterId($"bot_{botId}");
@@ -216,7 +223,7 @@ namespace FTR.Gameplay.Server.Characters
             {
                 var consumeResponse = await playerService.ConsumeWorldJoinTokenAsync(
                     tokenId,
-                    serverAccessToken
+                    secretsConfig.ServerFixedToken
                 );
                 if (consumeResponse != null)
                     stateStorage.SetCharacterId(consumeResponse.user_id);

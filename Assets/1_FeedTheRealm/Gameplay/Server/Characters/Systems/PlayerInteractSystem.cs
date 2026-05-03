@@ -1,21 +1,23 @@
 using FTR.Core.Common.Interactions;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 
 public class PlayerInteractSystem : MonoBehaviour, IInteractor
 {
-    [Header("Interaction Settings")]
+    [Header("Config")]
     [SerializeField]
-    private float interactionRadius = 2.0f;
-
-    [SerializeField]
-    private LayerMask interactableLayerMask;
+    private ServerConfig config;
 
     [Header("Logging Settings")]
     [SerializeField]
     private Logging.Logger logger;
 
+    [SerializeField]
+    private LayerMask interactableLayerMask;
+
+    private float interactionRadius => config.UseRange;
     public GameObject GameObject => this.gameObject;
     public Transform Transform => this.transform;
 
