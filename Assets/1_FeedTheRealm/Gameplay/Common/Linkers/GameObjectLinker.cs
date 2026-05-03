@@ -24,6 +24,9 @@ namespace FTR.Gameplay.Common.Linkers
         [Inject]
         private PortalLinker portalLinker;
 
+        [Inject]
+        private ChestLinker chestLinker;
+
         [SerializeField]
         private LinkerType linkerType;
 
@@ -48,6 +51,9 @@ namespace FTR.Gameplay.Common.Linkers
                     break;
                 case LinkerType.Portal:
                     portalLinker.Link(gameObject);
+                    break;
+                case LinkerType.Chest:
+                    chestLinker.Link(gameObject);
                     break;
                 default:
                     throw new System.ArgumentException($"Unsupported LinkerType: {linkerType}");

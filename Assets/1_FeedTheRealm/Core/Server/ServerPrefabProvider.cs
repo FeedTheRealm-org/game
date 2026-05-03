@@ -12,6 +12,7 @@ namespace FTR.Core.Server
         public GameObject ServerNpcComponents;
         public GameObject ServerShopComponent;
         public GameObject PortalComponent;
+        public GameObject ChestComponent;
         public GameObject LootItemPrefab;
 
         [Header("Loader Components")]
@@ -20,6 +21,7 @@ namespace FTR.Core.Server
         public GameObject FriendlyNpcSpawnerComponent;
         public GameObject ShopComponent;
         public GameObject PortalPrefab;
+        public GameObject ChestPrefab;
 
         [Header("Utility")]
         public GameObject PlayerTriggerAreaPrefab;

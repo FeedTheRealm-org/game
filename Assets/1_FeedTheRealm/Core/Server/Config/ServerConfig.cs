@@ -111,6 +111,11 @@ namespace FTR.Core.Server.Config
         private int inventorySize = 20;
         public int InventorySize => inventorySize;
 
+        [Header("Use System")]
+        [SerializeField]
+        private float useRange = 2f;
+        public float UseRange => useRange;
+
         [Header("Gold")]
         [SerializeField]
         private int startingGold = 100;
@@ -123,6 +128,10 @@ namespace FTR.Core.Server.Config
         public float StoppingDistance = 0.5f;
         public float AggressiveChaseRadius = 5f;
         public float AggressiveAttackRadius = 2f;
+
+        [Header("Chest")]
+        public float ChestItemSpawnRateSeconds = 0.5f;
+        public float ChestItemSpawnHeight = 1f;
 
         public void LoadParams()
         {

@@ -28,7 +28,7 @@ MonoBehaviour:
     m_Bits: 16384
   CurrentServerAddress: 127.0.0.1
   CurrentServerPort: 7777
-  DEBUG_IsDebugWorld: 0
+  DEBUG_IsDebugWorld: 1
   DEBUG_DoNotLoadWorld: 0
   DEBUG_WorldId: 9b5fb62a-cfa5-488f-8163-5042f5a091c9
   DEBUG_ZoneId: 1
