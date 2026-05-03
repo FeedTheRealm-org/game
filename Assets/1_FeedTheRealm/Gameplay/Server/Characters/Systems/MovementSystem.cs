@@ -90,6 +90,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt)
         {
+            // TODO(optimization): evaluate optimization for NPCs or maybe all characters?
+            // early return if no velocity/direction, etc
             if (!isInitialized || stateStorage.IsMovementBlocked || isDead)
                 return;
 

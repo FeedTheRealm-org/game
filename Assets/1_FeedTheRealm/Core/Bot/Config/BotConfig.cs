@@ -1,3 +1,4 @@
+using System;
 using FTR.Core.Common.Utils;
 using UnityEngine;
 using VContainer;
@@ -10,9 +11,25 @@ namespace FTR.Core.Bot.Config
         [SerializeField]
         private Logging.Logger logger;
 
+        [Header("Params/Args Settings")]
+        // These come from <exec> --world-id=X --zone-id=Y
+        [HideInInspector]
         public string BotId;
+
+        [HideInInspector]
+        public string BotEmail => $"bot_{BotId}@feedtherealm.world";
+
+        [HideInInspector]
+        public string BotPassword => "qwerty123";
+
+        [HideInInspector]
         public string WorldId;
+
+        [HideInInspector]
         public int ZoneId;
+
+        [HideInInspector]
+        public string AdminToken;
 
         public float MoveIntervalSeconds = 0.2f;
         public float ActionIntervalSeconds = 1.1f;
@@ -23,9 +40,10 @@ namespace FTR.Core.Bot.Config
         {
             try
             {
-                BotId = ParamsSerializer.GetArgs("bot-id", "1");
-                WorldId = ParamsSerializer.GetArgs("world-id", string.Empty);
-                ZoneId = int.Parse(ParamsSerializer.GetArgs("zone-id", "0"));
+                this.BotId = ParamsSerializer.GetArgs("bot-id", "1");
+                this.WorldId = ParamsSerializer.GetArgs("world-id", string.Empty);
+                this.ZoneId = int.Parse(ParamsSerializer.GetArgs("zone-id", "0"));
+                this.AdminToken = Environment.GetEnvironmentVariable("ADMIN_TOKEN");
 
                 logger.Log(
                     $"[BotConfig] Loaded bot parameters: botId={BotId}, worldId={WorldId}, zoneId={ZoneId}"

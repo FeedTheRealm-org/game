@@ -1,11 +1,13 @@
 using System;
-using System.IO;
+using FTR.Core.Server.Utils;
 
 namespace FTR.Core.Server.Config;
 
 public class ServerSecretsConfig
 {
     public string MongoConnectionString { get; private set; }
+    public string ServerFixedToken { get; private set; }
+    public string DDAgentHost { get; private set; }
 
     /// <summary>
     /// Loads environment variables from ENV or from the specified .env file (if enabled) and sets the fields.
@@ -13,37 +15,25 @@ public class ServerSecretsConfig
     public void LoadEnvironmentVariables(string envFilePath, bool loadFromEnvFile)
     {
         if (loadFromEnvFile)
-            LoadFromEnvFile(envFilePath);
+            EnvironmentVariablesUtils.LoadFromEnvFile(envFilePath);
 
         // Set fields from env vars
-        MongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
+        this.MongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
+        this.ServerFixedToken = Environment.GetEnvironmentVariable("SERVER_FIXED_TOKEN");
+        this.DDAgentHost = Environment.GetEnvironmentVariable("DD_AGENT_HOST");
 
         // Validations
         if (string.IsNullOrEmpty(MongoConnectionString))
             throw new InvalidOperationException(
                 "MONGO_CONNECTION_STRING environment variable is not set."
             );
-    }
 
-    private void LoadFromEnvFile(string filePath)
-    {
-        if (!File.Exists(filePath))
-            throw new FileNotFoundException($".env file not found at path: {filePath}");
+        if (string.IsNullOrEmpty(ServerFixedToken))
+            throw new InvalidOperationException(
+                "SERVER_FIXED_TOKEN environment variable is not set."
+            );
 
-        foreach (var line in File.ReadAllLines(filePath))
-        {
-            // Skip empty lines and comments
-            if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith('#'))
-                continue;
-
-            var separatorIndex = line.IndexOf('=');
-            if (separatorIndex <= 0)
-                continue;
-
-            var key = line[..separatorIndex].Trim();
-            var value = line[(separatorIndex + 1)..].Trim();
-
-            Environment.SetEnvironmentVariable(key, value);
-        }
+        if (string.IsNullOrEmpty(DDAgentHost))
+            throw new InvalidOperationException("DD_AGENT_HOST environment variable is not set.");
     }
 }

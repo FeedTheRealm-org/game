@@ -1,24 +1,28 @@
 services:
   ftr-server:
     profiles: ["all"]
-    environment:
-      MONGO_CONNECTION_STRING: "mongodb://admin:admin@localhost:27017/?authSource=admin"
+    env_file:
+      - .env
     build:
       context: .
-    command: [
+    entrypoint: [
+      "./entrypoint.dev.sh",
+      "./server.x86_64",
       "-batchmode",
       "-nographics",
       "--world-id=${WORLD_ID}",
-      "--zone-id=${ZONE_ID}"
+      "--zone-id=${ZONE_ID}",
+      "--is-test-world=${IS_TEST_WORLD}"
     ]
     network_mode: host # Assumes core-service running on localhost:8000
     depends_on:
       mongo:
         condition: service_healthy
     volumes:
-      - ./local_buckets:/usr/src/app/local_buckets
+      - ./entrypoint.dev.sh:/app/entrypoint.dev.sh
 
   mongo: # For local ftr-servers persistance (game)
+    profiles: ["all", "db-only"]
     command: ["--quiet", "--logpath", "/dev/null"]
     image: mongo:8
     environment:

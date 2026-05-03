@@ -2,6 +2,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Environment.LootItem;
 using Mirror;
@@ -35,6 +36,9 @@ public class ServerLootItemLinker : LootItemLinker
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var stateStorage = gameObject.GetComponent<LootItemStateStorage>();
+
+        var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
+        tracker.Initialize(world, netId);
 
         // Add server-side components
         var serverComponents = Object.Instantiate(

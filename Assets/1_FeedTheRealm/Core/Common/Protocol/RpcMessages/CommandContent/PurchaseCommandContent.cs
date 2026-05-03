@@ -25,13 +25,13 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiVDb21tYW5kcy9QdXJjaGFzZUNvbW1hbmRDb250ZW50LnByb3RvEghwcm90",
-            "b2NvbCI8ChZQdXJjaGFzZUNvbW1hbmRDb250ZW50EhIKCnByb2R1Y3RfaWQY",
-            "ASABKAkSDgoGYW1vdW50GAIgASgFQieqAiRGVFIuQ29yZS5Db21tb24uUHJv",
-            "dG9jb2wuUnBjTWVzc2FnZXNiBnByb3RvMw=="));
+            "b2NvbCJNChZQdXJjaGFzZUNvbW1hbmRDb250ZW50EhIKCnByb2R1Y3RfaWQY",
+            "ASABKAkSDgoGYW1vdW50GAIgASgFEg8KB3Nob3BfaWQYAyABKAlCJ6oCJEZU",
+            "Ui5Db3JlLkNvbW1vbi5Qcm90b2NvbC5ScGNNZXNzYWdlc2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent), global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent.Parser, new[]{ "ProductId", "Amount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent), global::FTR.Core.Common.Protocol.RpcMessages.PurchaseCommandContent.Parser, new[]{ "ProductId", "Amount", "ShopId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -74,6 +74,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
     public PurchaseCommandContent(PurchaseCommandContent other) : this() {
       productId_ = other.productId_;
       amount_ = other.amount_;
+      shopId_ = other.shopId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -107,6 +108,18 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
     }
 
+    /// <summary>Field number for the "shop_id" field.</summary>
+    public const int ShopIdFieldNumber = 3;
+    private string shopId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string ShopId {
+      get { return shopId_; }
+      set {
+        shopId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -124,6 +137,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (ProductId != other.ProductId) return false;
       if (Amount != other.Amount) return false;
+      if (ShopId != other.ShopId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -133,6 +147,7 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       int hash = 1;
       if (ProductId.Length != 0) hash ^= ProductId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
+      if (ShopId.Length != 0) hash ^= ShopId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -159,6 +174,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(16);
         output.WriteInt32(Amount);
       }
+      if (ShopId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(ShopId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -177,6 +196,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
         output.WriteRawTag(16);
         output.WriteInt32(Amount);
       }
+      if (ShopId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(ShopId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -192,6 +215,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Amount);
+      }
+      if (ShopId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(ShopId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -210,6 +236,9 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
       }
       if (other.Amount != 0) {
         Amount = other.Amount;
+      }
+      if (other.ShopId.Length != 0) {
+        ShopId = other.ShopId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -234,6 +263,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
             Amount = input.ReadInt32();
             break;
           }
+          case 26: {
+            ShopId = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -255,6 +288,10 @@ namespace FTR.Core.Common.Protocol.RpcMessages {
           }
           case 16: {
             Amount = input.ReadInt32();
+            break;
+          }
+          case 26: {
+            ShopId = input.ReadString();
             break;
           }
         }

@@ -14,7 +14,7 @@ public interface ICommandable
     void OnDialogNext(IEventCollectable ec);
     void OnEquipItem(IEventCollectable ec, int slotIndex);
     void OnDropItem(IEventCollectable ec, StorageType type, int slotIndex, string itemId);
-    void OnPurchase(IEventCollectable ec, uint netId, string productId, int amount);
+    void OnPurchase(IEventCollectable ec, uint netId, string productId, int amount, string shopId);
     void OnQuestAccepted(IEventCollectable ec, string questId);
     void OnTeleportAccepted(IEventCollectable ec, string portalId);
     void OnQuestRejected(IEventCollectable ec);

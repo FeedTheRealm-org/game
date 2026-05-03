@@ -50,4 +50,5 @@ MonoBehaviour:
   autoInjectGameObjects: []
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
   botConfig: {fileID: 11400000, guid: c4428bf806d26eb4c97f4d7e294de292, type: 2}
+  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}

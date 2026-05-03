@@ -18,13 +18,14 @@ public class SettingsMenuController : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
-    [Inject]
+    [SerializeField]
     private PlayerInputReader playerInputReader;
 
-    [Inject]
+    [SerializeField]
     private OnWorldLeaveEvent onWorldLeaveEvent;
 
     /* General settings */
+    private VisualElement root;
     private Button _homeButton;
     private Button _exitButton;
     private Button _closeSettingsButton;
@@ -39,10 +40,7 @@ public class SettingsMenuController : MonoBehaviour
 
     private void Start()
     {
-        if (playerInputReader != null)
-        {
-            playerInputReader.CursorToggleEvent += ToggleSettings;
-        }
+        playerInputReader.CursorToggleEvent += ToggleSettings;
     }
 
     private void OnDestroy()
@@ -55,7 +53,7 @@ public class SettingsMenuController : MonoBehaviour
 
     private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
+        root = GetComponent<UIDocument>().rootVisualElement;
 
         /* General settings */
         _homeButton = root.Q<Button>("HomeButton");
@@ -96,6 +94,8 @@ public class SettingsMenuController : MonoBehaviour
         initializeDisplaySettings();
         adjustUIToScreenSize();
         registerButtonCallbacks(true);
+
+        root.style.display = DisplayStyle.None;
     }
 
     private void OnDisable()
@@ -178,15 +178,17 @@ public class SettingsMenuController : MonoBehaviour
 
     public bool IsOpen()
     {
-        return gameObject.activeSelf;
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        return root.style.display == DisplayStyle.Flex;
     }
 
     public void ToggleSettings()
     {
         logger.Log("Toggle settings", this);
 
-        bool willBeActive = !gameObject.activeSelf;
-        gameObject.SetActive(willBeActive);
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        bool willBeActive = root.style.display != DisplayStyle.Flex;
+        root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
 
         UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
         UnityEngine.Cursor.visible = willBeActive;

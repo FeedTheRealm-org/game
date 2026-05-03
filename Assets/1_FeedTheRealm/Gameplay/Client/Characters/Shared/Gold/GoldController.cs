@@ -28,12 +28,14 @@ public class GoldController : MonoBehaviour
             purchaseRequestEvent.OnRaised -= OnPurchaseRequest;
     }
 
-    private void OnPurchaseRequest((string productId, int amount) data)
+    private void OnPurchaseRequest((string shopId, string productId, int amount) data)
     {
         if (!isInitialized)
             return;
 
-        Debug.Log($"GoldController sending Purchase: {data.productId} x{data.amount}");
+        Debug.Log(
+            $"GoldController sending Purchase: Shop {data.shopId} - {data.productId} x{data.amount}"
+        );
 
         TransactionCommandDTO command = new()
         {
@@ -41,6 +43,7 @@ public class GoldController : MonoBehaviour
             Id = string.Empty,
             content = new PurchaseCommandContent
             {
+                ShopId = data.shopId,
                 ProductId = data.productId,
                 Amount = data.amount,
             }.ToByteArray(),

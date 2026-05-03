@@ -3,8 +3,8 @@ using System.Threading;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Metrics;
 using FTR.Core.Server.Persistence;
-using FTR.Gameplay.Server.Loaders;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
 using VContainer;
@@ -30,6 +30,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
+
+    private bool IsInitialized = false;
 
     public ServerWorldEntryPoint(
         ServerTickDriver serverTickDriver,
@@ -63,6 +65,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
                 serverConfig.LoadFromEnvFile
             );
         }
+
+        serverConfig.LoadParams();
     }
 
     public async void Start()
@@ -73,12 +77,10 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             if (!loadSucceeded)
                 throw new Exception("World loading failed");
 
-            string worldId = "world1";
-            string zoneId = "1";
             await database.Connect(
                 secretsConfig.MongoConnectionString,
-                worldId,
-                zoneId,
+                serverConfig.WorldId,
+                serverConfig.ZoneId.ToString(),
                 lifetimeCts.Token
             );
             await playersRepository.Connect(database);
@@ -86,8 +88,18 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             if (lifetimeCts.IsCancellationRequested)
                 return;
 
+            DogStatsd.Configure(
+                secretsConfig.DDAgentHost,
+                8125,
+                new[] { $"world_id:{serverConfig.WorldId}", $"zone_id:{serverConfig.ZoneId}" }
+            );
+
             healthcheckServer.Start();
             WorldLoadBootstrap.MarkServerReady();
+            IsInitialized = true;
+            logger.Log(
+                $"ServerWorldEntryPoint started successfully with worldId={serverConfig.WorldId}, zoneId={serverConfig.ZoneId}, isTestWorld={serverConfig.IsTestWorld}"
+            );
         }
         catch (OperationCanceledException)
         {
@@ -128,6 +140,9 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     /// </summary>
     public void Tick()
     {
+        if (!IsInitialized)
+            return;
+
         networkTickDriver.TickBefore();
 
         accumulator += Time.deltaTime;

@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16cbbb4f97f4215ff9829a9e945214d4, type: 3}
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
-  EnvFilePath: .env
-  LoadFromEnvFile: 0
-  LoadEnvVars: 0
+  EnvFilePath: /home/sev/Desktop/Facultad/TPF/feed-the-realm-client/.env
+  LoadFromEnvFile: 1
+  LoadEnvVars: 1
+  WorldId: 
+  ZoneId: 0
+  AllowBots: 0
   PersistToDatabase: 0
   AutoSaveIntervalSeconds: 30
   PlayerLayer:
@@ -34,7 +37,7 @@ MonoBehaviour:
     m_Bits: 16384
   playerSpeed: 5
   itemDespawnTime: 60
-  maxInitialForce: 2
+  maxInitialForce: 6
   dashSpeed: 25
   dashDuration: 0.1
   maxStamina: 200
@@ -55,3 +58,5 @@ MonoBehaviour:
   StoppingDistance: 0.5
   AggressiveChaseRadius: 5
   AggressiveAttackRadius: 2
+  ChestItemSpawnRateSeconds: 0.5
+  ChestItemSpawnHeight: 1

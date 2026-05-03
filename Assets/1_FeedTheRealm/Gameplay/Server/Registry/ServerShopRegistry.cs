@@ -52,5 +52,17 @@ namespace FTR.Gameplay.Server.Registry
             }
             return null;
         }
+
+        public static ProductData GetProductFromShop(string shopId, string productId)
+        {
+            if (string.IsNullOrEmpty(shopId) || string.IsNullOrEmpty(productId))
+                return null;
+
+            if (shopsById.TryGetValue(shopId, out var shop))
+            {
+                return shop?.products?.Find(p => p.productId == productId);
+            }
+            return null;
+        }
     }
 }

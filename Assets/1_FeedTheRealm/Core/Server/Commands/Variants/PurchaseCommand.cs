@@ -17,6 +17,12 @@ public class PurchaseCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnPurchase(eventCollector, NetId, Content.ProductId, Content.Amount);
+        commandable.OnPurchase(
+            eventCollector,
+            NetId,
+            Content.ProductId,
+            Content.Amount,
+            Content.ShopId
+        );
     }
 }

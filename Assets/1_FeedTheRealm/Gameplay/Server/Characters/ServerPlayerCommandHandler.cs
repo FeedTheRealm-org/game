@@ -1,7 +1,9 @@
+using System;
 using System.Threading.Tasks;
 using API;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -22,23 +24,32 @@ namespace FTR.Gameplay.Server.Characters
         private QuestSystem questSystem;
         private CharacterStateStorage stateStorage;
         private PlayerService playerService;
-        private string serverAccessToken;
+        private ServerSecretsConfig secretsConfig;
         private bool isResolvingCharacterId;
         private GoldSystem goldSystem;
         private TeleportSystem teleportSystem;
         private ChatSystem chatSystem;
+        private NetworkAdapter networkAdapter;
 
         private Config config;
+        private ServerConfig serverConfig;
         private PlayerQuestDecisionEvent playerQuestDecisionEvent;
 
         [Inject]
-        public void Construct(IObjectResolver resolver, Config config)
+        public void Construct(
+            IObjectResolver resolver,
+            Config config,
+            ServerConfig serverConfig,
+            ServerSecretsConfig secretsConfig
+        )
         {
             if (resolver.TryResolve<PlayerQuestDecisionEvent>(out var ev) && ev != null)
             {
                 playerQuestDecisionEvent = ev;
             }
             this.config = config;
+            this.serverConfig = serverConfig;
+            this.secretsConfig = secretsConfig;
         }
 
         public void Initialize(
@@ -50,10 +61,10 @@ namespace FTR.Gameplay.Server.Characters
             QuestSystem questSystem,
             CharacterStateStorage stateStorage,
             PlayerService playerService,
-            string serverAccessToken,
             GoldSystem goldSystem,
             TeleportSystem teleportSystem,
-            ChatSystem chatSystem
+            ChatSystem chatSystem,
+            NetworkAdapter networkAdapter
         )
         {
             this.movementSystem = movementSystem;
@@ -64,10 +75,10 @@ namespace FTR.Gameplay.Server.Characters
             this.questSystem = questSystem;
             this.stateStorage = stateStorage;
             this.playerService = playerService;
-            this.serverAccessToken = serverAccessToken;
             this.goldSystem = goldSystem;
             this.teleportSystem = teleportSystem;
             this.chatSystem = chatSystem;
+            this.networkAdapter = networkAdapter;
         }
 
         public override void OnMove(IEventCollectable ec, Vector3 direction)
@@ -155,6 +166,7 @@ namespace FTR.Gameplay.Server.Characters
                     "[ServerPlayerCommandHandler] Received empty world join token.",
                     this
                 );
+                this.networkAdapter.DisconnectClient();
                 return;
             }
             _ = ResolveAndSetUserIdFromTokenAsync(tokenId);
@@ -164,21 +176,24 @@ namespace FTR.Gameplay.Server.Characters
             IEventCollectable ec,
             uint netId,
             string productId,
-            int amount
+            int amount,
+            string shopId
         )
         {
             if (amount <= 0)
             {
                 Debug.LogWarning(
-                    $"[ServerPlayerCommandHandler] Invalid purchase amount {amount} for product {productId}"
+                    $"[ServerPlayerCommandHandler] Invalid purchase amount {amount} for product {productId} in shop {shopId}"
                 );
                 return;
             }
 
-            var product = ServerShopRegistry.GetProductById(productId);
+            var product = ServerShopRegistry.GetProductFromShop(shopId, productId);
             if (product == null)
             {
-                Debug.LogWarning($"[ServerPlayerCommandHandler] Product not found: {productId}");
+                Debug.LogWarning(
+                    $"[ServerPlayerCommandHandler] Product not found: {productId} in shop {shopId}"
+                );
                 return;
             }
 
@@ -202,12 +217,26 @@ namespace FTR.Gameplay.Server.Characters
         private async Task ResolveAndSetUserIdFromTokenAsync(string tokenId)
         {
             isResolvingCharacterId = true;
-            var splitedToken = tokenId.Split('_');
-            if (splitedToken[0] == config.TestJoinToken) // TODO: add TEST flag for servers
+            var splitedToken = tokenId.Split('_'); // test-join-token_uuid
+            if (serverConfig.IsTestWorld && splitedToken[0] == config.BotJoinToken)
             {
-                var botId = splitedToken.Length > 1 ? splitedToken[1] : "UnknownBot";
-                stateStorage.SetCharacterId($"bot_{botId}");
-                gameObject.name = $"BotPlayer_{botId}";
+                if (splitedToken.Length == 2)
+                {
+                    stateStorage.SetCharacterId(splitedToken[1]);
+                    gameObject.name = $"BotPlayer_{splitedToken[1]}";
+                }
+                else
+                {
+                    this.networkAdapter.DisconnectClient();
+                }
+
+                isResolvingCharacterId = false;
+                return;
+            }
+
+            if (!Guid.TryParse(tokenId, out Guid _))
+            {
+                this.networkAdapter.DisconnectClient();
                 isResolvingCharacterId = false;
                 return;
             }
@@ -216,7 +245,7 @@ namespace FTR.Gameplay.Server.Characters
             {
                 var consumeResponse = await playerService.ConsumeWorldJoinTokenAsync(
                     tokenId,
-                    serverAccessToken
+                    secretsConfig.ServerFixedToken
                 );
                 if (consumeResponse != null)
                     stateStorage.SetCharacterId(consumeResponse.user_id);

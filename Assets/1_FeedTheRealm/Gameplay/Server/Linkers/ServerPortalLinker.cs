@@ -2,6 +2,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Portal;
+using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Environment.Portal;
 using FTR.Gameplay.Server.Registry;
 using Mirror;
@@ -37,6 +38,9 @@ public class ServerPortalLinker : PortalLinker
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
         var portalStateStorage = gameObject.GetComponent<PortalStateStorage>();
+
+        var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
+        tracker.Initialize(world, netId);
 
         // Add server-side components
         var serverComponents = Object.Instantiate(

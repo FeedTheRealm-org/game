@@ -13,18 +13,21 @@ namespace FTR.Gameplay.Bot.Linkers
     {
         private readonly Config config;
         private readonly BotConfig botConfig;
+        private readonly Session.Session session;
         private readonly Logging.Logger logger;
         private readonly IObjectResolver resolver;
 
         public BotPlayerLinker(
             Config config,
             BotConfig botConfig,
+            Session.Session session,
             Logging.Logger logger,
             IObjectResolver resolver
         )
         {
             this.config = config;
             this.botConfig = botConfig;
+            this.session = session;
             this.logger = logger;
             this.resolver = resolver;
         }
@@ -47,7 +50,7 @@ namespace FTR.Gameplay.Bot.Linkers
                 {
                     Type = TransactionType.SetUserId,
                     NetId = networkAdapter.netId,
-                    Id = $"{config.TestJoinToken}_{botConfig.BotId}",
+                    Id = $"{config.BotJoinToken}_{session.UserId}",
                     content = null,
                 }
             );
@@ -60,6 +63,10 @@ namespace FTR.Gameplay.Bot.Linkers
             logger.Log(
                 $"[BotPlayerLinker] Local bot initialized: botId={botConfig.BotId}, worldId={botConfig.WorldId}, zoneId={botConfig.ZoneId}, netId={networkAdapter.netId}"
             );
+            var rb = gameObject.GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
         }
     }
 }

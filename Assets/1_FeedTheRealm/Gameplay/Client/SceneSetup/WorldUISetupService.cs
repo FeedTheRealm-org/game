@@ -48,7 +48,6 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
 
             var instantiatedMenu = objectResolver.Instantiate(settingsMenu);
             instantiatedMenu.name = "SettingsMenu";
-            instantiatedMenu.SetActive(false);
         }
 
         private void DisconnectPlayer()

@@ -5,6 +5,8 @@ public sealed class CommandQueue
 {
     private readonly Queue<BaseServerCommand> queue = new();
 
+    public int Count => queue.Count;
+
     public void Enqueue(BaseServerCommand cmd)
     {
         queue.Enqueue(cmd);

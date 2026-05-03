@@ -15,4 +15,5 @@ public enum LinkerType
 
     // Environment
     Portal,
+    Chest,
 }

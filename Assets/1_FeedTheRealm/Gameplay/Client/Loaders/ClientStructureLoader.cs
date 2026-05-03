@@ -105,7 +105,7 @@ namespace FTR.Gameplay.Client.Loaders
 
         private string GetSessionToken()
         {
-            return config.IsDebugWorld ? config.ServerAccessToken : session.APIToken;
+            return session.APIToken;
         }
     }
 }
