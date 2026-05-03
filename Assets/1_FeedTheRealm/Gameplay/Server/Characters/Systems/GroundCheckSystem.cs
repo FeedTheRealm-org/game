@@ -45,15 +45,24 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool IsCollidedWithGround()
         {
-            bool result = Physics.Raycast(
+            bool result = Physics.SphereCast(
                 groundCheckSphereOrigin,
+                config.GroundCheckSphereRadius,
                 Vector3.down,
-                out RaycastHit slopeHit,
+                out RaycastHit _,
                 groundCheckDistance,
                 config.GroundLayer | config.SlopeLayer
             );
 
-            if (result)
+            if (
+                Physics.Raycast(
+                    groundCheckSphereOrigin,
+                    Vector3.down,
+                    out RaycastHit slopeHit,
+                    groundCheckDistance + config.GroundCheckSphereRadius,
+                    config.SlopeLayer
+                )
+            )
             {
                 stateStorage.IsOnSlope = true;
                 stateStorage.GroundNormal = slopeHit.normal;
