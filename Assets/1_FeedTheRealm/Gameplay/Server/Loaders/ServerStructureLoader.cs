@@ -63,10 +63,8 @@ namespace FTR.Gameplay.Server.Loaders
                 GameObject instance = Object.Instantiate(shopPrefab);
                 instance.name = structureData.shopId;
                 var controller = instance.GetComponent<StructureController>();
-                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
-                    structureData.colliderType
-                );
-                controller.Initialize(structureData, colliderPrefab, colliderLayer);
+
+                controller.Initialize(structureData);
                 spawnerRegistry.Register(instance);
             }
         }

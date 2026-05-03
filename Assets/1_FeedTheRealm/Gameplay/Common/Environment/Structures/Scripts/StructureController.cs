@@ -23,6 +23,17 @@ namespace FTR.Gameplay.Common.Environment.Structures
             SetupCollider(colliderPrefab, colliderLayer);
         }
 
+        public void Initialize(StructureData structureData)
+        {
+            transform.position = structureData.position;
+            transform.rotation = Quaternion.Euler(structureData.rotation);
+            transform.localScale = structureData.size;
+
+            var boxCollider = gameObject.AddComponent<BoxCollider>();
+            boxCollider.size = structureData.colliderSize;
+            boxCollider.center = structureData.colliderCenter;
+        }
+
         private void SetupCollider(GameObject colliderPrefab, int layer)
         {
             if (!structureData.hasColliders)

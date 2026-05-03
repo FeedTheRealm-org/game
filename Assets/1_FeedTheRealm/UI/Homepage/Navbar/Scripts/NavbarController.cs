@@ -1,3 +1,4 @@
+using FTR.Core.Client.EntryPoints;
 using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -144,6 +145,23 @@ namespace FTR.UI.Homepage.Navbar
         public void SetProfileMenuInstance(GameObject instance)
         {
             profileMenuInstance = instance;
+            CharacterEditController characterEditorController =
+                profileMenuInstance.GetComponentInChildren<CharacterEditController>();
+            if (characterEditorController != null)
+            {
+                var playerId = session?.UserId?.Trim() ?? string.Empty;
+                if (string.IsNullOrEmpty(playerId))
+                {
+                    logger.Log(
+                        "Session.UserId is empty. Character editor will receive an empty player id.",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                }
+
+                characterEditorController.SetAssetsWorldId(new System.Guid().ToString());
+                characterEditorController.SetAssetsPlayerId(playerId);
+            }
         }
 
         private void OnGemStoreButtonClicked()

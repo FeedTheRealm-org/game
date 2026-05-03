@@ -176,21 +176,24 @@ namespace FTR.Gameplay.Server.Characters
             IEventCollectable ec,
             uint netId,
             string productId,
-            int amount
+            int amount,
+            string shopId
         )
         {
             if (amount <= 0)
             {
                 Debug.LogWarning(
-                    $"[ServerPlayerCommandHandler] Invalid purchase amount {amount} for product {productId}"
+                    $"[ServerPlayerCommandHandler] Invalid purchase amount {amount} for product {productId} in shop {shopId}"
                 );
                 return;
             }
 
-            var product = ServerShopRegistry.GetProductById(productId);
+            var product = ServerShopRegistry.GetProductFromShop(shopId, productId);
             if (product == null)
             {
-                Debug.LogWarning($"[ServerPlayerCommandHandler] Product not found: {productId}");
+                Debug.LogWarning(
+                    $"[ServerPlayerCommandHandler] Product not found: {productId} in shop {shopId}"
+                );
                 return;
             }
 

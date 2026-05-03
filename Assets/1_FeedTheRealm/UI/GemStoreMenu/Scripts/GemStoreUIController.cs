@@ -66,11 +66,10 @@ public class GemStoreController : MonoBehaviour
         }
 
         int bestGemPack = 0;
-        decimal bestRatioPack = decimal.MaxValue;
+        float bestRatioPack = float.MaxValue;
         foreach (API.GemPackResponse p in packs)
         {
-            decimal currentRatioPack =
-                decimal.Parse(p.price, System.Globalization.CultureInfo.InvariantCulture) / p.gems;
+            float currentRatioPack = p.price / p.gems;
             if (currentRatioPack < bestRatioPack)
             {
                 bestRatioPack = currentRatioPack;
@@ -89,8 +88,7 @@ public class GemStoreController : MonoBehaviour
 
         root.Q<Label>("PackGemIcon").text = "💎";
         root.Q<Label>("PackGemAmount").text = pack.gems.ToString();
-        root.Q<Label>("PackPrice").text =
-            $"${decimal.Parse(pack.price, System.Globalization.CultureInfo.InvariantCulture)}";
+        root.Q<Label>("PackPrice").text = $"${pack.price:0.00}";
 
         if (isFeatured)
         {
@@ -151,7 +149,7 @@ public class GemStoreController : MonoBehaviour
                 {
                     PackName = pack.name,
                     GemAmount = pack.gems,
-                    Price = $"{pack.price:F2}",
+                    Price = $"{pack.price:0.00}",
                     NewBalance = currentBalance + pack.gems,
                 }
             )
