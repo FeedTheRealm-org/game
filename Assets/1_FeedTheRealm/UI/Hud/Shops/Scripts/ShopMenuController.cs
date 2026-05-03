@@ -1,8 +1,5 @@
-using System;
 using System.Threading.Tasks;
-using Game.Core.Events;
-using Mono.Cecil;
-using Unity.VisualScripting;
+using FTR.Core.Client.EventChannels.Shop;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,10 +10,7 @@ public class ShopMenuController : MonoBehaviour
     VisualElement panel;
 
     [SerializeField]
-    private ShopInteractedEvent shopInteractedEvent;
-
-    [SerializeField]
-    private ShopOnCloseEvent shopOnCloseEvent;
+    private ShopToggleEvent shopToggleEvent;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -39,7 +33,7 @@ public class ShopMenuController : MonoBehaviour
         root = uiDocument.rootVisualElement;
         panel = root.Q<VisualElement>("Panel");
 
-        shopInteractedEvent.OnRaised += () => ToggleShopMenu(true);
+        shopToggleEvent.OnRaised += ToggleShopMenu;
 
         PopulateShopItems();
         ToggleShopMenu(false);
@@ -62,24 +56,25 @@ public class ShopMenuController : MonoBehaviour
     private void OnCloseMenu()
     {
         ToggleShopMenu(false);
-        shopOnCloseEvent.Raise();
+        shopToggleEvent.Raise(false);
     }
 
-    private async Task AddProductToUI(Models.ProductData product)
+    private async Task AddProductToUI(FTRShared.Runtime.Models.ProductData product)
     {
         var item = new VisualElement();
         item.name = "ShopItem";
         item.AddToClassList("shop-slot");
 
         var img = new VisualElement();
-        Texture2D texture = await itemAssetsService.DownloadItemSpriteAsync(product.itemData.id);
-        Sprite sprite = Sprite.Create(
-            texture,
-            new Rect(0, 0, texture.width, texture.height),
-            new Vector2(0.5f, 0.5f)
-        );
+        // TODO: itemData NO LONGER EXISTS IN ProductData! UPDATE!!
+        // Texture2D texture = await itemAssetsService.DownloadItemSpriteAsync(product.itemData.id);
+        // Sprite sprite = Sprite.Create(
+        //     texture,
+        //     new Rect(0, 0, texture.width, texture.height),
+        //     new Vector2(0.5f, 0.5f)
+        // );
 
-        img.style.backgroundImage = new StyleBackground(sprite);
+        // img.style.backgroundImage = new StyleBackground(sprite);
         img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
         img.style.width = new Length(100, LengthUnit.Percent);
         img.style.height = new Length(100, LengthUnit.Percent);
@@ -104,7 +99,7 @@ public class ShopMenuController : MonoBehaviour
     {
         foreach (var product in shopItemsSO.GetShopData().products)
         {
-            logger.Log($"Adding item to shop UI: {product.itemData.name}", this);
+            // logger.Log($"Adding item to shop UI: {product.itemData.name}", this);
             await AddProductToUI(product);
         }
     }

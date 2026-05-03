@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+message QuestProgressEventContent {
+  string quest_id            = 1;  // Matches QuestData.id in ClientQuestRegistry
+  int32  current             = 2;  // Current progress amount
+  int32  target              = 3;  // Target progress amount required to complete
+  string effective_quest_id  = 4;  // Uniquely identifies the quest instance (e.g. questId_npcId)
+}
+
+message QuestCompletedEventContent {
+  string quest_id           = 1;
+  string effective_quest_id = 2;  // Uniquely identifies the quest instance (e.g. questId_npcId)
+}

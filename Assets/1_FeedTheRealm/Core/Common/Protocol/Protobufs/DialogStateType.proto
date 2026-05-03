@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+enum DialogStateType {
+  DIALOG_TYPE_STARTED = 0;
+  DIALOG_TYPE_ADVANCED = 1;
+  DIALOG_TYPE_CLOSED = 2;
+}

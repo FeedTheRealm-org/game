@@ -1,0 +1,196 @@
+:root {
+}
+
+.panel {
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    overflow: hidden;
+    background-color: rgba(18, 14, 10, 0.96);
+    border-width: 1px;
+    border-color: rgba(255, 200, 80, 0.25);
+}
+
+.shop-close-button {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button.png?fileID=2800000&guid=485cd2ab0486a8e4aaa55e94ec27c6b6&type=3#button");
+    background-size: 100% 100%;
+    min-width: 36px;
+    min-height: 36px;
+    max-width: 36px;
+    max-height: 36px;
+    justify-content: center;
+    align-items: center;
+    border-width: 0;
+    border-radius: 6px;
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+
+.shop-close-button:hover {
+    background-color: rgba(255, 80, 80, 0.35);
+}
+
+.shop-close-button-label {
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 16px;
+    -unity-text-align: upper-center;
+}
+
+.shop-tab {
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    padding-bottom: 6px;
+    transition-property: border-bottom-color;
+    transition-duration: 0.15s;
+    cursor: link;
+}
+
+.shop-tab:hover {
+    border-bottom-color: rgba(255, 255, 255, 0.35);
+}
+
+.shop-tab--active {
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(255, 200, 80);
+}
+
+.shop-items-container {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    align-self: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 8px;
+}
+
+.shop-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 70px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-bottom-width: 1px;
+    border-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    border-width: 1px;
+    transition-property: background-color, border-color;
+    transition-duration: 0.12s;
+}
+
+.shop-item:hover {
+    background-color: rgba(255, 200, 80, 0.08);
+    border-color: rgba(255, 200, 80, 0.25);
+}
+
+.shop-item-icon {
+    background-size: cover;
+    -unity-background-scale-mode: scale-to-fit;
+    min-width: 80px;
+    min-height: 80px;
+    max-width: 80px;
+    max-height: 80px;
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&guid=4b3d2095baccc2041b973b66b786b9d0&type=3#button2_ready_off");
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin-right: 10px;
+}
+
+.shop-item-name {
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 16px;
+    flex-grow: 1;
+    margin-left: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.shop-item-price {
+    color: rgb(255, 210, 80);
+    -unity-font-style: bold;
+    font-size: 17px;
+    margin-right: 12px;
+    min-width: 70px;
+    -unity-text-align: middle-right;
+}
+
+.shop-item-amount {
+    width: 48px;
+    height: 40px;
+    margin-right: 8px;
+    font-size: 14px;
+    color: rgb(0, 0, 0);
+    -unity-text-align: middle-center;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    border-color: rgba(255, 255, 255, 0.15);
+    border-width: 1px;
+}
+
+.shop-buy-button {
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button.png?fileID=2800000&guid=485cd2ab0486a8e4aaa55e94ec27c6b6&type=3#button");
+    background-size: 100% 100%;
+    min-width: 80px;
+    min-height: 40px;
+    max-width: 80px;
+    max-height: 40px;
+    justify-content: center;
+    align-items: center;
+    border-width: 0;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.shop-buy-button:hover {
+    scale: 1.05 1.05;
+}
+
+.shop-buy-button:active {
+    scale: 0.95 0.95;
+}
+
+.shop-buy-button-label {
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 14px;
+    -unity-text-align: upper-center;
+}
+
+.shop-not-enough-gold-message {
+    color: rgb(255, 80, 80);
+    -unity-font-style: bold;
+    font-size: 16px;
+    -unity-text-align: upper-center;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background-color: rgba(180, 0, 0, 0.35);
+    border-radius: 6px;
+    width: 350px;
+    white-space: normal;
+}
+
+.shop-item-names-column {
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 12px;
+    overflow: hidden;
+}
+
+.shop-item-category {
+    color: rgba(200, 180, 255, 0.7);
+    font-size: 11px;
+    -unity-font-style: italic;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

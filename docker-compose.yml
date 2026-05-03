@@ -1,0 +1,42 @@
+services:
+  ftr-server:
+    profiles: ["all"]
+    env_file:
+      - .env
+    build:
+      context: .
+    entrypoint: [
+      "./entrypoint.dev.sh",
+      "./server.x86_64",
+      "-batchmode",
+      "-nographics",
+      "--world-id=${WORLD_ID}",
+      "--zone-id=${ZONE_ID}",
+      "--is-test-world=${IS_TEST_WORLD}"
+    ]
+    network_mode: host # Assumes core-service running on localhost:8000
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./entrypoint.dev.sh:/app/entrypoint.dev.sh
+
+  mongo: # For local ftr-servers persistance (game)
+    profiles: ["all", "db-only"]
+    command: ["--quiet", "--logpath", "/dev/null"]
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo_data:

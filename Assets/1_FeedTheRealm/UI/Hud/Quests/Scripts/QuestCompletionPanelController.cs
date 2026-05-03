@@ -1,8 +1,9 @@
 using System.Collections;
-using Game.Core.Events;
-using Game.Core.Quests;
+using FTR.Core.Common.EventChannels;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 /// <summary>
 /// Controls the UI popup for the quest completion panel.
@@ -11,10 +12,13 @@ public class QuestCompletionPanelController : MonoBehaviour
 {
     [Header("General settings")]
     [SerializeField]
-    private float hideDelay = 3f;
+    private float hideDelay = 6f;
 
     [SerializeField]
     private Logging.Logger logger;
+
+    [Inject]
+    private QuestCompletedEvent completedEvent;
 
     private VisualElement _root;
 
@@ -24,15 +28,38 @@ public class QuestCompletionPanelController : MonoBehaviour
 
     private void Awake()
     {
-        _root = GetComponent<UIDocument>().rootVisualElement;
-        _titleLabel = _root.Q<Label>("QuestTitle");
-        if (_titleLabel == null)
+        var document = GetComponent<UIDocument>();
+        if (document == null)
+        {
+            logger.Log("UIDocument component missing.", this, Logging.LogType.Error);
+            return;
+        }
+
+        _root = document.rootVisualElement;
+        _titleLabel = _root?.Q<Label>("QuestTitle");
+        if (_root == null || _titleLabel == null)
+        {
             logger.Log(
-                "One or more UI elements are not assigned in the inspector.",
+                "One or more UI elements are not assigned in the inspector or UI document is incomplete.",
                 this,
                 Logging.LogType.Error
             );
+            return;
+        }
+
         ToggleQuestCompletionPanel(false);
+    }
+
+    private void OnEnable()
+    {
+        if (completedEvent != null)
+            completedEvent.OnRaised += HandleQuestCompleted;
+    }
+
+    private void OnDisable()
+    {
+        if (completedEvent != null)
+            completedEvent.OnRaised -= HandleQuestCompleted;
     }
 
     private void OnDestroy()
@@ -41,9 +68,6 @@ public class QuestCompletionPanelController : MonoBehaviour
             StopCoroutine(_hideCoroutine);
     }
 
-    /// <summary>
-    /// Toggles the visibility of the quest completion panel.
-    /// </summary>
     public void ToggleQuestCompletionPanel(bool show)
     {
         _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
@@ -55,12 +79,15 @@ public class QuestCompletionPanelController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Updates the quest completion panel with the completed quest data.
-    /// </summary>
+    private void HandleQuestCompleted((QuestData Quest, string EffectiveId) payload)
+    {
+        OnQuestCompleted(payload.Quest);
+        ToggleQuestCompletionPanel(true);
+    }
+
     public void OnQuestCompleted(QuestData data)
     {
-        _titleLabel.text = data.Title;
+        _titleLabel.text = data.title;
     }
 
     /// <summary>

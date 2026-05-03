@@ -1,0 +1,35 @@
+# Usage:
+# docker build -t ftr-server:latest .
+# docker run --rm -p 7777:7777/udp -p 7777:7777/tcp ftr-server:latest
+
+# PRE-REQUISITES: this CANNOT build the game server, it should be already built in ./Build/Server/
+# After building this image the game binary and dlls will be encapsulated in it
+
+FROM debian:bookworm-slim AS runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libglib2.0-0 \
+    libstdc++6 \
+    libgcc-s1 \
+    awscli \
+    && rm -rf /var/lib/apt/lists/*
+
+LABEL org.opencontainers.image.source=https://github.com/FeedTheRealm-org/game
+
+WORKDIR /app
+
+COPY entrypoint.sh /app/entrypoint.sh
+COPY Build/Server/ /app/
+
+RUN chmod +x /app/entrypoint.sh
+
+# Game protocol
+EXPOSE 7777/tcp
+EXPOSE 7777/udp
+
+# Healthcheck
+EXPOSE 7778/tcp
+
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["-batchmode", "-nographics"]

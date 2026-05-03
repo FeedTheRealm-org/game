@@ -1,0 +1,26 @@
+{
+  "name": "FTR.Gameplay.Client",
+  "references": [
+    "FeedTheRealm_Shared",
+    "FTR.Core.Common",
+    "FTR.Core.Client",
+    "FTR.Gameplay.Common",
+    "UnityEngine",
+    "Unity.Cinemachine",
+    "Mirror",
+    "glTFast",
+    "VContainer",
+    "UniTask"
+  ],
+  "includePlatforms": [
+    "Editor",
+    "WindowsStandalone64",
+    "LinuxStandalone64"
+  ],
+  "defineConstraints": [
+    "CLIENT_BUILD"
+  ],
+  "autoReferenced": false,
+  "noEngineReferences": false,
+  "languageVersion": "10.0"
+}

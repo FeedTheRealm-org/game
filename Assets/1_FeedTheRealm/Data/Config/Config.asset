@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a9b5f3caeffc93a99f9f1b26ccaf73, type: 3}
+  m_Name: Config
+  m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
+  _editorRuntimeRole: 0
+  MaxWorldLoadRetries: 10
+  WorldLoadRetryDelayMs: 1000
+  _listeningPort: 7777
+  _healthcheckPort: 7778
+  BotJoinToken: test-join-token
+  EnableActionLogging: 0
+  ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
+  CubeColliderLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  SlopeColliderLayerMask:
+    serializedVersion: 2
+    m_Bits: 16384
+  CurrentServerAddress: 127.0.0.1
+  CurrentServerPort: 7777
+  DEBUG_IsDebugWorld: 1
+  DEBUG_DoNotLoadWorld: 0
+  DEBUG_WorldId: 9b5fb62a-cfa5-488f-8163-5042f5a091c9
+  DEBUG_ZoneId: 1
+  DEBUG_EnableColliderView: 0

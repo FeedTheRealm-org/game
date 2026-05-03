@@ -1,0 +1,10 @@
+.character-name {
+    font-size: 16px;
+    color: #ffffff;
+    -unity-font-style: bold;
+
+    -unity-text-outline-color: #000000;
+    -unity-text-outline-width: 1px;
+
+    background-color: transparent;
+}

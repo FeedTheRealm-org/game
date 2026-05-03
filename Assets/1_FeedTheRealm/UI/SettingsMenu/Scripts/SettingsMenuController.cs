@@ -1,21 +1,31 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using FTR.Core.Client.EventChannels.UI;
+using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class SettingsMenuController : MonoBehaviour
 {
-    [Header("Scenes")]
+    [Header("General settings")]
     [SerializeField]
     private SceneReference homeScene;
 
-    [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
 
+    [SerializeField]
+    private PlayerInputReader playerInputReader;
+
+    [SerializeField]
+    private OnWorldLeaveEvent onWorldLeaveEvent;
+
     /* General settings */
+    private VisualElement root;
     private Button _homeButton;
     private Button _exitButton;
     private Button _closeSettingsButton;
@@ -28,9 +38,22 @@ public class SettingsMenuController : MonoBehaviour
     private List<Resolution> _availableResolutions;
     private const float baseHeight = 800f;
 
+    private void Start()
+    {
+        playerInputReader.CursorToggleEvent += ToggleSettings;
+    }
+
+    private void OnDestroy()
+    {
+        if (playerInputReader != null)
+        {
+            playerInputReader.CursorToggleEvent -= ToggleSettings;
+        }
+    }
+
     private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
+        root = GetComponent<UIDocument>().rootVisualElement;
 
         /* General settings */
         _homeButton = root.Q<Button>("HomeButton");
@@ -66,9 +89,13 @@ public class SettingsMenuController : MonoBehaviour
             return;
         }
 
+        logger.Log("Settings menu UI elements initialized successfully.", this);
+
         initializeDisplaySettings();
         adjustUIToScreenSize();
         registerButtonCallbacks(true);
+
+        root.style.display = DisplayStyle.None;
     }
 
     private void OnDisable()
@@ -151,40 +178,33 @@ public class SettingsMenuController : MonoBehaviour
 
     public bool IsOpen()
     {
-        return gameObject.activeSelf;
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        return root.style.display == DisplayStyle.Flex;
     }
 
     public void ToggleSettings()
     {
         logger.Log("Toggle settings", this);
 
-        bool willBeActive = !gameObject.activeSelf;
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        bool willBeActive = root.style.display != DisplayStyle.Flex;
+        root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
 
-        if (willBeActive)
-        {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
-            logger.Log("Cursor shown (toggle)", this);
-        }
-        else
-        {
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-            UnityEngine.Cursor.visible = false;
-            logger.Log("Cursor hidden (toggle)", this);
-        }
-
-        gameObject.SetActive(willBeActive);
+        UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = willBeActive;
     }
 
     private void onHomeButtonClicked()
     {
         logger.Log("Home button clicked", this, Logging.LogType.Info);
+        onWorldLeaveEvent.Raise();
         SceneManager.LoadScene(homeScene.SceneName);
     }
 
     private void onExitButtonClicked()
     {
         logger.Log("Exit button clicked", this, Logging.LogType.Info);
+        onWorldLeaveEvent.Raise();
         Application.Quit();
     }
 

@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7208925596118356869}
   - component: {fileID: 8399197686760333867}
-  - component: {fileID: 8350905116635297411}
   - component: {fileID: 925298929608913867}
   m_Layer: 5
   m_Name: Healthbar
@@ -28,8 +27,8 @@ Transform:
   m_GameObject: {fileID: 8544674612818321002}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.2, y: 0.80999994, z: -0}
-  m_LocalScale: {x: 1, y: 0.5021876, z: 1}
+  m_LocalPosition: {x: 0, y: 0.75, z: 0.36}
+  m_LocalScale: {x: 0.4, y: 0.200875, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -57,21 +56,6 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
---- !u!114 &8350905116635297411
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8544674612818321002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da617045d95d1b018eb456842df1c69, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboardComponent
-  centeredBillboard: 1
-  centerTransform: {fileID: 0}
-  offset: {x: 0, y: 2, z: 0}
 --- !u!114 &925298929608913867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,8 +65,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8544674612818321002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f0fa3018612205a98d190c80322a15e, type: 3}
+  m_Script: {fileID: 11500000, guid: 813efc55d2f90fdd3a9ccbce9b534252, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::UIHealthbar
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
-  healthComponent: {fileID: 0}

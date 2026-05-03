@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fd0a19c7826f29c2a4b8ea57d839fed, type: 3}
+  m_Name: ServerPrefabProvider
+  m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Client.ServerPrefabProvider
+  ServerCharacterComponents: {fileID: 2056940003155735034, guid: 9907a9bc79e277c47af508172cec712a, type: 3}
+  ServerPlayerComponents: {fileID: 2056940003155735034, guid: b4867fefee5f210f0bdedfad75b9d6fc, type: 3}
+  ServerLootItemComponents: {fileID: 3012644098720053192, guid: 6ac8d2d7f505404cfb2984e23953ff21, type: 3}
+  ServerEnemyComponents: {fileID: 8343545740287052211, guid: 5f728d9fc693f600fb1015c39f496402, type: 3}
+  ServerNpcComponents: {fileID: 7101224392410250164, guid: e22e32c7ab941992e9542c82f4845b04, type: 3}
+  ServerShopComponent: {fileID: 3804251392500656506, guid: 23f23f70e5314dc478d46a56ec674a27, type: 3}
+  PortalComponent: {fileID: 3012644098720053192, guid: 0f1581688db5accc5a813d1e278a3e27, type: 3}
+  ChestComponent: {fileID: 3012644098720053192, guid: 2d638bd25090b7af89c132a53c4484dc, type: 3}
+  LootItemPrefab: {fileID: 5803050593894928880, guid: fdd7ce362fcd83eee996fe2464eebbb4, type: 3}
+  StructureComponent: {fileID: 4012873288248038246, guid: 44c4589e47fb4e1bd8bf4bfc6e89c618, type: 3}
+  AggresiveNpcSpawnerComponent: {fileID: 1204586027189477210, guid: 3b507ea1bc7ad7d16b133dbf855df3df, type: 3}
+  FriendlyNpcSpawnerComponent: {fileID: 7265489834613234143, guid: 92a6d90bb86a46146bd725128e92e36d, type: 3}
+  ShopComponent: {fileID: 3922623790710069857, guid: 202f4e6245ef36c438f836aa55664307, type: 3}
+  PortalPrefab: {fileID: 3012644098720053192, guid: d397050cae8444f0ab9b3e3ac6dd6083, type: 3}
+  ChestPrefab: {fileID: 3012644098720053192, guid: 313d31c0cd2a65bdc97f1d9f96316485, type: 3}
+  PlayerTriggerAreaPrefab: {fileID: 2056940003155735034, guid: 44150e80c46cdbf409b740d7be244ff5, type: 3}

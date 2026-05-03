@@ -1,4 +1,4 @@
-using Models;
+using FTRShared.Runtime.Models;
 using UnityEngine.UIElements;
 
 namespace UI.ItemStats

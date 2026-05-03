@@ -17,10 +17,10 @@ TagManager:
   - Target
   - Area
   - Interactable
-  - 
-  - 
-  - 
-  - 
+  - LootItem
+  - Obstacle
+  - Portal
+  - Slope
   - 
   - 
   - 

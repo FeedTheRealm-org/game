@@ -102,6 +102,9 @@ InitTestScene*.unity*
 .vscode/
 .vsconfig
 
+.env*
+bot_logs/
+
 # Client
 client.slnx
 

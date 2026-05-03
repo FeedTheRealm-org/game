@@ -1,3 +1,4 @@
+---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -18,8 +19,13 @@ repos:
     hooks:
       - id: yamllint
         files: \.(yml|yaml)$
-        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+        exclude: ^(ProjectSettings|Assets|\.github)/.*\.(asset|unity|yml)$
         args: [--format, parsable]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
 
   - repo: local
     hooks:

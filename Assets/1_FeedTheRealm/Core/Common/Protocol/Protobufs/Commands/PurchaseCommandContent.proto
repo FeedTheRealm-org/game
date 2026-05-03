@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+message PurchaseCommandContent {
+  string product_id = 1;
+  int32 amount = 2;
+  string shop_id = 3;
+}
