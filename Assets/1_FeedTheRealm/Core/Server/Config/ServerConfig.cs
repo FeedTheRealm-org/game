@@ -1,4 +1,6 @@
+using System;
 using FTR.Core.Common.Utils;
+using FTR.Core.Server.Utils;
 using UnityEngine;
 
 namespace FTR.Core.Server.Config
@@ -24,7 +26,7 @@ namespace FTR.Core.Server.Config
         public int ZoneId;
 
         [HideInInspector]
-        public bool AllowBots;
+        public bool IsTestWorld;
 
         [Header("Database Settings")]
         // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
@@ -135,7 +137,22 @@ namespace FTR.Core.Server.Config
         {
             this.WorldId = ParamsSerializer.GetArgs("world-id", string.Empty);
             this.ZoneId = int.Parse(ParamsSerializer.GetArgs("zone-id", "0"));
-            this.AllowBots = bool.Parse(ParamsSerializer.GetArgs("allow-bots", "false"));
+            this.IsTestWorld = bool.Parse(ParamsSerializer.GetArgs("is-test-world", "false"));
+
+#if UNITY_EDITOR
+            // In case its running from the editor this is useful
+            if (!LoadFromEnvFile)
+                return;
+            EnvironmentVariablesUtils.LoadFromEnvFile(this.EnvFilePath);
+            if (string.IsNullOrEmpty(this.WorldId))
+                this.WorldId = Environment.GetEnvironmentVariable("WORLD_ID");
+            if (this.ZoneId == 0)
+                this.ZoneId = int.Parse(Environment.GetEnvironmentVariable("ZONE_ID") ?? "0");
+            if (!this.IsTestWorld)
+                this.IsTestWorld = bool.Parse(
+                    Environment.GetEnvironmentVariable("IS_TEST_WORLD") ?? "false"
+                );
+#endif
         }
     }
 }

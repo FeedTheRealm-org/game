@@ -31,6 +31,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     private readonly float tickStep = 1f / 30f;
     private float accumulator;
 
+    private bool IsInitialized = false;
+
     public ServerWorldEntryPoint(
         ServerTickDriver serverTickDriver,
         NetworkTickDriver networkTickDriver,
@@ -87,13 +89,17 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
                 return;
 
             DogStatsd.Configure(
-                "localhost",
+                secretsConfig.DDAgentHost,
                 8125,
                 new[] { $"world_id:{serverConfig.WorldId}", $"zone_id:{serverConfig.ZoneId}" }
             );
 
             healthcheckServer.Start();
             WorldLoadBootstrap.MarkServerReady();
+            IsInitialized = true;
+            logger.Log(
+                $"ServerWorldEntryPoint started successfully with worldId={serverConfig.WorldId}, zoneId={serverConfig.ZoneId}, isTestWorld={serverConfig.IsTestWorld}"
+            );
         }
         catch (OperationCanceledException)
         {
@@ -134,6 +140,9 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     /// </summary>
     public void Tick()
     {
+        if (!IsInitialized)
+            return;
+
         networkTickDriver.TickBefore();
 
         accumulator += Time.deltaTime;

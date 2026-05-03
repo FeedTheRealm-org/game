@@ -45,6 +45,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool IsCollidedWithGround()
         {
+            // TODO(optimization): why spherecast + raycast?
             bool result = Physics.SphereCast(
                 groundCheckSphereOrigin,
                 config.GroundCheckSphereRadius,

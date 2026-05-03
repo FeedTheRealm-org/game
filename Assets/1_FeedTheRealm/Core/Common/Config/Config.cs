@@ -29,13 +29,14 @@ namespace FTR.Core.Common.Config
             ushort.Parse(ParamsSerializer.GetArgs("port", _listeningPort.ToString()));
 
         [SerializeField]
-        private ushort _healthcheckPort = 6001;
+        private ushort _healthcheckPort = 7778;
         public ushort HealthcheckPort =>
             ushort.Parse(ParamsSerializer.GetArgs("hport", _healthcheckPort.ToString()));
 
         [Header("Test Settings")]
         // Even if this is set, BOTS will not be allowed to join unless server starts with `--allow-bots=true`
-        public string BotJoinToken = "test_join_token";
+        // IF YOU CHANGE THIS VALUE UPDATE IT IF USED ELSEWHERE (e.g. core-service)
+        public string BotJoinToken = "test-join-token";
         public bool EnableActionLogging = false;
 
         [Header("API Settings")]

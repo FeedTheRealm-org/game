@@ -119,6 +119,27 @@ public class NetworkAdapter : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// DisconnectClient is called by the server to disconnect a client.
+    /// Server ONLY.
+    /// </summary>
+    [Server]
+    public void DisconnectClient()
+    {
+        if (!isServer)
+            return;
+
+        if (
+            NetworkServer.connections.TryGetValue(
+                connectionToClient.connectionId,
+                out var targetConnection
+            )
+        )
+            targetConnection.Disconnect();
+        else
+            logger.Log($"Failed to disconnect client for NetId: {netId}", this);
+    }
+
     /* --- RPCs --- */
 
     /// <summary>

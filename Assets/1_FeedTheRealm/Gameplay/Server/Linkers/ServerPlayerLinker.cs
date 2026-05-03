@@ -59,9 +59,6 @@ public class ServerPlayerLinker : PlayerLinker
 
         int connectionId = networkAdapter.connectionToClient.connectionId;
 
-        var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
-        tracker.Initialize(world, netId);
-
         var sharedSystems = characterLinker.Link(gameObject, netId);
         var stateStorage = gameObject.GetComponent<CharacterStateStorage>();
 
@@ -114,7 +111,8 @@ public class ServerPlayerLinker : PlayerLinker
             playerService,
             goldSystem,
             teleportSystem,
-            chatSystem
+            chatSystem,
+            networkAdapter
         );
 
         respawnSystem.Initialize(

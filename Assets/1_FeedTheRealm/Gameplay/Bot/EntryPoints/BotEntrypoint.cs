@@ -15,13 +15,15 @@ namespace FTR.Gameplay.Bot.EntryPoints
         private readonly Config config;
         private readonly BotConfig botConfig;
         private readonly WorldService worldService;
+        private readonly AuthService authService;
 
         public BotEntryPoint(
             SceneReference mainScene,
             Logging.Logger logger,
             Config config,
             BotConfig botConfig,
-            WorldService worldService
+            WorldService worldService,
+            AuthService authService
         )
         {
             this.mainScene = mainScene;
@@ -29,6 +31,7 @@ namespace FTR.Gameplay.Bot.EntryPoints
             this.config = config;
             this.botConfig = botConfig;
             this.worldService = worldService;
+            this.authService = authService;
         }
 
         public async void Start()
@@ -41,10 +44,19 @@ namespace FTR.Gameplay.Bot.EntryPoints
                 var (ip, port, err, _) = await worldService.GetZoneAddress(
                     botConfig.WorldId,
                     botConfig.ZoneId,
-                    botConfig.ServerFixedToken
+                    botConfig.AdminToken
                 );
                 if (!string.IsNullOrEmpty(err))
                     throw new System.Exception($"Failed to get zone address: {err}");
+                var authErr = await authService.Login(
+                    botConfig.BotEmail,
+                    botConfig.BotPassword,
+                    botConfig.AdminToken
+                );
+                if (!string.IsNullOrEmpty(authErr))
+                    throw new System.Exception(
+                        $"Failed to login bot {botConfig.BotEmail}: {authErr}"
+                    );
                 config.CurrentServerAddress = ip;
                 config.CurrentServerPort = (ushort)port;
                 await LoadMainScene();

@@ -17,7 +17,7 @@ MonoBehaviour:
   WorldLoadRetryDelayMs: 1000
   _listeningPort: 7777
   _healthcheckPort: 7778
-  BotJoinToken: test_join_token
+  BotJoinToken: test-join-token
   EnableActionLogging: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   CubeColliderLayerMask:
@@ -30,6 +30,6 @@ MonoBehaviour:
   CurrentServerPort: 7777
   DEBUG_IsDebugWorld: 1
   DEBUG_DoNotLoadWorld: 0
-  DEBUG_WorldId: 7b5abd58-6a66-49ac-b11d-b9aa25b05a45
+  DEBUG_WorldId: 9b5fb62a-cfa5-488f-8163-5042f5a091c9
   DEBUG_ZoneId: 1
-  DEBUG_EnableColliderView: 1
+  DEBUG_EnableColliderView: 0

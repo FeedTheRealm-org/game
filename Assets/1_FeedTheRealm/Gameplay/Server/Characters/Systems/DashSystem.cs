@@ -106,6 +106,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt)
         {
+            // TODO(optimization): can we avoid checking this every tick? -> Coroutine
             if (!isInitialized || isDashing)
                 return;
 

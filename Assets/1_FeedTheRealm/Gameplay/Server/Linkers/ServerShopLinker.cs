@@ -1,6 +1,7 @@
 using FTR.Core.Server;
 using FTR.Core.Server.Entities;
 using FTR.Gameplay.Common.Linkers;
+using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using Mirror;
 using UnityEngine;
@@ -35,6 +36,9 @@ public class ServerShopLinker : ShopLinker
 
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
+
+        var tracker = gameObject.AddComponent<ServerEntityCleanupTracker>();
+        tracker.Initialize(world, netId);
 
         // Add server-side components
         var serverComponents = resolver.Instantiate(
