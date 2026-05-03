@@ -23,6 +23,7 @@ public class ColliderRegistry : ScriptableObject
         {
             case ColliderType.Slope:
                 prefab = slopeColliderPrefab;
+                // TODO(refactor): consider changind this by using something like "LayerMask.NameToLayer(GroundLayer)"
                 layer = (int)Mathf.Log(config.slopeColliderLayerMask.value, 2);
                 break;
             case ColliderType.Cube:
