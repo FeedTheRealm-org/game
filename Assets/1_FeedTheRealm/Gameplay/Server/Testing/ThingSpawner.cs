@@ -79,7 +79,7 @@ namespace FTR.Gameplay.Server.Testing
         /// </summary>
         private void SpawnThing(int thingIndex = 0)
         {
-            Vector3 point = transform.position;
+            Vector3 point = transform.position + Vector3.up;
             GameObject Thing = resolverContainer.Resolver?.Instantiate(
                 thingPrefab,
                 point,

@@ -112,7 +112,6 @@ public class ServerPlayerLinker : PlayerLinker
             questSystem,
             stateStorage,
             playerService,
-            commonConfig.ServerAccessToken,
             goldSystem,
             teleportSystem,
             chatSystem
@@ -130,7 +129,8 @@ public class ServerPlayerLinker : PlayerLinker
             netId,
             networkAdapter,
             serverPlayerCommandHandler,
-            connectionId
+            connectionId,
+            isPlayer: true
         );
     }
 }

@@ -91,7 +91,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a255630e910c159bb856a77108a7b9f, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::PlayerInteractSystem
-  interactionRadius: 8
+  config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -145,7 +145,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1874e7fe2b849f7f8e6aedadf705fdc, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.TeleportSystem
-  portalRegistry: {fileID: 11400000, guid: f0664cc563bbc04a9a0f72681b8fbc51, type: 2}
 --- !u!114 &-3679336093027539435
 MonoBehaviour:
   m_ObjectHideFlags: 0

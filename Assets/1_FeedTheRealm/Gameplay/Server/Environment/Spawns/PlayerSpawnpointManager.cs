@@ -22,6 +22,9 @@ public class PlayerSpawnpointManager
             return Vector3.zero;
 
         int index = Random.Range(0, spawnpoints.Count);
-        return spawnpoints[index].Position;
+        var spawnPoint = spawnpoints[index];
+
+        Vector2 randomCircle = Random.insideUnitCircle * spawnPoint.Radius;
+        return spawnPoint.Position + new Vector3(randomCircle.x, 0, randomCircle.y);
     }
 }

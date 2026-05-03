@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Assets.HeroEditor4D.InventorySystem.Scripts.Enums;
 using FTR.Core.Server.Enums;
 using FTRShared.Runtime.Models;
 using UnityEngine;

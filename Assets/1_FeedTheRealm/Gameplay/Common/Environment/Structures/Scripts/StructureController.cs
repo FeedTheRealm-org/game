@@ -37,7 +37,10 @@ namespace FTR.Gameplay.Common.Environment.Structures
         private void SetupCollider(GameObject colliderPrefab, int layer)
         {
             if (!structureData.hasColliders)
+            {
+                Debug.Log($"Structure {structureData.structureName} has no colliders");
                 return;
+            }
 
             colliderInstance = Instantiate(colliderPrefab, transform);
 

@@ -1,3 +1,4 @@
+using FTR.Core.Common.Utils;
 using UnityEngine;
 
 namespace FTR.Core.Server.Config
@@ -5,7 +6,7 @@ namespace FTR.Core.Server.Config
     [CreateAssetMenu(menuName = "Scriptable Objects/Config/ServerConfig")]
     public class ServerConfig : ScriptableObject
     {
-        [Header("Environment Variables Configuration")]
+        [Header("Environment Variables Settings")]
         public string EnvFilePath = ".env";
 
         // LoadFromEnvFile: Load variables from the .env file (e.g. Prod: false, Dev: false).
@@ -14,9 +15,20 @@ namespace FTR.Core.Server.Config
         // LoadEnvVars: Load system environment variables (e.g. Prod: true, Dev: false).
         public bool LoadEnvVars = true;
 
+        [Header("Params/Args Settings")]
+        // These come from <exec> --world-id=X --zone-id=Y
+        [HideInInspector]
+        public string WorldId;
+
+        [HideInInspector]
+        public int ZoneId;
+
+        [HideInInspector]
+        public bool AllowBots;
+
+        [Header("Database Settings")]
         // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
         public bool PersistToDatabase = true;
-
         public int AutoSaveIntervalSeconds = 30;
 
         [Header("Layer Masks")]
@@ -97,6 +109,11 @@ namespace FTR.Core.Server.Config
         private int inventorySize = 20;
         public int InventorySize => inventorySize;
 
+        [Header("Use System")]
+        [SerializeField]
+        private float useRange = 2f;
+        public float UseRange => useRange;
+
         [Header("Gold")]
         [SerializeField]
         private int startingGold = 100;
@@ -109,5 +126,16 @@ namespace FTR.Core.Server.Config
         public float StoppingDistance = 0.5f;
         public float AggressiveChaseRadius = 5f;
         public float AggressiveAttackRadius = 2f;
+
+        [Header("Chest")]
+        public float ChestItemSpawnRateSeconds = 0.5f;
+        public float ChestItemSpawnHeight = 1f;
+
+        public void LoadParams()
+        {
+            this.WorldId = ParamsSerializer.GetArgs("world-id", string.Empty);
+            this.ZoneId = int.Parse(ParamsSerializer.GetArgs("zone-id", "0"));
+            this.AllowBots = bool.Parse(ParamsSerializer.GetArgs("allow-bots", "false"));
+        }
     }
 }

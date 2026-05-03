@@ -17,8 +17,9 @@ namespace FTR.Core.Client
         public GameObject NameTagPrefab;
         public GameObject PortalVisual;
 
-        [Header("Aditional Link Components")]
+        [Header("Environment Link Components")]
         public GameObject portalLinkComponents;
+        public GameObject chestLinkComponents;
 
         [Header("Shop Components")]
         public GameObject ShopItemVisual;
@@ -28,6 +29,7 @@ namespace FTR.Core.Client
         [Header("Loader Components")]
         public GameObject StructurePrefab;
         public GameObject PortalPrefab;
+        public GameObject ChestPrefab;
 
         [Header("Chat")]
         public GameObject ChatBox;

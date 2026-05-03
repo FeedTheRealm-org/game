@@ -30,13 +30,15 @@ public class Database
     {
         if (!serverConfig.PersistToDatabase)
             return;
+        System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
         var settings = MongoClientSettings.FromConnectionString(connectionString);
         settings.ServerSelectionTimeout = TimeSpan.FromSeconds(connectionTimeoutSeconds);
         settings.ConnectTimeout = TimeSpan.FromSeconds(connectionTimeoutSeconds);
         settings.SocketTimeout = TimeSpan.FromSeconds(connectionTimeoutSeconds);
 
         var client = new MongoClient(settings);
-        var databaseName = $"world-{worldId}_zone-{zoneId}";
+        var shortWorldId = worldId.Split('-')[0];
+        var databaseName = $"world-{shortWorldId}_zone-{zoneId}";
         var database = client.GetDatabase(databaseName);
 
         // Ping to check connection
