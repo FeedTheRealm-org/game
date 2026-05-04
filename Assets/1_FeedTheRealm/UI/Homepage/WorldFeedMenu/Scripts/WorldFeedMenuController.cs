@@ -7,11 +7,13 @@ using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTRShared.Runtime.Models;
+using FTRShared.UI.ZoneStatusBadge;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
+[RequireComponent(typeof(ZoneStatusBadgeController))]
 public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 {
     [SerializeField]
@@ -43,29 +45,22 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     [SerializeField]
     private GameObject worldInfoHUD;
-
     public event Action OnNavigateToWorld;
-
     private VisualElement ui;
     private TextField searchField;
     private Button backButton;
     private Button forwardButton;
     private ScrollView listOfWorlds;
+    private ZoneStatusBadgeController zoneStatusBadge;
 
     private int currentOffset = 0;
     private int maxPageOffset = int.MaxValue;
     private const int PAGE_SIZE = 20;
 
-    private enum WorldBadgeState
-    {
-        Online,
-        Degraded,
-        Offline,
-    }
-
     private void Awake()
     {
         ui = GetComponent<UIDocument>().rootVisualElement;
+        zoneStatusBadge = GetComponent<ZoneStatusBadgeController>();
         teleportDataPersistence.PortalId = null;
 
         searchField = ui.Q<TextField>("SearchField");
@@ -104,7 +99,8 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         );
 
         logger.Log(
-            $"[WorldFeed] Fetched worlds with offset {offset}, filter '{filter}'. Received {activeWorlds?.Count ?? 0} worlds. Error: {error}"
+            $"[WorldFeed] Fetched worlds with offset {offset}, filter '{filter}'. "
+                + $"Received {activeWorlds?.Count ?? 0} worlds. Error: {error}"
         );
 
         if (!string.IsNullOrEmpty(error))
@@ -130,12 +126,10 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         }
 
         currentOffset = offset;
-
         if (activeWorlds.Count < PAGE_SIZE)
             maxPageOffset = offset;
 
-        Dictionary<string, WorldBadgeState> worldBadgeStates =
-            new Dictionary<string, WorldBadgeState>();
+        var badgeStates = new Dictionary<string, ZoneStatusBadgeController.State>();
         try
         {
             var (_, worldsWithZones, pageError) = await worldService.GetWorldPage(
@@ -148,7 +142,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             if (string.IsNullOrEmpty(pageError) && worldsWithZones != null)
             {
                 foreach (var w in worldsWithZones)
-                    worldBadgeStates[w.id] = GetWorldBadgeState(w.zones);
+                    badgeStates[w.id] = zoneStatusBadge.Evaluate(w.zones); // <──
             }
         }
         catch (Exception ex)
@@ -160,12 +154,12 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             );
         }
 
-        RenderWorlds(activeWorlds, worldBadgeStates);
+        RenderWorlds(activeWorlds, badgeStates);
     }
 
     private void RenderWorlds(
         List<ActiveWorldData> activeWorlds,
-        Dictionary<string, WorldBadgeState> worldBadgeStates
+        Dictionary<string, ZoneStatusBadgeController.State> badgeStates
     )
     {
         if (listOfWorlds == null)
@@ -191,9 +185,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
         foreach (var activeWorld in activeWorlds)
         {
-            WorldBadgeState state = WorldBadgeState.Offline;
-            if (worldBadgeStates != null && activeWorld.worldData?.worldId != null)
-                worldBadgeStates.TryGetValue(activeWorld.worldData.worldId, out state);
+            var state = ZoneStatusBadgeController.State.Offline;
+            if (badgeStates != null && activeWorld.worldData?.worldId != null)
+                badgeStates.TryGetValue(activeWorld.worldData.worldId, out state);
 
             var element = CreateWorldElement(activeWorld, state);
             if (element != null)
@@ -206,7 +200,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     private VisualElement CreateWorldElement(
         ActiveWorldData activeWorld,
-        WorldBadgeState badgeState
+        ZoneStatusBadgeController.State badgeState
     )
     {
         var worldData = activeWorld.worldData;
@@ -221,9 +215,8 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         label.AddToClassList("worldName");
         label.name = "WorldName";
 
-        var statusBadge = new Label();
+        var statusBadge = zoneStatusBadge.Create(badgeState);
         statusBadge.name = "StatusBadge";
-        SetStatusBadge(statusBadge, badgeState);
 
         var aboutButton = new Button();
         aboutButton.AddToClassList("aboutButton");
@@ -277,7 +270,6 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
             worldSelector.SetSelectedWorldJoinToken(worldJoinToken.token_id);
 
-            // activeWorld.zoneAddress is ready here for your zone addressing logic
             logger.Log(
                 $"[WorldFeed] Zone address: {activeWorld.zoneAddress.ip}:{activeWorld.zoneAddress.port}",
                 this,
@@ -299,10 +291,8 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         }
     }
 
-    private void SetWorldIdForServices(string worldId)
-    {
+    private void SetWorldIdForServices(string worldId) =>
         itemAssetsService?.SetCurrentWorldId(worldId);
-    }
 
     private void OnClickAboutWorld(WorldData world)
     {
@@ -325,7 +315,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         if (worldInfoController == null)
         {
             logger.Log(
-                "[WorldFeed] WorldInfoController component not found on WorldInfoHUD.",
+                "[WorldFeed] WorldInfoController not found on WorldInfoHUD.",
                 this,
                 Logging.LogType.Error
             );
@@ -343,7 +333,6 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             logger.Log("[WorldFeed] Already on first page.", this, Logging.LogType.Warning);
             return;
         }
-
         currentOffset -= PAGE_SIZE;
         _ = RenderWorldPage(currentOffset, searchField?.value);
     }
@@ -355,7 +344,6 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             logger.Log("[WorldFeed] Already on last page.", this, Logging.LogType.Warning);
             return;
         }
-
         currentOffset += PAGE_SIZE;
         _ = RenderWorldPage(currentOffset, searchField?.value);
     }
@@ -367,132 +355,5 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             backButton.style.display = display;
         if (forwardButton != null)
             forwardButton.style.display = display;
-    }
-
-    // ── Badge helpers ─────────────────────────────────────────────────────────
-
-    private static WorldBadgeState GetWorldBadgeState(List<WorldZoneMetadata> zones)
-    {
-        if (zones == null || zones.Count == 0)
-            return WorldBadgeState.Offline;
-
-        int onlineCount = 0;
-        foreach (var z in zones)
-            if (z.is_online)
-                onlineCount++;
-
-        if (onlineCount == 0)
-            return WorldBadgeState.Offline;
-        if (onlineCount == zones.Count)
-            return WorldBadgeState.Online;
-        return WorldBadgeState.Degraded;
-    }
-
-    private static void SetStatusBadge(Label badge, WorldBadgeState state)
-    {
-        // Stop any existing blink
-        if (badge.userData is IVisualElementScheduledItem existing)
-        {
-            existing.Pause();
-            badge.userData = null;
-        }
-
-        var green = new Color(0.20f, 0.85f, 0.40f, 1f);
-        var yellow = new Color(1.00f, 0.80f, 0.10f, 1f);
-        var red = new Color(0.90f, 0.25f, 0.25f, 1f);
-        var greenBg = new Color(0.10f, 0.35f, 0.15f, 0.55f);
-        var yellowBg = new Color(0.35f, 0.28f, 0.02f, 0.55f);
-        var redBg = new Color(0.40f, 0.08f, 0.08f, 0.55f);
-
-        Color dotColor,
-            bgColor;
-        string labelText;
-
-        switch (state)
-        {
-            case WorldBadgeState.Online:
-                dotColor = green;
-                bgColor = greenBg;
-                labelText = "Online";
-                break;
-            case WorldBadgeState.Degraded:
-                dotColor = yellow;
-                bgColor = yellowBg;
-                labelText = "Degraded";
-                break;
-            default:
-                dotColor = red;
-                bgColor = redBg;
-                labelText = "Offline";
-                break;
-        }
-
-        // Container
-        badge.text = string.Empty;
-        badge.style.flexDirection = FlexDirection.Row;
-        badge.style.alignItems = Align.Center;
-        badge.style.backgroundColor = new StyleColor(bgColor);
-        badge.style.borderTopLeftRadius = new StyleLength(10);
-        badge.style.borderTopRightRadius = new StyleLength(10);
-        badge.style.borderBottomLeftRadius = new StyleLength(10);
-        badge.style.borderBottomRightRadius = new StyleLength(10);
-        badge.style.paddingLeft = 6;
-        badge.style.paddingRight = 6;
-        badge.style.paddingTop = 0;
-        badge.style.paddingBottom = 0;
-        badge.style.marginTop = 0;
-        badge.style.marginBottom = 0;
-        badge.style.height = 18;
-        badge.style.display = DisplayStyle.Flex;
-        badge.style.opacity = 1f;
-
-        // Reuse or create children
-        Label dot = badge.Q<Label>("BadgeDot");
-        Label text = badge.Q<Label>("BadgeText");
-
-        if (dot == null)
-        {
-            dot = new Label { name = "BadgeDot" };
-            dot.style.marginRight = 4;
-            badge.Add(dot);
-        }
-
-        if (text == null)
-        {
-            text = new Label { name = "BadgeText" };
-            badge.Add(text);
-        }
-
-        // Dot
-        dot.text = "●";
-        dot.style.fontSize = 10;
-        dot.style.color = new StyleColor(dotColor);
-        dot.style.unityFontStyleAndWeight = FontStyle.Bold;
-        dot.style.paddingTop = 0;
-        dot.style.paddingBottom = 0;
-        dot.style.marginTop = 0;
-        dot.style.marginBottom = 0;
-
-        // Text
-        text.text = labelText;
-        text.style.fontSize = 10;
-        text.style.color = new StyleColor(dotColor);
-        text.style.unityFontStyleAndWeight = FontStyle.Bold;
-        text.style.paddingTop = 0;
-        text.style.paddingBottom = 0;
-        text.style.marginTop = 0;
-        text.style.marginBottom = 0;
-
-        // Blink the dot, always
-        bool visible = true;
-        var handle = dot
-            .schedule.Execute(() =>
-            {
-                visible = !visible;
-                dot.style.opacity = visible ? 1f : 0f;
-            })
-            .Every(600);
-
-        badge.userData = handle;
     }
 }
