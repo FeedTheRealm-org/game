@@ -239,7 +239,10 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                     }
 
                     var useSystem = enemy.GetComponentInChildren<UseSystem>();
-                    useSystem?.SetStrategy(new EnemyMeleeStrategy(enemyData));
+                    if (useSystem != null && !string.IsNullOrEmpty(enemyData.weaponId))
+                    {
+                        useSystem.EquipItem((enemyData.weaponId, 0));
+                    }
                 }
                 else
                 {
@@ -474,9 +477,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 $"Enemy_{enemyId}",
                 "A hostile enemy.",
                 0,
-                0,
-                0,
-                0,
+                "",
                 "",
                 new Dictionary<string, string>()
             );

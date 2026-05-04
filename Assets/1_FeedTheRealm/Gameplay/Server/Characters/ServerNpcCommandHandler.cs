@@ -1,13 +1,11 @@
 using FTR.Core.Common.Protocol.RpcMessages;
-using FTR.Core.Server.Commands;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Characters.Systems;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters
 {
-    // TODO: why does this not implement ServerCommandHandler like the ServerPlayerCommandHandler
-    public class NpcCommandHandler : MonoBehaviour, ICommandable
+    public class NpcCommandHandler : ServerCommandHandler
     {
         private MovementSystem movementSystem;
 
@@ -16,29 +14,29 @@ namespace FTR.Gameplay.Server.Characters
             this.movementSystem = movementSystem;
         }
 
-        public void OnMove(IEventCollectable ec, Vector3 direction)
+        public override void OnMove(IEventCollectable ec, Vector3 direction)
         {
             movementSystem.OnMove(direction);
         }
 
-        public void OnDash(IEventCollectable ec, Vector3 direction) { }
+        public override void OnDash(IEventCollectable ec, Vector3 direction) { }
 
-        public void OnUse(IEventCollectable ec) { }
+        public override void OnUse(IEventCollectable ec, Vector3 direction) { }
 
-        public void OnInteract(IEventCollectable ec) { }
+        public override void OnInteract(IEventCollectable ec) { }
 
-        public void OnDialogNext(IEventCollectable ec) { }
+        public override void OnDialogNext(IEventCollectable ec) { }
 
-        public void OnEquipItem(IEventCollectable ec, int slotIndex) { }
+        public override void OnEquipItem(IEventCollectable ec, int slotIndex) { }
 
-        public void OnDropItem(
+        public override void OnDropItem(
             IEventCollectable ec,
             StorageType type,
             int slotIndex,
             string itemId
         ) { }
 
-        public void OnPurchase(
+        public override void OnPurchase(
             IEventCollectable ec,
             uint netId,
             string productId,
@@ -46,11 +44,11 @@ namespace FTR.Gameplay.Server.Characters
             string shopId
         ) { }
 
-        public void OnQuestAccepted(IEventCollectable ec, string questId) { }
+        public override void OnQuestAccepted(IEventCollectable ec, string questId) { }
 
-        public void OnQuestRejected(IEventCollectable ec) { }
+        public override void OnQuestRejected(IEventCollectable ec) { }
 
-        public void OnMoveItem(
+        public override void OnMoveItem(
             IEventCollectable ec,
             StorageType sourceType,
             int sourceSlot,
@@ -58,17 +56,17 @@ namespace FTR.Gameplay.Server.Characters
             int targetSlot
         ) { }
 
-        public void OnPickUp(
+        public override void OnPickUp(
             IEventCollectable ec,
             string itemId,
             int goldAmount,
             System.Action<bool> onComplete
         ) { }
 
-        public void OnSetUserId(IEventCollectable ec, string tokenId) { }
+        public override void OnSetUserId(IEventCollectable ec, string tokenId) { }
 
-        public void OnTeleportAccepted(IEventCollectable ec, string portalId) { }
+        public override void OnTeleportAccepted(IEventCollectable ec, string portalId) { }
 
-        public void OnSendMessage(IEventCollectable ec, string message) { }
+        public override void OnSendMessage(IEventCollectable ec, string message) { }
     }
 }
