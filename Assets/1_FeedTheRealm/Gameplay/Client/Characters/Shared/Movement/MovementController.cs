@@ -1,6 +1,7 @@
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Registry;
 using UnityEngine;
 using VContainer;
 
@@ -16,13 +17,22 @@ public class MovementController : MonoBehaviour
     [SerializeField]
     private float rotationMagnitudeToSend = 25f;
 
+    private IAudioManager audioManager;
+    private ClientSoundFXRegistry soundFXRegistry;
+
+    [Inject]
+    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
+    {
+        this.audioManager = audioManager;
+        this.soundFXRegistry = soundFXRegistry;
+    }
+
     private Vector2 currentInputDirection;
     private Vector3 currentRealDirection;
     private float currentRotation;
     private float previousRotationSent;
 
     private NetworkAdapter networkAdapter;
-
     private bool isInitialized = false;
 
     public void Initialize(NetworkAdapter networkAdapter)
@@ -46,10 +56,7 @@ public class MovementController : MonoBehaviour
         var delta = Mathf.Abs(Mathf.DeltaAngle(currentRotation, previousRotationSent));
 
         if (delta >= rotationMagnitudeToSend)
-        {
             SendMoveCommand();
-            //logger.Log($"Rotation changed significantly. Sent new move command.", this);
-        }
     }
 
     /// <summary>
@@ -73,11 +80,16 @@ public class MovementController : MonoBehaviour
             return;
 
         SendDashCommand();
+        PlaySound(ClientSoundFXRegistry.SoundFXIds.Dash);
     }
 
-    /// <summary>
-    /// SendMoveCommand called when a significant rotation change is detected or when the input direction changes.
-    /// </summary>
+    private void PlaySound(string soundId)
+    {
+        var entry = soundFXRegistry.GetEntryById(soundId);
+        if (entry != null)
+            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
+    }
+
     private void SendMoveCommand()
     {
         if (!isInitialized)

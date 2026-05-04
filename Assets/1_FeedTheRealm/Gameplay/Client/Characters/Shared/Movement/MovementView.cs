@@ -1,5 +1,6 @@
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
@@ -11,6 +12,16 @@ public class MovementView : MonoBehaviour
 
     [Inject]
     private FixedTickEvent fixedTickEvent;
+
+    private IAudioManager audioManager;
+    private ClientSoundFXRegistry soundFXRegistry;
+
+    [Inject]
+    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
+    {
+        this.audioManager = audioManager;
+        this.soundFXRegistry = soundFXRegistry;
+    }
 
     // Injected at Initialize
     private Rigidbody rb;
@@ -178,6 +189,7 @@ public class MovementView : MonoBehaviour
             {
                 animator.SetMoving(true);
                 animator.SetDashing(false);
+                PlaySound(ClientSoundFXRegistry.SoundFXIds.Walking);
             }
         }
         else
@@ -185,5 +197,12 @@ public class MovementView : MonoBehaviour
             animator.SetMoving(false);
             animator.SetDashing(false);
         }
+    }
+
+    private void PlaySound(string soundId)
+    {
+        var entry = soundFXRegistry.GetEntryById(soundId);
+        if (entry != null)
+            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 }

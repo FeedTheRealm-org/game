@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
-using FTR.Core.Client.Config;
 using FTR.Core.Client.EventChannels.Status;
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Systems.Status;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
@@ -16,26 +18,92 @@ public class HealthView : MonoBehaviour
     private HealthChangedEvent healthChangedEvent;
 
     [Inject]
-    private ClientConfig config;
+    private Config config;
+
+    [Inject]
+    private Logging.Logger logger;
 
     [SerializeField]
     private CharacterAnimator animator;
 
-    public float MaxHealth => config.MaxHealth;
+    private IAudioManager audioManager;
+    private ClientSoundFXRegistry soundFXRegistry;
+
+    [Inject]
+    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
+    {
+        this.audioManager = audioManager;
+        this.soundFXRegistry = soundFXRegistry;
+    }
+
+    public event Action<float> OnMaxHealthInitialized;
+    public bool IsMaxHealthInitialized => isMaxHealthInitialized;
+
+    private float maxHealth;
+    public bool isMaxHealthInitialized = false;
+
+    public float MaxHealth
+    {
+        get => maxHealth > 0 ? maxHealth : config.playerMaxHealth;
+        set
+        {
+            bool wasInitialized = isMaxHealthInitialized;
+            maxHealth = value;
+            isMaxHealthInitialized = true;
+
+            if (!wasInitialized)
+                OnMaxHealthInitialized?.Invoke(maxHealth);
+
+            if (wasInitialized && stateStorage != null)
+                RaiseHudEvent(stateStorage.Health);
+        }
+    }
 
     private CharacterStateStorage stateStorage;
 
     public void Initialize(CharacterStateStorage stateStorage)
     {
         this.stateStorage = stateStorage;
+
+        if (
+            stateStorage.Health >= config.playerMaxHealth
+            && !string.IsNullOrEmpty(stateStorage.CharacterId)
+        )
+        {
+            stateStorage.OnHealthChanged += DeferredInit;
+        }
+        else
+        {
+            if (stateStorage != null && string.IsNullOrEmpty(stateStorage.CharacterId))
+                stateStorage.OnCharacterIdChanged += InitForCharacterId;
+            else
+                InitForCharacterId(stateStorage.CharacterId);
+
+            stateStorage.OnHealthChanged += OnHealthChanged;
+        }
+    }
+
+    private void DeferredInit(float health)
+    {
+        stateStorage.OnHealthChanged -= DeferredInit;
+
+        if (stateStorage != null && string.IsNullOrEmpty(stateStorage.CharacterId))
+            stateStorage.OnCharacterIdChanged += InitForCharacterId;
+        else
+            InitForCharacterId(stateStorage.CharacterId);
+
         stateStorage.OnHealthChanged += OnHealthChanged;
-        RaiseHudEvent(stateStorage.Health);
+
+        OnHealthChanged(health);
     }
 
     private void OnDestroy()
     {
         if (stateStorage != null)
+        {
             stateStorage.OnHealthChanged -= OnHealthChanged;
+            stateStorage.OnCharacterIdChanged -= InitForCharacterId;
+        }
     }
 
     private void OnHealthChanged(float value)
@@ -45,8 +113,8 @@ public class HealthView : MonoBehaviour
 
     private IEnumerator UpdateHealthAfterDelay(float value)
     {
-        if (value < config.MaxHealth)
-            yield return new WaitForSeconds(config.HealthUpdateDelay); // Delay for better animation timing
+        if (value < MaxHealth)
+            yield return new WaitForSeconds(config.HealthUpdateDelay);
 
         RaiseHudEvent(value);
         UpdateAnimation(value);
@@ -57,7 +125,7 @@ public class HealthView : MonoBehaviour
         if (!stateStorage.isLocalPlayer)
             return;
 
-        healthChangedEvent?.Raise(new HealthChangedData(currentHealth, config.MaxHealth));
+        healthChangedEvent?.Raise(new HealthChangedData(currentHealth, MaxHealth));
     }
 
     private void UpdateAnimation(float currentHealth)
@@ -68,10 +136,35 @@ public class HealthView : MonoBehaviour
         if (currentHealth <= 0f)
         {
             animator.PlayDeath();
+            PlaySound(ClientSoundFXRegistry.SoundFXIds.Death);
         }
-        else if (currentHealth < config.MaxHealth)
+        else if (currentHealth < MaxHealth)
+        {
             animator.PlayDamaged();
+            PlaySound(ClientSoundFXRegistry.SoundFXIds.Hit);
+        }
         else
             animator.PlayIdle();
+    }
+
+    private void PlaySound(string soundId)
+    {
+        var entry = soundFXRegistry.GetEntryById(soundId);
+        if (entry != null)
+            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
+    }
+
+    private void InitForCharacterId(string characterId)
+    {
+        if (string.IsNullOrEmpty(characterId))
+            return;
+
+        var enemyData = ClientItemsRegistry.GetEnemyById(characterId);
+        if (enemyData != null)
+            MaxHealth = enemyData.healthPoints;
+        else
+            MaxHealth = config.playerMaxHealth;
+
+        RaiseHudEvent(stateStorage.Health);
     }
 }

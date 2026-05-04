@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: e8823e722f614f94e8d9ce562741ac4a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - attackSoundClip: {fileID: 8300000, guid: 8fbf9ed018894b7489a83cfda35278bd, type: 3}
+  - hitSoundClip: {instanceID: 0}
+  - deathSoundClip: {instanceID: 0}
+  - pickupSoundClip: {instanceID: 0}
+  - dialogSoundClip: {instanceID: 0}
+  - questCompleteSoundClip: {instanceID: 0}
+  - questAcceptSoundClip: {instanceID: 0}
+  - purchaseSoundClip: {instanceID: 0}
+  - walkingSoundClip: {instanceID: 0}
+  - dashSoundClip: {instanceID: 0}
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: c485beb3839c115159c43d9c153fae65, type: 3}
+  userData:
+  assetBundleName:
+  assetBundleVariant:
