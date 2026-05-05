@@ -94,7 +94,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             bool added = AddItemToInventory(itemId);
             if (added)
+            {
                 logger.Log($"Picked up item {itemId} for player {netId}", this);
+                var connId = GetPlayerConnectionId(netId);
+                world.Events.Enqueue(new LootbagPickedUpEvent(netId, connId.Value));
+            }
             else
                 logger.Log($"Inventory full, cannot pick up item {itemId}", this);
 

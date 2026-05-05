@@ -24,21 +24,21 @@ MonoBehaviour:
   - id: death
     clip: {fileID: 8300000, guid: 36629308f3cc74e70a814281fc9410b4, type: 3}
     delay: 0.1
-    volume: 0.7
+    volume: 0.3
   - id: pickup
-    clip: {fileID: 8300000, guid: 11f3deba0ccd71642812d57f744b8ff0, type: 3}
+    clip: {fileID: 8300000, guid: e8e5ffda8844a49d9866e0ba9c66799a, type: 3}
     delay: 0
-    volume: 1
+    volume: 2
   - id: dialog
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 3642bf3bd4db34961ad4916397ca8e84, type: 3}
     delay: 0
-    volume: 1
+    volume: 0.2
   - id: quest_complete
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 26cf9a609fea9bbc1be4bd42918e25a8, type: 3}
     delay: 0
-    volume: 1
+    volume: 0.15
   - id: quest_accept
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 631f9b74e8c8d1c89b09768f5c17f240, type: 3}
     delay: 0
     volume: 1
   - id: purchase
@@ -48,11 +48,11 @@ MonoBehaviour:
   - id: walking
     clip: {fileID: 8300000, guid: 506ce00208efa427f8bae7a742f55722, type: 3}
     delay: 0
-    volume: 0.2
+    volume: 0.05
   - id: dash
     clip: {fileID: 8300000, guid: 3a4daa9f7a1db6c23ac10b93f36a002e, type: 3}
     delay: 0
-    volume: 2
+    volume: 2.5
   - id: open_ui
     clip: {fileID: 8300000, guid: 922c48e12f1b8076a97fbd66c680abcc, type: 3}
     delay: 0

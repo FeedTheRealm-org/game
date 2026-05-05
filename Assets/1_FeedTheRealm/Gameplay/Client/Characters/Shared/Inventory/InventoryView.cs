@@ -50,6 +50,13 @@ public class InventoryView : MonoBehaviour
         stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
         characterState.OnEquippedItemChanged += OnEquippedItemChanged;
         eventRouter.OnShopPurchaseConfirmEvent += OnShopPurchaseConfirm;
+        eventRouter.OnLootedItemConfirmEvent += OnLootedItemConfirm;
+    }
+
+    private void OnLootedItemConfirm()
+    {
+        Debug.Log("InventoryView received lootbag pickup confirm event");
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Pickup);
     }
 
     private void OnShopPurchaseConfirm()

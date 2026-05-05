@@ -3,6 +3,7 @@ using FTR.Core.Common.Enums;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Environment.Quest;
+using FTR.Gameplay.Client.Registry;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
@@ -25,6 +26,9 @@ namespace FTR.Gameplay.Client.Characters.Player
 
         [Inject]
         private ClientQuestRegistry clientQuestRegistry;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         private NetworkAdapter networkAdapter;
         private bool isInitialized;
@@ -91,6 +95,7 @@ namespace FTR.Gameplay.Client.Characters.Player
                         Id = decision.Quest.id,
                     }
                 );
+                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.QuestAccept);
             }
             else
             {
