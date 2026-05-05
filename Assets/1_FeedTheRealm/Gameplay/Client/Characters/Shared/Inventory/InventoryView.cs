@@ -3,6 +3,7 @@ using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
 
@@ -131,6 +132,37 @@ public class InventoryView : MonoBehaviour
             return;
         }
 
-        spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
+        var weaponData = ClientItemsRegistry.GetWeaponById(itemId);
+        switch (weaponData.weaponType)
+        {
+            case WeaponType.Melee:
+                spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
+                Debug.Log(
+                    $"InventoryView applied melee weapon sprite for {itemId} to EquipmentR category"
+                );
+                break;
+            case WeaponType.Ranged:
+                if (weaponData.subWeaponType == SubWeaponType.Bow)
+                {
+                    spriteManager.ChangeSprite(CharacterPartCategory.WeaponRangedBow, texture);
+                    Debug.Log(
+                        $"InventoryView applied ranged bow weapon sprite for {itemId} to Bow category"
+                    );
+                }
+                else
+                {
+                    spriteManager.ChangeSprite(CharacterPartCategory.WeaponRangedHandheld, texture);
+                    Debug.Log(
+                        $"InventoryView applied ranged handheld weapon sprite for {itemId} to EquipmentR category"
+                    );
+                }
+                break;
+            default:
+                spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
+                Debug.LogWarning(
+                    $"InventoryView: No handler for weapon type {weaponData.weaponType}, cannot apply equipped item sprite."
+                );
+                break;
+        }
     }
 }
