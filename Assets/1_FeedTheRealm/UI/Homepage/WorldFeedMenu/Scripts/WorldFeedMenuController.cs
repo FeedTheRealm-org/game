@@ -133,7 +133,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         try
         {
             var (_, worldsWithZones, pageError) = await worldService.GetWorldPage(
-                0,
+                offset,
                 PAGE_SIZE,
                 filter,
                 session.APIToken
@@ -142,7 +142,15 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             if (string.IsNullOrEmpty(pageError) && worldsWithZones != null)
             {
                 foreach (var w in worldsWithZones)
-                    badgeStates[w.id] = zoneStatusBadge.Evaluate(w.zones); // <──
+                    badgeStates[w.id] = zoneStatusBadge.Evaluate(w.zones);
+            }
+            else if (!string.IsNullOrEmpty(pageError))
+            {
+                logger.Log(
+                    $"[WorldFeed] Error fetching zone metadata for badges: {pageError}",
+                    this,
+                    Logging.LogType.Warning
+                );
             }
         }
         catch (Exception ex)
