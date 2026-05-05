@@ -10,15 +10,8 @@ public class DashView : MonoBehaviour
     [SerializeField]
     private CharacterAnimator animator;
 
-    private IAudioManager audioManager;
-    private ClientSoundFXRegistry soundFXRegistry;
-
     [Inject]
-    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
-    {
-        this.audioManager = audioManager;
-        this.soundFXRegistry = soundFXRegistry;
-    }
+    private ISoundPlayer soundPlayer;
 
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
@@ -49,7 +42,7 @@ public class DashView : MonoBehaviour
 
         stateStorage.IsMovementBlocked = true;
         ApplyDashing(force);
-        PlaySound(ClientSoundFXRegistry.SoundFXIds.Dash);
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Dash, transform.position);
         await UniTask.Delay(duration);
         StopDash();
         stateStorage.IsMovementBlocked = false;
@@ -64,12 +57,5 @@ public class DashView : MonoBehaviour
     private void StopDash()
     {
         rb.linearVelocity = Vector3.zero;
-    }
-
-    private void PlaySound(string soundId)
-    {
-        var entry = soundFXRegistry.GetEntryById(soundId);
-        if (entry != null)
-            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 }

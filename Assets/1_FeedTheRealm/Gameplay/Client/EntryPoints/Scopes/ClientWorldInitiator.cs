@@ -109,6 +109,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(colliderRegistry);
             builder.RegisterInstance(soundFXRegistry);
             builder.RegisterComponent(audioManager).As<IAudioManager>();
+            builder.Register<SoundPlayer>(Lifetime.Singleton).As<ISoundPlayer>();
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientNpcInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);

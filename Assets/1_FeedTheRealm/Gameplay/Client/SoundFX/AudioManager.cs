@@ -66,15 +66,13 @@ public class AudioManager : MonoBehaviour, IAudioManager
             Debug.LogWarning("[AudioManager] No se encontró AudioListener en la escena.");
     }
 
-    /// <summary>
-    /// Plays a direct clip. The caller controls delay and volume explicitly.
-    /// </summary>
     public void PlayAtPoint(
         AudioClip clip,
         Vector3 position,
         float priority = 128f,
         float delay = 0f,
-        float volume = 1f
+        float volume = 1f,
+        float spatialBlend = 1f
     )
     {
         if (clip == null)
@@ -84,30 +82,28 @@ public class AudioManager : MonoBehaviour, IAudioManager
         }
 
         if (
-            listenerTransform != null
+            spatialBlend > 0.01f
+            && listenerTransform != null
             && Vector3.Distance(listenerTransform.position, position) > maxAudibleDistance
         )
             return;
 
         if (delay > 0f)
         {
-            StartCoroutine(PlayDelayed(clip, position, priority, delay, volume));
+            StartCoroutine(PlayDelayed(clip, position, priority, delay, volume, spatialBlend));
             return;
         }
 
-        PlayImmediate(clip, position, priority, volume);
+        PlayImmediate(clip, position, priority, volume, spatialBlend);
     }
 
-    /// <summary>
-    /// Plays by ID from registry. If delay/volume are not specified (interface defaults),
-    /// the values configured in the registry entry are used.
-    /// </summary>
     public void PlaySoundFXById(
         string soundId,
         Vector3 position,
         float priority = 128f,
         float delay = 0f,
-        float volume = 1f
+        float volume = 1f,
+        float spatialBlend = 1f
     )
     {
         if (soundFXRegistry == null)
@@ -123,13 +119,15 @@ public class AudioManager : MonoBehaviour, IAudioManager
             return;
         }
 
-        PlaySoundFX(entry, position, priority);
+        PlaySoundFX(entry, position, priority, spatialBlend);
     }
 
-    /// <summary>
-    /// Plays an entry using delay y volume configured on registry.
-    /// </summary>
-    public void PlaySoundFX(SoundFXEntry entry, Vector3 position, float priority = 128f)
+    public void PlaySoundFX(
+        SoundFXEntry entry,
+        Vector3 position,
+        float priority = 128f,
+        float spatialBlend = 1f
+    )
     {
         if (entry == null || entry.Clip == null)
         {
@@ -137,7 +135,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
             return;
         }
 
-        PlayAtPoint(entry.Clip, position, priority, entry.Delay, entry.Volume);
+        PlayAtPoint(entry.Clip, position, priority, entry.Delay, entry.Volume, spatialBlend);
     }
 
     private IEnumerator PlayDelayed(
@@ -145,14 +143,21 @@ public class AudioManager : MonoBehaviour, IAudioManager
         Vector3 position,
         float priority,
         float delay,
-        float volume
+        float volume,
+        float spatialBlend
     )
     {
         yield return new WaitForSeconds(delay);
-        PlayImmediate(clip, position, priority, volume);
+        PlayImmediate(clip, position, priority, volume, spatialBlend);
     }
 
-    private void PlayImmediate(AudioClip clip, Vector3 position, float priority, float volume)
+    private void PlayImmediate(
+        AudioClip clip,
+        Vector3 position,
+        float priority,
+        float volume,
+        float spatialBlend
+    )
     {
         var source = GetOrStealSource(priority);
         if (source == null)
@@ -162,7 +167,24 @@ public class AudioManager : MonoBehaviour, IAudioManager
         source.transform.position = position;
         source.priority = (int)priority;
         source.volume = Mathf.Clamp01(volume);
+        source.spatialBlend = Mathf.Clamp01(spatialBlend);
         source.clip = clip;
+
+        if (spatialBlend <= 0.01f)
+        {
+            // 2D sound: ignore distance, always full volume
+            source.spatialBlend = 0f;
+            source.maxDistance = float.MaxValue;
+            source.rolloffMode = AudioRolloffMode.Linear;
+        }
+        else
+        {
+            // 3D sound: spatial with distance attenuation
+            source.spatialBlend = 1f;
+            source.maxDistance = maxAudibleDistance;
+            source.rolloffMode = AudioRolloffMode.Linear;
+        }
+
         source.Play();
 
         var activeSound = new ActiveSound { Source = source, Priority = priority };
@@ -216,6 +238,8 @@ public class AudioManager : MonoBehaviour, IAudioManager
         activeSound.Source.Stop();
         activeSound.Source.clip = null;
         activeSound.Source.volume = 1f;
+        activeSound.Source.spatialBlend = 1f;
+        activeSound.Source.maxDistance = maxAudibleDistance;
         activeSound.Source.gameObject.SetActive(false);
 
         activeSounds.Remove(activeSound);

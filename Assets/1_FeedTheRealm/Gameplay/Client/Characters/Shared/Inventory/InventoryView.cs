@@ -27,15 +27,8 @@ public class InventoryView : MonoBehaviour
     [Inject]
     private API.ItemAssetsService itemsAssetsService;
 
-    private IAudioManager audioManager;
-    private ClientSoundFXRegistry soundFXRegistry;
-
     [Inject]
-    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
-    {
-        this.audioManager = audioManager;
-        this.soundFXRegistry = soundFXRegistry;
-    }
+    private ISoundPlayer soundPlayer;
 
     private InventoryStateStorage stateStorage;
     private CharacterStateStorage characterState;
@@ -61,7 +54,7 @@ public class InventoryView : MonoBehaviour
 
     private void OnShopPurchaseConfirm()
     {
-        PlaySound(ClientSoundFXRegistry.SoundFXIds.Purchase);
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Purchase);
     }
 
     private void OnDestroy()
@@ -150,12 +143,5 @@ public class InventoryView : MonoBehaviour
         }
 
         spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
-    }
-
-    private void PlaySound(string soundId)
-    {
-        var entry = soundFXRegistry.GetEntryById(soundId);
-        if (entry != null)
-            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 }

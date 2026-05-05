@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Gameplay.Client.Registry;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -23,6 +24,9 @@ public class SettingsMenuController : MonoBehaviour
 
     [SerializeField]
     private OnWorldLeaveEvent onWorldLeaveEvent;
+
+    [Inject]
+    private ISoundPlayer soundPlayer;
 
     /* General settings */
     private VisualElement root;
@@ -189,6 +193,7 @@ public class SettingsMenuController : MonoBehaviour
         var root = GetComponent<UIDocument>().rootVisualElement;
         bool willBeActive = root.style.display != DisplayStyle.Flex;
         root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
 
         UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
         UnityEngine.Cursor.visible = willBeActive;

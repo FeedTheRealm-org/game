@@ -47,15 +47,8 @@ namespace FTR.UI.Shop
         [Inject]
         private NotEnoughGoldEvent notEnoughGoldEvent;
 
-        private IAudioManager audioManager;
-        private ClientSoundFXRegistry soundFXRegistry;
-
         [Inject]
-        public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
-        {
-            this.audioManager = audioManager;
-            this.soundFXRegistry = soundFXRegistry;
-        }
+        private ISoundPlayer soundPlayer;
 
         private VisualElement _shopRoot;
         private VisualElement _panel;
@@ -279,7 +272,7 @@ namespace FTR.UI.Shop
             _shopRoot.style.display = DisplayStyle.Flex;
             shopToggleEvent?.Raise(true);
             _animationCoroutine = StartCoroutine(AnimateOpen());
-            PlaySound(ClientSoundFXRegistry.SoundFXIds.OpenUI);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
         }
 
         private void CloseShop()
@@ -287,7 +280,7 @@ namespace FTR.UI.Shop
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
             _animationCoroutine = StartCoroutine(AnimateClose());
-            PlaySound(ClientSoundFXRegistry.SoundFXIds.CloseUI);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
         }
 
         private IEnumerator AnimateOpen()
@@ -620,13 +613,6 @@ namespace FTR.UI.Shop
             {
                 ShowFeedback(message);
             }
-        }
-
-        private void PlaySound(string soundId)
-        {
-            var entry = soundFXRegistry.GetEntryById(soundId);
-            if (entry != null)
-                audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
         }
     }
 }

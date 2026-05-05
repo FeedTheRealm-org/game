@@ -13,15 +13,8 @@ public class MovementView : MonoBehaviour
     [Inject]
     private FixedTickEvent fixedTickEvent;
 
-    private IAudioManager audioManager;
-    private ClientSoundFXRegistry soundFXRegistry;
-
     [Inject]
-    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
-    {
-        this.audioManager = audioManager;
-        this.soundFXRegistry = soundFXRegistry;
-    }
+    private ISoundPlayer soundPlayer;
 
     // Injected at Initialize
     private Rigidbody rb;
@@ -35,7 +28,6 @@ public class MovementView : MonoBehaviour
     private Vector3 positionCorrectionTarget;
 
     private Vector3 currentDirection = Vector3.zero;
-
     private bool isDead = false;
 
     [Header("Footstep Settings")]
@@ -156,9 +148,7 @@ public class MovementView : MonoBehaviour
 
     private void PlayFootstepSound()
     {
-        var entry = soundFXRegistry.GetEntryById(ClientSoundFXRegistry.SoundFXIds.Walking);
-        if (entry != null)
-            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Walking, transform.position);
     }
 
     private void OnDirectionChanged(Vector3 direction)

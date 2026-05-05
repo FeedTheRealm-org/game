@@ -8,7 +8,8 @@ public interface IAudioManager
         Vector3 position,
         float priority = 128f,
         float delay = 0f,
-        float volume = 1f
+        float volume = 1f,
+        float spatialBlend = 1f
     );
 
     void PlaySoundFXById(
@@ -16,8 +17,14 @@ public interface IAudioManager
         Vector3 position,
         float priority = 128f,
         float delay = 0f,
-        float volume = 1f
+        float volume = 1f,
+        float spatialBlend = 1f
     );
 
-    void PlaySoundFX(SoundFXEntry entry, Vector3 position, float priority = 128f);
+    void PlaySoundFX(
+        SoundFXEntry entry,
+        Vector3 position,
+        float priority = 128f,
+        float spatialBlend = 1f
+    );
 }

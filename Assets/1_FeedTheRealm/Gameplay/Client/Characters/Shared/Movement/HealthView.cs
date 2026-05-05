@@ -26,15 +26,8 @@ public class HealthView : MonoBehaviour
     [SerializeField]
     private CharacterAnimator animator;
 
-    private IAudioManager audioManager;
-    private ClientSoundFXRegistry soundFXRegistry;
-
     [Inject]
-    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
-    {
-        this.audioManager = audioManager;
-        this.soundFXRegistry = soundFXRegistry;
-    }
+    private ISoundPlayer soundPlayer;
 
     public event Action<float> OnMaxHealthInitialized;
     public bool IsMaxHealthInitialized => isMaxHealthInitialized;
@@ -136,22 +129,15 @@ public class HealthView : MonoBehaviour
         if (currentHealth <= 0f)
         {
             animator.PlayDeath();
-            PlaySound(ClientSoundFXRegistry.SoundFXIds.Death);
+            soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Death, transform.position);
         }
         else if (currentHealth < MaxHealth)
         {
             animator.PlayDamaged();
-            PlaySound(ClientSoundFXRegistry.SoundFXIds.Hit);
+            soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Hit, transform.position);
         }
         else
             animator.PlayIdle();
-    }
-
-    private void PlaySound(string soundId)
-    {
-        var entry = soundFXRegistry.GetEntryById(soundId);
-        if (entry != null)
-            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 
     private void InitForCharacterId(string characterId)
