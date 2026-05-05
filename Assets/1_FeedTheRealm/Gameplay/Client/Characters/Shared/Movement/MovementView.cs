@@ -38,6 +38,17 @@ public class MovementView : MonoBehaviour
 
     private bool isDead = false;
 
+    [Header("Footstep Settings")]
+    [SerializeField]
+    private float footstepInterval = 0.35f;
+
+    [SerializeField]
+    private bool repeatFootsteps = true;
+
+    private float footstepTimer = 0f;
+    private bool isMoving = false;
+    private bool hasPlayedSingleFootstep = false;
+
     public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
     {
         this.rb = rb;
@@ -56,6 +67,7 @@ public class MovementView : MonoBehaviour
     {
         isDead = true;
         currentDirection = Vector3.zero;
+        isMoving = false;
         animator.SetMoving(false);
         animator.SetDashing(false);
     }
@@ -106,12 +118,49 @@ public class MovementView : MonoBehaviour
             Vector3 newPosition = rb.position + currentDirection * Time.fixedDeltaTime;
             rb.MovePosition(newPosition);
         }
+
+        UpdateFootsteps();
     }
 
     /// <summary>
     /// OnVelocityChanged receives the authoritative velocity from the server.
     /// This is what actually moves the character.
     /// </summary>
+    private void UpdateFootsteps()
+    {
+        if (!isMoving)
+        {
+            footstepTimer = 0f;
+            hasPlayedSingleFootstep = false;
+            return;
+        }
+
+        if (!repeatFootsteps)
+        {
+            if (!hasPlayedSingleFootstep)
+            {
+                PlayFootstepSound();
+                hasPlayedSingleFootstep = true;
+            }
+            return;
+        }
+
+        footstepTimer += Time.fixedDeltaTime;
+
+        if (footstepTimer >= footstepInterval)
+        {
+            PlayFootstepSound();
+            footstepTimer = 0f;
+        }
+    }
+
+    private void PlayFootstepSound()
+    {
+        var entry = soundFXRegistry.GetEntryById(ClientSoundFXRegistry.SoundFXIds.Walking);
+        if (entry != null)
+            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
+    }
+
     private void OnDirectionChanged(Vector3 direction)
     {
         UpdateFacingDirection(direction);
@@ -183,26 +232,24 @@ public class MovementView : MonoBehaviour
 
     private void AnimateMovement(Vector3 velocity)
     {
-        if (velocity.sqrMagnitude > Vector3.zero.sqrMagnitude)
+        bool wasMoving = isMoving;
+        isMoving = velocity.sqrMagnitude > Vector3.zero.sqrMagnitude;
+
+        if (isMoving)
         {
-            if (!animator.IsMoving())
+            if (!wasMoving)
             {
                 animator.SetMoving(true);
                 animator.SetDashing(false);
-                PlaySound(ClientSoundFXRegistry.SoundFXIds.Walking);
             }
         }
         else
         {
-            animator.SetMoving(false);
-            animator.SetDashing(false);
+            if (wasMoving)
+            {
+                animator.SetMoving(false);
+                animator.SetDashing(false);
+            }
         }
-    }
-
-    private void PlaySound(string soundId)
-    {
-        var entry = soundFXRegistry.GetEntryById(soundId);
-        if (entry != null)
-            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 }

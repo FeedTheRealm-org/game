@@ -187,7 +187,12 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(chatController);
 
             inventoryController.Initialize(networkAdapter);
-            inventoryView?.Initialize(inventoryState, stateStorage, spriteManager);
+            inventoryView?.Initialize(
+                inventoryState,
+                stateStorage,
+                spriteManager,
+                networkEventRouter
+            );
             goldView?.Initialize(goldState, networkEventRouter);
             goldController?.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);

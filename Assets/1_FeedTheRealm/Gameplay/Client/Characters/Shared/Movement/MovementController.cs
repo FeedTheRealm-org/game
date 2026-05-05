@@ -17,16 +17,6 @@ public class MovementController : MonoBehaviour
     [SerializeField]
     private float rotationMagnitudeToSend = 25f;
 
-    private IAudioManager audioManager;
-    private ClientSoundFXRegistry soundFXRegistry;
-
-    [Inject]
-    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
-    {
-        this.audioManager = audioManager;
-        this.soundFXRegistry = soundFXRegistry;
-    }
-
     private Vector2 currentInputDirection;
     private Vector3 currentRealDirection;
     private float currentRotation;
@@ -80,14 +70,6 @@ public class MovementController : MonoBehaviour
             return;
 
         SendDashCommand();
-        PlaySound(ClientSoundFXRegistry.SoundFXIds.Dash);
-    }
-
-    private void PlaySound(string soundId)
-    {
-        var entry = soundFXRegistry.GetEntryById(soundId);
-        if (entry != null)
-            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 
     private void SendMoveCommand()

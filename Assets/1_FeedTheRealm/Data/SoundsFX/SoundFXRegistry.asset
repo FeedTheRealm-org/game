@@ -14,19 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Registry.ClientSoundFXRegistry
   entries:
   - id: attack
-    clip: {fileID: 0}
-    delay: 0
+    clip: {fileID: 8300000, guid: b43619bb5b4a8b642b3b178761235312, type: 3}
+    delay: 0.15
     volume: 1
   - id: hit
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 8fbf9ed018894b7489a83cfda35278bd, type: 3}
     delay: 0
     volume: 1
   - id: death
-    clip: {fileID: 0}
-    delay: 0
-    volume: 1
+    clip: {fileID: 8300000, guid: 36629308f3cc74e70a814281fc9410b4, type: 3}
+    delay: 0.1
+    volume: 0.7
   - id: pickup
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 11f3deba0ccd71642812d57f744b8ff0, type: 3}
     delay: 0
     volume: 1
   - id: dialog
@@ -42,14 +42,26 @@ MonoBehaviour:
     delay: 0
     volume: 1
   - id: purchase
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: cff5e2a63cd6eae4a844c20a02d0efe3, type: 3}
     delay: 0
     volume: 1
   - id: walking
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 506ce00208efa427f8bae7a742f55722, type: 3}
+    delay: 0
+    volume: 0.2
+  - id: dash
+    clip: {fileID: 8300000, guid: 3a4daa9f7a1db6c23ac10b93f36a002e, type: 3}
+    delay: 0
+    volume: 2
+  - id: open_ui
+    clip: {fileID: 8300000, guid: 922c48e12f1b8076a97fbd66c680abcc, type: 3}
     delay: 0
     volume: 1
-  - id: dash
-    clip: {fileID: 0}
+  - id: close_ui
+    clip: {fileID: 8300000, guid: ecb0b60ae85f956b190105185509946e, type: 3}
+    delay: 0
+    volume: 1
+  - id: settings_open
+    clip: {fileID: 8300000, guid: 137f09d8192a2657b9ff5b4237378502, type: 3}
     delay: 0
     volume: 1

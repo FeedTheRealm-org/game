@@ -24,6 +24,9 @@ namespace FTR.Gameplay.Client.Registry
             public const string Purchase = "purchase";
             public const string Walking = "walking";
             public const string Dash = "dash";
+            public const string OpenUI = "open_ui";
+            public const string CloseUI = "close_ui";
+            public const string SettingsOpen = "settings_open";
         }
 
         [SerializeField]
@@ -41,13 +44,13 @@ namespace FTR.Gameplay.Client.Registry
             {
                 if (string.IsNullOrEmpty(entry.Id))
                 {
-                    Debug.LogWarning("[ClientSoundFXRegistry] Entry con ID vacío, se ignora.");
+                    Debug.LogWarning("[ClientSoundFXRegistry] Empty ID found.");
                     continue;
                 }
                 if (entryById.ContainsKey(entry.Id))
                 {
                     Debug.LogWarning(
-                        $"[ClientSoundFXRegistry] ID duplicado '{entry.Id}', se usa el primero."
+                        $"[ClientSoundFXRegistry] Duplicated ID '{entry.Id}', using first."
                     );
                     continue;
                 }

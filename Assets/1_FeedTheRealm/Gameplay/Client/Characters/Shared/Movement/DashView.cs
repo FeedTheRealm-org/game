@@ -1,12 +1,24 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using VContainer;
 
 public class DashView : MonoBehaviour
 {
     [SerializeField]
     private CharacterAnimator animator;
+
+    private IAudioManager audioManager;
+    private ClientSoundFXRegistry soundFXRegistry;
+
+    [Inject]
+    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
+    {
+        this.audioManager = audioManager;
+        this.soundFXRegistry = soundFXRegistry;
+    }
 
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
@@ -37,6 +49,7 @@ public class DashView : MonoBehaviour
 
         stateStorage.IsMovementBlocked = true;
         ApplyDashing(force);
+        PlaySound(ClientSoundFXRegistry.SoundFXIds.Dash);
         await UniTask.Delay(duration);
         StopDash();
         stateStorage.IsMovementBlocked = false;
@@ -51,5 +64,12 @@ public class DashView : MonoBehaviour
     private void StopDash()
     {
         rb.linearVelocity = Vector3.zero;
+    }
+
+    private void PlaySound(string soundId)
+    {
+        var entry = soundFXRegistry.GetEntryById(soundId);
+        if (entry != null)
+            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Gameplay.Client.Registry;
@@ -26,6 +27,16 @@ public class InventoryView : MonoBehaviour
     [Inject]
     private API.ItemAssetsService itemsAssetsService;
 
+    private IAudioManager audioManager;
+    private ClientSoundFXRegistry soundFXRegistry;
+
+    [Inject]
+    public void Construct(IAudioManager audioManager, ClientSoundFXRegistry soundFXRegistry)
+    {
+        this.audioManager = audioManager;
+        this.soundFXRegistry = soundFXRegistry;
+    }
+
     private InventoryStateStorage stateStorage;
     private CharacterStateStorage characterState;
     private SpriteManager spriteManager;
@@ -33,7 +44,8 @@ public class InventoryView : MonoBehaviour
     public void Initialize(
         InventoryStateStorage stateStorage,
         CharacterStateStorage characterState,
-        SpriteManager spriteManager
+        SpriteManager spriteManager,
+        NetworkEventRouter eventRouter
     )
     {
         this.spriteManager = spriteManager;
@@ -44,6 +56,12 @@ public class InventoryView : MonoBehaviour
         stateStorage.OnLastDroppedItemChanged += OnInventoryDropped;
         stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
         characterState.OnEquippedItemChanged += OnEquippedItemChanged;
+        eventRouter.OnShopPurchaseConfirmEvent += OnShopPurchaseConfirm;
+    }
+
+    private void OnShopPurchaseConfirm()
+    {
+        PlaySound(ClientSoundFXRegistry.SoundFXIds.Purchase);
     }
 
     private void OnDestroy()
@@ -132,5 +150,12 @@ public class InventoryView : MonoBehaviour
         }
 
         spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
+    }
+
+    private void PlaySound(string soundId)
+    {
+        var entry = soundFXRegistry.GetEntryById(soundId);
+        if (entry != null)
+            audioManager.PlaySoundFX(entry, transform.position, priority: 64f);
     }
 }
