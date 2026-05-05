@@ -27,6 +27,9 @@ namespace FTR.Gameplay.Client.Registry
             public const string OpenUI = "open_ui";
             public const string CloseUI = "close_ui";
             public const string SettingsOpen = "settings_open";
+            public const string EnteredTeleport = "entered_teleport";
+            public const string ChestOpen = "chest_open";
+            public const string ChestClose = "chest_close";
         }
 
         [SerializeField]

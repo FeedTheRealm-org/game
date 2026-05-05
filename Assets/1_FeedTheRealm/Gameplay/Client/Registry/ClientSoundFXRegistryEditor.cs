@@ -165,7 +165,7 @@ namespace FTR.Gameplay.Client.Registry
 
             if (errors.Count == 0 && warnings.Count == 0)
             {
-                EditorUtility.DisplayDialog("Validation", "✅ Todo OK!", "OK");
+                EditorUtility.DisplayDialog("Validation", "✅ All good!", "OK");
                 return;
             }
 

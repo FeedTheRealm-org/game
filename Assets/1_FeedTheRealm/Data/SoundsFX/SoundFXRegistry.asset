@@ -40,7 +40,7 @@ MonoBehaviour:
   - id: quest_accept
     clip: {fileID: 8300000, guid: 631f9b74e8c8d1c89b09768f5c17f240, type: 3}
     delay: 0
-    volume: 1
+    volume: 1.5
   - id: purchase
     clip: {fileID: 8300000, guid: cff5e2a63cd6eae4a844c20a02d0efe3, type: 3}
     delay: 0
@@ -60,8 +60,20 @@ MonoBehaviour:
   - id: close_ui
     clip: {fileID: 8300000, guid: ecb0b60ae85f956b190105185509946e, type: 3}
     delay: 0
-    volume: 1
+    volume: 0.3
   - id: settings_open
-    clip: {fileID: 8300000, guid: 137f09d8192a2657b9ff5b4237378502, type: 3}
+    clip: {fileID: 8300000, guid: dccc680ef89bd34dfad7a98c02442d42, type: 3}
+    delay: 0
+    volume: 0.3
+  - id: entered_teleport
+    clip: {fileID: 8300000, guid: 81d50ec04b64ab6e28571179894408ee, type: 3}
+    delay: 0
+    volume: 1
+  - id: chest_open
+    clip: {fileID: 8300000, guid: 53a6879e8a9a0c629be6811ca6b27af5, type: 3}
+    delay: 0
+    volume: 1.5
+  - id: chest_close
+    clip: {fileID: 8300000, guid: d371bbda7e5dbbd52b3bd312e2ba2276, type: 3}
     delay: 0
     volume: 1
