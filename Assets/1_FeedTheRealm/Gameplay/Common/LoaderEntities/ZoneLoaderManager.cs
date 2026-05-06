@@ -67,7 +67,7 @@ namespace FTR.Gameplay.Common.LoaderEntities
                 logger.Log(
                     $"[ZONE-LOAD] Starting zone loading with Zone ID: {zoneId} | World ID: {worldId}"
                 );
-                await Load(zoneId, worldId, accessToken);
+                await Load(zoneId, worldId);
                 return true;
             }
             catch (System.Exception ex)
@@ -80,17 +80,17 @@ namespace FTR.Gameplay.Common.LoaderEntities
             }
         }
 
-        private async UniTask Load(int zoneId, string worldId, string accessToken)
+        private async UniTask Load(int zoneId, string worldId)
         {
             if (loaders == null || loaders.Count == 0)
                 return;
 
             ZoneData zoneData =
-                await LoadZoneData(zoneId, worldId, accessToken)
+                await LoadZoneData(zoneId, worldId)
                 ?? throw new System.InvalidOperationException("Failed to load zone data");
 
             CreatablesData creatablesData =
-                await LoadCreatablesData(worldId, accessToken)
+                await LoadCreatablesData(worldId)
                 ?? throw new System.InvalidOperationException("Failed to load creatables data");
 
             for (int i = 0; i < loaders.Count; i++)
@@ -102,12 +102,11 @@ namespace FTR.Gameplay.Common.LoaderEntities
             logger.Log("World loading complete!");
         }
 
-        private async UniTask<ZoneData> LoadZoneData(int zoneId, string worldId, string accessToken)
+        private async UniTask<ZoneData> LoadZoneData(int zoneId, string worldId)
         {
             (ZoneData data, string errorMessage, long responseCode) = await zoneService.GetZoneData(
                 worldId,
-                zoneId,
-                accessToken
+                zoneId
             );
             if (data == null || !string.IsNullOrEmpty(errorMessage))
                 throw new System.Exception(
@@ -116,12 +115,11 @@ namespace FTR.Gameplay.Common.LoaderEntities
             return data;
         }
 
-        private async UniTask<CreatablesData> LoadCreatablesData(string worldId, string accessToken)
+        private async UniTask<CreatablesData> LoadCreatablesData(string worldId)
         {
             // TODO: this also loads the world data, we should optimize this by creating a new endpoint that only returns the creatables data.
             var (_, creatablesData, errorMessage, responseCode) = await worldService.GetWorld(
-                worldId,
-                accessToken
+                worldId
             );
 
             if (creatablesData == null || !string.IsNullOrEmpty(errorMessage))

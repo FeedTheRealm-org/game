@@ -98,8 +98,7 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
 
                     var (ip, port, error, statusCode) = await worldService.GetZoneAddress(
                         worldSelector.GetSelectedWorldId(),
-                        destinationZone,
-                        session.APIToken
+                        destinationZone
                     );
                     config.CurrentServerAddress = ip;
                     config.CurrentServerPort = (ushort)port;

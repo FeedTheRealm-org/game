@@ -91,12 +91,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     private async Task RenderWorldPage(int offset, string filter = null)
     {
-        var (activeWorlds, error) = await worldService.GetActiveWorlds(
-            offset,
-            PAGE_SIZE,
-            filter,
-            session.APIToken
-        );
+        var (activeWorlds, error) = await worldService.GetActiveWorlds(offset, PAGE_SIZE, filter);
 
         logger.Log(
             $"[WorldFeed] Fetched worlds with offset {offset}, filter '{filter}'. "
@@ -135,8 +130,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             var (_, worldsWithZones, pageError) = await worldService.GetWorldPage(
                 offset,
                 PAGE_SIZE,
-                filter,
-                session.APIToken
+                filter
             );
 
             if (string.IsNullOrEmpty(pageError) && worldsWithZones != null)
