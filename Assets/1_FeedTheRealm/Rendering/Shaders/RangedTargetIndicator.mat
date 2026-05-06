@@ -22,19 +22,23 @@ Material:
   m_LockedProperties:
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ArrowHeadSize: 0.216
-    - _ArrowLength: 1.73
+    - _ArrowHeadSize: 0.168
+    - _ArrowLength: 2
     - _ArrowWidth: 0.059
     - _Aspect: 5
-    - _CircleRadius: 0.391
-    - _CircleThickness: 0.0573
+    - _CircleRadius: 0.261
+    - _CircleThickness: 0.0333
     - _Smoothness: 0.02
     - _UVScale: 1
     m_Colors:
-    - _ArrowColor: {r: 1, g: 0.3066038, b: 0.64270926, a: 1}
-    - _CircleColor: {r: 1, g: 0.38207543, b: 0.38207543, a: 0.99215686}
+    - _ArrowColor: {r: 1, g: 0.38039216, b: 0.38039216, a: 0.49019608}
+    - _CircleColor: {r: 1, g: 0.38207528, b: 0.38207528, a: 0.49019608}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

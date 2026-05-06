@@ -2,6 +2,8 @@ Shader "Custom/TargetIndicator_URP"
 {
     Properties
     {
+        _MainTex ("Sprite Texture", 2D) = "white" {}
+
         _CircleColor ("Circle Color", Color) = (1,1,1,1)
         _ArrowColor ("Arrow Color", Color) = (1,1,0,1)
 
@@ -32,6 +34,7 @@ Shader "Custom/TargetIndicator_URP"
 
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
+            ZTest LEqual
             Cull Off
 
             HLSLPROGRAM
@@ -52,6 +55,9 @@ Shader "Custom/TargetIndicator_URP"
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
             };
+
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
 
             float4 _CircleColor;
             float4 _ArrowColor;
@@ -107,6 +113,9 @@ Shader "Custom/TargetIndicator_URP"
 
             half4 frag (Varyings i) : SV_Target
             {
+                // Sample sprite texture (required for SpriteRenderer)
+                float4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
+
                 // Center UVs
                 float2 uv = i.uv - 0.5;
 
@@ -143,7 +152,10 @@ Shader "Custom/TargetIndicator_URP"
                 half4 arrowCol  = _ArrowColor * arrowCombined;
 
                 half4 finalColor = lerp(circleCol, arrowCol, arrowCombined);
-                finalColor.a = max(circle, arrowCombined);
+                finalColor.a = max(circle * _CircleColor.a, arrowCombined * _ArrowColor.a);
+
+                // Apply sprite texture (keeps compatibility)
+                finalColor *= tex;
 
                 return finalColor;
             }

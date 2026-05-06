@@ -31,6 +31,9 @@ namespace FTR.Gameplay.Client.Linkers
                 gameObject.transform
             );
             resolver.InjectGameObject(characterComponents);
+
+            SortingLayerSetup(characterComponents);
+
             var nameController = SetupNameTag(gameObject, characterComponents);
 
             var networkEventRouter = characterComponents.GetComponent<NetworkEventRouter>();
@@ -70,6 +73,27 @@ namespace FTR.Gameplay.Client.Linkers
             nameTagInstance.SetActive(true);
 
             return nameTagInstance.GetComponent<ICharacterNameController>();
+        }
+
+        private void SortingLayerSetup(GameObject gameObject)
+        {
+            // var spriteRenderers = gameObject.GetComponentsInChildren<SpriteRenderer>(true);
+
+            // foreach (var sr in spriteRenderers)
+            // {
+            //     sr.sortingLayerName = "Characters";
+            //     sr.sortingOrder = 0;
+            // }
+
+            // var meshRenderers = gameObject.GetComponentsInChildren<Renderer>(true);
+
+            // foreach (var r in meshRenderers)
+            // {
+            //     if (r is SpriteRenderer) continue;
+
+            //     r.sortingLayerName = "Ground";
+            //     r.sortingOrder = -300;
+            // }
         }
     }
 }
