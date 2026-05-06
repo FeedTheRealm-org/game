@@ -33,13 +33,19 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.gemStorePrefab = gemStorePrefab;
         }
 
-        public async UniTask ShowAuthFlow()
+        public async UniTask ShowAuthFlow(API.AuthService authService, Session.Session session)
         {
             var loginObj = Object.Instantiate(loginPrefab);
             var signUpObj = Object.Instantiate(signUpPrefab);
             var verifyCodeObj = Object.Instantiate(verifyCodePrefab);
 
-            var authFlow = new AuthFlowManager(loginObj, signUpObj, verifyCodeObj);
+            var authFlow = new AuthFlowManager(
+                loginObj,
+                signUpObj,
+                verifyCodeObj,
+                authService,
+                session
+            );
 
             var completionSource = new UniTaskCompletionSource();
             authFlow.OnAuthComplete += () => completionSource.TrySetResult();

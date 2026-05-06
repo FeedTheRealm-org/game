@@ -36,6 +36,9 @@ public class ClientInitiator : LifetimeScope
     private Session.Session session;
 
     [SerializeField]
+    private API.AuthService authService;
+
+    [SerializeField]
     private Config config;
 
     [SerializeField]
@@ -47,6 +50,7 @@ public class ClientInitiator : LifetimeScope
             throw new System.InvalidOperationException("Invalid runtime role for ClientInitiator");
 
         builder.RegisterInstance(session);
+        builder.RegisterInstance(authService);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder
             .RegisterEntryPoint<ClientEntryPoint>()
