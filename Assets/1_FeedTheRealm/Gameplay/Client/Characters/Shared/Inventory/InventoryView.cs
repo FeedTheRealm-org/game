@@ -24,27 +24,16 @@ public class InventoryView : MonoBehaviour
     [Inject]
     private ActiveSlotChangedEvent ActiveSlotChangedEvent;
 
-    [Inject]
-    private API.ItemAssetsService itemsAssetsService;
-
     private InventoryStateStorage stateStorage;
     private CharacterStateStorage characterState;
-    private SpriteManager spriteManager;
 
-    public void Initialize(
-        InventoryStateStorage stateStorage,
-        CharacterStateStorage characterState,
-        SpriteManager spriteManager
-    )
+    public void Initialize(InventoryStateStorage stateStorage)
     {
-        this.spriteManager = spriteManager;
         this.stateStorage = stateStorage;
-        this.characterState = characterState;
         stateStorage.OnLastItemChanged += OnInventoryChanged;
         stateStorage.OnLastSwappedItemChanged += OnInventorySwapped;
         stateStorage.OnLastDroppedItemChanged += OnInventoryDropped;
         stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
-        characterState.OnEquippedItemChanged += OnEquippedItemChanged;
     }
 
     private void OnDestroy()
@@ -55,10 +44,6 @@ public class InventoryView : MonoBehaviour
             stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
             stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
             stateStorage.OnActiveSlotChanged -= OnActiveSlotChanged;
-        }
-        if (characterState != null)
-        {
-            characterState.OnEquippedItemChanged -= OnEquippedItemChanged;
         }
     }
 
@@ -99,70 +84,5 @@ public class InventoryView : MonoBehaviour
     {
         Debug.Log($"InventoryView active slot changed: {slotIndex}");
         ActiveSlotChangedEvent.Raise(slotIndex);
-    }
-
-    private void OnEquippedItemChanged(string itemId)
-    {
-        _ = ApplyEquippedItemAsync(itemId);
-    }
-
-    private async Task ApplyEquippedItemAsync(string itemId)
-    {
-        if (string.IsNullOrEmpty(itemId))
-        {
-            Debug.Log($"InventoryView equipped item removed");
-            spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
-            return;
-        }
-
-        var itemData = ClientItemsRegistry.GetItemById(itemId);
-        string spriteId =
-            itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
-                ? itemData.spriteFilePath
-                : itemId;
-
-        Debug.Log($"InventoryView applying equipped item: {itemId} with spriteId: {spriteId}");
-        var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
-
-        if (this == null || spriteManager == null)
-        {
-            Debug.Log(
-                $"InventoryView no longer valid after sprite download, aborting apply for {itemId}"
-            );
-            return;
-        }
-
-        var weaponData = ClientItemsRegistry.GetWeaponById(itemId);
-        switch (weaponData.weaponType)
-        {
-            case WeaponType.Melee:
-                spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
-                Debug.Log(
-                    $"InventoryView applied melee weapon sprite for {itemId} to EquipmentR category"
-                );
-                break;
-            case WeaponType.Ranged:
-                if (weaponData.subWeaponType == SubWeaponType.Bow)
-                {
-                    spriteManager.ChangeSprite(CharacterPartCategory.WeaponRangedBow, texture);
-                    Debug.Log(
-                        $"InventoryView applied ranged bow weapon sprite for {itemId} to Bow category"
-                    );
-                }
-                else
-                {
-                    spriteManager.ChangeSprite(CharacterPartCategory.WeaponRangedHandheld, texture);
-                    Debug.Log(
-                        $"InventoryView applied ranged handheld weapon sprite for {itemId} to EquipmentR category"
-                    );
-                }
-                break;
-            default:
-                spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
-                Debug.LogWarning(
-                    $"InventoryView: No handler for weapon type {weaponData.weaponType}, cannot apply equipped item sprite."
-                );
-                break;
-        }
     }
 }

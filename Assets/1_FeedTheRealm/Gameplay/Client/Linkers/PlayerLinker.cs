@@ -147,8 +147,8 @@ public class ClientPlayerLinker : PlayerLinker
                 prefabProvider.PortalVisual,
                 gameObject.transform
             );
-
             portalVisual.SetActive(true);
+
             prefabProvider.ChatInput.SetActive(false);
             var chatInput = Object.Instantiate(prefabProvider.ChatInput, gameObject.transform);
             resolver.InjectGameObject(chatInput);
@@ -162,6 +162,7 @@ public class ClientPlayerLinker : PlayerLinker
             var goldState = gameObject.GetComponent<GoldStateStorage>();
             var inventoryController = playerComponents.AddComponent<InventoryController>();
             var inventoryView = playerComponents.AddComponent<InventoryView>();
+            var useView = playerComponents.GetComponent<UseView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
@@ -187,7 +188,7 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(chatController);
 
             inventoryController.Initialize(networkAdapter);
-            inventoryView?.Initialize(inventoryState, stateStorage, spriteManager);
+            inventoryView?.Initialize(inventoryState);
             goldView?.Initialize(goldState, networkEventRouter);
             goldController?.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);
@@ -199,6 +200,8 @@ public class ClientPlayerLinker : PlayerLinker
             playerController.Initialize(characterStateMachine);
             portalView?.Initialize(networkEventRouter, networkAdapter);
             chatController.Initialize(networkAdapter);
+
+            useView.SetRangedTargetIndicator(prefabProvider.RangedTargetIndicator);
         }
     }
 }

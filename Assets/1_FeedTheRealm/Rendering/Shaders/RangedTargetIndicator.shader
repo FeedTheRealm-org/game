@@ -10,13 +10,16 @@ Shader "Custom/TargetIndicator_URP"
         _CircleRadius ("Circle Radius", Range(0.1, 0.5)) = 0.25
         _CircleThickness ("Circle Thickness", Range(0.005, 0.1)) = 0.02
 
-        _ArrowLength ("Arrow Length", Range(0, 2)) = 1.0
+        _ArrowLength ("Arrow Length", Range(0, 20)) = 1.0
         _ArrowWidth ("Arrow Width", Range(0.005, 0.2)) = 0.04
         _ArrowHeadSize ("Arrow Head Size", Range(0.02, 0.3)) = 0.1
 
         _Smoothness ("Edge Smoothness", Range(0.001, 0.02)) = 0.005
 
         _Aspect ("Aspect Ratio (Width / Height)", Float) = 1.0
+
+        _OffsetX ("Offset X", Range(-20, 20)) = 0.0
+        _OffsetY ("Offset Y", Range(-20, 20)) = 0.0
     }
 
     SubShader
@@ -71,6 +74,8 @@ Shader "Custom/TargetIndicator_URP"
 
             float _Smoothness;
             float _Aspect;
+            float _OffsetX;
+            float _OffsetY;
 
             Varyings vert (Attributes v)
             {
@@ -116,11 +121,9 @@ Shader "Custom/TargetIndicator_URP"
                 // Sample sprite texture (required for SpriteRenderer)
                 float4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
 
-                // Center UVs
                 float2 uv = i.uv - 0.5;
-
-                // Fix aspect ratio so circle stays round
                 uv.x *= _Aspect;
+                uv -= float2(_OffsetX, _OffsetY);
 
                 // --- Circle ---
                 float circleDist = sdCircle(uv, _CircleRadius);

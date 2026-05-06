@@ -32,23 +32,22 @@ namespace FTR.Gameplay.Client.Linkers
             );
             resolver.InjectGameObject(characterComponents);
 
-            SortingLayerSetup(characterComponents);
-
             var nameController = SetupNameTag(gameObject, characterComponents);
 
             var networkEventRouter = characterComponents.GetComponent<NetworkEventRouter>();
             var movementView = characterComponents.GetComponent<MovementView>();
-            var attackView = characterComponents.GetComponent<AttackView>();
+            var useView = characterComponents.GetComponent<UseView>();
             var dashView = characterComponents.GetComponent<DashView>();
             var staminaView = characterComponents.GetComponent<StaminaView>();
             var healthView = characterComponents.GetComponent<HealthView>();
+            var spriteManager = characterComponents.GetComponentInChildren<SpriteManager>();
 
             var movementController = characterComponents.GetComponent<MovementController>();
             var useController = characterComponents.GetComponent<UseController>();
 
             networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
-            attackView.Initialize(networkEventRouter);
+            useView.Initialize(networkEventRouter, stateStorage, spriteManager);
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             staminaView.Initialize(stateStorage);
             healthView?.Initialize(stateStorage);
@@ -73,27 +72,6 @@ namespace FTR.Gameplay.Client.Linkers
             nameTagInstance.SetActive(true);
 
             return nameTagInstance.GetComponent<ICharacterNameController>();
-        }
-
-        private void SortingLayerSetup(GameObject gameObject)
-        {
-            // var spriteRenderers = gameObject.GetComponentsInChildren<SpriteRenderer>(true);
-
-            // foreach (var sr in spriteRenderers)
-            // {
-            //     sr.sortingLayerName = "Characters";
-            //     sr.sortingOrder = 0;
-            // }
-
-            // var meshRenderers = gameObject.GetComponentsInChildren<Renderer>(true);
-
-            // foreach (var r in meshRenderers)
-            // {
-            //     if (r is SpriteRenderer) continue;
-
-            //     r.sortingLayerName = "Ground";
-            //     r.sortingOrder = -300;
-            // }
         }
     }
 }
