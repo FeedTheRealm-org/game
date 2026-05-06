@@ -14,9 +14,6 @@ namespace FTR.Gameplay.Client.Characters
         [SerializeField]
         private Config config;
 
-        [Inject]
-        private ISoundPlayer soundPlayer;
-
         /// <summary>
         /// Called on the client when any character (local or remote) is spawned.
         /// Injects dependencies via VContainer and initializes client-side scripts for
@@ -37,7 +34,6 @@ namespace FTR.Gameplay.Client.Characters
             clientWorldInitiator.Container.InjectGameObject(gameObject);
 
             GetComponent<GameObjectLinker>()?.Initialize();
-            soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Spawn, transform.position);
         }
     }
 }

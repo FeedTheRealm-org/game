@@ -41,6 +41,10 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject gemStorePrefab;
 
+    [Header("Loading Screen")]
+    [SerializeField]
+    private GameObject loadingScreenPrefab;
+
     [Header("Audio")]
     [SerializeField]
     private GameObject musicPlayerPrefab;
@@ -67,7 +71,8 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("profileMenuPrefab", profileMenuPrefab)
             .WithParameter("gemStorePrefab", gemStorePrefab)
             .WithParameter("musicPlayerPrefab", musicPlayerPrefab)
-            .WithParameter("musicRegistry", musicRegistry);
+            .WithParameter("musicRegistry", musicRegistry)
+            .WithParameter("loadingScreenPrefab", loadingScreenPrefab);
 
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
     }

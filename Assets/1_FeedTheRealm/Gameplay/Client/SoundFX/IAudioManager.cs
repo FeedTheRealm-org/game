@@ -27,4 +27,6 @@ public interface IAudioManager
         float priority = 128f,
         float spatialBlend = 1f
     );
+
+    void SetGlobalSFXVolume(float volume);
 }

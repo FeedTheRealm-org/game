@@ -102,6 +102,12 @@ public class ClientPlayerLinker : PlayerLinker
             };
             networkAdapter.DispatchTransaction(setUserIdTransaction);
 
+            var soundPlayer = resolver.Resolve<ISoundPlayer>();
+            soundPlayer.Play(
+                Registry.ClientSoundFXRegistry.SoundFXIds.Spawn,
+                gameObject.transform.position
+            );
+
             /* -- Instantiate and inject UI components -- */
 
             prefabProvider.HudComponent.SetActive(false);

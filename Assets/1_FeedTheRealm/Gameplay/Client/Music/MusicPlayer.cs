@@ -22,6 +22,9 @@ public class MusicPlayer : MonoBehaviour
     private Coroutine currentFade;
     private bool isInitialized = false;
 
+    private float globalVolumeMultiplier = 1f;
+    private float currentBaseVolume = 0.5f;
+
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -40,7 +43,19 @@ public class MusicPlayer : MonoBehaviour
         musicSource.spatialBlend = 0f;
         musicSource.volume = 0f;
 
+        globalVolumeMultiplier = PlayerPrefs.GetFloat("MusicVolume", 1f);
+
         isInitialized = true;
+    }
+
+    public void SetGlobalMusicVolume(float globalVolume)
+    {
+        globalVolumeMultiplier = globalVolume;
+
+        if (musicSource != null && currentFade == null && musicSource.isPlaying)
+        {
+            musicSource.volume = currentBaseVolume * globalVolumeMultiplier;
+        }
     }
 
     public void Initialize(ClientMusicRegistry registry, MusicType type)
@@ -62,15 +77,23 @@ public class MusicPlayer : MonoBehaviour
         if (currentFade != null)
             StopCoroutine(currentFade);
 
+        currentBaseVolume = volume;
+
         if (musicSource.isPlaying && musicSource.clip == clip)
+        {
+            if (!fadeIn)
+            {
+                musicSource.volume = currentBaseVolume * globalVolumeMultiplier;
+            }
             return;
+        }
 
         if (fadeIn)
             currentFade = StartCoroutine(FadeToClip(clip, volume));
         else
         {
             musicSource.clip = clip;
-            musicSource.volume = volume;
+            musicSource.volume = volume * globalVolumeMultiplier;
             musicSource.Play();
         }
     }
@@ -124,11 +147,12 @@ public class MusicPlayer : MonoBehaviour
         while (fadeInElapsed < fadeDuration)
         {
             fadeInElapsed += Time.unscaledDeltaTime;
-            musicSource.volume = Mathf.Lerp(0f, targetVolume, fadeInElapsed / fadeDuration);
+            musicSource.volume =
+                Mathf.Lerp(0f, targetVolume, fadeInElapsed / fadeDuration) * globalVolumeMultiplier;
             yield return null;
         }
 
-        musicSource.volume = targetVolume;
+        musicSource.volume = targetVolume * globalVolumeMultiplier;
         currentFade = null;
     }
 

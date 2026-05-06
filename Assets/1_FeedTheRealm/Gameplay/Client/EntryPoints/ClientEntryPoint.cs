@@ -21,6 +21,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject gemStorePrefab;
         private readonly GameObject musicPlayerPrefab;
         private readonly ClientMusicRegistry musicRegistry;
+        private readonly GameObject loadingScreenPrefab;
         private readonly MainMenuFlowService flowService;
 
         public ClientEntryPoint(
@@ -33,7 +34,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
-            ClientMusicRegistry musicRegistry
+            ClientMusicRegistry musicRegistry,
+            GameObject loadingScreenPrefab
         )
         {
             this.mainScene = mainScene;
@@ -46,6 +48,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
+            this.loadingScreenPrefab = loadingScreenPrefab;
 
             flowService = new MainMenuFlowService(
                 loginPrefab,
@@ -68,10 +71,16 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             await flowService.ShowAuthFlow();
             await flowService.ShowMainMenuFlow();
+            GameObject loadingScreenInstance = SetupLoadingScreen();
 
             await flowService.DestroyMusicPlayerAsync(fadeOut: true);
 
             await LoadMainScene();
+
+            if (loadingScreenInstance != null)
+            {
+                Object.Destroy(loadingScreenInstance);
+            }
         }
 
         void ConfigureUnityForClient()
@@ -86,6 +95,27 @@ namespace FTR.Gameplay.Client.EntryPoints
         async UniTask LoadMainScene()
         {
             await SceneManager.LoadSceneAsync(mainScene.SceneName, LoadSceneMode.Single);
+        }
+
+        private GameObject SetupLoadingScreen()
+        {
+            GameObject loadingScreenInstance = null;
+            if (loadingScreenPrefab != null)
+            {
+                loadingScreenInstance = Object.Instantiate(loadingScreenPrefab);
+                Object.DontDestroyOnLoad(loadingScreenInstance);
+                var loadingScreenDoc =
+                    loadingScreenInstance.GetComponent<UnityEngine.UIElements.UIDocument>();
+                if (loadingScreenDoc != null && loadingScreenDoc.rootVisualElement != null)
+                {
+                    loadingScreenDoc.rootVisualElement.style.display = UnityEngine
+                        .UIElements
+                        .DisplayStyle
+                        .Flex;
+                }
+            }
+
+            return loadingScreenInstance;
         }
     }
 }

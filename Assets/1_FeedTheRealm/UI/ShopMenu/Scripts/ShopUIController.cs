@@ -161,6 +161,8 @@ namespace FTR.UI.Shop
             if (!goldTab && _currentGemBalance < 0 && _fetchGemBalanceCoroutine == null)
                 _fetchGemBalanceCoroutine = StartCoroutine(FetchGemBalance());
 
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
+
             RefreshTabStyles();
         }
 
@@ -605,6 +607,8 @@ namespace FTR.UI.Shop
                     _currentGemBalance = updatedBalance.gems;
                     UpdateGemBalanceLabel();
                 }
+
+                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Purchase);
 
                 string label = !string.IsNullOrEmpty(displayName) ? displayName : cosmeticId;
                 ShowFeedback($"Purchased {label}!");

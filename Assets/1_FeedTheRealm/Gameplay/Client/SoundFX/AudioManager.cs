@@ -22,11 +22,14 @@ public class AudioManager : MonoBehaviour, IAudioManager
     private readonly List<ActiveSound> activeSounds = new List<ActiveSound>();
     private Transform listenerTransform;
 
+    private float globalSFXMultiplier = 1f;
+
     private class ActiveSound
     {
         public AudioSource Source;
         public float Priority;
         public Coroutine ReturnCoroutine;
+        public float BaseVolume;
     }
 
     [Inject]
@@ -39,6 +42,21 @@ public class AudioManager : MonoBehaviour, IAudioManager
     {
         InitPool();
         CacheListener();
+
+        AudioListener.volume = PlayerPrefs.GetFloat("GlobalVolume", 1f);
+        globalSFXMultiplier = PlayerPrefs.GetFloat("SFXVolume", 1f);
+    }
+
+    public void SetGlobalSFXVolume(float volume)
+    {
+        globalSFXMultiplier = volume;
+        foreach (var active in activeSounds)
+        {
+            if (active.Source != null)
+            {
+                active.Source.volume = Mathf.Clamp01(active.BaseVolume * globalSFXMultiplier);
+            }
+        }
     }
 
     private void InitPool()
@@ -166,7 +184,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
         source.gameObject.SetActive(true);
         source.transform.position = position;
         source.priority = (int)priority;
-        source.volume = Mathf.Clamp01(volume);
+        source.volume = Mathf.Clamp01(volume * globalSFXMultiplier);
         source.spatialBlend = Mathf.Clamp01(spatialBlend);
         source.clip = clip;
 
@@ -187,7 +205,12 @@ public class AudioManager : MonoBehaviour, IAudioManager
 
         source.Play();
 
-        var activeSound = new ActiveSound { Source = source, Priority = priority };
+        var activeSound = new ActiveSound
+        {
+            Source = source,
+            Priority = priority,
+            BaseVolume = volume,
+        };
         activeSound.ReturnCoroutine = StartCoroutine(ReturnToPool(activeSound, clip.length));
         activeSounds.Add(activeSound);
     }

@@ -61,5 +61,6 @@ MonoBehaviour:
   navBarPrefab: {fileID: 6415553132047525761, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
   profileMenuPrefab: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
   gemStorePrefab: {fileID: 1348964074043700, guid: 442b277acc9586448ba5baa9f54327d5, type: 3}
+  loadingScreenPrefab: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
   musicPlayerPrefab: {fileID: 5549379460917750396, guid: c84173a92ddb78749910eced1dc609c6, type: 3}
   musicRegistry: {fileID: 11400000, guid: 68d9e5b0caf1a652db2ac3d15acec7fc, type: 2}
