@@ -129,6 +129,7 @@ public class HealthView : MonoBehaviour
         if (currentHealth <= 0f)
         {
             animator.PlayDeath();
+            soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Hit, transform.position);
             soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Death, transform.position);
         }
         else if (currentHealth < MaxHealth)

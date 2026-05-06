@@ -35,6 +35,7 @@ namespace FTR.Gameplay.Client.Registry
             public const string ChestClose = "chest_close";
             public const string Spawn = "spawn";
             public const string SwitchTab = "switch_tab";
+            public const string ChangeItem = "change_item";
         }
 
         [SerializeField]

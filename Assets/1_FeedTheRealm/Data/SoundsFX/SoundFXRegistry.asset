@@ -14,74 +14,78 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Registry.ClientSoundFXRegistry
   entries:
   - id: attack
-    clip: {fileID: 8300000, guid: b43619bb5b4a8b642b3b178761235312, type: 3}
+    clip: {fileID: 8300000, guid: 10a6e5057742cd1d5a8e5ee4329dc8c2, type: 3}
     delay: 0.15
     volume: 1
   - id: hit
-    clip: {fileID: 8300000, guid: 8fbf9ed018894b7489a83cfda35278bd, type: 3}
+    clip: {fileID: 8300000, guid: ef61f2f1dc6cb8ae5ace0e60017dfb25, type: 3}
     delay: 0
     volume: 1
   - id: death
-    clip: {fileID: 8300000, guid: 36629308f3cc74e70a814281fc9410b4, type: 3}
+    clip: {fileID: 8300000, guid: 2c14b3c4d3ad360708a6ff72a1acc8f3, type: 3}
     delay: 0.1
     volume: 0.3
   - id: pickup
-    clip: {fileID: 8300000, guid: e8e5ffda8844a49d9866e0ba9c66799a, type: 3}
+    clip: {fileID: 8300000, guid: 5ba16cff19ed851b5a2f2eb344dac934, type: 3}
     delay: 0
     volume: 5
   - id: dialog
-    clip: {fileID: 8300000, guid: 3642bf3bd4db34961ad4916397ca8e84, type: 3}
+    clip: {fileID: 8300000, guid: 533c825aeaf8c7fc8aa7aec3b5a0a86f, type: 3}
     delay: 0
     volume: 0.2
   - id: quest_complete
-    clip: {fileID: 8300000, guid: 26cf9a609fea9bbc1be4bd42918e25a8, type: 3}
+    clip: {fileID: 8300000, guid: e588fb5fa6d87ff2aaa4b2054b0c633b, type: 3}
     delay: 0
     volume: 0.25
   - id: quest_accept
-    clip: {fileID: 8300000, guid: 631f9b74e8c8d1c89b09768f5c17f240, type: 3}
+    clip: {fileID: 8300000, guid: 99a53ad39e203d698b7f7cef0118a041, type: 3}
     delay: 0
-    volume: 1.5
+    volume: 2.5
   - id: purchase
-    clip: {fileID: 8300000, guid: cff5e2a63cd6eae4a844c20a02d0efe3, type: 3}
+    clip: {fileID: 8300000, guid: 350c9017f77b4b2a8bb0716925b96a55, type: 3}
     delay: 0
     volume: 0.4
   - id: walking
-    clip: {fileID: 8300000, guid: 506ce00208efa427f8bae7a742f55722, type: 3}
+    clip: {fileID: 8300000, guid: 8a008985a25a78a419e83f74eee0cd21, type: 3}
     delay: 0
     volume: 0.05
   - id: dash
-    clip: {fileID: 8300000, guid: 3a4daa9f7a1db6c23ac10b93f36a002e, type: 3}
+    clip: {fileID: 8300000, guid: 6fbcca36913d4dc2c984e1cbda36f0a6, type: 3}
     delay: 0
     volume: 2.5
   - id: open_ui
-    clip: {fileID: 8300000, guid: 922c48e12f1b8076a97fbd66c680abcc, type: 3}
+    clip: {fileID: 8300000, guid: 124e0b361848a3a18877d8d30cfbb763, type: 3}
     delay: 0
     volume: 0.3
   - id: close_ui
-    clip: {fileID: 8300000, guid: ecb0b60ae85f956b190105185509946e, type: 3}
+    clip: {fileID: 8300000, guid: 7d238b5fc566fd8448445ab82a884304, type: 3}
     delay: 0
     volume: 0.3
   - id: settings_open
-    clip: {fileID: 8300000, guid: dccc680ef89bd34dfad7a98c02442d42, type: 3}
+    clip: {fileID: 8300000, guid: 7fd1549d918806360be0202c079e727f, type: 3}
     delay: 0
     volume: 0.3
   - id: entered_teleport
-    clip: {fileID: 8300000, guid: 81d50ec04b64ab6e28571179894408ee, type: 3}
+    clip: {fileID: 8300000, guid: 677fa7f5d1d1fc686ae22d369e68440a, type: 3}
     delay: 0
     volume: 0.7
   - id: chest_open
-    clip: {fileID: 8300000, guid: 53a6879e8a9a0c629be6811ca6b27af5, type: 3}
+    clip: {fileID: 8300000, guid: 50bfabe6796440af19349a7b4697af50, type: 3}
     delay: 0
     volume: 1.5
   - id: chest_close
-    clip: {fileID: 8300000, guid: d371bbda7e5dbbd52b3bd312e2ba2276, type: 3}
+    clip: {fileID: 8300000, guid: b3b0d9e87f5e296d5894178535f5ce41, type: 3}
     delay: 0
     volume: 1
   - id: spawn
-    clip: {fileID: 8300000, guid: 9fe90b72c7f15427d9c496803ca7b3f0, type: 3}
+    clip: {fileID: 8300000, guid: 1f600ddb2a3845427b2d336cc26a38ad, type: 3}
     delay: 0
     volume: 1
   - id: switch_tab
-    clip: {fileID: 8300000, guid: 968b16c2c06274a4d83fc6853a3278e2, type: 3}
+    clip: {fileID: 8300000, guid: 60409bc3a03946539a09011647b7c601, type: 3}
     delay: 0
-    volume: 0.15
+    volume: 0.2
+  - id: change_item
+    clip: {fileID: 0}
+    delay: 0
+    volume: 1
