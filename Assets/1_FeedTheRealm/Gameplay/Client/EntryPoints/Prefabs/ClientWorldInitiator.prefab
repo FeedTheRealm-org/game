@@ -69,6 +69,7 @@ MonoBehaviour:
   colliderRegistry: {fileID: 11400000, guid: deebf1077aab9e9e79437e21d4e3f5a4, type: 2}
   audioManager: {fileID: 8078266635024738144}
   soundFXRegistry: {fileID: 11400000, guid: 053a99b72500d8ec5997d9c940b0e60d, type: 2}
+  musicRegistry: {fileID: 11400000, guid: 68d9e5b0caf1a652db2ac3d15acec7fc, type: 2}
 --- !u!114 &8078266635024738144
 MonoBehaviour:
   m_ObjectHideFlags: 0

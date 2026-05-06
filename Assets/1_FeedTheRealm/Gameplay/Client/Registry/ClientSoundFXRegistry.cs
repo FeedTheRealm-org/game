@@ -6,7 +6,10 @@ namespace FTR.Gameplay.Client.Registry
     /// <summary>
     /// Centralized bank of AudioClips for sound effects, with access by string ID.
     /// </summary>
-    [CreateAssetMenu(fileName = "SoundFXRegistry", menuName = "FTR/SoundFX Registry")]
+    [CreateAssetMenu(
+        fileName = "SoundFXRegistry",
+        menuName = "Scriptable Objects/Audio/SoundFX Registry"
+    )]
     public class ClientSoundFXRegistry : ScriptableObject
     {
         // -------------------------------------------------------------------------
@@ -30,6 +33,7 @@ namespace FTR.Gameplay.Client.Registry
             public const string EnteredTeleport = "entered_teleport";
             public const string ChestOpen = "chest_open";
             public const string ChestClose = "chest_close";
+            public const string Spawn = "spawn";
         }
 
         [SerializeField]

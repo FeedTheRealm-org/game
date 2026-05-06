@@ -67,6 +67,7 @@ public class MovementView : MonoBehaviour
     private void HandleRespawn()
     {
         isDead = false;
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Spawn, transform.position);
     }
 
     // TODO: review if we need to unsubscribe from events on disable/destroy,

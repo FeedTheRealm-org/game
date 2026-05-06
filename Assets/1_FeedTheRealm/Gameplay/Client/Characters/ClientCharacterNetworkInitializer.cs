@@ -1,5 +1,6 @@
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints.Scopes;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Linkers;
 using Mirror;
 using UnityEngine;
@@ -12,6 +13,9 @@ namespace FTR.Gameplay.Client.Characters
     {
         [SerializeField]
         private Config config;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         /// <summary>
         /// Called on the client when any character (local or remote) is spawned.
@@ -33,6 +37,7 @@ namespace FTR.Gameplay.Client.Characters
             clientWorldInitiator.Container.InjectGameObject(gameObject);
 
             GetComponent<GameObjectLinker>()?.Initialize();
+            soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Spawn, transform.position);
         }
     }
 }

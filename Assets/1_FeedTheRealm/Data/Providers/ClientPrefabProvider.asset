@@ -32,3 +32,4 @@ MonoBehaviour:
   ChestPrefab: {fileID: 3012644098720053192, guid: 313d31c0cd2a65bdc97f1d9f96316485, type: 3}
   ChatBox: {fileID: 2064266005079064116, guid: 7d1297eb1d3418c488143b4d77f772b5, type: 3}
   ChatInput: {fileID: 1348964074043700, guid: 793b588860968f94aac32692866bb2c9, type: 3}
+  MusicPlayerPrefab: {fileID: 5549379460917750396, guid: be38d26ea906230719bfa7ad77e98112, type: 3}

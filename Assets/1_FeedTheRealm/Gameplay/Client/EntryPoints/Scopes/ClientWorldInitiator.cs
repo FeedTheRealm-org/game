@@ -79,6 +79,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private ClientSoundFXRegistry soundFXRegistry;
 
+        [SerializeField]
+        private ClientMusicRegistry musicRegistry;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)
@@ -108,6 +111,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(itemAssetsService);
             builder.RegisterInstance(colliderRegistry);
             builder.RegisterInstance(soundFXRegistry);
+            builder.RegisterInstance(musicRegistry);
             builder.RegisterComponent(audioManager).As<IAudioManager>();
             builder.Register<SoundPlayer>(Lifetime.Singleton).As<ISoundPlayer>();
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
@@ -145,6 +149,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(colliderRegistry, "ColliderRegistry");
             ValidateField(audioManager, "AudioManager");
             ValidateField(soundFXRegistry, "SoundFXRegistry");
+            ValidateField(musicRegistry, "MusicRegistry");
         }
 
         private void ValidateField(object field, string fieldName)

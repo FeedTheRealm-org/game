@@ -77,3 +77,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: d371bbda7e5dbbd52b3bd312e2ba2276, type: 3}
     delay: 0
     volume: 1
+  - id: spawn
+    clip: {fileID: 8300000, guid: 9fe90b72c7f15427d9c496803ca7b3f0, type: 3}
+    delay: 0
+    volume: 1

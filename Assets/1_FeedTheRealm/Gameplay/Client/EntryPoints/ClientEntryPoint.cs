@@ -12,7 +12,6 @@ namespace FTR.Gameplay.Client.EntryPoints
     public class ClientEntryPoint : IStartable
     {
         private readonly SceneReference mainScene;
-        private readonly Session.Session session;
         private readonly GameObject loginPrefab;
         private readonly GameObject signUpPrefab;
         private readonly GameObject verifyCodePrefab;
@@ -20,22 +19,24 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject navBarPrefab;
         private readonly GameObject profileMenuPrefab;
         private readonly GameObject gemStorePrefab;
+        private readonly GameObject musicPlayerPrefab;
+        private readonly ClientMusicRegistry musicRegistry;
         private readonly MainMenuFlowService flowService;
 
         public ClientEntryPoint(
             SceneReference mainScene,
-            Session.Session session,
             GameObject loginPrefab,
             GameObject signUpPrefab,
             GameObject verifyCodePrefab,
             GameObject worldFeedMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
-            GameObject gemStorePrefab
+            GameObject gemStorePrefab,
+            GameObject musicPlayerPrefab,
+            ClientMusicRegistry musicRegistry
         )
         {
             this.mainScene = mainScene;
-            this.session = session;
             this.loginPrefab = loginPrefab;
             this.signUpPrefab = signUpPrefab;
             this.verifyCodePrefab = verifyCodePrefab;
@@ -43,6 +44,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
+            this.musicPlayerPrefab = musicPlayerPrefab;
+            this.musicRegistry = musicRegistry;
+
             flowService = new MainMenuFlowService(
                 loginPrefab,
                 signUpPrefab,
@@ -50,7 +54,9 @@ namespace FTR.Gameplay.Client.EntryPoints
                 worldFeedMenuPrefab,
                 navBarPrefab,
                 profileMenuPrefab,
-                gemStorePrefab
+                gemStorePrefab,
+                musicPlayerPrefab,
+                musicRegistry
             );
         }
 
@@ -58,8 +64,13 @@ namespace FTR.Gameplay.Client.EntryPoints
         {
             ConfigureUnityForClient();
 
+            flowService.InitializeMusicPlayer(MusicType.Menu);
+
             await flowService.ShowAuthFlow();
             await flowService.ShowMainMenuFlow();
+
+            await flowService.DestroyMusicPlayerAsync(fadeOut: true);
+
             await LoadMainScene();
         }
 
