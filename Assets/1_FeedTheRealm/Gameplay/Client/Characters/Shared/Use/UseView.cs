@@ -31,6 +31,9 @@ public class UseView : MonoBehaviour
     private SpriteRenderer rangedTargetIndicatorRenderer;
     private MaterialPropertyBlock propertyBlock;
     private Transform cameraPivot;
+    private WeaponItemData weaponData;
+    private Vector3 direction;
+    private int equipmentChangeSequence = 0;
 
     private bool isInitialized = false;
 
@@ -61,7 +64,7 @@ public class UseView : MonoBehaviour
             ?.transform;
         this.rangedTargetIndicator = resolver.Instantiate(rangedTargetIndicatorPrefab, cameraPivot);
         this.rangedTargetIndicatorRenderer =
-            this.rangedTargetIndicator.GetComponent<SpriteRenderer>();
+            this.rangedTargetIndicator.GetComponentInChildren<SpriteRenderer>();
     }
 
     private void OnDestroy()
@@ -78,7 +81,7 @@ public class UseView : MonoBehaviour
     {
         if (!isInitialized)
             return;
-        ApplyEquippedItemAsync(newItemId).Forget();
+        ApplyEquippedItemAsync(newItemId, equipmentChangeSequence).Forget();
     }
 
     private void OnAttackEvent(AttackEventContent attackEvent)
@@ -116,9 +119,11 @@ public class UseView : MonoBehaviour
 
         rangedTargetIndicator.transform.position = pivot;
         rangedTargetIndicator.transform.rotation = Quaternion.LookRotation(dir);
+
+        direction = dir;
     }
 
-    private async UniTask ApplyEquippedItemAsync(string itemId)
+    private async UniTask ApplyEquippedItemAsync(string itemId, int sequenceAtCall)
     {
         rangedTargetIndicator?.SetActive(false);
 
@@ -136,6 +141,8 @@ public class UseView : MonoBehaviour
 
         Debug.Log($"InventoryView applying equipped item: {itemId} with spriteId: {spriteId}");
         var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
+        if (sequenceAtCall != equipmentChangeSequence)
+            return; // Used to prevent race conditions when fast switching items
 
         if (this == null || spriteManager == null)
         {
@@ -146,6 +153,7 @@ public class UseView : MonoBehaviour
         }
 
         var weaponData = ClientItemsRegistry.GetWeaponById(itemId);
+        this.weaponData = weaponData;
         if (weaponData == null)
         {
             spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
@@ -169,20 +177,53 @@ public class UseView : MonoBehaviour
                 spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
                 break;
         }
+        equipmentChangeSequence++;
     }
 
     private void UpdateIndicatorRange(float range)
     {
         if (rangedTargetIndicatorRenderer == null)
+        {
+            Debug.LogWarning(
+                "Ranged target indicator renderer is not set. Cannot update indicator range."
+            );
             return;
+        }
 
-        // Normalize range (adjust maxVisualRange based on your game scale)
-        float maxVisualRange = 20f;
-        float normalizedRange = Mathf.Clamp01(range / maxVisualRange);
+        float meshWidthX = rangedTargetIndicatorRenderer.bounds.size.x;
+        float meshWidthZ = rangedTargetIndicatorRenderer.bounds.size.z;
+        float meshWorldWidth = Mathf.Max(meshWidthX, meshWidthZ);
 
-        // Use MaterialPropertyBlock to avoid creating material instances
+        float shaderArrowLength = (range / meshWorldWidth) * 10;
+
         rangedTargetIndicatorRenderer.GetPropertyBlock(propertyBlock);
-        propertyBlock.SetFloat("_ArrowLength", normalizedRange);
+
+        propertyBlock.SetFloat("_ArrowLength", shaderArrowLength);
+
         rangedTargetIndicatorRenderer.SetPropertyBlock(propertyBlock);
+        Debug.Log(
+            $"Updated ranged indicator for range {range} with meshWorldWidth {meshWorldWidth} and shaderArrowLength {shaderArrowLength}"
+        );
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (this.weaponData == null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, 1.5f);
+            return;
+        }
+
+        if (weaponData.weaponType == WeaponType.Melee)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, weaponData.range);
+        }
+        else if (weaponData.weaponType == WeaponType.Ranged)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(transform.position, direction.normalized * weaponData.range);
+        }
     }
 }

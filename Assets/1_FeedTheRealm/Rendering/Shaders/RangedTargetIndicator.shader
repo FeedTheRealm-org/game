@@ -10,7 +10,7 @@ Shader "Custom/TargetIndicator_URP"
         _CircleRadius ("Circle Radius", Range(0.1, 0.5)) = 0.25
         _CircleThickness ("Circle Thickness", Range(0.005, 0.1)) = 0.02
 
-        _ArrowLength ("Arrow Length", Range(0, 20)) = 1.0
+        _ArrowLength ("Arrow Length", Range(0, 10)) = 1.0
         _ArrowWidth ("Arrow Width", Range(0.005, 0.2)) = 0.04
         _ArrowHeadSize ("Arrow Head Size", Range(0.02, 0.3)) = 0.1
 

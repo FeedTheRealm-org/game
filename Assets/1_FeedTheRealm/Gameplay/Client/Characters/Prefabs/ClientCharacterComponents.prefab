@@ -111,6 +111,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::UseController
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  animator: {fileID: 1507848899257751022}
 --- !u!114 &1049393094490162525
 MonoBehaviour:
   m_ObjectHideFlags: 0
