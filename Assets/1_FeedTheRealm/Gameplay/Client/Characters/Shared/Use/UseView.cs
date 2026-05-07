@@ -87,7 +87,7 @@ public class UseView : MonoBehaviour
     private void OnAttackEvent(AttackEventContent attackEvent)
     {
         animator.SetAction(true);
-        animator.PlayAttack();
+        animator.PlayUse();
     }
 
     private void LateTick()
@@ -130,6 +130,7 @@ public class UseView : MonoBehaviour
         if (string.IsNullOrEmpty(itemId))
         {
             spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
+            animator.UnSetWeaponType();
             return;
         }
 
@@ -157,6 +158,7 @@ public class UseView : MonoBehaviour
         if (weaponData == null)
         {
             spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
+            animator.SetEquipment(default, default);
             return;
         }
 
@@ -177,6 +179,7 @@ public class UseView : MonoBehaviour
                 spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
                 break;
         }
+        animator.SetEquipment(weaponData.weaponType, weaponData.subWeaponType);
         equipmentChangeSequence++;
     }
 
