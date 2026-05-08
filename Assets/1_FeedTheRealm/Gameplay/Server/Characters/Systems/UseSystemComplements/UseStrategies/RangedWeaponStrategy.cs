@@ -47,22 +47,50 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
 
         internal static void PerformRangedAttack(UseContext ctx, int damage, float range)
         {
-            var hit = Physics.Raycast(
-                ctx.HitPoint,
-                ctx.Direction,
-                out RaycastHit raycastHit,
-                range,
-                ctx.TargetLayer
-            );
+            Vector3 perpendicular = Vector3.Cross(ctx.Direction, Vector3.up).normalized;
+            float halfSpacing = ctx.Config.RangedWeaponRaySpacing / 2f;
 
-            if (hit)
+            // Three parallel raycasts: center, left, right
+            Vector3[] rayPositions = new Vector3[]
             {
-                var target = raycastHit.collider;
-                var targetNetId = target.GetComponent<NetworkIdentity>()?.netId;
+                ctx.HitPoint,
+                ctx.HitPoint - perpendicular * halfSpacing,
+                ctx.HitPoint + perpendicular * halfSpacing,
+            };
+
+            Collider hitTarget = null;
+            RaycastHit firstHit = new RaycastHit();
+            float closestDistance = float.MaxValue;
+
+            foreach (var rayPos in rayPositions)
+            {
+                if (
+                    Physics.Raycast(
+                        rayPos,
+                        ctx.Direction,
+                        out RaycastHit raycastHit,
+                        range,
+                        ctx.TargetLayer
+                    )
+                )
+                {
+                    if (raycastHit.distance < closestDistance)
+                    {
+                        closestDistance = raycastHit.distance;
+                        firstHit = raycastHit;
+                        hitTarget = raycastHit.collider;
+                    }
+                }
+            }
+
+            if (hitTarget != null)
+            {
+                var targetNetId = hitTarget.GetComponent<NetworkIdentity>()?.netId;
 
                 if (!targetNetId.HasValue || targetNetId.Value != ctx.NetId)
                 {
-                    var healthSystem = target.transform.root.GetComponentInChildren<HealthSystem>();
+                    var healthSystem =
+                        hitTarget.transform.root.GetComponentInChildren<HealthSystem>();
 
                     if (healthSystem != null)
                     {

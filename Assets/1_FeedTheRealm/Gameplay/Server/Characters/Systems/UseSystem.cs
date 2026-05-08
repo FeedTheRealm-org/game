@@ -56,6 +56,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private HashSet<Collider> _playersInRange = new HashSet<Collider>();
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
+        private Vector3 autoAttackTargetDirection = Vector3.zero;
 
         // ── Initialization ────────────────────────────────────────────────────
 
@@ -217,7 +218,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 {
                     Vector3 dir = (target.transform.position - transform.position).normalized;
                     dir.y = 0; // Typically we attack horizontally
-                    ctx.Direction = dir == Vector3.zero ? transform.forward : dir.normalized;
+                    autoAttackTargetDirection =
+                        dir == Vector3.zero ? transform.forward : dir.normalized;
+
+                    yield return new WaitForSeconds(config.AutoAttackDelay);
+
+                    ctx.Direction = autoAttackTargetDirection;
 
                     if (currentStrategy.CanExecute(ctx, cooldowns, out float strategyRemaining))
                     {
@@ -280,7 +286,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         ctx != null && ctx.Direction != Vector3.zero
                             ? ctx.Direction
                             : transform.forward;
+                    Vector3 perpendicular = Vector3.Cross(dir, Vector3.up).normalized;
+                    float halfSpacing = config.RangedWeaponRaySpacing / 2f;
+
+                    // Center ray
                     Gizmos.DrawRay(HitPoint, dir.normalized * weapon.Data.range);
+                    // Left ray
+                    Gizmos.DrawRay(
+                        HitPoint - perpendicular * halfSpacing,
+                        dir.normalized * weapon.Data.range
+                    );
+                    // Right ray
+                    Gizmos.DrawRay(
+                        HitPoint + perpendicular * halfSpacing,
+                        dir.normalized * weapon.Data.range
+                    );
                 }
             }
         }
