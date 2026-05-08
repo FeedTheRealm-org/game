@@ -95,6 +95,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public void SetEquippedItemId(string newEquippedItemId)
         {
             equippedItemId = newEquippedItemId;
+            OnEquippedItemChanged?.Invoke(newEquippedItemId);
         }
 
         /* --- SyncVar hooks --- */

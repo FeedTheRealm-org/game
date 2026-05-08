@@ -26,6 +26,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
 
         private bool isDashing;
+        private bool isDead = false;
         private CharacterStateStorage stateStorage;
 
         private float staminaRecoveryTimer = 0f;
@@ -34,6 +35,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             if (gameTickEvent != null)
                 gameTickEvent.OnRaised -= GameTick;
+            if (stateStorage != null)
+            {
+                stateStorage.OnDeath += HandleDeath;
+                stateStorage.OnRespawn += HandleRespawn;
+            }
         }
 
         public void Initialize(uint netId, Rigidbody rb, CharacterStateStorage stateStorage)
@@ -44,6 +50,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
             stateStorage.SetStamina(config.MaxStamina);
             isInitialized = true;
             gameTickEvent.OnRaised += GameTick;
+            stateStorage.OnDeath += HandleDeath;
+            stateStorage.OnRespawn += HandleRespawn;
+        }
+
+        private void HandleDeath()
+        {
+            isDead = true;
+        }
+
+        private void HandleRespawn()
+        {
+            isDead = false;
         }
 
         public void OnDash(IEventCollectable ec, Vector3 direction)
@@ -51,7 +69,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (isDashing || !isInitialized)
                 return;
 
-            if (stateStorage.Stamina < config.DashStaminaCost || !stateStorage.IsGrounded)
+            if (
+                stateStorage.Stamina < config.DashStaminaCost
+                || !stateStorage.IsGrounded
+                || stateStorage.IsMovementBlocked
+                || isDead
+            )
                 return;
 
             Vector3 dashDirection = stateStorage.IsOnSlope
