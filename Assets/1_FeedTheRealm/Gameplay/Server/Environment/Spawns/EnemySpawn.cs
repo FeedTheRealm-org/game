@@ -242,6 +242,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                     if (useSystem != null && !string.IsNullOrEmpty(enemyData.weaponId))
                     {
                         useSystem.EquipItem((enemyData.weaponId, 0));
+                        stateStorage.SetEquippedItemId(enemyData.weaponId);
                     }
                 }
                 else
