@@ -157,7 +157,7 @@ public class UseView : MonoBehaviour
         this.weaponData = weaponData;
         if (weaponData == null)
         {
-            spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
+            spriteManager.ChangeSprite(CharacterPartCategory.Consumable, texture);
             animator.SetEquipment(default, default);
             return;
         }

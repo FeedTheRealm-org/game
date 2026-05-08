@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Common.Utils;
@@ -47,6 +48,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private SlotCooldownTracker cooldowns;
         private UseContext ctx;
 
+        public event Action<float> OnAttackRangeChanged;
+        public float CurrentAttackRange { get; private set; }
+
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
         private HashSet<Collider> _playersInRange = new HashSet<Collider>();
@@ -69,6 +73,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             cooldowns = new SlotCooldownTracker(config.FastSlotSize);
             currentStrategy = new BareHandsStrategy();
+            CurrentAttackRange = config.UnequippedRange;
 
             var movement = GetComponentInParent<MovementSystem>();
             var health = GetComponentInParent<HealthSystem>();
@@ -96,13 +101,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
         {
             _attackTriggerArea = attackTriggerArea;
+            _attackTriggerArea.Initialize(CurrentAttackRange);
             _attackTriggerArea.OnPlayerEnter += StartAutoAttacking;
             _attackTriggerArea.OnPlayerExit += PlayerLeftAutoAttackRange;
+
+            OnAttackRangeChanged -= UpdateAttackTriggerArea;
+            OnAttackRangeChanged += UpdateAttackTriggerArea;
         }
 
         public void SetStrategy(IUseStrategy strategy)
         {
             currentStrategy = strategy ?? new BareHandsStrategy();
+        }
+
+        private void UpdateAttackTriggerArea(float attackRange)
+        {
+            CurrentAttackRange = attackRange;
+
+            if (_attackTriggerArea != null)
+                _attackTriggerArea.Initialize(attackRange);
         }
 
         private void HandleDeath()
@@ -119,6 +136,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnDestroy()
         {
+            OnAttackRangeChanged -= UpdateAttackTriggerArea;
+
             if (_attackTriggerArea != null)
             {
                 _attackTriggerArea.OnPlayerEnter -= StartAutoAttacking;
@@ -220,6 +239,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var result = EquippedItemFactory.Build(data.itemId, config, logger, this);
             currentEquipped = result.Item;
             currentStrategy = result.Strategy;
+            CurrentAttackRange = currentEquipped switch
+            {
+                WeaponEquipped weapon => weapon.Data.range,
+                ConsumableEquipped => config.UseRange,
+                _ => config.UnequippedRange,
+            };
+
+            OnAttackRangeChanged?.Invoke(CurrentAttackRange);
 
             logger?.Log(
                 $"[UseSystem] Player:{netId} equipped '{data.itemId}' in slot {data.slotIndex}.",

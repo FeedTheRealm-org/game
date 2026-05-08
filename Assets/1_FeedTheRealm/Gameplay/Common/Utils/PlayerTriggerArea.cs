@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Common.Utils
 {
+    // TODO(optimization): This component is used to detect players in attack range,
+    // It might be more efficient to use a non-physics based approach, like checking distances in the UseSystem tick.
     public class PlayerTriggerArea : MonoBehaviour
     {
         public event Action<Collider> OnPlayerEnter;
@@ -11,6 +13,11 @@ namespace FTR.Gameplay.Common.Utils
         private SphereCollider sphereCollider;
 
         public void Initialize(float radius)
+        {
+            SetRadius(radius);
+        }
+
+        public void SetRadius(float radius)
         {
             sphereCollider = gameObject.GetComponent<SphereCollider>();
             sphereCollider.radius = radius;
