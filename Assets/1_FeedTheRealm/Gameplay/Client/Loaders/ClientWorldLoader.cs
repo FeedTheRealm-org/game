@@ -42,7 +42,7 @@ namespace FTR.Gameplay.Client.Loaders
             var clientItemLoader = new ClientItemLoader();
             var clientQuestLoader = new ClientQuestLoader();
             var clientPortalLoader = new ClientPortalLoader(prefabProvider, resolver);
-            var clientWorldAreaLoader = new ClientWorldAreaLoader(materialService, logger);
+            var clientWorldAreaLoader = new ClientZoneAreaLoader(materialService, logger);
 
             loaders = new List<ILoader>
             {

@@ -14,13 +14,13 @@ using VContainer;
 
 namespace FTR.Gameplay.Client.Loaders
 {
-    public class ClientWorldAreaLoader : ILoader
+    public class ClientZoneAreaLoader : ILoader
     {
         private readonly MaterialService materialService;
         private readonly Logging.Logger logger;
         private const string Seperator = "@";
 
-        public ClientWorldAreaLoader(MaterialService materialService, Logging.Logger logger)
+        public ClientZoneAreaLoader(MaterialService materialService, Logging.Logger logger)
         {
             this.materialService = materialService;
             this.logger = logger;
