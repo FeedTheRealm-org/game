@@ -71,6 +71,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private ItemAssetsService itemAssetsService;
 
         [SerializeField]
+        private MaterialService materialService;
+
+        [SerializeField]
         private ColliderRegistry colliderRegistry;
 
         private readonly SetupServices setupServices = new();
@@ -100,6 +103,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
             builder.RegisterInstance(itemAssetsService);
+            builder.RegisterInstance(materialService);
             builder.RegisterInstance(colliderRegistry);
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientNpcInfoRepository>(Lifetime.Singleton);
@@ -133,6 +137,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(assetsService, "AssetsService");
             ValidateField(zoneService, "ZoneService");
             ValidateField(npcDialogRegistry, "NpcDialogRegistry");
+            ValidateField(materialService, "MaterialService");
         }
 
         private void ValidateField(object field, string fieldName)

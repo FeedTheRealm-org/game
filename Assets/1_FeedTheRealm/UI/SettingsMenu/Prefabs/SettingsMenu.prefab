@@ -73,3 +73,4 @@ MonoBehaviour:
     sceneAsset: {fileID: 102900000, guid: 6dcd719ab4493af08a3280356e946168, type: 3}
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   playerInputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
+  onWorldLeaveEvent: {fileID: 11400000, guid: b73de8ca690a2880da97d4d5b5f72e4c, type: 2}
