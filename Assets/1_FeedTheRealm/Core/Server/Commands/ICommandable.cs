@@ -9,7 +9,7 @@ public interface ICommandable
 {
     void OnMove(IEventCollectable ec, Vector3 direction);
     void OnDash(IEventCollectable ec, Vector3 direction);
-    void OnUse(IEventCollectable ec);
+    void OnUse(IEventCollectable ec, Vector3 direction);
     void OnInteract(IEventCollectable ec);
     void OnDialogNext(IEventCollectable ec);
     void OnEquipItem(IEventCollectable ec, int slotIndex);

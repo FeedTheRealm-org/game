@@ -6,6 +6,8 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.Utils;
+using FTR.Gameplay.Server.Registry;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.AI;
 using VContainer;
@@ -14,6 +16,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 {
     public class AINavigationSystem : MonoBehaviour
     {
+        private const float CombatRangePadding = 0.75f;
+
         [Inject]
         private ServerConfig config;
 
@@ -43,6 +47,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private PlayerTriggerArea _chaseTriggerArea;
         private List<Collider> activeTargets = new List<Collider>();
         private Collider currentTarget;
+        private float chaseStopDistance;
 
         public void Initialize(
             uint netId,
@@ -56,6 +61,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.stateStorage = stateStorage;
 
             currentPath = new NavMeshPath();
+
+            stateStorage.OnEquippedItemChanged += HandleEquippedItemChanged;
+            HandleEquippedItemChanged(stateStorage.EquippedItemId);
 
             gameTickEvent.OnRaised += GameTick;
 
@@ -71,6 +79,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnDestroy()
         {
+            if (stateStorage != null)
+                stateStorage.OnEquippedItemChanged -= HandleEquippedItemChanged;
+
             if (_chaseTriggerArea != null)
             {
                 _chaseTriggerArea.OnPlayerEnter -= OnChaseStart;
@@ -81,8 +92,44 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void SetChaseTriggerArea(PlayerTriggerArea chaseTriggerArea)
         {
             _chaseTriggerArea = chaseTriggerArea;
-            _chaseTriggerArea.OnPlayerEnter += OnChaseStart;
-            _chaseTriggerArea.OnPlayerExit += OnChaseStop;
+
+            if (_chaseTriggerArea != null)
+            {
+                _chaseTriggerArea.OnPlayerEnter += OnChaseStart;
+                _chaseTriggerArea.OnPlayerExit += OnChaseStop;
+
+                UpdateChaseTriggerAreaFromEquipment(stateStorage?.EquippedItemId);
+            }
+        }
+
+        private void HandleEquippedItemChanged(string equippedItemId) =>
+            UpdateChaseTriggerAreaFromEquipment(equippedItemId);
+
+        private void UpdateChaseTriggerAreaFromEquipment(string equippedItemId)
+        {
+            float attackRange = ResolveAttackRange(equippedItemId);
+            chaseStopDistance = Mathf.Max(0.25f, attackRange - CombatRangePadding);
+
+            if (_chaseTriggerArea != null)
+            {
+                float chaseRadius = Mathf.Max(
+                    config.AggressiveChaseRadius,
+                    attackRange + CombatRangePadding
+                );
+                _chaseTriggerArea.Initialize(chaseRadius);
+            }
+        }
+
+        private float ResolveAttackRange(string equippedItemId)
+        {
+            if (string.IsNullOrEmpty(equippedItemId))
+                return config.UnequippedRange;
+
+            WeaponItemData weapon = ServerItemsRegistry.GetWeaponById(equippedItemId);
+            if (weapon != null)
+                return weapon.range;
+
+            return config.UnequippedRange;
         }
 
         private void GameTick(float dt)
@@ -279,6 +326,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void ProcessMovementAlongPath()
         {
+            Vector3 rootPos;
+            if (currentState == AIState.Chasing && currentTarget != null)
+            {
+                rootPos = Flat(transform.root.position);
+                Vector3 targetPos = Flat(currentTarget.transform.position);
+
+                if (Vector3.Distance(rootPos, targetPos) <= chaseStopDistance)
+                {
+                    SendMove(Vector3.zero);
+                    return;
+                }
+            }
+
             if (currentPath == null || currentPathIndex >= currentPath.corners.Length)
             {
                 if (currentState == AIState.Wandering)
@@ -288,10 +348,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            Vector3 rootPos = Flat(transform.root.position);
+            rootPos = Flat(transform.root.position);
             Vector3 waypoint = Flat(currentPath.corners[currentPathIndex]);
 
-            if (Vector3.Distance(rootPos, waypoint) <= config.StoppingDistance)
+            float stoppingDistance =
+                currentState == AIState.Chasing ? chaseStopDistance : config.StoppingDistance;
+
+            if (Vector3.Distance(rootPos, waypoint) <= stoppingDistance)
             {
                 currentPathIndex++;
 

@@ -249,7 +249,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 0
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -380,6 +380,10 @@ PrefabInstance:
     - target: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
       propertyPath: m_Name
       value: LoadingScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
       propertyPath: m_LocalPosition.x

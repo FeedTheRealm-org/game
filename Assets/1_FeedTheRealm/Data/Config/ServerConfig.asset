@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16cbbb4f97f4215ff9829a9e945214d4, type: 3}
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
-  EnvFilePath: /home/sev/Desktop/Facultad/TPF/feed-the-realm-client/.env
+  EnvFilePath: .env
   LoadFromEnvFile: 1
   LoadEnvVars: 1
-  WorldId: 1a88b6d3-7e27-47d3-9690-b9d8299393de
+  WorldId: b90009c5-cc16-4782-9f16-b95024144ae8
   ZoneId: 1
   IsTestWorld: 1
   PersistToDatabase: 0

@@ -15,7 +15,7 @@ namespace FTR.Gameplay.Server.Characters
 
         public virtual void OnDash(IEventCollectable ec, Vector3 direction) { }
 
-        public virtual void OnUse(IEventCollectable ec) { }
+        public virtual void OnUse(IEventCollectable ec, Vector3 direction) { }
 
         public virtual void OnInteract(IEventCollectable ec) { }
 

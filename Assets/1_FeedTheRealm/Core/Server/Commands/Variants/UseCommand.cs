@@ -15,6 +15,6 @@ public class UseCommand : BaseServerCommand
 
     public override void Apply(ICommandable commandable, IEventCollectable eventCollector)
     {
-        commandable.OnUse(eventCollector);
+        commandable.OnUse(eventCollector, direction);
     }
 }

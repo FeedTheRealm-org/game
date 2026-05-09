@@ -31,21 +31,23 @@ namespace FTR.Gameplay.Client.Linkers
                 gameObject.transform
             );
             resolver.InjectGameObject(characterComponents);
+
             var nameController = SetupNameTag(gameObject, characterComponents);
 
             var networkEventRouter = characterComponents.GetComponent<NetworkEventRouter>();
             var movementView = characterComponents.GetComponent<MovementView>();
-            var attackView = characterComponents.GetComponent<AttackView>();
+            var useView = characterComponents.GetComponent<UseView>();
             var dashView = characterComponents.GetComponent<DashView>();
             var staminaView = characterComponents.GetComponent<StaminaView>();
             var healthView = characterComponents.GetComponent<HealthView>();
+            var spriteManager = characterComponents.GetComponentInChildren<SpriteManager>();
 
             var movementController = characterComponents.GetComponent<MovementController>();
             var useController = characterComponents.GetComponent<UseController>();
 
             networkEventRouter.Initialize(networkAdapter);
             movementView.Initialize(rb, stateStorage);
-            attackView.Initialize(networkEventRouter);
+            useView.Initialize(networkEventRouter, stateStorage, spriteManager);
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             staminaView.Initialize(stateStorage);
             healthView?.Initialize(stateStorage);
