@@ -47,6 +47,9 @@ namespace FTR.UI.Shop
         [Inject]
         private NotEnoughGoldEvent notEnoughGoldEvent;
 
+        [Inject]
+        private ISoundPlayer soundPlayer;
+
         private VisualElement _shopRoot;
         private VisualElement _panel;
 
@@ -157,6 +160,8 @@ namespace FTR.UI.Shop
 
             if (!goldTab && _currentGemBalance < 0 && _fetchGemBalanceCoroutine == null)
                 _fetchGemBalanceCoroutine = StartCoroutine(FetchGemBalance());
+
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
 
             RefreshTabStyles();
         }
@@ -269,6 +274,7 @@ namespace FTR.UI.Shop
             _shopRoot.style.display = DisplayStyle.Flex;
             shopToggleEvent?.Raise(true);
             _animationCoroutine = StartCoroutine(AnimateOpen());
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
         }
 
         private void CloseShop()
@@ -276,6 +282,7 @@ namespace FTR.UI.Shop
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
             _animationCoroutine = StartCoroutine(AnimateClose());
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
         }
 
         private IEnumerator AnimateOpen()
@@ -600,6 +607,8 @@ namespace FTR.UI.Shop
                     _currentGemBalance = updatedBalance.gems;
                     UpdateGemBalanceLabel();
                 }
+
+                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Purchase);
 
                 string label = !string.IsNullOrEmpty(displayName) ? displayName : cosmeticId;
                 ShowFeedback($"Purchased {label}!");

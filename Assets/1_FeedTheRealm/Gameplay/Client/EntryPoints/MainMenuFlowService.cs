@@ -13,6 +13,10 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject navBarPrefab;
         readonly GameObject profileMenuPrefab;
         readonly GameObject gemStorePrefab;
+        readonly GameObject musicPlayerPrefab;
+        readonly ClientMusicRegistry musicRegistry;
+
+        private GameObject musicPlayerInstance;
 
         public MainMenuFlowService(
             GameObject loginPrefab,
@@ -21,7 +25,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject worldFeedMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
-            GameObject gemStorePrefab
+            GameObject gemStorePrefab,
+            GameObject musicPlayerPrefab,
+            ClientMusicRegistry musicRegistry
         )
         {
             this.loginPrefab = loginPrefab;
@@ -31,6 +37,52 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
+            this.musicPlayerPrefab = musicPlayerPrefab;
+            this.musicRegistry = musicRegistry;
+        }
+
+        public void InitializeMusicPlayer(MusicType type)
+        {
+            if (MusicPlayer.Instance != null)
+            {
+                Debug.Log("[MainMenuFlowService] MusicPlayer already exists.");
+                return;
+            }
+
+            if (musicPlayerPrefab == null)
+            {
+                Debug.LogWarning("[MainMenuFlowService] MusicPlayer prefab is null!");
+                return;
+            }
+
+            musicPlayerInstance = Object.Instantiate(musicPlayerPrefab);
+            var player = musicPlayerInstance.GetComponent<MusicPlayer>();
+            player?.Initialize(musicRegistry, type);
+        }
+
+        public async UniTask DestroyMusicPlayerAsync(bool fadeOut = true)
+        {
+            if (MusicPlayer.Instance == null)
+            {
+                musicPlayerInstance = null;
+                return;
+            }
+
+            if (fadeOut)
+            {
+                MusicPlayer.Instance.DestroyInstance(fadeOut: true);
+
+                while (MusicPlayer.Instance != null)
+                {
+                    await UniTask.Yield();
+                }
+            }
+            else
+            {
+                MusicPlayer.Instance?.DestroyInstance(fadeOut: false);
+            }
+
+            musicPlayerInstance = null;
         }
 
         public async UniTask ShowAuthFlow(API.AuthService authService, Session.Session session)
@@ -39,17 +91,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             var signUpObj = Object.Instantiate(signUpPrefab);
             var verifyCodeObj = Object.Instantiate(verifyCodePrefab);
 
-            var authFlow = new AuthFlowManager(
-                loginObj,
-                signUpObj,
-                verifyCodeObj,
-                authService,
-                session
-            );
-
+            var authFlow = new AuthFlowManager(loginObj, signUpObj, verifyCodeObj);
             var completionSource = new UniTaskCompletionSource();
             authFlow.OnAuthComplete += () => completionSource.TrySetResult();
-
             authFlow.Initialize();
 
             await completionSource.Task;

@@ -1,6 +1,7 @@
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
 using FTR.Gameplay.Client.Environment.Quest;
+using FTR.Gameplay.Client.Registry;
 using UnityEngine;
 using VContainer;
 
@@ -14,6 +15,9 @@ public class QuestProgressView : MonoBehaviour
     private ClientQuestRegistry clientQuestRegistry;
 
     private NetworkEventRouter eventRouter;
+
+    [Inject]
+    private ISoundPlayer soundPlayer;
 
     [Inject]
     public void Construct(
@@ -76,6 +80,8 @@ public class QuestProgressView : MonoBehaviour
             );
             return;
         }
+
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.QuestComplete);
 
         questCompletedEvent.Raise((questData, content.EffectiveQuestId));
     }

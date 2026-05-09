@@ -102,6 +102,12 @@ public class ClientPlayerLinker : PlayerLinker
             };
             networkAdapter.DispatchTransaction(setUserIdTransaction);
 
+            var soundPlayer = resolver.Resolve<ISoundPlayer>();
+            soundPlayer.Play(
+                Registry.ClientSoundFXRegistry.SoundFXIds.Spawn,
+                gameObject.transform.position
+            );
+
             /* -- Instantiate and inject UI components -- */
 
             prefabProvider.HudComponent.SetActive(false);
@@ -187,7 +193,12 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(chatController);
 
             inventoryController.Initialize(networkAdapter);
-            inventoryView?.Initialize(inventoryState, stateStorage, spriteManager);
+            inventoryView?.Initialize(
+                inventoryState,
+                stateStorage,
+                spriteManager,
+                networkEventRouter
+            );
             goldView?.Initialize(goldState, networkEventRouter);
             goldController?.Initialize(networkAdapter);
             interactController?.Initialize(networkAdapter);

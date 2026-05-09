@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Gameplay.Client.Registry;
@@ -26,6 +27,9 @@ public class InventoryView : MonoBehaviour
     [Inject]
     private API.ItemAssetsService itemsAssetsService;
 
+    [Inject]
+    private ISoundPlayer soundPlayer;
+
     private InventoryStateStorage stateStorage;
     private CharacterStateStorage characterState;
     private SpriteManager spriteManager;
@@ -33,7 +37,8 @@ public class InventoryView : MonoBehaviour
     public void Initialize(
         InventoryStateStorage stateStorage,
         CharacterStateStorage characterState,
-        SpriteManager spriteManager
+        SpriteManager spriteManager,
+        NetworkEventRouter eventRouter
     )
     {
         this.spriteManager = spriteManager;
@@ -44,6 +49,19 @@ public class InventoryView : MonoBehaviour
         stateStorage.OnLastDroppedItemChanged += OnInventoryDropped;
         stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
         characterState.OnEquippedItemChanged += OnEquippedItemChanged;
+        eventRouter.OnShopPurchaseConfirmEvent += OnShopPurchaseConfirm;
+        eventRouter.OnLootedItemConfirmEvent += OnLootedItemConfirm;
+    }
+
+    private void OnLootedItemConfirm()
+    {
+        Debug.Log("InventoryView received lootbag pickup confirm event");
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Pickup);
+    }
+
+    private void OnShopPurchaseConfirm()
+    {
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Purchase);
     }
 
     private void OnDestroy()

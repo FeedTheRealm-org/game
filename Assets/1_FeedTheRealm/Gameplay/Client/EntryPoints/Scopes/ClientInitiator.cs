@@ -9,6 +9,15 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private SceneReference mainScene;
 
+    [SerializeField]
+    private Session.Session session;
+
+    [SerializeField]
+    private Config config;
+
+    [SerializeField]
+    private Logging.Logger logger;
+
     [Header("Auth Prefabs")]
     [SerializeField]
     private GameObject loginPrefab;
@@ -32,17 +41,22 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject gemStorePrefab;
 
+    [Header("Loading Screen")]
     [SerializeField]
-    private Session.Session session;
+    private GameObject loadingScreenPrefab;
+
 
     [SerializeField]
     private API.AuthService authService;
 
     [SerializeField]
     private Config config;
+    
+    [Header("Audio")]
+    private GameObject musicPlayerPrefab;
 
     [SerializeField]
-    private Logging.Logger logger;
+    private ClientMusicRegistry musicRegistry;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -51,6 +65,7 @@ public class ClientInitiator : LifetimeScope
 
         builder.RegisterInstance(session);
         builder.RegisterInstance(authService);
+        builder.RegisterInstance(musicRegistry);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder
             .RegisterEntryPoint<ClientEntryPoint>()
@@ -61,7 +76,10 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("worldFeedMenuPrefab", worldFeedMenuPrefab)
             .WithParameter("navBarPrefab", navBarPrefab)
             .WithParameter("profileMenuPrefab", profileMenuPrefab)
-            .WithParameter("gemStorePrefab", gemStorePrefab);
+            .WithParameter("gemStorePrefab", gemStorePrefab)
+            .WithParameter("musicPlayerPrefab", musicPlayerPrefab)
+            .WithParameter("musicRegistry", musicRegistry)
+            .WithParameter("loadingScreenPrefab", loadingScreenPrefab);
 
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
     }

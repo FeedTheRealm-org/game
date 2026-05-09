@@ -34,5 +34,8 @@ namespace FTR.Core.Client
         [Header("Chat")]
         public GameObject ChatBox;
         public GameObject ChatInput;
+
+        [Header("Music")]
+        public GameObject MusicPlayerPrefab;
     }
 }

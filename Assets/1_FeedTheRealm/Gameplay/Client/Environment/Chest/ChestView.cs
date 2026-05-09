@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EntryPoints;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -22,6 +23,9 @@ namespace FTR.Gameplay.Environment.Chest
 
         [SerializeField]
         private WorldSelector worldSelector;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         private static readonly Dictionary<string, GameObject> modelCache = new();
 
@@ -59,6 +63,10 @@ namespace FTR.Gameplay.Environment.Chest
                 return;
             openChestVisual.SetActive(isOpen);
             closedChestVisual.SetActive(!isOpen);
+            if (isOpen)
+                soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.ChestOpen, transform.position);
+            else
+                soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.ChestClose, transform.position);
         }
 
         private void SetupMesh(GameObject openChestVisual, GameObject closedChestVisual)
