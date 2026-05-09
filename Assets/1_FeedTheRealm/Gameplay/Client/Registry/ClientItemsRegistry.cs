@@ -13,8 +13,10 @@ namespace FTR.Gameplay.Client.Registry
     {
         public static CreatablesData CurrentWorldData { get; private set; }
 
-        private static readonly Dictionary<string, ItemData> itemsById =
-            new Dictionary<string, ItemData>();
+        private static readonly Dictionary<string, WeaponItemData> weaponsById =
+            new Dictionary<string, WeaponItemData>();
+        private static readonly Dictionary<string, ConsumableItemData> consumablesById =
+            new Dictionary<string, ConsumableItemData>();
         private static readonly Dictionary<string, NPCData> npcsById =
             new Dictionary<string, NPCData>();
         private static readonly Dictionary<string, EnemyData> enemiesById =
@@ -25,7 +27,8 @@ namespace FTR.Gameplay.Client.Registry
         {
             CurrentWorldData = data;
 
-            itemsById.Clear();
+            weaponsById.Clear();
+            consumablesById.Clear();
             npcsById.Clear();
             enemiesById.Clear();
             worldItemIds.Clear();
@@ -44,7 +47,7 @@ namespace FTR.Gameplay.Client.Registry
                 {
                     if (consumable != null && !string.IsNullOrEmpty(consumable.id))
                     {
-                        itemsById[consumable.id] = consumable;
+                        consumablesById[consumable.id] = consumable;
                         worldItemIds.Add(consumable.id);
                         registeredItems++;
                     }
@@ -57,7 +60,7 @@ namespace FTR.Gameplay.Client.Registry
                 {
                     if (weapon != null && !string.IsNullOrEmpty(weapon.id))
                     {
-                        itemsById[weapon.id] = weapon;
+                        weaponsById[weapon.id] = weapon;
                         worldItemIds.Add(weapon.id);
                         registeredItems++;
                     }
@@ -93,20 +96,31 @@ namespace FTR.Gameplay.Client.Registry
 
         public static bool IsWorldItem(string id)
         {
-            return !string.IsNullOrEmpty(id) && itemsById.ContainsKey(id);
+            return !string.IsNullOrEmpty(id)
+                && (weaponsById.ContainsKey(id) || consumablesById.ContainsKey(id));
         }
 
         public static ItemData GetItemById(string id)
         {
             if (string.IsNullOrEmpty(id))
                 return null;
-            itemsById.TryGetValue(id, out var item);
-            return item;
+
+            weaponsById.TryGetValue(id, out var weapon);
+            if (weapon != null)
+                return weapon;
+            consumablesById.TryGetValue(id, out var consumable);
+            if (consumable != null)
+                return consumable;
+
+            return null;
         }
 
         public static ConsumableItemData GetConsumableById(string id)
         {
-            return GetItemById(id) as ConsumableItemData;
+            if (string.IsNullOrEmpty(id))
+                return null;
+            consumablesById.TryGetValue(id, out var consumable);
+            return consumable;
         }
 
         public static ConsumableItemData GetConsumableBySpriteId(string spriteId)
@@ -116,7 +130,10 @@ namespace FTR.Gameplay.Client.Registry
 
         public static WeaponItemData GetWeaponById(string id)
         {
-            return GetItemById(id) as WeaponItemData;
+            if (string.IsNullOrEmpty(id))
+                return null;
+            weaponsById.TryGetValue(id, out var weapon);
+            return weapon;
         }
 
         public static EnemyData GetEnemyById(string id)

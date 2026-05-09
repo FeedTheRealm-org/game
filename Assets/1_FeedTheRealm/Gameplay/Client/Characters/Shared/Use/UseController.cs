@@ -7,6 +7,9 @@ public class UseController : MonoBehaviour
     [SerializeField]
     private Logging.Logger logger;
 
+    [SerializeField]
+    private CharacterAnimator animator;
+
     private NetworkAdapter networkAdapter;
 
     private bool isInitialized = false;
@@ -22,8 +25,29 @@ public class UseController : MonoBehaviour
         if (!isInitialized)
             return;
 
-        ActionCommandDTO command = new() { Type = ActionType.Use };
+        ActionCommandDTO command = new() { Type = ActionType.Use, Direction = GetUseDirection() };
 
         networkAdapter.DispatchAction(command);
+    }
+
+    private Vector3 GetUseDirection()
+    {
+        var cam = Camera.main;
+
+        if (cam == null)
+            return Vector3.forward;
+
+        Vector3 dir = animator.CurrentFacing switch
+        {
+            FacingDirection.Left => -cam.transform.right,
+            FacingDirection.Right => cam.transform.right,
+            FacingDirection.Back => cam.transform.forward,
+            FacingDirection.Front => -cam.transform.forward,
+            _ => cam.transform.forward,
+        };
+
+        dir.y = 0f;
+
+        return dir.sqrMagnitude > 0f ? dir.normalized : Vector3.forward;
     }
 }

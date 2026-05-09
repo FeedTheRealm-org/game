@@ -16,6 +16,7 @@ namespace FTR.Core.Client
         public GameObject QuestCompletionPanel;
         public GameObject NameTagPrefab;
         public GameObject PortalVisual;
+        public GameObject RangedTargetIndicator;
 
         [Header("Environment Link Components")]
         public GameObject portalLinkComponents;

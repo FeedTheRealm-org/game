@@ -46,11 +46,14 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         {
             Gizmos.color = Color.green;
 
-            /*logger.Log(
+            logger.Log(
                 $"{other.gameObject.name} entered trigger of {gameObject.name} (ID: {itemId}, ItemID: {itemId})."
-            );*/
+            );
             if (isPickedUp)
+            {
+                logger.Log("AAAAAAAAAAAAA");
                 return;
+            }
 
             var networkIdentity = other.gameObject.GetComponentInParent<NetworkIdentity>();
             if (networkIdentity == null)
@@ -63,7 +66,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             }
 
             uint playerId = networkIdentity.netId;
-            //logger.Log($"[LootItemController] Target PlayerId for PickUpCommand: {playerId}", this);
+            logger.Log($"[LootItemController] Target PlayerId for PickUpCommand: {playerId}", this);
             SendPickupCommand(playerId);
             isPickedUp = true;
         }
@@ -81,6 +84,9 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
         private void AfterPickup(bool success)
         {
+            logger.Log(
+                $"AfterPickup callback for {gameObject.name} (ID: {itemId}), success: {success}, isPickedUp: {isPickedUp}"
+            );
             if (!success)
                 isPickedUp = false;
             else

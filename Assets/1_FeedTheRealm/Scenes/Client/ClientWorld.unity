@@ -249,7 +249,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 0
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -380,6 +380,10 @@ PrefabInstance:
     - target: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
       propertyPath: m_Name
       value: LoadingScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3816214236361432825, guid: f22507bcddabcdcb3b33671656222084, type: 3}
       propertyPath: m_LocalPosition.x
@@ -547,10 +551,6 @@ PrefabInstance:
       propertyPath: loaderProvider
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
-      propertyPath: colliderRegistry
-      value: 
-      objectReference: {fileID: 11400000, guid: deebf1077aab9e9e79437e21d4e3f5a4, type: 2}
     - target: {fileID: 4535736261288449031, guid: 943d4f1d80f6f5c4db30205242091ba1, type: 3}
       propertyPath: clientWorldLoader
       value: 

@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
 
@@ -31,24 +32,14 @@ public class InventoryView : MonoBehaviour
     private ISoundPlayer soundPlayer;
 
     private InventoryStateStorage stateStorage;
-    private CharacterStateStorage characterState;
-    private SpriteManager spriteManager;
 
-    public void Initialize(
-        InventoryStateStorage stateStorage,
-        CharacterStateStorage characterState,
-        SpriteManager spriteManager,
-        NetworkEventRouter eventRouter
-    )
+    public void Initialize(InventoryStateStorage stateStorage, NetworkEventRouter eventRouter)
     {
-        this.spriteManager = spriteManager;
         this.stateStorage = stateStorage;
-        this.characterState = characterState;
         stateStorage.OnLastItemChanged += OnInventoryChanged;
         stateStorage.OnLastSwappedItemChanged += OnInventorySwapped;
         stateStorage.OnLastDroppedItemChanged += OnInventoryDropped;
         stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
-        characterState.OnEquippedItemChanged += OnEquippedItemChanged;
         eventRouter.OnShopPurchaseConfirmEvent += OnShopPurchaseConfirm;
         eventRouter.OnLootedItemConfirmEvent += OnLootedItemConfirm;
     }
@@ -72,10 +63,6 @@ public class InventoryView : MonoBehaviour
             stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
             stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
             stateStorage.OnActiveSlotChanged -= OnActiveSlotChanged;
-        }
-        if (characterState != null)
-        {
-            characterState.OnEquippedItemChanged -= OnEquippedItemChanged;
         }
     }
 
@@ -116,39 +103,5 @@ public class InventoryView : MonoBehaviour
     {
         Debug.Log($"InventoryView active slot changed: {slotIndex}");
         ActiveSlotChangedEvent.Raise(slotIndex);
-    }
-
-    private void OnEquippedItemChanged(string itemId)
-    {
-        _ = ApplyEquippedItemAsync(itemId);
-    }
-
-    private async Task ApplyEquippedItemAsync(string itemId)
-    {
-        if (string.IsNullOrEmpty(itemId))
-        {
-            Debug.Log($"InventoryView equipped item removed");
-            spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
-            return;
-        }
-
-        var itemData = ClientItemsRegistry.GetItemById(itemId);
-        string spriteId =
-            itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
-                ? itemData.spriteFilePath
-                : itemId;
-
-        Debug.Log($"InventoryView applying equipped item: {itemId} with spriteId: {spriteId}");
-        var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
-
-        if (this == null || spriteManager == null)
-        {
-            Debug.Log(
-                $"InventoryView no longer valid after sprite download, aborting apply for {itemId}"
-            );
-            return;
-        }
-
-        spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
     }
 }

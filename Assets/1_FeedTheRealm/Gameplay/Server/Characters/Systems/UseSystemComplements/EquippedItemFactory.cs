@@ -3,6 +3,7 @@ using FTR.Core.Server.Enums;
 using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
 using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies;
 using FTR.Gameplay.Server.Registry;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 
 namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
@@ -57,12 +58,15 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
                         return new Result(null, new BareHandsStrategy());
                     }
                     logger?.Log(
-                        $"[EquippedItemFactory] Weapon '{itemId}': dmg={weaponData.damage} range={weaponData.range} speed={weaponData.attackSpeed}."
+                        $"[EquippedItemFactory] Weapon '{itemId}': type={weaponData.weaponType} dmg={weaponData.damage} range={weaponData.range} speed={weaponData.attackSpeed} ammo={weaponData.ammo} reload={weaponData.reloadSpeed}."
                     );
-                    return new Result(
-                        new WeaponEquipped(weaponData),
-                        new MeleeWeaponStrategy(weaponData)
-                    );
+
+                    IUseStrategy strategy =
+                        weaponData.weaponType == WeaponType.Ranged
+                            ? new RangedWeaponStrategy(weaponData)
+                            : new MeleeWeaponStrategy(weaponData);
+
+                    return new Result(new WeaponEquipped(weaponData), strategy);
 
                 case EquipmentType.Consumable:
                     var consumableData = ServerItemsRegistry.GetConsumableById(itemId);

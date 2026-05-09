@@ -22,6 +22,7 @@ MonoBehaviour:
   QuestCompletionPanel: {fileID: 8504447414605347183, guid: a81b988673b5b191e8120233871c1208, type: 3}
   NameTagPrefab: {fileID: 4901213077827125947, guid: 44d76e247aa5031d090d6ab1d5ba05ec, type: 3}
   PortalVisual: {fileID: 4901213077827125947, guid: 4387c43339d72bff2b4a177dfadc24de, type: 3}
+  RangedTargetIndicator: {fileID: 1418397613159891299, guid: affd547a2d9a99c68b79e5059270061e, type: 3}
   portalLinkComponents: {fileID: 3012644098720053192, guid: 0b34bac23618fcc6cbc242c6d23b5520, type: 3}
   chestLinkComponents: {fileID: 3012644098720053192, guid: 08ca3f7e52205754c9f89429b9b95cfc, type: 3}
   ShopItemVisual: {fileID: 6961499021917701889, guid: 52c0895cf118ac446ad844f6a5cf7e7b, type: 3}
