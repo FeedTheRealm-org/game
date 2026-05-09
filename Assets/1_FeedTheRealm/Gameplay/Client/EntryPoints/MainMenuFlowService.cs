@@ -92,6 +92,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             if (isSuccess)
                 return;
 
+            session.ClearSession();
+
             var loginObj = Object.Instantiate(loginPrefab);
             var signUpObj = Object.Instantiate(signUpPrefab);
             var verifyCodeObj = Object.Instantiate(verifyCodePrefab);
