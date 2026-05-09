@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a9b5f3caeffc93a99f9f1b26ccaf73, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
-  _editorRuntimeRole: 0
+  _editorRuntimeRole: 1
   MaxWorldLoadRetries: 10
   WorldLoadRetryDelayMs: 1000
   _listeningPort: 7777
@@ -30,6 +30,6 @@ MonoBehaviour:
   CurrentServerPort: 7777
   DEBUG_IsDebugWorld: 1
   DEBUG_DoNotLoadWorld: 0
-  DEBUG_WorldId: 9b5fb62a-cfa5-488f-8163-5042f5a091c9
+  DEBUG_WorldId: 1a88b6d3-7e27-47d3-9690-b9d8299393de
   DEBUG_ZoneId: 1
   DEBUG_EnableColliderView: 0
