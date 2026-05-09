@@ -37,8 +37,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 gameTickEvent.OnRaised -= GameTick;
             if (stateStorage != null)
             {
-                stateStorage.OnDeath += HandleDeath;
-                stateStorage.OnRespawn += HandleRespawn;
+                stateStorage.OnDeath -= HandleDeath;
+                stateStorage.OnRespawn -= HandleRespawn;
             }
         }
 
