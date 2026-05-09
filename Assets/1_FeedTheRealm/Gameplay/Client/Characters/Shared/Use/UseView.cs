@@ -23,6 +23,9 @@ public class UseView : MonoBehaviour
     [Inject]
     private API.ItemAssetsService itemsAssetsService;
 
+    [Inject]
+    private ISoundPlayer soundPlayer;
+
     private NetworkEventRouter eventRouter;
     private CharacterStateStorage stateStorage;
     private SpriteManager spriteManager;
@@ -89,6 +92,8 @@ public class UseView : MonoBehaviour
     {
         animator.SetAction(true);
         animator.PlayUse();
+
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Attack, transform.position);
     }
 
     private void LateTick()

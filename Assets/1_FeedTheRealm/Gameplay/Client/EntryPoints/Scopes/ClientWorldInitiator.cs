@@ -73,6 +73,15 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private ColliderRegistry colliderRegistry;
 
+        [SerializeField]
+        private AudioManager audioManager;
+
+        [SerializeField]
+        private ClientSoundFXRegistry soundFXRegistry;
+
+        [SerializeField]
+        private ClientMusicRegistry musicRegistry;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)
@@ -101,6 +110,10 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(assetsService);
             builder.RegisterInstance(itemAssetsService);
             builder.RegisterInstance(colliderRegistry);
+            builder.RegisterInstance(soundFXRegistry);
+            builder.RegisterInstance(musicRegistry);
+            builder.RegisterComponent(audioManager).As<IAudioManager>();
+            builder.Register<SoundPlayer>(Lifetime.Singleton).As<ISoundPlayer>();
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientNpcInfoRepository>(Lifetime.Singleton);
             builder.Register<ClientWorldLoader>(Lifetime.Singleton);
@@ -133,6 +146,10 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(assetsService, "AssetsService");
             ValidateField(zoneService, "ZoneService");
             ValidateField(npcDialogRegistry, "NpcDialogRegistry");
+            ValidateField(colliderRegistry, "ColliderRegistry");
+            ValidateField(audioManager, "AudioManager");
+            ValidateField(soundFXRegistry, "SoundFXRegistry");
+            ValidateField(musicRegistry, "MusicRegistry");
         }
 
         private void ValidateField(object field, string fieldName)

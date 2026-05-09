@@ -18,6 +18,8 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
     public event Action OnInteractFailedEvent;
     public event Action OnInteractCompletedEvent;
+    public event Action OnShopPurchaseConfirmEvent;
+    public event Action OnLootedItemConfirmEvent;
     public event Action<QuestProgressEventContent> OnQuestProgressEvent;
     public event Action<QuestCompletedEventContent> OnQuestCompletedEvent;
 
@@ -75,6 +77,12 @@ public class NetworkEventRouter : MonoBehaviour
                 OnOpenPortalEvent?.Invoke(
                     OpenPortalEventContent.Parser.ParseFrom(serverEvent.content)
                 );
+                break;
+            case ServerEventType.ShopPurchaseConfirmEvent:
+                OnShopPurchaseConfirmEvent?.Invoke();
+                break;
+            case ServerEventType.LootbagPickedUpEvent:
+                OnLootedItemConfirmEvent?.Invoke();
                 break;
             case ServerEventType.NotEnoughGoldEvent:
                 OnNotEnoughGoldEvent?.Invoke(

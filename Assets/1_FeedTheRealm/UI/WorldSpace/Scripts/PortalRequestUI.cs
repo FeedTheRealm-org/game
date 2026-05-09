@@ -34,6 +34,9 @@ namespace FTR.UI.WorldSpace
         private Label portalNameLabel;
         private Button acceptButton;
         private Button declineButton;
+        private OpenPortalUiContent currentContent;
+        private Action acceptClickedHandler;
+        private Action declineClickedHandler;
 
         private void Awake()
         {
@@ -53,8 +56,12 @@ namespace FTR.UI.WorldSpace
         private void OnDisable()
         {
             openPortalEvent.OnRaised -= HandleOpenPortalRequest;
-            acceptButton.clicked -= () => HandleButtonClicked(null);
-            declineButton.clicked -= () => HandleButtonClicked(null);
+
+            if (acceptClickedHandler != null)
+                acceptButton.clicked -= acceptClickedHandler;
+
+            if (declineClickedHandler != null)
+                declineButton.clicked -= declineClickedHandler;
         }
 
         private void HandleOpenPortalRequest(OpenPortalUiContent content)
@@ -68,15 +75,25 @@ namespace FTR.UI.WorldSpace
             portalNameLabel.text = content.PortalName;
             root.style.display = DisplayStyle.Flex;
             isOpen = true;
+            currentContent = content;
 
-            acceptButton.clicked += () => HandleButtonClicked(content);
-            declineButton.clicked += () => HandleButtonClicked(content, false);
+            if (acceptClickedHandler != null)
+                acceptButton.clicked -= acceptClickedHandler;
+            if (declineClickedHandler != null)
+                declineButton.clicked -= declineClickedHandler;
+
+            acceptClickedHandler = () => HandleButtonClicked(currentContent);
+            declineClickedHandler = () => HandleButtonClicked(currentContent, false);
+
+            acceptButton.clicked += acceptClickedHandler;
+            declineButton.clicked += declineClickedHandler;
         }
 
         private void HandleButtonClicked(OpenPortalUiContent content, bool isAccept = true)
         {
             root.style.display = DisplayStyle.None;
             destinationLabel.text = string.Empty;
+            currentContent = null;
 
             if (isAccept)
                 content.OnAccept?.Invoke();

@@ -125,6 +125,8 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::AttackView
   animator: {fileID: 1507848899257751022}
+  attackSoundDelay: 0.3
+  attackSoundVolume: 1
 --- !u!114 &8113882516953622363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,6 +165,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
   animator: {fileID: 1507848899257751022}
+  hitSoundDelay: 0.25
+  hitSoundVolume: 1
+  isMaxHealthInitialized: 0
 --- !u!114 &2992336374001346032
 MonoBehaviour:
   m_ObjectHideFlags: 0
