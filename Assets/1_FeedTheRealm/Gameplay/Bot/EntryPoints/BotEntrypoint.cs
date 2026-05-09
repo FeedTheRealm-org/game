@@ -2,6 +2,7 @@ using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Bot.Config;
 using FTR.Core.Common.Config;
+using Session;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
@@ -16,6 +17,7 @@ namespace FTR.Gameplay.Bot.EntryPoints
         private readonly BotConfig botConfig;
         private readonly WorldService worldService;
         private readonly AuthService authService;
+        private readonly Session.Session session;
 
         public BotEntryPoint(
             SceneReference mainScene,
@@ -23,7 +25,8 @@ namespace FTR.Gameplay.Bot.EntryPoints
             Config config,
             BotConfig botConfig,
             WorldService worldService,
-            AuthService authService
+            AuthService authService,
+            Session.Session session
         )
         {
             this.mainScene = mainScene;
@@ -32,6 +35,7 @@ namespace FTR.Gameplay.Bot.EntryPoints
             this.botConfig = botConfig;
             this.worldService = worldService;
             this.authService = authService;
+            this.session = session;
         }
 
         public async void Start()
@@ -41,10 +45,10 @@ namespace FTR.Gameplay.Bot.EntryPoints
 
             try
             {
+                session.AccessToken = botConfig.AdminToken;
                 var (ip, port, err, _) = await worldService.GetZoneAddress(
                     botConfig.WorldId,
-                    botConfig.ZoneId,
-                    botConfig.AdminToken
+                    botConfig.ZoneId
                 );
                 if (!string.IsNullOrEmpty(err))
                     throw new System.Exception($"Failed to get zone address: {err}");
