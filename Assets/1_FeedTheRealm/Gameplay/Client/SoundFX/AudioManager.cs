@@ -66,10 +66,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
             var go = new GameObject($"PooledAudioSource_{i}");
             go.transform.SetParent(transform);
             var source = go.AddComponent<AudioSource>();
-            source.playOnAwake = false;
-            source.spatialBlend = 1f;
-            source.maxDistance = maxAudibleDistance;
-            source.rolloffMode = AudioRolloffMode.Linear;
+            ResetSourceState(source);
             go.SetActive(false);
             pool.Enqueue(source);
         }
@@ -181,6 +178,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
         if (source == null)
             return;
 
+        ResetSourceState(source);
         source.gameObject.SetActive(true);
         source.transform.position = position;
         source.priority = (int)priority;
@@ -247,7 +245,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
             StopCoroutine(victim.ReturnCoroutine);
 
         victim.Source.Stop();
-        victim.Source.clip = null;
+        ResetSourceState(victim.Source);
         victim.Source.gameObject.SetActive(false);
 
         activeSounds.Remove(victim);
@@ -259,13 +257,29 @@ public class AudioManager : MonoBehaviour, IAudioManager
         yield return new WaitForSeconds(clipLength);
 
         activeSound.Source.Stop();
-        activeSound.Source.clip = null;
-        activeSound.Source.volume = 1f;
-        activeSound.Source.spatialBlend = 1f;
-        activeSound.Source.maxDistance = maxAudibleDistance;
+        ResetSourceState(activeSound.Source);
         activeSound.Source.gameObject.SetActive(false);
 
         activeSounds.Remove(activeSound);
         pool.Enqueue(activeSound.Source);
+    }
+
+    private void ResetSourceState(AudioSource source)
+    {
+        source.playOnAwake = false;
+        source.clip = null;
+        source.volume = 1f;
+        source.pitch = 1f;
+        source.panStereo = 0f;
+        source.spatialBlend = 1f;
+        source.maxDistance = maxAudibleDistance;
+        source.rolloffMode = AudioRolloffMode.Linear;
+        source.dopplerLevel = 0f;
+        source.spread = 0f;
+        source.reverbZoneMix = 1f;
+        source.bypassEffects = false;
+        source.bypassListenerEffects = false;
+        source.bypassReverbZones = false;
+        source.loop = false;
     }
 }
