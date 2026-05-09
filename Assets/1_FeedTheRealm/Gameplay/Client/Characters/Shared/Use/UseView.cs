@@ -57,12 +57,12 @@ public class UseView : MonoBehaviour
 
     public void SetRangedTargetIndicator(GameObject rangedTargetIndicatorPrefab)
     {
-        rangedTargetIndicatorPrefab.SetActive(false);
         this.cameraPivot = transform
             .Find("CharacterBody")
             ?.transform.Find("CenterMarker")
             ?.transform;
         this.rangedTargetIndicator = resolver.Instantiate(rangedTargetIndicatorPrefab, cameraPivot);
+        this.rangedTargetIndicator.SetActive(false);
         this.rangedTargetIndicatorRenderer =
             this.rangedTargetIndicator.GetComponentInChildren<SpriteRenderer>();
     }
@@ -141,16 +141,12 @@ public class UseView : MonoBehaviour
                 ? itemData.spriteFilePath
                 : itemId;
 
-        Debug.Log($"InventoryView applying equipped item: {itemId} with spriteId: {spriteId}");
         var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
         if (sequenceAtCall != equipmentChangeSequence)
             return; // Used to prevent race conditions when fast switching items
 
         if (this == null || spriteManager == null)
         {
-            Debug.Log(
-                $"InventoryView no longer valid after sprite download, aborting apply for {itemId}"
-            );
             return;
         }
 
