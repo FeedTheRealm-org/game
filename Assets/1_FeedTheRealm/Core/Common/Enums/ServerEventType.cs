@@ -18,4 +18,6 @@ public enum ServerEventType
     QuestProgressEvent,
     QuestCompletedEvent,
     ChatMessageBroadcastEvent,
+    ShopPurchaseConfirmEvent,
+    LootbagPickedUpEvent,
 }

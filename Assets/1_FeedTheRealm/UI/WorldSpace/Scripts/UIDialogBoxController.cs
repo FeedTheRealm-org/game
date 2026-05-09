@@ -1,5 +1,6 @@
 using FTR.Core.Common.Characters;
 using FTR.Core.Common.EventChannels;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -24,6 +25,9 @@ namespace FTR.UI.WorldSpace
 
         [Inject]
         private NpcDialogToggledEvent npcDialogToggledEvent;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         private VisualElement _root;
         private Label _msgLabel;
@@ -116,6 +120,7 @@ namespace FTR.UI.WorldSpace
 
             _msgLabel.text = data.message.content;
             _senderLabel.text = SenderPrefix + data.message.sender;
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Dialog);
         }
 
         private void HandleToggleDialog((bool isOpen, string npcId) data)
@@ -124,6 +129,7 @@ namespace FTR.UI.WorldSpace
                 return;
 
             _root.style.display = data.isOpen ? DisplayStyle.Flex : DisplayStyle.None;
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Dialog);
         }
 
         private bool IsMyNpc(string npcId)

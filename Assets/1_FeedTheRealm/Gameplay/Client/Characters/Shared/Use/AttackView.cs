@@ -1,6 +1,8 @@
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Registry;
 using UnityEngine;
+using VContainer;
 
 public class AttackView : MonoBehaviour
 {
@@ -8,6 +10,9 @@ public class AttackView : MonoBehaviour
     private CharacterAnimator animator;
 
     private NetworkEventRouter eventRouter;
+
+    [Inject]
+    private ISoundPlayer soundPlayer;
 
     public void Initialize(NetworkEventRouter eventRouter)
     {
@@ -25,5 +30,7 @@ public class AttackView : MonoBehaviour
     {
         animator.SetAction(true);
         animator.PlayAttack();
+
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Attack, transform.position);
     }
 }

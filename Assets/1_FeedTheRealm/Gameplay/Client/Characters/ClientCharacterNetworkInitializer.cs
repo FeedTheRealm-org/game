@@ -1,5 +1,6 @@
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints.Scopes;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Linkers;
 using Mirror;
 using UnityEngine;

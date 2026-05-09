@@ -1,6 +1,6 @@
 using System.Collections;
-using FTR.Core.Client.Config;
 using FTR.Core.Common.Characters;
+using FTR.Core.Common.Config;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -11,7 +11,7 @@ namespace FTR.UI.WorldSpace
     public class WorldHealthBarUI : MonoBehaviour
     {
         [Inject]
-        private ClientConfig config;
+        private Config config;
 
         [SerializeField]
         private Logging.Logger logger;
@@ -19,6 +19,11 @@ namespace FTR.UI.WorldSpace
         private VisualElement _root;
         private ProgressBar _healthBar;
         private ICharacterHealthSource _healthSource;
+        private HealthView _healthView;
+
+        private float _maxHealth;
+        private bool _maxHealthInitialized = false;
+        private float _pendingHealthValue = -1f;
 
         private void Start()
         {
@@ -48,18 +53,64 @@ namespace FTR.UI.WorldSpace
                 return;
             }
 
+            _healthView = GetComponentInParent<HealthView>();
+            if (_healthView == null)
+                _healthView = GetComponent<HealthView>();
+
+            if (_healthView != null)
+            {
+                if (_healthView.isMaxHealthInitialized)
+                {
+                    InitMaxHealth(_healthView.MaxHealth);
+                }
+                else
+                {
+                    _healthView.OnMaxHealthInitialized += OnMaxHealthReady;
+                }
+            }
+            else
+            {
+                logger.Log(
+                    $"[WorldHealthBarUI][{gameObject.name}] HealthView not found, using config.playerMaxHealth",
+                    this,
+                    Logging.LogType.Warning
+                );
+                InitMaxHealth(config.playerMaxHealth);
+            }
+
             _healthSource.OnHealthChanged += OnHealthChanged;
 
-            // Initialise bar with current synced value, then hide until health drops.
-            _healthBar.value = _healthBar.highValue;
             _root.style.display = DisplayStyle.None;
-            OnHealthChanged(_healthSource.Health);
         }
 
         private void OnDestroy()
         {
             if (_healthSource != null)
                 _healthSource.OnHealthChanged -= OnHealthChanged;
+
+            if (_healthView != null)
+                _healthView.OnMaxHealthInitialized -= OnMaxHealthReady;
+        }
+
+        private void OnMaxHealthReady(float maxHealth)
+        {
+            InitMaxHealth(maxHealth);
+        }
+
+        private void InitMaxHealth(float maxHealth)
+        {
+            _maxHealth = maxHealth;
+            _maxHealthInitialized = true;
+
+            if (_pendingHealthValue >= 0)
+            {
+                UpdateBar(_pendingHealthValue);
+                _pendingHealthValue = -1f;
+            }
+            else
+            {
+                UpdateBar(_healthSource.Health);
+            }
         }
 
         private void OnHealthChanged(float currentHealth)
@@ -67,16 +118,27 @@ namespace FTR.UI.WorldSpace
             if (_healthBar == null)
                 return;
 
+            if (!_maxHealthInitialized)
+            {
+                _pendingHealthValue = currentHealth;
+                return;
+            }
+
             StartCoroutine(UpdateHealthAfterDelay(currentHealth));
         }
 
         private IEnumerator UpdateHealthAfterDelay(float currentHealth)
         {
-            if (currentHealth < config.MaxHealth)
-                yield return new WaitForSeconds(config.HealthUpdateDelay); // Delay for better animation timing
+            if (currentHealth < _maxHealth)
+                yield return new WaitForSeconds(config.HealthUpdateDelay);
 
+            UpdateBar(currentHealth);
+        }
+
+        private void UpdateBar(float currentHealth)
+        {
             _healthBar.value =
-                config.MaxHealth > 0 ? currentHealth / config.MaxHealth * _healthBar.highValue : 0;
+                _maxHealth > 0 ? currentHealth / _maxHealth * _healthBar.highValue : 0;
 
             if (_healthBar.value < 0)
                 _healthBar.value = 0;
