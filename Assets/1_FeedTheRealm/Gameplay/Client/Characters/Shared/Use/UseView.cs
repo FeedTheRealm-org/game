@@ -81,7 +81,8 @@ public class UseView : MonoBehaviour
     {
         if (!isInitialized)
             return;
-        ApplyEquippedItemAsync(newItemId, equipmentChangeSequence).Forget();
+        var seq = ++equipmentChangeSequence;
+        ApplyEquippedItemAsync(newItemId, seq).Forget();
     }
 
     private void OnAttackEvent(AttackEventContent attackEvent)
@@ -180,7 +181,6 @@ public class UseView : MonoBehaviour
                 break;
         }
         animator.SetEquipment(weaponData.weaponType, weaponData.subWeaponType);
-        equipmentChangeSequence++;
     }
 
     private void UpdateIndicatorRange(float range)
