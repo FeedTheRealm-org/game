@@ -57,12 +57,12 @@ public class UseView : MonoBehaviour
 
     public void SetRangedTargetIndicator(GameObject rangedTargetIndicatorPrefab)
     {
-        rangedTargetIndicatorPrefab.SetActive(false);
         this.cameraPivot = transform
             .Find("CharacterBody")
             ?.transform.Find("CenterMarker")
             ?.transform;
         this.rangedTargetIndicator = resolver.Instantiate(rangedTargetIndicatorPrefab, cameraPivot);
+        this.rangedTargetIndicator.SetActive(false);
         this.rangedTargetIndicatorRenderer =
             this.rangedTargetIndicator.GetComponentInChildren<SpriteRenderer>();
     }
