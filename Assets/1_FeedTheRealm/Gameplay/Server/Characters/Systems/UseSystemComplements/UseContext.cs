@@ -19,6 +19,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
         private readonly Func<LayerMask> _targetLayerProvider;
         public Vector3 HitPoint => _hitPointProvider();
         public LayerMask TargetLayer => _targetLayerProvider();
+        public Vector3 Direction { get; set; }
         public readonly ServerConfig Config;
         public readonly MovementSystem Movement;
         public readonly HealthSystem Health;

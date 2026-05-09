@@ -1,3 +1,5 @@
+using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Core.Server.Events;
 using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
 using FTR.Gameplay.Server.Utils.UseEquipment;
 using FTRShared.Runtime.Models;
@@ -28,6 +30,9 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
         {
             ExecuteConsumable(ctx);
             ctx.Inventory?.ConsumeItem(_data.id);
+            ctx.World?.Events.Enqueue(
+                new AttackEvent(ctx.NetId, new AttackEventContent { AttackType = 1 })
+            ); // TODO(chore): rename attack event to use event
         }
 
         protected virtual bool CheckConsumableCooldown(

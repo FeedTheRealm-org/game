@@ -91,9 +91,9 @@ namespace FTR.Gameplay.Server.Characters
             dashSystem.OnDash(ec, direction);
         }
 
-        public override void OnUse(IEventCollectable ec)
+        public override void OnUse(IEventCollectable ec, Vector3 direction)
         {
-            useSystem.OnUse(ec);
+            useSystem.OnUse(ec, direction);
         }
 
         public override void OnInteract(IEventCollectable ec)
