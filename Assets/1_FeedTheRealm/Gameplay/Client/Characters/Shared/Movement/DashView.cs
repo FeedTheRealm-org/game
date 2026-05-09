@@ -1,12 +1,17 @@
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using VContainer;
 
 public class DashView : MonoBehaviour
 {
     [SerializeField]
     private CharacterAnimator animator;
+
+    [Inject]
+    private ISoundPlayer soundPlayer;
 
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
@@ -37,6 +42,7 @@ public class DashView : MonoBehaviour
 
         stateStorage.IsMovementBlocked = true;
         ApplyDashing(force);
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Dash, transform.position);
         await UniTask.Delay(duration);
         StopDash();
         stateStorage.IsMovementBlocked = false;

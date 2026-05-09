@@ -124,6 +124,8 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::AttackView
   animator: {fileID: 1507848899257751022}
+  attackSoundDelay: 0.3
+  attackSoundVolume: 1
 --- !u!114 &8113882516953622363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,6 +164,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
   animator: {fileID: 1507848899257751022}
+  hitSoundDelay: 0.25
+  hitSoundVolume: 1
+  isMaxHealthInitialized: 0
 --- !u!114 &2992336374001346032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,8 +179,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2f564c88b7f121bb8262fdf2f1f0681, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::FTR.Gameplay.Client.Characters.Shared.Portal.PortalView
-  openPortalUiEvent: {fileID: 11400000, guid: 32c09063fadc3b10a8e17921710b7b63, type: 2}
-  loadingEvent: {fileID: 11400000, guid: 1cec1a897e68dcf23a55c68b44607013, type: 2}
   worldSelector: {fileID: 11400000, guid: faed404c8f2d5282c8f1b73ca17c2f00, type: 2}
   worldScene:
     sceneName: ClientWorld

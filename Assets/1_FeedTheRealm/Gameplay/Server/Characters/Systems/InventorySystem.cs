@@ -37,6 +37,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
         private InventoryStateStorage inventoryState;
         private CharacterStateStorage characterState;
+        private WorldMonitor world;
         private UseSystem useSystem;
 
         private int activeSlot = 0;
@@ -51,12 +52,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void Initialize(
             uint netId,
             InventoryStateStorage inventoryState,
-            CharacterStateStorage characterState
+            CharacterStateStorage characterState,
+            WorldMonitor world
         )
         {
             this.netId = netId;
             this.inventoryState = inventoryState;
             this.characterState = characterState;
+            this.world = world;
             SubscribeToQuestReward();
             useSystem = transform.root.GetComponentInChildren<UseSystem>();
         }
@@ -91,7 +94,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             bool added = AddItemToInventory(itemId);
             if (added)
+            {
                 logger.Log($"Picked up item {itemId} for player {netId}", this);
+                var connId = GetPlayerConnectionId(netId);
+                world.Events.Enqueue(new LootbagPickedUpEvent(netId, connId.Value));
+            }
             else
                 logger.Log($"Inventory full, cannot pick up item {itemId}", this);
 
@@ -124,7 +131,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             AddItemToInventory(itemId, amount);
-
+            var connId = GetPlayerConnectionId(netId);
+            world.Events.Enqueue(new ShopPurchaseConfirmEvent(netId, connId.Value));
             logger.Log(
                 $"[InventorySystem] Purchased item {itemId} x{amount} added to inventory for Player:{netId}",
                 this
@@ -416,6 +424,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     useSystem?.EquipItem((string.Empty, activeSlot));
                 }
             }
+        }
+
+        private int? GetPlayerConnectionId(uint playerNetId)
+        {
+            if (world.Entities.TryGet(playerNetId, out var entity) && entity.ConnectionId.HasValue)
+                return entity.ConnectionId.Value;
+
+            return null;
         }
     }
 }

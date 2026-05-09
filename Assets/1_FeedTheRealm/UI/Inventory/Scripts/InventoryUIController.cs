@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -41,6 +42,9 @@ namespace FTR.UI.Inventory
 
         [Inject]
         private ShopToggleEvent shopToggleEvent;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         [SerializeField]
         private PlayerInputReader inputReader;
@@ -172,6 +176,10 @@ namespace FTR.UI.Inventory
             inventoryToggleEvent?.Raise(show);
             UnityEngine.Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
             UnityEngine.Cursor.visible = show;
+            if (show)
+                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
+            else
+                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
         }
 
         private void OnInventorySlotClicked(int i) => HandleSlotClick(StorageType.Inventory, i);
@@ -268,6 +276,11 @@ namespace FTR.UI.Inventory
             );
             TrackSlotItem(Slots(data.srcT), data.srcI, data.tgtId);
             TrackSlotItem(Slots(data.tgtT), data.tgtI, data.srcId);
+
+            if (!string.IsNullOrEmpty(data.srcId) || !string.IsNullOrEmpty(data.tgtId))
+            {
+                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.ChangeItem);
+            }
         }
 
         private void TrackSlotItem(List<VisualElement> slots, int index, string itemId)

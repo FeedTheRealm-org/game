@@ -1,5 +1,6 @@
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
+using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
 using VContainer;
@@ -11,6 +12,9 @@ public class MovementView : MonoBehaviour
 
     [Inject]
     private FixedTickEvent fixedTickEvent;
+
+    [Inject]
+    private ISoundPlayer soundPlayer;
 
     // Injected at Initialize
     private Rigidbody rb;
@@ -24,8 +28,18 @@ public class MovementView : MonoBehaviour
     private Vector3 positionCorrectionTarget;
 
     private Vector3 currentDirection = Vector3.zero;
-
     private bool isDead = false;
+
+    [Header("Footstep Settings")]
+    [SerializeField]
+    private float footstepInterval = 0.35f;
+
+    [SerializeField]
+    private bool repeatFootsteps = true;
+
+    private float footstepTimer = 0f;
+    private bool isMoving = false;
+    private bool hasPlayedSingleFootstep = false;
 
     public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
     {
@@ -45,6 +59,7 @@ public class MovementView : MonoBehaviour
     {
         isDead = true;
         currentDirection = Vector3.zero;
+        isMoving = false;
         animator.SetMoving(false);
         animator.SetDashing(false);
     }
@@ -52,6 +67,7 @@ public class MovementView : MonoBehaviour
     private void HandleRespawn()
     {
         isDead = false;
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Spawn, transform.position);
     }
 
     // TODO: review if we need to unsubscribe from events on disable/destroy,
@@ -95,12 +111,47 @@ public class MovementView : MonoBehaviour
             Vector3 newPosition = rb.position + currentDirection * Time.fixedDeltaTime;
             rb.MovePosition(newPosition);
         }
+
+        UpdateFootsteps();
     }
 
     /// <summary>
     /// OnVelocityChanged receives the authoritative velocity from the server.
     /// This is what actually moves the character.
     /// </summary>
+    private void UpdateFootsteps()
+    {
+        if (!isMoving)
+        {
+            footstepTimer = 0f;
+            hasPlayedSingleFootstep = false;
+            return;
+        }
+
+        if (!repeatFootsteps)
+        {
+            if (!hasPlayedSingleFootstep)
+            {
+                PlayFootstepSound();
+                hasPlayedSingleFootstep = true;
+            }
+            return;
+        }
+
+        footstepTimer += Time.fixedDeltaTime;
+
+        if (footstepTimer >= footstepInterval)
+        {
+            PlayFootstepSound();
+            footstepTimer = 0f;
+        }
+    }
+
+    private void PlayFootstepSound()
+    {
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Walking, transform.position);
+    }
+
     private void OnDirectionChanged(Vector3 direction)
     {
         UpdateFacingDirection(direction);
@@ -172,9 +223,12 @@ public class MovementView : MonoBehaviour
 
     private void AnimateMovement(Vector3 velocity)
     {
-        if (velocity.sqrMagnitude > Vector3.zero.sqrMagnitude)
+        bool wasMoving = isMoving;
+        isMoving = velocity.sqrMagnitude > Vector3.zero.sqrMagnitude;
+
+        if (isMoving)
         {
-            if (!animator.IsMoving())
+            if (!wasMoving)
             {
                 animator.SetMoving(true);
                 animator.SetDashing(false);
@@ -182,8 +236,11 @@ public class MovementView : MonoBehaviour
         }
         else
         {
-            animator.SetMoving(false);
-            animator.SetDashing(false);
+            if (wasMoving)
+            {
+                animator.SetMoving(false);
+                animator.SetDashing(false);
+            }
         }
     }
 }
