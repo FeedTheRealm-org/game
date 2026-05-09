@@ -45,13 +45,9 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject loadingScreenPrefab;
 
-
     [SerializeField]
     private API.AuthService authService;
 
-    [SerializeField]
-    private Config config;
-    
     [Header("Audio")]
     private GameObject musicPlayerPrefab;
 

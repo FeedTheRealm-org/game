@@ -87,6 +87,11 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public async UniTask ShowAuthFlow(API.AuthService authService, Session.Session session)
         {
+            await session.EnsureValidSession();
+            (bool isSuccess, string error) = await authService.IsLogged();
+            if (isSuccess)
+                return;
+
             var loginObj = Object.Instantiate(loginPrefab);
             var signUpObj = Object.Instantiate(signUpPrefab);
             var verifyCodeObj = Object.Instantiate(verifyCodePrefab);

@@ -74,9 +74,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             ConfigureUnityForClient();
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
-            await flowService.ShowAuthFlow();
             await flowService.ShowMainMenuFlow();
-            
+
             GameObject loadingScreenInstance = SetupLoadingScreen();
 
             await flowService.DestroyMusicPlayerAsync(fadeOut: true);
