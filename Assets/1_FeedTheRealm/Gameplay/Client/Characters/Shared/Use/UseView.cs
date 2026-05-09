@@ -140,16 +140,12 @@ public class UseView : MonoBehaviour
                 ? itemData.spriteFilePath
                 : itemId;
 
-        Debug.Log($"InventoryView applying equipped item: {itemId} with spriteId: {spriteId}");
         var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
         if (sequenceAtCall != equipmentChangeSequence)
             return; // Used to prevent race conditions when fast switching items
 
         if (this == null || spriteManager == null)
         {
-            Debug.Log(
-                $"InventoryView no longer valid after sprite download, aborting apply for {itemId}"
-            );
             return;
         }
 
