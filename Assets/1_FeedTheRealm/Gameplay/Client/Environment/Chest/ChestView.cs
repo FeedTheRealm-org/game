@@ -38,8 +38,7 @@ namespace FTR.Gameplay.Environment.Chest
             this.chestStateStorage = chestStateStorage;
 
             Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(
-                worldSelector.GetSelectedWorldId(),
-                session.APIToken
+                worldSelector.GetSelectedWorldId()
             );
 
             var chestData = chestStateStorage.ChestData;

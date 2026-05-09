@@ -44,10 +44,7 @@ namespace FTR.Gameplay.Client.Loaders
 
         public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
-            Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(
-                worldId,
-                GetSessionToken()
-            );
+            Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(worldId);
 
             ClientShopRegistry.RegisterWorldData(creatablesData);
 
@@ -105,7 +102,7 @@ namespace FTR.Gameplay.Client.Loaders
 
         private string GetSessionToken()
         {
-            return session.APIToken;
+            return session.AccessToken;
         }
     }
 }

@@ -187,7 +187,7 @@ namespace FTR.UI.Shop
             if (_gemBalanceLabel != null)
                 _gemBalanceLabel.text = "…";
 
-            var task = paymentService.GetGemBalance(session.APIToken);
+            var task = paymentService.GetGemBalance();
             yield return new WaitUntil(() => task.IsCompleted);
 
             var (success, _, balance) = task.Result;
@@ -595,7 +595,7 @@ namespace FTR.UI.Shop
 
         private IEnumerator ProcessGemPurchase(string cosmeticId, string displayName)
         {
-            var task = paymentService.PurchaseWithGems(cosmeticId, session.APIToken);
+            var task = paymentService.PurchaseWithGems(cosmeticId);
             yield return new WaitUntil(() => task.IsCompleted);
 
             var (success, message, updatedBalance) = task.Result;

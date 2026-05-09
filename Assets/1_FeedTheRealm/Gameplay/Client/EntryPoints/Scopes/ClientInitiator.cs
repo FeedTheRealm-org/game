@@ -45,8 +45,10 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject loadingScreenPrefab;
 
-    [Header("Audio")]
     [SerializeField]
+    private API.AuthService authService;
+
+    [Header("Audio")]
     private GameObject musicPlayerPrefab;
 
     [SerializeField]
@@ -58,6 +60,7 @@ public class ClientInitiator : LifetimeScope
             throw new System.InvalidOperationException("Invalid runtime role for ClientInitiator");
 
         builder.RegisterInstance(session);
+        builder.RegisterInstance(authService);
         builder.RegisterInstance(musicRegistry);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder

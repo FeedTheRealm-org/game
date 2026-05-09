@@ -71,7 +71,7 @@ namespace FTR.Gameplay.Client.Loaders
 
         public override string GetAccessToken()
         {
-            return session.APIToken;
+            return session.AccessToken;
         }
 
         public override int GetZoneId()

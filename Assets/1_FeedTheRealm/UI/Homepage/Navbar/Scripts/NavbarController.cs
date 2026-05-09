@@ -149,7 +149,7 @@ namespace FTR.UI.Homepage.Navbar
                 profileMenuInstance.GetComponentInChildren<CharacterEditController>();
             if (characterEditorController != null)
             {
-                var playerId = session?.UserId?.Trim() ?? string.Empty;
+                var playerId = session?.UserID?.Trim() ?? string.Empty;
                 if (string.IsNullOrEmpty(playerId))
                 {
                     logger.Log(

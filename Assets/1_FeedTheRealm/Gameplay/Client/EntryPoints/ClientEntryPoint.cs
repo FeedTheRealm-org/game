@@ -12,6 +12,8 @@ namespace FTR.Gameplay.Client.EntryPoints
     public class ClientEntryPoint : IStartable
     {
         private readonly SceneReference mainScene;
+        public readonly Session.Session session;
+        public readonly API.AuthService authService;
         private readonly GameObject loginPrefab;
         private readonly GameObject signUpPrefab;
         private readonly GameObject verifyCodePrefab;
@@ -26,6 +28,8 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public ClientEntryPoint(
             SceneReference mainScene,
+            Session.Session session,
+            API.AuthService authService,
             GameObject loginPrefab,
             GameObject signUpPrefab,
             GameObject verifyCodePrefab,
@@ -39,6 +43,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         )
         {
             this.mainScene = mainScene;
+            this.session = session;
+            this.authService = authService;
             this.loginPrefab = loginPrefab;
             this.signUpPrefab = signUpPrefab;
             this.verifyCodePrefab = verifyCodePrefab;
@@ -69,8 +75,9 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
 
-            await flowService.ShowAuthFlow();
+            await flowService.ShowAuthFlow(authService, session);
             await flowService.ShowMainMenuFlow();
+
             GameObject loadingScreenInstance = SetupLoadingScreen();
 
             await flowService.DestroyMusicPlayerAsync(fadeOut: true);
