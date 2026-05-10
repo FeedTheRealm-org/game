@@ -17,7 +17,6 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
                 EffectType.Heal => new HealConsumableStrategy(data),
                 EffectType.Speed => new BuffSpeedConsumableStrategy(data),
                 EffectType.Damage => new BuffDamageConsumableStrategy(data),
-                EffectType.Debuff => new NoOpConsumableStrategy(data),
                 EffectType.None => new NoOpConsumableStrategy(data),
                 _ => new NoOpConsumableStrategy(data),
             };
