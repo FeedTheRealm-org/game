@@ -34,6 +34,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt)
         {
+            // TODO(optimization): consider skipping a few frames after being grounded to avoid doing expensive checks every frame.
+            if (!stateStorage.IsGroundCheckEnabled)
+                return;
             Bounds bounds = col.bounds;
             groundCheckSphereOrigin = new Vector3(
                 bounds.center.x,

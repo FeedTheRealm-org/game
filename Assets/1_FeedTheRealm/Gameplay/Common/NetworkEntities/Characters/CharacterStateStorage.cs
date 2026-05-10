@@ -44,6 +44,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public string EquippedItemId => equippedItemId;
         public bool IsOnSlope { get; set; }
         public Vector3 GroundNormal { get; set; }
+        public bool IsGroundCheckEnabled { get; set; } = true;
 
         /* --- Events --- */
 

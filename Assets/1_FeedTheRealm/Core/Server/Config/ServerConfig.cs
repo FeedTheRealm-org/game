@@ -131,6 +131,9 @@ namespace FTR.Core.Server.Config
         public float AutoAttackDelay = 0.3f;
         public float RangedWeaponRaySpacing = 1f;
 
+        [Header("Loot Item")]
+        public float GroundCheckDelay = 0.5f;
+
         [Header("Chest")]
         public float ChestItemSpawnRateSeconds = 0.5f;
         public float ChestItemSpawnHeight = 1f;
