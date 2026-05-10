@@ -36,7 +36,8 @@ public class Database
         settings.SocketTimeout = TimeSpan.FromSeconds(connectionTimeoutSeconds);
 
         var client = new MongoClient(settings);
-        var databaseName = $"world_{worldId}";
+        var shortWorldId = worldId.Split('-')[0];
+        var databaseName = $"world_{shortWorldId}";
         var database = client.GetDatabase(databaseName);
 
         // Ping to check connection
