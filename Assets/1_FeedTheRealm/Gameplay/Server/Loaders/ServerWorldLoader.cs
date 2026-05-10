@@ -14,14 +14,17 @@ namespace FTR.Gameplay.Server.Scopes
     {
         private readonly ServerConfig serverConfig;
         private readonly ServerSecretsConfig secretsConfig;
+        private readonly Session.Session session;
 
         public ServerWorldLoader(
             PortalRegistry portalRegistry,
             ServerPrefabProvider prefabProvider,
             ColliderRegistry colliderRegistry,
-            IObjectResolver resolver
+            IObjectResolver resolver,
+            Session.Session session
         )
         {
+            this.session = session;
             if (!resolver.TryResolve(out serverConfig))
                 throw new System.InvalidOperationException(
                     "ServerConfig is required to load the world. Please provide it in the container."
@@ -78,6 +81,7 @@ namespace FTR.Gameplay.Server.Scopes
                 throw new System.InvalidOperationException(
                     "Access token is required to load the world. Please provide it in the config or as a command line argument."
                 );
+            session.AccessToken = secretsConfig.ServerFixedToken;
             return secretsConfig.ServerFixedToken;
         }
 
