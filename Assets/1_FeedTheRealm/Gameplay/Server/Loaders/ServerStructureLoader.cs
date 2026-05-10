@@ -67,6 +67,8 @@ namespace FTR.Gameplay.Server.Loaders
                 controller.Initialize(structureData);
                 spawnerRegistry.Register(instance);
             }
+
+            Physics.SyncTransforms();
         }
     }
 }

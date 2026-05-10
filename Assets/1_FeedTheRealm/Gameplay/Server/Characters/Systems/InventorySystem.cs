@@ -188,10 +188,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (sourceType == StorageType.FastSlot && sourceSlot == activeSlot)
             {
                 characterState.SetEquippedItemId(fastSlots[activeSlot].ItemId);
+                useSystem?.EquipItem((fastSlots[activeSlot].ItemId, activeSlot));
             }
             else if (targetType == StorageType.FastSlot && targetSlot == activeSlot)
             {
                 characterState.SetEquippedItemId(fastSlots[activeSlot].ItemId);
+                useSystem?.EquipItem((fastSlots[activeSlot].ItemId, activeSlot));
             }
         }
 

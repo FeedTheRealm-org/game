@@ -48,6 +48,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private List<Collider> activeTargets = new List<Collider>();
         private Collider currentTarget;
         private float chaseStopDistance;
+        private float navigationTimer;
 
         public void Initialize(
             uint netId,
@@ -150,7 +151,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             if (currentState == AIState.Wandering || currentState == AIState.Chasing)
             {
-                ProcessMovementAlongPath();
+                ProcessMovementAlongPath(dt);
             }
         }
 
@@ -225,6 +226,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     currentPath
                 );
                 currentPathIndex = 0;
+                navigationTimer = 0f;
             }
         }
 
@@ -321,11 +323,24 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             currentPathIndex = 0;
+            navigationTimer = 0f;
             TransitionTo(AIState.Wandering);
         }
 
-        private void ProcessMovementAlongPath()
+        private void ProcessMovementAlongPath(float dt)
         {
+            navigationTimer += dt;
+            if (navigationTimer > config.MaxNavigationTime)
+            {
+                logger.Log(
+                    $"[AINav] {gameObject.name} stuck traversing path. Resetting.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                TransitionTo(AIState.Idle);
+                return;
+            }
+
             Vector3 rootPos;
             if (currentState == AIState.Chasing && currentTarget != null)
             {
