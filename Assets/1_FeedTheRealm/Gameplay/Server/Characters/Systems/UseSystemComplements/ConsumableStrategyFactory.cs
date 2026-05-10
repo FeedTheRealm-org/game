@@ -15,11 +15,8 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
             return data.effectType switch
             {
                 EffectType.Heal => new HealConsumableStrategy(data),
-                EffectType.Buff => new BuffSpeedConsumableStrategy(data),
+                EffectType.Speed => new BuffSpeedConsumableStrategy(data),
                 EffectType.Damage => new BuffDamageConsumableStrategy(data),
-                EffectType.Debuff => new NoOpConsumableStrategy(data),
-                EffectType.RestoreMana => new NoOpConsumableStrategy(data),
-                EffectType.DrainMana => new NoOpConsumableStrategy(data),
                 EffectType.None => new NoOpConsumableStrategy(data),
                 _ => new NoOpConsumableStrategy(data),
             };
