@@ -13,8 +13,8 @@ public class PlayerModel
     [BsonElement("gold")]
     public int Gold { get; set; }
 
-    [BsonElement("last_position")]
-    public PositionModel LastPosition { get; set; }
+    [BsonElement("zone_positions")]
+    public Dictionary<string, PositionModel> ZonePositions { get; set; } = new();
 
     [BsonElement("inventory")]
     public List<InventoryItemModel> Inventory { get; set; } = new();
