@@ -49,9 +49,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void GameTick(float dt)
         {
             // TODO(optimization): can we avoid checking this every tick? -> Coroutine
-            if (gameObject.transform.position.y < -10f)
+            if (currentHealth > 0 && gameObject.transform.position.y < -10f)
             {
                 logger.Log($"Character fell out of bounds. Resetting health.", this);
+                currentHealth = 0;
+                stateStorage.SetHealth(currentHealth);
                 Die(0);
             }
         }
