@@ -139,6 +139,8 @@ namespace FTR.Gameplay.Server.Environment.Chest
                         stateStorage.SetItemId("");
                         stateStorage.SetGoldAmount(amount);
                     }
+                    if (amount <= 0)
+                        return;
                     NetworkServer.Spawn(lootInstance);
                 }
             }

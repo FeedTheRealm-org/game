@@ -358,6 +358,8 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                         stateStorage.SetItemId("");
                         stateStorage.SetGoldAmount(amount);
                     }
+                    if (amount <= 0)
+                        return;
                     NetworkServer.Spawn(lootInstance);
                 }
             }
