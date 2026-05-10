@@ -61,6 +61,6 @@ MonoBehaviour:
   AggressiveAttackRadius: 2
   AutoAttackDelay: 0.3
   RangedWeaponRaySpacing: 1
-  GroundCheckDelay: 0.5
+  GroundCheckDelay: 1
   ChestItemSpawnRateSeconds: 0.5
   ChestItemSpawnHeight: 1
