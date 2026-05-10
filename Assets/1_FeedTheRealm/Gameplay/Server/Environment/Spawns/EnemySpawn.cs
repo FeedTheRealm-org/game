@@ -414,8 +414,6 @@ namespace FTR.Gameplay.Server.Environment.Spawns
         /// </summary>
         private void BuildNavMesh(float navMeshRadius)
         {
-            Physics.SyncTransforms();
-
             Bounds bounds = new Bounds(transform.position, Vector3.one * navMeshRadius * 2);
 
             var sources = new List<NavMeshBuildSource>();
