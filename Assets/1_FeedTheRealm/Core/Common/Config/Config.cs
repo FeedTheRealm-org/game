@@ -18,7 +18,7 @@ namespace FTR.Core.Common.Config
         private RuntimeRole _editorRuntimeRole = RuntimeRole.Client;
         public RuntimeRole RuntimeRole => GetRuntimeRole();
 
-        public int MaxWorldLoadRetries = 10;
+        public int MaxWorldLoadRetries = 9999999;
         public int WorldLoadRetryDelayMs = 1000;
 
         [Header("Server Port Settings")]

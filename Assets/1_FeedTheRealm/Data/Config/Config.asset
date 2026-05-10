@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Config
   m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.Config.Config
   _editorRuntimeRole: 1
-  MaxWorldLoadRetries: 10
+  MaxWorldLoadRetries: 9999999
   WorldLoadRetryDelayMs: 1000
   _listeningPort: 7777
   _healthcheckPort: 7778
@@ -21,8 +21,8 @@ MonoBehaviour:
   EnableActionLogging: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   CurrentServerAddress: 127.0.0.1
-  CurrentServerPort: 7777
-  DEBUG_IsDebugWorld: 1
+  CurrentServerPort: 7778
+  DEBUG_IsDebugWorld: 0
   DEBUG_DoNotLoadWorld: 0
   DEBUG_WorldId: 2d377090-7505-4217-8b39-aab77d38c42b
   DEBUG_ZoneId: 1
