@@ -49,6 +49,7 @@ public class ClientInitiator : LifetimeScope
     private API.AuthService authService;
 
     [Header("Audio")]
+    [SerializeField]
     private GameObject musicPlayerPrefab;
 
     [SerializeField]
