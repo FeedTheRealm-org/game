@@ -24,8 +24,6 @@ namespace FTR.Gameplay.Client.Loaders
             ModelService modelService,
             MaterialService materialService,
             GltLoaderService gltfLoaderService,
-            Session.Session session,
-            Config config,
             IObjectResolver resolver,
             Logging.Logger logger
         )
@@ -34,9 +32,7 @@ namespace FTR.Gameplay.Client.Loaders
                 prefabProvider,
                 colliderRegistry,
                 modelService,
-                gltfLoaderService,
-                session,
-                config
+                gltfLoaderService
             );
             var clientNpcDialogLoader = new ClientNpcDialogLoader();
             var clientItemLoader = new ClientItemLoader();

@@ -144,12 +144,12 @@ public class PlayersRepository
     /// <summary>
     /// Saves a player's last known position to MongoDB.
     /// </summary>
-    public async Task SavePositionAsync(string playerId, PositionModel position)
+    public async Task SavePositionAsync(string playerId, int zoneId, PositionModel position)
     {
         if (!serverConfig.PersistToDatabase)
             return;
         var filter = Builders<PlayerModel>.Filter.Eq(p => p.PlayerId, playerId);
-        var update = Builders<PlayerModel>.Update.Set(p => p.LastPosition, position);
+        var update = Builders<PlayerModel>.Update.Set($"zone_positions.{zoneId}", position);
         await this.collection.UpdateOneAsync(filter, update);
     }
 }

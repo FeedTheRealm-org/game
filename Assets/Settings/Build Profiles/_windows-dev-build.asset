@@ -28,11 +28,16 @@ MonoBehaviour:
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientEntryPoint.unity
   - m_enabled: 1
     m_path: Assets/1_FeedTheRealm/Scenes/Client/ClientWorld.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Bot/BotEntryPoint.unity
+  - m_enabled: 1
+    m_path: Assets/1_FeedTheRealm/Scenes/Bot/BotWorldEntryPoint.unity
   m_HasScriptingDefines: 1
   m_ScriptingDefines:
   - DEBUG
   - SERVER_BUILD
   - CLIENT_BUILD
+  - BOT_BUILD
   m_PlayerSettingsYaml:
     m_Settings: []
   references:

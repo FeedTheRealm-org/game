@@ -80,7 +80,6 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             await database.Connect(
                 secretsConfig.MongoConnectionString,
                 serverConfig.WorldId,
-                serverConfig.ZoneId.ToString(),
                 lifetimeCts.Token
             );
             await playersRepository.Connect(database);

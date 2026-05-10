@@ -56,7 +56,7 @@ public class ServerLootItemLinker : LootItemLinker
         // Initialize components
         lootItemController.Initialize(netId, stateStorage.ItemId, stateStorage.GoldAmount);
         lootItemSystem.Initialize(rb, netId, stateStorage);
-        groundCheck.Initialize(col, lootItemSystem);
+        groundCheck.Initialize(col, stateStorage);
 
         RegisterEntity(netId, networkAdapter);
     }

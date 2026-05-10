@@ -17,7 +17,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
     /// LootItem represents an item in the game world that can be interacted with by players.
     /// It is responsible for sending pickup commands to the server when a player interacts with it.
     /// </summary>
-    public class LootItemSystem : MonoBehaviour, IGameTickable, IGroundable
+    public class LootItemSystem : MonoBehaviour, IGameTickable
     {
         [Inject]
         private WorldMonitor worldMonitor;
@@ -34,22 +34,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         private LootItemStateStorage stateStorage;
 
         // Configurable parameters
-        private ushort maxInitialForce = 5; // default max force applied to the item when spawned
-
-        private bool isGrounded;
-        public bool IsGrounded
-        {
-            get => isGrounded;
-            set
-            {
-                isGrounded = value;
-                if (value)
-                    GroundItem();
-            }
-        }
-
-        public bool IsOnSlope { get; set; }
-        public Vector3 GroundNormal { get; set; }
+        private ushort maxInitialForce = 5; // default max force applied to the item when spawnedd
 
         public void Initialize(Rigidbody rb, uint netId, LootItemStateStorage stateStorage)
         {
@@ -57,7 +42,16 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             this.netId = netId;
             this.stateStorage = stateStorage;
             maxInitialForce = config.MaxInitialForce > 0 ? config.MaxInitialForce : maxInitialForce;
+            stateStorage.OnGrounded += GroundItem;
             SpawnItemWithForce();
+            StartCoroutine(DelayedGroundCheck());
+        }
+
+        private IEnumerator DelayedGroundCheck()
+        {
+            stateStorage.IsGroundCheckEnabled = false;
+            yield return new WaitForSeconds(config.GroundCheckDelay);
+            stateStorage.IsGroundCheckEnabled = true;
         }
 
         private void SpawnItemWithForce()
@@ -97,15 +91,9 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         public void GroundItem()
         {
             stateStorage.CorrectPosition(rb.position);
-            //rb.constraints = RigidbodyConstraints.FreezeAll;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
         }
 
         public void GameTick(float dt) { }
-
-        public float GetGroundCheckDistance()
-        {
-            var collider = GetComponentInParent<SphereCollider>();
-            return collider != null ? collider.radius : 0f;
-        }
     }
 }

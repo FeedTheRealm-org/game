@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FTR.Gameplay.Common.NetworkEntities.LootItem
 {
-    public class LootItemStateStorage : NetworkBehaviour
+    public class LootItemStateStorage : NetworkBehaviour, IGroundable
     {
         [SyncVar(hook = nameof(OnPositionSync))]
         private Vector3 position;
@@ -20,9 +20,32 @@ namespace FTR.Gameplay.Common.NetworkEntities.LootItem
         public event Action<Vector3> OnPositionCorrected;
         public event Action<string> OnItemIdChanged;
         public event Action<int> OnGoldAmountChanged;
-
+        public event Action OnGrounded;
         public string ItemId => itemId;
         public int GoldAmount => goldAmount;
+
+        // IGroundable implementation
+
+        private bool isGrounded;
+        public bool IsGrounded
+        {
+            get => isGrounded;
+            set
+            {
+                isGrounded = value;
+                if (value)
+                    OnGrounded?.Invoke();
+            }
+        }
+        public bool IsGroundCheckEnabled { get; set; } = false;
+        public bool IsOnSlope { get; set; }
+        public Vector3 GroundNormal { get; set; }
+
+        public float GetGroundCheckDistance()
+        {
+            var collider = GetComponentInParent<SphereCollider>();
+            return collider != null ? collider.radius : 0f;
+        }
 
         /* --- Setters --- */
 

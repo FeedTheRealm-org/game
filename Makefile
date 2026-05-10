@@ -36,7 +36,9 @@ dev: # Starts DEBUG built server via entrypoint [DEVELOPMENT]
 		-nographics \
 		--world-id=$$WORLD_ID \
 		--zone-id=$$ZONE_ID \
-		--is-test-world=$$IS_TEST_WORLD
+		--is-test-world=$$IS_TEST_WORLD \
+		--port=$$PORT \
+		--hport=$$HPORT
 	docker compose -f $(COMPOSE) --profile db-only down
 .PHONY: dev
 

@@ -122,6 +122,9 @@ namespace FTR.Gameplay.Server.Environment.Chest
         // function to spawn loot items and gold since it can be used in multiple places (enemies, chests, quests, etc)
         private void SpawnGold(Vector3 position, int amount)
         {
+            if (amount <= 0)
+                return;
+
             var lootItemPrefab = prefabProvider?.LootItemPrefab;
             if (lootItemPrefab != null)
             {
@@ -150,6 +153,9 @@ namespace FTR.Gameplay.Server.Environment.Chest
 
         private void SpawnLootItem(Vector3 position, string itemId)
         {
+            if (string.IsNullOrEmpty(itemId))
+                return;
+
             var lootItemPrefab = prefabProvider?.LootItemPrefab;
             if (lootItemPrefab != null)
             {

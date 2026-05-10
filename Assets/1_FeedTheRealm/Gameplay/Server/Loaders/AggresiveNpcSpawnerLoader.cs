@@ -54,7 +54,7 @@ namespace FTR.Gameplay.Server.Loaders
                     new Vector3(data.Position.x, data.Position.y, data.Position.z),
                     Quaternion.identity
                 );
-                instance.transform.localScale = new Vector3(data.Radius, 1, data.Radius);
+                instance.transform.localScale = Vector3.one;
                 EnemySpawn enemySpawnData = instance.GetComponent<EnemySpawn>();
                 enemySpawnData.Initialize(data, enemyData);
                 instance.name = string.IsNullOrEmpty(data.EnemyId)
