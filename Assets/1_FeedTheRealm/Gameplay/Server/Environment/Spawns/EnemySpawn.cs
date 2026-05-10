@@ -341,6 +341,9 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
         private void SpawnGold(Vector3 position, int amount)
         {
+            if (amount <= 0)
+                return;
+
             var lootItemPrefab = prefabProvider?.LootItemPrefab;
             if (lootItemPrefab != null)
             {
@@ -371,6 +374,9 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
         private void SpawnLootItem(Vector3 position, string itemId)
         {
+            if (string.IsNullOrEmpty(itemId))
+                return;
+
             var lootItemPrefab = prefabProvider?.LootItemPrefab;
             if (lootItemPrefab != null)
             {
