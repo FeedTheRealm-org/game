@@ -22,24 +22,23 @@ namespace FTR.Gameplay.Client.Loaders
             ClientPrefabProvider prefabProvider,
             ColliderRegistry colliderRegistry,
             ModelService modelService,
+            MaterialService materialService,
             GltLoaderService gltfLoaderService,
-            Session.Session session,
-            Config config,
-            IObjectResolver resolver
+            IObjectResolver resolver,
+            Logging.Logger logger
         )
         {
             var clientStructureLoader = new ClientStructureLoader(
                 prefabProvider,
                 colliderRegistry,
                 modelService,
-                gltfLoaderService,
-                session,
-                config
+                gltfLoaderService
             );
             var clientNpcDialogLoader = new ClientNpcDialogLoader();
             var clientItemLoader = new ClientItemLoader();
             var clientQuestLoader = new ClientQuestLoader();
             var clientPortalLoader = new ClientPortalLoader(prefabProvider, resolver);
+            var clientWorldAreaLoader = new ClientZoneAreaLoader(materialService, logger);
 
             loaders = new List<ILoader>
             {
@@ -48,6 +47,7 @@ namespace FTR.Gameplay.Client.Loaders
                 clientItemLoader,
                 clientQuestLoader,
                 clientPortalLoader,
+                clientWorldAreaLoader,
             };
 
             foreach (var loader in loaders)
@@ -67,7 +67,7 @@ namespace FTR.Gameplay.Client.Loaders
 
         public override string GetAccessToken()
         {
-            return session.APIToken;
+            return session.AccessToken;
         }
 
         public override int GetZoneId()

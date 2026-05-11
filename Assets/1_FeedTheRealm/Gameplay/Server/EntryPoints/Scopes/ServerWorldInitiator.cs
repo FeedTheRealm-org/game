@@ -24,6 +24,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         private Config config;
 
         [SerializeField]
+        private Session.Session session;
+
+        [SerializeField]
         private ServerConfig serverConfig;
 
         [SerializeField]
@@ -71,6 +74,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(serverQuestRegistry);
             builder.RegisterInstance(colliderRegistry);
+            builder.RegisterInstance(session);
 
             builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
             builder.Register<Database>(Lifetime.Singleton);
@@ -109,6 +113,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             ValidateField(npcDialogRegistry, nameof(npcDialogRegistry));
             ValidateField(serverQuestRegistry, nameof(serverQuestRegistry));
             ValidateField(colliderRegistry, nameof(colliderRegistry));
+            ValidateField(session, nameof(session));
         }
 
         private void ValidateField(Object field, string fieldName)

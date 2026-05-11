@@ -43,7 +43,7 @@ trap cleanup SIGINT SIGTERM
 mkdir -p ./bot_logs/
 
 echo "Starting $N processes: $CMD"
-for ((i=0; i<N; i++)); do
+for ((i=1; i<=N; i++)); do
   ADMIN_TOKEN="$ADMIN_TOKEN" "$CMD" --world-id=${WORLD_ID} --zone-id=${ZONE_ID} --bot-id=${i} -batchmode -nographics \
       > "./bot_logs/bot_${i}.log" 2>&1 &
   PIDS+=($!)

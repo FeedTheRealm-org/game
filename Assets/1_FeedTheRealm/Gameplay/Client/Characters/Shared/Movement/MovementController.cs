@@ -1,6 +1,7 @@
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Registry;
 using UnityEngine;
 using VContainer;
 
@@ -22,7 +23,6 @@ public class MovementController : MonoBehaviour
     private float previousRotationSent;
 
     private NetworkAdapter networkAdapter;
-
     private bool isInitialized = false;
 
     public void Initialize(NetworkAdapter networkAdapter)
@@ -46,10 +46,7 @@ public class MovementController : MonoBehaviour
         var delta = Mathf.Abs(Mathf.DeltaAngle(currentRotation, previousRotationSent));
 
         if (delta >= rotationMagnitudeToSend)
-        {
             SendMoveCommand();
-            //logger.Log($"Rotation changed significantly. Sent new move command.", this);
-        }
     }
 
     /// <summary>
@@ -75,9 +72,6 @@ public class MovementController : MonoBehaviour
         SendDashCommand();
     }
 
-    /// <summary>
-    /// SendMoveCommand called when a significant rotation change is detected or when the input direction changes.
-    /// </summary>
     private void SendMoveCommand()
     {
         if (!isInitialized)

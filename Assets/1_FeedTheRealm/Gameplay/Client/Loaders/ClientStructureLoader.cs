@@ -14,8 +14,6 @@ namespace FTR.Gameplay.Client.Loaders
 {
     public class ClientStructureLoader : ILoader
     {
-        readonly Config config;
-        private readonly Session.Session session;
         private readonly ModelService modelService;
         private readonly GltLoaderService gltfLoaderService;
         private readonly GameObject structurePrefab;
@@ -26,13 +24,9 @@ namespace FTR.Gameplay.Client.Loaders
             ClientPrefabProvider prefabProvider,
             ColliderRegistry colliderRegistry,
             ModelService modelService,
-            GltLoaderService gltfLoaderService,
-            Session.Session session,
-            Config config
+            GltLoaderService gltfLoaderService
         )
         {
-            this.config = config;
-            this.session = session;
             this.modelService = modelService;
             this.gltfLoaderService = gltfLoaderService;
             this.colliderRegistry = colliderRegistry;
@@ -44,10 +38,7 @@ namespace FTR.Gameplay.Client.Loaders
 
         public async UniTask Load(string worldId, ZoneData zoneData, CreatablesData creatablesData)
         {
-            Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(
-                worldId,
-                GetSessionToken()
-            );
+            Dictionary<string, ModelInfo> modelsInfo = await modelService.ListWorldModels(worldId);
 
             ClientShopRegistry.RegisterWorldData(creatablesData);
 
@@ -101,11 +92,6 @@ namespace FTR.Gameplay.Client.Loaders
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return visual;
-        }
-
-        private string GetSessionToken()
-        {
-            return session.APIToken;
         }
     }
 }

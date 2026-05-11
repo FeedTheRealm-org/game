@@ -23,7 +23,6 @@ public class ColliderRegistry : ScriptableObject
         {
             case ColliderType.Slope:
                 prefab = slopeColliderPrefab;
-                // TODO(refactor): consider changind this by using something like "LayerMask.NameToLayer(GroundLayer)"
                 layer = (int)Mathf.Log(config.SlopeColliderLayerMask.value, 2);
                 break;
             case ColliderType.Cube:
@@ -36,10 +35,12 @@ public class ColliderRegistry : ScriptableObject
                 layer = (int)Mathf.Log(config.CubeColliderLayerMask.value, 2);
                 break;
         }
-        prefab.SetActive(true);
-        foreach (var renderer in prefab.GetComponentsInChildren<Renderer>())
+
+        var instance = Object.Instantiate(prefab);
+        instance.SetActive(true);
+        foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
             renderer.enabled = config.DEBUG_EnableColliderView;
 
-        return (prefab, layer);
+        return (instance, layer);
     }
 }

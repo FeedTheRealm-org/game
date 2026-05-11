@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
@@ -8,6 +10,7 @@ using FTR.Gameplay.Common.Utils;
 using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements;
 using FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrategies;
 using FTR.Gameplay.Server.Utils.UseEquipment;
+using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
 
@@ -43,13 +46,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private EquippedItem currentEquipped;
         private IUseStrategy currentStrategy;
         private SlotCooldownTracker cooldowns;
-        private UseContext _context;
+        private UseContext ctx;
+
+        public event Action<float> OnAttackRangeChanged;
+        public float CurrentAttackRange { get; private set; }
 
         private Vector3 HitPoint => _rb != null ? _rb.worldCenterOfMass : transform.position;
 
-        private int amountOfPlayersInRange = 0;
+        private HashSet<Collider> _playersInRange = new HashSet<Collider>();
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
+        private Vector3 autoAttackTargetDirection = Vector3.zero;
 
         // ── Initialization ────────────────────────────────────────────────────
 
@@ -67,12 +74,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             cooldowns = new SlotCooldownTracker(config.FastSlotSize);
             currentStrategy = new BareHandsStrategy();
+            CurrentAttackRange = config.UnequippedRange;
 
             var movement = GetComponentInParent<MovementSystem>();
             var health = GetComponentInParent<HealthSystem>();
             var inventory = transform.root.GetComponentInChildren<InventorySystem>();
 
-            _context = new UseContext(
+            ctx = new UseContext(
                 netId: netId,
                 hitPointProvider: () => HitPoint,
                 targetLayerProvider: () => this.targetLayer,
@@ -94,13 +102,25 @@ namespace FTR.Gameplay.Server.Characters.Systems
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
         {
             _attackTriggerArea = attackTriggerArea;
+            _attackTriggerArea.Initialize(CurrentAttackRange);
             _attackTriggerArea.OnPlayerEnter += StartAutoAttacking;
             _attackTriggerArea.OnPlayerExit += PlayerLeftAutoAttackRange;
+
+            OnAttackRangeChanged -= UpdateAttackTriggerArea;
+            OnAttackRangeChanged += UpdateAttackTriggerArea;
         }
 
         public void SetStrategy(IUseStrategy strategy)
         {
             currentStrategy = strategy ?? new BareHandsStrategy();
+        }
+
+        private void UpdateAttackTriggerArea(float attackRange)
+        {
+            CurrentAttackRange = attackRange;
+
+            if (_attackTriggerArea != null)
+                _attackTriggerArea.Initialize(attackRange);
         }
 
         private void HandleDeath()
@@ -117,6 +137,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private void OnDestroy()
         {
+            OnAttackRangeChanged -= UpdateAttackTriggerArea;
+
             if (_attackTriggerArea != null)
             {
                 _attackTriggerArea.OnPlayerEnter -= StartAutoAttacking;
@@ -132,7 +154,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt) { }
 
-        public void OnUse(IEventCollectable ec)
+        public void OnUse(IEventCollectable ec, Vector3 direction)
         {
             if (isDead)
                 return;
@@ -146,7 +168,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            var ctx = _context;
+            ctx.Direction = direction;
 
             if (!currentStrategy.CanExecute(ctx, cooldowns, out float strategyRemaining))
                 return;
@@ -155,17 +177,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
             currentStrategy.Execute(ctx);
         }
 
-        public void StartAutoAttacking(Collider _)
+        public void StartAutoAttacking(Collider playerCollider)
         {
-            amountOfPlayersInRange++;
+            if (playerCollider != null)
+                _playersInRange.Add(playerCollider);
+
             if (_autoAttackCoroutine == null)
                 _autoAttackCoroutine = StartCoroutine(KeepAutoAttacking());
         }
 
-        public void PlayerLeftAutoAttackRange(Collider _)
+        public void PlayerLeftAutoAttackRange(Collider playerCollider)
         {
-            amountOfPlayersInRange = Mathf.Max(0, amountOfPlayersInRange - 1);
-            if (amountOfPlayersInRange == 0 && _autoAttackCoroutine != null)
+            if (playerCollider != null)
+                _playersInRange.Remove(playerCollider);
+
+            if (_playersInRange.Count == 0 && _autoAttackCoroutine != null)
             {
                 StopCoroutine(_autoAttackCoroutine);
                 _autoAttackCoroutine = null;
@@ -174,11 +200,42 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private IEnumerator KeepAutoAttacking()
         {
-            while (amountOfPlayersInRange > 0)
+            while (_playersInRange.Count > 0)
             {
-                currentStrategy.Execute(_context);
-                yield return new WaitForSeconds(currentStrategy.GetCooldown(_context) * 2);
+                _playersInRange.RemoveWhere(c => c == null || !c.gameObject.activeInHierarchy);
+
+                if (_playersInRange.Count == 0)
+                    break;
+
+                Collider target = null;
+                foreach (var p in _playersInRange)
+                {
+                    target = p;
+                    break;
+                }
+
+                if (target != null)
+                {
+                    Vector3 dir = (target.transform.position - transform.position).normalized;
+                    dir.y = 0; // Typically we attack horizontally
+                    autoAttackTargetDirection =
+                        dir == Vector3.zero ? transform.forward : dir.normalized;
+
+                    yield return new WaitForSeconds(config.AutoAttackDelay);
+
+                    ctx.Direction = autoAttackTargetDirection;
+
+                    if (currentStrategy.CanExecute(ctx, cooldowns, out float strategyRemaining))
+                    {
+                        currentStrategy.RecordCooldown(ctx, cooldowns, activeSlot);
+                        currentStrategy.Execute(ctx);
+                    }
+                }
+
+                yield return new WaitForSeconds(currentStrategy.GetCooldown(ctx));
             }
+
+            _autoAttackCoroutine = null;
         }
 
         public void EquipItem((string itemId, int slotIndex) data)
@@ -188,6 +245,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var result = EquippedItemFactory.Build(data.itemId, config, logger, this);
             currentEquipped = result.Item;
             currentStrategy = result.Strategy;
+            CurrentAttackRange = currentEquipped switch
+            {
+                WeaponEquipped weapon => weapon.Data.range,
+                ConsumableEquipped => config.UseRange,
+                _ => config.UnequippedRange,
+            };
+
+            OnAttackRangeChanged?.Invoke(CurrentAttackRange);
 
             logger?.Log(
                 $"[UseSystem] Player:{netId} equipped '{data.itemId}' in slot {data.slotIndex}.",
@@ -199,8 +264,45 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             if (config == null)
                 return;
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(HitPoint, config.UnequippedRange);
+
+            if (currentEquipped == null)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawWireSphere(HitPoint, config.UnequippedRange);
+                return;
+            }
+
+            if (currentEquipped is WeaponEquipped weapon)
+            {
+                if (weapon.Data.weaponType == WeaponType.Melee)
+                {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawWireSphere(HitPoint, weapon.Data.range);
+                }
+                else if (weapon.Data.weaponType == WeaponType.Ranged)
+                {
+                    Gizmos.color = Color.red;
+                    Vector3 dir =
+                        ctx != null && ctx.Direction != Vector3.zero
+                            ? ctx.Direction
+                            : transform.forward;
+                    Vector3 perpendicular = Vector3.Cross(dir, Vector3.up).normalized;
+                    float halfSpacing = config.RangedWeaponRaySpacing / 2f;
+
+                    // Center ray
+                    Gizmos.DrawRay(HitPoint, dir.normalized * weapon.Data.range);
+                    // Left ray
+                    Gizmos.DrawRay(
+                        HitPoint - perpendicular * halfSpacing,
+                        dir.normalized * weapon.Data.range
+                    );
+                    // Right ray
+                    Gizmos.DrawRay(
+                        HitPoint + perpendicular * halfSpacing,
+                        dir.normalized * weapon.Data.range
+                    );
+                }
+            }
         }
     }
 }

@@ -15,9 +15,9 @@ MonoBehaviour:
   EnvFilePath: /home/sev/Desktop/Facultad/TPF/feed-the-realm-client/.env
   LoadFromEnvFile: 1
   LoadEnvVars: 1
-  WorldId: 
-  ZoneId: 0
-  AllowBots: 0
+  WorldId: 2d377090-7505-4217-8b39-aab77d38c42b
+  ZoneId: 1
+  IsTestWorld: 1
   PersistToDatabase: 0
   AutoSaveIntervalSeconds: 30
   PlayerLayer:
@@ -51,6 +51,7 @@ MonoBehaviour:
   groundCheckSphereRadius: 0.4
   fastSlotSize: 5
   inventorySize: 20
+  useRange: 2
   startingGold: 777
   WanderRadius: 10
   MinWaitTime: 2
@@ -58,5 +59,8 @@ MonoBehaviour:
   StoppingDistance: 0.5
   AggressiveChaseRadius: 5
   AggressiveAttackRadius: 2
+  AutoAttackDelay: 0.3
+  RangedWeaponRaySpacing: 1
+  GroundCheckDelay: 1
   ChestItemSpawnRateSeconds: 0.5
   ChestItemSpawnHeight: 1

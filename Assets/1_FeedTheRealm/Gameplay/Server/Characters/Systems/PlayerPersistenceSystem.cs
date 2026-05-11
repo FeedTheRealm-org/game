@@ -133,6 +133,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             playersRepository
                 .SavePositionAsync(
                     characterStateStorage.CharacterId,
+                    serverConfig.ZoneId,
                     new PositionModel
                     {
                         X = position.x,
@@ -159,16 +160,16 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void OnCharacterIdChanged(string characterId)
         {
             logger.Log($"CharacterId changed to {characterId} - loading player");
-            LoadPlayer(characterId).Forget();
+            LoadPlayer(characterId, serverConfig.ZoneId).Forget();
         }
 
-        private async UniTask LoadPlayer(string playerId)
+        private async UniTask LoadPlayer(string playerId, int zoneId)
         {
-            logger.Log($"Loading player data for Player:{playerId}");
+            logger.Log($"Loading player data for Player:{playerId} in Zone:{zoneId}");
             var player = await playersRepository.GetPlayerAsync(playerId).AsUniTask();
             if (player == null)
             {
-                LoadDefaultStates();
+                LoadDefaultStates(zoneId);
                 logger.Log($"No saved data found for player {playerId} - default states");
                 return;
             }
@@ -179,18 +180,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
             );
             goldSystem.LoadGold(player.Gold);
             questSystem.LoadQuests(player.ActiveQuests, player.CompletedQuests);
+            var zoneKey = zoneId.ToString();
             movementSystem.LoadPosition(
-                player.LastPosition != null
-                    ? new Vector3(
-                        player.LastPosition.X,
-                        player.LastPosition.Y,
-                        player.LastPosition.Z
-                    )
+                player.ZonePositions != null
+                && player.ZonePositions.TryGetValue(zoneKey, out var zonePosition)
+                && zonePosition != null
+                    ? new Vector3(zonePosition.X, zonePosition.Y, zonePosition.Z)
                     : playerSpawnpointManager.GetRandomSpawnpoint()
             );
         }
 
-        private void LoadDefaultStates()
+        private void LoadDefaultStates(int zoneId)
         {
             var inventory = ToSizedArray(null, serverConfig.InventorySize);
             var fastAccess = ToSizedArray(null, serverConfig.FastSlotSize);
@@ -198,6 +198,15 @@ namespace FTR.Gameplay.Server.Characters.Systems
             var activeQuests = new List<QuestModel>();
             var completedQuests = new List<string>();
             var position = playerSpawnpointManager.GetRandomSpawnpoint();
+            var zonePositions = new Dictionary<string, PositionModel>
+            {
+                [zoneId.ToString()] = new PositionModel
+                {
+                    X = position.x,
+                    Y = position.y,
+                    Z = position.z,
+                },
+            };
 
             inventorySystem.LoadInventory(inventory, fastAccess);
             goldSystem.LoadGold(gold);
@@ -208,12 +217,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             {
                 PlayerId = characterStateStorage.CharacterId,
                 Gold = gold,
-                LastPosition = new PositionModel
-                {
-                    X = position.x,
-                    Y = position.y,
-                    Z = position.z,
-                },
+                ZonePositions = zonePositions,
                 Inventory = new List<InventoryItemModel>(inventory),
                 FastAccessInventory = new List<InventoryItemModel>(fastAccess),
                 ActiveQuests = activeQuests,

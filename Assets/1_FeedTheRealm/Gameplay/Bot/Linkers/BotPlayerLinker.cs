@@ -50,7 +50,7 @@ namespace FTR.Gameplay.Bot.Linkers
                 {
                     Type = TransactionType.SetUserId,
                     NetId = networkAdapter.netId,
-                    Id = $"{config.BotJoinToken}_{session.UserId}",
+                    Id = $"{config.BotJoinToken}_{session.UserID}",
                     content = null,
                 }
             );

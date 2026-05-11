@@ -46,7 +46,7 @@ public class GemStoreController : MonoBehaviour
     private async void LoadBalance()
     {
         (bool success, string _, API.GemBalanceResponse balance) =
-            await paymentService.GetGemBalance(session.APIToken);
+            await paymentService.GetGemBalance();
 
         if (success)
             balanceLabel.text = balance.gems.ToString();
@@ -57,7 +57,7 @@ public class GemStoreController : MonoBehaviour
         packList.Clear();
 
         (bool success, string message, List<API.GemPackResponse> packs) =
-            await paymentService.GetAllGemPacks(session.APIToken);
+            await paymentService.GetAllGemPacks();
 
         if (!success)
         {
@@ -126,8 +126,7 @@ public class GemStoreController : MonoBehaviour
             await paymentService.CreateCheckoutSession(
                 pack.id,
                 callbackServer.SuccessUrl,
-                callbackServer.CancelUrl,
-                session.APIToken
+                callbackServer.CancelUrl
             );
 
         if (!success)

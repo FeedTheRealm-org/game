@@ -128,6 +128,12 @@ namespace FTR.Core.Server.Config
         public float StoppingDistance = 0.5f;
         public float AggressiveChaseRadius = 5f;
         public float AggressiveAttackRadius = 2f;
+        public float AutoAttackDelay = 0.3f;
+        public float RangedWeaponRaySpacing = 1f;
+        public float MaxNavigationTime = 10f;
+
+        [Header("Loot Item")]
+        public float GroundCheckDelay = 0.5f;
 
         [Header("Chest")]
         public float ChestItemSpawnRateSeconds = 0.5f;

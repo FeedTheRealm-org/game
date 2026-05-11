@@ -24,7 +24,6 @@ public class Database
     public async Task Connect(
         string connectionString,
         string worldId,
-        string zoneId,
         CancellationToken cancellationToken = default
     )
     {
@@ -38,7 +37,7 @@ public class Database
 
         var client = new MongoClient(settings);
         var shortWorldId = worldId.Split('-')[0];
-        var databaseName = $"world-{shortWorldId}_zone-{zoneId}";
+        var databaseName = $"world_{shortWorldId}";
         var database = client.GetDatabase(databaseName);
 
         // Ping to check connection
@@ -48,7 +47,7 @@ public class Database
         );
 
         _db = database;
-        this.logger.Log($"Connected to {worldId}_{zoneId} Mongo database");
+        this.logger.Log($"Connected to {databaseName} Mongo database");
     }
 
     public IMongoCollection<T> GetCollection<T>(string name)

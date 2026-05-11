@@ -87,7 +87,7 @@ public class ServerPlayerLinker : PlayerLinker
             serverConfig.PlayerLayer | serverConfig.TargetLayer,
             stateStorage
         );
-        inventorySystem.Initialize(netId, inventoryStateStorage, stateStorage);
+        inventorySystem.Initialize(netId, inventoryStateStorage, stateStorage, world);
         goldSystem.Initialize(netId, goldStateStorage, world);
         playerPersistenceSystem.Initialize(
             stateStorage,

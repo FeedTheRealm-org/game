@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
@@ -25,6 +26,8 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         private readonly ClientWorldLoader worldLoader;
         private readonly WorldSetupService worldSetup;
+        private readonly ClientPrefabProvider prefabProvider;
+        private ClientMusicRegistry musicRegistry;
 
         [Inject]
         public ClientWorldEntryPoint(
@@ -35,7 +38,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             IObjectResolver resolver,
             ObjectResolverContainer resolverContainer,
             ClientWorldLoader worldLoader,
-            WorldSetupService worldSetup
+            WorldSetupService worldSetup,
+            ClientPrefabProvider prefabProvider,
+            ClientMusicRegistry musicRegistry
         )
         {
             this.tickEvent = tickEvent;
@@ -45,11 +50,20 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.worldLoader = worldLoader;
             this.worldSetup = worldSetup;
             this.loadingEvent = loadingEvent;
+            this.prefabProvider = prefabProvider;
+            this.musicRegistry = musicRegistry;
             isInitialized = true;
         }
 
         public async void Start()
         {
+            var musicPlayerPrefab = prefabProvider.MusicPlayerPrefab;
+            if (musicPlayerPrefab != null)
+            {
+                var _object = UnityEngine.Object.Instantiate(musicPlayerPrefab);
+                var player = _object.GetComponent<MusicPlayer>();
+                player?.Initialize(musicRegistry, MusicType.World);
+            }
             loadingEvent.Raise(true);
             var loadSucceeded = await worldLoader.LoadWorld();
             if (!loadSucceeded)

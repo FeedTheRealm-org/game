@@ -44,6 +44,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public string EquippedItemId => equippedItemId;
         public bool IsOnSlope { get; set; }
         public Vector3 GroundNormal { get; set; }
+        public bool IsGroundCheckEnabled { get; set; } = true;
 
         /* --- Events --- */
 
@@ -95,6 +96,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public void SetEquippedItemId(string newEquippedItemId)
         {
             equippedItemId = newEquippedItemId;
+            OnEquippedItemChanged?.Invoke(newEquippedItemId);
         }
 
         /* --- SyncVar hooks --- */

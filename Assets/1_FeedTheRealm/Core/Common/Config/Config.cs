@@ -18,7 +18,7 @@ namespace FTR.Core.Common.Config
         private RuntimeRole _editorRuntimeRole = RuntimeRole.Client;
         public RuntimeRole RuntimeRole => GetRuntimeRole();
 
-        public int MaxWorldLoadRetries = 10;
+        public int MaxWorldLoadRetries = 9999999;
         public int WorldLoadRetryDelayMs = 1000;
 
         [Header("Server Port Settings")]
@@ -42,10 +42,6 @@ namespace FTR.Core.Common.Config
         [Header("API Settings")]
         public ApiConfig ApiConfig;
 
-        [Header("Common Layer Masks")]
-        public LayerMask CubeColliderLayerMask;
-        public LayerMask SlopeColliderLayerMask;
-
         [Header("Client Connection Settings")] // TODO: move to client & bot config
         public string CurrentServerAddress = "";
         public ushort CurrentServerPort = 10000;
@@ -64,6 +60,12 @@ namespace FTR.Core.Common.Config
         public int DEBUG_ZoneId => 0;
         public bool DEBUG_EnableColliderView => false;
 #endif
+
+        [Header("Common Layer Masks")]
+        public LayerMask CubeColliderLayerMask;
+        public LayerMask SlopeColliderLayerMask;
+        public float playerMaxHealth = 100f;
+        public float HealthUpdateDelay = 0.3f;
 
         private RuntimeRole GetRuntimeRole()
         {

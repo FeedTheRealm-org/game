@@ -9,6 +9,7 @@ using FTR.Core.Common.Config;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.EntryPoints;
+using FTR.Gameplay.Client.Registry;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,6 +31,9 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
 
         [Inject]
         private LoadingEvent loadingEvent;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         // ---------------------------------------------------------------------------------------------
         // These will be removed in the future when we refactor teleportation
@@ -98,8 +102,7 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
 
                     var (ip, port, error, statusCode) = await worldService.GetZoneAddress(
                         worldSelector.GetSelectedWorldId(),
-                        destinationZone,
-                        session.APIToken
+                        destinationZone
                     );
                     config.CurrentServerAddress = ip;
                     config.CurrentServerPort = (ushort)port;
@@ -129,6 +132,7 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
                 new TransactionCommandDTO { Type = TransactionType.AcceptTeleport, Id = portalId }
             );
             TogglePortalLoading(true);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.EnteredTeleport);
         }
 
         private void OnDestroy()

@@ -16,6 +16,7 @@ namespace FTR.Core.Client
         public GameObject QuestCompletionPanel;
         public GameObject NameTagPrefab;
         public GameObject PortalVisual;
+        public GameObject RangedTargetIndicator;
 
         [Header("Environment Link Components")]
         public GameObject portalLinkComponents;
@@ -34,5 +35,8 @@ namespace FTR.Core.Client
         [Header("Chat")]
         public GameObject ChatBox;
         public GameObject ChatInput;
+
+        [Header("Music")]
+        public GameObject MusicPlayerPrefab;
     }
 }

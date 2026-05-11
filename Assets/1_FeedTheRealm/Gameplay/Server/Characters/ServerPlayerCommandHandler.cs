@@ -91,9 +91,9 @@ namespace FTR.Gameplay.Server.Characters
             dashSystem.OnDash(ec, direction);
         }
 
-        public override void OnUse(IEventCollectable ec)
+        public override void OnUse(IEventCollectable ec, Vector3 direction)
         {
-            useSystem.OnUse(ec);
+            useSystem.OnUse(ec, direction);
         }
 
         public override void OnInteract(IEventCollectable ec)
@@ -151,8 +151,17 @@ namespace FTR.Gameplay.Server.Characters
             System.Action<bool> onComplete
         )
         {
-            inventorySystem.OnPickUp(ec, itemId, onComplete);
-            goldSystem.OnPickUp(ec, goldAmount, onComplete);
+            if (goldAmount > 0)
+            {
+                goldSystem.OnPickUp(ec, goldAmount, onComplete);
+                return;
+            }
+            if (!string.IsNullOrEmpty(itemId))
+            {
+                inventorySystem.OnPickUp(ec, itemId, onComplete);
+                return;
+            }
+            onComplete(false);
         }
 
         public override void OnSetUserId(IEventCollectable ec, string tokenId)

@@ -239,7 +239,11 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                     }
 
                     var useSystem = enemy.GetComponentInChildren<UseSystem>();
-                    useSystem?.SetStrategy(new EnemyMeleeStrategy(enemyData));
+                    if (useSystem != null && !string.IsNullOrEmpty(enemyData.weaponId))
+                    {
+                        useSystem.EquipItem((enemyData.weaponId, 0));
+                        stateStorage.SetEquippedItemId(enemyData.weaponId);
+                    }
                 }
                 else
                 {
@@ -337,6 +341,9 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
         private void SpawnGold(Vector3 position, int amount)
         {
+            if (amount <= 0)
+                return;
+
             var lootItemPrefab = prefabProvider?.LootItemPrefab;
             if (lootItemPrefab != null)
             {
@@ -354,6 +361,8 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                         stateStorage.SetItemId("");
                         stateStorage.SetGoldAmount(amount);
                     }
+                    if (amount <= 0)
+                        return;
                     NetworkServer.Spawn(lootInstance);
                 }
             }
@@ -365,6 +374,9 @@ namespace FTR.Gameplay.Server.Environment.Spawns
 
         private void SpawnLootItem(Vector3 position, string itemId)
         {
+            if (string.IsNullOrEmpty(itemId))
+                return;
+
             var lootItemPrefab = prefabProvider?.LootItemPrefab;
             if (lootItemPrefab != null)
             {
@@ -474,9 +486,7 @@ namespace FTR.Gameplay.Server.Environment.Spawns
                 $"Enemy_{enemyId}",
                 "A hostile enemy.",
                 0,
-                0,
-                0,
-                0,
+                "",
                 "",
                 new Dictionary<string, string>()
             );
