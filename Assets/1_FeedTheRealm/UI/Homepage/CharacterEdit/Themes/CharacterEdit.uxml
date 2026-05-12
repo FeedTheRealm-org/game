@@ -28,12 +28,30 @@
                     <ui:Button name="EarringR" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Earrings.png?fileID=2800000&amp;guid=9a57c7fa5549fb94c88515bade724129&amp;type=3#Earrings" class="category_button"/>
                     <ui:Button name="Back" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Back.png?fileID=2800000&amp;guid=f9868ff9676fe664ebec7ef31e08ee08&amp;type=3#Back" class="category_button"/>
                     <ui:Button name="Mask" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Mask.png?fileID=2800000&amp;guid=58cdde48dae3ab3479f1addad19122ce&amp;type=3#Mask" class="category_button"/>
-                    <ui:Button name="SkinColor" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Makeup.png?fileID=2800000&amp;guid=1c340032d72adb740a795f5852b17ab9&amp;type=3#Makeup" class="category_button"/>
+                    <ui:Button name="Color" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Makeup.png?fileID=2800000&amp;guid=1c340032d72adb740a795f5852b17ab9&amp;type=3#Makeup" class="category_button"/>
                 </ui:ScrollView>
                 <ui:VisualElement name="Hbar" class="hbar"/>
                 <ui:ScrollView name="Items" class="content-container content-items">
                     <ui:Button name="Empty" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Empty.png?fileID=2800000&amp;guid=28f83d71ea6c28b499085210ea78cb72&amp;type=3#Empty" class="item_button"/>
                 </ui:ScrollView>
+                <ui:VisualElement name="ColorControls" class="content-container color-controls">
+                    <ui:VisualElement class="color-control-row">
+                        <ui:Label text="Target" class="color-control-label"/>
+                        <ui:DropdownField name="ColorTargetDropdown" class="menu-text-input color-dropdown"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="color-control-row">
+                        <ui:Label text="H" class="color-control-label"/>
+                        <ui:Slider name="HueSlider" low-value="0" high-value="360" value="0" show-input-field="true" class="color-slider"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="color-control-row">
+                        <ui:Label text="S" class="color-control-label"/>
+                        <ui:Slider name="SaturationSlider" low-value="0" high-value="100" value="0" show-input-field="true" class="color-slider"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="color-control-row">
+                        <ui:Label text="V" class="color-control-label"/>
+                        <ui:Slider name="ValueSlider" low-value="0" high-value="100" value="100" show-input-field="true" class="color-slider"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
                 <ui:VisualElement name="Pagination" class="pagination-container">
                     <ui:Button text="Prev" name="PrevPage" class="menu-button action-button pagination-button"/>
                     <ui:Label text="Page 1" name="PageInfo" class="pagination-info"/>
