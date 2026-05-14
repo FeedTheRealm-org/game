@@ -137,6 +137,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
             state.Phase = PlayerPhase.Normal;
             state.ActiveDialogId = activeDialogId;
 
+            if (stateStorage != null && _activeSessions.Count == 0)
+            {
+                stateStorage.IsMovementBlocked = true;
+            }
             _activeSessions.Add(playerNetId);
 
             var connId = GetPlayerConnectionId(playerNetId);
@@ -158,6 +162,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
             _sessions.Remove(playerNetId);
             if (!_activeSessions.Remove(playerNetId))
                 return;
+
+            if (stateStorage != null && _activeSessions.Count == 0)
+            {
+                stateStorage.IsMovementBlocked = false;
+            }
 
             inactivityTimer.Stop(playerNetId);
 
