@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
@@ -26,22 +27,33 @@ public class InventoryView : MonoBehaviour
     private ActiveSlotChangedEvent ActiveSlotChangedEvent;
 
     [Inject]
+    private InventoryErrorEvent inventoryErrorEventChannel;
+
+    [Inject]
     private API.ItemAssetsService itemsAssetsService;
 
     [Inject]
     private ISoundPlayer soundPlayer;
 
     private InventoryStateStorage stateStorage;
+    private NetworkEventRouter eventRouter;
 
     public void Initialize(InventoryStateStorage stateStorage, NetworkEventRouter eventRouter)
     {
         this.stateStorage = stateStorage;
+        this.eventRouter = eventRouter;
         stateStorage.OnLastItemChanged += OnInventoryChanged;
         stateStorage.OnLastSwappedItemChanged += OnInventorySwapped;
         stateStorage.OnLastDroppedItemChanged += OnInventoryDropped;
         stateStorage.OnActiveSlotChanged += OnActiveSlotChanged;
         eventRouter.OnShopPurchaseConfirmEvent += OnShopPurchaseConfirm;
         eventRouter.OnLootedItemConfirmEvent += OnLootedItemConfirm;
+        eventRouter.OnInventoryErrorEvent += HandleInventoryErrorEvent;
+    }
+
+    private void HandleInventoryErrorEvent(InventoryErrorContent content)
+    {
+        inventoryErrorEventChannel?.Raise(content.ErrorType);
     }
 
     private void OnLootedItemConfirm()
@@ -63,6 +75,12 @@ public class InventoryView : MonoBehaviour
             stateStorage.OnLastSwappedItemChanged -= OnInventorySwapped;
             stateStorage.OnLastDroppedItemChanged -= OnInventoryDropped;
             stateStorage.OnActiveSlotChanged -= OnActiveSlotChanged;
+        }
+        if (eventRouter != null)
+        {
+            eventRouter.OnShopPurchaseConfirmEvent -= OnShopPurchaseConfirm;
+            eventRouter.OnLootedItemConfirmEvent -= OnLootedItemConfirm;
+            eventRouter.OnInventoryErrorEvent -= HandleInventoryErrorEvent;
         }
     }
 

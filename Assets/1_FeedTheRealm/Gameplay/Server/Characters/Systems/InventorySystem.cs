@@ -1,4 +1,5 @@
 using System;
+using Amazon.Runtime;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server;
@@ -121,17 +122,36 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return false;
             }
 
-            if (!CanAddItemToInventory(itemId))
+            var connId = GetPlayerConnectionId(netId);
+
+            if (!CanAddItemsToInventory(itemId, amount))
             {
                 logger.Log(
-                    $"Inventory has insufficient space for purchased item {itemId} x {amount}",
+                    $"[InventorySystem] Inventory has insufficient space for {amount}x {itemId}",
+                    this
+                );
+
+                world.Events.Enqueue(
+                    new InventoryErrorEvent(
+                        netId,
+                        new InventoryErrorContent { ErrorType = InventoryErrorType.NotEnoughSpace },
+                        connId.Value
+                    )
+                );
+                return false;
+            }
+
+            bool added = AddItemToInventory(itemId, amount);
+
+            if (!added)
+            {
+                logger.Log(
+                    $"[InventorySystem] Failed to add purchased items despite space check for Player:{netId}",
                     this
                 );
                 return false;
             }
 
-            AddItemToInventory(itemId, amount);
-            var connId = GetPlayerConnectionId(netId);
             world.Events.Enqueue(new ShopPurchaseConfirmEvent(netId, connId.Value));
             logger.Log(
                 $"[InventorySystem] Purchased item {itemId} x{amount} added to inventory for Player:{netId}",
@@ -434,6 +454,33 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return entity.ConnectionId.Value;
 
             return null;
+        }
+
+        private bool CanAddItemsToInventory(string itemId, int amount)
+        {
+            if (string.IsNullOrEmpty(itemId) || amount <= 0)
+                return false;
+
+            int maxStack = GetMaxStack(itemId);
+            int remaining = amount;
+
+            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
+            {
+                var slot = inventorySlots[i];
+
+                if (string.IsNullOrEmpty(slot.ItemId))
+                {
+                    remaining -= maxStack;
+                }
+                else if (slot.ItemId == itemId)
+                {
+                    int space = maxStack - slot.Quantity;
+                    if (space > 0)
+                        remaining -= space;
+                }
+            }
+
+            return remaining <= 0;
         }
     }
 }

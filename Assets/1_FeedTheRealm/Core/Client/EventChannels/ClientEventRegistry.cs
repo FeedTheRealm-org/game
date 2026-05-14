@@ -41,6 +41,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public SlotSwapRequestEvent slotSwapRequestEvent;
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
+        public InventoryErrorEvent inventoryErrorEvent;
 
         [Header("Interact Events")]
         public InteractFailedEvent interactFailedEvent;
@@ -63,7 +64,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Gold Events")]
         public GoldChangedEvent goldChangedEvent;
-        public NotEnoughGoldEvent notEnoughGoldEvent;
 
         [Header("Chat Events")]
         public ChatMessageRequestEvent chatMessageRequestEvent;
@@ -106,7 +106,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(purchaseRequestEvent);
             builder.RegisterInstance(interactFailedEvent);
             builder.RegisterInstance(interactCompletedEvent);
-            builder.RegisterInstance(notEnoughGoldEvent);
+            builder.RegisterInstance(inventoryErrorEvent);
             builder.RegisterInstance(chatMessageRequestEvent);
             builder.RegisterInstance(chatToggleEvent);
             builder.RegisterInstance(portalToggleEvent);
@@ -143,7 +143,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
             ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
-            ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
+            ValidateField(inventoryErrorEvent, nameof(inventoryErrorEvent));
             ValidateField(chatMessageRequestEvent, nameof(chatMessageRequestEvent));
             ValidateField(chatToggleEvent, nameof(chatToggleEvent));
             ValidateField(portalToggleEvent, nameof(portalToggleEvent));
