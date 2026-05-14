@@ -15,7 +15,7 @@ public class NetworkEventRouter : MonoBehaviour
     public event Action<ChatMessageBroadcastEventContent> OnChatMessageBroadcastEvent;
     public event Action<OpenShopEventContent> OnOpenShopEvent;
     public event Action<OpenPortalEventContent> OnOpenPortalEvent;
-    public event Action<NotEnoughGoldEventContent> OnNotEnoughGoldEvent;
+    public event Action<InventoryErrorContent> OnInventoryErrorEvent;
     public event Action OnInteractFailedEvent;
     public event Action OnInteractCompletedEvent;
     public event Action OnShopPurchaseConfirmEvent;
@@ -84,11 +84,11 @@ public class NetworkEventRouter : MonoBehaviour
             case ServerEventType.LootbagPickedUpEvent:
                 OnLootedItemConfirmEvent?.Invoke();
                 break;
-            case ServerEventType.NotEnoughGoldEvent:
-                OnNotEnoughGoldEvent?.Invoke(
-                    NotEnoughGoldEventContent.Parser.ParseFrom(serverEvent.content)
+            case ServerEventType.InventoryErrorEvent:
+                OnInventoryErrorEvent?.Invoke(
+                    InventoryErrorContent.Parser.ParseFrom(serverEvent.content)
                 );
-                logger.Log($"Routed NotEnoughGoldEvent", this);
+                logger.Log($"Routed InventoryErrorEvent", this);
                 break;
             case ServerEventType.InteractCompletedEvent:
                 OnInteractCompletedEvent?.Invoke();

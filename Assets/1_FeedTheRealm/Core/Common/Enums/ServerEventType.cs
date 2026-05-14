@@ -13,7 +13,7 @@ public enum ServerEventType
     DialogEvent,
     OpenShopEvent,
     OpenPortalEvent,
-    NotEnoughGoldEvent,
+    InventoryErrorEvent,
     InteractCompletedEvent,
     QuestProgressEvent,
     QuestCompletedEvent,

@@ -14,9 +14,6 @@ public class GoldView : MonoBehaviour
     [SerializeField]
     private GoldChangedEvent goldChangedEvent;
 
-    [Inject]
-    private NotEnoughGoldEvent notEnoughGoldEvent;
-
     [SerializeField]
     private GoldStateStorage stateStorage;
     private NetworkEventRouter eventRouter;
@@ -26,26 +23,17 @@ public class GoldView : MonoBehaviour
         this.stateStorage = stateStorage;
         this.eventRouter = eventRouter;
         stateStorage.OnGoldChanged += OnGoldChanged;
-        eventRouter.OnNotEnoughGoldEvent += HandleNotEnoughGoldEvent;
     }
 
     private void OnDestroy()
     {
         if (stateStorage != null)
             stateStorage.OnGoldChanged -= OnGoldChanged;
-        if (eventRouter != null)
-            eventRouter.OnNotEnoughGoldEvent -= HandleNotEnoughGoldEvent;
     }
 
     private void OnGoldChanged(int newGold)
     {
         Debug.Log($"GoldView gold changed: {newGold}");
         goldChangedEvent.Raise(newGold);
-    }
-
-    private void HandleNotEnoughGoldEvent(NotEnoughGoldEventContent content)
-    {
-        Debug.Log($"GoldView received NotEnoughGoldEvent for required amount: {content.Amount}");
-        notEnoughGoldEvent.Raise((content.ProductId, content.Amount));
     }
 }
