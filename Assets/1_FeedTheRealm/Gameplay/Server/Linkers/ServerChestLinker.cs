@@ -4,6 +4,7 @@ using FTR.Gameplay.Common.Environment.Chests;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTR.Gameplay.Server.Environment.Chest;
+using FTR.Gameplay.Server.Reaper;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -18,14 +19,14 @@ public class ServerChestLinker : ChestLinker
     private readonly IObjectResolver resolver;
 
     public ServerChestLinker(
+        WorldMonitor world,
         ServerPrefabProvider prefabProvider,
-        IObjectResolver resolver,
-        WorldMonitor world
+        IObjectResolver resolver
     )
     {
+        this.world = world;
         this.prefabProvider = prefabProvider;
         this.resolver = resolver;
-        this.world = world;
     }
 
     public override void Link(GameObject gameObject)
