@@ -161,7 +161,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         }
 
         public void OnMoveItem(
-            IEventCollectable ec,
             StorageType sourceType,
             int sourceSlot,
             StorageType targetType,
@@ -178,39 +177,104 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return;
             }
 
-            InventoryItemModel[] src = GetStorage(sourceType);
-            InventoryItemModel[] tgt = GetStorage(targetType);
+            var src = GetStorage(sourceType);
+            var tgt = GetStorage(targetType);
 
-            var sourceItem = src[sourceSlot];
-            var targetItem = tgt[targetSlot];
+            var from = new SlotRef(sourceType, sourceSlot, src[sourceSlot]);
+            var to = new SlotRef(targetType, targetSlot, tgt[targetSlot]);
 
-            src[sourceSlot] = targetItem;
-            tgt[targetSlot] = sourceItem;
+            if (TryStack(from, to))
+                return;
+
+            PerformSwap(from, to);
+        }
+
+        // ── Stacking ─────────────────────────────────────────────────────────────
+
+        private bool TryStack(SlotRef from, SlotRef to)
+        {
+            if (!CanStack(from, to))
+                return false;
+
+            int maxStack = GetMaxStack(from.Item.ItemId);
+            int toMove = Mathf.Min(maxStack - to.Item.Quantity, from.Item.Quantity);
+
+            to.Item.Quantity += toMove;
+            GetStorage(to.Type)[to.Index] = to.Item;
+
+            from.Item.Quantity -= toMove;
+            if (from.Item.Quantity <= 0)
+            {
+                from.Item.ItemId = string.Empty;
+                from.Item.Quantity = 0;
+            }
+            GetStorage(from.Type)[from.Index] = from.Item;
 
             logger.Log(
-                $"Swapped Player:{netId}: "
-                    + $"{sourceType}[{sourceSlot}]({sourceItem.ItemId}) <-> "
-                    + $"{targetType}[{targetSlot}]({targetItem.ItemId})",
+                $"Stacked Player:{netId}: moved {toMove}x {to.Item.ItemId} "
+                    + $"from {from.Type}[{from.Index}] → {to.Type}[{to.Index}] "
+                    + $"(now {to.Item.Quantity} in target)",
                 this
             );
 
-            inventoryState.SwapItems(
-                sourceType,
-                sourceSlot,
-                sourceItem.ItemId,
-                sourceItem.Quantity,
-                targetType,
-                targetSlot,
-                targetItem.ItemId,
-                targetItem.Quantity
-            );
+            inventoryState.AddItem(to.Type, to.Index, to.Item.ItemId, to.Item.Quantity);
 
-            if (sourceType == StorageType.FastSlot && sourceSlot == activeSlot)
+            if (string.IsNullOrEmpty(from.Item.ItemId))
+                inventoryState.DropItem(from.Type, from.Index);
+            else
+                inventoryState.AddItem(from.Type, from.Index, from.Item.ItemId, from.Item.Quantity);
+
+            if (from.IsActiveSlot(activeSlot))
             {
                 characterState.SetEquippedItemId(fastSlots[activeSlot].ItemId);
                 useSystem?.EquipItem((fastSlots[activeSlot].ItemId, activeSlot));
             }
-            else if (targetType == StorageType.FastSlot && targetSlot == activeSlot)
+
+            return true;
+        }
+
+        private bool CanStack(SlotRef from, SlotRef to)
+        {
+            if (string.IsNullOrEmpty(from.Item.ItemId))
+                return false;
+            if (from.Item.ItemId != to.Item.ItemId)
+                return false;
+            if (from.Type == to.Type && from.Index == to.Index)
+                return false;
+
+            int maxStack = GetMaxStack(from.Item.ItemId);
+            return to.Item.Quantity < maxStack;
+        }
+
+        // ── Swap ─────────────────────────────────────────────────────────────────
+
+        private void PerformSwap(SlotRef from, SlotRef to)
+        {
+            var src = GetStorage(from.Type);
+            var tgt = GetStorage(to.Type);
+
+            src[from.Index] = to.Item;
+            tgt[to.Index] = from.Item;
+
+            logger.Log(
+                $"Swapped Player:{netId}: "
+                    + $"{from.Type}[{from.Index}]({from.Item.ItemId}) <-> "
+                    + $"{to.Type}[{to.Index}]({to.Item.ItemId})",
+                this
+            );
+
+            inventoryState.SwapItems(
+                from.Type,
+                from.Index,
+                from.Item.ItemId,
+                from.Item.Quantity,
+                to.Type,
+                to.Index,
+                to.Item.ItemId,
+                to.Item.Quantity
+            );
+
+            if (from.IsActiveSlot(activeSlot) || to.IsActiveSlot(activeSlot))
             {
                 characterState.SetEquippedItemId(fastSlots[activeSlot].ItemId);
                 useSystem?.EquipItem((fastSlots[activeSlot].ItemId, activeSlot));
@@ -300,23 +364,31 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         // ── Private helpers ───────────────────────────────────────────────────
 
-        private bool CanAddItemToInventory(string itemId)
+        private bool CanAddItemsToInventory(string itemId, int amount)
         {
-            if (string.IsNullOrEmpty(itemId))
+            if (string.IsNullOrEmpty(itemId) || amount <= 0)
                 return false;
 
             int maxStack = GetMaxStack(itemId);
+            int remaining = amount;
 
-            for (int i = 0; i < config.InventorySize; i++)
+            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
             {
                 var slot = inventorySlots[i];
+
                 if (string.IsNullOrEmpty(slot.ItemId))
-                    return true;
-                if (slot.ItemId == itemId && slot.Quantity < maxStack)
-                    return true;
+                {
+                    remaining -= maxStack;
+                }
+                else if (slot.ItemId == itemId)
+                {
+                    int space = maxStack - slot.Quantity;
+                    if (space > 0)
+                        remaining -= space;
+                }
             }
 
-            return false;
+            return remaining <= 0;
         }
 
         private bool AddItemToInventory(string itemId, int quantity = 1)
@@ -448,39 +520,28 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
         }
 
+        private struct SlotRef
+        {
+            public StorageType Type;
+            public int Index;
+            public InventoryItemModel Item;
+
+            public SlotRef(StorageType type, int index, InventoryItemModel item)
+            {
+                Type = type;
+                Index = index;
+                Item = item;
+            }
+
+            public bool IsActiveSlot(int active) => Type == StorageType.FastSlot && Index == active;
+        }
+
         private int? GetPlayerConnectionId(uint playerNetId)
         {
             if (world.Entities.TryGet(playerNetId, out var entity) && entity.ConnectionId.HasValue)
                 return entity.ConnectionId.Value;
 
             return null;
-        }
-
-        private bool CanAddItemsToInventory(string itemId, int amount)
-        {
-            if (string.IsNullOrEmpty(itemId) || amount <= 0)
-                return false;
-
-            int maxStack = GetMaxStack(itemId);
-            int remaining = amount;
-
-            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
-            {
-                var slot = inventorySlots[i];
-
-                if (string.IsNullOrEmpty(slot.ItemId))
-                {
-                    remaining -= maxStack;
-                }
-                else if (slot.ItemId == itemId)
-                {
-                    int space = maxStack - slot.Quantity;
-                    if (space > 0)
-                        remaining -= space;
-                }
-            }
-
-            return remaining <= 0;
         }
     }
 }
