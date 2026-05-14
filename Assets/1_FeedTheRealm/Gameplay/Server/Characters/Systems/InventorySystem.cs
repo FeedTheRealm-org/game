@@ -372,23 +372,48 @@ namespace FTR.Gameplay.Server.Characters.Systems
             int maxStack = GetMaxStack(itemId);
             int remaining = amount;
 
-            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
-            {
-                var slot = inventorySlots[i];
+            remaining -= CountStackableSpace(itemId, inventorySlots, maxStack);
+            if (remaining <= 0)
+                return true;
 
-                if (string.IsNullOrEmpty(slot.ItemId))
-                {
-                    remaining -= maxStack;
-                }
-                else if (slot.ItemId == itemId)
-                {
-                    int space = maxStack - slot.Quantity;
-                    if (space > 0)
-                        remaining -= space;
-                }
-            }
+            remaining -= CountStackableSpace(itemId, fastSlots, maxStack);
+            if (remaining <= 0)
+                return true;
+
+            int emptyInventorySlots = CountEmptySlots(inventorySlots);
+            int emptyFastSlots = CountEmptySlots(fastSlots);
+            int totalEmptySlots = emptyInventorySlots + emptyFastSlots;
+
+            remaining -= totalEmptySlots * maxStack;
 
             return remaining <= 0;
+        }
+
+        private int CountStackableSpace(string itemId, InventoryItemModel[] slots, int maxStack)
+        {
+            int space = 0;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot.ItemId == itemId)
+                {
+                    int slotSpace = maxStack - slot.Quantity;
+                    if (slotSpace > 0)
+                        space += slotSpace;
+                }
+            }
+            return space;
+        }
+
+        private int CountEmptySlots(InventoryItemModel[] slots)
+        {
+            int count = 0;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (string.IsNullOrEmpty(slots[i].ItemId))
+                    count++;
+            }
+            return count;
         }
 
         private bool AddItemToInventory(string itemId, int quantity = 1)
@@ -399,9 +424,44 @@ namespace FTR.Gameplay.Server.Characters.Systems
             int maxStack = GetMaxStack(itemId);
             int remaining = quantity;
 
-            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
+            remaining = StackInSlots(
+                itemId,
+                remaining,
+                inventorySlots,
+                StorageType.Inventory,
+                maxStack
+            );
+            remaining = StackInSlots(itemId, remaining, fastSlots, StorageType.FastSlot, maxStack);
+
+            remaining = FillEmptySlots(
+                itemId,
+                remaining,
+                inventorySlots,
+                StorageType.Inventory,
+                maxStack
+            );
+            remaining = FillEmptySlots(
+                itemId,
+                remaining,
+                fastSlots,
+                StorageType.FastSlot,
+                maxStack
+            );
+
+            return remaining < quantity;
+        }
+
+        private int StackInSlots(
+            string itemId,
+            int remaining,
+            InventoryItemModel[] slots,
+            StorageType storageType,
+            int maxStack
+        )
+        {
+            for (int i = 0; i < slots.Length && remaining > 0; i++)
             {
-                var slot = inventorySlots[i];
+                var slot = slots[i];
                 if (slot.ItemId != itemId)
                     continue;
 
@@ -412,12 +472,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 int toAdd = Mathf.Min(space, remaining);
                 slot.Quantity += toAdd;
                 remaining -= toAdd;
-                inventoryState.AddItem(StorageType.Inventory, i, itemId, slot.Quantity);
+                inventoryState.AddItem(storageType, i, itemId, slot.Quantity);
             }
+            return remaining;
+        }
 
-            for (int i = 0; i < config.InventorySize && remaining > 0; i++)
+        private int FillEmptySlots(
+            string itemId,
+            int remaining,
+            InventoryItemModel[] slots,
+            StorageType storageType,
+            int maxStack
+        )
+        {
+            for (int i = 0; i < slots.Length && remaining > 0; i++)
             {
-                var slot = inventorySlots[i];
+                var slot = slots[i];
                 if (!string.IsNullOrEmpty(slot.ItemId))
                     continue;
 
@@ -425,10 +495,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 slot.ItemId = itemId;
                 slot.Quantity = toAdd;
                 remaining -= toAdd;
-                inventoryState.AddItem(StorageType.Inventory, i, itemId, slot.Quantity);
+                inventoryState.AddItem(storageType, i, itemId, slot.Quantity);
             }
-
-            return remaining < quantity;
+            return remaining;
         }
 
         private int GetMaxStack(string itemId)
