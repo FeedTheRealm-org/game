@@ -163,7 +163,7 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         {
             var capsuleCollider = GetComponent<CapsuleCollider>();
             return capsuleCollider != null
-                ? capsuleCollider.height / 2 * transform.lossyScale.y + 0.2f
+                ? capsuleCollider.height / 2 * transform.lossyScale.y - 1f
                 : 0f;
         }
     }
