@@ -1,6 +1,7 @@
 using System;
 using FTR.Core.Server.Commands;
 using FTR.Core.Server.Config;
+using FTR.Core.Server.Reaper;
 using FTR.Gameplay.Server.Reaper;
 using Mirror;
 using UnityEngine;

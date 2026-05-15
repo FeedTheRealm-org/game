@@ -1,6 +1,6 @@
 using System;
 
-namespace FTR.Gameplay.Server.Reaper
+namespace FTR.Core.Server.Reaper
 {
     public interface IReapable
     {

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using FTR.Core.Server.Config;
+using FTR.Core.Server.Reaper;
 using FTR.Gameplay.Server.Reaper;
 using Mirror;
 using UnityEngine;
@@ -17,10 +18,10 @@ namespace FTR.Gameplay.Server.Reaper
         private readonly List<GameObject> reapableEntities = new();
 
         [Inject]
-        private readonly ServerConfig config;
+        private ServerConfig config;
 
         [Inject]
-        private readonly Logging.Logger logger;
+        private Logging.Logger logger;
 
         public void Register(GameObject entity)
         {
@@ -70,13 +71,11 @@ namespace FTR.Gameplay.Server.Reaper
             {
                 GameObject entity = reapableEntities[i];
 
-                if (entity == null)
+                if (entity == null || !entity.TryGetComponent(out IReapable reapable))
                 {
                     reapableEntities.RemoveAt(i);
                     continue;
                 }
-
-                entity.TryGetComponent(out IReapable reapable);
 
                 if (!IsSpawnTimeValid(reapable) || !reapable.CanReap())
                     continue;
