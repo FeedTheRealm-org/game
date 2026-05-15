@@ -86,7 +86,7 @@ namespace FTR.UI.WorldSpace
             _isOpen = true;
             _inputPanel.style.display = DisplayStyle.Flex;
             _inputField.value = string.Empty;
-            _inputField.schedule.Execute(() => _inputField.Focus()).ExecuteLater(1);
+            _inputField.Focus();
 
             menuManager.ToggleMenu(MenuType.Chat, true);
         }
