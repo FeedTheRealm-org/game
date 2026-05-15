@@ -141,7 +141,7 @@ namespace FTR.Gameplay.Server.Characters
             int targetSlot
         )
         {
-            inventorySystem.OnMoveItem(ec, sourceType, sourceSlot, targetType, targetSlot);
+            inventorySystem.OnMoveItem(sourceType, sourceSlot, targetType, targetSlot);
         }
 
         public override void OnPickUp(

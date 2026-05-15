@@ -4,7 +4,9 @@ using System.Linq;
 using Enums;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
 using FTRShared.Runtime.Models;
@@ -45,7 +47,7 @@ namespace FTR.UI.Shop
         private PurchaseRequestEvent purchaseRequestEvent;
 
         [Inject]
-        private NotEnoughGoldEvent notEnoughGoldEvent;
+        private InventoryErrorEvent inventoryErrorEvent;
 
         [Inject]
         private ISoundPlayer soundPlayer;
@@ -128,13 +130,13 @@ namespace FTR.UI.Shop
             SetVisible(false, instant: true);
 
             openShopEvent.OnRaised += OnOpenShop;
-            notEnoughGoldEvent.OnRaised += OnNotEnoughGold;
+            inventoryErrorEvent.OnRaised += OnInventoryError;
         }
 
         private void OnDisable()
         {
             openShopEvent.OnRaised -= OnOpenShop;
-            notEnoughGoldEvent.OnRaised -= OnNotEnoughGold;
+            inventoryErrorEvent.OnRaised -= OnInventoryError;
         }
 
         private void OnBackdropClick(ClickEvent evt)
@@ -234,11 +236,16 @@ namespace FTR.UI.Shop
             _hideMessageCoroutine = StartCoroutine(HideMessageAfterDelay(3f));
         }
 
-        private void OnNotEnoughGold((string productId, int amount) data)
+        private void OnInventoryError(InventoryErrorType errorType)
         {
-            var itemData = ClientItemsRegistry.GetItemById(data.productId);
-            string name = itemData != null ? itemData.name : data.productId;
-            ShowFeedback($"Not enough gold to buy {name} x{data.amount}!");
+            if (errorType == InventoryErrorType.NotEnoughGold)
+            {
+                ShowFeedback("Not enough gold to buy this item!");
+            }
+            else if (errorType == InventoryErrorType.NotEnoughSpace)
+            {
+                ShowFeedback("Not enough space in your inventory!");
+            }
         }
 
         private IEnumerator HideMessageAfterDelay(float delay)

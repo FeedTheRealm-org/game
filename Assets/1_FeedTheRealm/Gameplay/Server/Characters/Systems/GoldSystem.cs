@@ -109,9 +109,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
 
             worldMonitor.Events.Enqueue(
-                new NotEnoughGoldEvent(
+                new InventoryErrorEvent(
                     netId,
-                    new NotEnoughGoldEventContent { ProductId = productId, Amount = amount },
+                    new InventoryErrorContent { ErrorType = InventoryErrorType.NotEnoughGold },
                     connId.Value
                 )
             );
