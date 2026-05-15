@@ -5,6 +5,7 @@
     "FTR.Core.Common",
     "UnityEngine",
     "Unity.InputSystem",
+    "Unity.Cinemachine",
     "Mirror",
     "VContainer",
     "UniTask"

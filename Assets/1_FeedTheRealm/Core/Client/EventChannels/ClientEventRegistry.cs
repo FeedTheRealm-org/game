@@ -2,6 +2,7 @@ using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Portal;
@@ -41,6 +42,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public SlotSwapRequestEvent slotSwapRequestEvent;
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
+        public InventoryErrorEvent inventoryErrorEvent;
 
         [Header("Interact Events")]
         public InteractFailedEvent interactFailedEvent;
@@ -63,7 +65,6 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Gold Events")]
         public GoldChangedEvent goldChangedEvent;
-        public NotEnoughGoldEvent notEnoughGoldEvent;
 
         [Header("Chat Events")]
         public ChatMessageRequestEvent chatMessageRequestEvent;
@@ -75,6 +76,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("UI Related Events")]
         public OnWorldLeaveEvent onExitEvent;
+
+        [Header("Input Related Events")]
+        public BackEvent backEvent;
 
         public void RegisterAll(IContainerBuilder builder)
         {
@@ -106,13 +110,14 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(purchaseRequestEvent);
             builder.RegisterInstance(interactFailedEvent);
             builder.RegisterInstance(interactCompletedEvent);
-            builder.RegisterInstance(notEnoughGoldEvent);
+            builder.RegisterInstance(inventoryErrorEvent);
             builder.RegisterInstance(chatMessageRequestEvent);
             builder.RegisterInstance(chatToggleEvent);
             builder.RegisterInstance(portalToggleEvent);
             builder.RegisterInstance(openPortalUIEvent);
             builder.RegisterInstance(loadingEvent);
             builder.RegisterInstance(onExitEvent);
+            builder.RegisterInstance(backEvent);
         }
 
         private void Validate()
@@ -143,13 +148,14 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
             ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
-            ValidateField(notEnoughGoldEvent, nameof(notEnoughGoldEvent));
+            ValidateField(inventoryErrorEvent, nameof(inventoryErrorEvent));
             ValidateField(chatMessageRequestEvent, nameof(chatMessageRequestEvent));
             ValidateField(chatToggleEvent, nameof(chatToggleEvent));
             ValidateField(portalToggleEvent, nameof(portalToggleEvent));
             ValidateField(openPortalUIEvent, nameof(openPortalUIEvent));
             ValidateField(loadingEvent, nameof(loadingEvent));
             ValidateField(onExitEvent, nameof(onExitEvent));
+            ValidateField(backEvent, nameof(backEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

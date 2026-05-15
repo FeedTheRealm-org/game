@@ -4,7 +4,11 @@ using System.Linq;
 using Enums;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Input;
+using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
+using FTR.Core.Client.Managers;
+using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
 using FTRShared.Runtime.Models;
@@ -45,7 +49,13 @@ namespace FTR.UI.Shop
         private PurchaseRequestEvent purchaseRequestEvent;
 
         [Inject]
-        private NotEnoughGoldEvent notEnoughGoldEvent;
+        private InventoryErrorEvent inventoryErrorEvent;
+
+        [Inject]
+        private MenuManager menuManager;
+
+        [Inject]
+        private BackEvent backEvent;
 
         [Inject]
         private ISoundPlayer soundPlayer;
@@ -123,24 +133,18 @@ namespace FTR.UI.Shop
             _messageArea = _shopRoot.Q<VisualElement>("MessageArea");
             SetupFeedbackLabel();
 
-            _shopRoot.RegisterCallback<ClickEvent>(OnBackdropClick);
-
             SetVisible(false, instant: true);
 
             openShopEvent.OnRaised += OnOpenShop;
-            notEnoughGoldEvent.OnRaised += OnNotEnoughGold;
+            inventoryErrorEvent.OnRaised += OnInventoryError;
+            backEvent.OnRaised += CloseShop;
         }
 
         private void OnDisable()
         {
             openShopEvent.OnRaised -= OnOpenShop;
-            notEnoughGoldEvent.OnRaised -= OnNotEnoughGold;
-        }
-
-        private void OnBackdropClick(ClickEvent evt)
-        {
-            if (_panel != null && !_panel.worldBound.Contains(evt.position))
-                CloseShop();
+            inventoryErrorEvent.OnRaised -= OnInventoryError;
+            backEvent.OnRaised -= CloseShop;
         }
 
         private void SwitchTab(bool goldTab)
@@ -234,11 +238,16 @@ namespace FTR.UI.Shop
             _hideMessageCoroutine = StartCoroutine(HideMessageAfterDelay(3f));
         }
 
-        private void OnNotEnoughGold((string productId, int amount) data)
+        private void OnInventoryError(InventoryErrorType errorType)
         {
-            var itemData = ClientItemsRegistry.GetItemById(data.productId);
-            string name = itemData != null ? itemData.name : data.productId;
-            ShowFeedback($"Not enough gold to buy {name} x{data.amount}!");
+            if (errorType == InventoryErrorType.NotEnoughGold)
+            {
+                ShowFeedback("Not enough gold to buy this item!");
+            }
+            else if (errorType == InventoryErrorType.NotEnoughSpace)
+            {
+                ShowFeedback("Not enough space in your inventory!");
+            }
         }
 
         private IEnumerator HideMessageAfterDelay(float delay)
@@ -269,20 +278,29 @@ namespace FTR.UI.Shop
 
         private void OpenShop()
         {
+            if (!menuManager.CanOpenMenu(MenuType.Shop))
+                return;
+
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
             _shopRoot.style.display = DisplayStyle.Flex;
             shopToggleEvent?.Raise(true);
             _animationCoroutine = StartCoroutine(AnimateOpen());
             soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
+
+            menuManager.ToggleMenu(MenuType.Shop, true);
         }
 
         private void CloseShop()
         {
+            if (!_shopRoot.style.display.Equals(DisplayStyle.Flex))
+                return;
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
             _animationCoroutine = StartCoroutine(AnimateClose());
             soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
+
+            menuManager.ToggleMenu(MenuType.Shop, false);
         }
 
         private IEnumerator AnimateOpen()

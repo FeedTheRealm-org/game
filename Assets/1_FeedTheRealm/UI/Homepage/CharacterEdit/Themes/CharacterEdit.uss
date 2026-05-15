@@ -248,6 +248,35 @@
     min-height: 0;
 }
 
+.color-controls {
+    display: none;
+    flex-grow: 1;
+    min-height: 0;
+    justify-content: flex-start;
+    row-gap: 8px;
+}
+
+.color-control-row {
+    flex-direction: row;
+    align-items: center;
+    column-gap: 8px;
+}
+
+.color-control-label {
+    min-width: 52px;
+    color: var(--white-soft);
+    -unity-text-align: middle-left;
+}
+
+.color-dropdown {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.color-slider {
+    flex-grow: 1;
+}
+
 .pagination-container {
     width: 95%;
     flex-grow: 0;

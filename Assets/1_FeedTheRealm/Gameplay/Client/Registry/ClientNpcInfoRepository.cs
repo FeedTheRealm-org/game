@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API;
 
 namespace FTR.Gameplay.Client.Registry
 {
@@ -19,7 +20,10 @@ namespace FTR.Gameplay.Client.Registry
                 return BuildCharacterInfo(
                     npcData.name,
                     npcData.description,
-                    npcData.category_sprites
+                    npcData.category_sprites,
+                    npcData.skin_color,
+                    npcData.hair_color,
+                    npcData.eye_color
                 );
             }
 
@@ -29,7 +33,10 @@ namespace FTR.Gameplay.Client.Registry
                 return BuildCharacterInfo(
                     enemyData.name,
                     enemyData.description,
-                    enemyData.category_sprites
+                    enemyData.category_sprites,
+                    enemyData.skin_color,
+                    enemyData.hair_color,
+                    enemyData.eye_color
                 );
             }
 
@@ -47,7 +54,10 @@ namespace FTR.Gameplay.Client.Registry
         private static API.CharacterInfoResponse BuildCharacterInfo(
             string characterName,
             string characterBio,
-            Dictionary<string, string> categorySprites
+            Dictionary<string, string> categorySprites,
+            CharacterColorHsv skin_color,
+            CharacterColorHsv hair_color,
+            CharacterColorHsv eye_color
         )
         {
             return new API.CharacterInfoResponse
@@ -58,6 +68,9 @@ namespace FTR.Gameplay.Client.Registry
                     categorySprites != null
                         ? new Dictionary<string, string>(categorySprites)
                         : new Dictionary<string, string>(),
+                skin_color = skin_color,
+                hair_color = hair_color,
+                eye_color = eye_color,
             };
         }
     }

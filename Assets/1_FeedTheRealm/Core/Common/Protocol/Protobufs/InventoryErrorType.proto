@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package protocol;
+
+option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
+
+enum InventoryErrorType {
+  NOT_ENOUGH_SPACE = 0;
+  NOT_ENOUGH_GOLD = 1;
+}

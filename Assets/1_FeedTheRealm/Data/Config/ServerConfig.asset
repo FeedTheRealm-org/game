@@ -50,7 +50,7 @@ MonoBehaviour:
   groundCheckDistance: 1
   groundCheckSphereRadius: 0.4
   fastSlotSize: 5
-  inventorySize: 20
+  inventorySize: 12
   useRange: 2
   startingGold: 777
   WanderRadius: 10
@@ -61,6 +61,7 @@ MonoBehaviour:
   AggressiveAttackRadius: 2
   AutoAttackDelay: 0.3
   RangedWeaponRaySpacing: 1
+  MaxNavigationTime: 10
   GroundCheckDelay: 1
   ChestItemSpawnRateSeconds: 0.5
   ChestItemSpawnHeight: 1

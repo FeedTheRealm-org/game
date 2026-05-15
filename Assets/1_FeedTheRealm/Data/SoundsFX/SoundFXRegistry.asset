@@ -86,6 +86,6 @@ MonoBehaviour:
     delay: 0
     volume: 0.2
   - id: change_item
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 37e0205c5a9b673b898e6237d89df309, type: 3}
     delay: 0
-    volume: 1
+    volume: 0.2

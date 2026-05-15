@@ -24,16 +24,17 @@ Shader "Custom/TargetIndicator_URP"
 
     SubShader
     {
-        Tags {
-            "RenderType"="Transparent"
-            "Queue"="Transparent"
-            "RenderPipeline"="UniversalRenderPipeline"
+        Tags
+        {
+            "RenderType" = "Transparent"
+            "Queue" = "Transparent"
+            "RenderPipeline" = "UniversalPipeline"
         }
 
         Pass
         {
-            Name "Forward"
-            Tags { "LightMode"="UniversalForward" }
+            Name "ForwardLit"
+            Tags { "LightMode" = "UniversalForward" }
 
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
@@ -41,9 +42,10 @@ Shader "Custom/TargetIndicator_URP"
             Cull Off
 
             HLSLPROGRAM
-
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing
+            #pragma target 4.5
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
@@ -51,38 +53,45 @@ Shader "Custom/TargetIndicator_URP"
             {
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
             {
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
 
-            float4 _CircleColor;
-            float4 _ArrowColor;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                float4 _CircleColor;
+                float4 _ArrowColor;
+                float _CircleRadius;
+                float _CircleThickness;
+                float _ArrowLength;
+                float _ArrowWidth;
+                float _ArrowHeadSize;
+                float _Smoothness;
+                float _Aspect;
+                float _OffsetX;
+                float _OffsetY;
+            CBUFFER_END
 
-            float _CircleRadius;
-            float _CircleThickness;
-
-            float _ArrowLength;
-            float _ArrowWidth;
-            float _ArrowHeadSize;
-
-            float _Smoothness;
-            float _Aspect;
-            float _OffsetX;
-            float _OffsetY;
-
-            Varyings vert (Attributes v)
+            Varyings vert(Attributes input)
             {
-                Varyings o;
-                o.positionHCS = TransformObjectToHClip(v.positionOS.xyz);
-                o.uv = v.uv;
-                return o;
+                Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
+                output.positionHCS = vertexInput.positionCS;
+                output.uv = input.uv;
+
+                return output;
             }
 
             float sdCircle(float2 p, float r)
@@ -116,12 +125,14 @@ Shader "Custom/TargetIndicator_URP"
                 return -sqrt(d.x) * sign(d.y);
             }
 
-            half4 frag (Varyings i) : SV_Target
+            half4 frag(Varyings input) : SV_Target
             {
-                // Sample sprite texture (required for SpriteRenderer)
-                float4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
+                UNITY_SETUP_INSTANCE_ID(input);
 
-                float2 uv = i.uv - 0.5;
+                // Sample sprite texture (required for SpriteRenderer)
+                half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+
+                float2 uv = input.uv - 0.5;
                 uv.x *= _Aspect;
                 uv -= float2(_OffsetX, _OffsetY);
 
@@ -166,4 +177,6 @@ Shader "Custom/TargetIndicator_URP"
             ENDHLSL
         }
     }
+
+    FallBack "Hidden/Universal Render Pipeline/FallbackError"
 }

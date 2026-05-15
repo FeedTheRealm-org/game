@@ -4,7 +4,8 @@ package protocol;
 
 option csharp_namespace = "FTR.Core.Common.Protocol.RpcMessages";
 
-message NotEnoughGoldEventContent {
-  string product_id = 1;
-  int32 amount = 2;
+import "InventoryErrorType.proto";
+
+message InventoryErrorContent {
+  InventoryErrorType error_type = 1;
 }
