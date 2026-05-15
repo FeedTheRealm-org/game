@@ -9,18 +9,14 @@ namespace FTR.Gameplay.Common.Environment.Structures
         public StructureData Data => structureData;
         private GameObject colliderInstance;
 
-        public void Initialize(
-            StructureData structureData,
-            GameObject colliderPrefab,
-            int colliderLayer
-        )
+        public void Initialize(StructureData structureData, GameObject collider, int colliderLayer)
         {
             this.structureData = structureData;
 
             transform.position = structureData.position;
             transform.rotation = Quaternion.Euler(structureData.rotation);
             transform.localScale = structureData.size;
-            SetupCollider(colliderPrefab, colliderLayer);
+            SetupCollider(collider, colliderLayer);
         }
 
         public void Initialize(StructureData structureData)
@@ -34,15 +30,15 @@ namespace FTR.Gameplay.Common.Environment.Structures
             boxCollider.center = structureData.colliderCenter;
         }
 
-        private void SetupCollider(GameObject colliderPrefab, int layer)
+        private void SetupCollider(GameObject collider, int layer)
         {
             if (!structureData.hasColliders)
             {
                 Debug.Log($"Structure {structureData.structureName} has no colliders");
                 return;
             }
-
-            colliderInstance = Instantiate(colliderPrefab, transform);
+            colliderInstance = collider;
+            colliderInstance.transform.SetParent(transform, false);
 
             transform.gameObject.layer = layer;
             foreach (Transform child in transform.GetComponentsInChildren<Transform>(true))

@@ -48,8 +48,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool IsCollidedWithGround()
         {
-            // TODO(optimization): why spherecast + raycast?
-            bool result = Physics.SphereCast(
+            bool isGrounded = Physics.SphereCast(
                 groundCheckSphereOrigin,
                 config.GroundCheckSphereRadius,
                 Vector3.down,
@@ -59,11 +58,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
             );
 
             if (
-                Physics.Raycast(
+                isGrounded
+                && Physics.SphereCast(
                     groundCheckSphereOrigin,
+                    config.GroundCheckSphereRadius,
                     Vector3.down,
                     out RaycastHit slopeHit,
-                    groundCheckDistance + config.GroundCheckSphereRadius,
+                    groundCheckDistance,
                     config.SlopeLayer
                 )
             )
@@ -77,7 +78,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.GroundNormal = Vector3.up;
             }
 
-            return result;
+            return isGrounded;
         }
 
         private void OnDrawGizmos()
@@ -94,6 +95,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
             Gizmos.DrawLine(
                 groundCheckSphereOrigin,
                 groundCheckSphereOrigin + stateStorage.GroundNormal * 2f
+            );
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(
+                groundCheckSphereOrigin + Vector3.down * groundCheckDistance,
+                config.GroundCheckSphereRadius
             );
         }
     }
