@@ -1,5 +1,4 @@
 using FTR.Core.Client.EventChannels.Quest;
-using FTR.Core.Client.Input;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Protocol.RpcMessages;
@@ -30,9 +29,6 @@ namespace FTR.Gameplay.Client.Characters.Player
 
         [Inject]
         private ISoundPlayer soundPlayer;
-
-        [Inject]
-        private CursorManager cursorManager;
 
         private NetworkAdapter networkAdapter;
         private bool isInitialized;
@@ -72,8 +68,6 @@ namespace FTR.Gameplay.Client.Characters.Player
                 return;
             }
 
-            cursorManager.ToggleCursorBlock(false);
-
             showQuestPromptEvent.Raise(
                 new QuestPromptData(questData, networkAdapter.netId, data.npcId)
             );
@@ -85,8 +79,6 @@ namespace FTR.Gameplay.Client.Characters.Player
             {
                 return;
             }
-
-            cursorManager.ToggleCursorBlock(true);
 
             if (decision.IsAccepted)
             {

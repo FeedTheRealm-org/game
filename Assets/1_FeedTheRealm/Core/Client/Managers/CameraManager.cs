@@ -1,7 +1,7 @@
 using Unity.Cinemachine;
 using UnityEngine;
 
-namespace FTR.Core.Client.Input;
+namespace FTR.Core.Client.Managers;
 
 public class CameraManager
 {

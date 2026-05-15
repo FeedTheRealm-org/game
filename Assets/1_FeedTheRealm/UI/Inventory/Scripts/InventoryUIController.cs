@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using FTR.Core.Client.EventChannels.Chat;
+using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Inventory;
-using FTR.Core.Client.EventChannels.Shop;
-using FTR.Core.Client.Input;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
@@ -39,16 +38,13 @@ namespace FTR.UI.Inventory
         private InventoryToggleEvent inventoryToggleEvent;
 
         [Inject]
-        private ChatToggleEvent chatToggleEvent;
-
-        [Inject]
-        private ShopToggleEvent shopToggleEvent;
-
-        [Inject]
         private ISoundPlayer soundPlayer;
 
         [Inject]
-        private CursorManager cursorManager;
+        private MenuManager menuManager;
+
+        [Inject]
+        private BackEvent backEvent;
 
         [SerializeField]
         private PlayerInputReader inputReader;
@@ -77,9 +73,6 @@ namespace FTR.UI.Inventory
         private StorageType selectedStorage;
 
         private readonly InventorySlotGhostController ghost = new();
-
-        private bool isChatOpen = false;
-        private bool isShopOpen = false;
 
         private void OnEnable()
         {
@@ -113,9 +106,8 @@ namespace FTR.UI.Inventory
             );
             root.Q("Drop")?.RegisterCallback<ClickEvent>(_ => OnDropClicked());
 
-            inputReader.InventoryEvent += OnInventoryInput;
-            chatToggleEvent.OnRaised += OnChatToggled;
-            shopToggleEvent.OnRaised += OnShopToggled;
+            inputReader.InventoryEvent += OnToggleInventory;
+            backEvent.OnRaised += CloseInventory;
             lastAddedEvent.OnRaised += OnLastAdded;
             lastSwappedEvent.OnRaised += OnLastSwapped;
             lastRemovedEvent.OnRaised += OnLastRemoved;
@@ -123,9 +115,8 @@ namespace FTR.UI.Inventory
 
         private void OnDisable()
         {
-            inputReader.InventoryEvent -= OnInventoryInput;
-            chatToggleEvent.OnRaised -= OnChatToggled;
-            shopToggleEvent.OnRaised -= OnShopToggled;
+            inputReader.InventoryEvent -= OnToggleInventory;
+            backEvent.OnRaised -= CloseInventory;
             lastAddedEvent.OnRaised -= OnLastAdded;
             lastSwappedEvent.OnRaised -= OnLastSwapped;
             lastRemovedEvent.OnRaised -= OnLastRemoved;
@@ -168,19 +159,32 @@ namespace FTR.UI.Inventory
             }
         }
 
-        private void OnInventoryInput()
+        private void OnToggleInventory()
         {
-            if (isChatOpen || isShopOpen)
+            bool show = !animationController.IsVisible;
+
+            if (show && !menuManager.CanOpenMenu(MenuType.Inventory))
                 return;
 
-            bool show = !animationController.IsVisible;
             animationController.Toggle();
             inventoryToggleEvent?.Raise(show);
-            cursorManager.ToggleCursorBlock(!show);
             if (show)
                 soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
             else
                 soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
+
+            menuManager.ToggleMenu(MenuType.Inventory, show);
+        }
+
+        private void CloseInventory()
+        {
+            if (!animationController.IsVisible)
+                return;
+            animationController.Toggle();
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
+            inventoryToggleEvent?.Raise(false);
+
+            menuManager.ToggleMenu(MenuType.Inventory, false);
         }
 
         private void OnInventorySlotClicked(int i) => HandleSlotClick(StorageType.Inventory, i);
@@ -305,16 +309,6 @@ namespace FTR.UI.Inventory
                 return null;
             string iconName = t == StorageType.FastSlot ? "FastEquipIcon" : "ItemIcon";
             return slots[index].Q(iconName) ?? slots[index];
-        }
-
-        private void OnChatToggled(bool isChatOpen)
-        {
-            this.isChatOpen = isChatOpen;
-        }
-
-        private void OnShopToggled(bool isShopOpen)
-        {
-            this.isShopOpen = isShopOpen;
         }
     }
 }

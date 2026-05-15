@@ -1,5 +1,5 @@
 using FTR.Core.Client.EventChannels.Ticks;
-using FTR.Core.Client.Input;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
@@ -12,7 +12,7 @@ public class MovementController : MonoBehaviour
     private FixedTickEvent fixedTickEvent;
 
     [Inject]
-    private CursorManager cursorManager;
+    private MenuManager menuManager;
 
     [Header("Debug")]
     [SerializeField]
@@ -34,11 +34,13 @@ public class MovementController : MonoBehaviour
         isInitialized = true;
         this.networkAdapter = networkAdapter;
         fixedTickEvent.OnRaised += FixedTick;
+        menuManager.OnMenuOpened += SendStopCommand;
     }
 
     private void OnDestroy()
     {
         fixedTickEvent.OnRaised -= FixedTick;
+        menuManager.OnMenuOpened -= SendStopCommand;
     }
 
     private void FixedTick()
@@ -78,7 +80,7 @@ public class MovementController : MonoBehaviour
 
     private void SendMoveCommand()
     {
-        if (!isInitialized || !cursorManager.IsCursorBlocked)
+        if (menuManager.AreAnyMenusOpen())
             return;
 
         UpdateCurrentDirectionWithCamera();
@@ -109,6 +111,12 @@ public class MovementController : MonoBehaviour
             Direction = currentRealDirection,
         };
 
+        networkAdapter.DispatchAction(command);
+    }
+
+    private void SendStopCommand()
+    {
+        ActionCommandDTO command = new() { Type = ActionType.Move, Direction = Vector3.zero };
         networkAdapter.DispatchAction(command);
     }
 

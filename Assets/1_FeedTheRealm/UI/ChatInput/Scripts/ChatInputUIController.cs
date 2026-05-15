@@ -1,4 +1,6 @@
 using FTR.Core.Client.EventChannels.Chat;
+using FTR.Core.Client.EventChannels.Input;
+using FTR.Core.Client.Managers;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -21,11 +23,17 @@ namespace FTR.UI.WorldSpace
         [Inject]
         private ChatToggleEvent chatToggleEvent;
 
+        [Inject]
+        private MenuManager menuManager;
+
+        [Inject]
+        private BackEvent backEvent;
+
         private VisualElement _root;
         private VisualElement _inputPanel;
         private TextField _inputField;
 
-        private bool _isOpen = false;
+        private bool _isOpen = true;
 
         private void Start()
         {
@@ -51,12 +59,14 @@ namespace FTR.UI.WorldSpace
         {
             if (inputReader != null)
                 inputReader.ChatToggleEvent += OnChatToggle;
+            backEvent.OnRaised += CloseInput;
         }
 
         private void OnDisable()
         {
             if (inputReader != null)
                 inputReader.ChatToggleEvent -= OnChatToggle;
+            backEvent.OnRaised -= CloseInput;
         }
 
         private void OnChatToggle()
@@ -70,17 +80,27 @@ namespace FTR.UI.WorldSpace
 
         private void OpenInput()
         {
+            if (_isOpen || !menuManager.CanOpenMenu(MenuType.Chat))
+                return;
+
             _isOpen = true;
             _inputPanel.style.display = DisplayStyle.Flex;
             _inputField.value = string.Empty;
             _inputField.schedule.Execute(() => _inputField.Focus()).ExecuteLater(1);
+
+            menuManager.ToggleMenu(MenuType.Chat, true);
         }
 
         private void CloseInput()
         {
+            if (!_isOpen)
+                return;
+
             _isOpen = false;
             _inputPanel.style.display = DisplayStyle.None;
             _inputField.value = string.Empty;
+
+            menuManager.ToggleMenu(MenuType.Chat, false);
         }
 
         // ── Send ──────────────────────────────────────────────────────────────

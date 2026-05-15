@@ -1,6 +1,8 @@
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using UnityEngine;
+using VContainer;
 
 public class UseController : MonoBehaviour
 {
@@ -9,6 +11,9 @@ public class UseController : MonoBehaviour
 
     [SerializeField]
     private CharacterAnimator animator;
+
+    [Inject]
+    private MenuManager menuManager;
 
     private NetworkAdapter networkAdapter;
 
@@ -22,7 +27,7 @@ public class UseController : MonoBehaviour
 
     public void Use()
     {
-        if (!isInitialized)
+        if (!isInitialized || menuManager.AreAnyMenusOpen())
             return;
 
         ActionCommandDTO command = new() { Type = ActionType.Use, Direction = GetUseDirection() };

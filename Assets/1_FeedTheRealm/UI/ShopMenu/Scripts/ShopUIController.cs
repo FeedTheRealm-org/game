@@ -4,8 +4,10 @@ using System.Linq;
 using Enums;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
@@ -48,6 +50,12 @@ namespace FTR.UI.Shop
 
         [Inject]
         private InventoryErrorEvent inventoryErrorEvent;
+
+        [Inject]
+        private MenuManager menuManager;
+
+        [Inject]
+        private BackEvent backEvent;
 
         [Inject]
         private ISoundPlayer soundPlayer;
@@ -125,24 +133,18 @@ namespace FTR.UI.Shop
             _messageArea = _shopRoot.Q<VisualElement>("MessageArea");
             SetupFeedbackLabel();
 
-            _shopRoot.RegisterCallback<ClickEvent>(OnBackdropClick);
-
             SetVisible(false, instant: true);
 
             openShopEvent.OnRaised += OnOpenShop;
             inventoryErrorEvent.OnRaised += OnInventoryError;
+            backEvent.OnRaised += CloseShop;
         }
 
         private void OnDisable()
         {
             openShopEvent.OnRaised -= OnOpenShop;
             inventoryErrorEvent.OnRaised -= OnInventoryError;
-        }
-
-        private void OnBackdropClick(ClickEvent evt)
-        {
-            if (_panel != null && !_panel.worldBound.Contains(evt.position))
-                CloseShop();
+            backEvent.OnRaised -= CloseShop;
         }
 
         private void SwitchTab(bool goldTab)
@@ -276,20 +278,29 @@ namespace FTR.UI.Shop
 
         private void OpenShop()
         {
+            if (!menuManager.CanOpenMenu(MenuType.Shop))
+                return;
+
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
             _shopRoot.style.display = DisplayStyle.Flex;
             shopToggleEvent?.Raise(true);
             _animationCoroutine = StartCoroutine(AnimateOpen());
             soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
+
+            menuManager.ToggleMenu(MenuType.Shop, true);
         }
 
         private void CloseShop()
         {
+            if (!_shopRoot.style.display.Equals(DisplayStyle.Flex))
+                return;
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
             _animationCoroutine = StartCoroutine(AnimateClose());
             soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
+
+            menuManager.ToggleMenu(MenuType.Shop, false);
         }
 
         private IEnumerator AnimateOpen()

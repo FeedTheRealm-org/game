@@ -4,7 +4,7 @@ using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
-using FTR.Core.Client.Input;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.Loaders;
 using VContainer;

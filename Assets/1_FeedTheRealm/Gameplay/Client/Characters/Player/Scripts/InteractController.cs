@@ -1,4 +1,4 @@
-using FTR.Core.Client.Input;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using UnityEngine;
@@ -15,7 +15,7 @@ public class InteractController : MonoBehaviour
     PlayerInputReader inputReader;
 
     [Inject]
-    private CursorManager cursorManager;
+    private MenuManager menuManager;
 
     private NetworkAdapter networkAdapter;
     private bool isInitialized;
@@ -37,7 +37,7 @@ public class InteractController : MonoBehaviour
     /// </summary>
     public void OnInteract()
     {
-        if (!isInitialized || !cursorManager.IsCursorBlocked)
+        if (!isInitialized || menuManager.AreAnyMenusOpen())
             return;
 
         var dto = new ActionCommandDTO { Type = ActionType.Interact };
