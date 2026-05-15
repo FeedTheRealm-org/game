@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
+using FTR.Core.Client.Input;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
@@ -45,6 +46,9 @@ namespace FTR.UI.Inventory
 
         [Inject]
         private ISoundPlayer soundPlayer;
+
+        [Inject]
+        private CursorManager cursorManager;
 
         [SerializeField]
         private PlayerInputReader inputReader;
@@ -167,15 +171,12 @@ namespace FTR.UI.Inventory
         private void OnInventoryInput()
         {
             if (isChatOpen || isShopOpen)
-            {
                 return;
-            }
 
             bool show = !animationController.IsVisible;
             animationController.Toggle();
             inventoryToggleEvent?.Raise(show);
-            UnityEngine.Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
-            UnityEngine.Cursor.visible = show;
+            cursorManager.ToggleCursorBlock(!show);
             if (show)
                 soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
             else

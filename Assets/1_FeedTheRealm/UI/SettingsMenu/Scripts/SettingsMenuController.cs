@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Input;
 using FTR.Gameplay.Client.Registry;
 using Mirror;
 using UnityEngine;
@@ -27,6 +28,9 @@ public class SettingsMenuController : MonoBehaviour
 
     [Inject]
     private ISoundPlayer soundPlayer;
+
+    [Inject]
+    private CursorManager cursorManager;
 
     /* General settings */
     private VisualElement root;
@@ -276,8 +280,7 @@ public class SettingsMenuController : MonoBehaviour
         root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
 
-        UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
-        UnityEngine.Cursor.visible = willBeActive;
+        cursorManager.ToggleCursorBlock(!willBeActive);
     }
 
     private void onHomeButtonClicked()

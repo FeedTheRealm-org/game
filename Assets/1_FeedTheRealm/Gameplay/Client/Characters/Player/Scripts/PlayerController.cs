@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Portal;
 using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.Exceptions;
+using FTR.Core.Client.Input;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -32,6 +33,12 @@ public class PlayerController : MonoBehaviour
 
     [Inject]
     private Logging.Logger logger;
+
+    [Inject]
+    private CursorManager cursorManager;
+
+    [Inject]
+    private CameraManager cameraManager;
 
     private CharacterStateMachine characterStateMachine;
 
@@ -93,8 +100,7 @@ public class PlayerController : MonoBehaviour
     private void UpdateCursorState()
     {
         bool shouldShowCursor = isInventoryOpen || isShopOpen || isChatOpen || isPortalOpen;
-        Cursor.visible = shouldShowCursor;
-        Cursor.lockState = shouldShowCursor ? CursorLockMode.None : CursorLockMode.Locked;
+        cursorManager.ToggleCursorBlock(!shouldShowCursor);
     }
 
     public void StartController()
@@ -110,8 +116,7 @@ public class PlayerController : MonoBehaviour
                 nameof(PlayerController)
             );
 
-        var cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
-        cinemachineCamera.Target.TrackingTarget = transform;
+        cameraManager.TrackTarget(transform);
 
         ToggleRegisterInputs(true);
     }

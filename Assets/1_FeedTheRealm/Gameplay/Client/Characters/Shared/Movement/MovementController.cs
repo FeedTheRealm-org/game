@@ -1,4 +1,5 @@
 using FTR.Core.Client.EventChannels.Ticks;
+using FTR.Core.Client.Input;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
@@ -9,6 +10,9 @@ public class MovementController : MonoBehaviour
 {
     [Inject]
     private FixedTickEvent fixedTickEvent;
+
+    [Inject]
+    private CursorManager cursorManager;
 
     [Header("Debug")]
     [SerializeField]
@@ -74,7 +78,7 @@ public class MovementController : MonoBehaviour
 
     private void SendMoveCommand()
     {
-        if (!isInitialized)
+        if (!isInitialized || !cursorManager.IsCursorBlocked)
             return;
 
         UpdateCurrentDirectionWithCamera();
