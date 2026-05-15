@@ -1,8 +1,0 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/Hud/Shops/Themes/ShopMenuTheme.uss?fileID=7433441132597879392&amp;guid=1efe4c1b1e9b1c444b5811fe8def4b33&amp;type=3#ShopMenuTheme"/>
-    <ui:VisualElement name="Panel" class="panel" style="flex-grow: 1; width: 720px; background-size: 100% 100%; transform-origin: center; justify-content: flex-start; align-items: flex-start; align-self: center; align-content: center; padding: 18px; flex-direction: row; flex-wrap: wrap; height: 480px; background-position-x: center; -unity-background-scale-mode: stretch-to-fill; position: absolute; top: 30px; left: auto; right: auto; visibility: visible; display: flex; gap: 12px; padding-top: 50px; padding-right: 40px; padding-bottom: 60px; padding-left: 40px;">
-        <ui:Label text="Shop" name="ShopTitle" style="color: rgb(255, 255, 255); font-size: 28px; -unity-font-style: bold; width: 100%; text-align: center; margin-top: 5px; margin-right: 5px; margin-bottom: 29px; margin-left: 5px;"/>
-        <ui:Button name="CloseButton" text="X" class="close-button" style="position: absolute; right: 30px; top: 26px; width: 28px; height: 28px; font-size: 24px; padding-top: 21px; padding-right: 21px; padding-bottom: 21px; padding-left: 21px; color: rgb(255, 255, 255); -unity-font-style: bold;"/>
-    </ui:VisualElement>
-    <ui:ListView/>
-</ui:UXML>
