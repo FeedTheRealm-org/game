@@ -79,8 +79,7 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("gemStorePrefab", gemStorePrefab)
             .WithParameter("musicPlayerPrefab", musicPlayerPrefab)
             .WithParameter("musicRegistry", musicRegistry)
-            .WithParameter("loadingScreenPrefab", loadingScreenPrefab)
-            .WithParameter("confirmDialogPrefab", confirmDialogPrefab);
+            .WithParameter("loadingScreenPrefab", loadingScreenPrefab);
 
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
     }

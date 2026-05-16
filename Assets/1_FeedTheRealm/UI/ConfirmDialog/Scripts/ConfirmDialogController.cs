@@ -17,7 +17,7 @@ namespace FeedTheRealm.UI.Common
     /// </code>
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
-    public class ConfirmDialogController : MonoBehaviour
+    public class ConfirmDialogController : MonoBehaviour, IConfirmUI
     {
         private VisualElement _overlay;
         private Label _titleLabel;
@@ -102,6 +102,7 @@ namespace FeedTheRealm.UI.Common
             var cb = _onConfirm;
             Hide();
             cb?.Invoke();
+            Destroy(gameObject);
         }
 
         private void OnCancelClicked()
@@ -109,6 +110,7 @@ namespace FeedTheRealm.UI.Common
             var cb = _onCancel;
             Hide();
             cb?.Invoke();
+            Destroy(gameObject);
         }
     }
 }

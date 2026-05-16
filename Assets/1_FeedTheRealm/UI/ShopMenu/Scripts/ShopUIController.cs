@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Enums;
+using FeedTheRealm.UI.Common;
+using FTR.Core.Client;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Inventory;
@@ -51,6 +53,9 @@ namespace FTR.UI.Shop
 
         [Inject]
         private ISoundPlayer soundPlayer;
+
+        [Inject]
+        private ClientPrefabProvider prefabProvider;
 
         private VisualElement _shopRoot;
         private VisualElement _panel;
@@ -443,8 +448,17 @@ namespace FTR.UI.Shop
             string capturedId = product.productId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                int amount = Mathf.Max(1, amountField.value);
-                purchaseRequestEvent?.Raise((_currentShopId, capturedId, amount));
+                var confirmDialog = Instantiate(prefabProvider.ConfirmDialog)
+                    .GetComponent<ConfirmDialogController>();
+                confirmDialog.Show(
+                    title: "Confirm Purchase",
+                    question: $"Are you sure you want to buy {nameLabel.text} x{amountField.value} for {product.price * amountField.value} 🪙?",
+                    onConfirm: () =>
+                    {
+                        int amount = Mathf.Max(1, amountField.value);
+                        purchaseRequestEvent?.Raise((_currentShopId, capturedId, amount));
+                    }
+                );
             });
 
             row.Add(icon);
@@ -503,7 +517,16 @@ namespace FTR.UI.Shop
             string tooltipId = product.productId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                StartCoroutine(ProcessGemPurchase(purchaseId, product.displayName));
+                var confirmDialog = Instantiate(prefabProvider.ConfirmDialog)
+                    .GetComponent<ConfirmDialogController>();
+                confirmDialog.Show(
+                    title: "Confirm Purchase",
+                    question: $"Are you sure you want to buy {product.displayName} for {product.price} 💎?",
+                    onConfirm: () =>
+                    {
+                        StartCoroutine(ProcessGemPurchase(purchaseId, product.displayName));
+                    }
+                );
             });
 
             row.Add(icon);
