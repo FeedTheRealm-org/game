@@ -100,7 +100,11 @@ namespace FTR.Core.Server.Config
         [Header("Ground Check")]
         [SerializeField]
         private float groundCheckDistance = 1f;
+
+        [SerializeField]
+        private float minGroundNormalAlignment = 0.5f;
         public float GroundCheckDistance => groundCheckDistance;
+        public float MinGroundNormalAlignment => minGroundNormalAlignment;
 
         [SerializeField]
         private float groundCheckSphereRadius = 0.4f;

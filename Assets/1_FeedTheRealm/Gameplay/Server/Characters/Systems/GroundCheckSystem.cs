@@ -52,14 +52,31 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 groundCheckSphereOrigin,
                 config.GroundCheckSphereRadius,
                 Vector3.down,
-                out RaycastHit _,
+                out RaycastHit groundHit,
                 groundCheckDistance,
                 config.GroundLayer | config.SlopeLayer
             );
 
+            if (!isGrounded)
+            {
+                stateStorage.IsOnSlope = false;
+                stateStorage.GroundNormal = Vector3.up;
+                return false;
+            }
+
+            // Reject surfaces that are too vertical to stand on.
+            // A dot product of the hit normal against Vector3.up gives the cosine of the angle:
+            // 1.0 = flat ground, 0.0 = vertical wall, negative = ceiling.
+            float normalAlignment = Vector3.Dot(groundHit.normal, Vector3.up);
+            if (normalAlignment < config.MinGroundNormalAlignment)
+            {
+                stateStorage.IsOnSlope = false;
+                stateStorage.GroundNormal = Vector3.up;
+                return false;
+            }
+
             if (
-                isGrounded
-                && Physics.SphereCast(
+                Physics.SphereCast(
                     groundCheckSphereOrigin,
                     config.GroundCheckSphereRadius,
                     Vector3.down,
@@ -78,7 +95,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.GroundNormal = Vector3.up;
             }
 
-            return isGrounded;
+            return true;
         }
 
         private void OnDrawGizmos()
