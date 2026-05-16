@@ -312,6 +312,7 @@ MonoBehaviour:
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
+  confirmPopupPrefab: {fileID: 3626892518001848298, guid: 74472030c54ba0fc48c42cff773742af, type: 3}
   loadFromSession: 1
   spriteLoader: {fileID: 113516504402039252}
   spriteManager: {fileID: 4150376280182372543}

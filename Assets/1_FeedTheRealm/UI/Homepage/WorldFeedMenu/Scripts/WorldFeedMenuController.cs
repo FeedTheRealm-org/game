@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using API;
+using FeedTheRealm.UI.Common;
 using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
@@ -36,6 +37,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     [SerializeField]
     private WorldSelector worldSelector;
+
+    [SerializeField]
+    private GameObject confirmPopupPrefab;
 
     [SerializeField]
     private TeleportDataPersistence teleportDataPersistence;
@@ -253,35 +257,61 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
         try
         {
-            worldSelector.SetSelectedWorldId(worldData.worldId);
-            worldSelector.SetSelectedZoneId(worldData.startingZone);
-            config.CurrentServerAddress = activeWorld.zoneAddress.ip;
-            config.CurrentServerPort = (ushort)activeWorld.zoneAddress.port;
-            SetWorldIdForServices(worldData.worldId);
+            var confirmPopup = Instantiate(confirmPopupPrefab);
+            var dialogController = confirmPopup.GetComponent<ConfirmPopupController>();
+            dialogController.Show(
+                title: "Select World",
+                question: $"Are you sure you want to enter this world?",
+                onConfirm: async () =>
+                {
+                    try
+                    {
+                        worldSelector.SetSelectedWorldId(worldData.worldId);
+                        worldSelector.SetSelectedZoneId(worldData.startingZone);
+                        config.CurrentServerAddress = activeWorld.zoneAddress.ip;
+                        config.CurrentServerPort = (ushort)activeWorld.zoneAddress.port;
+                        SetWorldIdForServices(worldData.worldId);
 
-            var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(worldData.worldId);
-            if (worldJoinToken == null || string.IsNullOrWhiteSpace(worldJoinToken.token_id))
-            {
-                logger.Log(
-                    "[WorldFeed] Failed to issue world join token.",
-                    this,
-                    Logging.LogType.Error
-                );
-                return;
-            }
+                        var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(
+                            worldData.worldId
+                        );
+                        if (
+                            worldJoinToken == null
+                            || string.IsNullOrWhiteSpace(worldJoinToken.token_id)
+                        )
+                        {
+                            logger.Log(
+                                "[WorldFeed] Failed to issue world join token.",
+                                this,
+                                Logging.LogType.Error
+                            );
+                            return;
+                        }
 
-            worldSelector.SetSelectedWorldJoinToken(worldJoinToken.token_id);
+                        worldSelector.SetSelectedWorldJoinToken(worldJoinToken.token_id);
 
-            logger.Log(
-                $"[WorldFeed] Zone address: {activeWorld.zoneAddress.ip}:{activeWorld.zoneAddress.port}",
-                this,
-                Logging.LogType.Info
+                        logger.Log(
+                            $"[WorldFeed] Zone address: {activeWorld.zoneAddress.ip}:{activeWorld.zoneAddress.port}",
+                            this,
+                            Logging.LogType.Info
+                        );
+
+                        if (OnNavigateToWorld != null)
+                            OnNavigateToWorld.Invoke();
+                        else
+                            SceneManager.LoadScene(worldScene.SceneName);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Log(
+                            $"[WorldFeed] Exception entering world: {ex.Message}",
+                            this,
+                            Logging.LogType.Error
+                        );
+                    }
+                },
+                onCancel: () => { }
             );
-
-            if (OnNavigateToWorld != null)
-                OnNavigateToWorld.Invoke();
-            else
-                SceneManager.LoadScene(worldScene.SceneName);
         }
         catch (Exception ex)
         {
