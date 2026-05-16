@@ -220,10 +220,6 @@ public class FTRNetworkManager : NetworkManager
     {
         CancelWorldLoadGate();
         base.OnApplicationQuit();
-
-#if !UNITY_EDITOR && UNITY_STANDALONE_WIN
-        System.Diagnostics.Process.GetCurrentProcess().Kill();
-#endif
     }
 
     private void CancelWorldLoadGate()
