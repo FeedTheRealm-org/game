@@ -70,6 +70,8 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         }
 
         serverConfig.LoadParams();
+
+        Application.quitting += OnApplicationQuitting;
     }
 
     public async void Start()
@@ -130,10 +132,18 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         if (disposed)
             return;
 
-        disposed = true;
+        OnApplicationQuitting();
         lifetimeCts.Cancel();
-        WorldLoadBootstrap.MarkServerFailed();
+        lifetimeCts.Dispose();
+    }
 
+    private async void OnApplicationQuitting()
+    {
+        if (disposed)
+            return;
+        disposed = true;
+
+        logger.Log("Application quitting - notifying orchestrator of offline status");
         try
         {
             await orchestratorService.UpdateZoneStatus(
@@ -145,14 +155,15 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         }
         catch (OrchestratorServiceException ex)
         {
-            logger.Log($"Failed to update zone status: {ex.Message}", Logging.LogType.Error);
+            logger.Log(
+                $"Failed to update zone status on shutdown: {ex.Message}",
+                Logging.LogType.Error
+            );
         }
         catch (Exception ex)
         {
-            logger.Log($"Failed to close HealthcheckServer: {ex}", Logging.LogType.Error);
+            logger.Log($"Error during application quit: {ex}", Logging.LogType.Error);
         }
-
-        lifetimeCts.Dispose();
     }
 
     /// <summary>
