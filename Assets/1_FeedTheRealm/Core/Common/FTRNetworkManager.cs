@@ -51,7 +51,6 @@ public class FTRNetworkManager : NetworkManager
     public override void Awake()
     {
         base.Awake();
-        Application.runInBackground = true;
         WorldLoadBootstrap.Reset();
         worldLoadGateCts?.Dispose();
         worldLoadGateCts = new CancellationTokenSource();
@@ -447,8 +446,6 @@ public class FTRNetworkManager : NetworkManager
         {
             Application.Quit();
         }
-
-        base.OnClientDisconnect();
     }
 
     /// <summary>
