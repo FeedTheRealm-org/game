@@ -67,6 +67,11 @@ namespace FTR.Core.Common.Config
         public float playerMaxHealth = 100f;
         public float HealthUpdateDelay = 0.3f;
 
+        [Header("Common Gameplay Settings")]
+        [SerializeField]
+        private float tunnelingRiskSpeed = 8f;
+        public float TunnelingRiskSpeed => tunnelingRiskSpeed;
+
         private RuntimeRole GetRuntimeRole()
         {
 #if SERVER_BUILD && !CLIENT_BUILD && !BOT_BUILD

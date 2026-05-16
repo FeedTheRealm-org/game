@@ -1,3 +1,4 @@
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
@@ -15,7 +16,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
 
         [SerializeField]
-        private ServerConfig config;
+        private ServerConfig serverConfig;
+
+        [SerializeField]
+        private Config config;
         private bool isInitialized = false;
         private Rigidbody rb;
         private CharacterStateStorage stateStorage;
@@ -55,7 +59,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.stateStorage.OnDeath += HandleDeath;
             this.stateStorage.OnRespawn += HandleRespawn;
 
-            moveSpeed = config.PlayerSpeed > 0 ? config.PlayerSpeed : moveSpeed;
+            moveSpeed = serverConfig.PlayerSpeed > 0 ? serverConfig.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
 
             isInitialized = true;
@@ -118,17 +122,22 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 }
                 else if (direction != Vector3.zero)
                 {
-                    Vector3 moveDirection = stateStorage.IsOnSlope
-                        ? Vector3.ProjectOnPlane(direction, stateStorage.GroundNormal).normalized
-                        : direction;
-
-                    Vector3 nextPosition = rb.position + dt * currentSpeed * moveDirection;
-                    rb.MovePosition(nextPosition);
+                    if (stateStorage.IsOnSlope)
+                    {
+                        Vector3 moveDirection = Vector3
+                            .ProjectOnPlane(direction, stateStorage.GroundNormal)
+                            .normalized;
+                        Vector3 nextPosition = rb.position + dt * currentSpeed * moveDirection;
+                        rb.MovePosition(nextPosition);
+                    }
+                    else
+                    {
+                        HandleFlatMovement(dt, currentSpeed); // was inlined MovePosition
+                    }
                 }
                 else
                 {
-                    rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
-                    stateStorage.SetDirection(rb.linearVelocity);
+                    HandleAirMovement(dt, currentSpeed);
                 }
             }
             else
@@ -147,6 +156,47 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.CorrectPosition(rb.position);
 
             gameTickCounter++;
+        }
+
+        private void HandleFlatMovement(float dt, float currentSpeed)
+        {
+            Vector3 delta = direction * (currentSpeed * dt);
+
+            if (currentSpeed >= config.TunnelingRiskSpeed)
+            {
+                if (rb.SweepTest(delta.normalized, out RaycastHit hit, delta.magnitude))
+                {
+                    rb.MovePosition(
+                        rb.position
+                            + delta.normalized * (hit.distance - Physics.defaultContactOffset)
+                    );
+                    return;
+                }
+            }
+
+            rb.MovePosition(rb.position + delta);
+        }
+
+        private void HandleAirMovement(float dt, float currentSpeed)
+        {
+            if (direction == Vector3.zero)
+                return;
+
+            Vector3 delta = direction * (currentSpeed * dt);
+
+            if (currentSpeed >= config.TunnelingRiskSpeed)
+            {
+                if (rb.SweepTest(delta.normalized, out RaycastHit hit, delta.magnitude))
+                {
+                    rb.MovePosition(
+                        rb.position
+                            + delta.normalized * (hit.distance - Physics.defaultContactOffset)
+                    );
+                    return;
+                }
+            }
+
+            rb.MovePosition(rb.position + delta);
         }
 
         public void LoadPosition(Vector3 position)

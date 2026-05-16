@@ -1,5 +1,6 @@
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
+using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
@@ -15,6 +16,9 @@ public class MovementView : MonoBehaviour
 
     [Inject]
     private ISoundPlayer soundPlayer;
+
+    [Inject]
+    private Config config;
 
     // Injected at Initialize
     private Rigidbody rb;
@@ -108,11 +112,32 @@ public class MovementView : MonoBehaviour
         }
         else
         {
-            Vector3 newPosition = rb.position + currentDirection * Time.fixedDeltaTime;
-            rb.MovePosition(newPosition);
+            HandleClientMovement();
         }
 
         UpdateFootsteps();
+    }
+
+    private void HandleClientMovement()
+    {
+        if (currentDirection == Vector3.zero)
+            return;
+
+        Vector3 delta = currentDirection * Time.fixedDeltaTime;
+        float currentSpeed = currentDirection.magnitude;
+
+        if (currentSpeed >= config.TunnelingRiskSpeed)
+        {
+            if (rb.SweepTest(delta.normalized, out RaycastHit hit, delta.magnitude))
+            {
+                rb.MovePosition(
+                    rb.position + delta.normalized * (hit.distance - Physics.defaultContactOffset)
+                );
+                return;
+            }
+        }
+
+        rb.MovePosition(rb.position + delta);
     }
 
     /// <summary>
