@@ -42,7 +42,7 @@ public class ClientInitiator : LifetimeScope
     private GameObject gemStorePrefab;
 
     [SerializeField]
-    private GameObject confirmDialogPrefab;
+    private GameObject confirmPopupPrefab;
 
     [Header("Loading Screen")]
     [SerializeField]

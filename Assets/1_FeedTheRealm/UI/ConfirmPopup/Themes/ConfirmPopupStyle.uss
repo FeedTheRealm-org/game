@@ -95,25 +95,25 @@
 }
 
 .dialog-btn--cancel {
-    background-color: rgba(110, 255, 251, 0.1);
-    border-width: 1px;
-    border-color: rgba(110, 255, 251, 0.38);
-    color: var(--teal);
-}
-
-.dialog-btn--cancel:hover {
-    background-color: rgba(110, 255, 251, 0.22);
-    color: var(--white);
-}
-
-.dialog-btn--confirm {
     background-color: rgba(255, 210, 80, 0.15);
     border-width: 1px;
     border-color: rgba(255, 210, 80, 0.55);
     color: var(--gold);
 }
 
-.dialog-btn--confirm:hover {
+.dialog-btn--cancel:hover {
     background-color: rgba(255, 210, 80, 0.28);
+    color: var(--white);
+}
+
+.dialog-btn--confirm {
+    background-color: rgba(110, 255, 251, 0.1);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.38);
+    color: var(--teal);
+}
+
+.dialog-btn--confirm:hover {
+    background-color: rgba(110, 255, 251, 0.22);
     color: var(--white);
 }

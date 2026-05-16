@@ -287,9 +287,9 @@ public class SettingsMenuController : MonoBehaviour
 
     private void onHomeButtonClicked()
     {
-        var confirmDialog = Instantiate(prefabProvider.ConfirmDialog)
-            .GetComponent<ConfirmDialogController>();
-        confirmDialog.Show(
+        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+            .GetComponent<ConfirmPopupController>();
+        confirmPopup.Show(
             question: "Are you sure you want to go to the home screen?",
             title: "Return to Home",
             onConfirm: () =>
@@ -302,9 +302,9 @@ public class SettingsMenuController : MonoBehaviour
 
     private void onExitButtonClicked()
     {
-        var confirmDialog = Instantiate(prefabProvider.ConfirmDialog)
-            .GetComponent<ConfirmDialogController>();
-        confirmDialog.Show(
+        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+            .GetComponent<ConfirmPopupController>();
+        confirmPopup.Show(
             question: "Are you sure you want to exit the game?",
             title: "Exit Game",
             onConfirm: () =>

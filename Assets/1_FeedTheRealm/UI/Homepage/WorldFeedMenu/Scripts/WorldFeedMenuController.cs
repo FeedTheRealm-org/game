@@ -39,7 +39,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private WorldSelector worldSelector;
 
     [SerializeField]
-    private GameObject confirmDialogPrefab;
+    private GameObject confirmPopupPrefab;
 
     [SerializeField]
     private TeleportDataPersistence teleportDataPersistence;
@@ -257,8 +257,8 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
         try
         {
-            var confirmDialog = Instantiate(confirmDialogPrefab);
-            var dialogController = confirmDialog.GetComponent<ConfirmDialogController>();
+            var confirmPopup = Instantiate(confirmPopupPrefab);
+            var dialogController = confirmPopup.GetComponent<ConfirmPopupController>();
             dialogController.Show(
                 title: "Select World",
                 question: $"Are you sure you want to enter this world?",

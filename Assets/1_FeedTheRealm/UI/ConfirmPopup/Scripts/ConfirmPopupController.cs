@@ -8,7 +8,7 @@ namespace FeedTheRealm.UI.Common
     /// Reusable confirm/cancel dialog controller.
     ///
     /// <code>
-    ///     _confirmDialog.Show(
+    ///     _confirmPopup.Show(
     ///         question:  "¿Are you sure to...?",
     ///         onConfirm: () => func(),
     ///         onCancel:  () => { /* optional */ },
@@ -17,7 +17,7 @@ namespace FeedTheRealm.UI.Common
     /// </code>
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
-    public class ConfirmDialogController : MonoBehaviour, IConfirmUI
+    public class ConfirmPopupController : MonoBehaviour, IConfirmUI
     {
         private VisualElement _overlay;
         private Label _titleLabel;

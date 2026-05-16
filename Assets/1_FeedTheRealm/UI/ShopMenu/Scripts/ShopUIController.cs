@@ -448,9 +448,9 @@ namespace FTR.UI.Shop
             string capturedId = product.productId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                var confirmDialog = Instantiate(prefabProvider.ConfirmDialog)
-                    .GetComponent<ConfirmDialogController>();
-                confirmDialog.Show(
+                var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+                    .GetComponent<ConfirmPopupController>();
+                confirmPopup.Show(
                     title: "Confirm Purchase",
                     question: $"Are you sure you want to buy {nameLabel.text} x{amountField.value} for {product.price * amountField.value} 🪙?",
                     onConfirm: () =>
@@ -517,9 +517,9 @@ namespace FTR.UI.Shop
             string tooltipId = product.productId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                var confirmDialog = Instantiate(prefabProvider.ConfirmDialog)
-                    .GetComponent<ConfirmDialogController>();
-                confirmDialog.Show(
+                var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+                    .GetComponent<ConfirmPopupController>();
+                confirmPopup.Show(
                     title: "Confirm Purchase",
                     question: $"Are you sure you want to buy {product.displayName} for {product.price} 💎?",
                     onConfirm: () =>

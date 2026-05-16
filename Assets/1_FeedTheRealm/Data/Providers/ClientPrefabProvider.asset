@@ -34,4 +34,4 @@ MonoBehaviour:
   ChatBox: {fileID: 2064266005079064116, guid: 7d1297eb1d3418c488143b4d77f772b5, type: 3}
   ChatInput: {fileID: 1348964074043700, guid: 793b588860968f94aac32692866bb2c9, type: 3}
   MusicPlayerPrefab: {fileID: 5549379460917750396, guid: be38d26ea906230719bfa7ad77e98112, type: 3}
-  ConfirmDialog: {fileID: 3626892518001848298, guid: 74472030c54ba0fc48c42cff773742af, type: 3}
+  ConfirmPopup: {fileID: 3626892518001848298, guid: 74472030c54ba0fc48c42cff773742af, type: 3}
