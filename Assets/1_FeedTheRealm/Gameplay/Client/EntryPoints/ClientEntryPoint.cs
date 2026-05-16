@@ -24,6 +24,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject musicPlayerPrefab;
         private readonly ClientMusicRegistry musicRegistry;
         private readonly GameObject loadingScreenPrefab;
+        private readonly GameObject confirmDialogPrefab;
         private readonly MainMenuFlowService flowService;
 
         public ClientEntryPoint(
@@ -39,7 +40,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
-            GameObject loadingScreenPrefab
+            GameObject loadingScreenPrefab,
+            GameObject confirmDialogPrefab
         )
         {
             this.mainScene = mainScene;
@@ -55,6 +57,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
             this.loadingScreenPrefab = loadingScreenPrefab;
+            this.confirmDialogPrefab = confirmDialogPrefab;
 
             flowService = new MainMenuFlowService(
                 loginPrefab,
