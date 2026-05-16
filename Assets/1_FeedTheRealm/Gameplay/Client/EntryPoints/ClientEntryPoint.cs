@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.EntryPoints
@@ -14,6 +15,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly SceneReference mainScene;
         public readonly Session.Session session;
         public readonly API.AuthService authService;
+        public readonly API.PlayerService playerService;
         private readonly GameObject loginPrefab;
         private readonly GameObject signUpPrefab;
         private readonly GameObject verifyCodePrefab;
@@ -30,6 +32,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             SceneReference mainScene,
             Session.Session session,
             API.AuthService authService,
+            API.PlayerService playerService,
             GameObject loginPrefab,
             GameObject signUpPrefab,
             GameObject verifyCodePrefab,
@@ -39,12 +42,14 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
-            GameObject loadingScreenPrefab
+            GameObject loadingScreenPrefab,
+            IObjectResolver resolver
         )
         {
             this.mainScene = mainScene;
             this.session = session;
             this.authService = authService;
+            this.playerService = playerService;
             this.loginPrefab = loginPrefab;
             this.signUpPrefab = signUpPrefab;
             this.verifyCodePrefab = verifyCodePrefab;
@@ -65,7 +70,10 @@ namespace FTR.Gameplay.Client.EntryPoints
                 profileMenuPrefab,
                 gemStorePrefab,
                 musicPlayerPrefab,
-                musicRegistry
+                musicRegistry,
+                playerService,
+                session,
+                resolver
             );
         }
 

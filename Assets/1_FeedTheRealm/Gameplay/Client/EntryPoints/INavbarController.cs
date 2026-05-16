@@ -9,5 +9,6 @@ namespace FTR.Gameplay.Client.EntryPoints
     {
         void SetProfileMenuInstance(GameObject instance);
         void SetGemStoreInstance(GameObject instance);
+        void OpenProfile();
     }
 }

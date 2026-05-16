@@ -63,5 +63,7 @@ MonoBehaviour:
   gemStorePrefab: {fileID: 1348964074043700, guid: 442b277acc9586448ba5baa9f54327d5, type: 3}
   loadingScreenPrefab: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
   authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
+  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+  clientPrefabProvider: {fileID: 11400000, guid: 805f190945737dfdd82e6b04f6f82e9a, type: 2}
   musicPlayerPrefab: {fileID: 5549379460917750396, guid: c84173a92ddb78749910eced1dc609c6, type: 3}
   musicRegistry: {fileID: 11400000, guid: 68d9e5b0caf1a652db2ac3d15acec7fc, type: 2}

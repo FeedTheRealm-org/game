@@ -1,8 +1,10 @@
-using FTR.Core.Client.EntryPoints;
+using FeedTheRealm.UI.Common;
+using FTR.Core.Client;
 using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.Homepage.Navbar
 {
@@ -26,12 +28,18 @@ namespace FTR.UI.Homepage.Navbar
         [SerializeField]
         private string sectionName = "Section";
 
+        [Inject]
+        private ClientPrefabProvider prefabProvider;
+
         private GameObject profileMenuInstance;
         private VisualElement _root;
         private GameObject gemStoreInstance;
         private Button playerProfileButton;
         private Button gemStoreButton;
+        private Button logoutButton;
         private Label sectionLabel;
+
+        private CharacterEditController _pendingCharacterEditor;
 
         private const string EditCharacterLabel = "Edit Character";
 
@@ -104,6 +112,12 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
             gemStoreButton.clicked += OnGemStoreButtonClicked;
+
+            logoutButton = body.Q<Button>("LogoutButton");
+            if (logoutButton != null)
+            {
+                logoutButton.clicked += OnLogoutButtonClicked;
+            }
         }
 
         private void UpdateProfileButtonText()
@@ -130,6 +144,63 @@ namespace FTR.UI.Homepage.Navbar
             {
                 gemStoreButton.clicked -= OnGemStoreButtonClicked;
             }
+            if (logoutButton != null)
+            {
+                logoutButton.clicked -= OnLogoutButtonClicked;
+            }
+        }
+
+        private void OnLogoutButtonClicked()
+        {
+            if (prefabProvider == null || prefabProvider.ConfirmPopup == null)
+            {
+                logger.Log(
+                    "ConfirmPopup is not assigned in PrefabProvider.",
+                    this,
+                    Logging.LogType.Error
+                );
+                PerformLogout();
+                return;
+            }
+            var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+                .GetComponent<ConfirmPopupController>();
+            confirmPopup.Show(
+                question: "Are you sure you want to log out?",
+                title: "Log Out",
+                onConfirm: () =>
+                {
+                    PerformLogout();
+                }
+            );
+        }
+
+        private void PerformLogout()
+        {
+            logger.Log("User logged out.", this);
+            if (session != null)
+            {
+                session.ClearSession();
+            }
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        private void ResolveCharacterEditorPlayerId()
+        {
+            if (_pendingCharacterEditor == null)
+                return;
+
+            var playerId = session?.UserID?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(playerId))
+            {
+                logger.Log(
+                    "Session.UserId is empty when opening the character editor.",
+                    this,
+                    Logging.LogType.Warning
+                );
+            }
+
+            _pendingCharacterEditor.SetAssetsPlayerId(playerId);
+            _pendingCharacterEditor = null;
         }
 
         private void onProfileButtonClicked()
@@ -139,28 +210,36 @@ namespace FTR.UI.Homepage.Navbar
                 logger.Log("ProfileMenu instance is not set.", this, Logging.LogType.Error);
                 return;
             }
+
+            ResolveCharacterEditorPlayerId();
+
             profileMenuInstance.SetActive(!profileMenuInstance.activeSelf);
+        }
+
+        public void OpenProfile()
+        {
+            if (profileMenuInstance == null)
+            {
+                logger.Log("ProfileMenu instance is not set.", this, Logging.LogType.Error);
+                return;
+            }
+
+            ResolveCharacterEditorPlayerId();
+
+            profileMenuInstance.SetActive(true);
         }
 
         public void SetProfileMenuInstance(GameObject instance)
         {
             profileMenuInstance = instance;
+
             CharacterEditController characterEditorController =
-                profileMenuInstance.GetComponentInChildren<CharacterEditController>();
+                profileMenuInstance.GetComponentInChildren<CharacterEditController>(true);
+
             if (characterEditorController != null)
             {
-                var playerId = session?.UserID?.Trim() ?? string.Empty;
-                if (string.IsNullOrEmpty(playerId))
-                {
-                    logger.Log(
-                        "Session.UserId is empty. Character editor will receive an empty player id.",
-                        this,
-                        Logging.LogType.Warning
-                    );
-                }
-
                 characterEditorController.SetAssetsWorldId(new System.Guid().ToString());
-                characterEditorController.SetAssetsPlayerId(playerId);
+                _pendingCharacterEditor = characterEditorController;
             }
         }
 

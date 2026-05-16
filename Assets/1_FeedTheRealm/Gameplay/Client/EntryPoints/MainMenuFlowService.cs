@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.EntryPoints
 {
@@ -15,6 +16,9 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject gemStorePrefab;
         readonly GameObject musicPlayerPrefab;
         readonly ClientMusicRegistry musicRegistry;
+        readonly API.PlayerService playerService;
+        readonly Session.Session session;
+        readonly VContainer.IObjectResolver resolver;
 
         private GameObject musicPlayerInstance;
 
@@ -27,7 +31,10 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
-            ClientMusicRegistry musicRegistry
+            ClientMusicRegistry musicRegistry,
+            API.PlayerService playerService,
+            Session.Session session,
+            VContainer.IObjectResolver resolver
         )
         {
             this.loginPrefab = loginPrefab;
@@ -39,6 +46,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
+            this.playerService = playerService;
+            this.session = session;
+            this.resolver = resolver;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -119,12 +129,24 @@ namespace FTR.Gameplay.Client.EntryPoints
             gemStoreObj.SetActive(false);
 
             // NavBar — wire both instances
-            var navBarObj = Object.Instantiate(navBarPrefab);
+            var navBarObj = resolver.Instantiate(navBarPrefab);
             var navBarController = navBarObj.GetComponent<INavbarController>();
             if (navBarController != null)
             {
                 navBarController.SetProfileMenuInstance(profileMenuObj);
                 navBarController.SetGemStoreInstance(gemStoreObj);
+            }
+
+            bool hasCharacter = await CheckHasCharacterAsync();
+            Debug.Log($"[MainMenuFlowService] Has character: {hasCharacter}");
+
+            if (!hasCharacter)
+            {
+                await WaitForProfileCreationAsync(navBarController, profileMenuObj);
+
+                Debug.Log(
+                    "[MainMenuFlowService] Profile creation completed, proceeding to world feed."
+                );
             }
 
             var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
@@ -139,6 +161,62 @@ namespace FTR.Gameplay.Client.EntryPoints
             Object.Destroy(gemStoreObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
+        }
+
+        private async UniTask WaitForProfileCreationAsync(
+            INavbarController navBarController,
+            GameObject profileMenuObj
+        )
+        {
+            var profileDone = new UniTaskCompletionSource();
+
+            var waiter = profileMenuObj.AddComponent<OnDisableNotifier>();
+            waiter.OnDisabled += () => profileDone.TrySetResult();
+
+            if (navBarController != null)
+                navBarController.OpenProfile();
+            else
+                profileMenuObj.SetActive(true);
+
+            await profileDone.Task;
+
+            Object.Destroy(waiter);
+        }
+
+        private async UniTask<bool> CheckHasCharacterAsync()
+        {
+            if (playerService == null || session == null)
+            {
+                Debug.LogWarning(
+                    "[MainMenuFlowService] PlayerService or Session is null, assuming no character."
+                );
+                return false;
+            }
+
+            try
+            {
+                var characterInfo = await playerService.GetCharacterInfoAsync();
+
+                if (characterInfo == null)
+                {
+                    Debug.Log(
+                        "[MainMenuFlowService] CharacterInfo is null (likely 404 or no character)."
+                    );
+                    return false;
+                }
+
+                bool hasName = !string.IsNullOrWhiteSpace(characterInfo.character_name);
+                Debug.Log(
+                    $"[MainMenuFlowService] Character name from API: '{characterInfo.character_name}'"
+                );
+
+                return hasName;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[MainMenuFlowService] Error checking character: {ex.Message}");
+                return false;
+            }
         }
     }
 }

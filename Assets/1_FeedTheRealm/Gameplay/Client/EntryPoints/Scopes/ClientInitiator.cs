@@ -1,3 +1,4 @@
+using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
@@ -45,8 +46,15 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject loadingScreenPrefab;
 
+    [Header("Services")]
     [SerializeField]
     private API.AuthService authService;
+
+    [SerializeField]
+    private API.PlayerService playerService;
+
+    [SerializeField]
+    private ClientPrefabProvider clientPrefabProvider;
 
     [Header("Audio")]
     [SerializeField]
@@ -62,7 +70,11 @@ public class ClientInitiator : LifetimeScope
 
         builder.RegisterInstance(session);
         builder.RegisterInstance(authService);
+        builder.RegisterInstance(playerService);
         builder.RegisterInstance(musicRegistry);
+        if (clientPrefabProvider != null)
+            builder.RegisterInstance(clientPrefabProvider);
+
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder
             .RegisterEntryPoint<ClientEntryPoint>()

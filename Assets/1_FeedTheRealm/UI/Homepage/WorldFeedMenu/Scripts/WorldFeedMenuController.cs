@@ -50,6 +50,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     [SerializeField]
     private GameObject worldInfoHUD;
     public event Action OnNavigateToWorld;
+    public event Action OnProfileMissing;
     private VisualElement ui;
     private TextField searchField;
     private Button backButton;
@@ -89,6 +90,19 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     {
         logger.Log("[WorldFeed] World feed menu opened.", this);
         worldSelector?.ClearSelectedWorldJoinToken();
+
+        var characterInfo = await playerService.GetCharacterInfoAsync();
+        if (characterInfo == null || string.IsNullOrWhiteSpace(characterInfo.character_name))
+        {
+            logger.Log(
+                "[WorldFeed] No character found, redirecting to profile.",
+                this,
+                Logging.LogType.Warning
+            );
+            OnProfileMissing?.Invoke();
+            return;
+        }
+
         await RenderWorldPage(currentOffset, searchField?.value);
         logger.Log("[WorldFeed] World feed menu rendered.", this);
     }
