@@ -446,6 +446,7 @@ namespace FTR.UI.Shop
             buyButton.Add(buyLabel);
 
             string capturedId = product.productId;
+            string capturedShopId = _currentShopId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
                 var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
@@ -456,7 +457,7 @@ namespace FTR.UI.Shop
                     onConfirm: () =>
                     {
                         int amount = Mathf.Max(1, amountField.value);
-                        purchaseRequestEvent?.Raise((_currentShopId, capturedId, amount));
+                        purchaseRequestEvent?.Raise((capturedShopId, capturedId, amount));
                     }
                 );
             });

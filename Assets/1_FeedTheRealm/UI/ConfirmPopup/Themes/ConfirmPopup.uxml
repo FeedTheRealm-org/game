@@ -1,28 +1,17 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/ConfirmPopup/Themes/ConfirmPopupStyle.uss?fileID=&amp;guid=&amp;type=3#confirmPopup"/>
-
-    <!-- Overlay -->
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/ConfirmPopup/Themes/ConfirmPopupStyle.uss?fileID=7433441132597879392&amp;guid=e566a5d915f173049ad407d6416f7163&amp;type=3#ConfirmPopupStyle"/>
     <ui:VisualElement name="Overlay" class="dialog-overlay">
-
-        <!-- Card -->
         <ui:VisualElement name="DialogCard" class="dialog-card">
-
-            <!-- Header -->
             <ui:VisualElement name="Header" class="dialog-header">
                 <ui:Label name="DialogTitle" text="Confirm Action" class="dialog-title"/>
             </ui:VisualElement>
-
-            <!-- Body -->
             <ui:VisualElement name="Body" class="dialog-body">
                 <ui:Label name="QuestionLabel" text="Are you sure you want to proceed?" class="dialog-question"/>
             </ui:VisualElement>
-
-            <!-- Footer -->
             <ui:VisualElement name="Footer" class="dialog-footer">
-                <ui:Button name="CancelButton"  text="Cancel"  class="dialog-btn dialog-btn--cancel"/>
+                <ui:Button name="CancelButton" text="Cancel" class="dialog-btn dialog-btn--cancel"/>
                 <ui:Button name="ConfirmButton" text="Confirm" class="dialog-btn dialog-btn--confirm"/>
             </ui:VisualElement>
-
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

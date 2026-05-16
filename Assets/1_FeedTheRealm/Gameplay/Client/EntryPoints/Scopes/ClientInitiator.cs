@@ -41,9 +41,6 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject gemStorePrefab;
 
-    [SerializeField]
-    private GameObject confirmPopupPrefab;
-
     [Header("Loading Screen")]
     [SerializeField]
     private GameObject loadingScreenPrefab;

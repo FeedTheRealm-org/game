@@ -264,40 +264,51 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
                 question: $"Are you sure you want to enter this world?",
                 onConfirm: async () =>
                 {
-                    worldSelector.SetSelectedWorldId(worldData.worldId);
-                    worldSelector.SetSelectedZoneId(worldData.startingZone);
-                    config.CurrentServerAddress = activeWorld.zoneAddress.ip;
-                    config.CurrentServerPort = (ushort)activeWorld.zoneAddress.port;
-                    SetWorldIdForServices(worldData.worldId);
+                    try
+                    {
+                        worldSelector.SetSelectedWorldId(worldData.worldId);
+                        worldSelector.SetSelectedZoneId(worldData.startingZone);
+                        config.CurrentServerAddress = activeWorld.zoneAddress.ip;
+                        config.CurrentServerPort = (ushort)activeWorld.zoneAddress.port;
+                        SetWorldIdForServices(worldData.worldId);
 
-                    var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(
-                        worldData.worldId
-                    );
-                    if (
-                        worldJoinToken == null
-                        || string.IsNullOrWhiteSpace(worldJoinToken.token_id)
-                    )
+                        var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(
+                            worldData.worldId
+                        );
+                        if (
+                            worldJoinToken == null
+                            || string.IsNullOrWhiteSpace(worldJoinToken.token_id)
+                        )
+                        {
+                            logger.Log(
+                                "[WorldFeed] Failed to issue world join token.",
+                                this,
+                                Logging.LogType.Error
+                            );
+                            return;
+                        }
+
+                        worldSelector.SetSelectedWorldJoinToken(worldJoinToken.token_id);
+
+                        logger.Log(
+                            $"[WorldFeed] Zone address: {activeWorld.zoneAddress.ip}:{activeWorld.zoneAddress.port}",
+                            this,
+                            Logging.LogType.Info
+                        );
+
+                        if (OnNavigateToWorld != null)
+                            OnNavigateToWorld.Invoke();
+                        else
+                            SceneManager.LoadScene(worldScene.SceneName);
+                    }
+                    catch (Exception ex)
                     {
                         logger.Log(
-                            "[WorldFeed] Failed to issue world join token.",
+                            $"[WorldFeed] Exception entering world: {ex.Message}",
                             this,
                             Logging.LogType.Error
                         );
-                        return;
                     }
-
-                    worldSelector.SetSelectedWorldJoinToken(worldJoinToken.token_id);
-
-                    logger.Log(
-                        $"[WorldFeed] Zone address: {activeWorld.zoneAddress.ip}:{activeWorld.zoneAddress.port}",
-                        this,
-                        Logging.LogType.Info
-                    );
-
-                    if (OnNavigateToWorld != null)
-                        OnNavigateToWorld.Invoke();
-                    else
-                        SceneManager.LoadScene(worldScene.SceneName);
                 },
                 onCancel: () => { }
             );

@@ -9,10 +9,10 @@ namespace FeedTheRealm.UI.Common
     ///
     /// <code>
     ///     _confirmPopup.Show(
-    ///         question:  "¿Are you sure to...?",
+    ///         question:  "¿Are you sure ...?",
     ///         onConfirm: () => func(),
     ///         onCancel:  () => { /* optional */ },
-    ///         title:     "Tittle"           // optional
+    ///         title:     "Title"           // optional
     ///     );
     /// </code>
     /// </summary>
