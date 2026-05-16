@@ -33,8 +33,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float speedBuffTimer = 0f;
 
         private bool isDead = false;
-
         private bool wasGroundedLastTick = false;
+        private float capsuleRadius;
 
         public Vector3 GetCurrentPosition() => rb.position;
 
@@ -59,21 +59,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.stateStorage.OnDeath += HandleDeath;
             this.stateStorage.OnRespawn += HandleRespawn;
 
+            var capsuleCollider = rb.GetComponent<CapsuleCollider>();
+            capsuleRadius =
+                capsuleCollider != null ? capsuleCollider.radius * rb.transform.lossyScale.x : 0.5f;
+
             moveSpeed = serverConfig.PlayerSpeed > 0 ? serverConfig.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
 
             isInitialized = true;
         }
 
-        private void HandleDeath()
+        public void LoadPosition(Vector3 position)
         {
-            isDead = true;
-            direction = Vector3.zero;
-        }
-
-        private void HandleRespawn()
-        {
-            isDead = false;
+            rb.position = position;
+            stateStorage.CorrectPosition(rb.position);
+            Debug.Log($"Loaded position for player {stateStorage.CharacterId}: {position}");
         }
 
         public void OnMove(Vector3 direction)
@@ -94,8 +94,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt)
         {
-            // TODO(optimization): evaluate optimization for NPCs or maybe all characters?
-            // early return if no velocity/direction, etc
             if (!isInitialized || stateStorage.IsMovementBlocked || isDead)
                 return;
 
@@ -127,27 +125,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         Vector3 moveDirection = Vector3
                             .ProjectOnPlane(direction, stateStorage.GroundNormal)
                             .normalized;
-                        Vector3 nextPosition = rb.position + dt * currentSpeed * moveDirection;
-                        rb.MovePosition(nextPosition);
+                        HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed);
                     }
                     else
                     {
-                        HandleFlatMovement(dt, currentSpeed); // was inlined MovePosition
+                        HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed);
                     }
                 }
                 else
                 {
-                    HandleAirMovement(dt, currentSpeed);
+                    rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+                    stateStorage.SetDirection(rb.linearVelocity);
                 }
             }
             else
             {
-                // allow movement in air but don't auto-move — apply direction only if actively set
                 if (direction != Vector3.zero)
-                {
-                    Vector3 nextPosition = rb.position + dt * currentSpeed * direction;
-                    rb.MovePosition(nextPosition);
-                }
+                    HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed);
             }
 
             wasGroundedLastTick = isGrounded;
@@ -158,17 +152,44 @@ namespace FTR.Gameplay.Server.Characters.Systems
             gameTickCounter++;
         }
 
-        private void HandleFlatMovement(float dt, float currentSpeed)
+        private void HandleMovementWithRaycasts(Vector3 delta, float currentSpeed)
         {
-            Vector3 delta = direction * (currentSpeed * dt);
-
             if (currentSpeed >= config.TunnelingRiskSpeed)
             {
-                if (rb.SweepTest(delta.normalized, out RaycastHit hit, delta.magnitude))
+                Vector3 deltaNormalized = delta.normalized;
+                Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+
+                Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+                Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+
+                LayerMask blockingLayers =
+                    config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
+
+                bool hitLeft = Physics.Raycast(
+                    leftOrigin,
+                    deltaNormalized,
+                    out RaycastHit leftHit,
+                    delta.magnitude,
+                    blockingLayers
+                );
+                bool hitRight = Physics.Raycast(
+                    rightOrigin,
+                    deltaNormalized,
+                    out RaycastHit rightHit,
+                    delta.magnitude,
+                    blockingLayers
+                );
+
+                if (hitLeft || hitRight)
                 {
+                    float stopDistance =
+                        hitLeft && hitRight ? Mathf.Min(leftHit.distance, rightHit.distance)
+                        : hitLeft ? leftHit.distance
+                        : rightHit.distance;
+
                     rb.MovePosition(
                         rb.position
-                            + delta.normalized * (hit.distance - Physics.defaultContactOffset)
+                            + deltaNormalized * (stopDistance - Physics.defaultContactOffset)
                     );
                     return;
                 }
@@ -177,33 +198,47 @@ namespace FTR.Gameplay.Server.Characters.Systems
             rb.MovePosition(rb.position + delta);
         }
 
-        private void HandleAirMovement(float dt, float currentSpeed)
+        private void HandleDeath()
         {
-            if (direction == Vector3.zero)
+            isDead = true;
+            direction = Vector3.zero;
+        }
+
+        private void HandleRespawn()
+        {
+            isDead = false;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (rb == null || !isInitialized)
                 return;
 
-            Vector3 delta = direction * (currentSpeed * dt);
+            Vector3 deltaNormalized = direction.normalized;
+            if (deltaNormalized == Vector3.zero)
+                return;
 
-            if (currentSpeed >= config.TunnelingRiskSpeed)
-            {
-                if (rb.SweepTest(delta.normalized, out RaycastHit hit, delta.magnitude))
-                {
-                    rb.MovePosition(
-                        rb.position
-                            + delta.normalized * (hit.distance - Physics.defaultContactOffset)
-                    );
-                    return;
-                }
-            }
+            Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+            Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+            Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+            float rayLength = 2f; // visual length, not tied to delta
 
-            rb.MovePosition(rb.position + delta);
-        }
+            // Left raycast
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(leftOrigin, leftOrigin + deltaNormalized * rayLength);
+            Gizmos.DrawWireSphere(leftOrigin, 0.05f);
 
-        public void LoadPosition(Vector3 position)
-        {
-            rb.position = position;
-            stateStorage.CorrectPosition(rb.position);
-            Debug.Log($"Loaded position for player {stateStorage.CharacterId}: {position}");
+            // Right raycast
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(rightOrigin, rightOrigin + deltaNormalized * rayLength);
+            Gizmos.DrawWireSphere(rightOrigin, 0.05f);
+
+            // Capsule radius indicator
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(
+                rb.position - perpendicular * capsuleRadius,
+                rb.position + perpendicular * capsuleRadius
+            );
         }
     }
 }

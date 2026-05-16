@@ -24,6 +24,7 @@ public class MovementView : MonoBehaviour
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
     private bool isInitialized = false;
+    private float capsuleRadius;
 
     // TODO: moves these to a proper config or constants class later
     private const float errorMargin = 0.001f;
@@ -50,6 +51,10 @@ public class MovementView : MonoBehaviour
         this.rb = rb;
         this.stateStorage = stateStorage;
 
+        var capsuleCollider = rb.GetComponent<CapsuleCollider>();
+        capsuleRadius =
+            capsuleCollider != null ? capsuleCollider.radius * rb.transform.lossyScale.x : 0.5f;
+
         this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
         this.stateStorage.OnDeath += HandleDeath;
@@ -74,8 +79,6 @@ public class MovementView : MonoBehaviour
         soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Spawn, transform.position);
     }
 
-    // TODO: review if we need to unsubscribe from events on disable/destroy,
-    // or if the lifetime of this component is guaranteed to be the same as the character's lifetime
     private void OnDestroy()
     {
         fixedTickEvent.OnRaised -= FixedTick;
@@ -123,15 +126,46 @@ public class MovementView : MonoBehaviour
         if (currentDirection == Vector3.zero)
             return;
 
-        Vector3 delta = currentDirection * Time.fixedDeltaTime;
         float currentSpeed = currentDirection.magnitude;
+        HandleMovementWithRaycasts(currentDirection * Time.fixedDeltaTime, currentSpeed);
+    }
 
+    private void HandleMovementWithRaycasts(Vector3 delta, float currentSpeed)
+    {
         if (currentSpeed >= config.TunnelingRiskSpeed)
         {
-            if (rb.SweepTest(delta.normalized, out RaycastHit hit, delta.magnitude))
+            Vector3 deltaNormalized = delta.normalized;
+            Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+
+            Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+            Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+
+            LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
+
+            bool hitLeft = Physics.Raycast(
+                leftOrigin,
+                deltaNormalized,
+                out RaycastHit leftHit,
+                delta.magnitude,
+                blockingLayers
+            );
+            bool hitRight = Physics.Raycast(
+                rightOrigin,
+                deltaNormalized,
+                out RaycastHit rightHit,
+                delta.magnitude,
+                blockingLayers
+            );
+
+            if (hitLeft || hitRight)
             {
+                float stopDistance =
+                    hitLeft && hitRight ? Mathf.Min(leftHit.distance, rightHit.distance)
+                    : hitLeft ? leftHit.distance
+                    : rightHit.distance;
+
                 rb.MovePosition(
-                    rb.position + delta.normalized * (hit.distance - Physics.defaultContactOffset)
+                    rb.position + deltaNormalized * (stopDistance - Physics.defaultContactOffset)
                 );
                 return;
             }
@@ -140,10 +174,32 @@ public class MovementView : MonoBehaviour
         rb.MovePosition(rb.position + delta);
     }
 
-    /// <summary>
-    /// OnVelocityChanged receives the authoritative velocity from the server.
-    /// This is what actually moves the character.
-    /// </summary>
+    private void OnDrawGizmos()
+    {
+        if (rb == null || !isInitialized)
+            return;
+
+        Vector3 deltaNormalized = currentDirection.normalized;
+        if (deltaNormalized == Vector3.zero)
+            return;
+
+        Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+        Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+        Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+        float rayLength = 2f;
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(leftOrigin, leftOrigin + deltaNormalized * rayLength);
+        Gizmos.DrawWireSphere(leftOrigin, 0.05f);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(rightOrigin, rightOrigin + deltaNormalized * rayLength);
+        Gizmos.DrawWireSphere(rightOrigin, 0.05f);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(leftOrigin, rightOrigin);
+    }
+
     private void UpdateFootsteps()
     {
         if (!isMoving)
@@ -184,18 +240,12 @@ public class MovementView : MonoBehaviour
         currentDirection = direction;
     }
 
-    /// <summary>
-    /// OnPositionCorrected is used for reconciliation and error correction, periodically.
-    /// </summary>
     private void OnPositionCorrected(Vector3 targetPosition)
     {
         correctingPosition = true;
         positionCorrectionTarget = targetPosition;
     }
 
-    /// <summary>
-    /// Updates the facing direction based on the movement direction and camera orientation.
-    /// </summary>
     public void UpdateFacingDirection(Vector3 direction)
     {
         if (!isInitialized)
@@ -216,9 +266,6 @@ public class MovementView : MonoBehaviour
         animator.SetFacing(facing);
     }
 
-    /// <summary>
-    /// Determines the facing direction based on the movement direction and camera orientation.
-    /// </summary>
     private FacingDirection GetFacingDirection(Vector3 direction)
     {
         if (!VectorTransformations.IsMovementMagnitude(direction))
