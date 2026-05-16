@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using API;
 using FTR.Core.Common.Scopes;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Healthcheck;
@@ -22,7 +23,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
     private readonly ServerSecretsConfig secretsConfig;
     private readonly Database database;
     private readonly PlayersRepository playersRepository;
-
+    private readonly OrchestratorService orchestratorService;
     private readonly Logging.Logger logger;
 
     private readonly CancellationTokenSource lifetimeCts = new();
@@ -44,6 +45,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         ServerSecretsConfig secretsConfig,
         Database database,
         PlayersRepository playersRepository,
+        OrchestratorService orchestratorService,
         Logging.Logger logger
     )
     {
@@ -55,6 +57,7 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
         this.secretsConfig = secretsConfig;
         this.database = database;
         this.playersRepository = playersRepository;
+        this.orchestratorService = orchestratorService;
         this.logger = logger;
         resolverContainer.SetResolver(resolver);
 
@@ -96,9 +99,19 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
             healthcheckServer.Start();
             WorldLoadBootstrap.MarkServerReady();
             IsInitialized = true;
+            await orchestratorService.UpdateZoneStatus(
+                serverConfig.WorldId,
+                serverConfig.ZoneId,
+                isOnline: true
+            );
             logger.Log(
                 $"ServerWorldEntryPoint started successfully with worldId={serverConfig.WorldId}, zoneId={serverConfig.ZoneId}, isTestWorld={serverConfig.IsTestWorld}"
             );
+        }
+        catch (OrchestratorServiceException ex)
+        {
+            logger.Log($"Failed to update zone status: {ex.Message}", Logging.LogType.Error);
+            WorldLoadBootstrap.MarkServerFailed();
         }
         catch (OperationCanceledException)
         {
@@ -123,7 +136,16 @@ public sealed class ServerWorldEntryPoint : IStartable, ITickable, IDisposable
 
         try
         {
+            await orchestratorService.UpdateZoneStatus(
+                serverConfig.WorldId,
+                serverConfig.ZoneId,
+                isOnline: false
+            );
             await healthcheckServer.CloseAsync();
+        }
+        catch (OrchestratorServiceException ex)
+        {
+            logger.Log($"Failed to update zone status: {ex.Message}", Logging.LogType.Error);
         }
         catch (Exception ex)
         {
