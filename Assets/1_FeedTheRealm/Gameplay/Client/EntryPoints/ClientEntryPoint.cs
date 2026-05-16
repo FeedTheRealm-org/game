@@ -97,6 +97,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             // Cap Update & LateUpdate TPS
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
+            Application.runInBackground = true;
         }
 
         async UniTask LoadMainScene()
