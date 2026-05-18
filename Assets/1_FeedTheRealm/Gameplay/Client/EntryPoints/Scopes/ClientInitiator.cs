@@ -64,10 +64,6 @@ public class ClientInitiator : LifetimeScope
         if (config.RuntimeRole != RuntimeRole.Client)
             throw new System.InvalidOperationException("Invalid runtime role for ClientInitiator");
 
-        settingsManager.LoadSettings();
-        settingsManager.ApplyDisplay();
-        settingsManager.ApplyAudioListener();
-
         builder.RegisterInstance(session);
         builder.RegisterInstance(authService);
         builder.RegisterInstance(musicRegistry);
@@ -85,7 +81,8 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("gemStorePrefab", gemStorePrefab)
             .WithParameter("musicPlayerPrefab", musicPlayerPrefab)
             .WithParameter("musicRegistry", musicRegistry)
-            .WithParameter("loadingScreenPrefab", loadingScreenPrefab);
+            .WithParameter("loadingScreenPrefab", loadingScreenPrefab)
+            .WithParameter("settingsManager", settingsManager);
 
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
     }

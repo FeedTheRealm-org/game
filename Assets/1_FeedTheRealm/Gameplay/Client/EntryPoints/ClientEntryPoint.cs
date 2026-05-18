@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client.Settings;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,6 +26,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly ClientMusicRegistry musicRegistry;
         private readonly GameObject loadingScreenPrefab;
         private readonly MainMenuFlowService flowService;
+        private readonly SettingsManager settingsManager;
 
         public ClientEntryPoint(
             SceneReference mainScene,
@@ -39,7 +41,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
-            GameObject loadingScreenPrefab
+            GameObject loadingScreenPrefab,
+            SettingsManager settingsManager
         )
         {
             this.mainScene = mainScene;
@@ -55,6 +58,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
             this.loadingScreenPrefab = loadingScreenPrefab;
+            this.settingsManager = settingsManager;
 
             flowService = new MainMenuFlowService(
                 loginPrefab,
@@ -95,6 +99,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             // TODO: Load client config
 
             // Cap Update & LateUpdate TPS
+            settingsManager.LoadSettings();
+            settingsManager.ApplyDisplay();
+            settingsManager.ApplyAudioListener();
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
             Application.runInBackground = true;
