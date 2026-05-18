@@ -9,7 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e7f17f83703cec46bfda42886ef0a9b, type: 3}
-  m_Name: PlayerInputReader
-  m_EditorClassIdentifier: FeedTheRealm_Shared::PlayerInputReader
-  backEvent: {fileID: 11400000, guid: 84e65d4304044a4fd802bcb81b05a1ed, type: 2}
+  m_Script: {fileID: 11500000, guid: b3476fae485105c1596a2cdf02a0b4e6, type: 3}
+  m_Name: BackEvent
+  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Input.BackEvent

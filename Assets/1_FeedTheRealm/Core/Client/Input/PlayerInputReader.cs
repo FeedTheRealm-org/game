@@ -1,4 +1,5 @@
 using System;
+using FTR.Core.Client.EventChannels.Input;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
@@ -6,6 +7,9 @@ using UnityEngine.InputSystem.Controls;
 [CreateAssetMenu(fileName = "PlayerInputReader", menuName = "Scriptable Objects/PlayerInputReader")]
 public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
 {
+    [SerializeField]
+    private BackEvent backEvent;
+
     public event Action<Vector2> MoveEvent;
     public event Action DashEvent;
     public event Action InventoryEvent;
@@ -73,6 +77,7 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
         if (context.performed)
         {
             CursorToggleEvent?.Invoke();
+            backEvent?.Raise();
         }
     }
 

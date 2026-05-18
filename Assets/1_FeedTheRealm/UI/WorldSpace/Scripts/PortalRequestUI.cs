@@ -1,6 +1,8 @@
 using System;
 using FTR.Core.Client.EventChannels;
+using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Portal;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Characters;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.EventChannels;
@@ -27,6 +29,12 @@ namespace FTR.UI.WorldSpace
         [SerializeField]
         private OpenPortalUIEvent openPortalEvent;
 
+        [Inject]
+        private MenuManager menuManager;
+
+        [Inject]
+        private BackEvent backEvent;
+
         private bool isOpen = false;
 
         private VisualElement root;
@@ -46,6 +54,12 @@ namespace FTR.UI.WorldSpace
             acceptButton = root.Q<Button>("AcceptButton");
             declineButton = root.Q<Button>("DeclineButton");
             root.style.display = DisplayStyle.None;
+            backEvent.OnRaised += OnClose;
+        }
+
+        private void OnDestroy()
+        {
+            backEvent.OnRaised -= OnClose;
         }
 
         private void OnEnable()
@@ -68,13 +82,14 @@ namespace FTR.UI.WorldSpace
         {
             logger.Log($"[PortalRequestController] Received OpenPortalRequest", this);
 
-            if (isOpen)
+            if (isOpen || !menuManager.CanOpenMenu(MenuType.Portal))
                 return;
 
             destinationLabel.text = content.DestinationName;
             portalNameLabel.text = content.PortalName;
             root.style.display = DisplayStyle.Flex;
             isOpen = true;
+            menuManager.ToggleMenu(MenuType.Portal, true);
             currentContent = content;
 
             if (acceptClickedHandler != null)
@@ -91,15 +106,34 @@ namespace FTR.UI.WorldSpace
 
         private void HandleButtonClicked(OpenPortalUiContent content, bool isAccept = true)
         {
-            root.style.display = DisplayStyle.None;
-            destinationLabel.text = string.Empty;
-            currentContent = null;
+            CloseMenu();
 
             if (isAccept)
                 content.OnAccept?.Invoke();
             else
                 content.OnReject?.Invoke();
+        }
+
+        private void OnClose()
+        {
+            if (!isOpen)
+                return;
+
+            CloseMenu();
+            currentContent?.OnReject?.Invoke();
+        }
+
+        private void CloseMenu()
+        {
+            if (!isOpen)
+                return;
+
+            root.style.display = DisplayStyle.None;
+            destinationLabel.text = string.Empty;
+            portalNameLabel.text = string.Empty;
+            currentContent = null;
             isOpen = false;
+            menuManager.ToggleMenu(MenuType.Portal, false);
         }
     }
 }
