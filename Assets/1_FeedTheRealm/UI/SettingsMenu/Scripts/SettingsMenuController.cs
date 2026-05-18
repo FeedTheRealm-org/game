@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using FeedTheRealm.UI.Common;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
 using FTR.Gameplay.Client.Registry;
-using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -48,7 +45,7 @@ public class SettingsMenuController : MonoBehaviour
     private ScrollView _soundContent;
 
     /* Display settings */
-    private DropdownField _resolutionSelect;
+    private CustomDropdown _resolutionSelect;
     private Toggle _fullscreenToggle;
 
     /* Audio settings */
@@ -116,7 +113,7 @@ public class SettingsMenuController : MonoBehaviour
         }
 
         /* Display settings */
-        _resolutionSelect = root.Q<DropdownField>("ResolutionSelect");
+        _resolutionSelect = root.Q<CustomDropdown>("ResolutionSelect");
         _fullscreenToggle = root.Q<Toggle>("FullscreenToggle");
         if (_resolutionSelect == null || _fullscreenToggle == null)
         {
@@ -245,11 +242,11 @@ public class SettingsMenuController : MonoBehaviour
             .Select(r => $"{r.width}x{r.height}")
             .ToList();
 
-        _resolutionSelect.choices = resolutionStrings;
+        _resolutionSelect.SetChoices(resolutionStrings);
 
         string currentResolution =
             $"{Screen.currentResolution.width}x{Screen.currentResolution.height}";
-        _resolutionSelect.value = currentResolution;
+        _resolutionSelect.Value = currentResolution;
 
         _fullscreenToggle.value = Screen.fullScreen;
 
@@ -271,7 +268,11 @@ public class SettingsMenuController : MonoBehaviour
             _displayNavButton.clicked -= onDisplayNavButtonClicked;
             _soundNavButton.clicked -= onSoundNavButtonClicked;
             _fullscreenToggle.UnregisterValueChangedCallback(onFullscreenToggleChanged);
-            _resolutionSelect.UnregisterValueChangedCallback(onResolutionChanged);
+            if (_resolutionSelect != null)
+            {
+                _resolutionSelect.OnValueChanged -= onResolutionChangedIndex;
+                return;
+            }
             _volumeSlider?.UnregisterValueChangedCallback(onVolumeChanged);
             _musicVolumeSlider?.UnregisterValueChangedCallback(onMusicVolumeChanged);
             _sfxVolumeSlider?.UnregisterValueChangedCallback(onSFXVolumeChanged);
@@ -285,7 +286,8 @@ public class SettingsMenuController : MonoBehaviour
         _displayNavButton.clicked += onDisplayNavButtonClicked;
         _soundNavButton.clicked += onSoundNavButtonClicked;
         _fullscreenToggle.RegisterValueChangedCallback(onFullscreenToggleChanged);
-        _resolutionSelect.RegisterValueChangedCallback(onResolutionChanged);
+        if (_resolutionSelect != null)
+            _resolutionSelect.OnValueChanged += onResolutionChangedIndex;
         _volumeSlider?.RegisterValueChangedCallback(onVolumeChanged);
         _musicVolumeSlider?.RegisterValueChangedCallback(onMusicVolumeChanged);
         _sfxVolumeSlider?.RegisterValueChangedCallback(onSFXVolumeChanged);
@@ -449,30 +451,22 @@ public class SettingsMenuController : MonoBehaviour
         Screen.fullScreen = newValue;
     }
 
-    private void onResolutionChanged(ChangeEvent<string> evt)
+    private void onResolutionChangedIndex(int selectedIndex)
     {
-        string selected = evt.newValue;
-        logger.Log("Resolution changed to: " + selected, this, Logging.LogType.Info);
+        if (selectedIndex < 0 || selectedIndex >= _availableResolutions.Count)
+            return;
 
-        var parts = selected.Split('x');
-        if (
-            parts.Length == 2
-            && int.TryParse(parts[0], out int w)
-            && int.TryParse(parts[1], out int h)
-        )
-        {
-            Resolution targetResolution = _availableResolutions.FirstOrDefault(r =>
-                r.width == w && r.height == h
-            );
-            if (targetResolution.width != 0)
-            {
-                FullScreenMode mode = Screen.fullScreenMode;
-                Screen.SetResolution(w, h, mode, targetResolution.refreshRateRatio);
-                logger.Log(
-                    $"Resolution set to {w}x{h} @ {targetResolution.refreshRateRatio.value}Hz",
-                    this
-                );
-            }
-        }
+        Resolution target = _availableResolutions[selectedIndex];
+        string selected = $"{target.width}x{target.height}";
+
+        logger.Log($"Resolution changed to: {selected}", this, Logging.LogType.Info);
+
+        FullScreenMode mode = Screen.fullScreenMode;
+        Screen.SetResolution(target.width, target.height, mode, target.refreshRateRatio);
+
+        logger.Log(
+            $"Resolution set to {target.width}x{target.height} @ {target.refreshRateRatio.value}Hz",
+            this
+        );
     }
 }
