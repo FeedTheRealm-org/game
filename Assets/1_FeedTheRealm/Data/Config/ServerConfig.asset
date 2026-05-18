@@ -35,7 +35,7 @@ MonoBehaviour:
   SlopeLayer:
     serializedVersion: 2
     m_Bits: 16384
-  playerSpeed: 15
+  playerSpeed: 10
   itemDespawnTime: 60
   maxInitialForce: 6
   groundCheckDelay: 0.5
@@ -49,6 +49,7 @@ MonoBehaviour:
   unequippedDamage: 10
   unequippedRange: 1.5
   groundCheckDistance: 1
+  minGroundNormalAlignment: 0.5
   groundCheckSphereRadius: 0.4
   reapIntervalSeconds: 60
   fastSlotSize: 5

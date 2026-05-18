@@ -125,11 +125,14 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         Vector3 moveDirection = Vector3
                             .ProjectOnPlane(direction, stateStorage.GroundNormal)
                             .normalized;
-                        HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed);
+                        HandleMovementWithRaycasts(
+                            moveDirection * (currentSpeed * dt),
+                            currentSpeed
+                        );
                     }
                     else
                     {
-                        HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed);
+                        HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed); // same
                     }
                 }
                 else
