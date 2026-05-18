@@ -65,3 +65,4 @@ MonoBehaviour:
   authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
   musicPlayerPrefab: {fileID: 5549379460917750396, guid: c84173a92ddb78749910eced1dc609c6, type: 3}
   musicRegistry: {fileID: 11400000, guid: 68d9e5b0caf1a652db2ac3d15acec7fc, type: 2}
+  authFlowManager: {fileID: 7798777532646108241, guid: bee3944f6aaa8f0f39979e4395c8ffc8, type: 3}

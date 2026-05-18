@@ -312,6 +312,10 @@ PrefabInstance:
       propertyPath: mainMenuPrefab
       value: 
       objectReference: {fileID: 7463538350467974155, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
+      propertyPath: authBackgroundPrefab
+      value: 
+      objectReference: {fileID: 5556295372408462094, guid: 0c5e5389679ba55ea8d517bd7a5f081d, type: 3}
     - target: {fileID: 5549379460917750396, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
       propertyPath: m_Name
       value: ClientInitiator

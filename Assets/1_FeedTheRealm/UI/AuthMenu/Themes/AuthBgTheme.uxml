@@ -1,0 +1,3 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/1_FeedTheRealm/UI/AuthMenu/Themes/AuthBgImg.jpg?fileID=2800000&amp;guid=a34b4e7c6f95f3aec92fcadd8b41bc70&amp;type=3#AuthBgImg&quot;); background-color: rgb(26, 26, 26); -unity-background-image-tint-color: rgb(48, 174, 191);"/>
+</ui:UXML>
