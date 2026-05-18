@@ -52,115 +52,212 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     public event Action OnNavigateToWorld;
     private VisualElement ui;
     private TextField searchField;
+    private Button refreshButton;
     private Button backButton;
     private Button forwardButton;
     private ScrollView listOfWorlds;
+    private VisualElement worldGrid;
     private ZoneStatusBadgeController zoneStatusBadge;
 
     private int currentOffset = 0;
     private int maxPageOffset = int.MaxValue;
     private const int PAGE_SIZE = 20;
 
+    private bool hasRenderedOnce;
+    private bool isRefreshing;
+    private string currentFilter;
+    private Vector2 savedScrollOffset;
+    private List<ActiveWorldData> cachedWorlds = new();
+    private Dictionary<string, ZoneStatusBadgeController.State> cachedBadgeStates = new();
+
     private void Awake()
     {
-        ui = GetComponent<UIDocument>().rootVisualElement;
         zoneStatusBadge = GetComponent<ZoneStatusBadgeController>();
         teleportDataPersistence.PortalId = null;
+    }
 
+    private async void OnEnable()
+    {
+        BindUiElements();
+        RegisterUiHandlers();
+
+        if (searchField != null)
+            searchField.SetValueWithoutNotify(currentFilter ?? string.Empty);
+
+        logger.Log("[WorldFeed] World feed menu opened.", this);
+        worldSelector?.ClearSelectedWorldJoinToken();
+
+        if (hasRenderedOnce)
+        {
+            RenderWorlds(cachedWorlds, cachedBadgeStates);
+            if (listOfWorlds != null)
+            {
+                listOfWorlds.schedule.Execute(() => listOfWorlds.scrollOffset = savedScrollOffset);
+            }
+            return;
+        }
+
+        currentFilter = searchField?.value;
+        await RenderWorldPage(currentOffset, currentFilter);
+        logger.Log("[WorldFeed] World feed menu rendered.", this);
+    }
+
+    private void OnDisable()
+    {
+        if (listOfWorlds != null)
+            savedScrollOffset = listOfWorlds.scrollOffset;
+
+        UnregisterUiHandlers();
+    }
+
+    private void BindUiElements()
+    {
+        ui = GetComponent<UIDocument>().rootVisualElement;
         searchField = ui.Q<TextField>("SearchField");
+        refreshButton = ui.Q<Button>("RefreshButton");
         backButton = ui.Q<Button>("BackButton");
         forwardButton = ui.Q<Button>("ForwardButton");
         listOfWorlds = ui.Q<ScrollView>("ListOfWorlds");
+        EnsureRuntimeListContainer();
+    }
 
-        searchField?.RegisterValueChangedCallback(evt =>
-        {
-            currentOffset = 0;
-            maxPageOffset = int.MaxValue;
-            _ = RenderWorldPage(currentOffset, evt.newValue);
-        });
+    private void RegisterUiHandlers()
+    {
+        searchField?.RegisterValueChangedCallback(OnSearchValueChanged);
 
+        if (refreshButton != null)
+            refreshButton.clicked += OnRefreshButtonClicked;
         if (backButton != null)
             backButton.clicked += OnBackButtonClicked;
         if (forwardButton != null)
             forwardButton.clicked += OnForwardButtonClicked;
     }
 
-    private async void OnEnable()
+    private void UnregisterUiHandlers()
     {
-        logger.Log("[WorldFeed] World feed menu opened.", this);
-        worldSelector?.ClearSelectedWorldJoinToken();
-        await RenderWorldPage(currentOffset, searchField?.value);
-        logger.Log("[WorldFeed] World feed menu rendered.", this);
+        searchField?.UnregisterValueChangedCallback(OnSearchValueChanged);
+        if (refreshButton != null)
+            refreshButton.clicked -= OnRefreshButtonClicked;
+        if (backButton != null)
+            backButton.clicked -= OnBackButtonClicked;
+        if (forwardButton != null)
+            forwardButton.clicked -= OnForwardButtonClicked;
+    }
+
+    private void OnSearchValueChanged(ChangeEvent<string> evt)
+    {
+        currentOffset = 0;
+        maxPageOffset = int.MaxValue;
+        currentFilter = evt.newValue;
+        _ = RenderWorldPage(currentOffset, currentFilter);
+    }
+
+    private void EnsureRuntimeListContainer()
+    {
+        if (listOfWorlds == null)
+            return;
+
+        listOfWorlds.Clear();
+        worldGrid = new VisualElement { name = "WorldGrid" };
+        worldGrid.AddToClassList("categoryList");
+        listOfWorlds.Add(worldGrid);
     }
 
     private async Task RenderWorldPage(int offset, string filter = null)
     {
-        var (activeWorlds, error) = await worldService.GetActiveWorlds(offset, PAGE_SIZE, filter);
-
-        logger.Log(
-            $"[WorldFeed] Fetched worlds with offset {offset}, filter '{filter}'. "
-                + $"Received {activeWorlds?.Count ?? 0} worlds. Error: {error}"
-        );
-
-        if (!string.IsNullOrEmpty(error))
-        {
-            logger.Log($"[WorldFeed] Error fetching worlds: {error}", this, Logging.LogType.Error);
+        if (isRefreshing)
             return;
-        }
 
-        if (activeWorlds == null || activeWorlds.Count == 0)
-        {
-            if (offset > 0)
-            {
-                maxPageOffset = offset - PAGE_SIZE;
-                currentOffset = maxPageOffset;
-                await RenderWorldPage(currentOffset, filter);
-            }
-            else
-            {
-                maxPageOffset = 0;
-                RenderWorlds(new List<ActiveWorldData>(), null);
-            }
-            return;
-        }
-
-        currentOffset = offset;
-        if (activeWorlds.Count < PAGE_SIZE)
-            maxPageOffset = offset;
-
-        var badgeStates = new Dictionary<string, ZoneStatusBadgeController.State>();
+        isRefreshing = true;
         try
         {
-            var (_, worldsWithZones, pageError) = await worldService.GetWorldPage(
+            var (activeWorlds, error) = await worldService.GetActiveWorlds(
                 offset,
                 PAGE_SIZE,
                 filter
             );
 
-            if (string.IsNullOrEmpty(pageError) && worldsWithZones != null)
-            {
-                foreach (var w in worldsWithZones)
-                    badgeStates[w.id] = zoneStatusBadge.Evaluate(w.zones);
-            }
-            else if (!string.IsNullOrEmpty(pageError))
+            logger.Log(
+                $"[WorldFeed] Fetched worlds with offset {offset}, filter '{filter}'. "
+                    + $"Received {activeWorlds?.Count ?? 0} worlds. Error: {error}"
+            );
+
+            if (!string.IsNullOrEmpty(error))
             {
                 logger.Log(
-                    $"[WorldFeed] Error fetching zone metadata for badges: {pageError}",
+                    $"[WorldFeed] Error fetching worlds: {error}",
+                    this,
+                    Logging.LogType.Error
+                );
+                if (!hasRenderedOnce)
+                    RenderWorlds(new List<ActiveWorldData>(), null);
+                return;
+            }
+
+            if (activeWorlds == null || activeWorlds.Count == 0)
+            {
+                if (offset > 0)
+                {
+                    maxPageOffset = offset - PAGE_SIZE;
+                    currentOffset = maxPageOffset;
+                    isRefreshing = false;
+                    await RenderWorldPage(currentOffset, filter);
+                }
+                else
+                {
+                    maxPageOffset = 0;
+                    RenderWorlds(new List<ActiveWorldData>(), null);
+                }
+                return;
+            }
+
+            currentOffset = offset;
+            if (activeWorlds.Count < PAGE_SIZE)
+                maxPageOffset = offset;
+
+            var badgeStates = new Dictionary<string, ZoneStatusBadgeController.State>();
+            try
+            {
+                var (_, worldsWithZones, pageError) = await worldService.GetWorldPage(
+                    offset,
+                    PAGE_SIZE,
+                    filter
+                );
+
+                if (string.IsNullOrEmpty(pageError) && worldsWithZones != null)
+                {
+                    foreach (var w in worldsWithZones)
+                        badgeStates[w.id] = zoneStatusBadge.Evaluate(w.zones);
+                }
+                else if (!string.IsNullOrEmpty(pageError))
+                {
+                    logger.Log(
+                        $"[WorldFeed] Error fetching zone metadata for badges: {pageError}",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(
+                    $"[WorldFeed] Could not fetch zone metadata for badges: {ex.Message}",
                     this,
                     Logging.LogType.Warning
                 );
             }
-        }
-        catch (Exception ex)
-        {
-            logger.Log(
-                $"[WorldFeed] Could not fetch zone metadata for badges: {ex.Message}",
-                this,
-                Logging.LogType.Warning
-            );
-        }
 
-        RenderWorlds(activeWorlds, badgeStates);
+            cachedWorlds = activeWorlds;
+            cachedBadgeStates = badgeStates;
+            hasRenderedOnce = true;
+            currentFilter = filter;
+
+            RenderWorlds(cachedWorlds, cachedBadgeStates);
+        }
+        finally
+        {
+            isRefreshing = false;
+        }
     }
 
     private void RenderWorlds(
@@ -178,13 +275,21 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             return;
         }
 
-        listOfWorlds.Clear();
+        if (worldGrid == null)
+        {
+            listOfWorlds.Clear();
+            worldGrid = new VisualElement { name = "WorldGrid" };
+            worldGrid.AddToClassList("categoryList");
+            listOfWorlds.Add(worldGrid);
+        }
+
+        worldGrid.Clear();
 
         if (activeWorlds.Count == 0)
         {
             var noResults = new Label("No active worlds found");
             noResults.AddToClassList("noResultsMessage");
-            listOfWorlds.Add(noResults);
+            worldGrid.Add(noResults);
             SetPaginationVisible(false);
             return;
         }
@@ -197,11 +302,20 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
             var element = CreateWorldElement(activeWorld, state);
             if (element != null)
-                listOfWorlds.Add(element);
+                worldGrid.Add(element);
         }
 
         bool showPagination = activeWorlds.Count >= PAGE_SIZE || currentOffset > 0;
         SetPaginationVisible(showPagination);
+    }
+
+    private void OnRefreshButtonClicked()
+    {
+        savedScrollOffset = Vector2.zero;
+        if (listOfWorlds != null)
+            listOfWorlds.scrollOffset = Vector2.zero;
+
+        _ = RenderWorldPage(currentOffset, currentFilter);
     }
 
     private VisualElement CreateWorldElement(
@@ -366,7 +480,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             return;
         }
         currentOffset -= PAGE_SIZE;
-        _ = RenderWorldPage(currentOffset, searchField?.value);
+        _ = RenderWorldPage(currentOffset, currentFilter);
     }
 
     private void OnForwardButtonClicked()
@@ -377,7 +491,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             return;
         }
         currentOffset += PAGE_SIZE;
-        _ = RenderWorldPage(currentOffset, searchField?.value);
+        _ = RenderWorldPage(currentOffset, currentFilter);
     }
 
     private void SetPaginationVisible(bool visible)

@@ -28,12 +28,15 @@
     height: 100%;
     padding: 10px 16px 14px 16px;
     flex-direction: column;
+    min-height: 0;
 }
 
 #SearchContainer {
     width: 100%;
     flex-direction: row;
     justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
     margin-bottom: 10px;
 }
 
@@ -41,6 +44,28 @@
     width: 360px;
     max-width: 46%;
     min-width: 220px;
+}
+
+.refreshButton {
+    height: 36px;
+    min-height: 36px;
+    margin-left: 10px;
+    padding-left: 14px;
+    padding-right: 14px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.4);
+    background-color: rgba(110, 255, 251, 0.16);
+    color: var(--teal);
+    -unity-font-style: bold;
+}
+
+.refreshButton:hover {
+    background-color: rgba(110, 255, 251, 0.32);
+    color: var(--white);
 }
 
 #SearchContainer>#SearchField>#unity-text-input {
@@ -59,6 +84,7 @@
 
 .worldList {
     flex-grow: 1;
+    min-height: 0;
     background-color: var(--darker);
     border-width: 1px;
     border-color: rgba(110, 255, 251, 0.24);
@@ -80,10 +106,17 @@
     row-gap: 10px;
 }
 
+.worldList > .unity-scroll-view__content-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
 .worldElement {
-    min-width: 280px;
+    min-width: 260px;
     flex-basis: 31%;
-    max-width: 31%;
+    max-width: 32%;
     flex-shrink: 1;
     min-height: 78px;
     max-height: 78px;
