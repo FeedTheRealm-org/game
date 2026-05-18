@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using FTR.Core.Common.Protocol.RpcMessages;
@@ -7,6 +8,7 @@ using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using FTR.Gameplay.Server.Reaper;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -32,9 +34,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         private Rigidbody rb;
         private uint netId;
         private LootItemStateStorage stateStorage;
-
-        // Configurable parameters
-        private ushort maxInitialForce = 5; // default max force applied to the item when spawnedd
+        private ushort maxInitialForce = 5; // default max force applied to the item when spawned
 
         public void Initialize(Rigidbody rb, uint netId, LootItemStateStorage stateStorage)
         {
@@ -57,9 +57,9 @@ namespace FTR.Gameplay.Server.Environment.LootItem
         private void SpawnItemWithForce()
         {
             Vector3 randomInitialForce = new(
-                Random.Range(-maxInitialForce, maxInitialForce),
-                Random.Range(0, maxInitialForce),
-                Random.Range(-maxInitialForce, maxInitialForce)
+                UnityEngine.Random.Range(-maxInitialForce, maxInitialForce),
+                UnityEngine.Random.Range(0, maxInitialForce),
+                UnityEngine.Random.Range(-maxInitialForce, maxInitialForce)
             );
             rb.AddForce(randomInitialForce, ForceMode.VelocityChange);
 

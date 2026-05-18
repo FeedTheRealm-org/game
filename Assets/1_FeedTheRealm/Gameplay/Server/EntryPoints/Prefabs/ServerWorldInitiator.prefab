@@ -60,3 +60,4 @@ MonoBehaviour:
   worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   zoneService: {fileID: 11400000, guid: 58aa4added2b6fe5784bb31c528de305, type: 2}
+  orchestratorService: {fileID: 11400000, guid: cf475ba3977a76d49babed8fd7f919fb, type: 2}

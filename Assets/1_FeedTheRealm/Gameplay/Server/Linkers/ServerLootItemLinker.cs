@@ -5,6 +5,7 @@ using FTR.Gameplay.Common.NetworkEntities.LootItem;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
 using FTR.Gameplay.Server.Environment.LootItem;
+using FTR.Gameplay.Server.Reaper;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -16,16 +17,19 @@ public class ServerLootItemLinker : LootItemLinker
 {
     private readonly WorldMonitor world;
     private readonly ServerPrefabProvider prefabProvider;
+    private readonly EntityReaper reaper;
     private readonly IObjectResolver resolver;
 
     public ServerLootItemLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
+        EntityReaper reaper,
         IObjectResolver resolver
     )
     {
         this.world = world;
         this.prefabProvider = prefabProvider;
+        this.reaper = reaper;
         this.resolver = resolver;
     }
 
@@ -41,7 +45,7 @@ public class ServerLootItemLinker : LootItemLinker
         tracker.Initialize(world, netId);
 
         // Add server-side components
-        var serverComponents = Object.Instantiate(
+        var serverComponents = resolver.Instantiate(
             prefabProvider.ServerLootItemComponents,
             gameObject.transform
         );
@@ -59,6 +63,7 @@ public class ServerLootItemLinker : LootItemLinker
         groundCheck.Initialize(col, stateStorage);
 
         RegisterEntity(netId, networkAdapter);
+        reaper.Register(serverComponents);
     }
 
     public void RegisterEntity(uint netID, NetworkAdapter networkAdapter)

@@ -47,12 +47,16 @@ namespace FTR.Core.Server.Config
 
         [Header("Items")]
         [SerializeField]
-        private uint itemDespawnTime = 120; // this is in seconds
+        private float itemDespawnTime = 120f; // 2 minutes
 
         [SerializeField]
         private ushort maxInitialForce = 5; // default max force applied to the item when spawned
-        public uint ItemDespawnTime => itemDespawnTime;
+
+        [SerializeField]
+        private float groundCheckDelay = 0.5f;
+        public float ItemDespawnTime => itemDespawnTime;
         public ushort MaxInitialForce => maxInitialForce;
+        public float GroundCheckDelay => groundCheckDelay;
 
         [Header("Dash")]
         [SerializeField]
@@ -102,6 +106,11 @@ namespace FTR.Core.Server.Config
         private float groundCheckSphereRadius = 0.4f;
         public float GroundCheckSphereRadius => groundCheckSphereRadius;
 
+        [Header("Entity Reaper")]
+        [SerializeField]
+        private float reapIntervalSeconds = 60f; // 1 minute
+        public float ReapIntervalSeconds => reapIntervalSeconds;
+
         [Header("Inventory")]
         [SerializeField]
         private int fastSlotSize = 5;
@@ -131,9 +140,6 @@ namespace FTR.Core.Server.Config
         public float AutoAttackDelay = 0.3f;
         public float RangedWeaponRaySpacing = 1f;
         public float MaxNavigationTime = 10f;
-
-        [Header("Loot Item")]
-        public float GroundCheckDelay = 0.5f;
 
         [Header("Chest")]
         public float ChestItemSpawnRateSeconds = 0.5f;

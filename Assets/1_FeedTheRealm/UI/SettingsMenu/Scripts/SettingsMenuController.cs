@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FTR.Core.Client.EventChannels.Input;
+using FeedTheRealm.UI.Common;
+using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Managers;
 using FTR.Gameplay.Client.Registry;
@@ -20,6 +22,9 @@ public class SettingsMenuController : MonoBehaviour
 
     [SerializeField]
     private OnWorldLeaveEvent onWorldLeaveEvent;
+
+    [Inject]
+    private ClientPrefabProvider prefabProvider;
 
     [Inject]
     private ISoundPlayer soundPlayer;
@@ -286,16 +291,32 @@ public class SettingsMenuController : MonoBehaviour
 
     private void onHomeButtonClicked()
     {
-        logger.Log("Home button clicked", this, Logging.LogType.Info);
-        onWorldLeaveEvent.Raise();
-        SceneManager.LoadScene(homeScene.SceneName);
+        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+            .GetComponent<ConfirmPopupController>();
+        confirmPopup.Show(
+            question: "Are you sure you want to go to the home screen?",
+            title: "Return to Home",
+            onConfirm: () =>
+            {
+                onWorldLeaveEvent.Raise();
+                SceneManager.LoadScene(homeScene.SceneName);
+            }
+        );
     }
 
     private void onExitButtonClicked()
     {
-        logger.Log("Exit button clicked", this, Logging.LogType.Info);
-        onWorldLeaveEvent.Raise();
-        Application.Quit();
+        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+            .GetComponent<ConfirmPopupController>();
+        confirmPopup.Show(
+            question: "Are you sure you want to exit the game?",
+            title: "Exit Game",
+            onConfirm: () =>
+            {
+                onWorldLeaveEvent.Raise();
+                Application.Quit();
+            }
+        );
     }
 
     private void onCloseSettingsButtonClicked()
