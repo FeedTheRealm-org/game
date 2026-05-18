@@ -1,4 +1,5 @@
 using System.Collections;
+using FTR.Core.Client.Settings;
 using UnityEngine;
 
 public enum MusicType
@@ -15,6 +16,9 @@ public class MusicPlayer : MonoBehaviour
 
     [SerializeField]
     private float fadeDuration = 1.5f;
+
+    [SerializeField]
+    private SettingsManager settingsManager;
 
     private static MusicPlayer instance;
     public static MusicPlayer Instance => instance;
@@ -43,7 +47,10 @@ public class MusicPlayer : MonoBehaviour
         musicSource.spatialBlend = 0f;
         musicSource.volume = 0f;
 
-        globalVolumeMultiplier = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        globalVolumeMultiplier =
+            settingsManager != null
+                ? (settingsManager.IsMuted ? 0f : settingsManager.MusicVolume)
+                : 1f;
 
         isInitialized = true;
     }
@@ -82,9 +89,7 @@ public class MusicPlayer : MonoBehaviour
         if (musicSource.isPlaying && musicSource.clip == clip)
         {
             if (!fadeIn)
-            {
                 musicSource.volume = currentBaseVolume * globalVolumeMultiplier;
-            }
             return;
         }
 

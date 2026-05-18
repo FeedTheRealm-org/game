@@ -3,6 +3,7 @@ using System.Linq;
 using FeedTheRealm.UI.Common;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Settings;
 using FTR.Gameplay.Client.Registry;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,30 +31,31 @@ public class SettingsMenuController : MonoBehaviour
     [Inject]
     private ISoundPlayer soundPlayer;
 
+    [Inject]
+    private IAudioManager audioManager;
+
+    [Inject]
+    private SettingsManager settingsManager;
+
     /* General settings */
     private VisualElement root;
     private Button _homeButton;
     private Button _exitButton;
     private Button _closeSettingsButton;
-
-    // Sidebar nav buttons
     private Button _displayNavButton;
     private Button _soundNavButton;
-
-    // Content sections
     private ScrollView _displayContent;
     private ScrollView _soundContent;
 
-    /* Display settings */
+    /* Display */
     private CustomDropdown _resolutionSelect;
     private Toggle _fullscreenToggle;
 
-    /* Audio settings */
+    /* Audio */
     private Slider _volumeSlider;
     private Slider _musicVolumeSlider;
     private Slider _sfxVolumeSlider;
     private Toggle _muteToggle;
-    private bool _isMuted;
 
     private List<Resolution> _availableResolutions;
     private const float baseHeight = 800f;
@@ -74,9 +76,7 @@ public class SettingsMenuController : MonoBehaviour
     private void OnDestroy()
     {
         if (playerInputReader != null)
-        {
             playerInputReader.CursorToggleEvent -= ToggleSettings;
-        }
     }
 
     private void OnEnable()
@@ -105,7 +105,7 @@ public class SettingsMenuController : MonoBehaviour
         )
         {
             logger.Log(
-                "One or more general settings UI elements not found in the UI Document.",
+                "One or more general settings UI elements not found.",
                 this,
                 Logging.LogType.Error
             );
@@ -118,54 +118,25 @@ public class SettingsMenuController : MonoBehaviour
         if (_resolutionSelect == null || _fullscreenToggle == null)
         {
             logger.Log(
-                "One or more display settings UI elements not found in the UI Document.",
+                "One or more display settings UI elements not found.",
                 this,
                 Logging.LogType.Error
             );
             return;
         }
 
-        /* Audio settings */
         _volumeSlider = root.Q<Slider>("VolumeSlider");
-        if (_volumeSlider != null)
-        {
-            float savedVolume = PlayerPrefs.GetFloat("GlobalVolume", 1f);
-            _volumeSlider.value = savedVolume;
-            AudioListener.volume = savedVolume;
-        }
-
         _musicVolumeSlider = root.Q<Slider>("MusicVolumeSlider");
-        if (_musicVolumeSlider != null)
-        {
-            float savedMusicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
-            _musicVolumeSlider.value = savedMusicVolume;
-            if (MusicPlayer.Instance != null)
-            {
-                MusicPlayer.Instance.SetGlobalMusicVolume(savedMusicVolume);
-            }
-        }
-
         _sfxVolumeSlider = root.Q<Slider>("SFXVolumeSlider");
-        if (_sfxVolumeSlider != null)
-        {
-            float savedSFXVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
-            _sfxVolumeSlider.value = savedSFXVolume;
-        }
-
         _muteToggle = root.Q<Toggle>("MuteToggle");
-        if (_muteToggle != null)
-        {
-            _isMuted = PlayerPrefs.GetInt("SoundMuted", 0) == 1;
-            _muteToggle.value = _isMuted;
-            ApplyAudioMuteState();
-        }
 
-        logger.Log("Settings menu UI elements initialized successfully.", this);
+        PopulateUIFromSettings();
 
-        initializeDisplaySettings();
-        adjustUIToScreenSize();
-        registerButtonCallbacks(true);
+        logger.Log("Settings menu initialized.", this);
 
+        InitializeDisplayChoices();
+        AdjustUIToScreenSize();
+        RegisterCallbacks(register: true);
         ShowSection(SettingsSection.Display);
 
         root.style.display = DisplayStyle.None;
@@ -173,24 +144,65 @@ public class SettingsMenuController : MonoBehaviour
 
     private void OnDisable()
     {
-        registerButtonCallbacks(false);
+        RegisterCallbacks(register: false);
     }
 
-    // ── SECTION SWITCHING ──────────────────────────────────────────────────────
+    private void PopulateUIFromSettings()
+    {
+        _volumeSlider?.SetValueWithoutNotify(settingsManager.GlobalVolume);
+        _musicVolumeSlider?.SetValueWithoutNotify(settingsManager.MusicVolume);
+        _sfxVolumeSlider?.SetValueWithoutNotify(settingsManager.SFXVolume);
+        _muteToggle?.SetValueWithoutNotify(settingsManager.IsMuted);
+        _fullscreenToggle?.SetValueWithoutNotify(settingsManager.IsFullscreen);
+    }
+
+    private void InitializeDisplayChoices()
+    {
+        _availableResolutions = Screen
+            .resolutions.GroupBy(r => new { r.width, r.height })
+            .Select(g => g.OrderByDescending(r => r.refreshRateRatio.value).First())
+            .OrderByDescending(r => r.width)
+            .ThenByDescending(r => r.height)
+            .ToList();
+
+        _resolutionSelect.SetChoices(
+            _availableResolutions.Select(r => $"{r.width}x{r.height}").ToList()
+        );
+
+        string target =
+            settingsManager.ResolutionWidth > 0
+                ? $"{settingsManager.ResolutionWidth}x{settingsManager.ResolutionHeight}"
+                : $"{Screen.currentResolution.width}x{Screen.currentResolution.height}";
+
+        _resolutionSelect.Value = target;
+
+        logger.Log(
+            $"Initialized {_availableResolutions.Count} resolutions. Selected: {target}",
+            this
+        );
+    }
+
+    private void AdjustUIToScreenSize()
+    {
+        float scale = Screen.height / baseHeight;
+        _homeButton.style.fontSize = Scaled(_homeButton.resolvedStyle.fontSize, scale);
+        _exitButton.style.fontSize = Scaled(_exitButton.resolvedStyle.fontSize, scale);
+        _resolutionSelect.style.fontSize = Scaled(_resolutionSelect.resolvedStyle.fontSize, scale);
+        _fullscreenToggle.style.fontSize = Scaled(_fullscreenToggle.resolvedStyle.fontSize, scale);
+    }
+
+    private StyleLength Scaled(float size, float scale) =>
+        new StyleLength(new Length(size * scale, LengthUnit.Pixel));
 
     private void ShowSection(SettingsSection section)
     {
         _activeSection = section;
-
         _displayContent.style.display =
             section == SettingsSection.Display ? DisplayStyle.Flex : DisplayStyle.None;
-
         _soundContent.style.display =
             section == SettingsSection.Sound ? DisplayStyle.Flex : DisplayStyle.None;
-
         UpdateNavButtonSelection(_displayNavButton, section == SettingsSection.Display);
         UpdateNavButtonSelection(_soundNavButton, section == SettingsSection.Sound);
-
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
     }
 
@@ -202,132 +214,60 @@ public class SettingsMenuController : MonoBehaviour
             button.RemoveFromClassList("nav-button--selected");
     }
 
-    // ── SCALE ─────────────────────────────────────────────────────────────────
-
-    private void adjustUIToScreenSize()
-    {
-        float scaleFactor = Screen.height / baseHeight;
-
-        float homeFontSize = _homeButton.resolvedStyle.fontSize;
-        float exitFontSize = _exitButton.resolvedStyle.fontSize;
-        float resolutionFontSize = _resolutionSelect.resolvedStyle.fontSize;
-        float fullscreenFontSize = _fullscreenToggle.resolvedStyle.fontSize;
-
-        _homeButton.style.fontSize = new StyleLength(
-            new Length(homeFontSize * scaleFactor, LengthUnit.Pixel)
-        );
-        _exitButton.style.fontSize = new StyleLength(
-            new Length(exitFontSize * scaleFactor, LengthUnit.Pixel)
-        );
-        _resolutionSelect.style.fontSize = new StyleLength(
-            new Length(resolutionFontSize * scaleFactor, LengthUnit.Pixel)
-        );
-        _fullscreenToggle.style.fontSize = new StyleLength(
-            new Length(fullscreenFontSize * scaleFactor, LengthUnit.Pixel)
-        );
-    }
-
-    // ── DISPLAY SETTINGS ──────────────────────────────────────────────────────
-
-    private void initializeDisplaySettings()
-    {
-        _availableResolutions = Screen
-            .resolutions.GroupBy(r => new { r.width, r.height })
-            .Select(g => g.OrderByDescending(r => r.refreshRateRatio.value).First())
-            .OrderByDescending(r => r.width)
-            .ThenByDescending(r => r.height)
-            .ToList();
-
-        List<string> resolutionStrings = _availableResolutions
-            .Select(r => $"{r.width}x{r.height}")
-            .ToList();
-
-        _resolutionSelect.SetChoices(resolutionStrings);
-
-        string currentResolution =
-            $"{Screen.currentResolution.width}x{Screen.currentResolution.height}";
-        _resolutionSelect.Value = currentResolution;
-
-        _fullscreenToggle.value = Screen.fullScreen;
-
-        logger.Log(
-            $"Initialized {_availableResolutions.Count} resolutions. Current: {currentResolution}",
-            this
-        );
-    }
-
-    // ── CALLBACKS ─────────────────────────────────────────────────────────────
-
-    private void registerButtonCallbacks(bool register)
+    private void RegisterCallbacks(bool register)
     {
         if (!register)
         {
-            _homeButton.clicked -= onHomeButtonClicked;
-            _exitButton.clicked -= onExitButtonClicked;
-            _closeSettingsButton.clicked -= onCloseSettingsButtonClicked;
-            _displayNavButton.clicked -= onDisplayNavButtonClicked;
-            _soundNavButton.clicked -= onSoundNavButtonClicked;
-            _fullscreenToggle.UnregisterValueChangedCallback(onFullscreenToggleChanged);
+            _homeButton.clicked -= OnHomeClicked;
+            _exitButton.clicked -= OnExitClicked;
+            _closeSettingsButton.clicked -= OnCloseClicked;
+            _displayNavButton.clicked -= OnDisplayNavClicked;
+            _soundNavButton.clicked -= OnSoundNavClicked;
+            _fullscreenToggle.UnregisterValueChangedCallback(OnFullscreenChanged);
             if (_resolutionSelect != null)
-            {
-                _resolutionSelect.OnValueChanged -= onResolutionChangedIndex;
-                return;
-            }
-            _volumeSlider?.UnregisterValueChangedCallback(onVolumeChanged);
-            _musicVolumeSlider?.UnregisterValueChangedCallback(onMusicVolumeChanged);
-            _sfxVolumeSlider?.UnregisterValueChangedCallback(onSFXVolumeChanged);
-            _muteToggle?.UnregisterValueChangedCallback(onMuteToggleChanged);
+                _resolutionSelect.OnValueChanged -= OnResolutionChangedIndex;
+            _volumeSlider?.UnregisterValueChangedCallback(OnVolumeChanged);
+            _musicVolumeSlider?.UnregisterValueChangedCallback(OnMusicVolumeChanged);
+            _sfxVolumeSlider?.UnregisterValueChangedCallback(OnSFXVolumeChanged);
+            _muteToggle?.UnregisterValueChangedCallback(OnMuteChanged);
             return;
         }
 
-        _homeButton.clicked += onHomeButtonClicked;
-        _exitButton.clicked += onExitButtonClicked;
-        _closeSettingsButton.clicked += onCloseSettingsButtonClicked;
-        _displayNavButton.clicked += onDisplayNavButtonClicked;
-        _soundNavButton.clicked += onSoundNavButtonClicked;
-        _fullscreenToggle.RegisterValueChangedCallback(onFullscreenToggleChanged);
+        _homeButton.clicked += OnHomeClicked;
+        _exitButton.clicked += OnExitClicked;
+        _closeSettingsButton.clicked += OnCloseClicked;
+        _displayNavButton.clicked += OnDisplayNavClicked;
+        _soundNavButton.clicked += OnSoundNavClicked;
+        _fullscreenToggle.RegisterValueChangedCallback(OnFullscreenChanged);
         if (_resolutionSelect != null)
-            _resolutionSelect.OnValueChanged += onResolutionChangedIndex;
-        _volumeSlider?.RegisterValueChangedCallback(onVolumeChanged);
-        _musicVolumeSlider?.RegisterValueChangedCallback(onMusicVolumeChanged);
-        _sfxVolumeSlider?.RegisterValueChangedCallback(onSFXVolumeChanged);
-        _muteToggle?.RegisterValueChangedCallback(onMuteToggleChanged);
+            _resolutionSelect.OnValueChanged += OnResolutionChangedIndex;
+        _volumeSlider?.RegisterValueChangedCallback(OnVolumeChanged);
+        _musicVolumeSlider?.RegisterValueChangedCallback(OnMusicVolumeChanged);
+        _sfxVolumeSlider?.RegisterValueChangedCallback(OnSFXVolumeChanged);
+        _muteToggle?.RegisterValueChangedCallback(OnMuteChanged);
     }
 
-    // ── NAV BUTTON HANDLERS ───────────────────────────────────────────────────
+    private void OnDisplayNavClicked() => ShowSection(SettingsSection.Display);
 
-    private void onDisplayNavButtonClicked() => ShowSection(SettingsSection.Display);
+    private void OnSoundNavClicked() => ShowSection(SettingsSection.Sound);
 
-    private void onSoundNavButtonClicked() => ShowSection(SettingsSection.Sound);
-
-    // ── PUBLIC API ────────────────────────────────────────────────────────────
-
-    public bool IsOpen()
-    {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-        return root.style.display == DisplayStyle.Flex;
-    }
+    public bool IsOpen() =>
+        GetComponent<UIDocument>().rootVisualElement.style.display == DisplayStyle.Flex;
 
     public void ToggleSettings()
     {
         logger.Log("Toggle settings", this);
-
-        var root = GetComponent<UIDocument>().rootVisualElement;
         bool willBeActive = root.style.display != DisplayStyle.Flex;
         root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
-
         UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
         UnityEngine.Cursor.visible = willBeActive;
     }
 
-    // ── EXISTING ACTION HANDLERS (unchanged) ──────────────────────────────────
-
-    private void onHomeButtonClicked()
+    private void OnHomeClicked()
     {
-        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
-            .GetComponent<ConfirmPopupController>();
-        confirmPopup.Show(
+        var popup = Instantiate(prefabProvider.ConfirmPopup).GetComponent<ConfirmPopupController>();
+        popup.Show(
             question: "Are you sure you want to go to the home screen?",
             title: "Return to Home",
             onConfirm: () =>
@@ -338,11 +278,10 @@ public class SettingsMenuController : MonoBehaviour
         );
     }
 
-    private void onExitButtonClicked()
+    private void OnExitClicked()
     {
-        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
-            .GetComponent<ConfirmPopupController>();
-        confirmPopup.Show(
+        var popup = Instantiate(prefabProvider.ConfirmPopup).GetComponent<ConfirmPopupController>();
+        popup.Show(
             question: "Are you sure you want to exit the game?",
             title: "Exit Game",
             onConfirm: () =>
@@ -353,120 +292,68 @@ public class SettingsMenuController : MonoBehaviour
         );
     }
 
-    private void onCloseSettingsButtonClicked()
+    private void OnCloseClicked()
     {
-        logger.Log("Close settings button clicked", this, Logging.LogType.Info);
+        logger.Log("Close settings clicked", this, Logging.LogType.Info);
         ToggleSettings();
     }
 
-    private void onVolumeChanged(ChangeEvent<float> evt)
+    private void OnVolumeChanged(ChangeEvent<float> evt)
     {
-        PlayerPrefs.SetFloat("GlobalVolume", evt.newValue);
-        PlayerPrefs.Save();
-        if (!_isMuted)
-        {
-            AudioListener.volume = evt.newValue;
-        }
+        settingsManager.GlobalVolume = evt.newValue;
+        settingsManager.SaveSettings();
     }
 
-    private void onMusicVolumeChanged(ChangeEvent<float> evt)
+    private void OnMusicVolumeChanged(ChangeEvent<float> evt)
     {
-        PlayerPrefs.SetFloat("MusicVolume", evt.newValue);
-        PlayerPrefs.Save();
+        settingsManager.MusicVolume = evt.newValue;
+        settingsManager.SaveSettings();
 
-        if (!_isMuted && MusicPlayer.Instance != null)
-        {
-            MusicPlayer.Instance.SetGlobalMusicVolume(evt.newValue);
-        }
+        MusicPlayer.Instance?.SetGlobalMusicVolume(settingsManager.IsMuted ? 0f : evt.newValue);
     }
 
-    private void onSFXVolumeChanged(ChangeEvent<float> evt)
+    private void OnSFXVolumeChanged(ChangeEvent<float> evt)
     {
-        PlayerPrefs.SetFloat("SFXVolume", evt.newValue);
-        PlayerPrefs.Save();
+        settingsManager.SFXVolume = evt.newValue;
+        settingsManager.SaveSettings();
 
-        if (!_isMuted)
-        {
-            var audioManager = FindFirstObjectByType<AudioManager>();
-            if (audioManager != null)
-            {
-                audioManager.SetGlobalSFXVolume(evt.newValue);
-            }
-        }
+        audioManager.SetGlobalSFXVolume(settingsManager.IsMuted ? 0f : evt.newValue);
     }
 
-    private void onMuteToggleChanged(ChangeEvent<bool> evt)
+    private void OnMuteChanged(ChangeEvent<bool> evt)
     {
-        _isMuted = evt.newValue;
-        PlayerPrefs.SetInt("SoundMuted", _isMuted ? 1 : 0);
-        PlayerPrefs.Save();
-        ApplyAudioMuteState();
+        settingsManager.IsMuted = evt.newValue;
+        settingsManager.SaveSettings();
+
+        float musicVol = evt.newValue ? 0f : settingsManager.MusicVolume;
+        float sfxVol = evt.newValue ? 0f : settingsManager.SFXVolume;
+        MusicPlayer.Instance?.SetGlobalMusicVolume(musicVol);
+        audioManager.SetGlobalSFXVolume(sfxVol);
     }
 
-    private void ApplyAudioMuteState()
+    private void OnFullscreenChanged(ChangeEvent<bool> evt)
     {
-        if (_isMuted)
-        {
-            AudioListener.volume = 0f;
-            if (MusicPlayer.Instance != null)
-            {
-                MusicPlayer.Instance.SetGlobalMusicVolume(0f);
-            }
-            var audioManager = FindFirstObjectByType<AudioManager>();
-            if (audioManager != null)
-            {
-                audioManager.SetGlobalSFXVolume(0f);
-            }
-        }
-        else
-        {
-            AudioListener.volume =
-                _volumeSlider != null
-                    ? _volumeSlider.value
-                    : PlayerPrefs.GetFloat("GlobalVolume", 1f);
-            if (MusicPlayer.Instance != null)
-            {
-                MusicPlayer.Instance.SetGlobalMusicVolume(
-                    _musicVolumeSlider != null
-                        ? _musicVolumeSlider.value
-                        : PlayerPrefs.GetFloat("MusicVolume", 1f)
-                );
-            }
-            var audioManager = FindFirstObjectByType<AudioManager>();
-            if (audioManager != null)
-            {
-                audioManager.SetGlobalSFXVolume(
-                    _sfxVolumeSlider != null
-                        ? _sfxVolumeSlider.value
-                        : PlayerPrefs.GetFloat("SFXVolume", 1f)
-                );
-            }
-        }
+        settingsManager.IsFullscreen = evt.newValue;
+        settingsManager.SaveSettings();
+        logger.Log("Fullscreen: " + evt.newValue, this, Logging.LogType.Info);
     }
 
-    private void onFullscreenToggleChanged(ChangeEvent<bool> evt)
-    {
-        bool newValue = evt.newValue;
-        logger.Log("Fullscreen toggle: " + newValue, this, Logging.LogType.Info);
-        Screen.fullScreen = newValue;
-    }
-
-    private void onResolutionChangedIndex(int selectedIndex)
+    private void OnResolutionChangedIndex(int selectedIndex)
     {
         if (selectedIndex < 0 || selectedIndex >= _availableResolutions.Count)
             return;
 
         Resolution target = _availableResolutions[selectedIndex];
-        string selected = $"{target.width}x{target.height}";
-
-        logger.Log($"Resolution changed to: {selected}", this, Logging.LogType.Info);
-
-        FullScreenMode mode = Screen.fullScreenMode;
-        Screen.SetResolution(target.width, target.height, mode, target.refreshRateRatio);
+        settingsManager.ResolutionWidth = target.width;
+        settingsManager.ResolutionHeight = target.height;
+        settingsManager.RefreshRate = target.refreshRateRatio;
+        settingsManager.SaveSettings();
 
         logger.Log(
-            $"Resolution set to {target.width}x{target.height} @ {target.refreshRateRatio.value}Hz",
+            $"Resolution: {target.width}x{target.height} @ {target.refreshRateRatio.value}Hz",
             this
         );
     }
+
+    private void OnCloseSettingsButtonClicked() => ToggleSettings();
 }

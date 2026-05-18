@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using FTR.Core.Client.Settings;
 using FTR.Gameplay.Client.Registry;
 using UnityEngine;
 using VContainer;
@@ -33,18 +34,21 @@ public class AudioManager : MonoBehaviour, IAudioManager
     }
 
     [Inject]
-    public void Construct(ClientSoundFXRegistry registry)
+    public void Construct(ClientSoundFXRegistry registry, SettingsManager settingsManager)
     {
         soundFXRegistry = registry;
+
+        if (settingsManager != null)
+        {
+            AudioListener.volume = settingsManager.IsMuted ? 0f : settingsManager.GlobalVolume;
+            globalSFXMultiplier = settingsManager.IsMuted ? 0f : settingsManager.SFXVolume;
+        }
     }
 
     private void Awake()
     {
         InitPool();
         CacheListener();
-
-        AudioListener.volume = PlayerPrefs.GetFloat("GlobalVolume", 1f);
-        globalSFXMultiplier = PlayerPrefs.GetFloat("SFXVolume", 1f);
     }
 
     public void SetGlobalSFXVolume(float volume)
@@ -53,9 +57,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
         foreach (var active in activeSounds)
         {
             if (active.Source != null)
-            {
                 active.Source.volume = Mathf.Clamp01(active.BaseVolume * globalSFXMultiplier);
-            }
         }
     }
 
@@ -78,7 +80,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
         if (listenerComponent != null)
             listenerTransform = listenerComponent.transform;
         else
-            Debug.LogWarning("[AudioManager] No se encontró AudioListener en la escena.");
+            Debug.LogWarning("[AudioManager] No AudioListener found in scene.");
     }
 
     public void PlayAtPoint(

@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics;
 using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
@@ -16,18 +14,16 @@ namespace FTR.Gameplay.Client.EntryPoints
     /// </summary>
     public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
     {
-        private TickEvent tickEvent;
-
-        private FixedTickEvent fixedTickEvent;
-
-        private LateTickEvent lateTickEvent;
-        private LoadingEvent loadingEvent;
-        private bool isInitialized = false;
-
+        private readonly TickEvent tickEvent;
+        private readonly FixedTickEvent fixedTickEvent;
+        private readonly LateTickEvent lateTickEvent;
+        private readonly LoadingEvent loadingEvent;
         private readonly ClientWorldLoader worldLoader;
         private readonly WorldSetupService worldSetup;
         private readonly ClientPrefabProvider prefabProvider;
-        private ClientMusicRegistry musicRegistry;
+        private readonly ClientMusicRegistry musicRegistry;
+
+        private bool isInitialized = false;
 
         [Inject]
         public ClientWorldEntryPoint(
@@ -46,12 +42,12 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.tickEvent = tickEvent;
             this.fixedTickEvent = fixedTickEvent;
             this.lateTickEvent = lateTickEvent;
-            resolverContainer.SetResolver(resolver);
+            this.loadingEvent = loadingEvent;
             this.worldLoader = worldLoader;
             this.worldSetup = worldSetup;
-            this.loadingEvent = loadingEvent;
             this.prefabProvider = prefabProvider;
             this.musicRegistry = musicRegistry;
+            resolverContainer.SetResolver(resolver);
             isInitialized = true;
         }
 
@@ -60,10 +56,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             var musicPlayerPrefab = prefabProvider.MusicPlayerPrefab;
             if (musicPlayerPrefab != null)
             {
-                var _object = UnityEngine.Object.Instantiate(musicPlayerPrefab);
-                var player = _object.GetComponent<MusicPlayer>();
+                var obj = UnityEngine.Object.Instantiate(musicPlayerPrefab);
+                var player = obj.GetComponent<MusicPlayer>();
                 player?.Initialize(musicRegistry, MusicType.World);
             }
+
             loadingEvent.Raise(true);
             var loadSucceeded = await worldLoader.LoadWorld();
             if (!loadSucceeded)

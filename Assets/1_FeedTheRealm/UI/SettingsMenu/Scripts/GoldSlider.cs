@@ -39,6 +39,12 @@ public partial class GoldSlider : Slider
         style.alignItems = Align.Center;
     }
 
+    public override void SetValueWithoutNotify(float newValue)
+    {
+        base.SetValueWithoutNotify(newValue);
+        UpdateLabel(newValue);
+    }
+
     private void UpdateLabel(float val)
     {
         if (_valueLabel == null)

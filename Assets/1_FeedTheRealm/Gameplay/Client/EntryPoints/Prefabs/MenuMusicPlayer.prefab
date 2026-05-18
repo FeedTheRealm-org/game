@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Client::MusicPlayer
   musicSource: {fileID: 808105858190347883}
   fadeDuration: 1.5
+  settingsManager: {fileID: 11400000, guid: c196a637095a95474b1f2a64882174e6, type: 2}
 --- !u!82 &808105858190347883
 AudioSource:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
@@ -17,6 +18,9 @@ public class ClientInitiator : LifetimeScope
 
     [SerializeField]
     private Logging.Logger logger;
+
+    [SerializeField]
+    private SettingsManager settingsManager;
 
     [Header("Auth Prefabs")]
     [SerializeField]
@@ -60,9 +64,14 @@ public class ClientInitiator : LifetimeScope
         if (config.RuntimeRole != RuntimeRole.Client)
             throw new System.InvalidOperationException("Invalid runtime role for ClientInitiator");
 
+        settingsManager.LoadSettings();
+        settingsManager.ApplyDisplay();
+        settingsManager.ApplyAudioListener();
+
         builder.RegisterInstance(session);
         builder.RegisterInstance(authService);
         builder.RegisterInstance(musicRegistry);
+        builder.RegisterInstance(settingsManager);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder
             .RegisterEntryPoint<ClientEntryPoint>()
