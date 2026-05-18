@@ -1,0 +1,21 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+    editor-extension-mode="False">
+    <ui:VisualElement name="Body"
+        style="flex-grow: 1; width: 100%; min-height: 58px; max-height: 58px; background-color: rgba(0, 0, 0, 0.72); border-bottom-width: 1px; border-bottom-color: rgba(110, 255, 251, 0.25); padding-left: 18px; padding-right: 18px; flex-direction: row; align-items: center; justify-content: space-between;">
+        <ui:Label text="Feed The Realm" name="FeedTheRealm"
+            style="color: rgb(110, 255, 251); -unity-font-style: bold; font-size: 16px; letter-spacing: 1px; min-width: 180px; -unity-text-align: middle-left;" />
+        <ui:Label text="Section Name Here" name="SectionLabel"
+            style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 20px; flex-grow: 1; -unity-text-align: middle-center;" />
+        <ui:VisualElement name="Actions"
+            style="flex-direction: row; align-items: center; justify-content: flex-end; min-width: 320px;">
+            <ui:Button text="Home" name="HomeButton"
+                style="height: 38px; min-width: 140px; margin-right: 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; border-width: 1px; border-color: rgba(110, 255, 251, 0.45); background-color: rgba(110, 255, 251, 0.18); color: rgb(110, 255, 251); -unity-font-style: bold; -unity-text-align: middle-center;" />
+            <ui:Button text="Edit Character" name="ProfileButton"
+                style="height: 38px; min-width: 140px; margin-right: 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; border-width: 1px; border-color: rgba(110, 255, 251, 0.45); background-color: rgba(110, 255, 251, 0.18); color: rgb(110, 255, 251); -unity-font-style: bold; -unity-text-align: middle-center;" />
+            <ui:Button text="💎 Gem Store" name="GemStoreButton"
+                style="height: 38px; min-width: 132px; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; border-width: 1px; border-color: rgba(255, 210, 80, 0.55); background-color: rgba(255, 210, 80, 0.15); color: rgb(255, 210, 80); -unity-font-style: bold; -unity-text-align: middle-center;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

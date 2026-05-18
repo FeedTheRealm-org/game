@@ -110,6 +110,10 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public async UniTask ShowMainMenuFlow()
         {
+            // Home menu
+            var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
+            var worldFeedMenu = worldFeedMenuObj.GetComponent<IMainMenuController>();
+
             // Profile menu
             var profileMenuObj = Object.Instantiate(profileMenuPrefab);
             profileMenuObj.SetActive(false);
@@ -123,12 +127,10 @@ namespace FTR.Gameplay.Client.EntryPoints
             var navBarController = navBarObj.GetComponent<INavbarController>();
             if (navBarController != null)
             {
+                navBarController.SetHomeMenuInstance(worldFeedMenuObj);
                 navBarController.SetProfileMenuInstance(profileMenuObj);
                 navBarController.SetGemStoreInstance(gemStoreObj);
             }
-
-            var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
-            var worldFeedMenu = worldFeedMenuObj.GetComponent<IMainMenuController>();
 
             var completionSource = new UniTaskCompletionSource();
             worldFeedMenu.OnNavigateToWorld += () => completionSource.TrySetResult();
