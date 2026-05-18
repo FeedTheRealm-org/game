@@ -1,3 +1,4 @@
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using UnityEngine;
@@ -12,6 +13,10 @@ public class InteractController : MonoBehaviour
 {
     [Inject]
     PlayerInputReader inputReader;
+
+    [Inject]
+    private MenuManager menuManager;
+
     private NetworkAdapter networkAdapter;
     private bool isInitialized;
 
@@ -32,11 +37,8 @@ public class InteractController : MonoBehaviour
     /// </summary>
     public void OnInteract()
     {
-        if (!isInitialized)
-        {
-            Debug.LogWarning("[InteractController] OnInteract called before Initialize.");
+        if (!isInitialized || menuManager.AreAnyMenusOpen())
             return;
-        }
 
         var dto = new ActionCommandDTO { Type = ActionType.Interact };
         Debug.Log(
