@@ -38,7 +38,14 @@ public class SettingsMenuController : MonoBehaviour
     private Button _homeButton;
     private Button _exitButton;
     private Button _closeSettingsButton;
-    private TabView _settingsTabView;
+
+    // Sidebar nav buttons
+    private Button _displayNavButton;
+    private Button _soundNavButton;
+
+    // Content sections
+    private ScrollView _displayContent;
+    private ScrollView _soundContent;
 
     /* Display settings */
     private DropdownField _resolutionSelect;
@@ -53,6 +60,14 @@ public class SettingsMenuController : MonoBehaviour
 
     private List<Resolution> _availableResolutions;
     private const float baseHeight = 800f;
+
+    private enum SettingsSection
+    {
+        Display,
+        Sound,
+    }
+
+    private SettingsSection _activeSection = SettingsSection.Display;
 
     private void Start()
     {
@@ -71,22 +86,25 @@ public class SettingsMenuController : MonoBehaviour
     {
         root = GetComponent<UIDocument>().rootVisualElement;
 
-        /* General settings */
+        /* General / nav buttons */
         _homeButton = root.Q<Button>("HomeButton");
         _exitButton = root.Q<Button>("ExitButton");
         _closeSettingsButton = root.Q<Button>("CloseButton");
-        _settingsTabView = root.Q<TabView>("SettingsTabView");
+        _displayNavButton = root.Q<Button>("DisplayButton");
+        _soundNavButton = root.Q<Button>("SoundButton");
 
-        if (_settingsTabView != null && root.Q<Tab>("SoundTab") == null)
-        {
-            SetupSoundTab();
-        }
+        /* Content sections */
+        _displayContent = root.Q<ScrollView>("DisplayContent");
+        _soundContent = root.Q<ScrollView>("SoundContent");
 
         if (
             _homeButton == null
             || _exitButton == null
             || _closeSettingsButton == null
-            || _settingsTabView == null
+            || _displayNavButton == null
+            || _soundNavButton == null
+            || _displayContent == null
+            || _soundContent == null
         )
         {
             logger.Log(
@@ -151,6 +169,8 @@ public class SettingsMenuController : MonoBehaviour
         adjustUIToScreenSize();
         registerButtonCallbacks(true);
 
+        ShowSection(SettingsSection.Display);
+
         root.style.display = DisplayStyle.None;
     }
 
@@ -158,6 +178,34 @@ public class SettingsMenuController : MonoBehaviour
     {
         registerButtonCallbacks(false);
     }
+
+    // ── SECTION SWITCHING ──────────────────────────────────────────────────────
+
+    private void ShowSection(SettingsSection section)
+    {
+        _activeSection = section;
+
+        _displayContent.style.display =
+            section == SettingsSection.Display ? DisplayStyle.Flex : DisplayStyle.None;
+
+        _soundContent.style.display =
+            section == SettingsSection.Sound ? DisplayStyle.Flex : DisplayStyle.None;
+
+        UpdateNavButtonSelection(_displayNavButton, section == SettingsSection.Display);
+        UpdateNavButtonSelection(_soundNavButton, section == SettingsSection.Sound);
+
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
+    }
+
+    private void UpdateNavButtonSelection(Button button, bool isSelected)
+    {
+        if (isSelected)
+            button.AddToClassList("nav-button--selected");
+        else
+            button.RemoveFromClassList("nav-button--selected");
+    }
+
+    // ── SCALE ─────────────────────────────────────────────────────────────────
 
     private void adjustUIToScreenSize()
     {
@@ -167,7 +215,6 @@ public class SettingsMenuController : MonoBehaviour
         float exitFontSize = _exitButton.resolvedStyle.fontSize;
         float resolutionFontSize = _resolutionSelect.resolvedStyle.fontSize;
         float fullscreenFontSize = _fullscreenToggle.resolvedStyle.fontSize;
-        float tabViewFontSize = _settingsTabView.resolvedStyle.fontSize;
 
         _homeButton.style.fontSize = new StyleLength(
             new Length(homeFontSize * scaleFactor, LengthUnit.Pixel)
@@ -181,10 +228,9 @@ public class SettingsMenuController : MonoBehaviour
         _fullscreenToggle.style.fontSize = new StyleLength(
             new Length(fullscreenFontSize * scaleFactor, LengthUnit.Pixel)
         );
-        _settingsTabView.style.fontSize = new StyleLength(
-            new Length(tabViewFontSize * scaleFactor, LengthUnit.Pixel)
-        );
     }
+
+    // ── DISPLAY SETTINGS ──────────────────────────────────────────────────────
 
     private void initializeDisplaySettings()
     {
@@ -201,7 +247,6 @@ public class SettingsMenuController : MonoBehaviour
 
         _resolutionSelect.choices = resolutionStrings;
 
-        // Set current resolution
         string currentResolution =
             $"{Screen.currentResolution.width}x{Screen.currentResolution.height}";
         _resolutionSelect.value = currentResolution;
@@ -214,6 +259,8 @@ public class SettingsMenuController : MonoBehaviour
         );
     }
 
+    // ── CALLBACKS ─────────────────────────────────────────────────────────────
+
     private void registerButtonCallbacks(bool register)
     {
         if (!register)
@@ -221,50 +268,37 @@ public class SettingsMenuController : MonoBehaviour
             _homeButton.clicked -= onHomeButtonClicked;
             _exitButton.clicked -= onExitButtonClicked;
             _closeSettingsButton.clicked -= onCloseSettingsButtonClicked;
+            _displayNavButton.clicked -= onDisplayNavButtonClicked;
+            _soundNavButton.clicked -= onSoundNavButtonClicked;
             _fullscreenToggle.UnregisterValueChangedCallback(onFullscreenToggleChanged);
             _resolutionSelect.UnregisterValueChangedCallback(onResolutionChanged);
             _volumeSlider?.UnregisterValueChangedCallback(onVolumeChanged);
             _musicVolumeSlider?.UnregisterValueChangedCallback(onMusicVolumeChanged);
             _sfxVolumeSlider?.UnregisterValueChangedCallback(onSFXVolumeChanged);
             _muteToggle?.UnregisterValueChangedCallback(onMuteToggleChanged);
-            _settingsTabView?.UnregisterCallback<PointerDownEvent>(onTabClicked);
             return;
         }
+
         _homeButton.clicked += onHomeButtonClicked;
         _exitButton.clicked += onExitButtonClicked;
         _closeSettingsButton.clicked += onCloseSettingsButtonClicked;
+        _displayNavButton.clicked += onDisplayNavButtonClicked;
+        _soundNavButton.clicked += onSoundNavButtonClicked;
         _fullscreenToggle.RegisterValueChangedCallback(onFullscreenToggleChanged);
         _resolutionSelect.RegisterValueChangedCallback(onResolutionChanged);
         _volumeSlider?.RegisterValueChangedCallback(onVolumeChanged);
         _musicVolumeSlider?.RegisterValueChangedCallback(onMusicVolumeChanged);
         _sfxVolumeSlider?.RegisterValueChangedCallback(onSFXVolumeChanged);
         _muteToggle?.RegisterValueChangedCallback(onMuteToggleChanged);
-        _settingsTabView?.RegisterCallback<PointerDownEvent>(onTabClicked, TrickleDown.TrickleDown);
     }
 
-    private void onTabClicked(PointerDownEvent evt)
-    {
-        var target = evt.target as VisualElement;
-        if (target == null)
-            return;
+    // ── NAV BUTTON HANDLERS ───────────────────────────────────────────────────
 
-        bool inContent = false;
-        var current = target;
-        while (current != null && current != _settingsTabView)
-        {
-            if (current.ClassListContains("tab-content"))
-            {
-                inContent = true;
-                break;
-            }
-            current = current.parent;
-        }
+    private void onDisplayNavButtonClicked() => ShowSection(SettingsSection.Display);
 
-        if (!inContent)
-        {
-            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
-        }
-    }
+    private void onSoundNavButtonClicked() => ShowSection(SettingsSection.Sound);
+
+    // ── PUBLIC API ────────────────────────────────────────────────────────────
 
     public bool IsOpen()
     {
@@ -284,6 +318,8 @@ public class SettingsMenuController : MonoBehaviour
         UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
         UnityEngine.Cursor.visible = willBeActive;
     }
+
+    // ── EXISTING ACTION HANDLERS (unchanged) ──────────────────────────────────
 
     private void onHomeButtonClicked()
     {
@@ -410,7 +446,6 @@ public class SettingsMenuController : MonoBehaviour
     {
         bool newValue = evt.newValue;
         logger.Log("Fullscreen toggle: " + newValue, this, Logging.LogType.Info);
-
         Screen.fullScreen = newValue;
     }
 
@@ -426,7 +461,6 @@ public class SettingsMenuController : MonoBehaviour
             && int.TryParse(parts[1], out int h)
         )
         {
-            // Find the matching resolution to get the correct refresh rate
             Resolution targetResolution = _availableResolutions.FirstOrDefault(r =>
                 r.width == w && r.height == h
             );
@@ -440,65 +474,5 @@ public class SettingsMenuController : MonoBehaviour
                 );
             }
         }
-    }
-
-    private void SetupSoundTab()
-    {
-        var soundTab = new Tab
-        {
-            label = "Sound",
-            name = "SoundTab",
-            tabIndex = 0,
-        };
-        soundTab.AddToClassList("tab-button");
-        soundTab.style.width = Length.Percent(100);
-        soundTab.style.height = Length.Percent(100);
-
-        var soundContent = new ScrollView { name = "SoundContent" };
-        soundContent.AddToClassList("tab-content");
-        soundContent.style.width = Length.Percent(100);
-        soundContent.style.backgroundColor = new StyleColor(
-            new Color(58f / 255f, 58f / 255f, 58f / 255f, 0.14f)
-        );
-        soundContent.style.alignItems = Align.FlexStart;
-        soundContent.style.justifyContent = Justify.FlexStart;
-        soundContent.style.paddingTop = 20;
-        soundContent.style.paddingRight = 20;
-        soundContent.style.paddingBottom = 20;
-        soundContent.style.paddingLeft = 20;
-
-        var volumeSlider = new Slider("Global Volume", 0f, 1f)
-        {
-            name = "VolumeSlider",
-            value = 1f,
-        };
-        volumeSlider.style.width = Length.Percent(80);
-        volumeSlider.style.marginBottom = 10;
-        soundContent.Add(volumeSlider);
-
-        var sfxVolumeSlider = new Slider("SFX Volume", 0f, 1f)
-        {
-            name = "SFXVolumeSlider",
-            value = 1f,
-        };
-        sfxVolumeSlider.style.width = Length.Percent(80);
-        sfxVolumeSlider.style.marginBottom = 10;
-        soundContent.Add(sfxVolumeSlider);
-
-        var musicVolumeSlider = new Slider("Music Volume", 0f, 1f)
-        {
-            name = "MusicVolumeSlider",
-            value = 1f,
-        };
-        musicVolumeSlider.style.width = Length.Percent(80);
-        musicVolumeSlider.style.marginBottom = 10;
-        soundContent.Add(musicVolumeSlider);
-
-        var muteToggle = new Toggle("Mute sound") { name = "MuteToggle", value = false };
-        muteToggle.style.marginTop = 10;
-        soundContent.Add(muteToggle);
-
-        soundTab.Add(soundContent);
-        _settingsTabView.Insert(1, soundTab);
     }
 }
