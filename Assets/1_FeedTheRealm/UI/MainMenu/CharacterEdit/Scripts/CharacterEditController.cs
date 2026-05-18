@@ -105,7 +105,6 @@ public partial class CharacterEditController : MonoBehaviour
 
     // Buttons
     private Button _emptyItemButton;
-    private Button _backButton;
     private Button _cancelButton;
     private Button _saveButton;
 
@@ -185,7 +184,6 @@ public partial class CharacterEditController : MonoBehaviour
 
         _cancelButton = buttonsContainer.Q<Button>("Cancel");
         _saveButton = buttonsContainer.Q<Button>("Save");
-        _backButton = body.Q<Button>("BackButton");
 
         _errorMessage = _cosmeticsContainer.Q<Label>("ErrorMessage");
         _itemsList = _cosmeticsContainer.Q<ScrollView>("Items");
@@ -436,7 +434,6 @@ public partial class CharacterEditController : MonoBehaviour
         {
             logger.Log("Registering button callbacks", this);
             _emptyItemButton.clicked += _onEmptyItemClickedAction;
-            _backButton.clicked += onBackClicked;
             _cancelButton.clicked += onCancelClicked;
             _saveButton.clicked += _onSaveClickedAction;
             _prevPageButton.clicked += _onPrevPageClickedAction;
@@ -448,7 +445,6 @@ public partial class CharacterEditController : MonoBehaviour
         {
             logger.Log("Unregistering button callbacks", this);
             _emptyItemButton.clicked -= _onEmptyItemClickedAction;
-            _backButton.clicked -= onBackClicked;
             _cancelButton.clicked -= onCancelClicked;
             _saveButton.clicked -= _onSaveClickedAction;
             _prevPageButton.clicked -= _onPrevPageClickedAction;
@@ -458,29 +454,7 @@ public partial class CharacterEditController : MonoBehaviour
         }
     }
 
-    private void applyPersistencePresentation()
-    {
-        if (_backButton == null)
-        {
-            return;
-        }
-
-        if (spritesOnlyEditorMode)
-        {
-            _backButton.style.display = DisplayStyle.None;
-            return;
-        }
-
-        if (session != null && session.IsFirstLogin)
-        {
-            logger.Log("First login detected, hiding back button.", this);
-            _backButton.style.display = DisplayStyle.None;
-        }
-        else
-        {
-            _backButton.style.display = DisplayStyle.Flex;
-        }
-    }
+    private void applyPersistencePresentation() { }
 
     private string ResolveActiveCharacterId()
     {
@@ -524,11 +498,6 @@ public partial class CharacterEditController : MonoBehaviour
         {
             _bioInput.isReadOnly = true;
             _bioInput.style.display = DisplayStyle.None;
-        }
-
-        if (_backButton != null)
-        {
-            _backButton.style.display = DisplayStyle.None;
         }
     }
 

@@ -1,3 +1,4 @@
+/* WORLD MENU USS */
 :root {
     --teal: rgb(110, 255, 251);
     --teal-dim: rgba(110, 255, 251, 0.18);
@@ -42,7 +43,7 @@
     min-width: 220px;
 }
 
-#SearchContainer > #SearchField > #unity-text-input {
+#SearchContainer>#SearchField>#unity-text-input {
     height: 38px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;

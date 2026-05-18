@@ -17,9 +17,6 @@ namespace FTR.UI.Homepage.Navbar
         [SerializeField]
         private API.PlayerService playerService;
 
-        [SerializeField]
-        private string sectionName = "Section";
-
         private GameObject homeMenuInstance;
         private GameObject profileMenuInstance;
         private GameObject gemStoreInstance;
@@ -28,9 +25,15 @@ namespace FTR.UI.Homepage.Navbar
         private Button homeButton;
         private Button playerProfileButton;
         private Button gemStoreButton;
-        private Label sectionLabel;
+        private Button settingsButton;
 
         private const string EditCharacterLabel = "Edit Character";
+
+        // CSS class names for selected states
+        private const string HomeSelectedClass = "navbar-button-home-selected";
+        private const string ProfileSelectedClass = "navbar-button-profile-selected";
+        private const string GemSelectedClass = "navbar-button-gem-selected";
+        private const string SettingsSelectedClass = "navbar-button-settings-selected";
 
         private void OnEnable()
         {
@@ -61,22 +64,9 @@ namespace FTR.UI.Homepage.Navbar
                         }
 
                         session.CharacterName = data?.character_name?.Trim() ?? string.Empty;
-                        UpdateProfileButtonText();
                     }
                 )
             );
-
-            sectionLabel = _root.Q<Label>("SectionLabel");
-            if (sectionLabel == null)
-            {
-                logger.Log(
-                    "SectionLabel not found in the UI Document.",
-                    this,
-                    Logging.LogType.Error
-                );
-                return;
-            }
-            sectionLabel.text = sectionName;
 
             var body = _root.Q<VisualElement>("Body");
             if (body == null)
@@ -99,7 +89,6 @@ namespace FTR.UI.Homepage.Navbar
                 logger.Log("ProfileButton not found in Body.", this, Logging.LogType.Error);
                 return;
             }
-            UpdateProfileButtonText();
             playerProfileButton.clicked += OnProfileButtonClicked;
 
             gemStoreButton = body.Q<Button>("GemStoreButton");
@@ -109,6 +98,15 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
             gemStoreButton.clicked += OnGemStoreButtonClicked;
+
+            settingsButton = body.Q<Button>("SettingsButton");
+            if (settingsButton != null)
+            {
+                settingsButton.clicked += OnSettingsButtonClicked;
+            }
+
+            // Set home as selected by default
+            SetSelectedButton(homeButton, HomeSelectedClass);
         }
 
         private void OnDisable()
@@ -119,6 +117,22 @@ namespace FTR.UI.Homepage.Navbar
                 playerProfileButton.clicked -= OnProfileButtonClicked;
             if (gemStoreButton != null)
                 gemStoreButton.clicked -= OnGemStoreButtonClicked;
+            if (settingsButton != null)
+                settingsButton.clicked -= OnSettingsButtonClicked;
+        }
+
+        /* --- Selected State Management --- */
+
+        private void SetSelectedButton(Button button, string selectedClass)
+        {
+            // Remove all selected classes from all buttons
+            homeButton?.RemoveFromClassList(HomeSelectedClass);
+            playerProfileButton?.RemoveFromClassList(ProfileSelectedClass);
+            gemStoreButton?.RemoveFromClassList(GemSelectedClass);
+            settingsButton?.RemoveFromClassList(SettingsSelectedClass);
+
+            // Add selected class to the active button
+            button?.AddToClassList(selectedClass);
         }
 
         /* --- Setters --- */
@@ -167,6 +181,8 @@ namespace FTR.UI.Homepage.Navbar
             gemStoreInstance?.SetActive(false);
             profileMenuInstance?.SetActive(false);
             homeMenuInstance.SetActive(true);
+
+            SetSelectedButton(homeButton, HomeSelectedClass);
         }
 
         private void OnGemStoreButtonClicked()
@@ -179,6 +195,8 @@ namespace FTR.UI.Homepage.Navbar
             homeMenuInstance?.SetActive(false);
             profileMenuInstance?.SetActive(false);
             gemStoreInstance.SetActive(true);
+
+            SetSelectedButton(gemStoreButton, GemSelectedClass);
         }
 
         private void OnProfileButtonClicked()
@@ -191,20 +209,16 @@ namespace FTR.UI.Homepage.Navbar
             homeMenuInstance?.SetActive(false);
             gemStoreInstance?.SetActive(false);
             profileMenuInstance.SetActive(true);
+
+            SetSelectedButton(playerProfileButton, ProfileSelectedClass);
         }
 
-        private void UpdateProfileButtonText()
+        private void OnSettingsButtonClicked()
         {
-            if (playerProfileButton == null)
-                return;
+            // Implement settings logic here when you have a settings menu
+            logger.Log("Settings button clicked - not yet implemented", this, Logging.LogType.Info);
 
-            if (string.IsNullOrWhiteSpace(session?.CharacterName))
-            {
-                playerProfileButton.text = EditCharacterLabel;
-                return;
-            }
-
-            playerProfileButton.text = $"Edit {session.CharacterName}";
+            SetSelectedButton(settingsButton, SettingsSelectedClass);
         }
     }
 }

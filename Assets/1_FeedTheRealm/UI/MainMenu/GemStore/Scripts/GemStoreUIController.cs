@@ -21,7 +21,6 @@ public class GemStoreController : MonoBehaviour
 
     private VisualElement packList;
     private Label balanceLabel;
-    private Button backButton;
 
     private void OnEnable()
     {
@@ -30,17 +29,9 @@ public class GemStoreController : MonoBehaviour
 
         packList = root.Q<VisualElement>("PackList");
         balanceLabel = root.Q<Label>("GemBalanceLabel");
-        backButton = root.Q<Button>("BackButton");
-
-        backButton.clicked += OnBackClicked;
 
         LoadBalance();
         LoadPacks();
-    }
-
-    private void OnDisable()
-    {
-        backButton.clicked -= OnBackClicked;
     }
 
     private async void LoadBalance()

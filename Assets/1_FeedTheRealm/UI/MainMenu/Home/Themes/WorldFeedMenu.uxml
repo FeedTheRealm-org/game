@@ -1,21 +1,29 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/Homepage/WorldFeedMenu/Themes/worldMenu.uss?fileID=7433441132597879392&amp;guid=d80d3fad8a1f30e40a333df0ab19b927&amp;type=3#worldMenu"/>
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+    editor-extension-mode="False">
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/Homepage/WorldFeedMenu/Themes/worldMenu.uss?fileID=7433441132597879392&amp;guid=d80d3fad8a1f30e40a333df0ab19b927&amp;type=3#worldMenu" />
     <ui:VisualElement name="Background" class="background">
-        <ui:Label text="" name="NavbarSpace" class="title"/>
+        <ui:Label text="" name="NavbarSpace" class="title" />
         <ui:VisualElement name="WorldListContainer" class="worldListContainer">
             <ui:VisualElement name="SearchContainer">
-                <ui:TextField label="" placeholder-text="Search your world" name="SearchField" class="searchBar"/>
+                <ui:TextField label="" placeholder-text="Search your world" name="SearchField"
+                    class="searchBar" />
             </ui:VisualElement>
-            <ui:ScrollView name="ListOfWorlds" mode="Vertical" vertical-page-size="-1" nested-interaction-kind="Default" horizontal-scroller-visibility="Hidden" class="worldList">
+            <ui:ScrollView name="ListOfWorlds" mode="Vertical" vertical-page-size="-1"
+                nested-interaction-kind="Default" horizontal-scroller-visibility="Hidden"
+                class="worldList">
                 <ui:VisualElement enabled="false" class="worldElement">
-                    <ui:Label text="atusgamesmegaepicworl.world" class="categoryName"/>
-                    <ui:Button text="i" name="AboutButton" class="aboutButton"/>
+                    <ui:Label text="atusgamesmegaepicworl.world" class="categoryName" />
+                    <ui:Button text="i" name="AboutButton" class="aboutButton" />
                 </ui:VisualElement>
-                <ui:Label text="No worlds or categories found matching " name="NotFound" enabled="true" class="noResultsMessage"/>
+                <ui:Label text="No worlds or categories found matching " name="NotFound"
+                    enabled="true" class="noResultsMessage" />
             </ui:ScrollView>
             <ui:VisualElement name="PaginationButtons" class="page-buttons">
-                <ui:Button text="&#10148;" name="BackButton" class="pageButton" style="scale: -1 1;"/>
-                <ui:Button text="&#10148;" name="ForwardButton" class="pageButton"/>
+                <ui:Button text="&#10148;" name="BackButton" class="pageButton" style="scale: -1 1;" />
+                <ui:Button text="&#10148;" name="ForwardButton" class="pageButton" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
