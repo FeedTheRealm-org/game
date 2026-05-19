@@ -1,8 +1,11 @@
 using System;
+using FTR.Core.Client.EventChannels.Input;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.EventChannels;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 /// <summary>
 /// Controls the UI popup for the quest prompt.
@@ -17,6 +20,12 @@ public class QuestPromptController : MonoBehaviour
     [Header("General settings")]
     [SerializeField]
     private Logging.Logger logger;
+
+    [Inject]
+    private MenuManager menuManager;
+
+    [Inject]
+    private BackEvent backEvent;
 
     private VisualElement _root;
     private Label _titleLabel;
@@ -53,7 +62,13 @@ public class QuestPromptController : MonoBehaviour
                 Logging.LogType.Error
             );
 
+        backEvent.OnRaised += OnRejectClicked;
         ToggleQuestPrompt(false);
+    }
+
+    private void OnDestroy()
+    {
+        backEvent.OnRaised -= OnRejectClicked;
     }
 
     private void OnEnable()
@@ -92,6 +107,7 @@ public class QuestPromptController : MonoBehaviour
     public void ToggleQuestPrompt(bool show)
     {
         _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+        menuManager.ToggleMenu(MenuType.Quest, show);
     }
 
     /// <summary>
@@ -100,7 +116,7 @@ public class QuestPromptController : MonoBehaviour
     /// </summary>
     public void OnQuestOffered(QuestPromptData promptData)
     {
-        if (promptData.Quest == null)
+        if (promptData.Quest == null || !menuManager.CanOpenMenu(MenuType.Quest))
             return;
 
         _currentQuestData = promptData.Quest;

@@ -38,5 +38,8 @@ namespace FTR.Core.Client
 
         [Header("Music")]
         public GameObject MusicPlayerPrefab;
+
+        [Header("Popup Dialogs")]
+        public GameObject ConfirmPopup;
     }
 }

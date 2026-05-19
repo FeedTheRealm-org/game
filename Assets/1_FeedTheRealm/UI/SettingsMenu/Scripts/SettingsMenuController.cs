@@ -1,9 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using FTR.Core.Client;
+using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Managers;
 using FTR.Gameplay.Client.Registry;
+using FTR.UI;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,13 +22,19 @@ public class SettingsMenuController : MonoBehaviour
     private Logging.Logger logger;
 
     [SerializeField]
-    private PlayerInputReader playerInputReader;
-
-    [SerializeField]
     private OnWorldLeaveEvent onWorldLeaveEvent;
 
     [Inject]
+    private ClientPrefabProvider prefabProvider;
+
+    [Inject]
     private ISoundPlayer soundPlayer;
+
+    [Inject]
+    private MenuManager menuManager;
+
+    [Inject]
+    private BackEvent backEvent;
 
     /* General settings */
     private VisualElement root;
@@ -51,21 +59,23 @@ public class SettingsMenuController : MonoBehaviour
 
     private void Start()
     {
-        playerInputReader.CursorToggleEvent += ToggleSettings;
+        backEvent.OnRaised += ToggleSettings;
     }
 
     private void OnDestroy()
     {
-        if (playerInputReader != null)
-        {
-            playerInputReader.CursorToggleEvent -= ToggleSettings;
-        }
+        backEvent.OnRaised -= ToggleSettings;
+    }
+
+    private void Awake()
+    {
+        root = GetComponent<UIDocument>().rootVisualElement;
+        if (root == null)
+            throw new MissingComponentException("Root VisualElement not found in UI Document.");
     }
 
     private void OnEnable()
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
-
         /* General settings */
         _homeButton = root.Q<Button>("HomeButton");
         _exitButton = root.Q<Button>("ExitButton");
@@ -269,29 +279,45 @@ public class SettingsMenuController : MonoBehaviour
 
     public void ToggleSettings()
     {
-        logger.Log("Toggle settings", this);
-
-        var root = GetComponent<UIDocument>().rootVisualElement;
         bool willBeActive = root.style.display != DisplayStyle.Flex;
+
+        if (willBeActive && !menuManager.CanOpenMenu(MenuType.Settings))
+            return;
+
         root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
 
-        UnityEngine.Cursor.lockState = willBeActive ? CursorLockMode.None : CursorLockMode.Locked;
-        UnityEngine.Cursor.visible = willBeActive;
+        menuManager.ToggleMenu(MenuType.Settings, willBeActive);
     }
 
     private void onHomeButtonClicked()
     {
-        logger.Log("Home button clicked", this, Logging.LogType.Info);
-        onWorldLeaveEvent.Raise();
-        SceneManager.LoadScene(homeScene.SceneName);
+        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+            .GetComponent<ConfirmPopupController>();
+        confirmPopup.Show(
+            question: "Are you sure you want to go to the home screen?",
+            title: "Return to Home",
+            onConfirm: () =>
+            {
+                onWorldLeaveEvent.Raise();
+                SceneManager.LoadScene(homeScene.SceneName);
+            }
+        );
     }
 
     private void onExitButtonClicked()
     {
-        logger.Log("Exit button clicked", this, Logging.LogType.Info);
-        onWorldLeaveEvent.Raise();
-        Application.Quit();
+        var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
+            .GetComponent<ConfirmPopupController>();
+        confirmPopup.Show(
+            question: "Are you sure you want to exit the game?",
+            title: "Exit Game",
+            onConfirm: () =>
+            {
+                onWorldLeaveEvent.Raise();
+                Application.Quit();
+            }
+        );
     }
 
     private void onCloseSettingsButtonClicked()

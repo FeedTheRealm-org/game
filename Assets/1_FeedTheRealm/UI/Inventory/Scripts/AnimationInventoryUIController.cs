@@ -19,6 +19,12 @@ namespace FTR.UI.Inventory
         {
             inventory = root.Q("Inventory");
             panel = inventory?.Q("Panel");
+
+            if (inventory != null)
+                inventory.pickingMode = PickingMode.Ignore;
+
+            if (panel != null)
+                panel.pickingMode = PickingMode.Position;
         }
 
         public void Toggle()

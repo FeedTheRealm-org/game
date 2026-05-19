@@ -2,6 +2,7 @@ using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Chat;
 using FTR.Core.Client.EventChannels.Gold;
+using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Portal;
@@ -76,6 +77,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         [Header("UI Related Events")]
         public OnWorldLeaveEvent onExitEvent;
 
+        [Header("Input Related Events")]
+        public BackEvent backEvent;
+
         public void RegisterAll(IContainerBuilder builder)
         {
             Validate();
@@ -113,6 +117,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(openPortalUIEvent);
             builder.RegisterInstance(loadingEvent);
             builder.RegisterInstance(onExitEvent);
+            builder.RegisterInstance(backEvent);
         }
 
         private void Validate()
@@ -150,6 +155,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(openPortalUIEvent, nameof(openPortalUIEvent));
             ValidateField(loadingEvent, nameof(loadingEvent));
             ValidateField(onExitEvent, nameof(onExitEvent));
+            ValidateField(backEvent, nameof(backEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

@@ -68,9 +68,6 @@ namespace FTR.Gameplay.Client.Characters.Player
                 return;
             }
 
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-
             showQuestPromptEvent.Raise(
                 new QuestPromptData(questData, networkAdapter.netId, data.npcId)
             );
@@ -82,9 +79,6 @@ namespace FTR.Gameplay.Client.Characters.Player
             {
                 return;
             }
-
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
 
             if (decision.IsAccepted)
             {

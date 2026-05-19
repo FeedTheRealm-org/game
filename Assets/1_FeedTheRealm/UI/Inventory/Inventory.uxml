@@ -1,31 +1,87 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/Inventory/Themes/Inventory.uss?fileID=7433441132597879392&amp;guid=e1f477f809821c4f886803912d7f395c&amp;type=3#Inventory"/>
-    <ui:VisualElement name="Inventory" style="flex-grow: 1; display: none; position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.47);">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+    editor-extension-mode="False">
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/Inventory/Themes/Inventory.uss?fileID=7433441132597879392&amp;guid=e1f477f809821c4f886803912d7f395c&amp;type=3#Inventory" />
+    <ui:VisualElement name="Inventory"
+        style="flex-grow: 1; display: none; position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0);">
         <ui:VisualElement name="Panel" class="panel">
-            <ui:Label text="Inventory" name="InventoryTitle" style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 26px; -unity-text-align: upper-center; margin-bottom: 10px;"/>
+            <ui:Label text="Inventory" name="InventoryTitle"
+                style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 26px; -unity-text-align: upper-center; margin-bottom: 10px;" />
             <ui:VisualElement name="InventoryGrid" class="inventory-grid">
-                <ui:VisualElement name="Slot1" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot2" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot3" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot4" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot5" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot6" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot7" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot8" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot9" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot10" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot11" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="Slot12" class="inventory-slot"><ui:VisualElement name="ItemIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
+                <ui:VisualElement name="Slot1" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot2" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot3" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot4" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot5" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot6" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot7" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot8" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot9" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot10" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot11" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot12" class="inventory-slot">
+                    <ui:VisualElement name="ItemIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="Drop" class="inventory-drop">
-                <ui:Label text="Drop" name="DropText" style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 16px; -unity-text-align: upper-center; align-self: center;"/>
+                <ui:Label text="Drop" name="DropText"
+                    style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 16px; -unity-text-align: upper-center; align-self: center;" />
             </ui:VisualElement>
             <ui:VisualElement name="FastEquipContainer" class="fast-equip-container">
-                <ui:VisualElement name="FastEquipSlot1" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot2" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot3" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot4" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot5" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;"/></ui:VisualElement>
+                <ui:VisualElement name="FastEquipSlot1" class="fast-equip-slot">
+                    <ui:VisualElement name="FastEquipIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="FastEquipSlot2" class="fast-equip-slot">
+                    <ui:VisualElement name="FastEquipIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="FastEquipSlot3" class="fast-equip-slot">
+                    <ui:VisualElement name="FastEquipIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="FastEquipSlot4" class="fast-equip-slot">
+                    <ui:VisualElement name="FastEquipIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="FastEquipSlot5" class="fast-equip-slot">
+                    <ui:VisualElement name="FastEquipIcon"
+                        style="width: 80%; height: 80%; -unity-background-scale-mode: scale-to-fit; align-self: center;" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
