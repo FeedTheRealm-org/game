@@ -15,7 +15,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject gemStorePrefab;
         readonly GameObject musicPlayerPrefab;
         readonly ClientMusicRegistry musicRegistry;
-
+        readonly GameObject navBarSettingsPrefab;
         private GameObject musicPlayerInstance;
 
         public MainMenuFlowService(
@@ -27,7 +27,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
-            ClientMusicRegistry musicRegistry
+            ClientMusicRegistry musicRegistry,
+            GameObject navBarSettingsPrefab
         )
         {
             this.loginPrefab = loginPrefab;
@@ -39,6 +40,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
+            this.navBarSettingsPrefab = navBarSettingsPrefab;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -122,6 +124,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             var gemStoreObj = Object.Instantiate(gemStorePrefab);
             gemStoreObj.SetActive(false);
 
+            var navBarSettingsObj = Object.Instantiate(navBarSettingsPrefab);
+            navBarSettingsObj.SetActive(false);
+
             // NavBar — wire both instances
             var navBarObj = Object.Instantiate(navBarPrefab);
             var navBarController = navBarObj.GetComponent<INavbarController>();
@@ -130,6 +135,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 navBarController.SetHomeMenuInstance(worldFeedMenuObj);
                 navBarController.SetProfileMenuInstance(profileMenuObj);
                 navBarController.SetGemStoreInstance(gemStoreObj);
+                navBarController.SetNavBarSettingsInstance(navBarSettingsObj);
             }
 
             var completionSource = new UniTaskCompletionSource();

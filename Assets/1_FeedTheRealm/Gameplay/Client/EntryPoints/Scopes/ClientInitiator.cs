@@ -45,6 +45,9 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject gemStorePrefab;
 
+    [SerializeField]
+    private GameObject navBarSettingsPrefab;
+
     [Header("Loading Screen")]
     [SerializeField]
     private GameObject loadingScreenPrefab;
@@ -79,6 +82,7 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("navBarPrefab", navBarPrefab)
             .WithParameter("profileMenuPrefab", profileMenuPrefab)
             .WithParameter("gemStorePrefab", gemStorePrefab)
+            .WithParameter("navBarSettingsPrefab", navBarSettingsPrefab)
             .WithParameter("musicPlayerPrefab", musicPlayerPrefab)
             .WithParameter("musicRegistry", musicRegistry)
             .WithParameter("loadingScreenPrefab", loadingScreenPrefab)
