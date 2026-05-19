@@ -94,6 +94,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             var authBackgroundObj = Object.Instantiate(authBackgroundPrefab);
             var completionSource = new UniTaskCompletionSource();
             authFlowManager.OnAuthComplete += (string _) => completionSource.TrySetResult();
+            authFlowManager.HideCloseButton();
             authFlowManager.ShowAuthMenu();
             await completionSource.Task;
             Object.Destroy(authBackgroundObj);
