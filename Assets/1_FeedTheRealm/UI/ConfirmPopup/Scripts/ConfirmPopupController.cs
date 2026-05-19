@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace FeedTheRealm.UI.Common
+namespace FTR.UI
 {
     /// <summary>
     /// Reusable confirm/cancel dialog controller.
@@ -17,7 +17,7 @@ namespace FeedTheRealm.UI.Common
     /// </code>
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
-    public class ConfirmPopupController : MonoBehaviour, IConfirmUI
+    public class ConfirmPopupController : MonoBehaviour
     {
         private VisualElement _overlay;
         private Label _titleLabel;

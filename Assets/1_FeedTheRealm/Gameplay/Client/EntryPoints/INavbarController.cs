@@ -7,6 +7,7 @@ namespace FTR.Gameplay.Client.EntryPoints
     /// </summary>
     public interface INavbarController
     {
+        void SetHomeMenuInstance(GameObject instance);
         void SetProfileMenuInstance(GameObject instance);
         void SetGemStoreInstance(GameObject instance);
     }

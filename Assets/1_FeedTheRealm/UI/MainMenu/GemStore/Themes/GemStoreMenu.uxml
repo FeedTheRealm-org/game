@@ -1,0 +1,20 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+    editor-extension-mode="False">
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/GemStoreMenu/Themes/GemStoreStyle.uss?fileID=7433441132597879392&amp;guid=c3b13b722385e584698c4cd3e578d44d&amp;type=3#GemStoreStyle" />
+    <ui:VisualElement name="Background" class="background">
+        <ui:Label text="" name="NavbarSpace" />
+        <ui:VisualElement name="Header" class="header">
+            <ui:Label text="✦ Gem Store ✦" name="Title" class="title" />
+            <ui:VisualElement name="BalanceBadge" class="balance-badge">
+                <ui:Label text="💎" name="GemIcon" class="gem-icon" />
+                <ui:Label text="0" name="GemBalanceLabel" class="balance-label" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="PackList" class="pack-list" />
+        <ui:Label text="Choose your gems, power your realm" name="Subtitle" class="subtitle" />
+        <ui:Label text="Loading packs..." name="StatusLabel" class="status-label" />
+    </ui:VisualElement>
+</ui:UXML>
