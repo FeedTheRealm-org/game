@@ -3,6 +3,7 @@ using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Managers;
+using FTR.Core.Client.Settings;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.Loaders;
 using VContainer;
@@ -23,6 +24,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly WorldSetupService worldSetup;
         private readonly ClientPrefabProvider prefabProvider;
         private readonly ClientMusicRegistry musicRegistry;
+        private readonly SettingsManager settingsManager;
         private CursorManager cursorManager;
         private bool isInitialized = false;
 
@@ -38,7 +40,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             WorldSetupService worldSetup,
             ClientPrefabProvider prefabProvider,
             ClientMusicRegistry musicRegistry,
-            CursorManager cursorManager
+            CursorManager cursorManager,
+            SettingsManager settingsManager
         )
         {
             this.tickEvent = tickEvent;
@@ -51,11 +54,16 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.musicRegistry = musicRegistry;
             resolverContainer.SetResolver(resolver);
             this.cursorManager = cursorManager;
+            this.settingsManager = settingsManager;
             isInitialized = true;
         }
 
         public async void Start()
         {
+            settingsManager.LoadSettings();
+            settingsManager.ApplyDisplay();
+            settingsManager.ApplyAudioListener();
+
             cursorManager.ToggleCursorBlock(true);
             var musicPlayerPrefab = prefabProvider.MusicPlayerPrefab;
             if (musicPlayerPrefab != null)

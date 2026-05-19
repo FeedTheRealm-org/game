@@ -21,7 +21,29 @@ namespace FTR.Core.Client.Settings
             if (!File.Exists(_path))
                 return null;
 
-            return JsonUtility.FromJson<SettingsData>(File.ReadAllText(_path));
+            try
+            {
+                string json = File.ReadAllText(_path);
+                return JsonUtility.FromJson<SettingsData>(json);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"Failed to load settings from '{_path}': {ex.Message}");
+
+                try
+                {
+                    if (File.Exists(_path))
+                        File.Delete(_path);
+                }
+                catch (System.Exception deleteEx)
+                {
+                    Debug.LogWarning(
+                        $"Failed to delete corrupted settings file '{_path}': {deleteEx.Message}"
+                    );
+                }
+
+                return null;
+            }
         }
 
         public void Delete()

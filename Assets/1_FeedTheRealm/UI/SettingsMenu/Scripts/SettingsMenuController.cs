@@ -366,6 +366,4 @@ public class SettingsMenuController : MonoBehaviour
             this
         );
     }
-
-    private void OnCloseSettingsButtonClicked() => ToggleSettings();
 }

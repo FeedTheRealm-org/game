@@ -99,9 +99,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
             ValidateSerializeFields();
 
-            settingsManager.ApplyDisplay();
-            settingsManager.ApplyAudioListener();
-
             clientEventRegistry.RegisterAll(builder);
             setupServices.RegisterAll(builder);
             builder.RegisterInstance(clientConfig);

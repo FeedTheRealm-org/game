@@ -110,9 +110,10 @@ namespace FeedTheRealm.UI.Common
         public void SetChoices(List<string> choices)
         {
             _choices = new List<string>(choices);
-            RebuildList();
             if (_selectedIndex >= _choices.Count)
-                _selectedIndex = 0;
+                _selectedIndex = _choices.Count > 0 ? 0 : 0;
+
+            RebuildList();
             UpdateButtonText();
         }
 
