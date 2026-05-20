@@ -1,7 +1,9 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:ftr="FeedTheRealm.UI.Common" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=f86539e0d6740554493957db9e5d2d5d&amp;type=3#SettingsMenu"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/Settings/Themes/NavBarSettings.uss?fileID=7433441132597879392&amp;guid=c46cb9dbd20098837a51475be4f20d0d&amp;type=3#NavBarSettings"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
     <ui:VisualElement name="NavBarSettings" class="hpset-overlay">
+        <ui:Label text="" name="NavbarSpace"/>
         <ui:VisualElement name="HPSettings_Modal" class="hpset-modal">
             <ui:VisualElement name="HPSettings_Sidebar" class="hpset-sidebar">
                 <ui:Label text="SETTINGS" class="hpset-title"/>
@@ -11,8 +13,6 @@
                 <ui:VisualElement class="hpset-spacer"/>
                 <ui:VisualElement class="hpset-divider"/>
                 <ui:Button text="Exit Game" name="HPSettings_ExitButton" class="nav-button nav-button--danger"/>
-                <ui:VisualElement class="hpset-divider"/>
-                <ui:Button text="Close" name="HPSettings_CloseButton" class="nav-button nav-button--close"/>
             </ui:VisualElement>
             <ui:VisualElement name="HPSettings_ContentPanel" class="hpset-content-panel">
                 <ui:ScrollView name="HPSettings_DisplayContent" class="hpset-section">
@@ -25,7 +25,7 @@
                         <ui:Toggle label="Fullscreen" toggle-on-label-click="true" value="true" name="HPSettings_FullscreenToggle" class="setting-toggle"/>
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:ScrollView name="HPSettings_SoundContent" class="hpset-section">
+                <ui:ScrollView name="HPSettings_SoundContent" class="hpset-section hpset-section--hidden">
                     <ui:Label text="Sound" class="hpset-section-title"/>
                     <ui:VisualElement class="hpset-section-divider"/>
                     <ui:VisualElement class="setting-row">

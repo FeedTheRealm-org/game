@@ -124,6 +124,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             var gemStoreObj = Object.Instantiate(gemStorePrefab);
             gemStoreObj.SetActive(false);
 
+            // Settings menu
             var navBarSettingsObj = Object.Instantiate(navBarSettingsPrefab);
             navBarSettingsObj.SetActive(false);
 
@@ -145,6 +146,7 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             Object.Destroy(profileMenuObj);
             Object.Destroy(gemStoreObj);
+            Object.Destroy(navBarSettingsObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
         }

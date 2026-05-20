@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using FeedTheRealm.UI.Common;
+using FTR.Core.Client;
 using FTR.Core.Client.Settings;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.Homepage.Settings
 {
@@ -11,6 +14,9 @@ namespace FTR.UI.Homepage.Settings
     {
         [SerializeField]
         private Logging.Logger logger;
+
+        [SerializeField]
+        private ClientPrefabProvider prefabProvider;
 
         [SerializeField]
         private SettingsManager settingsManager;
@@ -21,7 +27,6 @@ namespace FTR.UI.Homepage.Settings
         private Button _displayNavButton;
         private Button _soundNavButton;
         private Button _exitButton;
-        private Button _closeButton;
 
         private ScrollView _displayContent;
         private ScrollView _soundContent;
@@ -44,15 +49,11 @@ namespace FTR.UI.Homepage.Settings
 
         private Section _activeSection = Section.Display;
 
-        private bool _isVisible = false;
-
-        private void Awake()
-        {
-            _root = GetComponent<UIDocument>().rootVisualElement;
-        }
+        // ── Lifecycle ──────────────────────────────────────────────────────────
 
         private void OnEnable()
         {
+            _root = GetComponent<UIDocument>().rootVisualElement;
             _panel = _root.Q<VisualElement>("NavBarSettings");
             if (_panel == null)
             {
@@ -64,21 +65,16 @@ namespace FTR.UI.Homepage.Settings
                 return;
             }
 
-            // Sidebar buttons
             _displayNavButton = _panel.Q<Button>("HPSettings_DisplayButton");
             _soundNavButton = _panel.Q<Button>("HPSettings_SoundButton");
             _exitButton = _panel.Q<Button>("HPSettings_ExitButton");
-            _closeButton = _panel.Q<Button>("HPSettings_CloseButton");
 
-            // Content
             _displayContent = _panel.Q<ScrollView>("HPSettings_DisplayContent");
             _soundContent = _panel.Q<ScrollView>("HPSettings_SoundContent");
 
-            // Display controls
             _resolutionSelect = _panel.Q<CustomDropdown>("HPSettings_ResolutionSelect");
             _fullscreenToggle = _panel.Q<Toggle>("HPSettings_FullscreenToggle");
 
-            // Sound controls
             _volumeSlider = _panel.Q<Slider>("HPSettings_VolumeSlider");
             _musicVolumeSlider = _panel.Q<Slider>("HPSettings_MusicVolumeSlider");
             _sfxVolumeSlider = _panel.Q<Slider>("HPSettings_SFXVolumeSlider");
@@ -91,8 +87,6 @@ namespace FTR.UI.Homepage.Settings
             InitializeResolutions();
             RegisterCallbacks(register: true);
             ShowSection(Section.Display);
-
-            Hide();
         }
 
         private void OnDisable()
@@ -100,32 +94,7 @@ namespace FTR.UI.Homepage.Settings
             RegisterCallbacks(register: false);
         }
 
-        public bool IsVisible => _isVisible;
-
-        public void Show()
-        {
-            if (_panel == null)
-                return;
-            _panel.style.display = DisplayStyle.Flex;
-            _isVisible = true;
-            PopulateUIFromSettings();
-        }
-
-        public void Hide()
-        {
-            if (_panel == null)
-                return;
-            _panel.style.display = DisplayStyle.None;
-            _isVisible = false;
-        }
-
-        public void Toggle()
-        {
-            if (_isVisible)
-                Hide();
-            else
-                Show();
-        }
+        // ── Validation ────────────────────────────────────────────────────────
 
         private bool ValidateElements()
         {
@@ -147,7 +116,6 @@ namespace FTR.UI.Homepage.Settings
             Check(_displayNavButton, "HPSettings_DisplayButton");
             Check(_soundNavButton, "HPSettings_SoundButton");
             Check(_exitButton, "HPSettings_ExitButton");
-            Check(_closeButton, "HPSettings_CloseButton");
             Check(_displayContent, "HPSettings_DisplayContent");
             Check(_soundContent, "HPSettings_SoundContent");
             Check(_resolutionSelect, "HPSettings_ResolutionSelect");
@@ -160,8 +128,16 @@ namespace FTR.UI.Homepage.Settings
             return ok;
         }
 
+        // ── Initialisation ────────────────────────────────────────────────────
+
         private void PopulateUIFromSettings()
         {
+            if (settingsManager == null)
+            {
+                Debug.LogError("[NavBarSettingsController] SettingsManager es NULL.");
+                return;
+            }
+
             _volumeSlider?.SetValueWithoutNotify(settingsManager.GlobalVolume);
             _musicVolumeSlider?.SetValueWithoutNotify(settingsManager.MusicVolume);
             _sfxVolumeSlider?.SetValueWithoutNotify(settingsManager.SFXVolume);
@@ -171,6 +147,12 @@ namespace FTR.UI.Homepage.Settings
 
         private void InitializeResolutions()
         {
+            if (settingsManager == null)
+            {
+                Debug.LogError("[NavBarSettingsController] SettingsManager es NULL.");
+                return;
+            }
+
             _availableResolutions = Screen
                 .resolutions.GroupBy(r => new { r.width, r.height })
                 .Select(g => g.OrderByDescending(r => r.refreshRateRatio.value).First())
@@ -195,6 +177,8 @@ namespace FTR.UI.Homepage.Settings
             );
         }
 
+        // ── Section switching ─────────────────────────────────────────────────
+
         private void ShowSection(Section section)
         {
             _activeSection = section;
@@ -216,6 +200,8 @@ namespace FTR.UI.Homepage.Settings
                 btn.RemoveFromClassList("nav-button--selected");
         }
 
+        // ── Callbacks ─────────────────────────────────────────────────────────
+
         private void RegisterCallbacks(bool register)
         {
             if (register)
@@ -223,7 +209,6 @@ namespace FTR.UI.Homepage.Settings
                 _displayNavButton.clicked += OnDisplayNav;
                 _soundNavButton.clicked += OnSoundNav;
                 _exitButton.clicked += OnExitClicked;
-                _closeButton.clicked += OnCloseClicked;
 
                 _fullscreenToggle?.RegisterValueChangedCallback(OnFullscreenChanged);
                 _resolutionSelect.OnValueChanged += OnResolutionChanged;
@@ -241,8 +226,6 @@ namespace FTR.UI.Homepage.Settings
                     _soundNavButton.clicked -= OnSoundNav;
                 if (_exitButton != null)
                     _exitButton.clicked -= OnExitClicked;
-                if (_closeButton != null)
-                    _closeButton.clicked -= OnCloseClicked;
 
                 _fullscreenToggle?.UnregisterValueChangedCallback(OnFullscreenChanged);
                 if (_resolutionSelect != null)
@@ -259,16 +242,21 @@ namespace FTR.UI.Homepage.Settings
 
         private void OnSoundNav() => ShowSection(Section.Sound);
 
-        private void OnCloseClicked()
-        {
-            logger.Log("[NavBarSettingsController] Close clicked.", this);
-            Hide();
-        }
-
         private void OnExitClicked()
         {
-            Application.Quit();
+            var popup = Instantiate(prefabProvider.ConfirmPopup)
+                .GetComponent<ConfirmPopupController>();
+            popup.Show(
+                question: "Are you sure you want to exit the game?",
+                title: "Exit Game",
+                onConfirm: () =>
+                {
+                    Application.Quit();
+                }
+            );
         }
+
+        // ── Audio callbacks ────────────────────────────────────────────────────
 
         private void OnVolumeChanged(ChangeEvent<float> evt)
         {
@@ -296,6 +284,8 @@ namespace FTR.UI.Homepage.Settings
             float musicVol = evt.newValue ? 0f : settingsManager.MusicVolume;
             MusicPlayer.Instance?.SetGlobalMusicVolume(musicVol);
         }
+
+        // ── Display callbacks ──────────────────────────────────────────────────
 
         private void OnFullscreenChanged(ChangeEvent<bool> evt)
         {

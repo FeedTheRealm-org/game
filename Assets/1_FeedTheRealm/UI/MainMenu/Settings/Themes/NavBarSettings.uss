@@ -26,26 +26,26 @@
     --content-bg:    rgba(0, 0, 0, 0.38);
 }
 
-/* ── Overlay: covers the full content area of the navbar ─────────────── */
+/* ── Background: covers the full content area of the navbar ─────────────── */
 .hpset-overlay {
-    position: absolute;
-    left:   0;
-    top:    0;
-    right:  0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.60);
-    align-items:      center;
-    justify-content:  center;
-    /* hidden by default; NavBarSettingsController toggles display */
-    display: none;
+    flex-grow: 1;
+    background-image: url("project://database/Assets/1_FeedTheRealm/VisualAssets/bg_feed.jpg?fileID=2800000&guid=8d8f8fd241019e57b9aee8d2035bd722&type=3#bg_feed");
+    -unity-background-image-tint-color: rgb(110, 255, 251);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+#NavbarSpace {
+    min-height: 52px;
+    max-height: 52px;
 }
 
 /* ── Two-column modal ─────────────────────────────────────────────────── */
 .hpset-modal {
     flex-direction:   row;
-    width:            100%;
-    height:           100%;
-    background-color: var(--darker);
+    flex-grow:        1;
+    background-color: var(--dark);
 }
 
 /* ── Left sidebar ─────────────────────────────────────────────────────── */
@@ -104,7 +104,10 @@
     padding-left:   48px;
 }
 
-/* Pass full width down through Unity's scroll view hierarchy */
+.hpset-section--hidden {
+    display: none;
+}
+
 .hpset-section > #unity-content-and-vertical-scroll-container {
     width:  100%;
     height: 100%;

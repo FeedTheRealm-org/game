@@ -150,7 +150,6 @@ namespace FTR.UI.Homepage.Navbar
         public void SetNavBarSettingsInstance(GameObject instance)
         {
             navBarSettingsInstance = instance;
-            navBarSettingsInstance.SetActive(false);
         }
 
         private void SetSelectedButton(Button button, string selectedClass)
@@ -172,7 +171,7 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
 
-            navBarSettingsInstance?.SetActive(false);
+            navBarSettingsInstance.SetActive(false);
             gemStoreInstance?.SetActive(false);
             profileMenuInstance?.SetActive(false);
             homeMenuInstance.SetActive(true);
@@ -188,7 +187,7 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
 
-            navBarSettingsInstance?.SetActive(false);
+            navBarSettingsInstance.SetActive(false);
             homeMenuInstance?.SetActive(false);
             gemStoreInstance?.SetActive(false);
             profileMenuInstance.SetActive(true);
@@ -204,7 +203,7 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
 
-            navBarSettingsInstance?.SetActive(false);
+            navBarSettingsInstance.SetActive(false);
             homeMenuInstance?.SetActive(false);
             profileMenuInstance?.SetActive(false);
             gemStoreInstance.SetActive(true);
@@ -220,22 +219,12 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
 
-            bool willOpen = !navBarSettingsInstance.activeSelf;
+            homeMenuInstance?.SetActive(false);
+            profileMenuInstance?.SetActive(false);
+            gemStoreInstance?.SetActive(false);
+            navBarSettingsInstance.SetActive(true);
 
-            if (willOpen)
-            {
-                homeMenuInstance?.SetActive(false);
-                profileMenuInstance?.SetActive(false);
-                gemStoreInstance?.SetActive(false);
-                navBarSettingsInstance.SetActive(true);
-                SetSelectedButton(settingsButton, SettingsSelectedClass);
-            }
-            else
-            {
-                navBarSettingsInstance.SetActive(false);
-                homeMenuInstance?.SetActive(true);
-                SetSelectedButton(homeButton, HomeSelectedClass);
-            }
+            SetSelectedButton(settingsButton, SettingsSelectedClass);
         }
     }
 }
