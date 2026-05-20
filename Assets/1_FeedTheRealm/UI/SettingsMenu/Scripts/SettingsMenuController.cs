@@ -8,7 +8,6 @@ using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI;
-using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;

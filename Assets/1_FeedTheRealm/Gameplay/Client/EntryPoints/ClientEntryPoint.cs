@@ -15,9 +15,6 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly SceneReference mainScene;
         public readonly Session.Session session;
         public readonly API.AuthService authService;
-        private readonly GameObject loginPrefab;
-        private readonly GameObject signUpPrefab;
-        private readonly GameObject verifyCodePrefab;
         private readonly GameObject worldFeedMenuPrefab;
         private readonly GameObject navBarPrefab;
         private readonly GameObject profileMenuPrefab;
@@ -28,14 +25,12 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly MainMenuFlowService flowService;
         private readonly SettingsManager settingsManager;
         private readonly GameObject navBarSettingsPrefab;
+        private readonly GameObject authBackgroundPrefab;
 
         public ClientEntryPoint(
             SceneReference mainScene,
             Session.Session session,
             API.AuthService authService,
-            GameObject loginPrefab,
-            GameObject signUpPrefab,
-            GameObject verifyCodePrefab,
             GameObject worldFeedMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
@@ -44,15 +39,14 @@ namespace FTR.Gameplay.Client.EntryPoints
             ClientMusicRegistry musicRegistry,
             GameObject loadingScreenPrefab,
             SettingsManager settingsManager,
-            GameObject navBarSettingsPrefab
+            GameObject navBarSettingsPrefab,
+            AuthFlowManager authFlowManager,
+            GameObject authBackgroundPrefab
         )
         {
             this.mainScene = mainScene;
             this.session = session;
             this.authService = authService;
-            this.loginPrefab = loginPrefab;
-            this.signUpPrefab = signUpPrefab;
-            this.verifyCodePrefab = verifyCodePrefab;
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
@@ -62,18 +56,17 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.loadingScreenPrefab = loadingScreenPrefab;
             this.settingsManager = settingsManager;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
+            this.authBackgroundPrefab = authBackgroundPrefab;
 
             flowService = new MainMenuFlowService(
-                loginPrefab,
-                signUpPrefab,
-                verifyCodePrefab,
                 worldFeedMenuPrefab,
                 navBarPrefab,
                 profileMenuPrefab,
                 gemStorePrefab,
                 musicPlayerPrefab,
                 musicRegistry,
-                navBarSettingsPrefab
+                navBarSettingsPrefab,
+                authFlowManager
             );
         }
 
@@ -83,7 +76,7 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
 
-            await flowService.ShowAuthFlow(authService, session);
+            await flowService.ShowAuthFlow(authService, session, authBackgroundPrefab);
             await flowService.ShowMainMenuFlow();
 
             GameObject loadingScreenInstance = SetupLoadingScreen();

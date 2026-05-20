@@ -6,9 +6,6 @@ namespace FTR.Gameplay.Client.EntryPoints
 {
     public class MainMenuFlowService
     {
-        readonly GameObject loginPrefab;
-        readonly GameObject signUpPrefab;
-        readonly GameObject verifyCodePrefab;
         readonly GameObject worldFeedMenuPrefab;
         readonly GameObject navBarPrefab;
         readonly GameObject profileMenuPrefab;
@@ -16,24 +13,21 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject musicPlayerPrefab;
         readonly ClientMusicRegistry musicRegistry;
         readonly GameObject navBarSettingsPrefab;
+        private readonly AuthFlowManager authFlowManager;
+
         private GameObject musicPlayerInstance;
 
         public MainMenuFlowService(
-            GameObject loginPrefab,
-            GameObject signUpPrefab,
-            GameObject verifyCodePrefab,
             GameObject worldFeedMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
-            GameObject navBarSettingsPrefab
+            GameObject navBarSettingsPrefab,
+            AuthFlowManager authFlowManager
         )
         {
-            this.loginPrefab = loginPrefab;
-            this.signUpPrefab = signUpPrefab;
-            this.verifyCodePrefab = verifyCodePrefab;
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
@@ -41,6 +35,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
+            this.authFlowManager = authFlowManager;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -87,27 +82,25 @@ namespace FTR.Gameplay.Client.EntryPoints
             musicPlayerInstance = null;
         }
 
-        public async UniTask ShowAuthFlow(API.AuthService authService, Session.Session session)
+        public async UniTask ShowAuthFlow(
+            API.AuthService authService,
+            Session.Session session,
+            GameObject authBackgroundPrefab
+        )
         {
             await session.EnsureValidSession();
-            (bool isSuccess, string error) = await authService.IsLogged();
+            (bool isSuccess, string _) = await authService.IsLogged();
             if (isSuccess)
                 return;
-
             session.ClearSession();
 
-            var loginObj = Object.Instantiate(loginPrefab);
-            var signUpObj = Object.Instantiate(signUpPrefab);
-            var verifyCodeObj = Object.Instantiate(verifyCodePrefab);
-
-            var authFlow = new AuthFlowManager(loginObj, signUpObj, verifyCodeObj);
+            var authBackgroundObj = Object.Instantiate(authBackgroundPrefab);
             var completionSource = new UniTaskCompletionSource();
-            authFlow.OnAuthComplete += () => completionSource.TrySetResult();
-            authFlow.Initialize();
-
+            authFlowManager.OnAuthComplete += (string _) => completionSource.TrySetResult();
+            authFlowManager.HideCloseButton();
+            authFlowManager.ShowAuthMenu();
             await completionSource.Task;
-
-            authFlow.Destroy();
+            Object.Destroy(authBackgroundObj);
         }
 
         public async UniTask ShowMainMenuFlow()

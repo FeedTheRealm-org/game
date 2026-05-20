@@ -1,6 +1,7 @@
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
+using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -24,13 +25,10 @@ public class ClientInitiator : LifetimeScope
 
     [Header("Auth Prefabs")]
     [SerializeField]
-    private GameObject loginPrefab;
+    private AuthFlowManager authFlowManager;
 
     [SerializeField]
-    private GameObject signUpPrefab;
-
-    [SerializeField]
-    private GameObject verifyCodePrefab;
+    private GameObject authBackgroundPrefab;
 
     [Header("Main Menu Prefabs")]
     [SerializeField]
@@ -75,9 +73,7 @@ public class ClientInitiator : LifetimeScope
         builder
             .RegisterEntryPoint<ClientEntryPoint>()
             .WithParameter("mainScene", mainScene)
-            .WithParameter("loginPrefab", loginPrefab)
-            .WithParameter("signUpPrefab", signUpPrefab)
-            .WithParameter("verifyCodePrefab", verifyCodePrefab)
+            .WithParameter("authBackgroundPrefab", authBackgroundPrefab)
             .WithParameter("worldFeedMenuPrefab", worldFeedMenuPrefab)
             .WithParameter("navBarPrefab", navBarPrefab)
             .WithParameter("profileMenuPrefab", profileMenuPrefab)
@@ -88,6 +84,7 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("loadingScreenPrefab", loadingScreenPrefab)
             .WithParameter("settingsManager", settingsManager);
 
+        builder.RegisterComponentInNewPrefab(authFlowManager, Lifetime.Singleton);
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
     }
 }
