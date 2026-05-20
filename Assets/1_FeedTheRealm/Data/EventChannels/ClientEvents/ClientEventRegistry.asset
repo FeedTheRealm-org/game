@@ -45,4 +45,5 @@ MonoBehaviour:
   portalToggleEvent: {fileID: 11400000, guid: 68a331b3e06ec625495807569e93bc60, type: 2}
   openPortalUIEvent: {fileID: 11400000, guid: 32c09063fadc3b10a8e17921710b7b63, type: 2}
   onExitEvent: {fileID: 11400000, guid: b73de8ca690a2880da97d4d5b5f72e4c, type: 2}
+  onProfileCreatedEvent: {fileID: 11400000, guid: 3ceb2b7c8878d0abc9282e08f48b309a, type: 2}
   backEvent: {fileID: 11400000, guid: 84e65d4304044a4fd802bcb81b05a1ed, type: 2}

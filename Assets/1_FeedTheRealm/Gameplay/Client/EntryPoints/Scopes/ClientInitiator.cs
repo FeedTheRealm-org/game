@@ -1,3 +1,4 @@
+using FeedTheRealm.Core.Client.EventChannels;
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
@@ -60,6 +61,14 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private ClientMusicRegistry musicRegistry;
 
+    [Header("Player")]
+    [SerializeField]
+    private API.PlayerService playerService;
+
+    [Header("Events")]
+    [SerializeField]
+    private ClientEventRegistry eventRegistry;
+
     protected override void Configure(IContainerBuilder builder)
     {
         if (config.RuntimeRole != RuntimeRole.Client)
@@ -69,6 +78,8 @@ public class ClientInitiator : LifetimeScope
         builder.RegisterInstance(authService);
         builder.RegisterInstance(musicRegistry);
         builder.RegisterInstance(settingsManager);
+        builder.RegisterInstance(playerService);
+        eventRegistry.RegisterAll(builder);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder
             .RegisterEntryPoint<ClientEntryPoint>()
@@ -82,7 +93,9 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("musicPlayerPrefab", musicPlayerPrefab)
             .WithParameter("musicRegistry", musicRegistry)
             .WithParameter("loadingScreenPrefab", loadingScreenPrefab)
-            .WithParameter("settingsManager", settingsManager);
+            .WithParameter("settingsManager", settingsManager)
+            .WithParameter("playerService", playerService)
+            .WithParameter("onProfileCreatedEvent", eventRegistry.onProfileCreatedEvent);
 
         builder.RegisterComponentInNewPrefab(authFlowManager, Lifetime.Singleton);
         logger?.Log("ClientInitiator: Registered client entrypoint", this);

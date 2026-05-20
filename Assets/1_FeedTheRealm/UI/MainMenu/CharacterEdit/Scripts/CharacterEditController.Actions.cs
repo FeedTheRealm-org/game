@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FTR.Core.Client.EventChannels.UI;
 using FTR.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,6 +10,10 @@ public partial class CharacterEditController
 {
     private string assetsWorldId = string.Empty;
     private string assetsPlayerId = string.Empty;
+
+    [Header("Events")]
+    [SerializeField]
+    private OnProfileCreatedEvent onProfileCreatedEvent;
 
     private List<SpriteConfig> GetConfigsForPart(
         SpriteConfigDirector director,
@@ -237,9 +242,10 @@ public partial class CharacterEditController
     /// </summary>
     private async Task updateCharacterInfo()
     {
-        var characterInfo = await playerService.PatchCharacterInfoAsync(characterInfoRequest);
-        if (characterInfo != null)
+        var response = await playerService.PatchCharacterInfoAsync(characterInfoRequest);
+        if (response?.data != null)
         {
+            var characterInfo = response.data;
             logger.Log("Character info successfully updated", this);
 
             if (characterInfo.category_sprites != null)
@@ -259,11 +265,33 @@ public partial class CharacterEditController
             }
             _saveButton.text = "Saved";
             ShowToastSuccess("Character updated successfully.");
+            onProfileCreatedEvent?.Raise();
         }
         else
         {
-            logger.Log("Failed to update character info", this, Logging.LogType.Error);
-            ShowToastError("Failed to update character info.");
+            var errorMessage = "Failed to update character info.";
+            if (response != null)
+            {
+                if (!string.IsNullOrWhiteSpace(response.error?.detail))
+                {
+                    errorMessage = response.error.detail;
+                }
+                else if (!string.IsNullOrWhiteSpace(response.error?.title))
+                {
+                    errorMessage = response.error.title;
+                }
+                else if (response.status == 409)
+                {
+                    errorMessage = "Character name is already taken.";
+                }
+            }
+
+            logger.Log(
+                $"Failed to update character info: {errorMessage}",
+                this,
+                Logging.LogType.Error
+            );
+            ShowToastError(errorMessage);
         }
     }
 
@@ -802,6 +830,8 @@ public partial class CharacterEditController
             }
 
             ShowToastSuccess("Character updated successfully.");
+
+            onProfileCreatedEvent?.Raise();
 
             if (spritesOnlyEditorMode && closeOnSaveInEditorMode)
             {

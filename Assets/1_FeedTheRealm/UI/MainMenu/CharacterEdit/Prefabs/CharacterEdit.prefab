@@ -309,6 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcbe05ff05a46875d821015d6638e450, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterEditController
+  onProfileCreatedEvent: {fileID: 11400000, guid: 3ceb2b7c8878d0abc9282e08f48b309a, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}

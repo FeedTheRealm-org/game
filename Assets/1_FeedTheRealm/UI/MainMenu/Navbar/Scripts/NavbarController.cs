@@ -1,4 +1,3 @@
-using FTR.Core.Client.EntryPoints;
 using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -19,13 +18,15 @@ namespace FTR.UI.Homepage.Navbar
         private GameObject homeMenuInstance;
         private GameObject profileMenuInstance;
         private GameObject gemStoreInstance;
-        private GameObject navBarSettingsInstance; // ← nuevo, mismo patrón
+        private GameObject navBarSettingsInstance;
 
         private VisualElement _root;
         private Button homeButton;
         private Button playerProfileButton;
         private Button gemStoreButton;
         private Button settingsButton;
+
+        private bool _profileLocked = false;
 
         private const string EditCharacterLabel = "Edit Character";
 
@@ -34,6 +35,8 @@ namespace FTR.UI.Homepage.Navbar
         private const string ProfileSelectedClass = "navbar-button-profile-selected";
         private const string GemSelectedClass = "navbar-button-gem-selected";
         private const string SettingsSelectedClass = "navbar-button-settings-selected";
+
+        private const string DisabledClass = "navbar-button-disabled";
 
         private void OnEnable()
         {
@@ -101,8 +104,15 @@ namespace FTR.UI.Homepage.Navbar
             if (settingsButton != null)
                 settingsButton.clicked += OnSettingsButtonClicked;
 
-            // Set home as selected by default
-            SetSelectedButton(homeButton, HomeSelectedClass);
+            ApplyLockVisuals();
+
+            if (_profileLocked)
+            {
+                ToastNotification.Show("Profile creation required.", "error", Color.orange);
+                SetSelectedButton(playerProfileButton, ProfileSelectedClass);
+            }
+            else
+                SetSelectedButton(homeButton, HomeSelectedClass);
         }
 
         private void OnDisable()
@@ -117,7 +127,7 @@ namespace FTR.UI.Homepage.Navbar
                 settingsButton.clicked -= OnSettingsButtonClicked;
         }
 
-        // ── Setters — llamados desde el EntryPoint ─────────────────────────────
+        // ── INavbarController — setters ────────────────────────────────────────
 
         public void SetHomeMenuInstance(GameObject instance)
         {
@@ -152,6 +162,45 @@ namespace FTR.UI.Homepage.Navbar
             navBarSettingsInstance = instance;
         }
 
+        /// <inheritdoc/>
+        public void SetProfileLocked(bool locked)
+        {
+            _profileLocked = locked;
+            ApplyLockVisuals();
+
+            if (locked)
+                SetSelectedButton(playerProfileButton, ProfileSelectedClass);
+
+            logger.Log(
+                locked
+                    ? "[NavbarController] Navigation locked — profile creation required."
+                    : "[NavbarController] Navigation unlocked.",
+                this
+            );
+        }
+
+        // ── Lock helpers ───────────────────────────────────────────────────────
+
+        private void ApplyLockVisuals()
+        {
+            SetButtonLockedVisual(homeButton, _profileLocked);
+            SetButtonLockedVisual(gemStoreButton, _profileLocked);
+            SetButtonLockedVisual(settingsButton, _profileLocked);
+        }
+
+        private void SetButtonLockedVisual(Button button, bool locked)
+        {
+            if (button == null)
+                return;
+
+            if (locked)
+                button.AddToClassList(DisabledClass);
+            else
+                button.RemoveFromClassList(DisabledClass);
+        }
+
+        // ── Selection helper ───────────────────────────────────────────────────
+
         private void SetSelectedButton(Button button, string selectedClass)
         {
             homeButton?.RemoveFromClassList(HomeSelectedClass);
@@ -161,17 +210,27 @@ namespace FTR.UI.Homepage.Navbar
             button?.AddToClassList(selectedClass);
         }
 
-        // ── Handlers ───────────────────────────────────────────────────────────
+        // ── Button handlers ────────────────────────────────────────────────────
 
         private void OnHomeButtonClicked()
         {
+            if (_profileLocked)
+            {
+                ToastNotification.Show(
+                    "Complete profile creation to access the Home menu.",
+                    "error",
+                    Color.orange
+                );
+                return;
+            }
+
             if (homeMenuInstance == null)
             {
                 logger.Log("HomeMenu instance is not set.", this, Logging.LogType.Error);
                 return;
             }
 
-            navBarSettingsInstance.SetActive(false);
+            navBarSettingsInstance?.SetActive(false);
             gemStoreInstance?.SetActive(false);
             profileMenuInstance?.SetActive(false);
             homeMenuInstance.SetActive(true);
@@ -187,7 +246,7 @@ namespace FTR.UI.Homepage.Navbar
                 return;
             }
 
-            navBarSettingsInstance.SetActive(false);
+            navBarSettingsInstance?.SetActive(false);
             homeMenuInstance?.SetActive(false);
             gemStoreInstance?.SetActive(false);
             profileMenuInstance.SetActive(true);
@@ -197,13 +256,23 @@ namespace FTR.UI.Homepage.Navbar
 
         private void OnGemStoreButtonClicked()
         {
+            if (_profileLocked)
+            {
+                ToastNotification.Show(
+                    "Complete profile creation to access the Gem Store.",
+                    "error",
+                    Color.orange
+                );
+                return;
+            }
+
             if (gemStoreInstance == null)
             {
                 logger.Log("GemStore instance is not set.", this, Logging.LogType.Error);
                 return;
             }
 
-            navBarSettingsInstance.SetActive(false);
+            navBarSettingsInstance?.SetActive(false);
             homeMenuInstance?.SetActive(false);
             profileMenuInstance?.SetActive(false);
             gemStoreInstance.SetActive(true);
@@ -213,6 +282,16 @@ namespace FTR.UI.Homepage.Navbar
 
         private void OnSettingsButtonClicked()
         {
+            if (_profileLocked)
+            {
+                ToastNotification.Show(
+                    "Complete profile creation to access the Settings menu.",
+                    "error",
+                    Color.orange
+                );
+                return;
+            }
+
             if (navBarSettingsInstance == null)
             {
                 logger.Log("NavBarSettings instance is not set.", this, Logging.LogType.Error);

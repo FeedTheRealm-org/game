@@ -1,4 +1,6 @@
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client.EventChannels.UI;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 
@@ -14,6 +16,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly ClientMusicRegistry musicRegistry;
         readonly GameObject navBarSettingsPrefab;
         private readonly AuthFlowManager authFlowManager;
+        private readonly API.PlayerService playerService;
+        private readonly OnProfileCreatedEvent onProfileCreatedEvent;
 
         private GameObject musicPlayerInstance;
 
@@ -25,7 +29,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
             GameObject navBarSettingsPrefab,
-            AuthFlowManager authFlowManager
+            AuthFlowManager authFlowManager,
+            API.PlayerService playerService,
+            OnProfileCreatedEvent onProfileCreatedEvent
         )
         {
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
@@ -36,6 +42,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.musicRegistry = musicRegistry;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authFlowManager = authFlowManager;
+            this.playerService = playerService;
+            this.onProfileCreatedEvent = onProfileCreatedEvent;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -121,7 +129,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             var navBarSettingsObj = Object.Instantiate(navBarSettingsPrefab);
             navBarSettingsObj.SetActive(false);
 
-            // NavBar — wire both instances
+            // NavBar — wire all instances
             var navBarObj = Object.Instantiate(navBarPrefab);
             var navBarController = navBarObj.GetComponent<INavbarController>();
             if (navBarController != null)
@@ -131,6 +139,8 @@ namespace FTR.Gameplay.Client.EntryPoints
                 navBarController.SetGemStoreInstance(gemStoreObj);
                 navBarController.SetNavBarSettingsInstance(navBarSettingsObj);
             }
+
+            await RedirectIfProfileRequired(worldFeedMenuObj, profileMenuObj, navBarController);
 
             var completionSource = new UniTaskCompletionSource();
             worldFeedMenu.OnNavigateToWorld += () => completionSource.TrySetResult();
@@ -142,6 +152,54 @@ namespace FTR.Gameplay.Client.EntryPoints
             Object.Destroy(navBarSettingsObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
+        }
+
+        private async Task RedirectIfProfileRequired(
+            GameObject worldFeedMenuObj,
+            GameObject profileMenuObj,
+            INavbarController navBarController
+        )
+        {
+            bool needsProfileCreation = await CheckNeedsProfileCreation();
+
+            if (needsProfileCreation && navBarController != null)
+            {
+                worldFeedMenuObj.SetActive(false);
+                profileMenuObj.SetActive(true);
+
+                navBarController.SetProfileLocked(true);
+
+                System.Action onProfileCreated = null;
+                onProfileCreated = () =>
+                {
+                    navBarController.SetProfileLocked(false);
+
+                    profileMenuObj.SetActive(false);
+                    worldFeedMenuObj.SetActive(true);
+
+                    onProfileCreatedEvent.OnRaised -= onProfileCreated;
+                };
+
+                onProfileCreatedEvent.OnRaised += onProfileCreated;
+            }
+        }
+
+        private async UniTask<bool> CheckNeedsProfileCreation()
+        {
+            if (playerService == null)
+            {
+                Debug.LogWarning(
+                    "[MainMenuFlowService] PlayerService is null — skipping profile check."
+                );
+                return false;
+            }
+
+            var characterInfo = await playerService.GetCharacterInfoAsync();
+
+            bool hasProfile =
+                characterInfo != null && !string.IsNullOrWhiteSpace(characterInfo.character_name);
+
+            return !hasProfile;
         }
     }
 }

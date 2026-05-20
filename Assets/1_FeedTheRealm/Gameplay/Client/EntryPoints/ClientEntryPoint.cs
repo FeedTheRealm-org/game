@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Settings;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
@@ -41,7 +42,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             SettingsManager settingsManager,
             GameObject navBarSettingsPrefab,
             AuthFlowManager authFlowManager,
-            GameObject authBackgroundPrefab
+            GameObject authBackgroundPrefab,
+            API.PlayerService playerService,
+            OnProfileCreatedEvent onProfileCreatedEvent
         )
         {
             this.mainScene = mainScene;
@@ -66,7 +69,9 @@ namespace FTR.Gameplay.Client.EntryPoints
                 musicPlayerPrefab,
                 musicRegistry,
                 navBarSettingsPrefab,
-                authFlowManager
+                authFlowManager,
+                playerService,
+                onProfileCreatedEvent
             );
         }
 

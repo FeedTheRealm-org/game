@@ -11,5 +11,6 @@ namespace FTR.Gameplay.Client.EntryPoints
         void SetProfileMenuInstance(GameObject instance);
         void SetGemStoreInstance(GameObject instance);
         void SetNavBarSettingsInstance(GameObject instance);
+        void SetProfileLocked(bool locked);
     }
 }
