@@ -1,7 +1,5 @@
-using FTR.Core.Client.EntryPoints;
 using FTR.Gameplay.Client.EntryPoints;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace FTR.UI.Homepage.Navbar
@@ -20,12 +18,15 @@ namespace FTR.UI.Homepage.Navbar
         private GameObject homeMenuInstance;
         private GameObject profileMenuInstance;
         private GameObject gemStoreInstance;
+        private GameObject navBarSettingsInstance;
 
         private VisualElement _root;
         private Button homeButton;
         private Button playerProfileButton;
         private Button gemStoreButton;
         private Button settingsButton;
+
+        private bool _profileLocked = false;
 
         private const string EditCharacterLabel = "Edit Character";
 
@@ -34,6 +35,8 @@ namespace FTR.UI.Homepage.Navbar
         private const string ProfileSelectedClass = "navbar-button-profile-selected";
         private const string GemSelectedClass = "navbar-button-gem-selected";
         private const string SettingsSelectedClass = "navbar-button-settings-selected";
+
+        private const string DisabledClass = "navbar-button-disabled";
 
         private void OnEnable()
         {
@@ -55,13 +58,11 @@ namespace FTR.UI.Homepage.Navbar
                     (data, err) =>
                     {
                         if (!string.IsNullOrEmpty(err))
-                        {
                             logger.Log(
                                 $"Failed to fetch character info for navbar: {err}",
                                 this,
                                 Logging.LogType.Warning
                             );
-                        }
 
                         session.CharacterName = data?.character_name?.Trim() ?? string.Empty;
                     }
@@ -101,12 +102,17 @@ namespace FTR.UI.Homepage.Navbar
 
             settingsButton = body.Q<Button>("SettingsButton");
             if (settingsButton != null)
-            {
                 settingsButton.clicked += OnSettingsButtonClicked;
-            }
 
-            // Set home as selected by default
-            SetSelectedButton(homeButton, HomeSelectedClass);
+            ApplyLockVisuals();
+
+            if (_profileLocked)
+            {
+                ToastNotification.Show("Profile creation required.", "error", Color.orange);
+                SetSelectedButton(playerProfileButton, ProfileSelectedClass);
+            }
+            else
+                SetSelectedButton(homeButton, HomeSelectedClass);
         }
 
         private void OnDisable()
@@ -121,21 +127,7 @@ namespace FTR.UI.Homepage.Navbar
                 settingsButton.clicked -= OnSettingsButtonClicked;
         }
 
-        /* --- Selected State Management --- */
-
-        private void SetSelectedButton(Button button, string selectedClass)
-        {
-            // Remove all selected classes from all buttons
-            homeButton?.RemoveFromClassList(HomeSelectedClass);
-            playerProfileButton?.RemoveFromClassList(ProfileSelectedClass);
-            gemStoreButton?.RemoveFromClassList(GemSelectedClass);
-            settingsButton?.RemoveFromClassList(SettingsSelectedClass);
-
-            // Add selected class to the active button
-            button?.AddToClassList(selectedClass);
-        }
-
-        /* --- Setters --- */
+        // ── INavbarController — setters ────────────────────────────────────────
 
         public void SetHomeMenuInstance(GameObject instance)
         {
@@ -145,19 +137,15 @@ namespace FTR.UI.Homepage.Navbar
         public void SetProfileMenuInstance(GameObject instance)
         {
             profileMenuInstance = instance;
-            CharacterEditController characterEditorController =
+
+            var characterEditorController =
                 profileMenuInstance.GetComponentInChildren<CharacterEditController>();
+
             if (characterEditorController != null)
             {
                 var playerId = session?.UserID?.Trim() ?? string.Empty;
                 if (string.IsNullOrEmpty(playerId))
-                {
-                    logger.Log(
-                        "Session.UserId is empty. Character editor will receive an empty player id.",
-                        this,
-                        Logging.LogType.Warning
-                    );
-                }
+                    logger.Log("Session.UserId is empty.", this, Logging.LogType.Warning);
 
                 characterEditorController.SetAssetsWorldId(new System.Guid().ToString());
                 characterEditorController.SetAssetsPlayerId(playerId);
@@ -169,34 +157,85 @@ namespace FTR.UI.Homepage.Navbar
             gemStoreInstance = instance;
         }
 
-        /* --- Handlers --- */
+        public void SetNavBarSettingsInstance(GameObject instance)
+        {
+            navBarSettingsInstance = instance;
+        }
+
+        /// <inheritdoc/>
+        public void SetProfileLocked(bool locked)
+        {
+            _profileLocked = locked;
+            ApplyLockVisuals();
+
+            if (locked)
+                SetSelectedButton(playerProfileButton, ProfileSelectedClass);
+
+            logger.Log(
+                locked
+                    ? "[NavbarController] Navigation locked — profile creation required."
+                    : "[NavbarController] Navigation unlocked.",
+                this
+            );
+        }
+
+        // ── Lock helpers ───────────────────────────────────────────────────────
+
+        private void ApplyLockVisuals()
+        {
+            SetButtonLockedVisual(homeButton, _profileLocked);
+            SetButtonLockedVisual(gemStoreButton, _profileLocked);
+            SetButtonLockedVisual(settingsButton, _profileLocked);
+        }
+
+        private void SetButtonLockedVisual(Button button, bool locked)
+        {
+            if (button == null)
+                return;
+
+            if (locked)
+                button.AddToClassList(DisabledClass);
+            else
+                button.RemoveFromClassList(DisabledClass);
+        }
+
+        // ── Selection helper ───────────────────────────────────────────────────
+
+        private void SetSelectedButton(Button button, string selectedClass)
+        {
+            homeButton?.RemoveFromClassList(HomeSelectedClass);
+            playerProfileButton?.RemoveFromClassList(ProfileSelectedClass);
+            gemStoreButton?.RemoveFromClassList(GemSelectedClass);
+            settingsButton?.RemoveFromClassList(SettingsSelectedClass);
+            button?.AddToClassList(selectedClass);
+        }
+
+        // ── Button handlers ────────────────────────────────────────────────────
 
         private void OnHomeButtonClicked()
         {
+            if (_profileLocked)
+            {
+                ToastNotification.Show(
+                    "Complete profile creation to access the Home menu.",
+                    "error",
+                    Color.orange
+                );
+                return;
+            }
+
             if (homeMenuInstance == null)
             {
                 logger.Log("HomeMenu instance is not set.", this, Logging.LogType.Error);
                 return;
             }
+
+            navBarSettingsInstance?.SetActive(false);
             gemStoreInstance?.SetActive(false);
             profileMenuInstance?.SetActive(false);
             homeMenuInstance.SetActive(true);
 
             SetSelectedButton(homeButton, HomeSelectedClass);
-        }
-
-        private void OnGemStoreButtonClicked()
-        {
-            if (gemStoreInstance == null)
-            {
-                logger.Log("GemStore instance is not set.", this, Logging.LogType.Error);
-                return;
-            }
-            homeMenuInstance?.SetActive(false);
-            profileMenuInstance?.SetActive(false);
-            gemStoreInstance.SetActive(true);
-
-            SetSelectedButton(gemStoreButton, GemSelectedClass);
         }
 
         private void OnProfileButtonClicked()
@@ -206,6 +245,8 @@ namespace FTR.UI.Homepage.Navbar
                 logger.Log("ProfileMenu instance is not set.", this, Logging.LogType.Error);
                 return;
             }
+
+            navBarSettingsInstance?.SetActive(false);
             homeMenuInstance?.SetActive(false);
             gemStoreInstance?.SetActive(false);
             profileMenuInstance.SetActive(true);
@@ -213,10 +254,54 @@ namespace FTR.UI.Homepage.Navbar
             SetSelectedButton(playerProfileButton, ProfileSelectedClass);
         }
 
+        private void OnGemStoreButtonClicked()
+        {
+            if (_profileLocked)
+            {
+                ToastNotification.Show(
+                    "Complete profile creation to access the Gem Store.",
+                    "error",
+                    Color.orange
+                );
+                return;
+            }
+
+            if (gemStoreInstance == null)
+            {
+                logger.Log("GemStore instance is not set.", this, Logging.LogType.Error);
+                return;
+            }
+
+            navBarSettingsInstance?.SetActive(false);
+            homeMenuInstance?.SetActive(false);
+            profileMenuInstance?.SetActive(false);
+            gemStoreInstance.SetActive(true);
+
+            SetSelectedButton(gemStoreButton, GemSelectedClass);
+        }
+
         private void OnSettingsButtonClicked()
         {
-            // Implement settings logic here when you have a settings menu
-            logger.Log("Settings button clicked - not yet implemented", this, Logging.LogType.Info);
+            if (_profileLocked)
+            {
+                ToastNotification.Show(
+                    "Complete profile creation to access the Settings menu.",
+                    "error",
+                    Color.orange
+                );
+                return;
+            }
+
+            if (navBarSettingsInstance == null)
+            {
+                logger.Log("NavBarSettings instance is not set.", this, Logging.LogType.Error);
+                return;
+            }
+
+            homeMenuInstance?.SetActive(false);
+            profileMenuInstance?.SetActive(false);
+            gemStoreInstance?.SetActive(false);
+            navBarSettingsInstance.SetActive(true);
 
             SetSelectedButton(settingsButton, SettingsSelectedClass);
         }

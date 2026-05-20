@@ -1,0 +1,153 @@
+/* ══════════════════════════════════════════════════════════════════════
+   NavBarSettings.uss
+   Layout styles for the in-homepage settings overlay.
+
+   DEPENDENCY: SettingsMenu.uss must also be referenced so that the
+   shared classes (nav-button, setting-slider, setting-toggle,
+   setting-dropdown, custom-dropdown, slider-value-label …) are
+   available.  CustomDropdown.uss must be referenced too.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Colour / radius tokens (mirrors SettingsMenu.uss :root) ────────── */
+/* If SettingsMenu.uss is already loaded these vars are already defined;
+   repeating them here is harmless and makes this file self-contained.  */
+.hpset-overlay {
+    --teal:          rgb(110, 255, 251);
+    --teal-dim:      rgba(110, 255, 251, 0.18);
+    --teal-strong:   rgba(110, 255, 251, 0.32);
+    --teal-hover:    rgba(110, 255, 251, 0.22);
+    --gold:          rgb(255, 210, 80);
+    --gold-dim:      rgba(255, 210, 80, 0.15);
+    --white:         rgb(255, 255, 255);
+    --white-soft:    rgba(255, 255, 255, 0.80);
+    --white-muted:   rgba(255, 255, 255, 0.45);
+    --darker:        rgba(0, 0, 0, 0.84);
+    --sidebar-bg:    rgba(0, 0, 0, 0.60);
+    --content-bg:    rgba(0, 0, 0, 0.38);
+}
+
+/* ── Background: covers the full content area of the navbar ─────────────── */
+.hpset-overlay {
+    flex-grow: 1;
+    background-image: url("project://database/Assets/1_FeedTheRealm/VisualAssets/bg_feed.jpg?fileID=2800000&guid=8d8f8fd241019e57b9aee8d2035bd722&type=3#bg_feed");
+    -unity-background-image-tint-color: rgb(110, 255, 251);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+#NavbarSpace {
+    min-height: 52px;
+    max-height: 52px;
+}
+
+/* ── Two-column modal ─────────────────────────────────────────────────── */
+.hpset-modal {
+    flex-direction:   row;
+    flex-grow:        1;
+    background-color: var(--dark);
+}
+
+/* ── Left sidebar ─────────────────────────────────────────────────────── */
+.hpset-sidebar {
+    width:            240px;
+    min-width:        240px;
+    background-color: var(--sidebar-bg);
+    flex-direction:   column;
+    align-items:      stretch;
+    padding-top:      32px;
+    padding-bottom:   24px;
+    padding-left:     0;
+    padding-right:    0;
+    border-right-width: 1px;
+    border-right-color: var(--teal-dim);
+}
+
+.hpset-title {
+    font-size:           20px;
+    -unity-font-style:   bold;
+    color:               var(--teal);
+    -unity-text-align:   middle-center;
+    letter-spacing:      3px;
+    margin-bottom:       16px;
+    padding-left:        16px;
+    padding-right:       16px;
+}
+
+.hpset-divider {
+    height:           1px;
+    background-color: var(--teal-dim);
+    margin-top:       4px;
+    margin-bottom:    12px;
+    margin-left:      16px;
+    margin-right:     16px;
+}
+
+.hpset-spacer {
+    flex-grow: 1;
+}
+
+/* ── Right content panel ─────────────────────────────────────────────── */
+.hpset-content-panel {
+    flex-grow:        1;
+    background-color: var(--content-bg);
+}
+
+/* ── Individual section (ScrollView) ─────────────────────────────────── */
+.hpset-section {
+    flex-grow:      1;
+    width:          100%;
+    height:         100%;
+    padding-top:    40px;
+    padding-right:  48px;
+    padding-bottom: 40px;
+    padding-left:   48px;
+}
+
+.hpset-section--hidden {
+    display: none;
+}
+
+.hpset-section > #unity-content-and-vertical-scroll-container {
+    width:  100%;
+    height: 100%;
+}
+.hpset-section > #unity-content-and-vertical-scroll-container
+    > #unity-content-viewport {
+    width: 100%;
+}
+.hpset-section > #unity-content-and-vertical-scroll-container
+    > #unity-content-viewport > #unity-content-container {
+    width: 100%;
+}
+
+.hpset-section-title {
+    font-size:         28px;
+    -unity-font-style: bold;
+    color:             var(--teal);
+    margin-bottom:     8px;
+}
+
+.hpset-section-divider {
+    height:           1px;
+    background-color: var(--teal-dim);
+    margin-bottom:    28px;
+    width:            100%;
+}
+
+/* ── Logout button ───────────────────────────────────────────── */
+
+.nav-button--logout {
+    color: rgb(255, 210, 80);
+}
+
+.nav-button--logout:hover {
+    background-color: rgba(255, 210, 80, 0.12);
+    border-left-color: rgba(255, 210, 80, 0.6);
+}
+
+.nav-button--logout.nav-button--selected {
+    background-color: rgba(255, 210, 80, 0.18);
+    border-left-width: 3px;
+    border-left-color: rgb(255, 210, 80);
+}

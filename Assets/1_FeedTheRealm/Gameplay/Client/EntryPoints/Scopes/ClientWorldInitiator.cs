@@ -5,6 +5,7 @@ using FTR.Core.Client;
 using FTR.Core.Client.Config;
 using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.Managers;
+using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
@@ -43,6 +44,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
         [SerializeField]
         private Session.Session session;
+
+        [SerializeField]
+        private SettingsManager settingsManager;
 
         [SerializeField]
         private WorldSelector worldSelector;
@@ -106,6 +110,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(zoneService);
             builder.RegisterInstance(config);
             builder.RegisterInstance(session);
+            builder.RegisterInstance(settingsManager);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(clientQuestRegistry);
             builder.RegisterInstance(modelService);
@@ -146,8 +151,8 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(logger, "Logger");
             ValidateField(worldSelector, "WorldSelector");
             ValidateField(worldService, "WorldService");
-            ValidateField(config, "Config");
             ValidateField(session, "Session");
+            ValidateField(settingsManager, "SettingsManager");
             ValidateField(modelService, "ModelService");
             ValidateField(gltfLoaderService, "GLTFLoaderService");
             ValidateField(itemAssetsService, "ItemAssetsService");

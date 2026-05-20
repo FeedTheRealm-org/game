@@ -1,4 +1,6 @@
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client.EventChannels.UI;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 
@@ -12,7 +14,14 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject gemStorePrefab;
         readonly GameObject musicPlayerPrefab;
         readonly ClientMusicRegistry musicRegistry;
+        readonly GameObject navBarSettingsPrefab;
         private readonly AuthFlowManager authFlowManager;
+        private readonly API.PlayerService playerService;
+        private readonly OnProfileCreatedEvent onProfileCreatedEvent;
+        private readonly OnLogoutRequestedEvent onLogoutRequestedEvent;
+        private API.AuthService authService;
+        private Session.Session session;
+        private GameObject authBackgroundPrefab;
 
         private GameObject musicPlayerInstance;
 
@@ -23,7 +32,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
-            AuthFlowManager authFlowManager
+            GameObject navBarSettingsPrefab,
+            AuthFlowManager authFlowManager,
+            API.PlayerService playerService,
+            OnProfileCreatedEvent onProfileCreatedEvent,
+            OnLogoutRequestedEvent onLogoutRequestedEvent
         )
         {
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
@@ -32,7 +45,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
+            this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authFlowManager = authFlowManager;
+            this.playerService = playerService;
+            this.onProfileCreatedEvent = onProfileCreatedEvent;
+            this.onLogoutRequestedEvent = onLogoutRequestedEvent;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -85,6 +102,10 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject authBackgroundPrefab
         )
         {
+            this.authService = authService;
+            this.session = session;
+            this.authBackgroundPrefab = authBackgroundPrefab;
+
             await session.EnsureValidSession();
             (bool isSuccess, string _) = await authService.IsLogged();
             if (isSuccess)
@@ -93,14 +114,19 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             var authBackgroundObj = Object.Instantiate(authBackgroundPrefab);
             var completionSource = new UniTaskCompletionSource();
-            authFlowManager.OnAuthComplete += (string _) => completionSource.TrySetResult();
+
+            System.Action<string> onAuthComplete = (string _) => completionSource.TrySetResult();
+            authFlowManager.OnAuthComplete += onAuthComplete;
+
             authFlowManager.HideCloseButton();
             authFlowManager.ShowAuthMenu();
             await completionSource.Task;
+
+            authFlowManager.OnAuthComplete -= onAuthComplete;
             Object.Destroy(authBackgroundObj);
         }
 
-        public async UniTask ShowMainMenuFlow()
+        public async UniTask<bool> ShowMainMenuFlow()
         {
             // Home menu
             var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
@@ -114,7 +140,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             var gemStoreObj = Object.Instantiate(gemStorePrefab);
             gemStoreObj.SetActive(false);
 
-            // NavBar — wire both instances
+            // Settings menu
+            var navBarSettingsObj = Object.Instantiate(navBarSettingsPrefab);
+            navBarSettingsObj.SetActive(false);
+
+            // NavBar — wire all instances
             var navBarObj = Object.Instantiate(navBarPrefab);
             var navBarController = navBarObj.GetComponent<INavbarController>();
             if (navBarController != null)
@@ -122,17 +152,85 @@ namespace FTR.Gameplay.Client.EntryPoints
                 navBarController.SetHomeMenuInstance(worldFeedMenuObj);
                 navBarController.SetProfileMenuInstance(profileMenuObj);
                 navBarController.SetGemStoreInstance(gemStoreObj);
+                navBarController.SetNavBarSettingsInstance(navBarSettingsObj);
             }
 
-            var completionSource = new UniTaskCompletionSource();
-            worldFeedMenu.OnNavigateToWorld += () => completionSource.TrySetResult();
+            await RedirectIfProfileRequired(worldFeedMenuObj, profileMenuObj, navBarController);
 
-            await completionSource.Task;
+            var navigateSource = new UniTaskCompletionSource();
+            var logoutSource = new UniTaskCompletionSource();
+
+            System.Action onLogoutHandler = null;
+            onLogoutHandler = () =>
+            {
+                session.ClearSession();
+                logoutSource.TrySetResult();
+            };
+            onLogoutRequestedEvent.OnRaised += onLogoutHandler;
+
+            worldFeedMenu.OnNavigateToWorld += () => navigateSource.TrySetResult();
+
+            await UniTask.WhenAny(navigateSource.Task, logoutSource.Task);
+
+            onLogoutRequestedEvent.OnRaised -= onLogoutHandler;
+
+            bool wasLogout = logoutSource.Task.Status == UniTaskStatus.Succeeded;
 
             Object.Destroy(profileMenuObj);
             Object.Destroy(gemStoreObj);
+            Object.Destroy(navBarSettingsObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
+
+            return wasLogout;
+        }
+
+        private async Task RedirectIfProfileRequired(
+            GameObject worldFeedMenuObj,
+            GameObject profileMenuObj,
+            INavbarController navBarController
+        )
+        {
+            bool needsProfileCreation = await CheckNeedsProfileCreation();
+
+            if (needsProfileCreation && navBarController != null)
+            {
+                worldFeedMenuObj.SetActive(false);
+                profileMenuObj.SetActive(true);
+
+                navBarController.SetProfileLocked(true);
+
+                System.Action onProfileCreated = null;
+                onProfileCreated = () =>
+                {
+                    navBarController.SetProfileLocked(false);
+
+                    profileMenuObj.SetActive(false);
+                    worldFeedMenuObj.SetActive(true);
+
+                    onProfileCreatedEvent.OnRaised -= onProfileCreated;
+                };
+
+                onProfileCreatedEvent.OnRaised += onProfileCreated;
+            }
+        }
+
+        private async UniTask<bool> CheckNeedsProfileCreation()
+        {
+            if (playerService == null)
+            {
+                Debug.LogWarning(
+                    "[MainMenuFlowService] PlayerService is null — skipping profile check."
+                );
+                return false;
+            }
+
+            var characterInfo = await playerService.GetCharacterInfoAsync();
+
+            bool hasProfile =
+                characterInfo != null && !string.IsNullOrWhiteSpace(characterInfo.character_name);
+
+            return !hasProfile;
         }
     }
 }

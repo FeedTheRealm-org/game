@@ -126,6 +126,13 @@
     -unity-background-image-tint-color: rgb(255, 255, 255);
 }
 
-.navbar-button-settings-selected:hover {
-    background-color: rgba(180, 180, 180, 0.6);
+.navbar-button-disabled {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.2);
+    cursor: initial;
+}
+
+.navbar-button-disabled:hover {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(110, 255, 251, 0);
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.2);
 }

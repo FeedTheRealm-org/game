@@ -1,4 +1,6 @@
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Settings;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,6 +24,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly ClientMusicRegistry musicRegistry;
         private readonly GameObject loadingScreenPrefab;
         private readonly MainMenuFlowService flowService;
+        private readonly SettingsManager settingsManager;
+        private readonly GameObject navBarSettingsPrefab;
         private readonly GameObject authBackgroundPrefab;
 
         public ClientEntryPoint(
@@ -35,8 +39,13 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
             GameObject loadingScreenPrefab,
+            SettingsManager settingsManager,
+            GameObject navBarSettingsPrefab,
             AuthFlowManager authFlowManager,
-            GameObject authBackgroundPrefab
+            GameObject authBackgroundPrefab,
+            API.PlayerService playerService,
+            OnProfileCreatedEvent onProfileCreatedEvent,
+            OnLogoutRequestedEvent onLogoutRequestedEvent
         )
         {
             this.mainScene = mainScene;
@@ -49,6 +58,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
             this.loadingScreenPrefab = loadingScreenPrefab;
+            this.settingsManager = settingsManager;
+            this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authBackgroundPrefab = authBackgroundPrefab;
 
             flowService = new MainMenuFlowService(
@@ -58,7 +69,11 @@ namespace FTR.Gameplay.Client.EntryPoints
                 gemStorePrefab,
                 musicPlayerPrefab,
                 musicRegistry,
-                authFlowManager
+                navBarSettingsPrefab,
+                authFlowManager,
+                playerService,
+                onProfileCreatedEvent,
+                onLogoutRequestedEvent
             );
         }
 
@@ -68,8 +83,14 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
 
-            await flowService.ShowAuthFlow(authService, session, authBackgroundPrefab);
-            await flowService.ShowMainMenuFlow();
+            while (true)
+            {
+                await flowService.ShowAuthFlow(authService, session, authBackgroundPrefab);
+                bool loggedOut = await flowService.ShowMainMenuFlow();
+
+                if (!loggedOut)
+                    break;
+            }
 
             GameObject loadingScreenInstance = SetupLoadingScreen();
 
@@ -88,6 +109,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             // TODO: Load client config
 
             // Cap Update & LateUpdate TPS
+            settingsManager.LoadSettings();
+            settingsManager.ApplyDisplay();
+            settingsManager.ApplyAudioListener();
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
             Application.runInBackground = true;
