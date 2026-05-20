@@ -44,7 +44,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             AuthFlowManager authFlowManager,
             GameObject authBackgroundPrefab,
             API.PlayerService playerService,
-            OnProfileCreatedEvent onProfileCreatedEvent
+            OnProfileCreatedEvent onProfileCreatedEvent,
+            OnLogoutRequestedEvent onLogoutRequestedEvent
         )
         {
             this.mainScene = mainScene;
@@ -71,7 +72,8 @@ namespace FTR.Gameplay.Client.EntryPoints
                 navBarSettingsPrefab,
                 authFlowManager,
                 playerService,
-                onProfileCreatedEvent
+                onProfileCreatedEvent,
+                onLogoutRequestedEvent
             );
         }
 
@@ -81,8 +83,14 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
 
-            await flowService.ShowAuthFlow(authService, session, authBackgroundPrefab);
-            await flowService.ShowMainMenuFlow();
+            while (true)
+            {
+                await flowService.ShowAuthFlow(authService, session, authBackgroundPrefab);
+                bool loggedOut = await flowService.ShowMainMenuFlow();
+
+                if (!loggedOut)
+                    break;
+            }
 
             GameObject loadingScreenInstance = SetupLoadingScreen();
 

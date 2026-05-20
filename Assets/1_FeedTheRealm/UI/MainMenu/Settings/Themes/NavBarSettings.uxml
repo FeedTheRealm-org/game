@@ -12,6 +12,7 @@
                 <ui:Button text="Sound" name="HPSettings_SoundButton" class="nav-button"/>
                 <ui:VisualElement class="hpset-spacer"/>
                 <ui:VisualElement class="hpset-divider"/>
+                <ui:Button text="Log Out" name="HPSettings_LogoutButton" class="nav-button nav-button--logout"/>
                 <ui:Button text="Exit Game" name="HPSettings_ExitButton" class="nav-button nav-button--danger"/>
             </ui:VisualElement>
             <ui:VisualElement name="HPSettings_ContentPanel" class="hpset-content-panel">

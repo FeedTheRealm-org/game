@@ -95,7 +95,8 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("loadingScreenPrefab", loadingScreenPrefab)
             .WithParameter("settingsManager", settingsManager)
             .WithParameter("playerService", playerService)
-            .WithParameter("onProfileCreatedEvent", eventRegistry.onProfileCreatedEvent);
+            .WithParameter("onProfileCreatedEvent", eventRegistry.onProfileCreatedEvent)
+            .WithParameter("onLogoutRequestedEvent", eventRegistry.onLogoutRequestedEvent);
 
         builder.RegisterComponentInNewPrefab(authFlowManager, Lifetime.Singleton);
         logger?.Log("ClientInitiator: Registered client entrypoint", this);

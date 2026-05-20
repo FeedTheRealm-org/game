@@ -77,6 +77,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         [Header("UI Related Events")]
         public OnWorldLeaveEvent onExitEvent;
         public OnProfileCreatedEvent onProfileCreatedEvent;
+        public OnLogoutRequestedEvent onLogoutRequestedEvent;
 
         [Header("Input Related Events")]
         public BackEvent backEvent;
@@ -120,6 +121,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(onExitEvent);
             builder.RegisterInstance(onProfileCreatedEvent);
             builder.RegisterInstance(backEvent);
+            builder.RegisterInstance(onLogoutRequestedEvent);
         }
 
         private void Validate()
@@ -159,6 +161,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(onExitEvent, nameof(onExitEvent));
             ValidateField(onProfileCreatedEvent, nameof(onProfileCreatedEvent));
             ValidateField(backEvent, nameof(backEvent));
+            ValidateField(onLogoutRequestedEvent, nameof(onLogoutRequestedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

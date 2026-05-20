@@ -134,3 +134,20 @@
     margin-bottom:    28px;
     width:            100%;
 }
+
+/* ── Logout button ───────────────────────────────────────────── */
+
+.nav-button--logout {
+    color: rgb(255, 210, 80);
+}
+
+.nav-button--logout:hover {
+    background-color: rgba(255, 210, 80, 0.12);
+    border-left-color: rgba(255, 210, 80, 0.6);
+}
+
+.nav-button--logout.nav-button--selected {
+    background-color: rgba(255, 210, 80, 0.18);
+    border-left-width: 3px;
+    border-left-color: rgb(255, 210, 80);
+}

@@ -71,3 +71,4 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   prefabProvider: {fileID: 11400000, guid: 805f190945737dfdd82e6b04f6f82e9a, type: 2}
   settingsManager: {fileID: 11400000, guid: c196a637095a95474b1f2a64882174e6, type: 2}
+  logoutRequestedEvent: {fileID: 11400000, guid: b24eefb74fe820ae3bb69ec823248065, type: 2}

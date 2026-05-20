@@ -18,6 +18,10 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly AuthFlowManager authFlowManager;
         private readonly API.PlayerService playerService;
         private readonly OnProfileCreatedEvent onProfileCreatedEvent;
+        private readonly OnLogoutRequestedEvent onLogoutRequestedEvent;
+        private API.AuthService authService;
+        private Session.Session session;
+        private GameObject authBackgroundPrefab;
 
         private GameObject musicPlayerInstance;
 
@@ -31,7 +35,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject navBarSettingsPrefab,
             AuthFlowManager authFlowManager,
             API.PlayerService playerService,
-            OnProfileCreatedEvent onProfileCreatedEvent
+            OnProfileCreatedEvent onProfileCreatedEvent,
+            OnLogoutRequestedEvent onLogoutRequestedEvent
         )
         {
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
@@ -44,6 +49,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.authFlowManager = authFlowManager;
             this.playerService = playerService;
             this.onProfileCreatedEvent = onProfileCreatedEvent;
+            this.onLogoutRequestedEvent = onLogoutRequestedEvent;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -96,6 +102,10 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject authBackgroundPrefab
         )
         {
+            this.authService = authService;
+            this.session = session;
+            this.authBackgroundPrefab = authBackgroundPrefab;
+
             await session.EnsureValidSession();
             (bool isSuccess, string _) = await authService.IsLogged();
             if (isSuccess)
@@ -104,14 +114,19 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             var authBackgroundObj = Object.Instantiate(authBackgroundPrefab);
             var completionSource = new UniTaskCompletionSource();
-            authFlowManager.OnAuthComplete += (string _) => completionSource.TrySetResult();
+
+            System.Action<string> onAuthComplete = (string _) => completionSource.TrySetResult();
+            authFlowManager.OnAuthComplete += onAuthComplete;
+
             authFlowManager.HideCloseButton();
             authFlowManager.ShowAuthMenu();
             await completionSource.Task;
+
+            authFlowManager.OnAuthComplete -= onAuthComplete;
             Object.Destroy(authBackgroundObj);
         }
 
-        public async UniTask ShowMainMenuFlow()
+        public async UniTask<bool> ShowMainMenuFlow()
         {
             // Home menu
             var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
@@ -142,16 +157,32 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             await RedirectIfProfileRequired(worldFeedMenuObj, profileMenuObj, navBarController);
 
-            var completionSource = new UniTaskCompletionSource();
-            worldFeedMenu.OnNavigateToWorld += () => completionSource.TrySetResult();
+            var navigateSource = new UniTaskCompletionSource();
+            var logoutSource = new UniTaskCompletionSource();
 
-            await completionSource.Task;
+            System.Action onLogoutHandler = null;
+            onLogoutHandler = () =>
+            {
+                session.ClearSession();
+                logoutSource.TrySetResult();
+            };
+            onLogoutRequestedEvent.OnRaised += onLogoutHandler;
+
+            worldFeedMenu.OnNavigateToWorld += () => navigateSource.TrySetResult();
+
+            await UniTask.WhenAny(navigateSource.Task, logoutSource.Task);
+
+            onLogoutRequestedEvent.OnRaised -= onLogoutHandler;
+
+            bool wasLogout = logoutSource.Task.Status == UniTaskStatus.Succeeded;
 
             Object.Destroy(profileMenuObj);
             Object.Destroy(gemStoreObj);
             Object.Destroy(navBarSettingsObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
+
+            return wasLogout;
         }
 
         private async Task RedirectIfProfileRequired(

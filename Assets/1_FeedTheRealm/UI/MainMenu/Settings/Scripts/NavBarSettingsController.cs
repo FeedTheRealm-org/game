@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using FeedTheRealm.UI.Common;
 using FTR.Core.Client;
+using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Settings;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VContainer;
 
 namespace FTR.UI.Homepage.Settings
 {
@@ -21,11 +20,15 @@ namespace FTR.UI.Homepage.Settings
         [SerializeField]
         private SettingsManager settingsManager;
 
+        [SerializeField]
+        private OnLogoutRequestedEvent logoutRequestedEvent;
+
         private VisualElement _root;
         private VisualElement _panel;
 
         private Button _displayNavButton;
         private Button _soundNavButton;
+        private Button _logoutButton;
         private Button _exitButton;
 
         private ScrollView _displayContent;
@@ -67,6 +70,7 @@ namespace FTR.UI.Homepage.Settings
 
             _displayNavButton = _panel.Q<Button>("HPSettings_DisplayButton");
             _soundNavButton = _panel.Q<Button>("HPSettings_SoundButton");
+            _logoutButton = _panel.Q<Button>("HPSettings_LogoutButton");
             _exitButton = _panel.Q<Button>("HPSettings_ExitButton");
 
             _displayContent = _panel.Q<ScrollView>("HPSettings_DisplayContent");
@@ -115,6 +119,7 @@ namespace FTR.UI.Homepage.Settings
 
             Check(_displayNavButton, "HPSettings_DisplayButton");
             Check(_soundNavButton, "HPSettings_SoundButton");
+            Check(_logoutButton, "HPSettings_LogoutButton");
             Check(_exitButton, "HPSettings_ExitButton");
             Check(_displayContent, "HPSettings_DisplayContent");
             Check(_soundContent, "HPSettings_SoundContent");
@@ -208,6 +213,7 @@ namespace FTR.UI.Homepage.Settings
             {
                 _displayNavButton.clicked += OnDisplayNav;
                 _soundNavButton.clicked += OnSoundNav;
+                _logoutButton.clicked += OnLogoutClicked;
                 _exitButton.clicked += OnExitClicked;
 
                 _fullscreenToggle?.RegisterValueChangedCallback(OnFullscreenChanged);
@@ -224,6 +230,8 @@ namespace FTR.UI.Homepage.Settings
                     _displayNavButton.clicked -= OnDisplayNav;
                 if (_soundNavButton != null)
                     _soundNavButton.clicked -= OnSoundNav;
+                if (_logoutButton != null)
+                    _logoutButton.clicked -= OnLogoutClicked;
                 if (_exitButton != null)
                     _exitButton.clicked -= OnExitClicked;
 
@@ -241,6 +249,30 @@ namespace FTR.UI.Homepage.Settings
         private void OnDisplayNav() => ShowSection(Section.Display);
 
         private void OnSoundNav() => ShowSection(Section.Sound);
+
+        private void OnLogoutClicked()
+        {
+            if (logoutRequestedEvent == null)
+            {
+                logger.Log(
+                    "[NavBarSettingsController] LogoutRequestedEvent is not assigned.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
+
+            var popup = Instantiate(prefabProvider.ConfirmPopup)
+                .GetComponent<ConfirmPopupController>();
+            popup.Show(
+                question: "Are you sure you want to log out?",
+                title: "Log Out",
+                onConfirm: () =>
+                {
+                    logoutRequestedEvent.Raise();
+                }
+            );
+        }
 
         private void OnExitClicked()
         {
