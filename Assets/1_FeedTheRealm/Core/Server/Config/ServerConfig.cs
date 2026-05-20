@@ -28,6 +28,9 @@ namespace FTR.Core.Server.Config
         [HideInInspector]
         public bool IsTestWorld;
 
+        [HideInInspector]
+        public int SendPlayerCountIntervalSeconds = 120;
+
         [Header("Database Settings")]
         // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
         public bool PersistToDatabase = true;

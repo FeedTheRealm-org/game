@@ -8,6 +8,8 @@ public sealed class EntityRegistry
     public int Count => entities.Count;
     public int PlayerCount { get; private set; }
 
+    public event System.Action<uint, bool> OnPlayerCountChanged;
+
     public bool TryGet(uint netId, out ServerEntity entity)
     {
         return entities.TryGetValue(netId, out entity);
@@ -17,12 +19,18 @@ public sealed class EntityRegistry
     {
         entities[netId] = entity;
         if (entity.IsPlayer)
+        {
             PlayerCount++;
+            OnPlayerCountChanged?.Invoke(netId, true);
+        }
     }
 
     public void Unregister(uint netId)
     {
         if (entities.Remove(netId, out var entity) && entity.IsPlayer)
+        {
             PlayerCount--;
+            OnPlayerCountChanged?.Invoke(netId, false);
+        }
     }
 }

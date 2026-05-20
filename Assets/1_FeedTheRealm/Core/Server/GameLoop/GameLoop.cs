@@ -1,10 +1,12 @@
 using System;
 using System.Diagnostics;
+using API;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.Entities;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Events;
+using FTR.Core.Server.Metrics;
 using FTR.Core.Server.Metrics;
 using UnityEngine;
 using VContainer.Unity;
@@ -19,6 +21,7 @@ public class GameLoop : IGameTickable, IStartable
     private readonly GameTickEvent gameTickEvent;
     private Logging.Logger logger;
     private readonly ServerConfig serverConfig;
+    private readonly PlayerStatsSender playerStatsSender;
 
     private readonly long maxCommandsTimePerTick = Stopwatch.Frequency / 1000 * 10; // 10ms
     private readonly long maxCommandsPerTick = 100;
@@ -29,6 +32,7 @@ public class GameLoop : IGameTickable, IStartable
 
     // Metrics
     private readonly Stopwatch _sw = new Stopwatch();
+    private readonly Stopwatch _swPlayerCount = new Stopwatch();
     private readonly Stopwatch _sectionSw = new Stopwatch();
     private int _lastGen0,
         _lastGen1,
@@ -38,13 +42,15 @@ public class GameLoop : IGameTickable, IStartable
         WorldMonitor worldMonitor,
         GameTickEvent gameTickEvent,
         Logging.Logger logger,
-        ServerConfig serverConfig
+        ServerConfig serverConfig,
+        PlayerStatsSender playerStatsSender
     )
     {
         this.worldMonitor = worldMonitor;
         this.gameTickEvent = gameTickEvent;
         this.logger = logger;
         this.serverConfig = serverConfig;
+        this.playerStatsSender = playerStatsSender;
 
         this._tickHandler = RegularGameTick;
     }
@@ -56,6 +62,7 @@ public class GameLoop : IGameTickable, IStartable
             $"GameLoop initialized with tick handler: {_tickHandler.Method.Name}",
             Logging.LogType.Info
         );
+        _swPlayerCount.Restart();
     }
 
     public void GameTick(float dt)
@@ -75,6 +82,15 @@ public class GameLoop : IGameTickable, IStartable
         // Push new events to NetworkQueue
         eventCollector.ForEach(serverEvent => worldMonitor.Events.Enqueue(serverEvent));
         eventCollector.Clear();
+
+        if (_swPlayerCount.Elapsed.TotalSeconds > serverConfig.SendPlayerCountIntervalSeconds)
+        {
+            logger.Log(
+                $"[Gameloop] {_swPlayerCount.Elapsed.TotalSeconds} > {serverConfig.SendPlayerCountIntervalSeconds}"
+            );
+            _swPlayerCount.Restart();
+            playerStatsSender.Send();
+        }
 
         _sw.Stop();
 
