@@ -1,13 +1,21 @@
+/* ── hud.uss ── */
+
 :root {
     --teal:          rgb(110, 255, 251);
     --teal-dim:      rgba(110, 255, 251, 0.18);
+    --teal-strong:   rgba(110, 255, 251, 0.32);
+    --teal-hover:    rgba(110, 255, 251, 0.22);
     --teal-glow:     rgba(110, 255, 251, 0.08);
     --gold:          rgb(255, 210, 80);
     --gold-dim:      rgba(255, 210, 80, 0.15);
+    --gold-hover:    rgba(255, 210, 80, 0.28);
     --white:         rgb(255, 255, 255);
-    --white-soft:    rgba(255, 255, 255, 0.75);
+    --white-soft:    rgba(255, 255, 255, 0.8);
+    --white-muted:   rgba(255, 255, 255, 0.45);
     --dark:          rgba(0, 0, 0, 0.72);
     --darker:        rgba(0, 0, 0, 0.88);
+    --sidebar-bg:    rgba(0, 0, 0, 0.6);
+    --content-bg:    rgba(0, 0, 0, 0.38);
     --card-bg:       rgba(0, 0, 0, 0.62);
     --radius:        12px;
     --radius-sm:     8px;
@@ -134,45 +142,154 @@
     color: var(--teal);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   QUEST PROGRESS PANEL  (HUD sidebar)
+   ═══════════════════════════════════════════════════════════════ */
+
 .quest-list {
     height: 190px;
-    background-color: var(--dark);
+    background-color: var(--sidebar-bg);
     border-radius: var(--radius);
     border-width: 1px;
-    border-color: rgba(110, 255, 251, 0.22);
-    padding: 10px;
+    border-color: var(--teal-strong);
+    border-left-width: 3px;
+    border-left-color: var(--teal-dim);
+    padding: 12px;
 }
 
+/* ── Scrollbar estilizado (estilo CustomDropdown) ── */
+
+.quest-list .unity-scroller {
+    width: 6px;
+}
+
+.quest-list .unity-scroller #unity-low-button,
+.quest-list .unity-scroller #unity-high-button {
+    display: none;
+}
+
+.quest-list .unity-base-slider__tracker {
+    background-color: transparent;
+    border-width: 0;
+}
+
+.quest-list .unity-base-slider__dragger {
+    background-color: var(--teal-dim);
+    border-radius: 3px;
+    width: 6px;
+    left: 0;
+    border-width: 0;
+}
+
+.quest-list .unity-base-slider__dragger:hover {
+    background-color: var(--teal-strong);
+}
+
+/* ── Individual Quest Item ── */
+
 .quest-item {
-    background-color: var(--card-bg);
+    background-color: var(--content-bg);
     border-radius: var(--radius-sm);
     border-width: 1px;
-    border-color: rgba(110, 255, 251, 0.22);
-    padding: 10px;
-    margin-bottom: 8px;
+    border-color: var(--teal-dim);
+    border-left-width: 3px;
+    border-left-color: var(--teal-dim);
+    padding: 12px 14px;
+    margin-bottom: 10px;
     flex-direction: column;
+    transition-duration: 0.2s;
+    transition-property: background-color, border-color, border-left-color;
 }
 
 .quest-item:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-    border-color: rgba(110, 255, 251, 0.6);
+    background-color: var(--card-bg);
+    border-color: var(--teal-strong);
+    border-left-color: var(--teal);
 }
+
+/* ── Completed Quest State ── */
+
+.quest-item--completed {
+    border-left-color: var(--gold);
+    background-color: var(--gold-dim);
+}
+
+.quest-item--completed:hover {
+    border-color: rgba(255, 210, 80, 0.4);
+    border-left-color: var(--gold);
+}
+
+/* ── Quest Item Header (indicator + title) ── */
+
+.quest-item-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.quest-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: var(--teal);
+    margin-right: 8px;
+    flex-shrink: 0;
+    transition-duration: 0.2s;
+    transition-property: background-color;
+}
+
+.quest-item--completed .quest-indicator {
+    background-color: var(--gold);
+}
+
+/* ── Divider between header and details ── */
+
+.quest-divider {
+    height: 1px;
+    background-color: var(--teal-dim);
+    margin-top: 6px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.quest-item--completed .quest-divider {
+    background-color: rgba(255, 210, 80, 0.25);
+}
+
+/* ── Quest Title ── */
 
 .quest-title {
     font-size: 14px;
-    margin-bottom: 4px;
     color: var(--teal);
     -unity-font-style: bold;
+    letter-spacing: 1px;
+    flex-grow: 1;
+    transition-duration: 0.2s;
+    transition-property: color;
 }
+
+.quest-item--completed .quest-title {
+    color: var(--gold);
+}
+
+/* ── Quest Detail Text ── */
 
 .quest-detail {
     font-size: 12px;
-    color: var(--white-soft);
-    margin-bottom: 6px;
+    color: var(--white-muted);
+    margin-bottom: 10px;
+    -unity-font-style: normal;
 }
 
+/* ── Progress Bar ── */
+
 .quest-progress {
-    height: 14px;
+    height: 16px;
+}
+
+.quest-progress .unity-progress-bar__container {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
 }
 
 .quest-progress .unity-progress-bar__progress {
@@ -183,4 +300,14 @@
 .quest-progress .unity-progress-bar__background {
     background-color: var(--teal-dim);
     border-radius: var(--radius-sm);
+}
+
+/* Progress bar completed state */
+
+.quest-item--completed .quest-progress .unity-progress-bar__progress {
+    background-color: var(--gold);
+}
+
+.quest-item--completed .quest-progress .unity-progress-bar__background {
+    background-color: var(--gold-dim);
 }

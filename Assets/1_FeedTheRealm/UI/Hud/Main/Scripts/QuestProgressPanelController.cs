@@ -32,6 +32,10 @@ namespace FTR.UI.Hud.Main
         private ScrollView _currentQuestsContainer;
 
         private readonly string _questItemClasses = "quest-item";
+        private readonly string _questItemCompletedClass = "quest-item--completed";
+        private readonly string _questItemHeaderClasses = "quest-item-header";
+        private readonly string _questIndicatorClasses = "quest-indicator";
+        private readonly string _questDividerClasses = "quest-divider";
         private readonly string _questTitleClasses = "quest-title";
         private readonly string _questDetailClasses = "quest-detail";
         private readonly string _questProgressClasses = "quest-progress";
@@ -141,9 +145,12 @@ namespace FTR.UI.Hud.Main
             progressBar.title = $"{percentComplete:F2}%";
 
             if (questProgress.CurrentProgressAmount >= questProgress.TargetProgressAmount)
+            {
+                questItem.AddToClassList(_questItemCompletedClass);
                 StartCoroutine(
                     RemoveQuestAfterDelay(completeQuestDisplayDuration, questProgress.Id)
                 );
+            }
         }
 
         private VisualElement CreateQuestItem(QuestProgressData questProgress)
@@ -151,9 +158,22 @@ namespace FTR.UI.Hud.Main
             var questItem = new VisualElement { name = questProgress.Id };
             questItem.AddToClassList(_questItemClasses);
 
+            var header = new VisualElement();
+            header.AddToClassList(_questItemHeaderClasses);
+
+            var indicator = new VisualElement();
+            indicator.AddToClassList(_questIndicatorClasses);
+            header.Add(indicator);
+
             var titleLabel = new Label { text = questProgress.Quest.title };
             titleLabel.AddToClassList(_questTitleClasses);
-            questItem.Add(titleLabel);
+            header.Add(titleLabel);
+
+            questItem.Add(header);
+
+            var divider = new VisualElement();
+            divider.AddToClassList(_questDividerClasses);
+            questItem.Add(divider);
 
             var detailLabel = new Label
             {

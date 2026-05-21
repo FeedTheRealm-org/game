@@ -12,6 +12,7 @@ public enum MenuType
     Quest,
     Chat,
     Portal,
+    Quests,
 }
 
 public class MenuManager
@@ -26,6 +27,7 @@ public class MenuManager
         { MenuType.Quest, false },
         { MenuType.Chat, false },
         { MenuType.Portal, false },
+        { MenuType.Quests, false },
     };
     private int openMenuCount = 0;
 
@@ -70,6 +72,8 @@ public class MenuManager
             case MenuType.Chat:
                 return openMenuCount == 0;
             case MenuType.Portal:
+                return openMenuCount == 0;
+            case MenuType.Quests:
                 return openMenuCount == 0;
             default:
                 return false;

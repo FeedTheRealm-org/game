@@ -1,0 +1,29 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Hud/Main/Themes/Hud.uss?fileID=7433441132597879392&amp;guid=f2b110e8876311072b361748c42d217d&amp;type=3#Hud"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/QuestMenu/Themes/QuestMenu.uss?fileID=7433441132597879392&amp;guid=ec528712e48c350d48d6fd0845f493df&amp;type=3#QuestMenu"/>
+    <ui:VisualElement name="QuestMenuOverlay" class="quest-menu-overlay" style="display: none;">
+        <ui:VisualElement name="QuestMenuModal" class="quest-menu-modal">
+            <ui:VisualElement name="QuestMenuSidebar" class="quest-menu-sidebar">
+                <ui:Label name="QuestMenuTitle" text="QUEST JOURNAL" class="quest-menu-title"/>
+                <ui:VisualElement name="QuestMenuDividerTop" class="quest-menu-divider"/>
+                <ui:ScrollView name="QuestListScroll" class="quest-list-scroll"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="QuestDetailMenu" class="quest-detail-menu">
+                <ui:Label name="EmptyStateLabel" text="Select a quest to view details" class="detail-empty-state"/>
+                <ui:VisualElement name="DetailContent" class="detail-content detail-content--hidden">
+                    <ui:VisualElement name="DetailHeader" class="detail-header">
+                        <ui:VisualElement name="DetailIndicator" class="detail-indicator"/>
+                        <ui:Label name="DetailTitle" text="" class="detail-title"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="DetailDivider" class="detail-divider"/>
+                    <ui:Label name="DetailDescription" text="" class="detail-description"/>
+                    <ui:VisualElement name="DetailObjectiveRow" class="detail-objective-row">
+                        <ui:Label name="ObjectiveLabel" text="Objective:" class="objective-label"/>
+                        <ui:Label name="DetailObjective" text="" class="objective-value"/>
+                    </ui:VisualElement>
+                    <ui:ProgressBar name="DetailProgress" low-value="0" high-value="100" title="0%" class="detail-progress"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -41,5 +41,8 @@ namespace FTR.Core.Client
 
         [Header("Popup Dialogs")]
         public GameObject ConfirmPopup;
+
+        [Header("Quests")]
+        public GameObject QuestsMenuPrefab;
     }
 }

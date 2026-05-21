@@ -13,6 +13,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
     public class WorldUISetupService : ISetup
     {
         private readonly GameObject settingsMenu;
+        private readonly GameObject questMenu;
         private readonly IObjectResolver objectResolver;
 
         private OnWorldLeaveEvent onExitEvent;
@@ -31,6 +32,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
             this.onExitEvent = onExitEvent;
             this.onExitEvent.OnRaised += DisconnectPlayer;
             settingsMenu = clientPrefabProvider.SettingMenuComponent;
+            questMenu = clientPrefabProvider.QuestsMenuPrefab;
             this.objectResolver = objectResolver;
         }
 
@@ -45,9 +47,16 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
                 throw new System.Exception(
                     "SettingsMenu GameObject not set in WorldUIObjectProvider!"
                 );
+            if (questMenu == null)
+                throw new System.Exception(
+                    "QuestMenu GameObject not set in WorldUIObjectProvider!"
+                );
 
             var instantiatedMenu = objectResolver.Instantiate(settingsMenu);
             instantiatedMenu.name = "SettingsMenu";
+
+            var instantiatedQuestMenu = objectResolver.Instantiate(questMenu);
+            instantiatedQuestMenu.name = "QuestMenu";
         }
 
         private void DisconnectPlayer()
