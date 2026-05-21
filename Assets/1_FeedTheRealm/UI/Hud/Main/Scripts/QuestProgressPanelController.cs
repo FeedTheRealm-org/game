@@ -1,5 +1,6 @@
 using System.Collections;
 using Enums;
+using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
 using FTR.Gameplay.Client.Registry;
@@ -20,6 +21,9 @@ namespace FTR.UI.Hud.Main
         [Inject]
         private QuestProgressEvent progressEvent;
 
+        [Inject]
+        private QuestTrackToggleEvent questTrackToggleEvent;
+
         [SerializeField]
         private float completeQuestDisplayDuration = 3f;
 
@@ -34,6 +38,13 @@ namespace FTR.UI.Hud.Main
         private readonly string _questItemClasses = "quest-item";
         private readonly string _questItemCompletedClass = "quest-item--completed";
         private readonly string _questDetailClasses = "quest-detail";
+
+        private readonly System.Collections.Generic.Dictionary<
+            string,
+            QuestProgressData
+        > _allQuests = new();
+        private readonly System.Collections.Generic.HashSet<string> _trackedQuests = new();
+        private const int MaxTrackedQuests = 4;
 
         private void Start()
         {
@@ -83,16 +94,32 @@ namespace FTR.UI.Hud.Main
         {
             if (progressEvent != null)
                 progressEvent.OnRaised += HandleQuestProgress;
+            if (questTrackToggleEvent != null)
+                questTrackToggleEvent.OnRaised += OnQuestTrackToggled;
         }
 
         private void OnDisable()
         {
             if (progressEvent != null)
                 progressEvent.OnRaised -= HandleQuestProgress;
+            if (questTrackToggleEvent != null)
+                questTrackToggleEvent.OnRaised -= OnQuestTrackToggled;
         }
 
         private void HandleQuestProgress(QuestProgressData questProgress)
         {
+            if (
+                !_allQuests.ContainsKey(questProgress.Id)
+                && _trackedQuests.Count < MaxTrackedQuests
+            )
+            {
+                _trackedQuests.Add(questProgress.Id);
+            }
+            _allQuests[questProgress.Id] = questProgress;
+
+            if (!_trackedQuests.Contains(questProgress.Id))
+                return;
+
             var questItem = _currentQuestsContainer.Q<VisualElement>(questProgress.Id);
 
             if (questItem == null)
@@ -117,6 +144,32 @@ namespace FTR.UI.Hud.Main
                 StartCoroutine(
                     RemoveQuestAfterDelay(completeQuestDisplayDuration, questProgress.Id)
                 );
+            }
+        }
+
+        private void OnQuestTrackToggled(QuestTrackData data)
+        {
+            if (data.IsTracked)
+            {
+                if (_trackedQuests.Count < MaxTrackedQuests)
+                {
+                    _trackedQuests.Add(data.QuestId);
+                    if (_allQuests.TryGetValue(data.QuestId, out var quest))
+                    {
+                        HandleQuestProgress(quest);
+                    }
+                }
+            }
+            else
+            {
+                _trackedQuests.Remove(data.QuestId);
+                var questItem = _currentQuestsContainer?.Q<VisualElement>(data.QuestId);
+                if (questItem != null)
+                {
+                    _currentQuestsContainer.Remove(questItem);
+                    if (_currentQuestsContainer.childCount == 0)
+                        ToggleContainerVisibility(false);
+                }
             }
         }
 

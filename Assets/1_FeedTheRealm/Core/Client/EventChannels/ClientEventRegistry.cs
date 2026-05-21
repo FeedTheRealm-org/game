@@ -57,6 +57,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public ShowQuestPromptEvent showQuestPromptEvent;
         public QuestDecisionEvent questDecisionEvent;
         public QuestCompletedEvent questCompletedEvent;
+        public QuestTrackToggleEvent questTrackToggleEvent;
 
         [Header("Tick Events")]
         public TickEvent tickEvent;
@@ -108,6 +109,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(showQuestPromptEvent);
             builder.RegisterInstance(questDecisionEvent);
             builder.RegisterInstance(questCompletedEvent);
+            builder.RegisterInstance(questTrackToggleEvent);
             builder.RegisterInstance(goldChangedEvent);
             builder.RegisterInstance(openShopEvent);
             builder.RegisterInstance(purchaseRequestEvent);

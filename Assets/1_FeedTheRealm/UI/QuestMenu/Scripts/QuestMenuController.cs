@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Enums;
+using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.Managers;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
@@ -22,6 +23,9 @@ namespace FTR.UI.Hud.QuestMenu
     {
         [Inject]
         private QuestProgressEvent progressEvent;
+
+        [Inject]
+        private QuestTrackToggleEvent questTrackToggleEvent;
 
         [Inject]
         private QuestMenuToggleEvent toggleEvent;
@@ -51,10 +55,13 @@ namespace FTR.UI.Hud.QuestMenu
         private Label _detailObjective;
         private ProgressBar _detailProgress;
         private VisualElement _detailIndicator;
+        private Button _trackButton;
 
         private readonly Dictionary<string, QuestProgressData> _questDataMap = new();
         private readonly Dictionary<string, VisualElement> _questListItems = new();
+        private readonly HashSet<string> _trackedQuests = new();
         private string _selectedQuestId;
+        private const int MaxTrackedQuests = 4;
 
         // Style class names
         private const string QuestListItemClass = "quest-list-item";
@@ -90,6 +97,12 @@ namespace FTR.UI.Hud.QuestMenu
             _detailObjective = root.Q<Label>("DetailObjective");
             _detailProgress = root.Q<ProgressBar>("DetailProgress");
             _detailIndicator = root.Q<VisualElement>("DetailIndicator");
+            _trackButton = root.Q<Button>("TrackButton");
+
+            if (_trackButton != null)
+            {
+                _trackButton.clicked += OnTrackButtonClicked;
+            }
 
             if (_overlay != null)
                 _overlay.style.display = DisplayStyle.None;
@@ -104,6 +117,9 @@ namespace FTR.UI.Hud.QuestMenu
 
             if (toggleEvent != null)
                 toggleEvent.OnRaised += OnToggleRequested;
+
+            if (questTrackToggleEvent != null)
+                questTrackToggleEvent.OnRaised += OnQuestTrackToggled;
         }
 
         private void OnDisable()
@@ -113,6 +129,9 @@ namespace FTR.UI.Hud.QuestMenu
 
             if (toggleEvent != null)
                 toggleEvent.OnRaised -= OnToggleRequested;
+
+            if (questTrackToggleEvent != null)
+                questTrackToggleEvent.OnRaised -= OnQuestTrackToggled;
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -169,8 +188,12 @@ namespace FTR.UI.Hud.QuestMenu
         {
             bool isNewQuest = !_questDataMap.ContainsKey(questProgress.Id);
 
-            // Store latest data
             _questDataMap[questProgress.Id] = questProgress;
+
+            if (isNewQuest && _trackedQuests.Count < MaxTrackedQuests)
+            {
+                _trackedQuests.Add(questProgress.Id);
+            }
 
             if (isNewQuest)
             {
@@ -200,6 +223,76 @@ namespace FTR.UI.Hud.QuestMenu
         private void OnToggleRequested()
         {
             TogglePanel();
+        }
+
+        private void OnQuestTrackToggled(QuestTrackData data)
+        {
+            if (data.IsTracked)
+            {
+                if (_trackedQuests.Count < MaxTrackedQuests)
+                    _trackedQuests.Add(data.QuestId);
+            }
+            else
+            {
+                _trackedQuests.Remove(data.QuestId);
+            }
+
+            if (
+                _selectedQuestId == data.QuestId
+                && _questDataMap.TryGetValue(_selectedQuestId, out var questProgress)
+            )
+            {
+                UpdateTrackButtonLabel();
+            }
+        }
+
+        private void OnTrackButtonClicked()
+        {
+            if (_selectedQuestId == null)
+                return;
+
+            bool isTracked = _trackedQuests.Contains(_selectedQuestId);
+            bool willBeTracked = !isTracked;
+
+            if (willBeTracked && _trackedQuests.Count >= MaxTrackedQuests)
+            {
+                // Can't track more than MaxTrackedQuests
+                return;
+            }
+
+            if (questTrackToggleEvent != null)
+            {
+                questTrackToggleEvent.Raise(
+                    new QuestTrackData { QuestId = _selectedQuestId, IsTracked = willBeTracked }
+                );
+            }
+            else
+            {
+                // Fallback if event is missing
+                OnQuestTrackToggled(
+                    new QuestTrackData { QuestId = _selectedQuestId, IsTracked = willBeTracked }
+                );
+            }
+        }
+
+        private void UpdateTrackButtonLabel()
+        {
+            if (_trackButton == null)
+                return;
+
+            bool isTracked = _selectedQuestId != null && _trackedQuests.Contains(_selectedQuestId);
+            _trackButton.text = isTracked ? "Untrack" : "Track";
+
+            if (isTracked)
+            {
+                _trackButton.RemoveFromClassList("dialog-btn--confirm");
+                _trackButton.AddToClassList("dialog-btn--cancel");
+            }
+            else
+            {
+                _trackButton.RemoveFromClassList("dialog-btn--cancel");
+                _trackButton.AddToClassList("dialog-btn--confirm");
+            }
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -289,6 +382,8 @@ namespace FTR.UI.Hud.QuestMenu
                     $"  —  {questProgress.CurrentProgressAmount}/{questProgress.TargetProgressAmount}";
             }
             _detailObjective.text = objectiveText;
+
+            UpdateTrackButtonLabel();
 
             float percentComplete = 0f;
             if (questProgress.TargetProgressAmount > 0)
