@@ -124,6 +124,10 @@ public partial class CharacterEditController
 
     private void ShowToastError(string message)
     {
+        if (!string.IsNullOrEmpty(message))
+        {
+            message = char.ToUpper(message[0]) + message.Substring(1);
+        }
         ToastNotification.Show(message, "error", Color.red);
     }
 }
