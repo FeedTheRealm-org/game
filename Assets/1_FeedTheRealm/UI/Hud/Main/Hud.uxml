@@ -33,11 +33,9 @@
         <ui:ScrollView name="CurrentQuestsContainer" class="quest-list" style="display: none;">
             <ui:VisualElement class="quest-item">
                 <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu" class="quest-title"/>
-                <ui:ProgressBar title="0%" class="quest-progress"/>
             </ui:VisualElement>
             <ui:VisualElement class="quest-item">
                 <ui:Label text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu" class="quest-title"/>
-                <ui:ProgressBar value="25" title="25%" class="quest-progress"/>
             </ui:VisualElement>
         </ui:ScrollView>
     </ui:VisualElement>

@@ -283,7 +283,7 @@ namespace FTR.UI.Hud.QuestMenu
             _detailDescription.text = quest.content;
 
             string objectiveText = GetQuestTargetDescription(quest);
-            if (questProgress.TargetProgressAmount > 0)
+            if (questProgress.TargetProgressAmount > 0 && quest.type != QuestType.NpcInteract)
             {
                 objectiveText +=
                     $"  —  {questProgress.CurrentProgressAmount}/{questProgress.TargetProgressAmount}";
@@ -349,7 +349,7 @@ namespace FTR.UI.Hud.QuestMenu
                     string npcId = string.IsNullOrEmpty(questData.targetId)
                         ? questData.targetInteractionId
                         : questData.targetId;
-                    return $"Talk with {GetNpcName(npcId)}";
+                    return $"Meet with {GetNpcName(npcId)}";
                 }
 
                 default:

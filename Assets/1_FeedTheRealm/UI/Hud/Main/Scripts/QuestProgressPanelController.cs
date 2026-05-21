@@ -33,13 +33,7 @@ namespace FTR.UI.Hud.Main
 
         private readonly string _questItemClasses = "quest-item";
         private readonly string _questItemCompletedClass = "quest-item--completed";
-        private readonly string _questItemHeaderClasses = "quest-item-header";
-        private readonly string _questIndicatorClasses = "quest-indicator";
-        private readonly string _questDividerClasses = "quest-divider";
-        private readonly string _questTitleClasses = "quest-title";
         private readonly string _questDetailClasses = "quest-detail";
-        private readonly string _questProgressClasses = "quest-progress";
-        private readonly float _questProgressHighValue = 100f;
 
         private void Start()
         {
@@ -117,33 +111,6 @@ namespace FTR.UI.Hud.Main
                 );
             }
 
-            var progressBar = questItem.Q<ProgressBar>();
-            if (progressBar == null)
-            {
-                logger?.Log(
-                    $"[QuestProgressPanel] ProgressBar not found for quest '{questProgress.Id}'.",
-                    this,
-                    Logging.LogType.Warning
-                );
-                return;
-            }
-
-            float percentComplete = 0f;
-            if (questProgress.TargetProgressAmount > 0)
-            {
-                percentComplete =
-                    (
-                        (float)questProgress.CurrentProgressAmount
-                        / questProgress.TargetProgressAmount
-                    ) * _questProgressHighValue;
-            }
-
-            percentComplete = Mathf.Clamp(percentComplete, 0f, _questProgressHighValue);
-            percentComplete = Mathf.Round(percentComplete * 100f) / 100f;
-
-            progressBar.value = percentComplete;
-            progressBar.title = $"{percentComplete:F2}%";
-
             if (questProgress.CurrentProgressAmount >= questProgress.TargetProgressAmount)
             {
                 questItem.AddToClassList(_questItemCompletedClass);
@@ -158,22 +125,14 @@ namespace FTR.UI.Hud.Main
             var questItem = new VisualElement { name = questProgress.Id };
             questItem.AddToClassList(_questItemClasses);
 
-            var header = new VisualElement();
-            header.AddToClassList(_questItemHeaderClasses);
+            var icon = new VisualElement();
+            icon.AddToClassList("quest-item-icon");
+            if (questProgress.Quest.type == QuestType.EnemySlays)
+                icon.AddToClassList("quest-icon-slay");
+            else if (questProgress.Quest.type == QuestType.NpcInteract)
+                icon.AddToClassList("quest-icon-interact");
 
-            var indicator = new VisualElement();
-            indicator.AddToClassList(_questIndicatorClasses);
-            header.Add(indicator);
-
-            var titleLabel = new Label { text = questProgress.Quest.title };
-            titleLabel.AddToClassList(_questTitleClasses);
-            header.Add(titleLabel);
-
-            questItem.Add(header);
-
-            var divider = new VisualElement();
-            divider.AddToClassList(_questDividerClasses);
-            questItem.Add(divider);
+            questItem.Add(icon);
 
             var detailLabel = new Label
             {
@@ -187,15 +146,6 @@ namespace FTR.UI.Hud.Main
             detailLabel.AddToClassList(_questDetailClasses);
             questItem.Add(detailLabel);
 
-            var progressBar = new ProgressBar
-            {
-                value = 0f,
-                title = "0.00%",
-                highValue = _questProgressHighValue,
-            };
-            progressBar.AddToClassList(_questProgressClasses);
-            questItem.Add(progressBar);
-
             _currentQuestsContainer.Add(questItem);
 
             return questItem;
@@ -208,8 +158,10 @@ namespace FTR.UI.Hud.Main
         )
         {
             var targetLabel = GetQuestTargetDescription(questData);
+            if (questData.type == QuestType.NpcInteract)
+                return targetLabel;
             return targetProgress > 0
-                ? $"{targetLabel} {currentProgress}/{targetProgress}"
+                ? $"{currentProgress}/{targetProgress} {targetLabel}"
                 : targetLabel;
         }
 
@@ -220,14 +172,14 @@ namespace FTR.UI.Hud.Main
                 case QuestType.EnemySlays:
                 {
                     var enemy = ClientItemsRegistry.GetEnemyById(questData.targetId);
-                    return $"Slay: {(enemy != null && !string.IsNullOrEmpty(enemy.name) ? enemy.name : questData.targetId)}";
+                    return $"{(enemy != null && !string.IsNullOrEmpty(enemy.name) ? enemy.name : questData.targetId)} Slain";
                 }
                 case QuestType.NpcInteract:
                 {
                     var npcId = string.IsNullOrEmpty(questData.targetId)
                         ? questData.targetInteractionId
                         : questData.targetId;
-                    return $"Talk with: {GetNpcName(npcId)}";
+                    return $"Meet with {GetNpcName(npcId)}";
                 }
                 default:
                     return questData.content ?? questData.targetId;
