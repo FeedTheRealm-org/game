@@ -4,20 +4,30 @@
     editor-extension-mode="False">
     <Style
         src="project://database/Assets/1_FeedTheRealm/UI/Hud/Quests/Themes/QuestPrompt.uss?fileID=7433441132597879392&amp;guid=c695cb15a682674cebd12a595401290a&amp;type=3#QuestPrompt" />
+
     <ui:VisualElement class="body" name="Body" style="flex-grow: 1;">
-        <ui:VisualElement class="quest-container" name="QuestContainer" style="flex-grow: 1;">
-            <ui:Label class="quest-title"
-                text="Quest: Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsu"
-                name="QuestTitle" /> <!-- MAX 70 chars -->
-            <ui:VisualElement class="hl" name="HL"></ui:VisualElement>
-            <ui:Label
-                class="quest-text"
-                text="Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lo."
-                name="QuestDescription" /> <!-- MAX 255 chars -->
-            <ui:VisualElement class="button-container" name="ButtonContainer" style="flex-grow: 1;">
-                <ui:Button class="quest-button accept-button" text="Accept" name="AcceptButton" />
-                <ui:Button class="quest-button reject-button" text="Reject" name="RejectButton" />
+        <ui:VisualElement class="quest-container" name="QuestContainer">
+
+            <ui:VisualElement class="detail-header">
+                <ui:Label class="detail-title" text="Quest" name="QuestPrefix" />
+                <ui:VisualElement class="detail-indicator" />
+                <ui:Label class="detail-title" text="Title Placeholder" name="QuestTitle" />
             </ui:VisualElement>
+
+            <ui:VisualElement class="detail-divider" name="HL" />
+
+            <ui:Label class="detail-description" text="Quest description goes here..." name="QuestDescription" />
+
+            <ui:VisualElement name="DetailObjectiveRow" class="detail-objective-row">
+                <ui:Label name="ObjectiveLabel" text="Objective:" class="objective-label"/>
+                <ui:Label name="DetailObjective" text="Objective details..." class="objective-value"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="button-container" name="ButtonContainer">
+                <ui:Button class="dialog-btn dialog-btn--reject" text="Reject" name="RejectButton" />
+                <ui:Button class="dialog-btn dialog-btn--confirm" text="Accept" name="AcceptButton" />
+            </ui:VisualElement>
+
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
