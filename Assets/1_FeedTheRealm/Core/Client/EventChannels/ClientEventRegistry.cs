@@ -66,6 +66,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Gold Events")]
         public GoldChangedEvent goldChangedEvent;
+        public GemBalanceChangedEvent gemBalanceChangedEvent;
 
         [Header("Chat Events")]
         public ChatMessageRequestEvent chatMessageRequestEvent;
@@ -111,6 +112,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(questCompletedEvent);
             builder.RegisterInstance(questTrackToggleEvent);
             builder.RegisterInstance(goldChangedEvent);
+            builder.RegisterInstance(gemBalanceChangedEvent);
             builder.RegisterInstance(openShopEvent);
             builder.RegisterInstance(purchaseRequestEvent);
             builder.RegisterInstance(interactFailedEvent);
@@ -151,6 +153,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
             ValidateField(goldChangedEvent, nameof(goldChangedEvent));
+            ValidateField(gemBalanceChangedEvent, nameof(gemBalanceChangedEvent));
             ValidateField(openShopEvent, nameof(openShopEvent));
             ValidateField(purchaseRequestEvent, nameof(purchaseRequestEvent));
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));

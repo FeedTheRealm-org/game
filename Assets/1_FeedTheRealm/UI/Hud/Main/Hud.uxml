@@ -18,14 +18,19 @@
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:VisualElement name="CharacterData" class="character-data">
-        <ui:Button name="CharacterIcon" class="character-icon"/>
         <ui:VisualElement name="DataContainer" class="character-stats">
-            <ui:Label name="Username" text="MaxoGod" class="username"/>
-            <ui:ProgressBar name="HealthBar" title="Health" value="100" class="stat-bar health"/>
-            <ui:ProgressBar name="StaminaBar" title="Stamina" value="25" class="stat-bar stamina"/>
-            <ui:VisualElement name="CurrencyContainer" class="currency">
-                <ui:Button name="GoldIcon" class="currency-icon"/>
-                <ui:Label name="GoldAmount" text="777" class="currency-amount"/>
+            <ui:Label name="Username" text="Username" class="username"/>
+            <ui:ProgressBar name="HealthBar" title="" value="100" class="stat-bar health" style="margin-top: 0; margin-bottom: -16px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);"/>
+            <ui:ProgressBar name="StaminaBar" title="" value="25" class="stat-bar stamina" style="margin-bottom: -15px;"/>
+            <ui:VisualElement name="CurrencyRow" class="currency-row">
+                <ui:VisualElement name="GoldContainer" class="currency currency--gold">
+                    <ui:VisualElement name="GoldIcon" class="currency-icon currency-icon--gold"/>
+                    <ui:Label name="GoldAmount" text="777" class="currency-amount currency-amount--gold"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="GemsContainer" class="currency currency--gems">
+                    <ui:VisualElement name="GemsIcon" class="currency-icon currency-icon--gems"/>
+                    <ui:Label name="GemsAmount" text="0" class="currency-amount currency-amount--gems"/>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

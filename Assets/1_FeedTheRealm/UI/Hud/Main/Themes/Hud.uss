@@ -69,19 +69,6 @@
     left: -4px;
 }
 
-.character-data {
-    position: absolute;
-    bottom: 5%;
-    left: 0;
-    flex-direction: row;
-    align-items: center;
-    background-color: var(--card-bg);
-    border-radius: var(--radius);
-    border-width: 1px;
-    border-color: rgba(110, 255, 251, 0.22);
-    padding: 12px;
-}
-
 .quest-list {
     position: absolute;
     bottom: 10%;
@@ -127,62 +114,152 @@
     background-size: 40px 60%;
 }
 
-.character-icon {
-    width: 100px;
-    height: 100px;
-    background-image: url("project://database/Assets/6000FantasyIcons/SkillsIcons/SkillIcons3/SkillVol3/Skill_FireElementalSummon.png?fileID=21300000&guid=1fd65c08e915e4f4aa1d46da6055d341&type=3#Skill_FireElementalSummon");
-    background-size: cover;
-    border-radius: var(--radius-sm);
+.character-data {
+    position: absolute;
+    bottom: 5%;
+    left: 0;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.22);
+    padding: 12px 16px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    border-left-width: 5px;
+    border-left-color: rgba(110, 255, 251, 0.28);
 }
 
 .character-stats {
     flex-grow: 1;
-    margin-left: 12px;
+    min-width: 260px;
 }
 
 .character-stats > * {
-    margin-top: 6px;
+    margin-top: 5px;
 }
 
 .username {
-    font-size: 18px;
+    font-size: 22px;
     -unity-font-style: bold;
-    color: var(--gold);
+    color: var(--white);
+    margin-bottom: 2px;
+    margin-top: 0;
 }
 
 .stat-bar {
-    height: 18px;
-    border-radius: var(--radius-sm);
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.stat-bar .unity-progress-bar__background {
+    height: 10px;
+    border-radius: 5px;
+    border-width: 0;
+    background-color: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    min-height: 5px;
+    max-height: 10px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(65, 150, 148, 0.34);
+    border-right-color: rgba(65, 150, 148, 0.34);
+    border-top-color: rgba(65, 150, 148, 0.34);
+    border-bottom-color: rgba(65, 150, 148, 0.34);
+}
+
+.stat-bar .unity-progress-bar__progress {
+    border-radius: 5px;
+    margin: 0;
+    padding: 0;
+}
+
+.stat-bar .unity-progress-bar__title {
+    display: none;
+    height: 0;
+    width: 0;
+}
+
+.currency-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.currency-row > * {
+    margin-right: 8px;
 }
 
 .currency {
     flex-direction: row;
     align-items: center;
-    margin-top: 6px;
     background-color: var(--dark);
-    border-width: 1px;
-    border-color: rgba(110, 255, 251, 0.35);
-    border-radius: 20px;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    border-width: 2px;
+    border-radius: 24px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     padding-left: 10px;
-    padding-right: 10px;
+    padding-right: 14px;
+}
+
+.currency--gold {
+    border-color: var(--gold);
+}
+
+.currency--gems {
+    --gems: rgb(160, 80, 220);
+    border-color: rgb(160, 80, 220);
 }
 
 .currency-icon {
-    width: 24px;
-    height: 24px;
-    background-image: url("project://database/Assets/6000FantasyIcons/MedievalIcons/ResourcesMedieval/GoldCoinTen.png?fileID=21300000&guid=0045638d99e4f7b4e9b6cae25236df34&type=3#GoldCoinTen");
+    width: 28px;
+    height: 28px;
     background-size: contain;
     background-color: rgba(0, 0, 0, 0);
     border-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+}
+
+.currency-icon--gold {
+    background-image: url("project://database/Assets/HeroEditor4D/FantasyHeroes/Icons/Equipment/Supplies/Basic/Currency/GoldenToken.png?fileID=21300000&guid=305e6960beda22b49abf3ad25d848acb&type=3#GoldenToken");
+    background-size: 160% 160%;
+    min-height: 30px;
+    max-height: 30px;
+    min-width: 30px;
+    max-width: 30px;
+}
+
+.currency-icon--gems {
+    background-image: url("project://database/Assets/HeroEditor4D/FantasyHeroes/Icons/Equipment/Supplies/Basic/Currency/PurpleGemstone.png?fileID=2800000&guid=019e5202401d6284e987d29f586966e7&type=3#PurpleGemstone");
+    background-size: 140% 140%;
+    min-height: 30px;
+    max-height: 30px;
+    min-width: 30px;
+    max-width: 30px;
 }
 
 .currency-amount {
-    margin-left: 6px;
-    font-size: 14px;
+    margin-left: 7px;
+    font-size: 15px;
     -unity-font-style: bold;
-    color: var(--teal);
+}
+
+.currency-amount--gold {
+    color: var(--gold);
+}
+
+.currency-amount--gems {
+    color: rgb(190, 130, 255);
 }
 
 .quest-list .unity-scroller {

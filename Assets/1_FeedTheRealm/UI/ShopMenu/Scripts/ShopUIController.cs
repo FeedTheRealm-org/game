@@ -12,6 +12,7 @@ using FTR.Core.Client.Managers;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI;
+using FTR.UI.Hud.Main;
 using FTR.UI.Inventory;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -49,6 +50,9 @@ namespace FTR.UI.Shop
 
         [Inject]
         private PurchaseRequestEvent purchaseRequestEvent;
+
+        [Inject]
+        private GemBalanceChangedEvent gemBalanceChangedEvent;
 
         [Inject]
         private InventoryErrorEvent inventoryErrorEvent;
@@ -646,8 +650,13 @@ namespace FTR.UI.Shop
             {
                 if (updatedBalance != null)
                 {
+                    int previousBalance =
+                        _currentGemBalance >= 0 ? _currentGemBalance : updatedBalance.gems;
                     _currentGemBalance = updatedBalance.gems;
                     UpdateGemBalanceLabel();
+
+                    int delta = updatedBalance.gems - previousBalance;
+                    gemBalanceChangedEvent?.Raise((updatedBalance.gems, delta));
                 }
 
                 soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.Purchase);
