@@ -108,10 +108,23 @@ namespace FTR.UI.Hud.Main
 
         private void HandleQuestProgress(QuestProgressData questProgress)
         {
-            if (
-                !_allQuests.ContainsKey(questProgress.Id)
-                && _trackedQuests.Count < MaxTrackedQuests
-            )
+            bool isNew = !_allQuests.ContainsKey(questProgress.Id);
+            bool wasCompleted =
+                !isNew
+                && _allQuests[questProgress.Id].TargetProgressAmount > 0
+                && _allQuests[questProgress.Id].CurrentProgressAmount
+                    >= _allQuests[questProgress.Id].TargetProgressAmount;
+            bool isCompleted =
+                questProgress.TargetProgressAmount > 0
+                && questProgress.CurrentProgressAmount >= questProgress.TargetProgressAmount;
+
+            if (isNew && isCompleted)
+            {
+                _allQuests[questProgress.Id] = questProgress;
+                return;
+            }
+
+            if ((isNew || wasCompleted) && !isCompleted && _trackedQuests.Count < MaxTrackedQuests)
             {
                 _trackedQuests.Add(questProgress.Id);
             }
@@ -120,12 +133,16 @@ namespace FTR.UI.Hud.Main
             if (!_trackedQuests.Contains(questProgress.Id))
                 return;
 
-            var questItem = _currentQuestsContainer.Q<VisualElement>(questProgress.Id);
+            var questItem = _currentQuestsContainer?.Q<VisualElement>(questProgress.Id);
 
             if (questItem == null)
             {
                 questItem = CreateQuestItem(questProgress);
                 ToggleContainerVisibility(true);
+            }
+            else
+            {
+                questItem.RemoveFromClassList(_questItemCompletedClass);
             }
 
             var detailLabel = questItem.Q<Label>("QuestProgressDetail");

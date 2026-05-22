@@ -187,30 +187,52 @@ namespace FTR.UI.Hud.QuestMenu
         private void HandleQuestProgress(QuestProgressData questProgress)
         {
             bool isNewQuest = !_questDataMap.ContainsKey(questProgress.Id);
+            bool wasCompleted =
+                !isNewQuest
+                && _questDataMap[questProgress.Id].TargetProgressAmount > 0
+                && _questDataMap[questProgress.Id].CurrentProgressAmount
+                    >= _questDataMap[questProgress.Id].TargetProgressAmount;
+            bool isCompleted =
+                questProgress.TargetProgressAmount > 0
+                && questProgress.CurrentProgressAmount >= questProgress.TargetProgressAmount;
+
+            Debug.Log(
+                $"[QuestJournal] HandleQuestProgress | id={questProgress.Id} current={questProgress.CurrentProgressAmount} target={questProgress.TargetProgressAmount} | isNew={isNewQuest} wasCompleted={wasCompleted} isCompleted={isCompleted} trackedCount={_trackedQuests.Count} isTracked={_trackedQuests.Contains(questProgress.Id)}"
+            );
 
             _questDataMap[questProgress.Id] = questProgress;
 
-            if (isNewQuest && _trackedQuests.Count < MaxTrackedQuests)
+            if (
+                (isNewQuest || (wasCompleted && !isCompleted))
+                && _trackedQuests.Count < MaxTrackedQuests
+            )
             {
                 _trackedQuests.Add(questProgress.Id);
+                Debug.Log(
+                    $"[QuestJournal] -> Added to tracked (new or resurrected). id={questProgress.Id}"
+                );
             }
 
             if (isNewQuest)
             {
                 CreateQuestListItem(questProgress);
+                Debug.Log($"[QuestJournal] -> Created list item. id={questProgress.Id}");
             }
-            else
-            {
-                UpdateQuestListItem(questProgress);
-            }
+
+            UpdateQuestListItem(questProgress);
 
             if (_selectedQuestId == questProgress.Id)
             {
                 ShowQuestDetails(questProgress);
             }
 
-            if (questProgress.CurrentProgressAmount >= questProgress.TargetProgressAmount)
+            if (isCompleted)
             {
+                _trackedQuests.Remove(questProgress.Id);
+                Debug.Log(
+                    $"[QuestJournal] -> Completed, removed from tracked. autoRemove={autoRemoveCompletedQuests}. id={questProgress.Id}"
+                );
+
                 if (autoRemoveCompletedQuests && completeQuestRemoveDelay > 0)
                 {
                     StartCoroutine(
@@ -280,7 +302,26 @@ namespace FTR.UI.Hud.QuestMenu
             if (_trackButton == null)
                 return;
 
-            bool isTracked = _selectedQuestId != null && _trackedQuests.Contains(_selectedQuestId);
+            if (
+                _selectedQuestId == null
+                || !_questDataMap.TryGetValue(_selectedQuestId, out var questData)
+            )
+            {
+                _trackButton.style.display = DisplayStyle.None;
+                return;
+            }
+
+            bool isCompleted =
+                questData.TargetProgressAmount > 0
+                && questData.CurrentProgressAmount >= questData.TargetProgressAmount;
+            if (isCompleted)
+            {
+                _trackButton.style.display = DisplayStyle.None;
+                return;
+            }
+
+            _trackButton.style.display = DisplayStyle.Flex;
+            bool isTracked = _trackedQuests.Contains(_selectedQuestId);
             _trackButton.text = isTracked ? "Untrack" : "Track";
 
             if (isTracked)
@@ -335,6 +376,10 @@ namespace FTR.UI.Hud.QuestMenu
             if (isCompleted)
             {
                 item.AddToClassList(QuestListItemCompletedClass);
+            }
+            else
+            {
+                item.RemoveFromClassList(QuestListItemCompletedClass);
             }
         }
 
