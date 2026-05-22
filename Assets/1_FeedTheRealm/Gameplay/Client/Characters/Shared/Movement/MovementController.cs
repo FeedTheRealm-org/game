@@ -114,7 +114,7 @@ public class MovementController : MonoBehaviour
         networkAdapter.DispatchAction(command);
     }
 
-    private void SendStopCommand()
+    private void SendStopCommand(MenuType _)
     {
         ActionCommandDTO command = new() { Type = ActionType.Move, Direction = Vector3.zero };
         networkAdapter.DispatchAction(command);

@@ -31,7 +31,8 @@ public class MenuManager
     };
     private int openMenuCount = 0;
 
-    public event Action OnMenuOpened;
+    public event Action<MenuType> OnMenuOpened;
+    public event Action<MenuType, bool> OnMenuStatusChanged;
 
     public MenuManager(CursorManager cursorManager)
     {
@@ -51,10 +52,12 @@ public class MenuManager
         if (prevCount == 0 && openMenuCount > 0)
         {
             cursorManager.ToggleCursorBlock(false);
-            OnMenuOpened?.Invoke();
+            OnMenuOpened?.Invoke(menuType);
         }
         else if (prevCount > 0 && openMenuCount == 0)
             cursorManager.ToggleCursorBlock(true);
+
+        OnMenuStatusChanged?.Invoke(menuType, isOpen);
     }
 
     public bool CanOpenMenu(MenuType menuType)

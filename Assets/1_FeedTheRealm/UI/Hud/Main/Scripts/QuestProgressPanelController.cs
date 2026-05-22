@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using Enums;
 using FTR.Core.Client.EventChannels.Quest;
+using FTR.Core.Client.Managers;
 using FTR.Core.Common.EventChannels;
 using FTR.Core.Common.Quests;
 using FTR.Gameplay.Client.Registry;
@@ -24,6 +26,9 @@ namespace FTR.UI.Hud.Main
         [Inject]
         private QuestTrackToggleEvent questTrackToggleEvent;
 
+        [Inject]
+        private MenuManager menuManager;
+
         [SerializeField]
         private float completeQuestDisplayDuration = 3f;
 
@@ -34,10 +39,13 @@ namespace FTR.UI.Hud.Main
         private NpcDialogRegistry npcDialogRegistry;
 
         private ScrollView _currentQuestsContainer;
+        private Label _chatBox;
 
         private readonly string _questItemClasses = "quest-item";
         private readonly string _questItemCompletedClass = "quest-item--completed";
         private readonly string _questDetailClasses = "quest-detail";
+        private readonly string _hiddenClass = "panel--hidden";
+        private readonly string _visibleClass = "panel--visible";
 
         private readonly System.Collections.Generic.Dictionary<
             string,
@@ -45,6 +53,9 @@ namespace FTR.UI.Hud.Main
         > _allQuests = new();
         private readonly System.Collections.Generic.HashSet<string> _trackedQuests = new();
         private const int MaxTrackedQuests = 4;
+
+        private Coroutine _hideContainerCoroutine;
+        private Coroutine _hideChatBoxCoroutine;
 
         private void Start()
         {
@@ -62,6 +73,10 @@ namespace FTR.UI.Hud.Main
             var root = rootDocument.rootVisualElement;
 
             _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
+            _chatBox = root.Q<Label>("ChatBox");
+            if (_chatBox != null)
+                _chatBox.style.display = DisplayStyle.Flex;
+
             if (_currentQuestsContainer == null)
             {
                 StartCoroutine(DeferredInitializeContainer());
@@ -77,6 +92,10 @@ namespace FTR.UI.Hud.Main
             yield return null;
             var root = GetComponent<UIDocument>().rootVisualElement;
             _currentQuestsContainer = root.Q<ScrollView>("CurrentQuestsContainer");
+            _chatBox = root.Q<Label>("ChatBox");
+            if (_chatBox != null)
+                _chatBox.style.display = DisplayStyle.Flex;
+
             if (_currentQuestsContainer == null)
             {
                 logger?.Log(
@@ -96,6 +115,8 @@ namespace FTR.UI.Hud.Main
                 progressEvent.OnRaised += HandleQuestProgress;
             if (questTrackToggleEvent != null)
                 questTrackToggleEvent.OnRaised += OnQuestTrackToggled;
+            if (menuManager != null)
+                menuManager.OnMenuStatusChanged += HandleMenuStatusChanged;
         }
 
         private void OnDisable()
@@ -104,6 +125,8 @@ namespace FTR.UI.Hud.Main
                 progressEvent.OnRaised -= HandleQuestProgress;
             if (questTrackToggleEvent != null)
                 questTrackToggleEvent.OnRaised -= OnQuestTrackToggled;
+            if (menuManager != null)
+                menuManager.OnMenuStatusChanged -= HandleMenuStatusChanged;
         }
 
         private void HandleQuestProgress(QuestProgressData questProgress)
@@ -277,7 +300,60 @@ namespace FTR.UI.Hud.Main
             if (_currentQuestsContainer == null)
                 return;
 
-            _currentQuestsContainer.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+            if (show)
+            {
+                _currentQuestsContainer.style.display = DisplayStyle.Flex;
+                _currentQuestsContainer.schedule.Execute(() =>
+                {
+                    _currentQuestsContainer.RemoveFromClassList(_hiddenClass);
+                    _currentQuestsContainer.AddToClassList(_visibleClass);
+                });
+            }
+            else
+            {
+                _currentQuestsContainer.RemoveFromClassList(_visibleClass);
+                _currentQuestsContainer.AddToClassList(_hiddenClass);
+
+                if (_hideContainerCoroutine != null)
+                    StopCoroutine(_hideContainerCoroutine);
+                _hideContainerCoroutine = StartCoroutine(
+                    HideAfterTransition(_currentQuestsContainer, 0.35f)
+                );
+            }
+        }
+
+        private void HandleMenuStatusChanged(MenuType type, bool isOpen)
+        {
+            if ((type == MenuType.Chat || type == MenuType.Inventory) && _chatBox != null)
+            {
+                if (isOpen)
+                {
+                    _chatBox.RemoveFromClassList(_visibleClass);
+                    _chatBox.AddToClassList(_hiddenClass);
+
+                    if (_hideChatBoxCoroutine != null)
+                        StopCoroutine(_hideChatBoxCoroutine);
+                    _hideChatBoxCoroutine = StartCoroutine(HideAfterTransition(_chatBox, 0.35f));
+                }
+                else
+                {
+                    _chatBox.style.display = DisplayStyle.Flex;
+                    _chatBox.schedule.Execute(() =>
+                    {
+                        _chatBox.RemoveFromClassList(_hiddenClass);
+                        _chatBox.AddToClassList(_visibleClass);
+                    });
+                }
+            }
+
+            if (type != MenuType.Inventory)
+                return;
+
+            var shouldShow =
+                !isOpen
+                && _currentQuestsContainer != null
+                && _currentQuestsContainer.childCount > 0;
+            ToggleContainerVisibility(shouldShow);
         }
 
         private IEnumerator RemoveQuestAfterDelay(float delay, string questId)
@@ -291,6 +367,13 @@ namespace FTR.UI.Hud.Main
 
             if (_currentQuestsContainer != null && _currentQuestsContainer.childCount == 0)
                 ToggleContainerVisibility(false);
+        }
+
+        private IEnumerator HideAfterTransition(VisualElement element, float transitionDuration)
+        {
+            yield return new WaitForSeconds(transitionDuration);
+            if (element.ClassListContains(_hiddenClass))
+                element.style.display = DisplayStyle.None;
         }
     }
 }

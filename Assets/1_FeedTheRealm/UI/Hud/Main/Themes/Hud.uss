@@ -34,6 +34,11 @@
     align-items: center;
     justify-content: center;
     flex-direction: row;
+    display: flex;
+    visibility: visible;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 1;
 }
 
 .fast-use-container > * {
@@ -49,6 +54,9 @@
     justify-content: center;
     align-items: center;
     margin: 0 2px 0 2px;
+    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button2_ready_off.png?fileID=2800000&guid=4b3d2095baccc2041b973b66b786b9d0&type=3#button2_ready_off");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .fast-equip-slot > #FastEquipIcon {
@@ -61,17 +69,10 @@
     left: -4px;
 }
 
-.sidebar {
-    width: 25%;
-    padding: 12px;
-    flex-direction: column;
-}
-
-.sidebar > * {
-    margin-bottom: 12px;
-}
-
 .character-data {
+    position: absolute;
+    bottom: 5%;
+    left: 0;
     flex-direction: row;
     align-items: center;
     background-color: var(--card-bg);
@@ -79,7 +80,51 @@
     border-width: 1px;
     border-color: rgba(110, 255, 251, 0.22);
     padding: 12px;
-    margin-bottom: 20px;
+}
+
+.quest-list {
+    position: absolute;
+    bottom: 10%;
+    right: 10px;
+    width: 25%;
+    height: 195px;
+    border-radius: var(--radius);
+    border-width: 1px;
+    border-color: var(--teal-strong);
+    padding: 12px;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    display: none;
+}
+
+.chat-box {
+    position: absolute;
+    bottom: 40px;
+    right: 20px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    background-color: var(--card-bg);
+    border-width: 1px;
+    border-radius: 15px;
+    border-color: var(--teal-strong);
+    border-left-width: 3px;
+    border-left-color: var(--teal);
+    padding: 10px;
+    margin-right: 2px;
+    margin-top: 2px;
+    color: rgb(255, 255, 255);
+    background-image: url("project://database/Packages/com.unity.dt.app-ui/PackageResources/Icons/Regular/ChatDots.png?fileID=2800000&guid=b3d13664d324443b382cf84ad6403c9d&type=3#ChatDots");
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 60px;
+    align-items: center;
+    justify-content: flex-start;
+    display: flex;
+    background-position-x: left 10px;
+    background-position-y: center;
+    background-size: 40px 60%;
 }
 
 .character-icon {
@@ -140,23 +185,6 @@
     color: var(--teal);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   QUEST PROGRESS PANEL  (HUD sidebar)
-   ═══════════════════════════════════════════════════════════════ */
-
-.quest-list {
-    height: 205px;
-    background-color: var(--sidebar-bg);
-    border-radius: var(--radius);
-    border-width: 1px;
-    border-color: var(--teal-strong);
-    border-left-width: 3px;
-    border-left-color: var(--teal-dim);
-    padding: 12px;
-}
-
-/* ── Scrollbar estilizado (estilo CustomDropdown) ── */
-
 .quest-list .unity-scroller {
     width: 6px;
 }
@@ -183,8 +211,6 @@
     background-color: var(--teal-strong);
 }
 
-/* ── Individual Quest Item ── */
-
 .quest-item {
     background-color: var(--content-bg);
     border-radius: var(--radius-sm);
@@ -206,8 +232,6 @@
     border-left-color: var(--teal);
 }
 
-/* ── Completed Quest State ── */
-
 .quest-item--completed {
     border-left-color: var(--gold);
     background-color: var(--gold-dim);
@@ -217,8 +241,6 @@
     border-color: rgba(255, 210, 80, 0.4);
     border-left-color: var(--gold);
 }
-
-/* ── Quest Item Icon ── */
 
 .quest-item-icon {
     width: 20px;
@@ -237,8 +259,6 @@
     background-image: url("project://database/Assets/1_FeedTheRealm/Icons/question.svg?fileID=7388822144124034973&guid=daccf7d8ed1721a6ca3f8197c8c8c617&type=3#question");
 }
 
-/* ── Quest Detail Text ── */
-
 .quest-detail {
     font-size: 14px;
     color: var(--teal);
@@ -247,9 +267,24 @@
     flex-grow: 1;
     display: flex;
     align-items: center;
-    line-height: 20px;
 }
 
 .quest-item--completed .quest-detail {
     color: var(--gold);
+}
+
+.panel--visible {
+    translate: 0% 0%;
+    opacity: 1;
+    transition-property: translate, opacity;
+    transition-duration: 0.3s, 0.3s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.panel--hidden {
+    translate: 110% 0%;
+    opacity: 0;
+    transition-property: translate, opacity;
+    transition-duration: 0.3s, 0.3s;
+    transition-timing-function: ease-in, ease-in;
 }
