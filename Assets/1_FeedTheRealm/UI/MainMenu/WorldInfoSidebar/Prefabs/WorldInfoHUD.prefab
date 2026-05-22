@@ -71,6 +71,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInfoController
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+  worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
 --- !u!114 &7766839523448953750
 MonoBehaviour:
   m_ObjectHideFlags: 0

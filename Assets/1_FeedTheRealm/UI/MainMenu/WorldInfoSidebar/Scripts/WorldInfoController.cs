@@ -20,6 +20,9 @@ public class WorldInfoController : MonoBehaviour
     [SerializeField]
     private API.PlayerService playerService;
 
+    [SerializeField]
+    private API.WorldService worldService;
+
     [Inject]
     private API.ModelService modelService;
 
@@ -108,6 +111,9 @@ public class WorldInfoController : MonoBehaviour
         ApplyOnlineStatus();
         ApplyDownloadStatus();
 
+        if (!string.IsNullOrWhiteSpace(world.worldId))
+            _ = RefreshActivePlayersAsync(world.worldId);
+
         if (string.IsNullOrWhiteSpace(world.created_by))
         {
             WorldCreatorLabel.text = "Unknown User";
@@ -115,6 +121,26 @@ public class WorldInfoController : MonoBehaviour
         }
 
         _ = getUserDisplayName(world.created_by);
+    }
+
+    private async Task RefreshActivePlayersAsync(string worldId)
+    {
+        if (worldService == null)
+        {
+            logger.Log(
+                "WorldService is not assigned in WorldInfoController.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        (int activePlayers, long statusCode) = await worldService.GetActivePlayers(worldId);
+        if (statusCode == 200)
+        {
+            pendingOnlineZones = activePlayers;
+            ApplyOnlineStatus();
+        }
     }
 
     private bool TryInitializeUiReferences()
