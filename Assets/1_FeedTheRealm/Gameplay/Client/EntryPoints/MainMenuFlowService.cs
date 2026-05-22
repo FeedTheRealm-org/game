@@ -3,12 +3,15 @@ using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.EntryPoints
 {
     public class MainMenuFlowService
     {
         readonly GameObject worldFeedMenuPrefab;
+        readonly GameObject worldInfoMenuPrefab;
         readonly GameObject navBarPrefab;
         readonly GameObject profileMenuPrefab;
         readonly GameObject gemStorePrefab;
@@ -19,6 +22,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly API.PlayerService playerService;
         private readonly OnProfileCreatedEvent onProfileCreatedEvent;
         private readonly OnLogoutRequestedEvent onLogoutRequestedEvent;
+        private readonly WorldInfoMenuHandle worldInfoMenuHandle;
+        private readonly IObjectResolver resolver;
         private API.AuthService authService;
         private Session.Session session;
         private GameObject authBackgroundPrefab;
@@ -27,6 +32,7 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public MainMenuFlowService(
             GameObject worldFeedMenuPrefab,
+            GameObject worldInfoMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
@@ -36,10 +42,13 @@ namespace FTR.Gameplay.Client.EntryPoints
             AuthFlowManager authFlowManager,
             API.PlayerService playerService,
             OnProfileCreatedEvent onProfileCreatedEvent,
-            OnLogoutRequestedEvent onLogoutRequestedEvent
+            OnLogoutRequestedEvent onLogoutRequestedEvent,
+            WorldInfoMenuHandle worldInfoMenuHandle,
+            IObjectResolver resolver
         )
         {
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
+            this.worldInfoMenuPrefab = worldInfoMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
@@ -50,6 +59,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.playerService = playerService;
             this.onProfileCreatedEvent = onProfileCreatedEvent;
             this.onLogoutRequestedEvent = onLogoutRequestedEvent;
+            this.worldInfoMenuHandle = worldInfoMenuHandle;
+            this.resolver = resolver;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -128,8 +139,15 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public async UniTask<bool> ShowMainMenuFlow()
         {
+            // World Info menu
+            var worldInfoMenuObj = Object.Instantiate(worldInfoMenuPrefab);
+            worldInfoMenuObj.SetActive(false);
+            resolver.InjectGameObject(worldInfoMenuObj);
+            worldInfoMenuHandle.SetInstance(worldInfoMenuObj);
+
             // Home menu
             var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
+            resolver.InjectGameObject(worldFeedMenuObj);
             var worldFeedMenu = worldFeedMenuObj.GetComponent<IMainMenuController>();
 
             // Profile menu

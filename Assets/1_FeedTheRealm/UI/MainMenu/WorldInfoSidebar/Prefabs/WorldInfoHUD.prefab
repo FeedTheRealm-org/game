@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3186345005200813315}
   - component: {fileID: 1296806834132595612}
   - component: {fileID: 1139361473935034998}
+  - component: {fileID: 7766839523448953750}
   m_Layer: 0
   m_Name: WorldInfoHUD
   m_TagString: Untagged
@@ -70,3 +71,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInfoController
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+--- !u!114 &7766839523448953750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3695908179079165444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c7b8f34a95ccab45a4e30739aaeb109, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FeedTheRealm_Shared::FTRShared.UI.ZoneStatusBadge.ZoneStatusBadgeController
+  Template: {fileID: 9197481963319205126, guid: c140603267e3fae47a3c8015b3160bf7, type: 3}

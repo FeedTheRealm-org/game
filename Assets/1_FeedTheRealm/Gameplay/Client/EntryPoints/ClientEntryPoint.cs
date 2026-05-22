@@ -4,6 +4,7 @@ using FTR.Core.Client.Settings;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.EntryPoints
@@ -17,6 +18,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         public readonly Session.Session session;
         public readonly API.AuthService authService;
         private readonly GameObject worldFeedMenuPrefab;
+        private readonly GameObject worldInfoMenuPrefab;
         private readonly GameObject navBarPrefab;
         private readonly GameObject profileMenuPrefab;
         private readonly GameObject gemStorePrefab;
@@ -27,12 +29,15 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly SettingsManager settingsManager;
         private readonly GameObject navBarSettingsPrefab;
         private readonly GameObject authBackgroundPrefab;
+        private readonly WorldInfoMenuHandle worldInfoMenuHandle;
+        private readonly IObjectResolver resolver;
 
         public ClientEntryPoint(
             SceneReference mainScene,
             Session.Session session,
             API.AuthService authService,
             GameObject worldFeedMenuPrefab,
+            GameObject worldInfoMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
@@ -45,13 +50,16 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject authBackgroundPrefab,
             API.PlayerService playerService,
             OnProfileCreatedEvent onProfileCreatedEvent,
-            OnLogoutRequestedEvent onLogoutRequestedEvent
+            OnLogoutRequestedEvent onLogoutRequestedEvent,
+            WorldInfoMenuHandle worldInfoMenuHandle,
+            IObjectResolver resolver
         )
         {
             this.mainScene = mainScene;
             this.session = session;
             this.authService = authService;
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
+            this.worldInfoMenuPrefab = worldInfoMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
@@ -61,9 +69,12 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.settingsManager = settingsManager;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authBackgroundPrefab = authBackgroundPrefab;
+            this.worldInfoMenuHandle = worldInfoMenuHandle;
+            this.resolver = resolver;
 
             flowService = new MainMenuFlowService(
                 worldFeedMenuPrefab,
+                worldInfoMenuPrefab,
                 navBarPrefab,
                 profileMenuPrefab,
                 gemStorePrefab,
@@ -73,7 +84,9 @@ namespace FTR.Gameplay.Client.EntryPoints
                 authFlowManager,
                 playerService,
                 onProfileCreatedEvent,
-                onLogoutRequestedEvent
+                onLogoutRequestedEvent,
+                worldInfoMenuHandle,
+                resolver
             );
         }
 

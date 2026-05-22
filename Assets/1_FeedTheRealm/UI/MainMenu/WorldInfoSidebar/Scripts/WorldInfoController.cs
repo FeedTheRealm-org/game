@@ -1,11 +1,17 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using API;
 using FTRShared.Runtime.Models;
+using FTRShared.UI.ZoneStatusBadge;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 [RequireComponent(typeof(UIDocument))]
+[RequireComponent(typeof(ZoneStatusBadgeController))]
 public class WorldInfoController : MonoBehaviour
 {
     [SerializeField]
@@ -14,6 +20,11 @@ public class WorldInfoController : MonoBehaviour
     [SerializeField]
     private API.PlayerService playerService;
 
+    [Inject]
+    private API.ModelService modelService;
+
+    private ZoneStatusBadgeController zoneStatusBadge;
+
     private VisualElement ui;
     private VisualElement SideBar;
     private Button CloseButton;
@@ -21,19 +32,47 @@ public class WorldInfoController : MonoBehaviour
     private Label WorldDescriptionLabel;
     private Label WorldCreatedAtLabel;
     private Label WorldCreatorLabel;
+    private VisualElement OnlineStatusPill;
+    private Label OnlinePlayersLabel;
+    private Button JoinButton;
+    private Button DownloadButton;
+    private Label DownloadingLabel;
+    private VisualElement ProgressBarContainer;
+    private VisualElement ProgressBarFill;
+    private string downloadButtonText;
     private Coroutine sidebarAnimationCoroutine;
+    private Coroutine uiInitCoroutine;
     private float sidebarWidthPx = 0f;
-    private WorldData pendingWorld;
+    private ActiveWorldData currentWorld;
+    private ZoneStatusBadgeController.State pendingStatus = ZoneStatusBadgeController.State.Offline;
+    private int? pendingOnlineZones;
+    private int? pendingTotalZones;
+    private Func<ActiveWorldData, Task> joinHandler;
+    private bool isDownloading;
 
-    public void SetCurrentWorld(WorldData world)
+    public void SetCurrentWorld(
+        ActiveWorldData activeWorld,
+        ZoneStatusBadgeController.State? status = null,
+        int? onlineZones = null,
+        int? totalZones = null,
+        Func<ActiveWorldData, Task> joinHandler = null
+    )
     {
-        if (world == null)
+        if (activeWorld?.worldData == null)
         {
             logger.Log("SetCurrentWorld called with null world.", this, Logging.LogType.Warning);
             return;
         }
 
-        pendingWorld = world;
+        currentWorld = activeWorld;
+        if (status.HasValue)
+            pendingStatus = status.Value;
+        if (onlineZones.HasValue)
+            pendingOnlineZones = onlineZones.Value;
+        if (totalZones.HasValue)
+            pendingTotalZones = totalZones.Value;
+        if (joinHandler != null)
+            this.joinHandler = joinHandler;
 
         if (!TryInitializeUiReferences())
         {
@@ -42,11 +81,11 @@ public class WorldInfoController : MonoBehaviour
                 this,
                 Logging.LogType.Warning
             );
+            EnsureUiInitialized();
             return;
         }
 
-        ApplyWorldInfo(world);
-        pendingWorld = null;
+        ApplyWorldInfo(activeWorld.worldData);
     }
 
     private void ApplyWorldInfo(WorldData world)
@@ -63,12 +102,15 @@ public class WorldInfoController : MonoBehaviour
 
         string createdAtText = world.created_at == default ? "" : world.created_at.ToString("o");
         WorldCreatedAtLabel.text = string.IsNullOrWhiteSpace(createdAtText)
-            ? "Created unknown date"
-            : $"Created {makeHumanReadableCreatedAt(createdAtText)}";
+            ? "unknown date"
+            : makeHumanReadableCreatedAt(createdAtText);
+
+        ApplyOnlineStatus();
+        ApplyDownloadStatus();
 
         if (string.IsNullOrWhiteSpace(world.created_by))
         {
-            WorldCreatorLabel.text = "Created By Unknown User";
+            WorldCreatorLabel.text = "Unknown User";
             return;
         }
 
@@ -77,17 +119,16 @@ public class WorldInfoController : MonoBehaviour
 
     private bool TryInitializeUiReferences()
     {
-        if (ui == null)
+        var document = GetComponent<UIDocument>();
+        if (document == null || document.rootVisualElement == null)
         {
-            var document = GetComponent<UIDocument>();
-            if (document == null || document.rootVisualElement == null)
-            {
-                logger.Log("UIDocument root is not available.", this, Logging.LogType.Warning);
-                return false;
-            }
-
-            ui = document.rootVisualElement;
+            logger.Log("UIDocument root is not available.", this, Logging.LogType.Warning);
+            return false;
         }
+
+        ui = document.rootVisualElement;
+        if (ui.childCount == 0)
+            return false;
 
         SideBar = ui.Q<VisualElement>("SideBar");
         if (SideBar == null)
@@ -113,21 +154,69 @@ public class WorldInfoController : MonoBehaviour
         WorldDescriptionLabel = ui.Q<Label>("Description");
         WorldCreatedAtLabel = ui.Q<Label>("CreatedAt");
         WorldCreatorLabel = ui.Q<Label>("CreatedBy");
+        OnlineStatusPill = ui.Q<VisualElement>("OnlineStatusPill");
+        OnlinePlayersLabel = ui.Q<Label>("OnlinePlayers");
+        JoinButton = ui.Q<Button>("JoinButton");
+        DownloadButton = ui.Q<Button>("DownloadButton");
+        DownloadingLabel = ui.Q<Label>("DownloadingLabel");
+        ProgressBarContainer = ui.Q<VisualElement>("ProgressBarContainer");
+        ProgressBarFill = ui.Q<VisualElement>("ProgressBarFill");
 
-        if (
-            WorldNameLabel == null
-            || WorldDescriptionLabel == null
-            || WorldCreatedAtLabel == null
-            || WorldCreatorLabel == null
-        )
+        if (WorldNameLabel == null)
         {
-            logger.Log(
-                "One or more world info labels are missing in the UI.",
-                this,
-                Logging.LogType.Warning
-            );
+            logger.Log("WorldName label not found in UI.", this, Logging.LogType.Warning);
             return false;
         }
+
+        if (WorldDescriptionLabel == null)
+        {
+            logger.Log("WorldDescription label not found in UI.", this, Logging.LogType.Warning);
+            return false;
+        }
+
+        if (WorldCreatedAtLabel == null)
+        {
+            logger.Log("WorldCreatedAt label not found in UI.", this, Logging.LogType.Warning);
+            return false;
+        }
+
+        if (WorldCreatorLabel == null)
+        {
+            logger.Log("WorldCreator label not found in UI.", this, Logging.LogType.Warning);
+            return false;
+        }
+
+        if (OnlineStatusPill == null)
+            logger.Log("OnlineStatusPill not found in UI.", this, Logging.LogType.Warning);
+        if (OnlinePlayersLabel == null)
+            logger.Log("OnlinePlayers label not found in UI.", this, Logging.LogType.Warning);
+        if (JoinButton == null)
+            logger.Log("JoinButton not found in UI.", this, Logging.LogType.Warning);
+        if (DownloadButton == null)
+            logger.Log("DownloadButton not found in UI.", this, Logging.LogType.Warning);
+        if (DownloadingLabel == null)
+            logger.Log("DownloadingLabel not found in UI.", this, Logging.LogType.Warning);
+        if (ProgressBarContainer == null)
+            logger.Log("ProgressBarContainer not found in UI.", this, Logging.LogType.Warning);
+        if (ProgressBarFill == null)
+            logger.Log("ProgressBarFill not found in UI.", this, Logging.LogType.Warning);
+
+        if (JoinButton != null)
+        {
+            JoinButton.clicked -= OnJoinButtonClicked;
+            JoinButton.clicked += OnJoinButtonClicked;
+        }
+
+        if (DownloadButton != null)
+        {
+            if (string.IsNullOrEmpty(downloadButtonText))
+                downloadButtonText = DownloadButton.text;
+            DownloadButton.clicked -= OnDownloadButtonClicked;
+            DownloadButton.clicked += OnDownloadButtonClicked;
+        }
+
+        if (zoneStatusBadge == null)
+            zoneStatusBadge = GetComponent<ZoneStatusBadgeController>();
 
         return true;
     }
@@ -144,7 +233,7 @@ public class WorldInfoController : MonoBehaviour
                 this,
                 Logging.LogType.Warning
             );
-            WorldCreatorLabel.text = "Created By Unknown User";
+            WorldCreatorLabel.text = "Unknown User";
             return;
         }
 
@@ -157,7 +246,7 @@ public class WorldInfoController : MonoBehaviour
                 this,
                 Logging.LogType.Warning
             );
-            WorldCreatorLabel.text = "Created By Unknown User";
+            WorldCreatorLabel.text = "Unknown User";
             return;
         }
 
@@ -169,11 +258,156 @@ public class WorldInfoController : MonoBehaviour
                 this,
                 Logging.LogType.Warning
             );
-            WorldCreatorLabel.text = "Created By Unknown User";
+            WorldCreatorLabel.text = "Unknown User";
             return;
         }
 
-        WorldCreatorLabel.text = $"Created By {displayName}";
+        WorldCreatorLabel.text = displayName;
+    }
+
+    private void ApplyOnlineStatus()
+    {
+        if (OnlineStatusPill == null || OnlinePlayersLabel == null)
+            return;
+
+        if (zoneStatusBadge != null)
+        {
+            OnlineStatusPill.Clear();
+            OnlineStatusPill.Add(zoneStatusBadge.Create(pendingStatus));
+        }
+
+        int online = pendingOnlineZones ?? 0;
+        OnlinePlayersLabel.text = online.ToString();
+    }
+
+    private void ApplyDownloadStatus()
+    {
+        if (DownloadingLabel != null)
+        {
+            DownloadingLabel.text = "";
+            DownloadingLabel.style.display = DisplayStyle.None;
+        }
+
+        if (ProgressBarContainer != null)
+            ProgressBarContainer.style.display = DisplayStyle.None;
+
+        if (ProgressBarFill != null)
+            ProgressBarFill.style.width = new StyleLength(new Length(0, LengthUnit.Percent));
+
+        if (DownloadButton != null)
+        {
+            DownloadButton.text = string.IsNullOrEmpty(downloadButtonText)
+                ? DownloadButton.text
+                : downloadButtonText;
+            DownloadButton.SetEnabled(true);
+        }
+    }
+
+    private void OnJoinButtonClicked()
+    {
+        if (currentWorld?.worldData == null)
+            return;
+
+        _ = joinHandler?.Invoke(currentWorld);
+    }
+
+    private async void OnDownloadButtonClicked()
+    {
+        if (isDownloading)
+            return;
+
+        if (currentWorld?.worldData == null)
+            return;
+
+        if (modelService == null)
+        {
+            logger.Log(
+                "ModelService is not assigned in WorldInfoController.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        string worldId = currentWorld.worldData.worldId;
+        if (string.IsNullOrWhiteSpace(worldId))
+            return;
+
+        isDownloading = true;
+        try
+        {
+            if (DownloadButton != null)
+            {
+                DownloadButton.text = "...";
+                DownloadButton.SetEnabled(false);
+            }
+
+            if (DownloadingLabel != null)
+            {
+                DownloadingLabel.text = "downloading content...";
+                DownloadingLabel.style.display = DisplayStyle.Flex;
+            }
+
+            if (ProgressBarContainer != null)
+                ProgressBarContainer.style.display = DisplayStyle.Flex;
+
+            if (ProgressBarFill != null)
+                ProgressBarFill.style.width = new StyleLength(new Length(0, LengthUnit.Percent));
+
+            Dictionary<string, ModelInfo> models = await modelService.ListWorldModels(worldId);
+            int total = models?.Count ?? 0;
+            if (total == 0)
+            {
+                if (ProgressBarFill != null)
+                    ProgressBarFill.style.width = new StyleLength(
+                        new Length(100, LengthUnit.Percent)
+                    );
+                return;
+            }
+
+            int completed = 0;
+            foreach (var model in models.Values)
+            {
+                string modelName = string.IsNullOrWhiteSpace(model.url)
+                    ? model.model_id
+                    : Path.GetFileName(model.url);
+
+                await modelService.DownloadModel(model);
+                completed++;
+                if (DownloadingLabel != null)
+                    DownloadingLabel.text =
+                        $"downloading content... {completed}/{total} {modelName}";
+                if (ProgressBarFill != null)
+                {
+                    float percent = Mathf.Clamp01((float)completed / total) * 100f;
+                    ProgressBarFill.style.width = new StyleLength(
+                        new Length(percent, LengthUnit.Percent)
+                    );
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Log($"Model download failed: {ex.Message}", this, Logging.LogType.Warning);
+        }
+        finally
+        {
+            if (DownloadingLabel != null)
+                DownloadingLabel.style.display = DisplayStyle.None;
+
+            if (ProgressBarContainer != null)
+                ProgressBarContainer.style.display = DisplayStyle.None;
+
+            if (DownloadButton != null)
+            {
+                DownloadButton.text = string.IsNullOrEmpty(downloadButtonText)
+                    ? DownloadButton.text
+                    : downloadButtonText;
+                DownloadButton.SetEnabled(true);
+            }
+
+            isDownloading = false;
+        }
     }
 
     private string makeHumanReadableCreatedAt(string createdAt)
@@ -207,16 +441,7 @@ public class WorldInfoController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!TryInitializeUiReferences())
-        {
-            return;
-        }
-
-        if (pendingWorld != null)
-        {
-            ApplyWorldInfo(pendingWorld);
-            pendingWorld = null;
-        }
+        EnsureUiInitialized();
     }
 
     private void OnDisable()
@@ -225,6 +450,12 @@ public class WorldInfoController : MonoBehaviour
         {
             CloseButton.clicked -= OnCloseButtonClicked;
         }
+
+        if (JoinButton != null)
+            JoinButton.clicked -= OnJoinButtonClicked;
+
+        if (DownloadButton != null)
+            DownloadButton.clicked -= OnDownloadButtonClicked;
 
         if (SideBar != null)
         {
@@ -236,6 +467,33 @@ public class WorldInfoController : MonoBehaviour
             StopCoroutine(sidebarAnimationCoroutine);
             sidebarAnimationCoroutine = null;
         }
+
+        if (uiInitCoroutine != null)
+        {
+            StopCoroutine(uiInitCoroutine);
+            uiInitCoroutine = null;
+        }
+    }
+
+    private void EnsureUiInitialized()
+    {
+        if (uiInitCoroutine != null)
+            return;
+
+        uiInitCoroutine = StartCoroutine(InitializeUiWhenReady());
+    }
+
+    private IEnumerator InitializeUiWhenReady()
+    {
+        while (isActiveAndEnabled && !TryInitializeUiReferences())
+            yield return null;
+
+        if (currentWorld != null && TryInitializeUiReferences())
+        {
+            ApplyWorldInfo(currentWorld.worldData);
+        }
+
+        uiInitCoroutine = null;
     }
 
     private void OnCloseButtonClicked()
