@@ -85,9 +85,6 @@ public class GameLoop : IGameTickable, IStartable
 
         if (_swPlayerCount.Elapsed.TotalSeconds > serverConfig.SendPlayerCountIntervalSeconds)
         {
-            logger.Log(
-                $"[Gameloop] {_swPlayerCount.Elapsed.TotalSeconds} > {serverConfig.SendPlayerCountIntervalSeconds}"
-            );
             _swPlayerCount.Restart();
             playerStatsSender.Send();
         }
