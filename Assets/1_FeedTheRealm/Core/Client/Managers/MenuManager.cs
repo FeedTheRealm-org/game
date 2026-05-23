@@ -13,6 +13,7 @@ public enum MenuType
     Chat,
     Portal,
     Quests,
+    Confirmation,
 }
 
 public class MenuManager
@@ -28,6 +29,7 @@ public class MenuManager
         { MenuType.Chat, false },
         { MenuType.Portal, false },
         { MenuType.Quests, false },
+        { MenuType.Confirmation, false },
     };
     private int openMenuCount = 0;
 
@@ -41,7 +43,11 @@ public class MenuManager
 
     public void ToggleMenu(MenuType menuType, bool isOpen)
     {
-        if (menuStatus[menuType] == isOpen || (isOpen && !CanOpenMenu(menuType)))
+        if (
+            menuStatus[menuType] == isOpen
+            || (isOpen && !CanOpenMenu(menuType))
+            || (!isOpen && !CanCloseMenu(menuType))
+        )
             return;
 
         menuStatus[menuType] = isOpen;
@@ -78,9 +84,22 @@ public class MenuManager
                 return openMenuCount == 0;
             case MenuType.Quests:
                 return openMenuCount == 0;
+            case MenuType.Confirmation:
+                return true; // TODO: add ESC closing and MenuManager injection
             default:
                 return false;
         }
+    }
+
+    public bool CanCloseMenu(MenuType menuType)
+    {
+        if (!menuStatus[menuType])
+            return false;
+
+        if (menuStatus[MenuType.Confirmation])
+            return menuType == MenuType.Confirmation; // Cant close menus if confirmation popup is open
+
+        return true;
     }
 
     public bool AreAnyMenusOpen()

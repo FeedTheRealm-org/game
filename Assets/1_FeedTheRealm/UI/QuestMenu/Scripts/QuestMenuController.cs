@@ -188,10 +188,10 @@ namespace FTR.UI.Hud.QuestMenu
             if (_overlay.style.display == DisplayStyle.None)
                 return;
 
-            menuManager.ToggleMenu(MenuType.Quests, false);
-
             _overlay.style.display = DisplayStyle.None;
             _isVisible = false;
+
+            menuManager.ToggleMenu(MenuType.Quests, false);
         }
 
         /* ═══════════════════════════════════════════════════════════
