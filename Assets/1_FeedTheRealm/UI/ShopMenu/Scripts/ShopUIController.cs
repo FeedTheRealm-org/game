@@ -454,11 +454,8 @@ namespace FTR.UI.Shop
                     amountField.SetValueWithoutNotify(1);
             });
 
-            var buyButton = new VisualElement();
+            var buyButton = new Button { text = "Buy" };
             buyButton.AddToClassList("shop-buy-button");
-            var buyLabel = new Label("Buy");
-            buyLabel.AddToClassList("shop-buy-button-label");
-            buyButton.Add(buyLabel);
 
             string capturedId = product.productId;
             string capturedShopId = _currentShopId;
@@ -523,11 +520,8 @@ namespace FTR.UI.Shop
             var priceLabel = new Label($"{product.price} 💎");
             priceLabel.AddToClassList("shop-item-price");
 
-            var buyButton = new VisualElement();
+            var buyButton = new Button { text = "Buy" };
             buyButton.AddToClassList("shop-buy-button");
-            var buyLabel = new Label("Buy");
-            buyLabel.AddToClassList("shop-buy-button-label");
-            buyButton.Add(buyLabel);
 
             string purchaseId = ResolveCosmeticPurchaseProductId(product);
             string tooltipId = product.productId;

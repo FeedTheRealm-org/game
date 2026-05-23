@@ -13,22 +13,29 @@
 }
 
 .shop-close-button {
-    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button.png?fileID=2800000&guid=485cd2ab0486a8e4aaa55e94ec27c6b6&type=3#button");
-    background-size: 100% 100%;
     min-width: 36px;
     min-height: 36px;
     max-width: 36px;
     max-height: 36px;
     justify-content: center;
     align-items: center;
-    border-width: 0;
-    border-radius: 6px;
-    transition-property: background-color;
+    border-width: 1px;
+    border-color: rgba(255, 210, 80, 0.55);
+    border-radius: 8px;
+    height: 36px;
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    padding: 0 8px;
+    background-color: rgba(255, 210, 80, 0.15);
+    transition-property: background-color, color;
     transition-duration: 0.15s;
+    color: rgb(255, 210, 80);
 }
 
 .shop-close-button:hover {
-    background-color: rgba(255, 80, 80, 0.35);
+    background-color: rgba(255, 210, 80, 0.28);
+    color: rgb(255, 255, 255);
 }
 
 .shop-close-button-label {
@@ -123,45 +130,102 @@
 }
 
 .shop-item-amount {
-    width: 48px;
+    width: 54px;
     height: 40px;
     margin-right: 8px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     font-size: 14px;
-    color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
     -unity-text-align: middle-center;
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 4px;
-    border-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(0, 0, 0, 0.35);
+    border-radius: 6px;
+    border-color: rgba(110, 255, 251, 0.2);
     border-width: 1px;
 }
 
+.shop-item-amount #unity-text-input {
+    background-color: transparent;
+    color: rgb(255, 255, 255);
+    border-width: 0;
+    -unity-text-align: middle-center;
+}
+
+.shop-item-amount .unity-text-field__input,
+.shop-item-amount .unity-base-field__input {
+    background-color: transparent;
+    border-width: 0;
+}
+
 .shop-buy-button {
-    background-image: url("project://database/Assets/GUI_Parts/Gui_parts/button.png?fileID=2800000&guid=485cd2ab0486a8e4aaa55e94ec27c6b6&type=3#button");
-    background-size: 100% 100%;
-    min-width: 80px;
-    min-height: 40px;
-    max-width: 80px;
+    min-width: 96px;
+    min-height: 36px;
     max-height: 40px;
     justify-content: center;
     align-items: center;
-    border-width: 0;
-    transition-property: scale;
-    transition-duration: 0.1s;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    padding-top: 0;
+    padding-right: 18px;
+    padding-bottom: 0;
+    padding-left: 18px;
+    margin-left: 10px;
+    transition-property: scale, background-color, color;
+    transition-duration: 0.12s;
+    background-color: rgba(110, 255, 251, 0.1);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.38);
+    color: rgb(110, 255, 251);
+    scale: 1 1;
 }
 
 .shop-buy-button:hover {
     scale: 1.05 1.05;
+    background-color: rgba(110, 255, 251, 0.22);
+    color: rgb(255, 255, 255);
 }
 
 .shop-buy-button:active {
     scale: 0.95 0.95;
 }
 
-.shop-buy-button-label {
-    color: rgb(255, 255, 255);
+.shop-buy-button .unity-button__text,
+.shop-buy-button .unity-button__text-element {
+    color: rgb(110, 255, 251);
     -unity-font-style: bold;
     font-size: 14px;
-    -unity-text-align: upper-center;
+    -unity-text-align: middle-center;
+}
+
+.shop-buy-button .unity-button__text,
+.shop-buy-button .unity-button__text-element {
+    transition-property: color;
+    transition-duration: 0.12s;
+}
+
+.shop-buy-button .unity-button__text,
+.shop-buy-button .unity-button__text-element,
+.shop-close-button .unity-button__text,
+.shop-close-button .unity-button__text-element {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.shop-close-button .unity-button__text,
+.shop-close-button .unity-button__text-element {
+    color: rgb(255, 210, 80);
+    -unity-font-style: bold;
+    font-size: 16px;
+    -unity-text-align: middle-center;
+}
+
+.shop-close-button:hover .unity-button__text,
+.shop-close-button:hover .unity-button__text-element {
+    color: rgb(255, 255, 255);
 }
 
 .shop-not-enough-gold-message {
@@ -193,4 +257,17 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+#ShopHeader,
+#TabBar,
+#MessageArea {
+    flex-shrink: 0;
+}
+
+#TabGoldContent,
+#TabCosmeticContent,
+#GoldScrollView,
+#CosmeticScrollView {
+    min-height: 0;
 }
