@@ -23,10 +23,10 @@
     border-color: rgba(255, 210, 80, 0.55);
     border-radius: 8px;
     height: 36px;
-    font-size: 16px;
+    font-size: 18px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    padding: 0 8px;
+    padding: 0;
     background-color: rgba(255, 210, 80, 0.15);
     transition-property: background-color, color;
     transition-duration: 0.15s;
@@ -41,7 +41,7 @@
 .shop-close-button-label {
     color: rgb(255, 255, 255);
     -unity-font-style: bold;
-    font-size: 16px;
+    font-size: 18px;
     -unity-text-align: upper-center;
 }
 
@@ -78,8 +78,10 @@
     align-items: center;
     justify-content: space-between;
     min-height: 70px;
+    min-width: 0;
     padding-left: 8px;
     padding-right: 8px;
+    margin-bottom: 8px;
     border-bottom-width: 1px;
     border-color: rgba(255, 255, 255, 0.15);
     background-color: rgba(255, 255, 255, 0.04);
@@ -112,8 +114,10 @@
 .shop-item-name {
     color: rgb(255, 255, 255);
     -unity-font-style: bold;
-    font-size: 16px;
+    font-size: 18px;
     flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
     margin-left: 12px;
     white-space: nowrap;
     overflow: hidden;
@@ -123,9 +127,9 @@
 .shop-item-price {
     color: rgb(255, 210, 80);
     -unity-font-style: bold;
-    font-size: 17px;
+    font-size: 19px;
     margin-right: 12px;
-    min-width: 70px;
+    min-width: 84px;
     -unity-text-align: middle-right;
 }
 
@@ -197,7 +201,7 @@
 .shop-buy-button .unity-button__text-element {
     color: rgb(110, 255, 251);
     -unity-font-style: bold;
-    font-size: 14px;
+    font-size: 16px;
     -unity-text-align: middle-center;
 }
 
@@ -219,7 +223,7 @@
 .shop-close-button .unity-button__text-element {
     color: rgb(255, 210, 80);
     -unity-font-style: bold;
-    font-size: 16px;
+    font-size: 18px;
     -unity-text-align: middle-center;
 }
 
@@ -231,7 +235,7 @@
 .shop-not-enough-gold-message {
     color: rgb(255, 80, 80);
     -unity-font-style: bold;
-    font-size: 16px;
+    font-size: 18px;
     -unity-text-align: upper-center;
     margin-top: 10px;
     padding: 6px 12px;
@@ -243,15 +247,20 @@
 
 .shop-item-names-column {
     flex-grow: 1;
+    flex-basis: 0;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: stretch;
     margin-left: 12px;
-    overflow: hidden;
+    min-width: 0;
+    overflow: visible;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 .shop-item-category {
     color: rgba(200, 180, 255, 0.7);
-    font-size: 11px;
+    font-size: 13px;
     -unity-font-style: italic;
     margin-top: 2px;
     white-space: nowrap;
