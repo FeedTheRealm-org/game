@@ -66,6 +66,8 @@ public class SettingsMenuController : MonoBehaviour
     private List<Resolution> _availableResolutions;
     private const float baseHeight = 800f;
 
+    private bool _initialized = false;
+
     private enum SettingsSection
     {
         Display,
@@ -74,25 +76,21 @@ public class SettingsMenuController : MonoBehaviour
 
     private SettingsSection _activeSection = SettingsSection.Display;
 
-    private void Start()
-    {
-        backEvent.OnRaised += ToggleSettings;
-    }
-
-    private void OnDestroy()
-    {
-        backEvent.OnRaised -= ToggleSettings;
-    }
-
     private void Awake()
+    {
+        if (GetComponent<UIDocument>() == null)
+            throw new MissingComponentException("UIDocument component missing.");
+    }
+
+    private void Start()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
         if (root == null)
-            throw new MissingComponentException("Root VisualElement not found in UI Document.");
-    }
+        {
+            logger.Log("Root VisualElement not found.", this, Logging.LogType.Error);
+            return;
+        }
 
-    private void OnEnable()
-    {
         /* General settings */
         _homeButton = root.Q<Button>("HomeButton");
         _exitButton = root.Q<Button>("ExitButton");
@@ -141,19 +139,22 @@ public class SettingsMenuController : MonoBehaviour
         _muteToggle = root.Q<Toggle>("MuteToggle");
 
         PopulateUIFromSettings();
-
-        logger.Log("Settings menu initialized.", this);
-
         InitializeDisplayChoices();
         AdjustUIToScreenSize();
         RegisterCallbacks(register: true);
         ShowSection(SettingsSection.Display);
+        backEvent.OnRaised += ToggleSettings;
 
         root.style.display = DisplayStyle.None;
+
+        _initialized = true;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
+        if (!_initialized)
+            return;
+        backEvent.OnRaised -= ToggleSettings;
         RegisterCallbacks(register: false);
     }
 

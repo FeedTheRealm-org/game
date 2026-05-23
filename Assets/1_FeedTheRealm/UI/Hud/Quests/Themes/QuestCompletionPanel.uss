@@ -1,16 +1,16 @@
 :root {
-    --teal:          rgb(110, 255, 251);
-    --teal-dim:      rgba(110, 255, 251, 0.18);
-    --teal-glow:     rgba(110, 255, 251, 0.08);
-    --gold:          rgb(255, 210, 80);
-    --gold-dim:      rgba(255, 210, 80, 0.15);
-    --white:         rgb(255, 255, 255);
-    --white-soft:    rgba(255, 255, 255, 0.75);
-    --dark:          rgba(0, 0, 0, 0.72);
-    --darker:        rgba(0, 0, 0, 0.88);
-    --card-bg:       rgba(0, 0, 0, 0.62);
-    --radius:        12px;
-    --radius-sm:     8px;
+    --teal: rgb(110, 255, 251);
+    --teal-dim: rgba(110, 255, 251, 0.18);
+    --teal-glow: rgba(110, 255, 251, 0.08);
+    --gold: rgb(255, 210, 80);
+    --gold-dim: rgba(255, 210, 80, 0.15);
+    --white: rgb(255, 255, 255);
+    --white-soft: rgba(255, 255, 255, 0.75);
+    --dark: rgba(0, 0, 0, 0.72);
+    --darker: rgba(0, 0, 0, 0.88);
+    --card-bg: rgba(0, 0, 0, 0.62);
+    --radius: 12px;
+    --radius-sm: 8px;
 }
 
 .body {
@@ -26,12 +26,31 @@
     align-items: center;
     flex-wrap: wrap;
     max-height: 400px;
-    max-width: 600px;
+    max-width: 350px;
     background-color: var(--card-bg);
     border-radius: var(--radius);
     border-width: 1px;
     border-color: rgba(110, 255, 251, 0.22);
     padding: 15px;
+    flex-direction: row;
+    justify-content: flex-start;
+    border-top-left-radius: 60px;
+    border-top-right-radius: 60px;
+    border-bottom-right-radius: 60px;
+    border-bottom-left-radius: 60px;
+}
+
+.quest-text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 0;
+    flex: 1;
+}
+
+.title,
+.quest-title {
+    -unity-text-align: upper-center;
 }
 
 .quest-text {
@@ -48,7 +67,7 @@
 }
 
 .title {
-    font-size: 20px;
+    font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     color: var(--gold);
@@ -63,6 +82,7 @@
 }
 
 .image {
-    width: 100px;
-    height: 100px;
+    width: 50px;
+    height: 50px;
+    margin-left: 15px;
 }
