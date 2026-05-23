@@ -3,6 +3,7 @@ using System.Linq;
 using FeedTheRealm.UI.Common;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Settings;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -262,9 +263,9 @@ namespace FTR.UI.Homepage.Settings
                 return;
             }
 
-            var popup = Instantiate(prefabProvider.ConfirmPopup)
-                .GetComponent<ConfirmPopupController>();
-            popup.Show(
+            var confirmPopup = Instantiate(prefabProvider.ConfirmPopup);
+            var dialogController = confirmPopup.GetComponent<IConfirmPopup>();
+            dialogController.Show(
                 question: "Are you sure you want to log out?",
                 title: "Log Out",
                 onConfirm: () =>
@@ -276,9 +277,9 @@ namespace FTR.UI.Homepage.Settings
 
         private void OnExitClicked()
         {
-            var popup = Instantiate(prefabProvider.ConfirmPopup)
-                .GetComponent<ConfirmPopupController>();
-            popup.Show(
+            var confirmPopup = Instantiate(prefabProvider.ConfirmPopup);
+            var dialogController = confirmPopup.GetComponent<IConfirmPopup>();
+            dialogController.Show(
                 question: "Are you sure you want to exit the game?",
                 title: "Exit Game",
                 onConfirm: () =>

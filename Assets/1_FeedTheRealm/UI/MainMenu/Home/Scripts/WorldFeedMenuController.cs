@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using API;
 using FTR.Core.Client.EntryPoints;
+using FTR.Core.Client.Interfaces;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.Characters.Shared.Portal;
-using FTR.UI;
 using FTRShared.Runtime.Models;
 using FTRShared.UI.ZoneStatusBadge;
 using UnityEngine;
@@ -372,7 +372,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         try
         {
             var confirmPopup = Instantiate(confirmPopupPrefab);
-            var dialogController = confirmPopup.GetComponent<ConfirmPopupController>();
+            var dialogController = confirmPopup.GetComponent<IConfirmPopup>();
             dialogController.Show(
                 title: "Select World",
                 question: $"Are you sure you want to enter this world?",

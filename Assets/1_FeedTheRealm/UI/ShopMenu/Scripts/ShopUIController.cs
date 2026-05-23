@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Enums;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.EventChannels.Shop;
+using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
@@ -68,6 +70,24 @@ namespace FTR.UI.Shop
 
         [Inject]
         private ClientPrefabProvider prefabProvider;
+
+        [Inject]
+        private ConfirmPopupHandle confirmPopupHandle;
+
+        private IConfirmPopup ConfirmPopup
+        {
+            get
+            {
+                if (confirmPopupHandle?.Controller == null)
+                    logger.Log(
+                        "ConfirmPopupController not set in ConfirmPopupHandle. "
+                            + "Ensure WorldUISetupService.Setup() ran before this menu is used.",
+                        this,
+                        Logging.LogType.Error
+                    );
+                return confirmPopupHandle?.Controller;
+            }
+        }
 
         private VisualElement _shopRoot;
         private VisualElement _panel;
@@ -302,8 +322,15 @@ namespace FTR.UI.Shop
 
         private void CloseShop()
         {
-            if (!_shopRoot.style.display.Equals(DisplayStyle.Flex))
+            if (_shopRoot == null || !_shopRoot.style.display.Equals(DisplayStyle.Flex))
                 return;
+
+            if (menuManager.IsMenuOpen(MenuType.Confirmation))
+                return;
+
+            if (!menuManager.CanCloseMenu(MenuType.Shop))
+                return;
+
             if (_animationCoroutine != null)
                 StopCoroutine(_animationCoroutine);
             _animationCoroutine = StartCoroutine(AnimateClose());
@@ -461,9 +488,7 @@ namespace FTR.UI.Shop
             string capturedShopId = _currentShopId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
-                    .GetComponent<ConfirmPopupController>();
-                confirmPopup.Show(
+                ConfirmPopup?.Show(
                     title: "Confirm Purchase",
                     question: $"Are you sure you want to buy {nameLabel.text} x{amountField.value} for {product.price * amountField.value} 🪙?",
                     onConfirm: () =>
@@ -527,9 +552,7 @@ namespace FTR.UI.Shop
             string tooltipId = product.productId;
             buyButton.RegisterCallback<ClickEvent>(_ =>
             {
-                var confirmPopup = Instantiate(prefabProvider.ConfirmPopup)
-                    .GetComponent<ConfirmPopupController>();
-                confirmPopup.Show(
+                ConfirmPopup?.Show(
                     title: "Confirm Purchase",
                     question: $"Are you sure you want to buy {product.displayName} for {product.price} 💎?",
                     onConfirm: () =>

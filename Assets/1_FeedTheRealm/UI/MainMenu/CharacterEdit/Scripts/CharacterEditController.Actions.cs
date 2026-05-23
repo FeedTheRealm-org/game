@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
 using FTR.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -90,7 +91,7 @@ public partial class CharacterEditController
             return;
         }
         var confirmPopup = Instantiate(confirmPopupPrefab);
-        var dialogController = confirmPopup.GetComponent<ConfirmPopupController>();
+        var dialogController = confirmPopup.GetComponent<IConfirmPopup>();
         if (dialogController == null)
         {
             logger?.Log(

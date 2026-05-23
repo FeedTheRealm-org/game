@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Core.Interfaces;
-using FTR.Core.Client;
-using FTR.Core.Client.EventChannels.UI;
 using UnityEngine;
 using VContainer;
 
@@ -10,26 +7,11 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
 {
     public class WorldSetupService
     {
-        private List<ISetup> setupServices;
+        private readonly IEnumerable<ISetup> setupServices;
 
-        public WorldSetupService(
-            ClientPrefabProvider clientPrefabProvider,
-            OnWorldLeaveEvent onExitEvent,
-            IObjectResolver resolver
-        )
+        public WorldSetupService(IEnumerable<ISetup> setupServices)
         {
-            WorldUISetupService worldUISetupService = new(
-                clientPrefabProvider,
-                onExitEvent,
-                resolver
-            );
-
-            setupServices = new List<ISetup> { worldUISetupService };
-
-            foreach (var service in setupServices)
-            {
-                resolver.Inject(service);
-            }
+            this.setupServices = setupServices;
         }
 
         public void ExecuteSetup()

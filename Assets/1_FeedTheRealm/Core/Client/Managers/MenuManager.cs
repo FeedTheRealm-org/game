@@ -85,7 +85,7 @@ public class MenuManager
             case MenuType.Quests:
                 return openMenuCount == 0;
             case MenuType.Confirmation:
-                return true; // TODO: add ESC closing and MenuManager injection
+                return true;
             default:
                 return false;
         }
@@ -97,7 +97,7 @@ public class MenuManager
             return false;
 
         if (menuStatus[MenuType.Confirmation])
-            return menuType == MenuType.Confirmation; // Cant close menus if confirmation popup is open
+            return menuType == MenuType.Confirmation;
 
         return true;
     }
@@ -105,5 +105,10 @@ public class MenuManager
     public bool AreAnyMenusOpen()
     {
         return openMenuCount > 0;
+    }
+
+    public bool IsMenuOpen(MenuType menuType)
+    {
+        return menuStatus[menuType];
     }
 }

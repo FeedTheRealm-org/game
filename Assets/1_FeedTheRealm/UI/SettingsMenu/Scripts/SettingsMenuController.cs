@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FeedTheRealm.UI.Common;
-using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Gameplay.Client.Registry;
@@ -26,9 +27,6 @@ public class SettingsMenuController : MonoBehaviour
     private OnWorldLeaveEvent onWorldLeaveEvent;
 
     [Inject]
-    private ClientPrefabProvider prefabProvider;
-
-    [Inject]
     private ISoundPlayer soundPlayer;
 
     [Inject]
@@ -42,6 +40,24 @@ public class SettingsMenuController : MonoBehaviour
 
     [Inject]
     private BackEvent backEvent;
+
+    [Inject]
+    private ConfirmPopupHandle confirmPopupHandle;
+
+    private IConfirmPopup ConfirmPopup
+    {
+        get
+        {
+            if (confirmPopupHandle?.Controller == null)
+                logger.Log(
+                    "ConfirmPopupController not set in ConfirmPopupHandle. "
+                        + "Ensure WorldUISetupService.Setup() ran before this menu is used.",
+                    this,
+                    Logging.LogType.Error
+                );
+            return confirmPopupHandle?.Controller;
+        }
+    }
 
     /* General settings */
     private VisualElement root;
@@ -272,6 +288,9 @@ public class SettingsMenuController : MonoBehaviour
         if (willBeActive && !menuManager.CanOpenMenu(MenuType.Settings))
             return;
 
+        if (!willBeActive && !menuManager.CanCloseMenu(MenuType.Settings))
+            return;
+
         root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
 
@@ -280,8 +299,7 @@ public class SettingsMenuController : MonoBehaviour
 
     private void OnHomeClicked()
     {
-        var popup = Instantiate(prefabProvider.ConfirmPopup).GetComponent<ConfirmPopupController>();
-        popup.Show(
+        ConfirmPopup?.Show(
             question: "Are you sure you want to go to the home screen?",
             title: "Return to Home",
             onConfirm: () =>
@@ -294,8 +312,7 @@ public class SettingsMenuController : MonoBehaviour
 
     private void OnExitClicked()
     {
-        var popup = Instantiate(prefabProvider.ConfirmPopup).GetComponent<ConfirmPopupController>();
-        popup.Show(
+        ConfirmPopup?.Show(
             question: "Are you sure you want to exit the game?",
             title: "Exit Game",
             onConfirm: () =>
