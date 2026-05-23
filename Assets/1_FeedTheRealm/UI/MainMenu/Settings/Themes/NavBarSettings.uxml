@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:ftr="FeedTheRealm.UI.Common" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=f86539e0d6740554493957db9e5d2d5d&amp;type=3#SettingsMenu"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/Settings/Themes/NavBarSettings.uss?fileID=7433441132597879392&amp;guid=c46cb9dbd20098837a51475be4f20d0d&amp;type=3#NavBarSettings"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=7be628a0b2142aa54b5c8f517b8ae6b3&amp;type=3#SettingsMenu"/>
     <ui:VisualElement name="NavBarSettings" class="hpset-overlay">
         <ui:Label text="" name="NavbarSpace"/>
         <ui:VisualElement name="HPSettings_Modal" class="hpset-modal">

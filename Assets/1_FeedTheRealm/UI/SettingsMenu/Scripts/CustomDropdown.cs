@@ -154,14 +154,17 @@ namespace FeedTheRealm.UI.Common
                 return;
             }
 
+            string previousValue = Value;
             _selectedIndex = index;
+            string newValue = Value;
+
             UpdateButtonText();
             UpdateSelectedItem();
             CloseMenu();
 
             OnValueChanged?.Invoke(_selectedIndex);
 
-            using (var evt = ChangeEvent<string>.GetPooled(Value, Value))
+            using (var evt = ChangeEvent<string>.GetPooled(previousValue, newValue))
             {
                 evt.target = this;
                 SendEvent(evt);
