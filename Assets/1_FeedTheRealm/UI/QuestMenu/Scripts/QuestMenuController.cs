@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Enums;
+using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Client.Managers;
 using FTR.Core.Common.EventChannels;
@@ -35,6 +36,9 @@ namespace FTR.UI.Hud.QuestMenu
 
         [Inject]
         private MenuManager menuManager;
+
+        [Inject]
+        private BackEvent backEvent;
 
         [SerializeField]
         private Logging.Logger logger;
@@ -120,6 +124,9 @@ namespace FTR.UI.Hud.QuestMenu
 
             if (questTrackToggleEvent != null)
                 questTrackToggleEvent.OnRaised += OnQuestTrackToggled;
+
+            if (backEvent != null)
+                backEvent.OnRaised += HidePanel;
         }
 
         private void OnDisable()
@@ -132,6 +139,9 @@ namespace FTR.UI.Hud.QuestMenu
 
             if (questTrackToggleEvent != null)
                 questTrackToggleEvent.OnRaised -= OnQuestTrackToggled;
+
+            if (backEvent != null)
+                backEvent.OnRaised -= HidePanel;
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -175,9 +185,13 @@ namespace FTR.UI.Hud.QuestMenu
             if (_overlay == null)
                 return;
 
+            if (_overlay.style.display == DisplayStyle.None)
+                return;
+
+            menuManager.ToggleMenu(MenuType.Quests, false);
+
             _overlay.style.display = DisplayStyle.None;
             _isVisible = false;
-            menuManager.ToggleMenu(MenuType.Quests, false);
         }
 
         /* ═══════════════════════════════════════════════════════════
