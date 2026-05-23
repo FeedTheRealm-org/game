@@ -86,3 +86,19 @@
     height: 50px;
     margin-left: 15px;
 }
+
+.panel--visible {
+    translate: 0% 0%;
+    opacity: 1;
+    transition-property: translate, opacity;
+    transition-duration: 0.3s, 0.3s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.panel--hidden {
+    translate: 110% 0%;
+    opacity: 0;
+    transition-property: translate, opacity;
+    transition-duration: 0.3s, 0.3s;
+    transition-timing-function: ease-in, ease-in;
+}
