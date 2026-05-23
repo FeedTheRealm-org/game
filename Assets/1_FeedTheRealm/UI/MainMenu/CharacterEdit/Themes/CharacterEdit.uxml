@@ -2,6 +2,7 @@
     <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/CharacterEdit/Themes/CharacterEdit.uss?fileID=7433441132597879392&amp;guid=ff7172fb9c1b50aa99fa604f2f3dae62&amp;type=3#CharacterEdit"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/Components/Scrollbar/scrollbar.uss?fileID=7433441132597879392&amp;guid=f210ad3c09d09c548bca6bf90c47a04b&amp;type=3#scrollbar"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/CharacterEdit/Themes/CharacterEditSliders.uss?fileID=7433441132597879392&amp;guid=26e48a623751f11809190316e3e5854e&amp;type=3#CharacterEditSliders"/>
     <ui:VisualElement name="Body" class="body body-background" style="background-image: url(&quot;project://database/Packages/com.feed_the_realm.shared/Runtime/UI/VisualAssets/bg_feed.jpg?fileID=2800000&amp;guid=8d8f8fd241019e57b9aee8d2035bd722&amp;type=3#bg_feed&quot;);">
         <ui:VisualElement name="CharacterEditContainer" tabindex="0" class="character-edit-container" style="top: 1px; left: 1px;">
             <ui:VisualElement name="Character" class="character-panel">
