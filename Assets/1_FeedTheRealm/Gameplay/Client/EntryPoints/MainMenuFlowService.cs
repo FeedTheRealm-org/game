@@ -3,6 +3,8 @@ using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.EntryPoints
 {
@@ -22,8 +24,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         private API.AuthService authService;
         private Session.Session session;
         private GameObject authBackgroundPrefab;
-
         private GameObject musicPlayerInstance;
+        private IObjectResolver resolver;
 
         public MainMenuFlowService(
             GameObject worldFeedMenuPrefab,
@@ -36,7 +38,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             AuthFlowManager authFlowManager,
             API.PlayerService playerService,
             OnProfileCreatedEvent onProfileCreatedEvent,
-            OnLogoutRequestedEvent onLogoutRequestedEvent
+            OnLogoutRequestedEvent onLogoutRequestedEvent,
+            IObjectResolver resolver
         )
         {
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
@@ -50,6 +53,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.playerService = playerService;
             this.onProfileCreatedEvent = onProfileCreatedEvent;
             this.onLogoutRequestedEvent = onLogoutRequestedEvent;
+            this.resolver = resolver;
         }
 
         public void InitializeMusicPlayer(MusicType type)
@@ -66,7 +70,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 return;
             }
 
-            musicPlayerInstance = Object.Instantiate(musicPlayerPrefab);
+            musicPlayerInstance = resolver.Instantiate(musicPlayerPrefab);
             var player = musicPlayerInstance.GetComponent<MusicPlayer>();
             player?.Initialize(musicRegistry, type);
         }
@@ -112,7 +116,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 return;
             session.ClearSession();
 
-            var authBackgroundObj = Object.Instantiate(authBackgroundPrefab);
+            var authBackgroundObj = resolver.Instantiate(authBackgroundPrefab);
             var completionSource = new UniTaskCompletionSource();
 
             System.Action<string> onAuthComplete = (string _) => completionSource.TrySetResult();
@@ -129,11 +133,11 @@ namespace FTR.Gameplay.Client.EntryPoints
         public async UniTask<bool> ShowMainMenuFlow()
         {
             // Home menu
-            var worldFeedMenuObj = Object.Instantiate(worldFeedMenuPrefab);
+            var worldFeedMenuObj = resolver.Instantiate(worldFeedMenuPrefab);
             var worldFeedMenu = worldFeedMenuObj.GetComponent<IMainMenuController>();
 
             // Profile menu
-            var profileMenuObj = Object.Instantiate(profileMenuPrefab);
+            var profileMenuObj = resolver.Instantiate(profileMenuPrefab);
             profileMenuObj.SetActive(false);
 
             // Gem Store
@@ -141,11 +145,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             gemStoreObj.SetActive(false);
 
             // Settings menu
-            var navBarSettingsObj = Object.Instantiate(navBarSettingsPrefab);
+            var navBarSettingsObj = resolver.Instantiate(navBarSettingsPrefab);
             navBarSettingsObj.SetActive(false);
 
             // NavBar — wire all instances
-            var navBarObj = Object.Instantiate(navBarPrefab);
+            var navBarObj = resolver.Instantiate(navBarPrefab);
             var navBarController = navBarObj.GetComponent<INavbarController>();
             if (navBarController != null)
             {

@@ -26,9 +26,6 @@ namespace FTR.UI.WorldSpace
         [Inject]
         private MenuManager menuManager;
 
-        [Inject]
-        private BackEvent backEvent;
-
         private VisualElement _root;
         private VisualElement _inputPanel;
         private TextField _inputField;
@@ -59,14 +56,13 @@ namespace FTR.UI.WorldSpace
         {
             if (inputReader != null)
                 inputReader.ChatToggleEvent += OnChatToggle;
-            backEvent.OnRaised += CloseInput;
+            menuManager.RegisterMenuCallbacks(MenuType.Chat, onOpen: null, onClose: CloseInput);
         }
 
         private void OnDisable()
         {
             if (inputReader != null)
                 inputReader.ChatToggleEvent -= OnChatToggle;
-            backEvent.OnRaised -= CloseInput;
         }
 
         private void OnChatToggle()

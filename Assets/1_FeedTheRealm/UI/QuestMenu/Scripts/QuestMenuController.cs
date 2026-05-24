@@ -37,9 +37,6 @@ namespace FTR.UI.Hud.QuestMenu
         [Inject]
         private MenuManager menuManager;
 
-        [Inject]
-        private BackEvent backEvent;
-
         [SerializeField]
         private Logging.Logger logger;
 
@@ -125,8 +122,11 @@ namespace FTR.UI.Hud.QuestMenu
             if (questTrackToggleEvent != null)
                 questTrackToggleEvent.OnRaised += OnQuestTrackToggled;
 
-            if (backEvent != null)
-                backEvent.OnRaised += HidePanel;
+            menuManager.RegisterMenuCallbacks(
+                MenuType.Quests,
+                onOpen: ShowPanel,
+                onClose: HidePanel
+            );
         }
 
         private void OnDisable()
@@ -139,9 +139,6 @@ namespace FTR.UI.Hud.QuestMenu
 
             if (questTrackToggleEvent != null)
                 questTrackToggleEvent.OnRaised -= OnQuestTrackToggled;
-
-            if (backEvent != null)
-                backEvent.OnRaised -= HidePanel;
         }
 
         /* ═══════════════════════════════════════════════════════════

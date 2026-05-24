@@ -63,9 +63,6 @@ namespace FTR.UI.Shop
         private MenuManager menuManager;
 
         [Inject]
-        private BackEvent backEvent;
-
-        [Inject]
         private ISoundPlayer soundPlayer;
 
         [Inject]
@@ -74,20 +71,7 @@ namespace FTR.UI.Shop
         [Inject]
         private ConfirmPopupHandle confirmPopupHandle;
 
-        private IConfirmPopup ConfirmPopup
-        {
-            get
-            {
-                if (confirmPopupHandle?.Controller == null)
-                    logger.Log(
-                        "ConfirmPopupController not set in ConfirmPopupHandle. "
-                            + "Ensure WorldUISetupService.Setup() ran before this menu is used.",
-                        this,
-                        Logging.LogType.Error
-                    );
-                return confirmPopupHandle?.Controller;
-            }
-        }
+        private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
         private VisualElement _shopRoot;
         private VisualElement _panel;
@@ -166,14 +150,13 @@ namespace FTR.UI.Shop
 
             openShopEvent.OnRaised += OnOpenShop;
             inventoryErrorEvent.OnRaised += OnInventoryError;
-            backEvent.OnRaised += CloseShop;
+            menuManager.RegisterMenuCallbacks(MenuType.Shop, null, onClose: CloseShop);
         }
 
         private void OnDisable()
         {
             openShopEvent.OnRaised -= OnOpenShop;
             inventoryErrorEvent.OnRaised -= OnInventoryError;
-            backEvent.OnRaised -= CloseShop;
         }
 
         private void SwitchTab(bool goldTab)
@@ -323,9 +306,6 @@ namespace FTR.UI.Shop
         private void CloseShop()
         {
             if (_shopRoot == null || !_shopRoot.style.display.Equals(DisplayStyle.Flex))
-                return;
-
-            if (menuManager.IsMenuOpen(MenuType.Confirmation))
                 return;
 
             if (!menuManager.CanCloseMenu(MenuType.Shop))

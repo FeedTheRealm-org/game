@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
+using FTR.Core.Client.Interfaces;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -20,9 +22,6 @@ public partial class CharacterEditController : MonoBehaviour
     private Session.Session session;
 
     [SerializeField]
-    private GameObject confirmPopupPrefab;
-
-    [SerializeField]
     private bool loadFromSession = true;
 
     [SerializeField]
@@ -39,6 +38,11 @@ public partial class CharacterEditController : MonoBehaviour
 
     [SerializeField]
     private Vector2 characterInContainerOffset = new Vector2(-12, 0);
+
+    [Inject]
+    private ConfirmPopupHandle confirmPopupHandle;
+
+    private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
     [Inject]
     private CharacterInfoRepository characterInfoRepository;
@@ -202,10 +206,10 @@ public partial class CharacterEditController : MonoBehaviour
             return;
         }
 
-        _onEmptyItemClickedAction ??= () => onItemClicked(null, "");
-        _onSaveClickedAction ??= () => _ = onSaveClicked(confirmPopupPrefab);
-        _onPrevPageClickedAction ??= () => onPrevPageClicked();
-        _onNextPageClickedAction ??= () => onNextPageClicked();
+        _onEmptyItemClickedAction ??= (System.Action)(() => onItemClicked(null, ""));
+        _onSaveClickedAction ??= (System.Action)(async () => await onSaveClicked(ConfirmPopup));
+        _onPrevPageClickedAction ??= (System.Action)(() => onPrevPageClicked());
+        _onNextPageClickedAction ??= (System.Action)(() => onNextPageClicked());
 
         cacheCharacterPreviewCamera();
         applyCharacterPreviewCameraZoom();

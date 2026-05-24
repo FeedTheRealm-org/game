@@ -1,9 +1,13 @@
 using Cysharp.Threading.Tasks;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
+using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 using VContainer.Unity;
 
 namespace FTR.Gameplay.Client.EntryPoints
@@ -27,6 +31,10 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly SettingsManager settingsManager;
         private readonly GameObject navBarSettingsPrefab;
         private readonly GameObject authBackgroundPrefab;
+        private readonly GameObject confirmPopupPrefab;
+        private readonly ConfirmPopupHandle confirmPopupHandle;
+        private MenuManager menuManager;
+        private IObjectResolver objectResolver;
 
         public ClientEntryPoint(
             SceneReference mainScene,
@@ -45,7 +53,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject authBackgroundPrefab,
             API.PlayerService playerService,
             OnProfileCreatedEvent onProfileCreatedEvent,
-            OnLogoutRequestedEvent onLogoutRequestedEvent
+            OnLogoutRequestedEvent onLogoutRequestedEvent,
+            MenuManager menuManager,
+            ConfirmPopupHandle confirmPopupHandle,
+            GameObject confirmPopupPrefab,
+            IObjectResolver resolver
         )
         {
             this.mainScene = mainScene;
@@ -61,6 +73,10 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.settingsManager = settingsManager;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authBackgroundPrefab = authBackgroundPrefab;
+            this.menuManager = menuManager;
+            this.confirmPopupHandle = confirmPopupHandle;
+            this.confirmPopupPrefab = confirmPopupPrefab;
+            this.objectResolver = resolver;
 
             flowService = new MainMenuFlowService(
                 worldFeedMenuPrefab,
@@ -73,13 +89,19 @@ namespace FTR.Gameplay.Client.EntryPoints
                 authFlowManager,
                 playerService,
                 onProfileCreatedEvent,
-                onLogoutRequestedEvent
+                onLogoutRequestedEvent,
+                resolver
             );
         }
 
         public async void Start()
         {
             ConfigureUnityForClient();
+
+            menuManager.SetIsMainMenu(true);
+
+            var confirmPopupObj = objectResolver.Instantiate(confirmPopupPrefab);
+            confirmPopupHandle.Controller = confirmPopupObj.GetComponent<IConfirmPopup>();
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
 

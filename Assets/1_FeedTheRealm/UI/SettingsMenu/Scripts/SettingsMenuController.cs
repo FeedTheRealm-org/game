@@ -39,25 +39,9 @@ public class SettingsMenuController : MonoBehaviour
     private MenuManager menuManager;
 
     [Inject]
-    private BackEvent backEvent;
-
-    [Inject]
     private ConfirmPopupHandle confirmPopupHandle;
 
-    private IConfirmPopup ConfirmPopup
-    {
-        get
-        {
-            if (confirmPopupHandle?.Controller == null)
-                logger.Log(
-                    "ConfirmPopupController not set in ConfirmPopupHandle. "
-                        + "Ensure WorldUISetupService.Setup() ran before this menu is used.",
-                    this,
-                    Logging.LogType.Error
-                );
-            return confirmPopupHandle?.Controller;
-        }
-    }
+    private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
     /* General settings */
     private VisualElement root;
@@ -159,7 +143,12 @@ public class SettingsMenuController : MonoBehaviour
         AdjustUIToScreenSize();
         RegisterCallbacks(register: true);
         ShowSection(SettingsSection.Display);
-        backEvent.OnRaised += ToggleSettings;
+
+        menuManager.RegisterMenuCallbacks(
+            MenuType.Settings,
+            onOpen: OpenSettings,
+            onClose: CloseSettings
+        );
 
         root.style.display = DisplayStyle.None;
 
@@ -170,7 +159,6 @@ public class SettingsMenuController : MonoBehaviour
     {
         if (!_initialized)
             return;
-        backEvent.OnRaised -= ToggleSettings;
         RegisterCallbacks(register: false);
     }
 
@@ -281,20 +269,20 @@ public class SettingsMenuController : MonoBehaviour
     public bool IsOpen() =>
         GetComponent<UIDocument>().rootVisualElement.style.display == DisplayStyle.Flex;
 
-    public void ToggleSettings()
+    public void CloseSettings()
     {
-        bool willBeActive = root.style.display != DisplayStyle.Flex;
-
-        if (willBeActive && !menuManager.CanOpenMenu(MenuType.Settings))
-            return;
-
-        if (!willBeActive && !menuManager.CanCloseMenu(MenuType.Settings))
-            return;
-
-        root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
+        logger.Log("Closing settings menu", this, Logging.LogType.Info);
+        root.style.display = DisplayStyle.None;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
+        menuManager.ToggleMenu(MenuType.Settings, false);
+    }
 
-        menuManager.ToggleMenu(MenuType.Settings, willBeActive);
+    public void OpenSettings()
+    {
+        logger.Log("Opening settings menu", this, Logging.LogType.Info);
+        root.style.display = DisplayStyle.Flex;
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
+        menuManager.ToggleMenu(MenuType.Settings, true);
     }
 
     private void OnHomeClicked()
@@ -326,7 +314,7 @@ public class SettingsMenuController : MonoBehaviour
     private void OnCloseClicked()
     {
         logger.Log("Close settings clicked", this, Logging.LogType.Info);
-        ToggleSettings();
+        CloseSettings();
     }
 
     private void OnVolumeChanged(ChangeEvent<float> evt)

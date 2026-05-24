@@ -43,9 +43,6 @@ namespace FTR.UI.Inventory
         [Inject]
         private MenuManager menuManager;
 
-        [Inject]
-        private BackEvent backEvent;
-
         [SerializeField]
         private PlayerInputReader inputReader;
 
@@ -107,16 +104,19 @@ namespace FTR.UI.Inventory
             root.Q("Drop")?.RegisterCallback<ClickEvent>(_ => OnDropClicked());
 
             inputReader.InventoryEvent += OnToggleInventory;
-            backEvent.OnRaised += CloseInventory;
             lastAddedEvent.OnRaised += OnLastAdded;
             lastSwappedEvent.OnRaised += OnLastSwapped;
             lastRemovedEvent.OnRaised += OnLastRemoved;
+            menuManager.RegisterMenuCallbacks(
+                MenuType.Inventory,
+                onOpen: null,
+                onClose: CloseInventory
+            );
         }
 
         private void OnDisable()
         {
             inputReader.InventoryEvent -= OnToggleInventory;
-            backEvent.OnRaised -= CloseInventory;
             lastAddedEvent.OnRaised -= OnLastAdded;
             lastSwappedEvent.OnRaised -= OnLastSwapped;
             lastRemovedEvent.OnRaised -= OnLastRemoved;

@@ -66,11 +66,9 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
             var instantiatedQuestMenu = objectResolver.Instantiate(questMenu);
             instantiatedQuestMenu.name = "QuestMenu";
 
-            // Instanciar via VContainer para que Awake reciba inyección automáticamente
             var instantiatedPopup = objectResolver.Instantiate(confirmPopupPrefab);
             instantiatedPopup.name = "ConfirmPopup";
 
-            // Poblar el handle para que cualquier dependiente pueda resolverlo
             confirmPopupHandle.Controller = instantiatedPopup.GetComponent<IConfirmPopup>();
         }
 
