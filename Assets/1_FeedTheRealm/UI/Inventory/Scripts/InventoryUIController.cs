@@ -16,8 +16,28 @@ namespace FTR.UI.Inventory
     [RequireComponent(typeof(AnimationInventoryUIController))]
     public class InventoryUIController : MonoBehaviour
     {
-        private const int InventorySlotCount = 12;
+        // ─── Fixed layout — matches UXML exactly ─────────────────────────────
+        private const int InventorySlotCount = 35; // 7 rows × 5 cols
         private const int FastSlotCount = 5;
+        private const int InventoryColumns = 5;
+        private const float SlotSize = 70f; // must match .inventory-slot width in USS
+        private const float SlotGap = 6f; // must match margin×2 in USS (3px/side)
+
+        // ─── CSS class names ──────────────────────────────────────────────────
+        // Images are defined entirely in Inventory.uss.
+        // The controller only swaps these classes — it never sets backgroundImage.
+        //
+        //   .inventory-slot              → default inventory slot image
+        //   .inventory-slot--selected    → selected inventory slot image
+        //   .fast-equip-slot             → default fast-equip slot image
+        //   .fast-equip-slot--selected   → selected fast-equip slot image
+        //
+        private const string InvSlotClass = "inventory-slot";
+        private const string InvSlotSelectedClass = "inventory-slot--selected";
+        private const string FastSlotClass = "fast-equip-slot";
+        private const string FastSlotSelectedClass = "fast-equip-slot--selected";
+
+        // ─────────────────────────────────────────────────────────────────────
 
         [Inject]
         private LastAddedEvent lastAddedEvent;
@@ -47,12 +67,6 @@ namespace FTR.UI.Inventory
         private PlayerInputReader inputReader;
 
         [SerializeField]
-        private Sprite defaultSlotSprite;
-
-        [SerializeField]
-        private Sprite selectedSlotSprite;
-
-        [SerializeField]
         private API.ItemAssetsService itemAssetsService;
 
         [SerializeField]
@@ -71,6 +85,8 @@ namespace FTR.UI.Inventory
 
         private readonly InventorySlotGhostController ghost = new();
 
+        // ─── Lifecycle ───────────────────────────────────────────────────────
+
         private void OnEnable()
         {
             uiDocument = GetComponent<UIDocument>();
@@ -84,6 +100,7 @@ namespace FTR.UI.Inventory
                 return;
 
             animationController.Initialize(root);
+            ApplyGridWidth(root);
 
             RegisterSlots(
                 root,
@@ -93,6 +110,7 @@ namespace FTR.UI.Inventory
                 OnInventorySlotClicked,
                 StorageType.Inventory
             );
+
             RegisterSlots(
                 root,
                 fastSlots,
@@ -101,6 +119,7 @@ namespace FTR.UI.Inventory
                 OnFastSlotClicked,
                 StorageType.FastSlot
             );
+
             root.Q("Drop")?.RegisterCallback<ClickEvent>(_ => OnDropClicked());
 
             inputReader.InventoryEvent += OnToggleInventory;
@@ -122,6 +141,18 @@ namespace FTR.UI.Inventory
             lastRemovedEvent.OnRaised -= OnLastRemoved;
         }
 
+        // ─── Setup ───────────────────────────────────────────────────────────
+
+        private void ApplyGridWidth(VisualElement root)
+        {
+            var grid = root.Q("InventoryGrid");
+            if (grid == null)
+                return;
+
+            float width = InventoryColumns * (SlotSize + SlotGap);
+            grid.style.width = new StyleLength(width);
+        }
+
         private void RegisterSlots(
             VisualElement root,
             List<VisualElement> list,
@@ -138,13 +169,17 @@ namespace FTR.UI.Inventory
                 if (slot == null)
                     continue;
 
+                // The slot already has its default class (.inventory-slot or
+                // .fast-equip-slot) from the UXML, which contains the background-image
+                // in the USS. We do NOT set backgroundImage here so the USS image
+                // always shows without any C# override.
+
                 int idx = i;
                 slot.RegisterCallback<ClickEvent>(_ => onClick(idx));
 
                 slot.RegisterCallback<PointerEnterEvent>(_ =>
                 {
                     ghost.OnHoverEnter(selectedStorage, selectedSlotIndex, storage, idx, Icon);
-
                     if (slotItemIds.TryGetValue(slot, out var itemId))
                         itemStatsTooltip?.ShowTooltip(itemId, slot);
                 });
@@ -159,19 +194,21 @@ namespace FTR.UI.Inventory
             }
         }
 
+        // ─── Toggle / close ──────────────────────────────────────────────────
+
         private void OnToggleInventory()
         {
             bool show = !animationController.IsVisible;
-
             if (show && !menuManager.CanOpenMenu(MenuType.Inventory))
                 return;
 
             animationController.Toggle();
             inventoryToggleEvent?.Raise(show);
-            if (show)
-                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
-            else
-                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
+            soundPlayer.PlayUI(
+                show
+                    ? ClientSoundFXRegistry.SoundFXIds.OpenUI
+                    : ClientSoundFXRegistry.SoundFXIds.CloseUI
+            );
 
             menuManager.ToggleMenu(MenuType.Inventory, show);
         }
@@ -183,9 +220,10 @@ namespace FTR.UI.Inventory
             animationController.Toggle();
             soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
             inventoryToggleEvent?.Raise(false);
-
             menuManager.ToggleMenu(MenuType.Inventory, false);
         }
+
+        // ─── Slot interaction ────────────────────────────────────────────────
 
         private void OnInventorySlotClicked(int i) => HandleSlotClick(StorageType.Inventory, i);
 
@@ -217,40 +255,72 @@ namespace FTR.UI.Inventory
             ClearSelection();
         }
 
+        // ─── Selection — swaps CSS classes, never touches backgroundImage ────
+
         private void SetSelection(StorageType storage, int index)
         {
             selectedStorage = storage;
             selectedSlotIndex = index;
-            SetSlotSprite(Slots(storage), index, selectedSlotSprite);
+            SwapToSelected(Slots(storage), index, storage);
         }
 
         private void ClearSelection()
         {
             if (selectedStorage != StorageType.Null)
-                SetSlotSprite(Slots(selectedStorage), selectedSlotIndex, defaultSlotSprite);
+                SwapToDefault(Slots(selectedStorage), selectedSlotIndex, selectedStorage);
 
             selectedStorage = StorageType.Null;
             selectedSlotIndex = -1;
             ghost.OnHoverLeave();
         }
 
-        private void SetSlotSprite(List<VisualElement> slots, int index, Sprite sprite)
+        /// Removes the default class and adds the --selected variant.
+        private void SwapToSelected(List<VisualElement> slots, int index, StorageType storage)
         {
-            if (sprite != null && index >= 0 && index < slots.Count)
-                slots[index].style.backgroundImage = new StyleBackground(sprite);
+            if (index < 0 || index >= slots.Count)
+                return;
+            var slot = slots[index];
+            if (storage == StorageType.FastSlot)
+            {
+                slot.RemoveFromClassList(FastSlotClass);
+                slot.AddToClassList(FastSlotSelectedClass);
+            }
+            else
+            {
+                slot.RemoveFromClassList(InvSlotClass);
+                slot.AddToClassList(InvSlotSelectedClass);
+            }
         }
+
+        /// Removes the --selected variant and restores the default class.
+        private void SwapToDefault(List<VisualElement> slots, int index, StorageType storage)
+        {
+            if (index < 0 || index >= slots.Count)
+                return;
+            var slot = slots[index];
+            if (storage == StorageType.FastSlot)
+            {
+                slot.RemoveFromClassList(FastSlotSelectedClass);
+                slot.AddToClassList(FastSlotClass);
+            }
+            else
+            {
+                slot.RemoveFromClassList(InvSlotSelectedClass);
+                slot.AddToClassList(InvSlotClass);
+            }
+        }
+
+        // ─── Data events ─────────────────────────────────────────────────────
 
         private void OnLastAdded((StorageType t, string id, int pos, int qty) data)
         {
-            var icon = Icon(data.t, data.pos);
-            SlotItemLoader.LoadItem(icon, data.id, itemAssetsService, data.qty);
+            SlotItemLoader.LoadItem(Icon(data.t, data.pos), data.id, itemAssetsService, data.qty);
             TrackSlotItem(Slots(data.t), data.pos, data.id);
         }
 
         private void OnLastRemoved((StorageType t, string id, int pos) data)
         {
-            var icon = Icon(data.t, data.pos);
-            SlotItemLoader.LoadItem(icon, null, itemAssetsService);
+            SlotItemLoader.LoadItem(Icon(data.t, data.pos), null, itemAssetsService);
             TrackSlotItem(Slots(data.t), data.pos, null);
         }
 
@@ -283,10 +353,10 @@ namespace FTR.UI.Inventory
             TrackSlotItem(Slots(data.tgtT), data.tgtI, data.srcId);
 
             if (!string.IsNullOrEmpty(data.srcId) || !string.IsNullOrEmpty(data.tgtId))
-            {
                 soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.ChangeItem);
-            }
         }
+
+        // ─── Utilities ───────────────────────────────────────────────────────
 
         private void TrackSlotItem(List<VisualElement> slots, int index, string itemId)
         {
