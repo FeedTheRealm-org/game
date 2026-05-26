@@ -282,12 +282,10 @@ namespace FTR.UI.Inventory
             var slot = slots[index];
             if (storage == StorageType.FastSlot)
             {
-                slot.RemoveFromClassList(FastSlotClass);
                 slot.AddToClassList(FastSlotSelectedClass);
             }
             else
             {
-                slot.RemoveFromClassList(InvSlotClass);
                 slot.AddToClassList(InvSlotSelectedClass);
             }
         }
@@ -301,12 +299,10 @@ namespace FTR.UI.Inventory
             if (storage == StorageType.FastSlot)
             {
                 slot.RemoveFromClassList(FastSlotSelectedClass);
-                slot.AddToClassList(FastSlotClass);
             }
             else
             {
                 slot.RemoveFromClassList(InvSlotSelectedClass);
-                slot.AddToClassList(InvSlotClass);
             }
         }
 

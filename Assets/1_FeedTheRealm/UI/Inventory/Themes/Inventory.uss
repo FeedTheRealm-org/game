@@ -74,23 +74,24 @@
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     transition-duration: 0.1s;
-    transition-property: background-color;
+    transition-property: background-color, scale;
 }
 
 .inventory-slot:hover {
-    background-color: rgba(42, 210, 188, 0.1);
+    background-color: rgba(42, 210, 188, 0.3);
 }
 
 .inventory-slot--selected {
     background-image: url("project://database/Assets/1_FeedTheRealm/Icons/item-slot-selected.png?fileID=2800000&guid=c2fa30ab7705c52e4869f498db731a13&type=3#item-slot-selected");
     background-color: rgba(0, 0, 0, 0);
+    scale: 1.05;
 }
 
 .fast-equip-slot {
     background-image: url("project://database/Assets/1_FeedTheRealm/Icons/fast-slot.png?fileID=2800000&guid=38d160834ff487a9a9278e826f651e2b&type=3#fast-slot");
     -unity-background-scale-mode: scale-to-fit;
-    width: 62px;
-    height: 62px;
+    width: 70px;
+    height: 70px;
     margin-top: 3px;
     margin-bottom: 3px;
     margin-left: 3px;
@@ -100,7 +101,7 @@
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     transition-duration: 0.1s;
-    transition-property: background-color;
+    transition-property: background-color, scale;
 }
 
 .fast-equip-slot:hover {
@@ -110,6 +111,7 @@
 .fast-equip-slot--selected {
     background-image: url("project://database/Assets/1_FeedTheRealm/Icons/fast-slot-selected.png?fileID=2800000&guid=5f567449ef973193da46709834aa1c79&type=3#fast-slot-selected");
     background-color: rgba(0, 0, 0, 0);
+    scale: 1.05;
 }
 
 .slot-icon {
