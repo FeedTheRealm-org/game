@@ -28,16 +28,19 @@ public class CacheManager
         this.disk = disk;
     }
 
+    // Example:
+    // FULL URL: https://d3ry8oaxnx8r71.cloudfront.net/ArmorBody/f51a1c0e-07ad-4f3d-a647-82e61547aa4d.png
+    // URI: /ArmorBody/f51a1c0e-07ad-4f3d-a647-82e61547aa4d.png
+    // BASE URL: https://d3ry8oaxnx8r71.cloudfront.net
+    // BASE URI: file://~/.config/unity3d/AtusGames/Feed the realm
     public async Task<Texture2D> GetSprite(string uri, DateTime updatedAt)
     {
-        string relativePath = ImageRelativePath(uri);
-
-        byte[] data = disk.Read(relativePath);
+        byte[] data = disk.Read(uri);
         if (data == null)
         {
             var newTexture = await assetsService.DownloadTexture2D(uri);
             if (newTexture != null)
-                disk.Write(ImageRelativePath(uri), newTexture.EncodeToPNG());
+                disk.Write(uri, newTexture.EncodeToPNG());
             return newTexture;
         }
 
@@ -47,31 +50,19 @@ public class CacheManager
 
     public async Task<GameObject> GetModel(string uri, DateTime updatedAt)
     {
-        string relativePath = ModelRelativePath(uri);
-
-        byte[] data = disk.Read(relativePath);
+        byte[] data = disk.Read(uri);
         if (data == null)
         {
             var newModelPath = await modelService.DownloadModel(uri, isTemp: false);
             if (string.IsNullOrEmpty(newModelPath))
                 return null;
-            data = disk.Read(relativePath);
+            data = disk.Read(uri);
             if (data == null)
                 return null;
         }
 
         GameObject model = await gltfLoaderService.LoadModel(data);
         return model;
-    }
-
-    private static string ImageRelativePath(string uri) => $"Images/{UriToFileName(uri)}.png";
-
-    private static string ModelRelativePath(string uri) => $"Models/{UriToFileName(uri)}.glb";
-
-    private static string UriToFileName(string uri)
-    {
-        byte[] hash = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(uri));
-        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
     }
 
     private Texture2D DecodeTexture(byte[] data, string uri)
