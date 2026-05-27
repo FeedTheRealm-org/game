@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client.Interfaces;
+using FTR.Gameplay.Client.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -46,6 +47,9 @@ public partial class CharacterEditController : MonoBehaviour
 
     [Inject]
     private CharacterInfoRepository characterInfoRepository;
+
+    [Inject]
+    private CacheManager cacheManager;
 
     private ICharacterIdSource activeCharacterIdSource;
     private string activeCharacterId = string.Empty;

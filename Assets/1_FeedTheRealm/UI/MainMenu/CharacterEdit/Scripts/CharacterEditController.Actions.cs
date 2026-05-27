@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -396,7 +397,8 @@ public partial class CharacterEditController
             Texture2D texture = null;
             if (!textureCache.TryGetValue(spriteId, out texture))
             {
-                texture = await assetsService.DownloadTexture2D(spriteId);
+                var sprite = await assetsService.GetSpriteByIdAsync(spriteId);
+                texture = await cacheManager.GetSprite(sprite.sprite_url, DateTime.UtcNow);
                 if (texture != null)
                 {
                     textureCache[spriteId] = texture;
@@ -601,7 +603,7 @@ public partial class CharacterEditController
             var hasCachedTexture = textureCache.TryGetValue(sprite.sprite_id, out texture);
             if (!hasCachedTexture)
             {
-                texture = await assetsService.DownloadTexture2D(sprite.sprite_id);
+                texture = await cacheManager.GetSprite(sprite.sprite_url, DateTime.UtcNow);
 
                 if (!IsSpritesRequestCurrent(requestVersion, requestCategoryId))
                 {

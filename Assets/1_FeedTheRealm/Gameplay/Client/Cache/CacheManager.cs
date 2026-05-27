@@ -24,7 +24,7 @@ public class CacheManager
     private readonly Dictionary<string, CacheEntry> cacheEntries =
         new Dictionary<string, CacheEntry>();
 
-    private const string cacheFolder = "/cache";
+    private const string cacheFolder = "cache/";
     private const string cacheStateFile = "cache_state.json";
 
     public CacheManager(
@@ -51,6 +51,7 @@ public class CacheManager
     public async Task<Texture2D> GetSprite(string uri, DateTime updatedAt)
     {
         var cachePath = Path.Combine(cacheFolder, uri);
+        Debug.Log($"Getting sprite for URI: {uri}, cache path: {cachePath}");
         byte[] data = disk.Read(cachePath);
         if (data == null || ShouldInvalidateCache(uri, updatedAt))
         {

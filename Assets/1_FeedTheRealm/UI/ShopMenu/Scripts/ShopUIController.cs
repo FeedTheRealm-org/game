@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ using FTR.Core.Client.EventChannels.Shop;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI;
 using FTR.UI.Hud.Main;
@@ -70,6 +72,9 @@ namespace FTR.UI.Shop
 
         [Inject]
         private ConfirmPopupHandle confirmPopupHandle;
+
+        [Inject]
+        private CacheManager cacheManager;
 
         private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
@@ -607,7 +612,10 @@ namespace FTR.UI.Shop
             string categoryName
         )
         {
-            var task = assetsService.DownloadTexture2D(cosmeticId);
+            var spriteUrlTask = assetsService.GetSpriteByIdAsync(cosmeticId);
+            yield return new WaitUntil(() => spriteUrlTask.IsCompleted);
+
+            var task = cacheManager.GetSprite(spriteUrlTask.Result.sprite_url, DateTime.UtcNow);
             yield return new WaitUntil(() => task.IsCompleted);
 
             if (task.Result == null)

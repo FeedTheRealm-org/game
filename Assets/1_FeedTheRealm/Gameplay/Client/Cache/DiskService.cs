@@ -19,7 +19,7 @@ public class DiskService
             );
 
         string fullPath = GetFullPath(relativePath);
-        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
         File.WriteAllBytes(fullPath, data);
         Debug.Log($"[DiskService] Written {data.Length} bytes → {fullPath}");
     }
