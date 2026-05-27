@@ -50,12 +50,12 @@ public class CacheManager
     // BASE URL (local): file://~/.config/unity3d/AtusGames/Feed the realm
     public async Task<Texture2D> GetSprite(string uri, DateTime updatedAt)
     {
-        var cachePath = Path.Combine(cacheFolder, uri);
+        var cachePath = Path.Combine(cacheFolder, uri.TrimStart('/'));
         Debug.Log($"Getting sprite for URI: {uri}, cache path: {cachePath}");
         byte[] data = disk.Read(cachePath);
         if (data == null || ShouldInvalidateCache(uri, updatedAt))
         {
-            var newTexture = await assetsService.DownloadTexture2D(cachePath);
+            var newTexture = await assetsService.DownloadTexture2D(uri);
             if (newTexture != null)
             {
                 disk.Write(cachePath, newTexture.EncodeToPNG());
@@ -76,12 +76,17 @@ public class CacheManager
     // BASE URL (local): file://~/.config/unity3d/AtusGames/Feed the realm
     public async Task<GameObject> GetModel(string uri, DateTime updatedAt)
     {
-        var cachePath = Path.Combine(cacheFolder, uri);
+        var cachePath = Path.Combine(cacheFolder, uri.TrimStart('/'));
+        Debug.Log($"Getting model for URI: {uri}, cache path: {cachePath}");
         byte[] data = disk.Read(cachePath);
         if (data == null || ShouldInvalidateCache(uri, updatedAt))
         {
-            var modelInfo = new ModelInfo { url = cachePath };
-            var newModelPath = await modelService.DownloadModel(modelInfo, isTemp: false);
+            var modelInfo = new ModelInfo { url = uri };
+            var newModelPath = await modelService.DownloadModel(
+                modelInfo,
+                savePath: cachePath,
+                isTemp: false
+            );
             if (string.IsNullOrEmpty(newModelPath))
                 return null;
             data = disk.Read(cachePath);
