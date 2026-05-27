@@ -101,7 +101,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             menuManager.SetIsMainMenu(true);
 
             var confirmPopupObj = objectResolver.Instantiate(confirmPopupPrefab);
-            confirmPopupHandle.Controller = confirmPopupObj.GetComponent<IConfirmPopup>();
+            SetupConfirmPopup(confirmPopupObj);
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
 
@@ -163,6 +163,19 @@ namespace FTR.Gameplay.Client.EntryPoints
             }
 
             return loadingScreenInstance;
+        }
+
+        private void SetupConfirmPopup(GameObject confirmPopupObj)
+        {
+            var confirmPopupController = confirmPopupObj.GetComponent<IConfirmPopup>();
+            if (confirmPopupController == null)
+            {
+                string errorMessage =
+                    $"Confirm popup prefab '{confirmPopupPrefab.name}' does not implement {nameof(IConfirmPopup)}.";
+                Debug.LogError(errorMessage, confirmPopupObj);
+                throw new MissingComponentException(errorMessage);
+            }
+            confirmPopupHandle.Controller = confirmPopupController;
         }
     }
 }

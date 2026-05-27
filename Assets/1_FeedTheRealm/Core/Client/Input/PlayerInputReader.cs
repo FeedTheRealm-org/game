@@ -104,7 +104,6 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
     {
         if (context.performed)
         {
-            Debug.Log("Quest toggle input detected in PlayerInputReader");
             QuestEvent?.Invoke();
         }
     }

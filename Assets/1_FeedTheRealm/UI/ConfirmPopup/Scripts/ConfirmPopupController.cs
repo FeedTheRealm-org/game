@@ -39,6 +39,9 @@ namespace FTR.UI
         [Inject]
         private BackEvent backEvent;
 
+        [Inject]
+        private Logging.Logger logger;
+
         private void Awake()
         {
             var doc = GetComponent<UIDocument>();
@@ -68,6 +71,13 @@ namespace FTR.UI
         {
             if (backEvent != null)
                 backEvent.OnRaised += OnBackPressed;
+
+            if (menuManager == null)
+                logger.Log(
+                    "Registering confirm popup failed, MenuManager is null.",
+                    this,
+                    Logging.LogType.Error
+                );
 
             menuManager.RegisterMenuCallbacks(MenuType.Confirmation, null, onClose: Hide);
         }

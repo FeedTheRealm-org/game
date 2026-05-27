@@ -60,6 +60,14 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
             if (confirmPopupPrefab == null)
                 throw new System.Exception("ConfirmPopup prefab not set in ClientPrefabProvider!");
 
+            if (objectResolver == null)
+                throw new System.Exception("IObjectResolver not provided to WorldUISetupService!");
+
+            if (confirmPopupHandle == null)
+                throw new System.Exception(
+                    "ConfirmPopupHandle not provided to WorldUISetupService!"
+                );
+
             var instantiatedMenu = objectResolver.Instantiate(settingsMenu);
             instantiatedMenu.name = "SettingsMenu";
 

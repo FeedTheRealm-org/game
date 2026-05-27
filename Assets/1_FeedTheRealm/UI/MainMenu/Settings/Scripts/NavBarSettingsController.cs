@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FeedTheRealm.UI.Common;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
@@ -7,6 +8,7 @@ using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Settings;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.Homepage.Settings
 {
@@ -23,6 +25,11 @@ namespace FTR.UI.Homepage.Settings
 
         [SerializeField]
         private OnLogoutRequestedEvent logoutRequestedEvent;
+
+        [Inject]
+        private ConfirmPopupHandle confirmPopupHandle;
+
+        private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
         private VisualElement _root;
         private VisualElement _panel;
@@ -263,9 +270,7 @@ namespace FTR.UI.Homepage.Settings
                 return;
             }
 
-            var confirmPopup = Instantiate(prefabProvider.ConfirmPopup);
-            var dialogController = confirmPopup.GetComponent<IConfirmPopup>();
-            dialogController.Show(
+            ConfirmPopup.Show(
                 question: "Are you sure you want to log out?",
                 title: "Log Out",
                 onConfirm: () =>
