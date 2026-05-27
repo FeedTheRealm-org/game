@@ -23,44 +23,39 @@ namespace API
         /// <summary>
         /// Downloads and loads a GLB model from the GLTF API, instantiates it, and returns the GameObject.
         /// </summary>
-        public async UniTask<GameObject> DownloadModel(string url)
+        public async UniTask<GameObject> LoadModel(byte[] data)
         {
-            string fullUrl = $"{apiConfig.WorldsCDN.TrimEnd('/')}/{url.TrimStart('/')}";
-            var parentObject = new GameObject("Model");
-            Debug.Log($"Downloading model from URL: {fullUrl}");
-            await LoadModel(parentObject, fullUrl);
-            return parentObject.transform.childCount > 0
-                ? parentObject.transform.GetChild(0).gameObject
-                : parentObject;
-        }
+            var parent = new GameObject("ModelContainer");
 
-        private async UniTask LoadModel(GameObject parent, string modelUrl)
-        {
-            if (string.IsNullOrEmpty(modelUrl))
+            if (data == null || data.Length == 0)
             {
                 CreateFallback(parent);
-                return;
+                return parent;
             }
 
             try
             {
                 var gltfImport = new GltfImport();
-                bool success = await gltfImport.Load(modelUrl);
+                bool success = await gltfImport.Load(data);
 
                 if (!success)
                 {
-                    Debug.LogWarning($"Failed to load: {modelUrl}");
+                    Debug.LogWarning($"Failed to load model");
                     CreateFallback(parent);
-                    return;
+                    return parent;
                 }
 
                 await gltfImport.InstantiateMainSceneAsync(parent.transform);
             }
             catch (Exception exception)
             {
-                Debug.LogWarning($"GLTF load exception for '{modelUrl}': {exception.Message}");
+                Debug.LogWarning($"GLTF load exception: {exception.Message}");
                 CreateFallback(parent);
             }
+
+            return parent.transform.childCount > 0
+                ? parent.transform.GetChild(0).gameObject
+                : parent;
         }
 
         private void CreateFallback(GameObject parent)
