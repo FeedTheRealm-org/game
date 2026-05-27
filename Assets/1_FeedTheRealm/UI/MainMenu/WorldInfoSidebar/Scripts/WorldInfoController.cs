@@ -39,6 +39,7 @@ public class WorldInfoController : MonoBehaviour
     private Label OnlinePlayersLabel;
     private Button JoinButton;
     private Button DownloadButton;
+    private Button DeleteButton;
     private Label DownloadingLabel;
     private VisualElement ProgressBarContainer;
     private VisualElement ProgressBarFill;
@@ -184,6 +185,7 @@ public class WorldInfoController : MonoBehaviour
         OnlinePlayersLabel = ui.Q<Label>("OnlinePlayers");
         JoinButton = ui.Q<Button>("JoinButton");
         DownloadButton = ui.Q<Button>("DownloadButton");
+        DeleteButton = ui.Q<Button>("DeleteButton");
         DownloadingLabel = ui.Q<Label>("DownloadingLabel");
         ProgressBarContainer = ui.Q<VisualElement>("ProgressBarContainer");
         ProgressBarFill = ui.Q<VisualElement>("ProgressBarFill");
@@ -220,6 +222,8 @@ public class WorldInfoController : MonoBehaviour
             logger.Log("JoinButton not found in UI.", this, Logging.LogType.Warning);
         if (DownloadButton == null)
             logger.Log("DownloadButton not found in UI.", this, Logging.LogType.Warning);
+        if (DeleteButton == null)
+            logger.Log("DeleteButton not found in UI.", this, Logging.LogType.Warning);
         if (DownloadingLabel == null)
             logger.Log("DownloadingLabel not found in UI.", this, Logging.LogType.Warning);
         if (ProgressBarContainer == null)
@@ -239,6 +243,12 @@ public class WorldInfoController : MonoBehaviour
                 downloadButtonText = DownloadButton.text;
             DownloadButton.clicked -= OnDownloadButtonClicked;
             DownloadButton.clicked += OnDownloadButtonClicked;
+        }
+
+        if (DeleteButton != null)
+        {
+            DeleteButton.clicked -= OnDeleteButtonClicked;
+            DeleteButton.clicked += OnDeleteButtonClicked;
         }
 
         if (zoneStatusBadge == null)
@@ -441,6 +451,11 @@ public class WorldInfoController : MonoBehaviour
         }
     }
 
+    private void OnDeleteButtonClicked()
+    {
+        // TODO: Add delete world logic.
+    }
+
     private string makeHumanReadableCreatedAt(string createdAt)
     {
         if (DateTime.TryParse(createdAt, out DateTime parsedDate))
@@ -487,6 +502,9 @@ public class WorldInfoController : MonoBehaviour
 
         if (DownloadButton != null)
             DownloadButton.clicked -= OnDownloadButtonClicked;
+
+        if (DeleteButton != null)
+            DeleteButton.clicked -= OnDeleteButtonClicked;
 
         if (SideBar != null)
         {
