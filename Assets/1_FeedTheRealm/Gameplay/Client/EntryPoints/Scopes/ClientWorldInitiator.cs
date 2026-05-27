@@ -7,6 +7,7 @@ using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
+using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
@@ -130,6 +131,8 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<CursorManager>(Lifetime.Singleton);
             builder.Register<CameraManager>(Lifetime.Singleton);
             builder.Register<MenuManager>(Lifetime.Singleton);
+            builder.Register<CacheManager>(Lifetime.Singleton);
+            builder.Register<DiskService>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();

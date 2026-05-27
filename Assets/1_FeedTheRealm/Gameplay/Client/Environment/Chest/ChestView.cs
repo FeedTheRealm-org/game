@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EntryPoints;
+using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTRShared.Runtime.Models;
@@ -13,9 +15,6 @@ namespace FTR.Gameplay.Environment.Chest
     public class ChestView : MonoBehaviour
     {
         [SerializeField]
-        private GltLoaderService gltfLoaderService;
-
-        [SerializeField]
         private ModelService modelService;
 
         [SerializeField]
@@ -26,6 +25,9 @@ namespace FTR.Gameplay.Environment.Chest
 
         [Inject]
         private ISoundPlayer soundPlayer;
+
+        [Inject]
+        private CacheManager cacheManager;
 
         private static readonly Dictionary<string, GameObject> modelCache = new();
 
@@ -100,7 +102,7 @@ namespace FTR.Gameplay.Environment.Chest
             if (modelCache.ContainsKey(modelUrl))
                 return Instantiate(modelCache[modelUrl]);
 
-            GameObject visual = await gltfLoaderService.DownloadModel(modelUrl);
+            GameObject visual = await cacheManager.GetModel(modelUrl, DateTime.UtcNow);
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return Instantiate(visual);

@@ -4,6 +4,7 @@ using FTR.Core.Client;
 using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
+using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.LoaderEntities;
 using VContainer;
@@ -18,12 +19,15 @@ namespace FTR.Gameplay.Client.Loaders
         [Inject]
         private readonly WorldSelector worldSelector;
 
+        [Inject]
+        private CacheManager cacheManager;
+
         public ClientWorldLoader(
             ClientPrefabProvider prefabProvider,
             ColliderRegistry colliderRegistry,
             ModelService modelService,
             MaterialService materialService,
-            GltLoaderService gltfLoaderService,
+            CacheManager cacheManager,
             IObjectResolver resolver,
             Logging.Logger logger
         )
@@ -32,7 +36,7 @@ namespace FTR.Gameplay.Client.Loaders
                 prefabProvider,
                 colliderRegistry,
                 modelService,
-                gltfLoaderService
+                cacheManager
             );
             var clientNpcDialogLoader = new ClientNpcDialogLoader();
             var clientItemLoader = new ClientItemLoader();

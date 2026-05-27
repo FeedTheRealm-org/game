@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
+using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Models;
@@ -15,7 +17,7 @@ namespace FTR.Gameplay.Client.Loaders
     public class ClientStructureLoader : ILoader
     {
         private readonly ModelService modelService;
-        private readonly GltLoaderService gltfLoaderService;
+        private readonly CacheManager cacheManager;
         private readonly GameObject structurePrefab;
         private readonly GameObject shopPrefab;
         private readonly ColliderRegistry colliderRegistry;
@@ -24,11 +26,11 @@ namespace FTR.Gameplay.Client.Loaders
             ClientPrefabProvider prefabProvider,
             ColliderRegistry colliderRegistry,
             ModelService modelService,
-            GltLoaderService gltfLoaderService
+            CacheManager cacheManager
         )
         {
             this.modelService = modelService;
-            this.gltfLoaderService = gltfLoaderService;
+            this.cacheManager = cacheManager;
             this.colliderRegistry = colliderRegistry;
             structurePrefab = prefabProvider.StructurePrefab;
             shopPrefab = prefabProvider.ShopPrefab;
@@ -54,7 +56,7 @@ namespace FTR.Gameplay.Client.Loaders
                 string modelUrl = modelsInfo[structureData.id].url;
                 GameObject visual = await GetModel(modelUrl);
 
-                GameObject instance = Object.Instantiate(structurePrefab);
+                GameObject instance = UnityEngine.Object.Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
                 var (collider, colliderLayer) = colliderRegistry.GetCollider(
@@ -69,7 +71,7 @@ namespace FTR.Gameplay.Client.Loaders
                 string modelUrl = modelsInfo[shopData.id].url;
                 GameObject visual = await GetModel(modelUrl);
 
-                GameObject instance = Object.Instantiate(shopPrefab);
+                GameObject instance = UnityEngine.Object.Instantiate(shopPrefab);
                 instance.name = shopData.structureName;
                 var controller = instance.GetComponent<StructureController>();
                 var (collider, colliderLayer) = colliderRegistry.GetCollider(shopData.colliderType);
@@ -86,7 +88,7 @@ namespace FTR.Gameplay.Client.Loaders
             if (modelCache.ContainsKey(modelUrl))
                 return modelCache[modelUrl];
 
-            GameObject visual = await gltfLoaderService.DownloadModel(modelUrl);
+            GameObject visual = await cacheManager.GetModel(modelUrl, DateTime.UtcNow);
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return visual;

@@ -1,8 +1,10 @@
+using API;
 using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
+using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.EntryPoints;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
@@ -73,6 +75,12 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private API.AssetsService assetsService;
 
+    [SerializeField]
+    private ModelService modelService;
+
+    [SerializeField]
+    private GltLoaderService gltfLoaderService;
+
     [Header("Events")]
     [SerializeField]
     private ClientEventRegistry eventRegistry;
@@ -82,12 +90,16 @@ public class ClientInitiator : LifetimeScope
         if (config.RuntimeRole != RuntimeRole.Client)
             throw new System.InvalidOperationException("Invalid runtime role for ClientInitiator");
 
+        ValidateSerializeFields();
+
         builder.RegisterInstance(session);
         builder.RegisterInstance(authService);
         builder.RegisterInstance(musicRegistry);
         builder.RegisterInstance(settingsManager);
         builder.RegisterInstance(playerService);
         builder.RegisterInstance(assetsService);
+        builder.RegisterInstance(modelService);
+        builder.RegisterInstance(gltfLoaderService);
         builder.RegisterInstance(logger);
         eventRegistry.RegisterAll(builder);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
@@ -115,6 +127,28 @@ public class ClientInitiator : LifetimeScope
         builder.Register<CursorManager>(Lifetime.Singleton);
         builder.Register<CameraManager>(Lifetime.Singleton);
         builder.Register<ConfirmPopupHandle>(Lifetime.Singleton);
+        builder.Register<CacheManager>(Lifetime.Singleton);
+        builder.Register<DiskService>(Lifetime.Singleton);
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
+    }
+
+    private void ValidateSerializeFields()
+    {
+        ValidateField(config, "Config");
+        ValidateField(logger, "Logger");
+        ValidateField(session, "Session");
+        ValidateField(settingsManager, "SettingsManager");
+        ValidateField(musicRegistry, "MusicRegistry");
+        ValidateField(assetsService, "AssetsService");
+        ValidateField(modelService, "ModelService");
+        ValidateField(gltfLoaderService, "GLTFLoaderService");
+    }
+
+    private void ValidateField(object field, string fieldName)
+    {
+        if (field == null)
+            throw new System.NullReferenceException(
+                $"{fieldName} is not assigned in the Inspector."
+            );
     }
 }
