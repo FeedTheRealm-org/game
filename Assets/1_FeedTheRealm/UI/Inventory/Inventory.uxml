@@ -57,18 +57,18 @@
                 <ui:VisualElement class="inv-divider-line"/>
             </ui:VisualElement>
 
-            <!-- 5 fast-equip slots -->
-            <ui:VisualElement name="FastEquipContainer" class="fast-equip-container">
-                <ui:VisualElement name="FastEquipSlot1" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot2" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot3" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot4" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot5" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-            </ui:VisualElement>
-
-            <!-- Drop button (image only) -->
-            <ui:VisualElement name="DropRow" class="inv-drop-row">
-                <ui:VisualElement name="Drop" class="inventory-drop"/>
+            <!-- 5 fast-equip slots and drop button aligned beneath them -->
+            <ui:VisualElement name="FastEquipBlock" class="fast-equip-block">
+                <ui:VisualElement name="FastEquipContainer" class="fast-equip-container">
+                    <ui:VisualElement name="FastEquipSlot1" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot2" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot3" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot4" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot5" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="DropRow" class="inv-drop-row">
+                    <ui:VisualElement name="Drop" class="inventory-drop"/>
+                </ui:VisualElement>
             </ui:VisualElement>
 
         </ui:VisualElement>

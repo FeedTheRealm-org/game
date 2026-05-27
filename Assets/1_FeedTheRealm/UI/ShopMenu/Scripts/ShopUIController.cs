@@ -471,11 +471,8 @@ namespace FTR.UI.Shop
                 ConfirmPopup?.Show(
                     title: "Confirm Purchase",
                     question: $"Are you sure you want to buy {nameLabel.text} x{amountField.value} for {product.price * amountField.value} 🪙?",
-                    onConfirm: () =>
-                    {
-                        int amount = Mathf.Max(1, amountField.value);
-                        purchaseRequestEvent?.Raise((capturedShopId, capturedId, amount));
-                    }
+                    onConfirm: () => Purchase(amountField, capturedId, capturedShopId),
+                    onCancel: null
                 );
             });
 
@@ -491,6 +488,12 @@ namespace FTR.UI.Shop
             icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip?.HideTooltip());
 
             return row;
+        }
+
+        private void Purchase(IntegerField amountField, string capturedId, string capturedShopId)
+        {
+            int amount = Mathf.Max(1, amountField.value);
+            purchaseRequestEvent?.Raise((capturedShopId, capturedId, amount));
         }
 
         private VisualElement CreateCosmeticRow(ProductData product)

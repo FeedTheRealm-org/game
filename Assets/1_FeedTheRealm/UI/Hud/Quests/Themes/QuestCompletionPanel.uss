@@ -34,10 +34,12 @@
     padding: 15px;
     flex-direction: row;
     justify-content: flex-start;
-    border-top-left-radius: 60px;
-    border-top-right-radius: 60px;
-    border-bottom-right-radius: 60px;
-    border-bottom-left-radius: 60px;
+    border-top-left-radius: 35px;
+    border-top-right-radius: 35px;
+    border-bottom-right-radius: 35px;
+    border-bottom-left-radius: 35px;
+    padding-bottom: 0;
+    padding-top: 0;
 }
 
 .quest-text-container {
@@ -63,14 +65,14 @@
 
 .quest-title {
     font-size: 15px;
-    color: var(--teal);
+    color: var(--gold);
 }
 
 .title {
     font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    color: var(--gold);
+    color: var(--white);
 }
 
 .hl {
