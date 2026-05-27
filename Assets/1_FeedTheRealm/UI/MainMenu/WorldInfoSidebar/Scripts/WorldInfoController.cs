@@ -364,9 +364,11 @@ public class WorldInfoController : MonoBehaviour
         {
             if (DownloadButton != null)
             {
-                DownloadButton.text = "...";
                 DownloadButton.SetEnabled(false);
             }
+
+            if (CloseButton != null)
+                CloseButton.SetEnabled(false);
 
             if (DownloadingLabel != null)
             {
@@ -431,6 +433,9 @@ public class WorldInfoController : MonoBehaviour
                     : downloadButtonText;
                 DownloadButton.SetEnabled(true);
             }
+
+            if (CloseButton != null)
+                CloseButton.SetEnabled(true);
 
             isDownloading = false;
         }
