@@ -65,7 +65,7 @@ public class CacheManager
             return newTexture;
         }
 
-        Texture2D texture = await Task.Run(() => DecodeTexture(data, uri));
+        Texture2D texture = DecodeTexture(data, uri);
         return texture;
     }
 
