@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Cache;
 using FTR.UI.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,6 +14,9 @@ namespace FTR.UI.Hud.Main
     public class FastSlotUIController : MonoBehaviour
     {
         private const int FastSlotCount = 5;
+
+        [Inject]
+        private WorldSelector worldSelector;
 
         [Inject]
         private LastAddedEvent lastAddedEvent;
@@ -36,6 +41,9 @@ namespace FTR.UI.Hud.Main
 
         [SerializeField]
         private API.ItemAssetsService itemAssetsService;
+
+        [Inject]
+        private CacheManager cacheManager;
 
         private const string FastSlotSelectedClass = "fast-equip-slot--selected";
         private const string FastSlotHiddenClass = "fast-equip-slot--hidden";
@@ -101,7 +109,8 @@ namespace FTR.UI.Hud.Main
             SlotItemLoader.LoadItem(
                 Icon(data.position),
                 data.itemId,
-                itemAssetsService,
+                cacheManager,
+                worldSelector.GetSelectedWorldId(),
                 data.quantity
             );
         }
@@ -110,7 +119,7 @@ namespace FTR.UI.Hud.Main
         {
             if (data.storageType != StorageType.FastSlot)
                 return;
-            SlotItemLoader.LoadItem(Icon(data.position), null, itemAssetsService);
+            SlotItemLoader.LoadItem(Icon(data.position), null, cacheManager);
         }
 
         private void OnLastSwapped(
@@ -130,14 +139,16 @@ namespace FTR.UI.Hud.Main
                 SlotItemLoader.LoadItem(
                     Icon(data.targetSlot),
                     data.sourceItemId,
-                    itemAssetsService,
+                    cacheManager,
+                    worldSelector.GetSelectedWorldId(),
                     data.sourceQuantity
                 );
             if (data.sourceType == StorageType.FastSlot)
                 SlotItemLoader.LoadItem(
                     Icon(data.sourceSlot),
                     data.targetItemId,
-                    itemAssetsService,
+                    cacheManager,
+                    worldSelector.GetSelectedWorldId(),
                     data.targetQuantity
                 );
         }

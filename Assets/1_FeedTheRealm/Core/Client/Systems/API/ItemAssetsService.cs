@@ -1,4 +1,5 @@
 using System;
+using FTR.Core.Client.EntryPoints;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -28,7 +29,8 @@ namespace API
         [SerializeField]
         private Logging.Logger logger;
 
-        private string currentWorldId;
+        [SerializeField]
+        private WorldSelector worldSelector;
 
         private string GetBaseUrl() => $"{apiConfig.Hostname}:{apiConfig.Port}/assets/items";
 
@@ -70,8 +72,8 @@ namespace API
             // Extract just the filename from full path, e.g. "Sprites/uuid.png" -> "uuid.png"
             string fileName = System.IO.Path.GetFileName(spriteId);
 
-            var url = $"{GetBaseCdnUrl()}/{currentWorldId}/items/{fileName}";
-            Debug.Log($"[ItemAssetsService] Current WorldID: {currentWorldId}");
+            var url = $"{GetBaseCdnUrl()}/{CurrentWorldId}/items/{fileName}";
+            Debug.Log($"[ItemAssetsService] Current WorldID: {CurrentWorldId}");
             Debug.Log($"[ItemAssetsService] DownloadItemSpriteAsync fetching from URL: {url}");
             logger?.Log($"DownloadItemSpriteAsync fetching from URL: {url}", this);
             using var uwr = UnityWebRequestTexture.GetTexture(url);
@@ -103,13 +105,6 @@ namespace API
             }
         }
 
-        /// <summary>
-        /// Initializes the service by setting the current world ID and fetching the global category.
-        /// Call this once when the world is loaded to set the category ID for subsequent texture downloads.
-        /// </summary>
-        public void SetCurrentWorldId(string worldId)
-        {
-            currentWorldId = worldId;
-        }
+        private string CurrentWorldId => worldSelector.GetSelectedWorldId();
     }
 }

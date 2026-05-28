@@ -47,9 +47,6 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private TeleportDataPersistence teleportDataPersistence;
 
     [SerializeField]
-    private ItemAssetsService itemAssetsService;
-
-    [SerializeField]
     private GameObject worldInfoHUD;
 
     [Inject]
@@ -393,7 +390,6 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
                         worldSelector.SetSelectedZoneId(worldData.startingZone);
                         config.CurrentServerAddress = activeWorld.zoneAddress.ip;
                         config.CurrentServerPort = (ushort)activeWorld.zoneAddress.port;
-                        SetWorldIdForServices(worldData.worldId);
 
                         var worldJoinToken = await playerService.IssueWorldJoinTokenAsync(
                             worldData.worldId
@@ -445,9 +441,6 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
             );
         }
     }
-
-    private void SetWorldIdForServices(string worldId) =>
-        itemAssetsService?.SetCurrentWorldId(worldId);
 
     private void OnClickAboutWorld(WorldData world)
     {

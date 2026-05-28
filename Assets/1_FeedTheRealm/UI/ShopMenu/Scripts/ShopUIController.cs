@@ -5,6 +5,7 @@ using System.Linq;
 using Enums;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Input;
@@ -60,6 +61,9 @@ namespace FTR.UI.Shop
 
         [Inject]
         private InventoryErrorEvent inventoryErrorEvent;
+
+        [Inject]
+        private WorldSelector worldSelector;
 
         [Inject]
         private MenuManager menuManager;
@@ -446,7 +450,12 @@ namespace FTR.UI.Shop
 
             var icon = new VisualElement();
             icon.AddToClassList("shop-item-icon");
-            SlotItemLoader.LoadItem(icon, product.productId, itemAssetsService);
+            SlotItemLoader.LoadItem(
+                icon,
+                product.productId,
+                cacheManager,
+                worldSelector.GetSelectedWorldId()
+            );
 
             var nameLabel = new Label(product.productId);
             nameLabel.AddToClassList("shop-item-name");

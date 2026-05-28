@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Client.Managers;
 using FTR.Core.Common.Protocol.RpcMessages;
+using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI.Inventory;
 using UnityEngine;
@@ -58,6 +60,9 @@ namespace FTR.UI.Inventory
         private InventoryToggleEvent inventoryToggleEvent;
 
         [Inject]
+        private WorldSelector worldSelector;
+
+        [Inject]
         private ISoundPlayer soundPlayer;
 
         [Inject]
@@ -68,6 +73,9 @@ namespace FTR.UI.Inventory
 
         [SerializeField]
         private API.ItemAssetsService itemAssetsService;
+
+        [Inject]
+        private CacheManager cacheManager;
 
         [SerializeField]
         private ItemStatsTooltip itemStatsTooltipPrefab;
@@ -310,13 +318,19 @@ namespace FTR.UI.Inventory
 
         private void OnLastAdded((StorageType t, string id, int pos, int qty) data)
         {
-            SlotItemLoader.LoadItem(Icon(data.t, data.pos), data.id, itemAssetsService, data.qty);
+            SlotItemLoader.LoadItem(
+                Icon(data.t, data.pos),
+                data.id,
+                cacheManager,
+                worldSelector.GetSelectedWorldId(),
+                data.qty
+            );
             TrackSlotItem(Slots(data.t), data.pos, data.id);
         }
 
         private void OnLastRemoved((StorageType t, string id, int pos) data)
         {
-            SlotItemLoader.LoadItem(Icon(data.t, data.pos), null, itemAssetsService);
+            SlotItemLoader.LoadItem(Icon(data.t, data.pos), null, cacheManager);
             TrackSlotItem(Slots(data.t), data.pos, null);
         }
 
@@ -336,13 +350,15 @@ namespace FTR.UI.Inventory
             SlotItemLoader.LoadItem(
                 Icon(data.srcT, data.srcI),
                 data.tgtId,
-                itemAssetsService,
+                cacheManager,
+                worldSelector.GetSelectedWorldId(),
                 data.tgtQty
             );
             SlotItemLoader.LoadItem(
                 Icon(data.tgtT, data.tgtI),
                 data.srcId,
-                itemAssetsService,
+                cacheManager,
+                worldSelector.GetSelectedWorldId(),
                 data.srcQty
             );
             TrackSlotItem(Slots(data.srcT), data.srcI, data.tgtId);

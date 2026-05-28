@@ -53,6 +53,7 @@ MonoBehaviour:
     sceneAsset: {fileID: 102900000, guid: 701c4046fa42a621791231367c88fbc5, type: 3}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
+  worldSelector: {fileID: 11400000, guid: faed404c8f2d5282c8f1b73ca17c2f00, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   settingsManager: {fileID: 11400000, guid: c196a637095a95474b1f2a64882174e6, type: 2}
   authFlowManager: {fileID: 7798777532646108241, guid: bee3944f6aaa8f0f39979e4395c8ffc8, type: 3}

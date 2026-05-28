@@ -1,6 +1,7 @@
 using API;
 using FeedTheRealm.Core.Client.EventChannels;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
@@ -21,6 +22,9 @@ public class ClientInitiator : LifetimeScope
 
     [SerializeField]
     private Config config;
+
+    [SerializeField]
+    private WorldSelector worldSelector;
 
     [SerializeField]
     private Logging.Logger logger;
@@ -94,6 +98,8 @@ public class ClientInitiator : LifetimeScope
 
         builder.RegisterInstance(session);
         builder.RegisterInstance(authService);
+        builder.RegisterInstance(config);
+        builder.RegisterInstance(worldSelector);
         builder.RegisterInstance(musicRegistry);
         builder.RegisterInstance(settingsManager);
         builder.RegisterInstance(playerService);
@@ -135,6 +141,7 @@ public class ClientInitiator : LifetimeScope
     private void ValidateSerializeFields()
     {
         ValidateField(config, "Config");
+        ValidateField(worldSelector, "WorldSelector");
         ValidateField(logger, "Logger");
         ValidateField(session, "Session");
         ValidateField(settingsManager, "SettingsManager");
