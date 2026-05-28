@@ -152,17 +152,8 @@ public class UseView : MonoBehaviour
                 : itemId;
 
         string worldId = worldSelector?.GetSelectedWorldId();
-        if (
-            !string.IsNullOrEmpty(worldId)
-            && !spriteReference.StartsWith("http://")
-            && !spriteReference.StartsWith("https://")
-            && !spriteReference.StartsWith("/worlds/")
-            && !spriteReference.StartsWith("worlds/")
-        )
-        {
-            string fileName = System.IO.Path.GetFileName(spriteReference);
-            spriteReference = $"/worlds/{worldId}/items/{fileName}";
-        }
+        string fileName = System.IO.Path.GetFileName(spriteReference);
+        spriteReference = $"/worlds/{worldId}/items/{fileName}";
 
         var texture = await cacheManager.GetSprite(spriteReference, System.DateTime.MinValue);
         if (sequenceAtCall != equipmentChangeSequence)

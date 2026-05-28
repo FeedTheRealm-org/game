@@ -14,6 +14,7 @@ using FTR.Gameplay.Client.Loaders;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
+using FTRShared.Runtime.Core.Interfaces;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -112,7 +113,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(clientQuestRegistry);
             builder.RegisterInstance(modelService);
-            builder.RegisterInstance(gltfLoaderService);
+            builder.RegisterInstance(gltfLoaderService).As<IGltfLoader>().AsSelf();
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
             builder.RegisterInstance(materialService);

@@ -59,17 +59,8 @@ namespace FTR.UI.Inventory
                     ? itemData.spriteFilePath
                     : itemId;
 
-            if (
-                !string.IsNullOrEmpty(worldId)
-                && !spriteReference.StartsWith("http://")
-                && !spriteReference.StartsWith("https://")
-                && !spriteReference.StartsWith("/worlds/")
-                && !spriteReference.StartsWith("worlds/")
-            )
-            {
-                string fileName = System.IO.Path.GetFileName(spriteReference);
-                spriteReference = $"/worlds/{worldId}/items/{fileName}";
-            }
+            string fileName = System.IO.Path.GetFileName(spriteReference);
+            spriteReference = $"/worlds/{worldId}/items/{fileName}";
 
             var texture = await cacheManager.GetSprite(spriteReference, DateTime.MinValue);
 

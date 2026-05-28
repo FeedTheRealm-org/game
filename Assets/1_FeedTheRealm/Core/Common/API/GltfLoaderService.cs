@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using FTRShared.Runtime.Core.Interfaces;
 using GLTFast;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace API
         fileName = "GltLoaderService",
         menuName = "Scriptable Objects/API/GltLoaderService"
     )]
-    public class GltLoaderService : ScriptableObject
+    public class GltLoaderService : ScriptableObject, IGltfLoader
     {
         [SerializeField]
         private ApiConfig apiConfig;

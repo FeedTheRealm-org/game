@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using API;
+using FTRShared.Runtime.Core.Interfaces;
 using UnityEngine;
 
 namespace FTR.Gameplay.Client.Cache;
@@ -18,7 +19,7 @@ public class CacheManager
 {
     private readonly AssetsService assetsService;
     private readonly ModelService modelService;
-    private readonly GltLoaderService gltfLoaderService;
+    private readonly IGltfLoader gltfLoaderService;
     private readonly DiskService disk;
 
     private readonly Dictionary<string, CacheEntry> cacheEntries =

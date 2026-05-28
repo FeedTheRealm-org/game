@@ -7,6 +7,7 @@ using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.EntryPoints;
+using FTRShared.Runtime.Core.Interfaces;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using VContainer;
@@ -105,7 +106,7 @@ public class ClientInitiator : LifetimeScope
         builder.RegisterInstance(playerService);
         builder.RegisterInstance(assetsService);
         builder.RegisterInstance(modelService);
-        builder.RegisterInstance(gltfLoaderService);
+        builder.RegisterInstance(gltfLoaderService).As<IGltfLoader>().AsSelf();
         builder.RegisterInstance(logger);
         eventRegistry.RegisterAll(builder);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
