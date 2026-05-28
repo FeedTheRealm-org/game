@@ -93,6 +93,10 @@ namespace FTR.UI.Shop
         private VisualElement _messageArea;
         private Label _feedbackLabel;
 
+        private PaginationModule<ProductData> _goldPagination;
+        private PaginationModule<ProductData> _cosmeticPagination;
+        private const int ItemsPerPage = 10;
+
         private bool _isGoldTabActive = true;
         private int _currentGemBalance = -1;
         private string _currentShopId;
@@ -142,6 +146,18 @@ namespace FTR.UI.Shop
 
             _shopItemsContainer = _shopRoot.Q<VisualElement>("ShopItemsContainer");
             _cosmeticItemsContainer = _shopRoot.Q<VisualElement>("CosmeticItemsContainer");
+
+            _goldPagination = new PaginationModule<ProductData>(
+                ItemsPerPage,
+                _shopItemsContainer,
+                (product) => _shopItemsContainer.Add(CreateGoldRow(product))
+            );
+
+            _cosmeticPagination = new PaginationModule<ProductData>(
+                ItemsPerPage,
+                _cosmeticItemsContainer,
+                (product) => _cosmeticItemsContainer.Add(CreateCosmeticRow(product))
+            );
 
             _messageArea = _shopRoot.Q<VisualElement>("MessageArea");
             SetupFeedbackLabel();
@@ -411,25 +427,26 @@ namespace FTR.UI.Shop
                 return;
             }
 
-            int goldCount = 0,
-                gemCount = 0;
+            var goldProducts = new List<ProductData>();
+            var cosmeticProducts = new List<ProductData>();
 
             foreach (var product in products)
             {
                 if (product.currency == CurrencyType.Gold)
                 {
-                    _shopItemsContainer.Add(CreateGoldRow(product));
-                    goldCount++;
+                    goldProducts.Add(product);
                 }
                 else if (product.currency == CurrencyType.Gems)
                 {
-                    _cosmeticItemsContainer.Add(CreateCosmeticRow(product));
-                    gemCount++;
+                    cosmeticProducts.Add(product);
                 }
             }
 
+            _goldPagination.SetItems(goldProducts);
+            _cosmeticPagination.SetItems(cosmeticProducts);
+
             logger.Log(
-                $"[ShopUIController] Shop '{shopId}': {goldCount} gold, {gemCount} gem products.",
+                $"[ShopUIController] Shop '{shopId}': {goldProducts.Count} gold, {cosmeticProducts.Count} gem products (including mocks).",
                 this
             );
         }
