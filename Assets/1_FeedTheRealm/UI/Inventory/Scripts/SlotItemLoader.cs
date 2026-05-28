@@ -1,6 +1,6 @@
 using System;
-using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.Registry;
+using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
 

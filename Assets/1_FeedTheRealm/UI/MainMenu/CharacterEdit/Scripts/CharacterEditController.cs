@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client.Interfaces;
-using FTR.Gameplay.Client.Cache;
+using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;

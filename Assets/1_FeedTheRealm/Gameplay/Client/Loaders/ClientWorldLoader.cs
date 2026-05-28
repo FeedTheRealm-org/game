@@ -4,9 +4,9 @@ using FTR.Core.Client;
 using FTR.Core.Client.EntryPoints;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
-using FTR.Gameplay.Client.Cache;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.LoaderEntities;
+using FTRShared.Runtime.Core.Cache;
 using VContainer;
 
 namespace FTR.Gameplay.Client.Loaders
