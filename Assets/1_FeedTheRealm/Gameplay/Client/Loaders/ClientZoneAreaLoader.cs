@@ -1,8 +1,8 @@
 using System;
-using System.IO;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Common.Loaders;
+using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 
@@ -11,12 +11,18 @@ namespace FTR.Gameplay.Client.Loaders
     public class ClientZoneAreaLoader : ILoader
     {
         private readonly MaterialService materialService;
+        private readonly CacheManager cacheManager;
         private readonly Logging.Logger logger;
         private const string Seperator = "@";
 
-        public ClientZoneAreaLoader(MaterialService materialService, Logging.Logger logger)
+        public ClientZoneAreaLoader(
+            MaterialService materialService,
+            CacheManager cacheManager,
+            Logging.Logger logger
+        )
         {
             this.materialService = materialService;
+            this.cacheManager = cacheManager;
             this.logger = logger;
         }
 
@@ -93,21 +99,16 @@ namespace FTR.Gameplay.Client.Loaders
                 return;
             }
 
-            string tempPath = await materialService.DownloadMaterialAsync(response);
-            if (tempPath == null)
+            Texture2D texture = await cacheManager.GetSprite(
+                response.url,
+                System.DateTime.MinValue
+            );
+            if (texture == null)
                 return;
 
-            try
-            {
-                var material = LoadMaterial(tempPath, type);
-                if (material != null)
-                    onLoaded(material);
-            }
-            finally
-            {
-                if (File.Exists(tempPath))
-                    File.Delete(tempPath);
-            }
+            var material = LoadMaterial(texture, type);
+            if (material != null)
+                onLoaded(material);
         }
 
         // Matches either by extracted UUID (custom) or by name (default)
@@ -141,42 +142,29 @@ namespace FTR.Gameplay.Client.Loaders
             return null;
         }
 
-        private Material LoadMaterial(string texturePath, ZoneTextureType type)
+        private Material LoadMaterial(Texture2D texture, ZoneTextureType type)
         {
-            try
-            {
-                byte[] bytes = File.ReadAllBytes(texturePath);
-                var texture = new Texture2D(2, 2);
-                if (!texture.LoadImage(bytes))
-                {
-                    logger.Log(
-                        $"[ClientWorldAreaLoader] Failed to load texture from '{texturePath}'.",
-                        Logging.LogType.Error
-                    );
-                    return null;
-                }
-
-                Material material;
-                if (type == ZoneTextureType.Skybox)
-                {
-                    material = new Material(Shader.Find("Skybox/Panoramic"));
-                    material.SetTexture("_MainTex", texture);
-                }
-                else
-                {
-                    material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                    material.mainTexture = texture;
-                }
-                return material;
-            }
-            catch (Exception ex)
+            if (texture == null)
             {
                 logger.Log(
-                    $"[ClientWorldAreaLoader] Error loading material: {ex.Message}",
+                    "[ClientWorldAreaLoader] Failed to load texture from cache.",
                     Logging.LogType.Error
                 );
                 return null;
             }
+
+            Material material;
+            if (type == ZoneTextureType.Skybox)
+            {
+                material = new Material(Shader.Find("Skybox/Panoramic"));
+                material.SetTexture("_MainTex", texture);
+            }
+            else
+            {
+                material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                material.mainTexture = texture;
+            }
+            return material;
         }
     }
 }

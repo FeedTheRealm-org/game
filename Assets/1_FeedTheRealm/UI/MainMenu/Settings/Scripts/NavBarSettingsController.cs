@@ -5,8 +5,10 @@ using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Settings;
+using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.Homepage.Settings
 {
@@ -24,16 +26,21 @@ namespace FTR.UI.Homepage.Settings
         [SerializeField]
         private OnLogoutRequestedEvent logoutRequestedEvent;
 
+        [Inject]
+        private CacheManager cacheManager;
+
         private VisualElement _root;
         private VisualElement _panel;
 
         private Button _displayNavButton;
         private Button _soundNavButton;
+        private Button _cacheNavButton;
         private Button _logoutButton;
         private Button _exitButton;
 
         private ScrollView _displayContent;
         private ScrollView _soundContent;
+        private ScrollView _cacheContent;
 
         private CustomDropdown _resolutionSelect;
         private Toggle _fullscreenToggle;
@@ -43,12 +50,15 @@ namespace FTR.UI.Homepage.Settings
         private Slider _sfxVolumeSlider;
         private Toggle _muteToggle;
 
+        private Button _clearCacheButton;
+
         private List<Resolution> _availableResolutions = new();
 
         private enum Section
         {
             Display,
             Sound,
+            Cache,
         }
 
         private Section _activeSection = Section.Display;
@@ -71,11 +81,13 @@ namespace FTR.UI.Homepage.Settings
 
             _displayNavButton = _panel.Q<Button>("HPSettings_DisplayButton");
             _soundNavButton = _panel.Q<Button>("HPSettings_SoundButton");
+            _cacheNavButton = _panel.Q<Button>("HPSettings_CacheButton");
             _logoutButton = _panel.Q<Button>("HPSettings_LogoutButton");
             _exitButton = _panel.Q<Button>("HPSettings_ExitButton");
 
             _displayContent = _panel.Q<ScrollView>("HPSettings_DisplayContent");
             _soundContent = _panel.Q<ScrollView>("HPSettings_SoundContent");
+            _cacheContent = _panel.Q<ScrollView>("HPSettings_CacheContent");
 
             _resolutionSelect = _panel.Q<CustomDropdown>("HPSettings_ResolutionSelect");
             _fullscreenToggle = _panel.Q<Toggle>("HPSettings_FullscreenToggle");
@@ -84,6 +96,8 @@ namespace FTR.UI.Homepage.Settings
             _musicVolumeSlider = _panel.Q<Slider>("HPSettings_MusicVolumeSlider");
             _sfxVolumeSlider = _panel.Q<Slider>("HPSettings_SFXVolumeSlider");
             _muteToggle = _panel.Q<Toggle>("HPSettings_MuteToggle");
+
+            _clearCacheButton = _panel.Q<Button>("HPSettings_ClearCacheButton");
 
             if (!ValidateElements())
                 return;
@@ -120,16 +134,19 @@ namespace FTR.UI.Homepage.Settings
 
             Check(_displayNavButton, "HPSettings_DisplayButton");
             Check(_soundNavButton, "HPSettings_SoundButton");
+            Check(_cacheNavButton, "HPSettings_CacheButton");
             Check(_logoutButton, "HPSettings_LogoutButton");
             Check(_exitButton, "HPSettings_ExitButton");
             Check(_displayContent, "HPSettings_DisplayContent");
             Check(_soundContent, "HPSettings_SoundContent");
+            Check(_cacheContent, "HPSettings_CacheContent");
             Check(_resolutionSelect, "HPSettings_ResolutionSelect");
             Check(_fullscreenToggle, "HPSettings_FullscreenToggle");
             Check(_volumeSlider, "HPSettings_VolumeSlider");
             Check(_musicVolumeSlider, "HPSettings_MusicVolumeSlider");
             Check(_sfxVolumeSlider, "HPSettings_SFXVolumeSlider");
             Check(_muteToggle, "HPSettings_MuteToggle");
+            Check(_clearCacheButton, "HPSettings_ClearCacheButton");
 
             return ok;
         }
@@ -193,9 +210,12 @@ namespace FTR.UI.Homepage.Settings
                 section == Section.Display ? DisplayStyle.Flex : DisplayStyle.None;
             _soundContent.style.display =
                 section == Section.Sound ? DisplayStyle.Flex : DisplayStyle.None;
+            _cacheContent.style.display =
+                section == Section.Cache ? DisplayStyle.Flex : DisplayStyle.None;
 
             SetNavSelected(_displayNavButton, section == Section.Display);
             SetNavSelected(_soundNavButton, section == Section.Sound);
+            SetNavSelected(_cacheNavButton, section == Section.Cache);
         }
 
         private static void SetNavSelected(Button btn, bool selected)
@@ -214,8 +234,10 @@ namespace FTR.UI.Homepage.Settings
             {
                 _displayNavButton.clicked += OnDisplayNav;
                 _soundNavButton.clicked += OnSoundNav;
+                _cacheNavButton.clicked += OnCacheNav;
                 _logoutButton.clicked += OnLogoutClicked;
                 _exitButton.clicked += OnExitClicked;
+                _clearCacheButton.clicked += OnClearCacheClicked;
 
                 _fullscreenToggle?.RegisterValueChangedCallback(OnFullscreenChanged);
                 _resolutionSelect.OnValueChanged += OnResolutionChanged;
@@ -231,10 +253,14 @@ namespace FTR.UI.Homepage.Settings
                     _displayNavButton.clicked -= OnDisplayNav;
                 if (_soundNavButton != null)
                     _soundNavButton.clicked -= OnSoundNav;
+                if (_cacheNavButton != null)
+                    _cacheNavButton.clicked -= OnCacheNav;
                 if (_logoutButton != null)
                     _logoutButton.clicked -= OnLogoutClicked;
                 if (_exitButton != null)
                     _exitButton.clicked -= OnExitClicked;
+                if (_clearCacheButton != null)
+                    _clearCacheButton.clicked -= OnClearCacheClicked;
 
                 _fullscreenToggle?.UnregisterValueChangedCallback(OnFullscreenChanged);
                 if (_resolutionSelect != null)
@@ -250,6 +276,8 @@ namespace FTR.UI.Homepage.Settings
         private void OnDisplayNav() => ShowSection(Section.Display);
 
         private void OnSoundNav() => ShowSection(Section.Sound);
+
+        private void OnCacheNav() => ShowSection(Section.Cache);
 
         private void OnLogoutClicked()
         {
@@ -287,6 +315,22 @@ namespace FTR.UI.Homepage.Settings
                     Application.Quit();
                 }
             );
+        }
+
+        private void OnClearCacheClicked()
+        {
+            if (cacheManager == null)
+            {
+                logger.Log(
+                    "[NavBarSettingsController] CacheManager is not assigned.",
+                    this,
+                    Logging.LogType.Error
+                );
+                return;
+            }
+
+            cacheManager.ClearAllCache();
+            logger.Log("[NavBarSettingsController] Cache cleared.", this);
         }
 
         // ── Audio callbacks ────────────────────────────────────────────────────
