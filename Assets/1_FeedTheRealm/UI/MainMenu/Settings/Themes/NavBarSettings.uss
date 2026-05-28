@@ -142,6 +142,13 @@
     margin-bottom: 8px;
 }
 
+.hpset-cache-feedback {
+    color: var(--teal);
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-top: 6px;
+}
+
 .hpset-action-button {
     height: 40px;
     font-size: 15px;

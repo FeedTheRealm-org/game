@@ -6,6 +6,7 @@ using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.Loaders;
+using FTRShared.Runtime.Core.Cache;
 using VContainer;
 using VContainer.Unity;
 
@@ -25,6 +26,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly ClientPrefabProvider prefabProvider;
         private readonly ClientMusicRegistry musicRegistry;
         private readonly SettingsManager settingsManager;
+        private readonly CacheManager cacheManager;
         private CursorManager cursorManager;
         private bool isInitialized = false;
 
@@ -41,7 +43,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             ClientPrefabProvider prefabProvider,
             ClientMusicRegistry musicRegistry,
             CursorManager cursorManager,
-            SettingsManager settingsManager
+            SettingsManager settingsManager,
+            CacheManager cacheManager
         )
         {
             this.tickEvent = tickEvent;
@@ -55,6 +58,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             resolverContainer.SetResolver(resolver);
             this.cursorManager = cursorManager;
             this.settingsManager = settingsManager;
+            this.cacheManager = cacheManager;
             isInitialized = true;
         }
 
@@ -63,6 +67,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             settingsManager.LoadSettings();
             settingsManager.ApplyDisplay();
             settingsManager.ApplyAudioListener();
+            cacheManager.SetCachingEnabled(settingsManager.IsCachingEnabled);
 
             cursorManager.ToggleCursorBlock(true);
             var musicPlayerPrefab = prefabProvider.MusicPlayerPrefab;

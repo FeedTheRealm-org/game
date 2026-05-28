@@ -47,10 +47,16 @@
                     <ui:Label text="Cache" class="hpset-section-title"/>
                     <ui:VisualElement class="hpset-section-divider"/>
                     <ui:VisualElement class="setting-row">
+                        <ui:Toggle label="Enable Caching" name="HPSettings_CacheEnabledToggle" value="true" class="setting-toggle"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
                         <ui:Label text="Clear cached models and images to free storage." class="hpset-cache-text"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="setting-row">
                         <ui:Button text="Clear Cache" name="HPSettings_ClearCacheButton" class="hpset-action-button"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="" name="HPSettings_CacheStatus" class="hpset-cache-feedback"/>
                     </ui:VisualElement>
                 </ui:ScrollView>
             </ui:VisualElement>

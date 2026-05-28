@@ -51,6 +51,8 @@ namespace FTR.UI.Homepage.Settings
         private Toggle _muteToggle;
 
         private Button _clearCacheButton;
+        private Toggle _cacheEnabledToggle;
+        private Label _cacheStatusLabel;
 
         private List<Resolution> _availableResolutions = new();
 
@@ -98,6 +100,8 @@ namespace FTR.UI.Homepage.Settings
             _muteToggle = _panel.Q<Toggle>("HPSettings_MuteToggle");
 
             _clearCacheButton = _panel.Q<Button>("HPSettings_ClearCacheButton");
+            _cacheEnabledToggle = _panel.Q<Toggle>("HPSettings_CacheEnabledToggle");
+            _cacheStatusLabel = _panel.Q<Label>("HPSettings_CacheStatus");
 
             if (!ValidateElements())
                 return;
@@ -147,6 +151,8 @@ namespace FTR.UI.Homepage.Settings
             Check(_sfxVolumeSlider, "HPSettings_SFXVolumeSlider");
             Check(_muteToggle, "HPSettings_MuteToggle");
             Check(_clearCacheButton, "HPSettings_ClearCacheButton");
+            Check(_cacheEnabledToggle, "HPSettings_CacheEnabledToggle");
+            Check(_cacheStatusLabel, "HPSettings_CacheStatus");
 
             return ok;
         }
@@ -166,6 +172,8 @@ namespace FTR.UI.Homepage.Settings
             _sfxVolumeSlider?.SetValueWithoutNotify(settingsManager.SFXVolume);
             _muteToggle?.SetValueWithoutNotify(settingsManager.IsMuted);
             _fullscreenToggle?.SetValueWithoutNotify(settingsManager.IsFullscreen);
+            _cacheEnabledToggle?.SetValueWithoutNotify(settingsManager.IsCachingEnabled);
+            cacheManager?.SetCachingEnabled(settingsManager.IsCachingEnabled);
         }
 
         private void InitializeResolutions()
@@ -238,6 +246,7 @@ namespace FTR.UI.Homepage.Settings
                 _logoutButton.clicked += OnLogoutClicked;
                 _exitButton.clicked += OnExitClicked;
                 _clearCacheButton.clicked += OnClearCacheClicked;
+                _cacheEnabledToggle?.RegisterValueChangedCallback(OnCacheEnabledChanged);
 
                 _fullscreenToggle?.RegisterValueChangedCallback(OnFullscreenChanged);
                 _resolutionSelect.OnValueChanged += OnResolutionChanged;
@@ -261,6 +270,7 @@ namespace FTR.UI.Homepage.Settings
                     _exitButton.clicked -= OnExitClicked;
                 if (_clearCacheButton != null)
                     _clearCacheButton.clicked -= OnClearCacheClicked;
+                _cacheEnabledToggle?.UnregisterValueChangedCallback(OnCacheEnabledChanged);
 
                 _fullscreenToggle?.UnregisterValueChangedCallback(OnFullscreenChanged);
                 if (_resolutionSelect != null)
@@ -329,8 +339,32 @@ namespace FTR.UI.Homepage.Settings
                 return;
             }
 
-            cacheManager.ClearAllCache();
-            logger.Log("[NavBarSettingsController] Cache cleared.", this);
+            int deletedCount = cacheManager.ClearAllCache();
+            if (_cacheStatusLabel != null)
+            {
+                _cacheStatusLabel.text =
+                    deletedCount > 0
+                        ? $"Cleared cache: {deletedCount} files removed."
+                        : "Cache already empty.";
+            }
+            logger.Log(
+                $"[NavBarSettingsController] Cache cleared (files removed: {deletedCount}).",
+                this
+            );
+        }
+
+        private void OnCacheEnabledChanged(ChangeEvent<bool> evt)
+        {
+            settingsManager.IsCachingEnabled = evt.newValue;
+            settingsManager.SaveSettings();
+            cacheManager?.SetCachingEnabled(evt.newValue);
+
+            if (_cacheStatusLabel != null)
+            {
+                _cacheStatusLabel.text = evt.newValue
+                    ? "Caching enabled."
+                    : "Caching disabled. Files will not be stored.";
+            }
         }
 
         // ── Audio callbacks ────────────────────────────────────────────────────

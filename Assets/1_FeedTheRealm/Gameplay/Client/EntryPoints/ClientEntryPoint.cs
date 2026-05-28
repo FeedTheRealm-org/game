@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
+using FTRShared.Runtime.Core.Cache;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -33,6 +34,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject authBackgroundPrefab;
         private readonly GameObject confirmPopupPrefab;
         private readonly ConfirmPopupHandle confirmPopupHandle;
+        private readonly CacheManager cacheManager;
         private MenuManager menuManager;
         private IObjectResolver objectResolver;
 
@@ -57,7 +59,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             MenuManager menuManager,
             ConfirmPopupHandle confirmPopupHandle,
             GameObject confirmPopupPrefab,
-            IObjectResolver resolver
+            IObjectResolver resolver,
+            CacheManager cacheManager
         )
         {
             this.mainScene = mainScene;
@@ -77,6 +80,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.confirmPopupHandle = confirmPopupHandle;
             this.confirmPopupPrefab = confirmPopupPrefab;
             this.objectResolver = resolver;
+            this.cacheManager = cacheManager;
 
             flowService = new MainMenuFlowService(
                 worldFeedMenuPrefab,
@@ -134,6 +138,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             settingsManager.LoadSettings();
             settingsManager.ApplyDisplay();
             settingsManager.ApplyAudioListener();
+            cacheManager.SetCachingEnabled(settingsManager.IsCachingEnabled);
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
             Application.runInBackground = true;
