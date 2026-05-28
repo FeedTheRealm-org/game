@@ -118,7 +118,6 @@ public class CacheManager
 
     private bool ShouldInvalidateCache(string uri, DateTime updatedAt)
     {
-        return false;
         if (cacheEntries.TryGetValue(uri, out var entry))
             return updatedAt > entry.updatedAt; // TODO: consider deleting file instead of just overwriting it
         return true;

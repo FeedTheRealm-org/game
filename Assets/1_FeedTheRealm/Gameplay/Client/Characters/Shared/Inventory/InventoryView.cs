@@ -30,9 +30,6 @@ public class InventoryView : MonoBehaviour
     private InventoryErrorEvent inventoryErrorEventChannel;
 
     [Inject]
-    private API.ItemAssetsService itemsAssetsService;
-
-    [Inject]
     private ISoundPlayer soundPlayer;
 
     private InventoryStateStorage stateStorage;

@@ -74,9 +74,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private AssetsService assetsService;
 
         [SerializeField]
-        private ItemAssetsService itemAssetsService;
-
-        [SerializeField]
         private MaterialService materialService;
 
         [SerializeField]
@@ -118,7 +115,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(gltfLoaderService);
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
-            builder.RegisterInstance(itemAssetsService);
             builder.RegisterInstance(materialService);
             builder.RegisterInstance(colliderRegistry);
             builder.RegisterInstance(soundFXRegistry);
@@ -158,7 +154,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(settingsManager, "SettingsManager");
             ValidateField(modelService, "ModelService");
             ValidateField(gltfLoaderService, "GLTFLoaderService");
-            ValidateField(itemAssetsService, "ItemAssetsService");
             ValidateField(assetsService, "AssetsService");
             ValidateField(zoneService, "ZoneService");
             ValidateField(npcDialogRegistry, "NpcDialogRegistry");

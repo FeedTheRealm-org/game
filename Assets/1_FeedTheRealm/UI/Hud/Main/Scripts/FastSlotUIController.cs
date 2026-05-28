@@ -39,9 +39,6 @@ namespace FTR.UI.Hud.Main
         [SerializeField]
         private PlayerInputReader inputReader;
 
-        [SerializeField]
-        private API.ItemAssetsService itemAssetsService;
-
         [Inject]
         private CacheManager cacheManager;
 

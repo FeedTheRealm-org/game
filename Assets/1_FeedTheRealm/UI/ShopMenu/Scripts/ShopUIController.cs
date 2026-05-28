@@ -33,9 +33,6 @@ namespace FTR.UI.Shop
         private Logging.Logger logger;
 
         [SerializeField]
-        private API.ItemAssetsService itemAssetsService;
-
-        [SerializeField]
         private API.AssetsService assetsService;
 
         [SerializeField]

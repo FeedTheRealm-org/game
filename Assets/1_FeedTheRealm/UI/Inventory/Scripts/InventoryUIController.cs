@@ -71,9 +71,6 @@ namespace FTR.UI.Inventory
         [SerializeField]
         private PlayerInputReader inputReader;
 
-        [SerializeField]
-        private API.ItemAssetsService itemAssetsService;
-
         [Inject]
         private CacheManager cacheManager;
 
