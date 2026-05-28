@@ -161,6 +161,8 @@ namespace FTR.Gameplay.Client.Loaders
             }
             else
             {
+                texture.wrapMode = TextureWrapMode.Repeat;
+                texture.filterMode = FilterMode.Bilinear;
                 material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 material.mainTexture = texture;
             }
