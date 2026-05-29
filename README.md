@@ -102,13 +102,12 @@ make clean        # Remove all containers, images, and volumes
 
 | Pack | Link |
 |---|---|
-| 6000 Fantasy Icons | |
-| Cartoon Texture Pack | |
-| GUI Parts | |
-| HeroEditor4D | |
-| SPUM | |
-| SyntyStudios | |
-| TextMesh Pro | |
+| 6000 Fantasy Icons | [6000 Fantasy Icons](https://assetstore.unity.com/packages/2d/gui/icons/6000-fantasy-icons-278148) |
+| Cartoon Texture Pack | [Stylized PBR Textures Pack](https://assetstore.unity.com/packages/2d/textures-materials/free-stylized-pbr-textures-pack-111778) |
+| GUI Parts | [GUI Parts](https://assetstore.unity.com/packages/2d/gui/icons/gui-parts-159068) |
+| HeroEditor4D | [Character Editor 4D [Megapack]](https://assetstore.unity.com/packages/2d/characters/character-editor-4d-megapack-147364) |
+| SPUM | [2D Pixel Unit Maker - SPUM](https://assetstore.unity.com/packages/2d/characters/2d-pixel-unit-maker-spum-188715) |
+| TextMesh Pro | [TextMesh Pro](https://docs.unity3d.com/Manual/com.unity.textmeshpro.html) |
 
 ## External Dependencies
 
