@@ -621,7 +621,10 @@ namespace FTR.UI.Shop
             var spriteUrlTask = assetsService.GetSpriteByIdAsync(cosmeticId);
             yield return new WaitUntil(() => spriteUrlTask.IsCompleted);
 
-            var task = cacheManager.GetSprite(spriteUrlTask.Result.sprite_url, DateTime.UtcNow);
+            var task = cacheManager.GetSprite(
+                spriteUrlTask.Result.sprite_url,
+                DateTimeHelper.ParseDateTimeOffset(spriteUrlTask.Result.updated_at)
+            );
             yield return new WaitUntil(() => task.IsCompleted);
 
             if (task.Result == null)

@@ -398,7 +398,10 @@ public partial class CharacterEditController
             if (!textureCache.TryGetValue(spriteId, out texture))
             {
                 var sprite = await assetsService.GetSpriteByIdAsync(spriteId);
-                texture = await cacheManager.GetSprite(sprite.sprite_url, DateTime.UtcNow);
+                texture = await cacheManager.GetSprite(
+                    sprite.sprite_url,
+                    DateTimeHelper.ParseDateTimeOffset(sprite.updated_at)
+                );
                 if (texture != null)
                 {
                     textureCache[spriteId] = texture;
@@ -603,7 +606,8 @@ public partial class CharacterEditController
             var hasCachedTexture = textureCache.TryGetValue(sprite.sprite_id, out texture);
             if (!hasCachedTexture)
             {
-                texture = await cacheManager.GetSprite(sprite.sprite_url, DateTime.UtcNow);
+                var updatedAt = DateTimeHelper.ParseDateTimeOffset(sprite.updated_at);
+                texture = await cacheManager.GetSprite(sprite.sprite_url, updatedAt);
 
                 if (!IsSpritesRequestCurrent(requestVersion, requestCategoryId))
                 {
