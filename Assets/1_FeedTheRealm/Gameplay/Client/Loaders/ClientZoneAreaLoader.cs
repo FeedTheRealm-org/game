@@ -99,10 +99,20 @@ namespace FTR.Gameplay.Client.Loaders
                 return;
             }
 
-            Texture2D texture = await cacheManager.GetSprite(
-                response.url,
-                System.DateTime.MinValue
-            );
+            Texture2D texture = null;
+            try
+            {
+                var timeStamp = DateTimeHelper.ParseDateTimeOffset(response.updated_at);
+                texture = await cacheManager.GetSprite(response.url, timeStamp);
+            }
+            catch (Exception ex)
+            {
+                logger.Log(
+                    $"[ClientWorldAreaLoader] Failed to load texture for material '{materialId}': {ex.Message}",
+                    Logging.LogType.Error
+                );
+            }
+
             if (texture == null)
                 return;
 
