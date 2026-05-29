@@ -1,7 +1,7 @@
 .tooltip-container {
-    width: 430px;
-    min-width: 430px;
-    max-width: 430px;
+    width: 400px;
+    min-width: 400px;
+    max-width: 400px;
     background-color: rgba(10, 30, 28, 0.95);
     border-color: rgba(42, 210, 188, 0.45);
     border-width: 1px;
@@ -43,7 +43,7 @@
     margin-left: 0;
     margin-right: 0;
     padding: 0;
-    width: 50%;
+    width: 45%;
     white-space: normal;
 }
 

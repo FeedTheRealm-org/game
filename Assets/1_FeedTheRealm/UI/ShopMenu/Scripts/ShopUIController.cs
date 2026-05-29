@@ -41,8 +41,12 @@ namespace FTR.UI.Shop
         [SerializeField]
         private Session.Session session;
 
+        [Header("Tooltip")]
         [SerializeField]
-        private ItemStatsTooltip itemStatsTooltipPrefab;
+        private VisualTreeAsset tooltipUXML;
+
+        [SerializeField]
+        private StyleSheet tooltipStyleSheet;
 
         [Inject]
         private OpenShopEvent openShopEvent;
@@ -102,6 +106,7 @@ namespace FTR.UI.Shop
         private string _currentShopId;
 
         private ItemStatsTooltip _itemStatsTooltip;
+        private VisualElement _tooltipContainer;
         private Coroutine _hideMessageCoroutine;
         private Coroutine _animationCoroutine;
         private Coroutine _fetchGemBalanceCoroutine;
@@ -110,10 +115,25 @@ namespace FTR.UI.Shop
 
         private void OnEnable()
         {
-            if (_itemStatsTooltip == null && itemStatsTooltipPrefab != null)
-                _itemStatsTooltip = Instantiate(itemStatsTooltipPrefab);
+            var uiDocument = GetComponent<UIDocument>();
+            var root = uiDocument.rootVisualElement;
 
-            var root = GetComponent<UIDocument>().rootVisualElement;
+            _itemStatsTooltip = GetComponent<ItemStatsTooltip>();
+            if (tooltipUXML != null && _itemStatsTooltip != null)
+            {
+                var tooltipTree = tooltipUXML.Instantiate();
+                _tooltipContainer = tooltipTree.Q("TooltipContainer") ?? tooltipTree;
+                _tooltipContainer.style.position = Position.Absolute;
+                _tooltipContainer.style.display = DisplayStyle.None;
+                _tooltipContainer.style.left = 0;
+                _tooltipContainer.style.top = 0;
+
+                if (tooltipStyleSheet != null && !root.styleSheets.Contains(tooltipStyleSheet))
+                    root.styleSheets.Add(tooltipStyleSheet);
+
+                root.Add(_tooltipContainer);
+                _itemStatsTooltip.Initialize(_tooltipContainer);
+            }
 
             _shopRoot = root.Q<VisualElement>("Shop");
             if (_shopRoot == null)
@@ -173,6 +193,9 @@ namespace FTR.UI.Shop
         {
             openShopEvent.OnRaised -= OnOpenShop;
             inventoryErrorEvent.OnRaised -= OnInventoryError;
+
+            if (_tooltipContainer != null && _tooltipContainer.parent != null)
+                _tooltipContainer.RemoveFromHierarchy();
         }
 
         private void SwitchTab(bool goldTab)
@@ -499,10 +522,13 @@ namespace FTR.UI.Shop
             row.Add(amountField);
             row.Add(buyButton);
 
-            icon.RegisterCallback<PointerEnterEvent>(_ =>
-                _itemStatsTooltip?.ShowTooltip(capturedId, icon)
-            );
-            icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip?.HideTooltip());
+            if (_itemStatsTooltip != null)
+            {
+                icon.RegisterCallback<PointerEnterEvent>(_ =>
+                    _itemStatsTooltip.ShowTooltip(capturedId, icon)
+                );
+                icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip.HideTooltip());
+            }
 
             return row;
         }
@@ -567,10 +593,13 @@ namespace FTR.UI.Shop
             row.Add(priceLabel);
             row.Add(buyButton);
 
-            icon.RegisterCallback<PointerEnterEvent>(_ =>
-                _itemStatsTooltip?.ShowTooltip(tooltipId, icon)
-            );
-            icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip?.HideTooltip());
+            if (_itemStatsTooltip != null)
+            {
+                icon.RegisterCallback<PointerEnterEvent>(_ =>
+                    _itemStatsTooltip.ShowTooltip(tooltipId, icon)
+                );
+                icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip.HideTooltip());
+            }
 
             return row;
         }

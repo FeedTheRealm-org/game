@@ -1,15 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/ItemStats/Themes/ItemStats.uss?fileID=7433441132597879392&amp;guid=20c950f299056434cb603a4a8a71f13c&amp;type=3#ItemStats"/>
-    <ui:VisualElement name="TooltipContainer" class="tooltip-container">
-        <ui:Label text="Name" name="Name" class="tooltip-title" />
-        <ui:VisualElement class="tooltip-stats-container">
-            <ui:Label text="Effect:" name="Effect" class="tooltip-field" />
-            <ui:Label text="Value:" name="Value" class="tooltip-field" />
-            <ui:Label text="Duration:" name="Duration" class="tooltip-field" />
-            <ui:Label text="Cooldown:" name="Cooldown" class="tooltip-field" />
-            <ui:Label text="Max Stack:" name="MaxStack" class="tooltip-field" />
+    <ui:VisualElement name="TooltipContainer" class="tooltip-container" style="width: 390px; min-width: 390px; max-width: 390px;">
+        <ui:Label text="Name" name="Name" class="tooltip-title"/>
+        <ui:VisualElement class="tooltip-stats-container" style="width: 402px;">
+            <ui:Label text="Effect:" name="Effect" class="tooltip-field"/>
+            <ui:Label text="Value:" name="Value" class="tooltip-field"/>
+            <ui:Label text="Duration:" name="Duration" class="tooltip-field"/>
+            <ui:Label text="Cooldown:" name="Cooldown" class="tooltip-field"/>
+            <ui:Label text="Max Stack:" name="MaxStack" class="tooltip-field"/>
         </ui:VisualElement>
-        <ui:VisualElement name="Divider" class="tooltip-divider" />
-        <ui:Label text="Description" name="Description" class="tooltip-description" />
+        <ui:VisualElement name="Divider" class="tooltip-divider"/>
+        <ui:Label text="Description" name="Description" class="tooltip-description"/>
     </ui:VisualElement>
 </ui:UXML>

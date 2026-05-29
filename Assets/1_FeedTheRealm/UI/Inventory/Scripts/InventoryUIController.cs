@@ -61,12 +61,17 @@ namespace FTR.UI.Inventory
         [SerializeField]
         private API.ItemAssetsService itemAssetsService;
 
+        [Header("Tooltip")]
         [SerializeField]
-        private ItemStatsTooltip itemStatsTooltipPrefab;
+        private VisualTreeAsset tooltipUXML;
+
+        [SerializeField]
+        StyleSheet tooltipStyleSheet;
 
         private UIDocument uiDocument;
         private AnimationInventoryUIController animationController;
         private ItemStatsTooltip itemStatsTooltip;
+        private VisualElement tooltipContainer;
 
         private readonly List<VisualElement> inventorySlots = new(InventorySlotCount);
         private readonly List<VisualElement> fastSlots = new(FastSlotCount);
@@ -82,12 +87,35 @@ namespace FTR.UI.Inventory
             uiDocument = GetComponent<UIDocument>();
             animationController = GetComponent<AnimationInventoryUIController>();
 
-            if (itemStatsTooltip == null && itemStatsTooltipPrefab != null)
-                itemStatsTooltip = Instantiate(itemStatsTooltipPrefab);
+            itemStatsTooltip = GetComponent<ItemStatsTooltip>();
 
             var root = uiDocument.rootVisualElement;
             if (root == null)
                 return;
+
+            if (tooltipUXML != null)
+            {
+                var tooltipTree = tooltipUXML.Instantiate();
+                tooltipContainer = tooltipTree.Q("TooltipContainer") ?? tooltipTree;
+                tooltipContainer.style.position = Position.Absolute;
+                tooltipContainer.style.display = DisplayStyle.None;
+                tooltipContainer.style.left = 0;
+                tooltipContainer.style.top = 0;
+
+                if (tooltipStyleSheet != null && !root.styleSheets.Contains(tooltipStyleSheet))
+                    root.styleSheets.Add(tooltipStyleSheet);
+
+                root.Add(tooltipContainer);
+
+                if (itemStatsTooltip != null)
+                {
+                    itemStatsTooltip.Initialize(tooltipContainer);
+                }
+                else
+                {
+                    Debug.LogWarning("ItemStatsTooltip component is missing on this GameObject!");
+                }
+            }
 
             animationController.Initialize(root);
 
@@ -128,6 +156,9 @@ namespace FTR.UI.Inventory
             lastAddedEvent.OnRaised -= OnLastAdded;
             lastSwappedEvent.OnRaised -= OnLastSwapped;
             lastRemovedEvent.OnRaised -= OnLastRemoved;
+
+            if (tooltipContainer != null && tooltipContainer.parent != null)
+                tooltipContainer.RemoveFromHierarchy();
         }
 
         private void RegisterSlots(
