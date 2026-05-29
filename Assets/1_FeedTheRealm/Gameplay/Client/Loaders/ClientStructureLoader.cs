@@ -54,7 +54,8 @@ namespace FTR.Gameplay.Client.Loaders
                     continue;
                 }
                 string modelUrl = modelsInfo[structureData.id].url;
-                GameObject visual = await GetModel(modelUrl);
+                string updatedAt = modelsInfo[structureData.id].updated_at;
+                GameObject visual = await GetModel(modelUrl, updatedAt);
 
                 GameObject instance = UnityEngine.Object.Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
@@ -69,7 +70,8 @@ namespace FTR.Gameplay.Client.Loaders
             foreach (StructureData shopData in shopStructures)
             {
                 string modelUrl = modelsInfo[shopData.id].url;
-                GameObject visual = await GetModel(modelUrl);
+                string updatedAt = modelsInfo[shopData.id].updated_at;
+                GameObject visual = await GetModel(modelUrl, updatedAt);
 
                 GameObject instance = UnityEngine.Object.Instantiate(shopPrefab);
                 instance.name = shopData.structureName;
@@ -83,12 +85,22 @@ namespace FTR.Gameplay.Client.Loaders
             modelsInfo.Clear();
         }
 
-        private async UniTask<GameObject> GetModel(string modelUrl)
+        private async UniTask<GameObject> GetModel(string modelUrl, string updatedAt)
         {
             if (modelCache.ContainsKey(modelUrl))
                 return modelCache[modelUrl];
 
-            GameObject visual = await cacheManager.GetModel(modelUrl, DateTime.UtcNow);
+            GameObject visual = null;
+            try
+            {
+                var timeStamp = DateTimeHelper.ParseDateTimeOffset(updatedAt);
+                visual = await cacheManager.GetModel(modelUrl, timeStamp);
+            }
+            catch
+            {
+                Debug.LogError($"Failed to load model: {modelUrl}.");
+            }
+
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return visual;

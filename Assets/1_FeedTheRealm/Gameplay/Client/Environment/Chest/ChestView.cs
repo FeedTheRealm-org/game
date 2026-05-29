@@ -45,10 +45,16 @@ namespace FTR.Gameplay.Environment.Chest
 
             var chestData = chestStateStorage.ChestData;
             string openModelUrl = modelsInfo[chestData.opendedChestModelData.modelId].url;
+            string openModelUpdatedAt = modelsInfo[
+                chestData.opendedChestModelData.modelId
+            ].updated_at;
             string closedModelUrl = modelsInfo[chestData.closedChestModelData.modelId].url;
+            string closedModelUpdatedAt = modelsInfo[
+                chestData.closedChestModelData.modelId
+            ].updated_at;
 
-            GameObject openVisual = await GetModel(openModelUrl);
-            GameObject closedVisual = await GetModel(closedModelUrl);
+            GameObject openVisual = await GetModel(openModelUrl, openModelUpdatedAt);
+            GameObject closedVisual = await GetModel(closedModelUrl, closedModelUpdatedAt);
 
             SetupMesh(openVisual, closedVisual);
             ToggleChestState(chestStateStorage.IsOpen);
@@ -97,12 +103,22 @@ namespace FTR.Gameplay.Environment.Chest
             return visualInstance;
         }
 
-        private async UniTask<GameObject> GetModel(string modelUrl)
+        private async UniTask<GameObject> GetModel(string modelUrl, string updatedAt)
         {
             if (modelCache.ContainsKey(modelUrl))
                 return Instantiate(modelCache[modelUrl]);
 
-            GameObject visual = await cacheManager.GetModel(modelUrl, DateTime.UtcNow);
+            GameObject visual = null;
+            try
+            {
+                var timeStamp = DateTimeHelper.ParseDateTimeOffset(updatedAt);
+                visual = await cacheManager.GetModel(modelUrl, timeStamp);
+            }
+            catch
+            {
+                Debug.LogError($"Failed to load model: {modelUrl}.");
+            }
+
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return Instantiate(visual);
