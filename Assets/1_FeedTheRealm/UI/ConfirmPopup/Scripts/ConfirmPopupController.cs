@@ -1,23 +1,22 @@
 using System;
+using FTR.Core.Client.EventChannels.Input;
+using FTR.Core.Client.Interfaces;
+using FTR.Core.Client.Managers;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI
 {
     /// <summary>
     /// Reusable confirm/cancel dialog controller.
-    ///
-    /// <code>
-    ///     _confirmPopup.Show(
-    ///         question:  "¿Are you sure ...?",
-    ///         onConfirm: () => func(),
-    ///         onCancel:  () => { /* optional */ },
-    ///         title:     "Title"           // optional
-    ///     );
-    /// </code>
+    /// (Main Menu scene): Instantiated via normal Instantiate, without
+    /// injection. Does not coordinate with MenuManager or BackEvent. Destroyed upon closing.
+    /// var popup = Instantiate(prefab).GetComponent<IConfirmPopup>();
+    /// popup.Show(...);
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
-    public class ConfirmPopupController : MonoBehaviour
+    public class ConfirmPopupController : MonoBehaviour, IConfirmPopup
     {
         private VisualElement _overlay;
         private Label _titleLabel;
@@ -33,6 +32,15 @@ namespace FTR.UI
 
         [SerializeField]
         private string defaultCancelText = "Cancel";
+
+        [Inject]
+        private MenuManager menuManager;
+
+        [Inject]
+        private BackEvent backEvent;
+
+        [Inject]
+        private Logging.Logger logger;
 
         private void Awake()
         {
@@ -59,12 +67,29 @@ namespace FTR.UI
             Hide();
         }
 
+        private void Start()
+        {
+            if (backEvent != null)
+                backEvent.OnRaised += OnBackPressed;
+
+            if (menuManager == null)
+                logger.Log(
+                    "Registering confirm popup failed, MenuManager is null.",
+                    this,
+                    Logging.LogType.Error
+                );
+
+            menuManager.RegisterMenuCallbacks(MenuType.Confirmation, null, onClose: Hide);
+        }
+
         private void OnDestroy()
         {
             if (_confirmButton != null)
                 _confirmButton.clicked -= OnConfirmClicked;
             if (_cancelButton != null)
                 _cancelButton.clicked -= OnCancelClicked;
+            if (backEvent != null)
+                backEvent.OnRaised -= OnBackPressed;
         }
 
         public void Show(
@@ -88,6 +113,8 @@ namespace FTR.UI
             _cancelButton.text = string.IsNullOrEmpty(cancelText) ? defaultCancelText : cancelText;
 
             _overlay.style.display = DisplayStyle.Flex;
+
+            menuManager.ToggleMenu(MenuType.Confirmation, true);
         }
 
         public void Hide()
@@ -95,6 +122,18 @@ namespace FTR.UI
             _overlay.style.display = DisplayStyle.None;
             _onConfirm = null;
             _onCancel = null;
+
+            menuManager.ToggleMenu(MenuType.Confirmation, false);
+        }
+
+        private void OnBackPressed()
+        {
+            if (_overlay.style.display != DisplayStyle.Flex)
+                return;
+
+            var cb = _onCancel;
+            Hide();
+            cb?.Invoke();
         }
 
         private void OnConfirmClicked()
@@ -102,7 +141,6 @@ namespace FTR.UI
             var cb = _onConfirm;
             Hide();
             cb?.Invoke();
-            Destroy(gameObject);
         }
 
         private void OnCancelClicked()
@@ -110,7 +148,6 @@ namespace FTR.UI
             var cb = _onCancel;
             Hide();
             cb?.Invoke();
-            Destroy(gameObject);
         }
     }
 }

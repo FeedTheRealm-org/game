@@ -36,10 +36,12 @@ MonoBehaviour:
   showQuestPromptEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
   questDecisionEvent: {fileID: 11400000, guid: 982c6ff128438cb20afe10947eb6ce40, type: 2}
   questCompletedEvent: {fileID: 11400000, guid: b2755233a0e9e83729434441a96c878d, type: 2}
+  questTrackToggleEvent: {fileID: 11400000, guid: 00402977eecdeafdc96a92d88a2c1e1b, type: 2}
   tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
   fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
   lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}
   goldChangedEvent: {fileID: 11400000, guid: 75f3afe00bdb988408562d7f115a97b5, type: 2}
+  gemBalanceChangedEvent: {fileID: 11400000, guid: 6e19a2bcef1b209928c5b29966d33e05, type: 2}
   chatMessageRequestEvent: {fileID: 11400000, guid: 76494190adc81ca44a60cfc847cac771, type: 2}
   chatToggleEvent: {fileID: 11400000, guid: 2455ce08d97e1d84fbcfd63ed74f4bb1, type: 2}
   portalToggleEvent: {fileID: 11400000, guid: 68a331b3e06ec625495807569e93bc60, type: 2}
@@ -47,4 +49,5 @@ MonoBehaviour:
   onExitEvent: {fileID: 11400000, guid: b73de8ca690a2880da97d4d5b5f72e4c, type: 2}
   onProfileCreatedEvent: {fileID: 11400000, guid: 3ceb2b7c8878d0abc9282e08f48b309a, type: 2}
   onLogoutRequestedEvent: {fileID: 11400000, guid: b24eefb74fe820ae3bb69ec823248065, type: 2}
+  questToggleEvent: {fileID: 11400000, guid: cb7a4f144bbe1fdb7ae2d5eff8e2a39b, type: 2}
   backEvent: {fileID: 11400000, guid: 84e65d4304044a4fd802bcb81b05a1ed, type: 2}

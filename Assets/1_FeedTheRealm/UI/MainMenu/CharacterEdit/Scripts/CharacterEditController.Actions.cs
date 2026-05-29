@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
 using FTR.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -82,26 +83,9 @@ public partial class CharacterEditController
     /// <summary>
     /// Handles save button click event to save character info.
     /// </summary>
-    private async Task onSaveClicked(GameObject confirmPopupPrefab)
+    private async Task onSaveClicked(IConfirmPopup confirmPopupHandle)
     {
-        if (confirmPopupPrefab == null)
-        {
-            logger?.Log("Confirm dialog prefab reference is missing.", this, Logging.LogType.Error);
-            return;
-        }
-        var confirmPopup = Instantiate(confirmPopupPrefab);
-        var dialogController = confirmPopup.GetComponent<ConfirmPopupController>();
-        if (dialogController == null)
-        {
-            logger?.Log(
-                "Confirm dialog prefab does not contain an ConfirmPopupController implementation.",
-                this,
-                Logging.LogType.Error
-            );
-            Destroy(confirmPopup);
-            return;
-        }
-        dialogController.Show(
+        ConfirmPopup?.Show(
             title: "Save Changes",
             question: $"Are you sure you want to save these changes?",
             onConfirm: async () =>

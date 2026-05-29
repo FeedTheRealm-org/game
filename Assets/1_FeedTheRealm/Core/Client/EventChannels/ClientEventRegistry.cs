@@ -57,6 +57,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public ShowQuestPromptEvent showQuestPromptEvent;
         public QuestDecisionEvent questDecisionEvent;
         public QuestCompletedEvent questCompletedEvent;
+        public QuestTrackToggleEvent questTrackToggleEvent;
 
         [Header("Tick Events")]
         public TickEvent tickEvent;
@@ -65,6 +66,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         [Header("Gold Events")]
         public GoldChangedEvent goldChangedEvent;
+        public GemBalanceChangedEvent gemBalanceChangedEvent;
 
         [Header("Chat Events")]
         public ChatMessageRequestEvent chatMessageRequestEvent;
@@ -78,6 +80,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public OnWorldLeaveEvent onExitEvent;
         public OnProfileCreatedEvent onProfileCreatedEvent;
         public OnLogoutRequestedEvent onLogoutRequestedEvent;
+        public QuestMenuToggleEvent questToggleEvent;
 
         [Header("Input Related Events")]
         public BackEvent backEvent;
@@ -107,7 +110,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(showQuestPromptEvent);
             builder.RegisterInstance(questDecisionEvent);
             builder.RegisterInstance(questCompletedEvent);
+            builder.RegisterInstance(questTrackToggleEvent);
             builder.RegisterInstance(goldChangedEvent);
+            builder.RegisterInstance(gemBalanceChangedEvent);
             builder.RegisterInstance(openShopEvent);
             builder.RegisterInstance(purchaseRequestEvent);
             builder.RegisterInstance(interactFailedEvent);
@@ -122,6 +127,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(onProfileCreatedEvent);
             builder.RegisterInstance(backEvent);
             builder.RegisterInstance(onLogoutRequestedEvent);
+            builder.RegisterInstance(questToggleEvent);
         }
 
         private void Validate()
@@ -147,6 +153,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(questDecisionEvent, nameof(questDecisionEvent));
             ValidateField(questCompletedEvent, nameof(questCompletedEvent));
             ValidateField(goldChangedEvent, nameof(goldChangedEvent));
+            ValidateField(gemBalanceChangedEvent, nameof(gemBalanceChangedEvent));
             ValidateField(openShopEvent, nameof(openShopEvent));
             ValidateField(purchaseRequestEvent, nameof(purchaseRequestEvent));
             ValidateField(npcInteractedEvent, nameof(npcInteractedEvent));
@@ -162,6 +169,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(onProfileCreatedEvent, nameof(onProfileCreatedEvent));
             ValidateField(backEvent, nameof(backEvent));
             ValidateField(onLogoutRequestedEvent, nameof(onLogoutRequestedEvent));
+            ValidateField(questToggleEvent, nameof(questToggleEvent));
         }
 
         private void ValidateField(Object field, string fieldName)

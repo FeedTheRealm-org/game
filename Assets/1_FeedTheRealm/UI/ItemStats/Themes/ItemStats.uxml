@@ -1,12 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/ItemStats/Themes/ItemStats.uss?fileID=7433441132597879392&amp;guid=20c950f299056434cb603a4a8a71f13c&amp;type=3#ItemStats"/>
-    <ui:VisualElement name="TooltipContainer" style="background-image: url(&quot;project://database/Assets/GUI_Parts/Gui_parts/Mini_frame0.png?fileID=2800000&amp;guid=4293f3f43e7a5524dbcb191b0ef09d9c&amp;type=3#Mini_frame0&quot;); background-color: rgb(128, 128, 128); border-top-width: 20px; border-left-width: 20px; border-bottom-width: 20px; border-right-width: 20px; justify-content: flex-start; align-items: flex-start; flex-direction: column; position: absolute; top: 0; left: 0; width: 600px; min-width: 600px; max-width: 600px; padding: 20px;">
-        <ui:Label text="Name" name="Name" class="tittle" style="padding-bottom: 8px; padding-top: 8px; white-space: normal;" />
-        <ui:Label text="Description" name="Description" class="fields" style="white-space: normal; margin-bottom: 10px;" />
-        <ui:Label text="Effect:" name="Effect" class="fields" style="white-space: normal;" />
-        <ui:Label text="Value:" name="Value" class="fields" style="white-space: normal;" />
-        <ui:Label text="Duration:" name="Duration" class="fields" style="white-space: normal;" />
-        <ui:Label text="Cooldown:" name="Cooldown" class="fields" style="white-space: normal;" />
-        <ui:Label text="Max Stack:" name="MaxStack" class="fields" style="white-space: normal;" />
+    <ui:VisualElement name="TooltipContainer" class="tooltip-container" style="width: 390px; min-width: 390px; max-width: 390px;">
+        <ui:Label text="Name" name="Name" class="tooltip-title"/>
+        <ui:VisualElement class="tooltip-stats-container" style="width: 402px;">
+            <ui:Label text="Effect:" name="Effect" class="tooltip-field"/>
+            <ui:Label text="Value:" name="Value" class="tooltip-field"/>
+            <ui:Label text="Duration:" name="Duration" class="tooltip-field"/>
+            <ui:Label text="Cooldown:" name="Cooldown" class="tooltip-field"/>
+            <ui:Label text="Max Stack:" name="MaxStack" class="tooltip-field"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="Divider" class="tooltip-divider"/>
+        <ui:Label text="Description" name="Description" class="tooltip-description"/>
     </ui:VisualElement>
 </ui:UXML>

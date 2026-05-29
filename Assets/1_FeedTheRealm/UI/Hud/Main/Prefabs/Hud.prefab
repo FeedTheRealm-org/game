@@ -117,6 +117,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.Hud.Main.GoldUIController
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  paymentService: {fileID: 11400000, guid: 7f720fc83b6b8b3468a9f54d9c933e7f, type: 2}
   goldChangedEvent: {fileID: 11400000, guid: 75f3afe00bdb988408562d7f115a97b5, type: 2}
 --- !u!114 &3792253667818637069
 MonoBehaviour:

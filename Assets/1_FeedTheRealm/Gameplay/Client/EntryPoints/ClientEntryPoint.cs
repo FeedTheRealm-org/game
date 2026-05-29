@@ -1,5 +1,8 @@
 using Cysharp.Threading.Tasks;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
+using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
@@ -29,6 +32,10 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly SettingsManager settingsManager;
         private readonly GameObject navBarSettingsPrefab;
         private readonly GameObject authBackgroundPrefab;
+
+        private readonly GameObject confirmPopupPrefab;
+        private readonly ConfirmPopupHandle confirmPopupHandle;
+        private MenuManager menuManager;
         private readonly WorldInfoMenuHandle worldInfoMenuHandle;
         private readonly IObjectResolver resolver;
 
@@ -51,6 +58,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             API.PlayerService playerService,
             OnProfileCreatedEvent onProfileCreatedEvent,
             OnLogoutRequestedEvent onLogoutRequestedEvent,
+            MenuManager menuManager,
+            ConfirmPopupHandle confirmPopupHandle,
+            GameObject confirmPopupPrefab,
             WorldInfoMenuHandle worldInfoMenuHandle,
             IObjectResolver resolver
         )
@@ -69,6 +79,9 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.settingsManager = settingsManager;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authBackgroundPrefab = authBackgroundPrefab;
+            this.menuManager = menuManager;
+            this.confirmPopupHandle = confirmPopupHandle;
+            this.confirmPopupPrefab = confirmPopupPrefab;
             this.worldInfoMenuHandle = worldInfoMenuHandle;
             this.resolver = resolver;
 
@@ -93,6 +106,11 @@ namespace FTR.Gameplay.Client.EntryPoints
         public async void Start()
         {
             ConfigureUnityForClient();
+
+            menuManager.SetIsMainMenu(true);
+
+            var confirmPopupObj = resolver.Instantiate(confirmPopupPrefab);
+            SetupConfirmPopup(confirmPopupObj);
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
 
@@ -154,6 +172,19 @@ namespace FTR.Gameplay.Client.EntryPoints
             }
 
             return loadingScreenInstance;
+        }
+
+        private void SetupConfirmPopup(GameObject confirmPopupObj)
+        {
+            var confirmPopupController = confirmPopupObj.GetComponent<IConfirmPopup>();
+            if (confirmPopupController == null)
+            {
+                string errorMessage =
+                    $"Confirm popup prefab '{confirmPopupPrefab.name}' does not implement {nameof(IConfirmPopup)}.";
+                Debug.LogError(errorMessage, confirmPopupObj);
+                throw new MissingComponentException(errorMessage);
+            }
+            confirmPopupHandle.Controller = confirmPopupController;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using API;
+using FTR.Core.Client.Managers;
 using FTRShared.Runtime.Models;
 using FTRShared.UI.ZoneStatusBadge;
 using UnityEngine;
@@ -18,13 +19,16 @@ public class WorldInfoController : MonoBehaviour
     private Logging.Logger logger;
 
     [SerializeField]
-    private API.PlayerService playerService;
+    private PlayerService playerService;
 
     [SerializeField]
-    private API.WorldService worldService;
+    private WorldService worldService;
 
     [Inject]
-    private API.ModelService modelService;
+    private ModelService modelService;
+
+    [Inject]
+    private MenuManager menuManager;
 
     private ZoneStatusBadgeController zoneStatusBadge;
 
@@ -53,6 +57,7 @@ public class WorldInfoController : MonoBehaviour
     private int? pendingTotalZones;
     private Func<ActiveWorldData, Task> joinHandler;
     private bool isDownloading;
+    private bool isMenuRegistered;
 
     public void SetCurrentWorld(
         ActiveWorldData activeWorld,
@@ -273,7 +278,7 @@ public class WorldInfoController : MonoBehaviour
             return;
         }
 
-        API.CharacterInfoResponse characterInfo = await playerService.GetCharacterInfoAsync(userId);
+        CharacterInfoResponse characterInfo = await playerService.GetCharacterInfoAsync(userId);
 
         if (characterInfo == null)
         {
@@ -485,13 +490,41 @@ public class WorldInfoController : MonoBehaviour
         return createdAt;
     }
 
+    private void Start()
+    {
+        if (menuManager != null)
+        {
+            menuManager.RegisterMenuCallbacks(
+                MenuType.WorldInfo,
+                onOpen: null,
+                onClose: CloseSidebar
+            );
+            isMenuRegistered = true;
+            if (gameObject.activeInHierarchy)
+                menuManager.ToggleMenu(MenuType.WorldInfo, true);
+        }
+        else
+        {
+            logger.Log(
+                "MenuManager is not assigned in WorldInfoController.",
+                this,
+                Logging.LogType.Warning
+            );
+        }
+    }
+
     private void OnEnable()
     {
         EnsureUiInitialized();
+        if (isMenuRegistered)
+            menuManager?.ToggleMenu(MenuType.WorldInfo, true);
     }
 
     private void OnDisable()
     {
+        if (isMenuRegistered)
+            menuManager?.ToggleMenu(MenuType.WorldInfo, false);
+
         if (CloseButton != null)
         {
             CloseButton.clicked -= OnCloseButtonClicked;
@@ -548,6 +581,13 @@ public class WorldInfoController : MonoBehaviour
     private void OnCloseButtonClicked()
     {
         logger.Log("Close button clicked", this);
+        CloseSidebar();
+    }
+
+    private void CloseSidebar()
+    {
+        menuManager?.ToggleMenu(MenuType.WorldInfo, false);
+
         if (SideBar == null)
         {
             gameObject.SetActive(false);

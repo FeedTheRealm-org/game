@@ -53,7 +53,7 @@ MonoBehaviour:
   groundCheckSphereRadius: 0.4
   reapIntervalSeconds: 60
   fastSlotSize: 5
-  inventorySize: 12
+  inventorySize: 35
   useRange: 2
   startingGold: 777
   WanderRadius: 10

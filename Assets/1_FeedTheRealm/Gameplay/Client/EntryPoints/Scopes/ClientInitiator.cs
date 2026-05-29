@@ -1,4 +1,6 @@
 using FeedTheRealm.Core.Client.EventChannels;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
+using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
@@ -50,6 +52,9 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject navBarSettingsPrefab;
 
+    [SerializeField]
+    private GameObject confirmPopupPrefab;
+
     [Header("Loading Screen")]
     [SerializeField]
     private GameObject loadingScreenPrefab;
@@ -67,6 +72,9 @@ public class ClientInitiator : LifetimeScope
     [Header("Player")]
     [SerializeField]
     private API.PlayerService playerService;
+
+    [SerializeField]
+    private API.AssetsService assetsService;
 
     [Header("Assets")]
     [SerializeField]
@@ -86,6 +94,8 @@ public class ClientInitiator : LifetimeScope
         builder.RegisterInstance(musicRegistry);
         builder.RegisterInstance(settingsManager);
         builder.RegisterInstance(playerService);
+        builder.RegisterInstance(assetsService);
+        builder.RegisterInstance(logger);
         builder.RegisterInstance(modelService);
         builder.Register<WorldInfoMenuHandle>(Lifetime.Singleton);
         eventRegistry.RegisterAll(builder);
@@ -105,10 +115,16 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("loadingScreenPrefab", loadingScreenPrefab)
             .WithParameter("settingsManager", settingsManager)
             .WithParameter("playerService", playerService)
+            .WithParameter("assetsService", assetsService)
             .WithParameter("onProfileCreatedEvent", eventRegistry.onProfileCreatedEvent)
-            .WithParameter("onLogoutRequestedEvent", eventRegistry.onLogoutRequestedEvent);
+            .WithParameter("onLogoutRequestedEvent", eventRegistry.onLogoutRequestedEvent)
+            .WithParameter("confirmPopupPrefab", confirmPopupPrefab);
 
         builder.RegisterComponentInNewPrefab(authFlowManager, Lifetime.Singleton);
+        builder.Register<MenuManager>(Lifetime.Singleton);
+        builder.Register<CursorManager>(Lifetime.Singleton);
+        builder.Register<CameraManager>(Lifetime.Singleton);
+        builder.Register<ConfirmPopupHandle>(Lifetime.Singleton);
         logger?.Log("ClientInitiator: Registered client entrypoint", this);
     }
 }

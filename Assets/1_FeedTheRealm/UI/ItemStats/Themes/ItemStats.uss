@@ -1,10 +1,65 @@
-.tittle {
-    font-size: 52px;
-    color: rgb(255, 220, 100);
-    -unity-font-style: bold;
+.tooltip-container {
+    width: 400px;
+    min-width: 400px;
+    max-width: 400px;
+    background-color: rgba(10, 30, 28, 0.95);
+    border-color: rgba(42, 210, 188, 0.45);
+    border-width: 1px;
+    border-radius: 8px;
+    padding: 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
 }
 
-.fields {
-    font-size: 48px;
-    color: rgb(220, 220, 220);
+.tooltip-title {
+    font-size: 28px;
+    color: rgb(42, 210, 188);
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    white-space: normal;
+}
+
+.tooltip-stats-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.tooltip-field {
+    font-size: 22px;
+    color: rgb(240, 240, 240);
+    -unity-font-style: normal;
+    margin-bottom: 8px;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    width: 45%;
+    white-space: normal;
+}
+
+.tooltip-divider {
+    height: 1px;
+    background-color: rgba(42, 210, 188, 0.35);
+    margin-top: 12px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.tooltip-description {
+    font-size: 18px;
+    color: rgba(220, 220, 220, 0.85);
+    -unity-font-style: italic;
+    margin: 0;
+    padding: 0;
+    white-space: normal;
 }

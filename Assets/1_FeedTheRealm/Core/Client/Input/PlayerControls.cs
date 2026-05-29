@@ -163,6 +163,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Quest"",
+                    ""type"": ""Button"",
+                    ""id"": ""af45ef53-7962-40b5-9872-2eb645b47b31"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -429,6 +438,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""ChatToggle"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""880cbfe2-ff6b-4599-a472-5356865f076a"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Quest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -445,6 +465,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
         m_Player_ChatToggle = m_Player.FindAction("ChatToggle", throwIfNotFound: true);
         m_Player_FastSlots = m_Player.FindAction("FastSlots", throwIfNotFound: true);
+        m_Player_Quest = m_Player.FindAction("Quest", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -533,6 +554,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Interact;
     private readonly InputAction m_Player_ChatToggle;
     private readonly InputAction m_Player_FastSlots;
+    private readonly InputAction m_Player_Quest;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -576,6 +598,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/FastSlots".
         /// </summary>
         public InputAction @FastSlots => m_Wrapper.m_Player_FastSlots;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Quest".
+        /// </summary>
+        public InputAction @Quest => m_Wrapper.m_Player_Quest;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -626,6 +652,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FastSlots.started += instance.OnFastSlots;
             @FastSlots.performed += instance.OnFastSlots;
             @FastSlots.canceled += instance.OnFastSlots;
+            @Quest.started += instance.OnQuest;
+            @Quest.performed += instance.OnQuest;
+            @Quest.canceled += instance.OnQuest;
         }
 
         /// <summary>
@@ -661,6 +690,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FastSlots.started -= instance.OnFastSlots;
             @FastSlots.performed -= instance.OnFastSlots;
             @FastSlots.canceled -= instance.OnFastSlots;
+            @Quest.started -= instance.OnQuest;
+            @Quest.performed -= instance.OnQuest;
+            @Quest.canceled -= instance.OnQuest;
         }
 
         /// <summary>
@@ -757,5 +789,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFastSlots(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Quest" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuest(InputAction.CallbackContext context);
     }
 }

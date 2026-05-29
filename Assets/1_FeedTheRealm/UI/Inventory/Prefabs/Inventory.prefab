@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2148557645587365083}
   - component: {fileID: 2691849783085867481}
   - component: {fileID: 711745549834656973}
+  - component: {fileID: 7601681468308030967}
   m_Layer: 0
   m_Name: Inventory
   m_TagString: Untagged
@@ -83,7 +84,20 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::InventoryUIController
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
-  defaultSlotSprite: {fileID: 21300000, guid: 4b3d2095baccc2041b973b66b786b9d0, type: 3}
-  selectedSlotSprite: {fileID: 21300000, guid: 6b8728d20b5d4c540b335c3789517218, type: 3}
   itemAssetsService: {fileID: 11400000, guid: 16d0e1de7dfc30f35ba7c3a139f2ea79, type: 2}
-  itemStatsTooltipPrefab: {fileID: 1836286906917634539, guid: 884c864a0f56c38d48515a721d19f854, type: 3}
+  tooltipUXML: {fileID: 9197481963319205126, guid: 71119e7ec5f7a94fc828307142ad2b17, type: 3}
+  tooltipStyleSheet: {fileID: 7433441132597879392, guid: 20c950f299056434cb603a4a8a71f13c, type: 3}
+--- !u!114 &7601681468308030967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1688747805032981907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8e7d6c5b4a394857269f1e2d3c4b5a6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::ItemStatsTooltip
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  descriptionMaxLineLength: 100
