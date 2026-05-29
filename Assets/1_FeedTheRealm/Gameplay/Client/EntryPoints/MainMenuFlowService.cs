@@ -199,6 +199,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             Object.Destroy(navBarSettingsObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
+            Object.Destroy(worldInfoMenuObj);
 
             return wasLogout;
         }
