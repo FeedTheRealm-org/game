@@ -24,10 +24,14 @@ Set the following as environment variables or in a `.env` file:
 
 | Variable | Description |
 |---|---|
-| `MONGO_CONNECTION_STRING` | Local or cloud MongoDB instance (requires IP access if cloud) |
-| `FTR_SERVER_ACCESS_TOKEN` | Mock or real token depending on whether core-service runs locally or in cloud |
-| `WORLD_ID` | Used in Docker Compose only |
-| `ZONE_ID` | Used in Docker Compose only |
+| `MONGO_CONNECTION_STRING` | MongoDB connection string (local: `mongodb://admin:admin@localhost:27017/?authSource=admin` or cloud instance if IP access is granted) |
+| `SERVER_FIXED_TOKEN` | Server access token — use a mock value for local development or the real one when connecting to the cloud core-service |
+| `DD_AGENT_HOST` | Datadog agent host for metrics/tracing |
+| `WORLD_ID` | World identifier — only used in Docker Compose |
+| `ZONE_ID` | Zone identifier — only used in Docker Compose |
+| `IS_TEST_WORLD` | Marks the server as a test world — only used in Docker Compose |
+| `PORT` | UDP/TCP game port (default: `7777`) — only used in Docker Compose |
+| `HPORT` | Health check port (default: `6001`) — only used in Docker Compose |
 
 ```bash
 cp .env.example .env
