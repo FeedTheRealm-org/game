@@ -12,6 +12,7 @@ using FTRShared.UI.ZoneStatusBadge;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using VContainer;
 
 [RequireComponent(typeof(UIDocument))]
 [RequireComponent(typeof(ZoneStatusBadgeController))]
@@ -47,8 +48,8 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     [SerializeField]
     private ItemAssetsService itemAssetsService;
 
-    [SerializeField]
-    private GameObject worldInfoHUD;
+    [Inject]
+    private WorldInfoMenuHandle worldInfoMenuHandle;
     public event Action OnNavigateToWorld;
     private VisualElement ui;
     private TextField searchField;
@@ -69,6 +70,13 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private Vector2 savedScrollOffset;
     private List<ActiveWorldData> cachedWorlds = new();
     private Dictionary<string, ZoneStatusBadgeController.State> cachedBadgeStates = new();
+    private Dictionary<string, ZoneCount> cachedZoneCounts = new();
+
+    private struct ZoneCount
+    {
+        public int online;
+        public int total;
+    }
 
     private void Awake()
     {
@@ -216,6 +224,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
                 maxPageOffset = offset;
 
             var badgeStates = new Dictionary<string, ZoneStatusBadgeController.State>();
+            var zoneCounts = new Dictionary<string, ZoneCount>();
             try
             {
                 var (_, worldsWithZones, pageError) = await worldService.GetWorldPage(
@@ -227,7 +236,20 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
                 if (string.IsNullOrEmpty(pageError) && worldsWithZones != null)
                 {
                     foreach (var w in worldsWithZones)
+                    {
                         badgeStates[w.id] = zoneStatusBadge.Evaluate(w.zones);
+
+                        int total = w.zones?.Count ?? 0;
+                        int online = 0;
+                        if (w.zones != null)
+                        {
+                            foreach (var z in w.zones)
+                                if (z.is_online)
+                                    online++;
+                        }
+
+                        zoneCounts[w.id] = new ZoneCount { online = online, total = total };
+                    }
                 }
                 else if (!string.IsNullOrEmpty(pageError))
                 {
@@ -249,6 +271,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
             cachedWorlds = activeWorlds;
             cachedBadgeStates = badgeStates;
+            cachedZoneCounts = zoneCounts;
             hasRenderedOnce = true;
             currentFilter = filter;
 
@@ -338,17 +361,9 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
         var statusBadge = zoneStatusBadge.Create(badgeState);
         statusBadge.name = "StatusBadge";
 
-        var aboutButton = new Button();
-        aboutButton.AddToClassList("aboutButton");
-        aboutButton.name = "AboutButton";
-        aboutButton.text = "i";
-        aboutButton.clicked += () => OnClickAboutWorld(worldData);
-        aboutButton.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
-
         element.Add(label);
         element.Add(statusBadge);
-        element.Add(aboutButton);
-        element.AddManipulator(new Clickable(() => _ = OnWorldSelected(activeWorld)));
+        element.AddManipulator(new Clickable(() => ShowWorldInfo(activeWorld)));
 
         return element;
     }
@@ -440,36 +455,61 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
     private void SetWorldIdForServices(string worldId) =>
         itemAssetsService?.SetCurrentWorldId(worldId);
 
-    private void OnClickAboutWorld(WorldData world)
+    private void ShowWorldInfo(ActiveWorldData activeWorld)
     {
-        if (world == null)
+        if (activeWorld?.worldData == null)
             return;
 
-        logger.Log($"[WorldFeed] About clicked for world: {world.worldName}", this);
+        logger.Log(
+            $"[WorldFeed] World info opened for world: {activeWorld.worldData.worldName}",
+            this
+        );
 
-        if (worldInfoHUD == null)
+        var worldInfoMenuInstance = worldInfoMenuHandle?.Instance;
+        if (worldInfoMenuInstance == null)
         {
             logger.Log(
-                "[WorldFeed] WorldInfoHUD reference is not assigned.",
+                "[WorldFeed] World info menu instance is not assigned.",
                 this,
                 Logging.LogType.Warning
             );
             return;
         }
 
-        var worldInfoController = worldInfoHUD.GetComponent<WorldInfoController>();
+        var worldInfoController = worldInfoMenuInstance.GetComponent<WorldInfoController>();
         if (worldInfoController == null)
         {
             logger.Log(
-                "[WorldFeed] WorldInfoController not found on WorldInfoHUD.",
+                "[WorldFeed] WorldInfoController not found on world info menu instance.",
                 this,
                 Logging.LogType.Error
             );
             return;
         }
 
-        worldInfoHUD.SetActive(true);
-        worldInfoController.SetCurrentWorld(world);
+        var worldId = activeWorld.worldData.worldId;
+        var status = ZoneStatusBadgeController.State.Offline;
+        int onlineZones = 0;
+        int totalZones = 0;
+
+        if (!string.IsNullOrWhiteSpace(worldId))
+        {
+            cachedBadgeStates.TryGetValue(worldId, out status);
+            if (cachedZoneCounts.TryGetValue(worldId, out var counts))
+            {
+                onlineZones = counts.online;
+                totalZones = counts.total;
+            }
+        }
+
+        worldInfoMenuInstance.SetActive(true);
+        worldInfoController.SetCurrentWorld(
+            activeWorld,
+            status,
+            onlineZones,
+            totalZones,
+            OnWorldSelected
+        );
     }
 
     private void OnBackButtonClicked()

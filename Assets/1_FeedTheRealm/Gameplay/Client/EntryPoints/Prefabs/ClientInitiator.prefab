@@ -58,6 +58,7 @@ MonoBehaviour:
   authFlowManager: {fileID: 7798777532646108241, guid: bee3944f6aaa8f0f39979e4395c8ffc8, type: 3}
   authBackgroundPrefab: {fileID: 5556295372408462094, guid: 0c5e5389679ba55ea8d517bd7a5f081d, type: 3}
   worldFeedMenuPrefab: {fileID: 7463538350467974155, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+  worldInfoMenuPrefab: {fileID: 3695908179079165444, guid: b61ff541e582f36479b50b9803b3f900, type: 3}
   navBarPrefab: {fileID: 6415553132047525761, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
   profileMenuPrefab: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
   gemStorePrefab: {fileID: 1348964074043700, guid: 442b277acc9586448ba5baa9f54327d5, type: 3}
@@ -67,4 +68,5 @@ MonoBehaviour:
   musicPlayerPrefab: {fileID: 5549379460917750396, guid: c84173a92ddb78749910eced1dc609c6, type: 3}
   musicRegistry: {fileID: 11400000, guid: 68d9e5b0caf1a652db2ac3d15acec7fc, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+  modelService: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
   eventRegistry: {fileID: 11400000, guid: 7b0314ec47ec120ae9b419a5265297fe, type: 2}

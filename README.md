@@ -1,85 +1,122 @@
-# Feed the realm Game
+# Feed the Realm — Game
 
-This is the Main repository of the Feed the realm Game, it contains the client and headless server implementation
-for the playable executable.
+Main repository for the Feed the Realm game. Contains the client and headless server implementation for the playable executable.
 
-To visit the other World Editor executable [[Click Here]](https://github.com/feedTheRealm-org/world-editor-client/).
+Built with **Unity 6000.3.10f1**.
+
+To visit the World Editor repository [[click here]](https://github.com/FeedTheRealm-org/world-editor).
 
 ## How to build
 
-No clear build instructions yet, but you can open the project in Unity and build the client and server executables from there.
+Open the project in Unity (version `6000.3.10f1`) and build the client and server executables from `File > Build Profiles`.
 
 ## How to run client
 
-To run the client after building the executable, you can simply run the generated executable in the `Build/Client/` folder.
+After building, run the generated executable from the `Builds/Client/` folder.
 
 ## How to run server
 
-Once you have built the server executable in the `Build/Server/` folder, you can run it using the following commands:
+After building, the server executable will be in `Builds/Server/`. It can be run standalone or via Docker.
 
 ### Secrets
 
-The secrets needed to be set as env var or to be specified in the `.env` file are:
+Set the following as environment variables or in a `.env` file:
 
-- MONGO_CONNECTION_STRING (could be local or the real cloud instance if IP access is granted)
-- FTR_SERVER_ACCESS_TOKEN (could be mock or real one -> depends if running core-service locally or connecting to cloud)
-- WORLD_ID (only used in compose)
-- ZONE_ID (only used in compose)
+| Variable | Description |
+|---|---|
+| `MONGO_CONNECTION_STRING` | MongoDB connection string (local: `mongodb://admin:admin@localhost:27017/?authSource=admin` or cloud instance if IP access is granted) |
+| `SERVER_FIXED_TOKEN` | Server access token — use a mock value for local development or the real one when connecting to the cloud core-service |
+| `DD_AGENT_HOST` | Datadog agent host for metrics/tracing |
+| `WORLD_ID` | World identifier — only used in Docker Compose |
+| `ZONE_ID` | Zone identifier — only used in Docker Compose |
+| `IS_TEST_WORLD` | Marks the server as a test world — only used in Docker Compose |
+| `PORT` | UDP/TCP game port (default: `7777`) — only used in Docker Compose |
+| `HPORT` | Health check port (default: `6001`) — only used in Docker Compose |
 
 ```bash
-# for default envs
 cp .env.example .env
-```
-
-### Standalone docker container
-
-```bash
-# Build the image (it wont build the server, only copy the already built executable to the image)
-docker build -t ftr-server:latest .
-
-# Run the server forwarding the ports 7777 for both TCP and UDP
-docker run --rm -p 7777:7777/udp -p 7777:7777/tcp ftr-server:latest
-```
-
-### FTR Server container + local MongoDB
-
-You can run the compose to be able to use a local mongo database from the local ftr-server container running.
-
-```bash
-# Build and run server + mongo
-docker compose --profile all up --build
-
-# Only run mongo db (useful for development and running server from unity  editor)
-docker compose up
 ```
 
 ## CI/CD
 
-No CI/CD yet.
+Workflow definitions are located in `.github/workflows/`:
 
-## Assets packs
+| Workflow | Description |
+|---|---|
+| `precommit-check.yml` | Linting and formatting checks on pull requests |
+| `build.yml` | Compiles the project and verifies the build succeeds |
+| `ci-cd.yml` | Combined pipeline for building and deploying |
+| `deploy.yml` | Deploys the production-ready server image |
+| `git-leaks.yml` | Scans for accidentally committed secrets |
 
-The following is a list of the assets packs used in this project.
+## Makefile Commands
+
+Run `make help` to list all available commands.
+
+```bash
+# Development
+make dev          # Start MongoDB + run the DEBUG server executable via entrypoint
+make up           # Start all containers (production-like)
+make up-build     # Build & start all containers (production-like)
+make up-db        # Start only MongoDB
+make build        # Build all containers (no start)
+make down         # Stop and remove all containers
+make logs         # Tail logs from all containers
+make logs-<svc>   # Tail logs from a specific service (e.g. make logs-mongo)
+make db           # Open a mongosh shell in the MongoDB container
+make clean        # Remove all containers, images, and volumes
+```
+
+## Structure
+
+```
+.
+├── Assets/
+│   ├── 1_FeedTheRealm/       # Project source (scenes, scripts, prefabs)
+│   ├── 6000FantasyIcons/     # Asset pack
+│   ├── Cartoon_Texture_Pack/ # Asset pack
+│   ├── GUI_Parts/            # Asset pack
+│   ├── HeroEditor4D/         # Asset pack
+│   ├── Mirror/               # Networking library
+│   ├── Plugins/              # Third-party plugins
+│   ├── SPUM/                 # Asset pack
+│   ├── Settings/             # Unity project settings assets
+│   ├── SyntyStudios/         # Asset pack
+│   └── TextMesh Pro/         # Asset pack
+├── Builds/                   # Compiled client and server executables
+├── Docs/                     # Project documentation
+├── Packages/                 # Unity package manifest
+├── ProjectSettings/          # Unity project settings
+├── Scripts/                  # Shell scripts
+├── .github/workflows/        # CI/CD pipeline definitions
+├── docker-compose.yml
+├── Dockerfile
+├── entrypoint.sh
+├── entrypoint.dev.sh
+└── Makefile
+```
+
+## Asset Packs
 
 ❗ **Please keep this list up to date!**
 
-- [6000 Fantasy Icons]()
-- [Cartoon Texture Pack]()
-- [GUI Parts]()
-- [Polygon Arsenal]()
-- [RPGPP_LT]()
-- [Spum]()
-- [HeroEditor4d]()
-- [TextMeshPro]()
+| Pack | Link |
+|---|---|
+| 6000 Fantasy Icons | [6000 Fantasy Icons](https://assetstore.unity.com/packages/2d/gui/icons/6000-fantasy-icons-278148) |
+| Cartoon Texture Pack | [Stylized PBR Textures Pack](https://assetstore.unity.com/packages/2d/textures-materials/free-stylized-pbr-textures-pack-111778) |
+| GUI Parts | [GUI Parts](https://assetstore.unity.com/packages/2d/gui/icons/gui-parts-159068) |
+| HeroEditor4D | [Character Editor 4D [Megapack]](https://assetstore.unity.com/packages/2d/characters/character-editor-4d-megapack-147364) |
+| SPUM | [2D Pixel Unit Maker - SPUM](https://assetstore.unity.com/packages/2d/characters/2d-pixel-unit-maker-spum-188715) |
+| TextMesh Pro | [TextMesh Pro](https://docs.unity3d.com/Manual/com.unity.textmeshpro.html) |
 
-## External Dependencies (Non Unity Built-in)
-
-The following is a list of the dependencies used in this project.
+## External Dependencies
 
 ❗ **Please keep this list up to date!**
 
-- [Feed the realm - Shared Package](http://github.com/feedTheRealm-org/shared-unity-package/)
-- [Mirror](https://mirror-networking.com/)
-- [VContainer](https://vcontainer.hadashikick.jp/)
-- [UniTask](https://github.com/Cysharp/UniTask)
-- [ParrelSync](https://github.com/VeriorPies/ParrelSync)
+| Package | Link |
+|---|---|
+| Feed the Realm — Shared Package | [shared-unity-package](https://github.com/feedTheRealm-org/shared-unity-package/) |
+| Mirror | [mirror-networking.com](https://mirror-networking.com/) |
+| VContainer | [vcontainer.hadashikick.jp](https://vcontainer.hadashikick.jp/) |
+| UniTask | [Cysharp/UniTask](https://github.com/Cysharp/UniTask) |
+| ParrelSync | [VeriorPies/ParrelSync](https://github.com/VeriorPies/ParrelSync) |

@@ -5,6 +5,7 @@ using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Metrics;
 using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
@@ -96,6 +97,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerShopLinker>(Lifetime.Singleton).As<ShopLinker>();
             builder.Register<ServerPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
             builder.Register<ServerChestLinker>(Lifetime.Singleton).As<ChestLinker>();
+            builder.Register<PlayerStatsSender>(Lifetime.Singleton);
 
             builder.Register<PortalRegistry>(Lifetime.Singleton);
 
