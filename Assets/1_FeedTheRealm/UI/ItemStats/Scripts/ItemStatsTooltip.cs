@@ -29,6 +29,7 @@ public class ItemStatsTooltip : MonoBehaviour
     private VisualElement tooltipContainer;
     private Label nameLabel;
     private Label descriptionLabel;
+    private VisualElement divider;
     private StatsPresenter statsPresenter;
 
     private bool isInitialized;
@@ -90,6 +91,7 @@ public class ItemStatsTooltip : MonoBehaviour
 
         nameLabel = tooltipContainer.Q<Label>("Name");
         descriptionLabel = tooltipContainer.Q<Label>("Description");
+        divider = tooltipContainer.Q<VisualElement>("Divider");
 
         statsPresenter = new StatsPresenter(
             tooltipContainer.Q<Label>("Effect"),
@@ -157,14 +159,27 @@ public class ItemStatsTooltip : MonoBehaviour
 
         if (descriptionLabel != null)
         {
+            string desc = item.description ?? "";
+            if (desc.Length > 100)
+            {
+                desc = desc.Substring(0, 97) + "...";
+            }
+
             descriptionLabel.text = TooltipTextUtils.InsertLineBreaks(
-                item.description,
+                desc,
                 descriptionMaxLineLength
             );
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
 
         statsPresenter?.ShowStats(item);
+
+        if (divider != null)
+        {
+            bool hasStats = item is ConsumableItemData || item is WeaponItemData;
+            divider.style.display = hasStats ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
         UpdateTooltipPosition(slot);
 
         tooltipContainer.style.display = DisplayStyle.Flex;
@@ -198,7 +213,7 @@ public class ItemStatsTooltip : MonoBehaviour
 
         float panelWidth = tooltipContainer.panel.visualTree.worldBound.width;
         float tooltipWidth = 600f;
-        float offset = 135f;
+        float offset = 15f;
 
         float left = slotPanelPos.x + slotBounds.width + offset;
         if (left + tooltipWidth > panelWidth)

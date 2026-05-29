@@ -85,8 +85,8 @@ namespace FTR.UI.WorldSpace
             if (isOpen || !menuManager.CanOpenMenu(MenuType.Portal))
                 return;
 
-            destinationLabel.text = content.DestinationName;
-            portalNameLabel.text = content.PortalName;
+            destinationLabel.text = content.DestinationName.ToUpper();
+            portalNameLabel.text = content.PortalName.ToUpper();
             root.style.display = DisplayStyle.Flex;
             isOpen = true;
             menuManager.ToggleMenu(MenuType.Portal, true);
