@@ -1,7 +1,6 @@
 using FTR.Gameplay.Client.Registry;
 using FTRShared.Runtime.Models;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -13,10 +12,6 @@ using UnityEngine.UIElements;
 /// </summary>
 public class ItemStatsTooltip : MonoBehaviour
 {
-    [Header("UI References")]
-    [SerializeField]
-    private UIDocument tooltipDocument;
-
     [Header("Logging")]
     [SerializeField]
     private Logging.Logger logger;
@@ -29,112 +24,56 @@ public class ItemStatsTooltip : MonoBehaviour
     private VisualElement tooltipContainer;
     private Label nameLabel;
     private Label descriptionLabel;
+    private VisualElement divider;
     private StatsPresenter statsPresenter;
 
     private bool isInitialized;
     private bool isVisible;
     private string currentItemId;
 
-    private string pendingItemId;
-    private VisualElement pendingSlot;
-
-    private void Awake()
+    public void Initialize(VisualElement container)
     {
-        if (Application.isBatchMode || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+        if (container == null)
         {
-            enabled = false;
             return;
         }
 
-        tooltipDocument ??= GetComponent<UIDocument>();
-
-        if (tooltipDocument == null)
-            logger?.Log("UIDocument not assigned!", this, Logging.LogType.Error);
-    }
-
-    private void OnEnable()
-    {
-        if (tooltipDocument == null)
-            return;
-        TryInitialize();
-    }
-
-    private void Update()
-    {
-        if (!isInitialized)
-            TryInitialize();
-    }
-
-    private void TryInitialize()
-    {
-        var root = tooltipDocument.rootVisualElement;
-
-        if (root == null || root.childCount == 0)
-            return;
-
-        InitializeUIElements(root);
+        tooltipContainer = container;
+        InitializeUIElements(container);
     }
 
     private void InitializeUIElements(VisualElement root)
     {
-        // TooltipContainer sits directly under the panel root,
-        // so index access is more reliable than Q() in this case.
-        tooltipContainer =
-            root.childCount > 0 ? root[0] : root.Q<VisualElement>("TooltipContainer");
-
-        if (tooltipContainer == null)
-        {
-            logger?.Log("[Tooltip] TooltipContainer not found!", this, Logging.LogType.Error);
-            return;
-        }
-
-        nameLabel = tooltipContainer.Q<Label>("Name");
-        descriptionLabel = tooltipContainer.Q<Label>("Description");
+        nameLabel = root.Q<Label>("Name");
+        descriptionLabel = root.Q<Label>("Description");
+        divider = root.Q<VisualElement>("Divider");
 
         statsPresenter = new StatsPresenter(
-            tooltipContainer.Q<Label>("Effect"),
-            tooltipContainer.Q<Label>("Value"),
-            tooltipContainer.Q<Label>("Duration"),
-            tooltipContainer.Q<Label>("Cooldown"),
-            tooltipContainer.Q<Label>("MaxStack")
+            root.Q<Label>("Effect"),
+            root.Q<Label>("Value"),
+            root.Q<Label>("Duration"),
+            root.Q<Label>("Cooldown"),
+            root.Q<Label>("MaxStack")
         );
-
-        if (nameLabel == null || descriptionLabel == null)
-            logger?.Log(
-                "[Tooltip] Failed to find required UI labels!",
-                this,
-                Logging.LogType.Error
-            );
 
         isInitialized = true;
         HideTooltip();
-        logger?.Log("[Tooltip] UI elements initialized successfully", this);
-
-        // Show tooltip if the user was already hovering during initialization
-        if (!string.IsNullOrEmpty(pendingItemId) && pendingSlot != null)
-        {
-            ShowTooltip(pendingItemId, pendingSlot);
-            pendingItemId = null;
-            pendingSlot = null;
-        }
     }
 
     public void ShowTooltip(string itemId, VisualElement slot)
     {
-        logger?.Log(
-            $"[Tooltip] ShowTooltip called — isInitialized: {isInitialized}, itemId: {itemId}",
-            this
-        );
-
-        if (!isInitialized)
+        if (
+            !isInitialized
+            || string.IsNullOrEmpty(itemId)
+            || slot == null
+            || tooltipContainer == null
+        )
         {
-            pendingItemId = itemId;
-            pendingSlot = slot;
+            Debug.LogWarning(
+                $"[Tooltip] Guard failed — isInitialized:{isInitialized} | itemIdEmpty:{string.IsNullOrEmpty(itemId)} | slotNull:{slot == null} | containerNull:{tooltipContainer == null}"
+            );
             return;
         }
-
-        if (string.IsNullOrEmpty(itemId) || slot == null || tooltipContainer == null)
-            return;
 
         var item = ClientItemsRegistry.GetItemById(itemId);
         if (item == null)
@@ -157,19 +96,28 @@ public class ItemStatsTooltip : MonoBehaviour
 
         if (descriptionLabel != null)
         {
+            string desc = item.description ?? "";
+            if (desc.Length > 100)
+                desc = desc.Substring(0, 97) + "...";
             descriptionLabel.text = TooltipTextUtils.InsertLineBreaks(
-                item.description,
+                desc,
                 descriptionMaxLineLength
             );
             descriptionLabel.style.display = DisplayStyle.Flex;
         }
 
         statsPresenter?.ShowStats(item);
+
+        if (divider != null)
+        {
+            bool hasStats = item is ConsumableItemData || item is WeaponItemData;
+            divider.style.display = hasStats ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
         UpdateTooltipPosition(slot);
 
         tooltipContainer.style.display = DisplayStyle.Flex;
         isVisible = true;
-        logger?.Log($"[Tooltip] Shown for itemId: {currentItemId}", this);
     }
 
     public void HideTooltip()
@@ -187,31 +135,61 @@ public class ItemStatsTooltip : MonoBehaviour
 
     private void UpdateTooltipPosition(VisualElement slot)
     {
-        if (tooltipContainer?.panel == null || slot == null)
+        if (tooltipContainer == null || slot == null)
+            return;
+        if (tooltipContainer.panel == null)
             return;
 
+        var panelRoot = tooltipContainer.panel.visualTree;
+        float panelW = panelRoot.resolvedStyle.width;
+        float panelH = panelRoot.resolvedStyle.height;
+
         var slotBounds = slot.worldBound;
-        var slotPanelPos = RuntimePanelUtils.ScreenToPanel(
-            tooltipContainer.panel,
-            new Vector2(slotBounds.x, slotBounds.y)
-        );
+        float tooltipW = 420f;
+        float tooltipH = 260f;
+        float offset = 12f;
+        float margin = 12f;
 
-        float panelWidth = tooltipContainer.panel.visualTree.worldBound.width;
-        float tooltipWidth = 600f;
-        float offset = 135f;
+        float left;
+        bool slotIsOnRightHalf = slotBounds.xMin > panelW * 0.5f;
+        if (slotIsOnRightHalf)
+        {
+            left = slotBounds.xMin - tooltipW - offset;
+            if (left < margin)
+                left = margin;
+        }
+        else
+        {
+            left = slotBounds.xMax + offset;
+            if (left + tooltipW > panelW - margin)
+                left = panelW - tooltipW - margin;
+        }
 
-        float left = slotPanelPos.x + slotBounds.width + offset;
-        if (left + tooltipWidth > panelWidth)
-            left = slotPanelPos.x - tooltipWidth - offset;
+        float top = slotBounds.yMin;
+        if (top + tooltipH > panelH - margin)
+            top = panelH - tooltipH - margin;
+        top = Mathf.Max(margin, top);
 
         tooltipContainer.style.left = left;
-        tooltipContainer.style.top = slotPanelPos.y;
-        tooltipContainer.style.position = Position.Absolute;
+        tooltipContainer.style.top = top;
+
+        tooltipContainer
+            .schedule.Execute(() =>
+            {
+                if (!isVisible)
+                    return;
+                float realH = tooltipContainer.resolvedStyle.height;
+                if (realH <= 0 || float.IsNaN(realH))
+                    return;
+
+                float adjustedTop = slotBounds.yMin;
+                if (adjustedTop + realH > panelH - margin)
+                    adjustedTop = panelH - realH - margin;
+                tooltipContainer.style.top = Mathf.Max(margin, adjustedTop);
+            })
+            .StartingIn(1);
     }
 
-    // -------------------------------------------------------------------------
-    // Nested class: no external consumers, no reason to live in its own file
-    // -------------------------------------------------------------------------
     private class StatsPresenter
     {
         private readonly Label effectLabel;

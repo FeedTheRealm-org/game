@@ -1,7 +1,11 @@
 using System;
+using Enums;
 using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.Managers;
 using FTR.Core.Common.EventChannels;
+using FTR.Core.Common.Quests;
+using FTR.Gameplay.Client.Registry;
+using FTR.Gameplay.Common.Environment.Dialogs;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -27,9 +31,13 @@ public class QuestPromptController : MonoBehaviour
     [Inject]
     private BackEvent backEvent;
 
+    [Inject]
+    private NpcDialogRegistry npcDialogRegistry;
+
     private VisualElement _root;
     private Label _titleLabel;
     private Label _descriptionLabel;
+    private Label _objectiveLabel;
     private Button _acceptButton;
     private Button _rejectButton;
 
@@ -47,20 +55,24 @@ public class QuestPromptController : MonoBehaviour
         _root = GetComponent<UIDocument>().rootVisualElement;
         _titleLabel = _root.Q<Label>("QuestTitle");
         _descriptionLabel = _root.Q<Label>("QuestDescription");
+        _objectiveLabel = _root.Q<Label>("DetailObjective");
         _acceptButton = _root.Q<Button>("AcceptButton");
         _rejectButton = _root.Q<Button>("RejectButton");
 
         if (
             _titleLabel == null
             || _descriptionLabel == null
+            || _objectiveLabel == null
             || _acceptButton == null
             || _rejectButton == null
         )
+        {
             logger.Log(
                 "One or more UI elements are not assigned in the inspector.",
                 this,
                 Logging.LogType.Error
             );
+        }
 
         backEvent.OnRaised += OnRejectClicked;
         ToggleQuestPrompt(false);
@@ -106,6 +118,9 @@ public class QuestPromptController : MonoBehaviour
     /// </summary>
     public void ToggleQuestPrompt(bool show)
     {
+        if (_root == null)
+            return;
+
         _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         menuManager.ToggleMenu(MenuType.Quest, show);
     }
@@ -124,6 +139,8 @@ public class QuestPromptController : MonoBehaviour
         _npcId = promptData.NpcId;
         _titleLabel.text = _currentQuestData.title;
         _descriptionLabel.text = _currentQuestData.content;
+        _objectiveLabel.text = GetQuestTargetDescription(_currentQuestData);
+
         ToggleQuestPrompt(true);
     }
 
@@ -161,5 +178,44 @@ public class QuestPromptController : MonoBehaviour
 
         ToggleQuestPrompt(false);
         _currentQuestData = null;
+    }
+
+    private string GetQuestTargetDescription(QuestData questData)
+    {
+        switch (questData.type)
+        {
+            case QuestType.EnemySlays:
+            {
+                var enemy = ClientItemsRegistry.GetEnemyById(questData.targetId);
+                var enemyName =
+                    enemy != null && !string.IsNullOrEmpty(enemy.name)
+                        ? enemy.name
+                        : questData.targetId;
+                return $"Slay {enemyName}";
+            }
+            case QuestType.NpcInteract:
+            {
+                var npcId = string.IsNullOrEmpty(questData.targetId)
+                    ? questData.targetInteractionId
+                    : questData.targetId;
+                return $"Meet with {GetNpcName(npcId)}";
+            }
+            default:
+                return questData.content ?? questData.targetId;
+        }
+    }
+
+    private string GetNpcName(string npcId)
+    {
+        if (string.IsNullOrEmpty(npcId))
+            return "Unknown NPC";
+
+        if (npcDialogRegistry != null)
+        {
+            if (npcDialogRegistry.TryGetNpcName(npcId, out string npcName))
+                return string.IsNullOrEmpty(npcName) ? npcId : npcName;
+        }
+
+        return npcId;
     }
 }

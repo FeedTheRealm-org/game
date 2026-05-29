@@ -12,7 +12,7 @@ public partial class CharacterEditController
 
     private VisualElement _colorControls;
     private VisualElement _paginationContainer;
-    private DropdownField _colorTargetDropdown;
+    private FeedTheRealm.UI.Common.CustomDropdown _colorTargetDropdown;
     private Slider _hueSlider;
     private Slider _saturationSlider;
     private Slider _valueSlider;
@@ -26,21 +26,20 @@ public partial class CharacterEditController
     {
         _colorControls = _cosmeticsContainer?.Q<VisualElement>("ColorControls");
         _paginationContainer = _cosmeticsContainer?.Q<VisualElement>("Pagination");
-        _colorTargetDropdown = _cosmeticsContainer?.Q<DropdownField>("ColorTargetDropdown");
+        _colorTargetDropdown = _cosmeticsContainer?.Q<FeedTheRealm.UI.Common.CustomDropdown>(
+            "ColorTargetDropdown"
+        );
         _hueSlider = _cosmeticsContainer?.Q<Slider>("HueSlider");
         _saturationSlider = _cosmeticsContainer?.Q<Slider>("SaturationSlider");
         _valueSlider = _cosmeticsContainer?.Q<Slider>("ValueSlider");
 
         if (_colorTargetDropdown != null)
         {
-            _colorTargetDropdown.choices = new List<string>
-            {
-                ColorTargetSkin,
-                ColorTargetHair,
-                ColorTargetEyes,
-            };
+            _colorTargetDropdown.SetChoices(
+                new List<string> { ColorTargetSkin, ColorTargetHair, ColorTargetEyes }
+            );
 
-            if (string.IsNullOrEmpty(_colorTargetDropdown.value))
+            if (string.IsNullOrEmpty(_colorTargetDropdown.Value))
             {
                 _colorTargetDropdown.SetValueWithoutNotify(ColorTargetSkin);
             }
@@ -63,14 +62,14 @@ public partial class CharacterEditController
 
         if (shouldRegister)
         {
-            _colorTargetDropdown.RegisterValueChangedCallback(OnColorTargetChanged);
+            _colorTargetDropdown.RegisterCallback<ChangeEvent<string>>(OnColorTargetChanged);
             _hueSlider.RegisterValueChangedCallback(OnColorSliderChanged);
             _saturationSlider.RegisterValueChangedCallback(OnColorSliderChanged);
             _valueSlider.RegisterValueChangedCallback(OnColorSliderChanged);
             return;
         }
 
-        _colorTargetDropdown.UnregisterValueChangedCallback(OnColorTargetChanged);
+        _colorTargetDropdown.UnregisterCallback<ChangeEvent<string>>(OnColorTargetChanged);
         _hueSlider.UnregisterValueChangedCallback(OnColorSliderChanged);
         _saturationSlider.UnregisterValueChangedCallback(OnColorSliderChanged);
         _valueSlider.UnregisterValueChangedCallback(OnColorSliderChanged);
@@ -107,7 +106,7 @@ public partial class CharacterEditController
     {
         EnsureCharacterColorFields();
 
-        if (_colorTargetDropdown != null && string.IsNullOrEmpty(_colorTargetDropdown.value))
+        if (_colorTargetDropdown != null && string.IsNullOrEmpty(_colorTargetDropdown.Value))
         {
             _colorTargetDropdown.SetValueWithoutNotify(ColorTargetSkin);
         }
@@ -132,7 +131,7 @@ public partial class CharacterEditController
     {
         EnsureCharacterColorFields();
 
-        var target = _colorTargetDropdown?.value ?? ColorTargetSkin;
+        var target = _colorTargetDropdown?.Value ?? ColorTargetSkin;
         switch (target)
         {
             case ColorTargetHair:

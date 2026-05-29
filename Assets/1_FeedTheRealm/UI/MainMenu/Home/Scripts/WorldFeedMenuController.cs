@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using API;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client.EntryPoints;
+using FTR.Core.Client.Interfaces;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.Characters.Shared.Portal;
-using FTR.UI;
 using FTRShared.Runtime.Models;
 using FTRShared.UI.ZoneStatusBadge;
 using UnityEngine;
@@ -47,6 +48,17 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
     [SerializeField]
     private ItemAssetsService itemAssetsService;
+
+    [SerializeField]
+    private GameObject worldInfoHUD;
+
+    [Inject]
+    private IObjectResolver resolver;
+
+    [Inject]
+    private ConfirmPopupHandle confirmPopupHandle;
+
+    private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
     [Inject]
     private WorldInfoMenuHandle worldInfoMenuHandle;
@@ -386,9 +398,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
 
         try
         {
-            var confirmPopup = Instantiate(confirmPopupPrefab);
-            var dialogController = confirmPopup.GetComponent<ConfirmPopupController>();
-            dialogController.Show(
+            ConfirmPopup.Show(
                 title: "Select World",
                 question: $"Are you sure you want to enter this world?",
                 onConfirm: async () =>

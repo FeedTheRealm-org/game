@@ -15,6 +15,9 @@ public class QuestCompletionPanelController : MonoBehaviour
     private float hideDelay = 6f;
 
     [SerializeField]
+    private float transitionDuration = 0.35f;
+
+    [SerializeField]
     private Logging.Logger logger;
 
     [Inject]
@@ -25,6 +28,9 @@ public class QuestCompletionPanelController : MonoBehaviour
     private Label _titleLabel;
 
     private Coroutine _hideCoroutine;
+
+    private readonly string _hiddenClass = "panel--hidden";
+    private readonly string _visibleClass = "panel--visible";
 
     private void Awake()
     {
@@ -70,12 +76,30 @@ public class QuestCompletionPanelController : MonoBehaviour
 
     public void ToggleQuestCompletionPanel(bool show)
     {
-        _root.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_root == null)
+            return;
+
         if (show)
         {
+            _root.style.display = DisplayStyle.Flex;
+            _root.schedule.Execute(() =>
+            {
+                _root.RemoveFromClassList(_hiddenClass);
+                _root.AddToClassList(_visibleClass);
+            });
+
             if (_hideCoroutine != null)
                 StopCoroutine(_hideCoroutine);
             _hideCoroutine = StartCoroutine(HideAfterDelay(hideDelay));
+        }
+        else
+        {
+            _root.RemoveFromClassList(_visibleClass);
+            _root.AddToClassList(_hiddenClass);
+
+            if (_hideCoroutine != null)
+                StopCoroutine(_hideCoroutine);
+            _hideCoroutine = StartCoroutine(HideAfterTransition(_root, transitionDuration));
         }
     }
 
@@ -97,5 +121,12 @@ public class QuestCompletionPanelController : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         ToggleQuestCompletionPanel(false);
+    }
+
+    private IEnumerator HideAfterTransition(VisualElement element, float transitionDuration)
+    {
+        yield return new WaitForSeconds(transitionDuration);
+        if (element.ClassListContains(_hiddenClass))
+            element.style.display = DisplayStyle.None;
     }
 }

@@ -19,6 +19,9 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
     public event Action<int> FastSlotEvent;
     public event Action ChatToggleEvent;
 
+    // ═════ NEW: Quest journal toggle event ═════
+    public event Action QuestEvent;
+
     private PlayerControls controls;
 
     private void OnEnable()
@@ -94,6 +97,14 @@ public class PlayerInputReader : ScriptableObject, PlayerControls.IPlayerActions
         if (context.performed)
         {
             ChatToggleEvent?.Invoke();
+        }
+    }
+
+    public void OnQuest(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            QuestEvent?.Invoke();
         }
     }
 

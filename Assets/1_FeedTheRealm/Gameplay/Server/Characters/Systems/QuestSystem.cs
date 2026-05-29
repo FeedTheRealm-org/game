@@ -86,12 +86,57 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void LoadQuests(List<QuestModel> activeQuests, List<string> completedQuests)
         {
+            logger?.Log(
+                $"[QuestSystem] LoadQuests | activeCount={activeQuests.Count} completedCount={completedQuests.Count}",
+                this
+            );
+
+            foreach (var questId in completedQuests)
+            {
+                if (this.activeQuests.ContainsKey(questId))
+                {
+                    logger?.Log(
+                        $"[QuestSystem] LoadQuests | Skipping completed (already active): {questId}",
+                        this
+                    );
+                    continue;
+                }
+
+                this.completedQuests.Add(questId);
+
+                var questDefId = questId.Split('_')[0];
+                var npcId = questId.Split('_')[1];
+                if (!serverQuestRegistry.TryGetQuest(questDefId, out var questData))
+                {
+                    logger?.Log(
+                        $"[QuestSystem] LoadQuests | Quest def not found for completed: {questId}",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                    continue;
+                }
+
+                var state = new QuestProgressState(questData, npcId, questData.targetAmount);
+                logger?.Log(
+                    $"[QuestSystem] LoadQuests | Emitting COMPLETED event: effectiveId={state.EffectiveQuestId} current={state.Current} target={state.Target}",
+                    this
+                );
+                SendProgressEvent(state);
+            }
+
             foreach (var quest in activeQuests)
             {
                 var questId = quest.EffectiveQuestId.Split('_')[0];
                 var npcId = quest.EffectiveQuestId.Split('_')[1];
                 if (!serverQuestRegistry.TryGetQuest(questId, out var questData))
+                {
+                    logger?.Log(
+                        $"[QuestSystem] LoadQuests | Quest def not found for active: {quest.EffectiveQuestId}",
+                        this,
+                        Logging.LogType.Warning
+                    );
                     continue;
+                }
                 var state = new QuestProgressState(questData, npcId, quest.Progress);
                 this.activeQuests[state.EffectiveQuestId] = state;
 
@@ -100,10 +145,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 else if (questData.type == QuestType.NpcInteract)
                     SubscribeToNpcInteracted();
 
+                logger?.Log(
+                    $"[QuestSystem] LoadQuests | Emitting ACTIVE event: effectiveId={state.EffectiveQuestId} current={state.Current} target={state.Target}",
+                    this
+                );
                 SendProgressEvent(state);
             }
-            foreach (var questId in completedQuests)
-                this.completedQuests.Add(questId);
         }
 
         public void OnQuestAccepted(IEventCollectable ec, string questId, string npcId = "")

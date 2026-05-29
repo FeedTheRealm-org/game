@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FeedTheRealm.UI.Common;
-using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Gameplay.Client.Registry;
@@ -26,9 +27,6 @@ public class SettingsMenuController : MonoBehaviour
     private OnWorldLeaveEvent onWorldLeaveEvent;
 
     [Inject]
-    private ClientPrefabProvider prefabProvider;
-
-    [Inject]
     private ISoundPlayer soundPlayer;
 
     [Inject]
@@ -41,7 +39,9 @@ public class SettingsMenuController : MonoBehaviour
     private MenuManager menuManager;
 
     [Inject]
-    private BackEvent backEvent;
+    private ConfirmPopupHandle confirmPopupHandle;
+
+    private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
     /* General settings */
     private VisualElement root;
@@ -66,6 +66,8 @@ public class SettingsMenuController : MonoBehaviour
     private List<Resolution> _availableResolutions;
     private const float baseHeight = 800f;
 
+    private bool _initialized = false;
+
     private enum SettingsSection
     {
         Display,
@@ -74,25 +76,21 @@ public class SettingsMenuController : MonoBehaviour
 
     private SettingsSection _activeSection = SettingsSection.Display;
 
-    private void Start()
-    {
-        backEvent.OnRaised += ToggleSettings;
-    }
-
-    private void OnDestroy()
-    {
-        backEvent.OnRaised -= ToggleSettings;
-    }
-
     private void Awake()
+    {
+        if (GetComponent<UIDocument>() == null)
+            throw new MissingComponentException("UIDocument component missing.");
+    }
+
+    private void Start()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
         if (root == null)
-            throw new MissingComponentException("Root VisualElement not found in UI Document.");
-    }
+        {
+            logger.Log("Root VisualElement not found.", this, Logging.LogType.Error);
+            return;
+        }
 
-    private void OnEnable()
-    {
         /* General settings */
         _homeButton = root.Q<Button>("HomeButton");
         _exitButton = root.Q<Button>("ExitButton");
@@ -141,19 +139,26 @@ public class SettingsMenuController : MonoBehaviour
         _muteToggle = root.Q<Toggle>("MuteToggle");
 
         PopulateUIFromSettings();
-
-        logger.Log("Settings menu initialized.", this);
-
         InitializeDisplayChoices();
         AdjustUIToScreenSize();
         RegisterCallbacks(register: true);
         ShowSection(SettingsSection.Display);
 
+        menuManager.RegisterMenuCallbacks(
+            MenuType.Settings,
+            onOpen: OpenSettings,
+            onClose: CloseSettings
+        );
+
         root.style.display = DisplayStyle.None;
+
+        _initialized = true;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
+        if (!_initialized)
+            return;
         RegisterCallbacks(register: false);
     }
 
@@ -264,23 +269,25 @@ public class SettingsMenuController : MonoBehaviour
     public bool IsOpen() =>
         GetComponent<UIDocument>().rootVisualElement.style.display == DisplayStyle.Flex;
 
-    public void ToggleSettings()
+    public void CloseSettings()
     {
-        bool willBeActive = root.style.display != DisplayStyle.Flex;
-
-        if (willBeActive && !menuManager.CanOpenMenu(MenuType.Settings))
-            return;
-
-        root.style.display = willBeActive ? DisplayStyle.Flex : DisplayStyle.None;
+        logger.Log("Closing settings menu", this, Logging.LogType.Info);
+        root.style.display = DisplayStyle.None;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
+        menuManager.ToggleMenu(MenuType.Settings, false);
+    }
 
-        menuManager.ToggleMenu(MenuType.Settings, willBeActive);
+    public void OpenSettings()
+    {
+        logger.Log("Opening settings menu", this, Logging.LogType.Info);
+        root.style.display = DisplayStyle.Flex;
+        soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
+        menuManager.ToggleMenu(MenuType.Settings, true);
     }
 
     private void OnHomeClicked()
     {
-        var popup = Instantiate(prefabProvider.ConfirmPopup).GetComponent<ConfirmPopupController>();
-        popup.Show(
+        ConfirmPopup?.Show(
             question: "Are you sure you want to go to the home screen?",
             title: "Return to Home",
             onConfirm: () =>
@@ -293,8 +300,7 @@ public class SettingsMenuController : MonoBehaviour
 
     private void OnExitClicked()
     {
-        var popup = Instantiate(prefabProvider.ConfirmPopup).GetComponent<ConfirmPopupController>();
-        popup.Show(
+        ConfirmPopup?.Show(
             question: "Are you sure you want to exit the game?",
             title: "Exit Game",
             onConfirm: () =>
@@ -308,7 +314,7 @@ public class SettingsMenuController : MonoBehaviour
     private void OnCloseClicked()
     {
         logger.Log("Close settings clicked", this, Logging.LogType.Info);
-        ToggleSettings();
+        CloseSettings();
     }
 
     private void OnVolumeChanged(ChangeEvent<float> evt)

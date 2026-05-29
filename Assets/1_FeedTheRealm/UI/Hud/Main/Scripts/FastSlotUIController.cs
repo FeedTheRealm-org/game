@@ -35,16 +35,10 @@ namespace FTR.UI.Hud.Main
         private PlayerInputReader inputReader;
 
         [SerializeField]
-        private Sprite defaultSlotSprite;
-
-        [SerializeField]
-        private Sprite selectedSlotSprite;
-
-        [SerializeField]
-        private Sprite hiddenHUDSlotSprite;
-
-        [SerializeField]
         private API.ItemAssetsService itemAssetsService;
+
+        private const string FastSlotSelectedClass = "fast-equip-slot--selected";
+        private const string FastSlotHiddenClass = "fast-equip-slot--hidden";
 
         private UIDocument uiDocument;
         private readonly List<VisualElement> slots = new(FastSlotCount);
@@ -155,30 +149,30 @@ namespace FTR.UI.Hud.Main
         private void OnInventoryToggled(bool status)
         {
             isInventoryOpen = status;
-            for (int i = 0; i < slots.Count; i++)
-            {
-                Sprite sprite =
-                    status ? hiddenHUDSlotSprite
-                    : i == activeSlot ? selectedSlotSprite
-                    : defaultSlotSprite;
-                SetSlotBackground(i, sprite);
-            }
+            UpdateAllSlots();
         }
 
         private void SetActiveSlot(int slotIndex)
         {
-            SetSlotBackground(activeSlot, defaultSlotSprite);
             activeSlot = slotIndex;
-            SetSlotBackground(activeSlot, selectedSlotSprite);
+            UpdateAllSlots();
         }
 
         // ────────────────────────── Helpers ──────────────────────────────────────
 
-        private void SetSlotBackground(int index, Sprite sprite)
+        private void UpdateAllSlots()
         {
-            if (index < 0 || index >= slots.Count || sprite == null)
-                return;
-            slots[index].style.backgroundImage = new StyleBackground(sprite);
+            for (int i = 0; i < slots.Count; i++)
+            {
+                var slot = slots[i];
+                slot.RemoveFromClassList(FastSlotSelectedClass);
+                slot.RemoveFromClassList(FastSlotHiddenClass);
+
+                if (isInventoryOpen)
+                    slot.AddToClassList(FastSlotHiddenClass);
+                else if (i == activeSlot)
+                    slot.AddToClassList(FastSlotSelectedClass);
+            }
         }
 
         private VisualElement Icon(int index)

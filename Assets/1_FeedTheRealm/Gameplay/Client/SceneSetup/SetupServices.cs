@@ -15,6 +15,8 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
                 builder.Register(serviceType, Lifetime.Scoped).As(serviceType).As(typeof(ISetup));
             }
 
+            builder.Register<ConfirmPopupHandle>(Lifetime.Singleton);
+
             builder.Register<WorldSetupService>(Lifetime.Scoped);
         }
     }
