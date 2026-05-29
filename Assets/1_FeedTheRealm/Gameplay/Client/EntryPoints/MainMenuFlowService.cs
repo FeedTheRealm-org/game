@@ -11,6 +11,7 @@ namespace FTR.Gameplay.Client.EntryPoints
     public class MainMenuFlowService
     {
         readonly GameObject worldFeedMenuPrefab;
+        readonly GameObject worldInfoMenuPrefab;
         readonly GameObject navBarPrefab;
         readonly GameObject profileMenuPrefab;
         readonly GameObject gemStorePrefab;
@@ -21,14 +22,16 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly API.PlayerService playerService;
         private readonly OnProfileCreatedEvent onProfileCreatedEvent;
         private readonly OnLogoutRequestedEvent onLogoutRequestedEvent;
+        private readonly WorldInfoMenuHandle worldInfoMenuHandle;
+        private readonly IObjectResolver resolver;
         private API.AuthService authService;
         private Session.Session session;
         private GameObject authBackgroundPrefab;
         private GameObject musicPlayerInstance;
-        private IObjectResolver resolver;
 
         public MainMenuFlowService(
             GameObject worldFeedMenuPrefab,
+            GameObject worldInfoMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
@@ -39,10 +42,12 @@ namespace FTR.Gameplay.Client.EntryPoints
             API.PlayerService playerService,
             OnProfileCreatedEvent onProfileCreatedEvent,
             OnLogoutRequestedEvent onLogoutRequestedEvent,
+            WorldInfoMenuHandle worldInfoMenuHandle,
             IObjectResolver resolver
         )
         {
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
+            this.worldInfoMenuPrefab = worldInfoMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
@@ -53,6 +58,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.playerService = playerService;
             this.onProfileCreatedEvent = onProfileCreatedEvent;
             this.onLogoutRequestedEvent = onLogoutRequestedEvent;
+            this.worldInfoMenuHandle = worldInfoMenuHandle;
             this.resolver = resolver;
         }
 
@@ -132,8 +138,15 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         public async UniTask<bool> ShowMainMenuFlow()
         {
+            // World Info menu
+            var worldInfoMenuObj = Object.Instantiate(worldInfoMenuPrefab);
+            worldInfoMenuObj.SetActive(false);
+            resolver.InjectGameObject(worldInfoMenuObj);
+            worldInfoMenuHandle.SetInstance(worldInfoMenuObj);
+
             // Home menu
             var worldFeedMenuObj = resolver.Instantiate(worldFeedMenuPrefab);
+            resolver.InjectGameObject(worldFeedMenuObj);
             var worldFeedMenu = worldFeedMenuObj.GetComponent<IMainMenuController>();
 
             // Profile menu
@@ -185,6 +198,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             Object.Destroy(navBarSettingsObj);
             Object.Destroy(navBarObj);
             Object.Destroy(worldFeedMenuObj);
+            Object.Destroy(worldInfoMenuObj);
 
             return wasLogout;
         }

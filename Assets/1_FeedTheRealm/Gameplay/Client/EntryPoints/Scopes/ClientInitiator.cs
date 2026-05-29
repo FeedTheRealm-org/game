@@ -38,6 +38,9 @@ public class ClientInitiator : LifetimeScope
     private GameObject worldFeedMenuPrefab;
 
     [SerializeField]
+    private GameObject worldInfoMenuPrefab;
+
+    [SerializeField]
     private GameObject navBarPrefab;
 
     [SerializeField]
@@ -73,6 +76,10 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private API.AssetsService assetsService;
 
+    [Header("Assets")]
+    [SerializeField]
+    private API.ModelService modelService;
+
     [Header("Events")]
     [SerializeField]
     private ClientEventRegistry eventRegistry;
@@ -89,6 +96,8 @@ public class ClientInitiator : LifetimeScope
         builder.RegisterInstance(playerService);
         builder.RegisterInstance(assetsService);
         builder.RegisterInstance(logger);
+        builder.RegisterInstance(modelService);
+        builder.Register<WorldInfoMenuHandle>(Lifetime.Singleton);
         eventRegistry.RegisterAll(builder);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
         builder
@@ -96,6 +105,7 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("mainScene", mainScene)
             .WithParameter("authBackgroundPrefab", authBackgroundPrefab)
             .WithParameter("worldFeedMenuPrefab", worldFeedMenuPrefab)
+            .WithParameter("worldInfoMenuPrefab", worldInfoMenuPrefab)
             .WithParameter("navBarPrefab", navBarPrefab)
             .WithParameter("profileMenuPrefab", profileMenuPrefab)
             .WithParameter("gemStorePrefab", gemStorePrefab)

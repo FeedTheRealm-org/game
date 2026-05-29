@@ -21,6 +21,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         public readonly Session.Session session;
         public readonly API.AuthService authService;
         private readonly GameObject worldFeedMenuPrefab;
+        private readonly GameObject worldInfoMenuPrefab;
         private readonly GameObject navBarPrefab;
         private readonly GameObject profileMenuPrefab;
         private readonly GameObject gemStorePrefab;
@@ -31,16 +32,19 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly SettingsManager settingsManager;
         private readonly GameObject navBarSettingsPrefab;
         private readonly GameObject authBackgroundPrefab;
+
         private readonly GameObject confirmPopupPrefab;
         private readonly ConfirmPopupHandle confirmPopupHandle;
         private MenuManager menuManager;
-        private IObjectResolver objectResolver;
+        private readonly WorldInfoMenuHandle worldInfoMenuHandle;
+        private readonly IObjectResolver resolver;
 
         public ClientEntryPoint(
             SceneReference mainScene,
             Session.Session session,
             API.AuthService authService,
             GameObject worldFeedMenuPrefab,
+            GameObject worldInfoMenuPrefab,
             GameObject navBarPrefab,
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
@@ -57,6 +61,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             MenuManager menuManager,
             ConfirmPopupHandle confirmPopupHandle,
             GameObject confirmPopupPrefab,
+            WorldInfoMenuHandle worldInfoMenuHandle,
             IObjectResolver resolver
         )
         {
@@ -64,6 +69,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.session = session;
             this.authService = authService;
             this.worldFeedMenuPrefab = worldFeedMenuPrefab;
+            this.worldInfoMenuPrefab = worldInfoMenuPrefab;
             this.navBarPrefab = navBarPrefab;
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
@@ -76,10 +82,12 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.menuManager = menuManager;
             this.confirmPopupHandle = confirmPopupHandle;
             this.confirmPopupPrefab = confirmPopupPrefab;
-            this.objectResolver = resolver;
+            this.worldInfoMenuHandle = worldInfoMenuHandle;
+            this.resolver = resolver;
 
             flowService = new MainMenuFlowService(
                 worldFeedMenuPrefab,
+                worldInfoMenuPrefab,
                 navBarPrefab,
                 profileMenuPrefab,
                 gemStorePrefab,
@@ -90,6 +98,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 playerService,
                 onProfileCreatedEvent,
                 onLogoutRequestedEvent,
+                worldInfoMenuHandle,
                 resolver
             );
         }
@@ -100,7 +109,7 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             menuManager.SetIsMainMenu(true);
 
-            var confirmPopupObj = objectResolver.Instantiate(confirmPopupPrefab);
+            var confirmPopupObj = resolver.Instantiate(confirmPopupPrefab);
             SetupConfirmPopup(confirmPopupObj);
 
             flowService.InitializeMusicPlayer(MusicType.Menu);
