@@ -46,6 +46,7 @@ namespace FTR.Core.Server.Config
         [SerializeField]
         private float playerSpeed = 5f;
         public float PlayerSpeed => playerSpeed;
+        public float MovementRaycastAngle = 30f;
 
         [Header("Items")]
         [SerializeField]

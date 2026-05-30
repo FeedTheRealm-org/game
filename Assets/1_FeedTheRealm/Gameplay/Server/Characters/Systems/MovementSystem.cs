@@ -35,6 +35,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private bool isDead = false;
         private bool wasGroundedLastTick = false;
         private float capsuleRadius;
+        private float rayLength;
 
         public Vector3 GetCurrentPosition() => rb.position;
 
@@ -125,14 +126,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                         Vector3 moveDirection = Vector3
                             .ProjectOnPlane(direction, stateStorage.GroundNormal)
                             .normalized;
-                        HandleMovementWithRaycasts(
-                            moveDirection * (currentSpeed * dt),
-                            currentSpeed
-                        );
+                        HandleMovementWithRaycasts(moveDirection * (currentSpeed * dt));
                     }
                     else
                     {
-                        HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed); // same
+                        HandleMovementWithRaycasts(direction * (currentSpeed * dt)); // same
                     }
                 }
                 else
@@ -144,7 +142,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             else
             {
                 if (direction != Vector3.zero)
-                    HandleMovementWithRaycasts(direction * (currentSpeed * dt), currentSpeed);
+                    HandleMovementWithRaycasts(direction * (currentSpeed * dt));
             }
 
             wasGroundedLastTick = isGrounded;
@@ -155,49 +153,50 @@ namespace FTR.Gameplay.Server.Characters.Systems
             gameTickCounter++;
         }
 
-        private void HandleMovementWithRaycasts(Vector3 delta, float currentSpeed)
+        private void HandleMovementWithRaycasts(Vector3 delta)
         {
-            if (currentSpeed >= config.TunnelingRiskSpeed)
+            Vector3 deltaNormalized = delta.normalized;
+            rayLength = delta.magnitude + capsuleRadius;
+
+            LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
+
+            Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+            Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+            Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+            Vector3 centerOrigin = rb.position;
+
+            float angle = serverConfig.MovementRaycastAngle;
+            Vector3 leftDir = Quaternion.Euler(0, angle, 0) * deltaNormalized;
+            Vector3 rightDir = Quaternion.Euler(0, -angle, 0) * deltaNormalized;
+
+            float closest = float.MaxValue;
+            bool anyHit = false;
+
+            (Vector3 origin, Vector3 dir)[] rays =
             {
-                Vector3 deltaNormalized = delta.normalized;
-                Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+                (leftOrigin, leftDir),
+                (centerOrigin, deltaNormalized),
+                (rightOrigin, rightDir),
+            };
 
-                Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
-                Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
-
-                LayerMask blockingLayers =
-                    config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
-
-                bool hitLeft = Physics.Raycast(
-                    leftOrigin,
-                    deltaNormalized,
-                    out RaycastHit leftHit,
-                    delta.magnitude,
-                    blockingLayers
-                );
-                bool hitRight = Physics.Raycast(
-                    rightOrigin,
-                    deltaNormalized,
-                    out RaycastHit rightHit,
-                    delta.magnitude,
-                    blockingLayers
-                );
-
-                if (hitLeft || hitRight)
+            foreach (var (origin, dir) in rays)
+            {
+                if (Physics.Raycast(origin, dir, out RaycastHit h, rayLength, blockingLayers))
                 {
-                    float stopDistance =
-                        hitLeft && hitRight ? Mathf.Min(leftHit.distance, rightHit.distance)
-                        : hitLeft ? leftHit.distance
-                        : rightHit.distance;
-
-                    rb.MovePosition(
-                        rb.position
-                            + deltaNormalized * (stopDistance - Physics.defaultContactOffset)
-                    );
-                    return;
+                    if (h.distance < closest)
+                    {
+                        closest = h.distance;
+                        anyHit = true;
+                    }
                 }
             }
 
+            if (anyHit)
+            {
+                float safeDistance = Mathf.Max(0f, closest - Physics.defaultContactOffset);
+                rb.MovePosition(rb.position + deltaNormalized * safeDistance);
+                return;
+            }
             rb.MovePosition(rb.position + delta);
         }
 
@@ -224,19 +223,28 @@ namespace FTR.Gameplay.Server.Characters.Systems
             Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
             Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
             Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
-            float rayLength = 2f; // visual length, not tied to delta
+            Vector3 centerOrigin = rb.position;
 
-            // Left raycast
+            float angle = serverConfig != null ? serverConfig.MovementRaycastAngle : 30f;
+            Vector3 leftDir = Quaternion.Euler(0, angle, 0) * deltaNormalized;
+            Vector3 rightDir = Quaternion.Euler(0, -angle, 0) * deltaNormalized;
+
+            // Left ray (angled)
             Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(leftOrigin, leftOrigin + deltaNormalized * rayLength);
+            Gizmos.DrawLine(leftOrigin, leftOrigin + leftDir * rayLength);
             Gizmos.DrawWireSphere(leftOrigin, 0.05f);
 
-            // Right raycast
+            // Center ray
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(centerOrigin, centerOrigin + deltaNormalized * rayLength);
+            Gizmos.DrawWireSphere(centerOrigin, 0.05f);
+
+            // Right ray (angled)
             Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(rightOrigin, rightOrigin + deltaNormalized * rayLength);
+            Gizmos.DrawLine(rightOrigin, rightOrigin + rightDir * rayLength);
             Gizmos.DrawWireSphere(rightOrigin, 0.05f);
 
-            // Capsule radius indicator
+            // Capsule width indicator
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(
                 rb.position - perpendicular * capsuleRadius,
