@@ -22,7 +22,7 @@ namespace API
         private ApiConfig apiConfig;
 
         /// <summary>
-        /// Downloads and loads a GLB model from the GLTF API, instantiates it, and returns the GameObject.
+        /// Loads a GLB model from the provided bytes, instantiates it, and returns the resulting GameObject.
         /// </summary>
         public async UniTask<GameObject> LoadModel(byte[] data)
         {
