@@ -301,6 +301,16 @@
 	text-overflow: ellipsis;
 }
 
+#CacheStatusLabel {
+	color: rgba(255, 255, 255, 0.6);
+	font-size: 10px;
+	margin-top: 6px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: none;
+}
+
 #ProgressBarBg {
 	height: 3px;
 	background-color: rgba(255, 255, 255, 0.12);

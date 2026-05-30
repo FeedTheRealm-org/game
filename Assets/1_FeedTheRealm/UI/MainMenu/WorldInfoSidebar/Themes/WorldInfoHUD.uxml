@@ -38,6 +38,7 @@
                     <ui:VisualElement name="ProgressBarFill"/>
                 </ui:VisualElement>
             </ui:VisualElement>
+            <ui:Label text="" name="CacheStatusLabel"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
