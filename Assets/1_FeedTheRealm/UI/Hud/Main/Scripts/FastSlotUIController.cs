@@ -107,7 +107,7 @@ namespace FTR.UI.Hud.Main
                 Icon(data.position),
                 data.itemId,
                 cacheManager,
-                worldSelector.GetSelectedWorldId(),
+                worldSelector,
                 data.quantity
             );
         }
@@ -137,7 +137,7 @@ namespace FTR.UI.Hud.Main
                     Icon(data.targetSlot),
                     data.sourceItemId,
                     cacheManager,
-                    worldSelector.GetSelectedWorldId(),
+                    worldSelector,
                     data.sourceQuantity
                 );
             if (data.sourceType == StorageType.FastSlot)
@@ -145,7 +145,7 @@ namespace FTR.UI.Hud.Main
                     Icon(data.sourceSlot),
                     data.targetItemId,
                     cacheManager,
-                    worldSelector.GetSelectedWorldId(),
+                    worldSelector,
                     data.targetQuantity
                 );
         }

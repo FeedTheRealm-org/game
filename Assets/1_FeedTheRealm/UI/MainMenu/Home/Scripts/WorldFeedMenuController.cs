@@ -387,6 +387,7 @@ public class WorldFeedMenuController : MonoBehaviour, IMainMenuController
                     try
                     {
                         worldSelector.SetSelectedWorldId(worldData.worldId);
+                        worldSelector.SetSelectedWorldUpdatedAt(activeWorld.updatedAt);
                         worldSelector.SetSelectedZoneId(worldData.startingZone);
                         config.CurrentServerAddress = activeWorld.zoneAddress.ip;
                         config.CurrentServerPort = (ushort)activeWorld.zoneAddress.port;

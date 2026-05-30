@@ -319,7 +319,7 @@ namespace FTR.UI.Inventory
                 Icon(data.t, data.pos),
                 data.id,
                 cacheManager,
-                worldSelector.GetSelectedWorldId(),
+                worldSelector,
                 data.qty
             );
             TrackSlotItem(Slots(data.t), data.pos, data.id);
@@ -348,14 +348,14 @@ namespace FTR.UI.Inventory
                 Icon(data.srcT, data.srcI),
                 data.tgtId,
                 cacheManager,
-                worldSelector.GetSelectedWorldId(),
+                worldSelector,
                 data.tgtQty
             );
             SlotItemLoader.LoadItem(
                 Icon(data.tgtT, data.tgtI),
                 data.srcId,
                 cacheManager,
-                worldSelector.GetSelectedWorldId(),
+                worldSelector,
                 data.srcQty
             );
             TrackSlotItem(Slots(data.srcT), data.srcI, data.tgtId);

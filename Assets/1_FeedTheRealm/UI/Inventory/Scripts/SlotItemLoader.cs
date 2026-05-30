@@ -1,4 +1,5 @@
 using System;
+using FTR.Core.Client.EntryPoints;
 using FTR.Gameplay.Client.Registry;
 using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace FTR.UI.Inventory
             VisualElement icon,
             string itemId,
             CacheManager cacheManager,
-            string worldId = null,
+            WorldSelector worldSelector = null,
             int quantity = 1
         )
         {
@@ -60,9 +61,12 @@ namespace FTR.UI.Inventory
                     : itemId;
 
             string fileName = System.IO.Path.GetFileName(spriteReference);
-            spriteReference = $"/worlds/{worldId}/items/{fileName}";
+            spriteReference = $"/worlds/{worldSelector.GetSelectedWorldId()}/items/{fileName}";
 
-            var texture = await cacheManager.GetSprite(spriteReference, DateTime.MinValue);
+            var texture = await cacheManager.GetSprite(
+                spriteReference,
+                worldSelector.GetSelectedWorldUpdatedAt()
+            );
 
             string currentMarker = icon.userData as string;
             Debug.Log(

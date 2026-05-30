@@ -155,7 +155,10 @@ public class UseView : MonoBehaviour
         string fileName = System.IO.Path.GetFileName(spriteReference);
         spriteReference = $"/worlds/{worldId}/items/{fileName}";
 
-        var texture = await cacheManager.GetSprite(spriteReference, System.DateTime.MinValue);
+        var texture = await cacheManager.GetSprite(
+            spriteReference,
+            worldSelector.GetSelectedWorldUpdatedAt()
+        );
         if (sequenceAtCall != equipmentChangeSequence)
             return; // Used to prevent race conditions when fast switching items
 

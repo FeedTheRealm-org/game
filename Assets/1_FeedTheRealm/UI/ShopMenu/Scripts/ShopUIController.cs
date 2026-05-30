@@ -447,12 +447,7 @@ namespace FTR.UI.Shop
 
             var icon = new VisualElement();
             icon.AddToClassList("shop-item-icon");
-            SlotItemLoader.LoadItem(
-                icon,
-                product.productId,
-                cacheManager,
-                worldSelector.GetSelectedWorldId()
-            );
+            SlotItemLoader.LoadItem(icon, product.productId, cacheManager, worldSelector);
 
             var nameLabel = new Label(product.productId);
             nameLabel.AddToClassList("shop-item-name");
