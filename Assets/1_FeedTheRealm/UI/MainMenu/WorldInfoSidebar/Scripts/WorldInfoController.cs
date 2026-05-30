@@ -525,7 +525,6 @@ public class WorldInfoController : MonoBehaviour
         }
     }
 
-
     private string makeHumanReadableCreatedAt(string createdAt)
     {
         if (DateTime.TryParse(createdAt, out DateTime parsedDate))
