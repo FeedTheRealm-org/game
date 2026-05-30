@@ -58,11 +58,14 @@
 	border-right-color: rgba(255, 255, 255, 0);
 	border-top-color: rgba(255, 255, 255, 0);
 	border-bottom-color: rgba(255, 255, 255, 0);
+	transition-duration: 0.12s;
+	transition-property: background-color, border-color, color, scale;
 }
 
 #CloseButton:hover {
-	background-color: rgba(255, 255, 255, 0.08);
+	background-color: rgba(0, 0, 0, 0);
 	color: rgb(255, 255, 255);
+	scale: 1.12 1.12;
 }
 
 #Title {
@@ -235,12 +238,15 @@
 	border-bottom-left-radius: 12px;
 	border-width: 2px;
 	-unity-text-align: middle-center;
+	-unity-background-image-tint-color: var(--accent-gold);
+	scale: 1 1;
+	transition-duration: 0.12s;
+	transition-property: background-color, border-color, color, scale;
 }
 
 #DownloadButton {
-	border-color: var(--accent-cyan);
+	border-color: var(--accent-gold);
 	background-color: rgba(110, 255, 251, 0);
-	color: var(--accent-cyan-strong);
 	font-size: 16px;
 	background-image: url("project://database/Assets/1_FeedTheRealm/Icons/Download.svg?fileID=7388822144124034973&guid=1bf889e4d78b91e4ba6e44d825a4c591&type=3#Download");
 	padding-top: 12px;
@@ -255,14 +261,15 @@
 }
 
 #DownloadButton:hover {
-	background-color: rgba(110, 255, 251, 0.16);
-	border-color: var(--accent-cyan-strong);
+	background-color: rgba(0, 0, 0, 0);
+	border-width: 0;
+	-unity-background-image-tint-color: var(--accent-gold);
+	scale: 1.12 1.12;
 }
 
 #DeleteButton {
-	border-color: var(--accent-red);
+	border-color: var(--accent-gold);
 	background-color: rgba(255, 120, 120, 0);
-	color: rgb(255, 200, 200);
 	font-size: 11px;
 	-unity-font-style: bold;
 	margin-left: 6px;
@@ -275,9 +282,10 @@
 }
 
 #DeleteButton:hover {
-	background-color: rgba(255, 120, 120, 0.18);
-	border-color: rgb(255, 150, 150);
-	color: rgb(255, 235, 235);
+	background-color: rgba(0, 0, 0, 0);
+	border-width: 0;
+	-unity-background-image-tint-color: var(--accent-gold);
+	scale: 1.12 1.12;
 }
 
 #ProgressBarContainer {
