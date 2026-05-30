@@ -41,8 +41,12 @@ namespace FTR.UI.Shop
         [SerializeField]
         private Session.Session session;
 
+        [Header("Tooltip")]
         [SerializeField]
-        private ItemStatsTooltip itemStatsTooltipPrefab;
+        private VisualTreeAsset tooltipUXML;
+
+        [SerializeField]
+        private StyleSheet tooltipStyleSheet;
 
         [Inject]
         private OpenShopEvent openShopEvent;
@@ -99,11 +103,16 @@ namespace FTR.UI.Shop
         private VisualElement _messageArea;
         private Label _feedbackLabel;
 
+        private PaginationModule<ProductData> _goldPagination;
+        private PaginationModule<ProductData> _cosmeticPagination;
+        private const int ItemsPerPage = 10;
+
         private bool _isGoldTabActive = true;
         private int _currentGemBalance = -1;
         private string _currentShopId;
 
         private ItemStatsTooltip _itemStatsTooltip;
+        private VisualElement _tooltipContainer;
         private Coroutine _hideMessageCoroutine;
         private Coroutine _animationCoroutine;
         private Coroutine _fetchGemBalanceCoroutine;
@@ -112,10 +121,25 @@ namespace FTR.UI.Shop
 
         private void OnEnable()
         {
-            if (_itemStatsTooltip == null && itemStatsTooltipPrefab != null)
-                _itemStatsTooltip = Instantiate(itemStatsTooltipPrefab);
+            var uiDocument = GetComponent<UIDocument>();
+            var root = uiDocument.rootVisualElement;
 
-            var root = GetComponent<UIDocument>().rootVisualElement;
+            _itemStatsTooltip = GetComponent<ItemStatsTooltip>();
+            if (tooltipUXML != null && _itemStatsTooltip != null)
+            {
+                var tooltipTree = tooltipUXML.Instantiate();
+                _tooltipContainer = tooltipTree.Q("TooltipContainer") ?? tooltipTree;
+                _tooltipContainer.style.position = Position.Absolute;
+                _tooltipContainer.style.display = DisplayStyle.None;
+                _tooltipContainer.style.left = 0;
+                _tooltipContainer.style.top = 0;
+
+                if (tooltipStyleSheet != null && !root.styleSheets.Contains(tooltipStyleSheet))
+                    root.styleSheets.Add(tooltipStyleSheet);
+
+                root.Add(_tooltipContainer);
+                _itemStatsTooltip.Initialize(_tooltipContainer);
+            }
 
             _shopRoot = root.Q<VisualElement>("Shop");
             if (_shopRoot == null)
@@ -149,6 +173,18 @@ namespace FTR.UI.Shop
             _shopItemsContainer = _shopRoot.Q<VisualElement>("ShopItemsContainer");
             _cosmeticItemsContainer = _shopRoot.Q<VisualElement>("CosmeticItemsContainer");
 
+            _goldPagination = new PaginationModule<ProductData>(
+                ItemsPerPage,
+                _shopItemsContainer,
+                (product) => _shopItemsContainer.Add(CreateGoldRow(product))
+            );
+
+            _cosmeticPagination = new PaginationModule<ProductData>(
+                ItemsPerPage,
+                _cosmeticItemsContainer,
+                (product) => _cosmeticItemsContainer.Add(CreateCosmeticRow(product))
+            );
+
             _messageArea = _shopRoot.Q<VisualElement>("MessageArea");
             SetupFeedbackLabel();
 
@@ -163,6 +199,9 @@ namespace FTR.UI.Shop
         {
             openShopEvent.OnRaised -= OnOpenShop;
             inventoryErrorEvent.OnRaised -= OnInventoryError;
+
+            if (_tooltipContainer != null && _tooltipContainer.parent != null)
+                _tooltipContainer.RemoveFromHierarchy();
         }
 
         private void SwitchTab(bool goldTab)
@@ -417,25 +456,26 @@ namespace FTR.UI.Shop
                 return;
             }
 
-            int goldCount = 0,
-                gemCount = 0;
+            var goldProducts = new List<ProductData>();
+            var cosmeticProducts = new List<ProductData>();
 
             foreach (var product in products)
             {
                 if (product.currency == CurrencyType.Gold)
                 {
-                    _shopItemsContainer.Add(CreateGoldRow(product));
-                    goldCount++;
+                    goldProducts.Add(product);
                 }
                 else if (product.currency == CurrencyType.Gems)
                 {
-                    _cosmeticItemsContainer.Add(CreateCosmeticRow(product));
-                    gemCount++;
+                    cosmeticProducts.Add(product);
                 }
             }
 
+            _goldPagination.SetItems(goldProducts);
+            _cosmeticPagination.SetItems(cosmeticProducts);
+
             logger.Log(
-                $"[ShopUIController] Shop '{shopId}': {goldCount} gold, {gemCount} gem products.",
+                $"[ShopUIController] Shop '{shopId}': {goldProducts.Count} gold, {cosmeticProducts.Count} gem products (including mocks).",
                 this
             );
         }
@@ -477,11 +517,8 @@ namespace FTR.UI.Shop
                 ConfirmPopup?.Show(
                     title: "Confirm Purchase",
                     question: $"Are you sure you want to buy {nameLabel.text} x{amountField.value} for {product.price * amountField.value} 🪙?",
-                    onConfirm: () =>
-                    {
-                        int amount = Mathf.Max(1, amountField.value);
-                        purchaseRequestEvent?.Raise((capturedShopId, capturedId, amount));
-                    }
+                    onConfirm: () => Purchase(amountField, capturedId, capturedShopId),
+                    onCancel: null
                 );
             });
 
@@ -491,12 +528,21 @@ namespace FTR.UI.Shop
             row.Add(amountField);
             row.Add(buyButton);
 
-            icon.RegisterCallback<PointerEnterEvent>(_ =>
-                _itemStatsTooltip?.ShowTooltip(capturedId, icon)
-            );
-            icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip?.HideTooltip());
+            if (_itemStatsTooltip != null)
+            {
+                icon.RegisterCallback<PointerEnterEvent>(_ =>
+                    _itemStatsTooltip.ShowTooltip(capturedId, icon)
+                );
+                icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip.HideTooltip());
+            }
 
             return row;
+        }
+
+        private void Purchase(IntegerField amountField, string capturedId, string capturedShopId)
+        {
+            int amount = Mathf.Max(1, amountField.value);
+            purchaseRequestEvent?.Raise((capturedShopId, capturedId, amount));
         }
 
         private VisualElement CreateCosmeticRow(ProductData product)
@@ -553,10 +599,13 @@ namespace FTR.UI.Shop
             row.Add(priceLabel);
             row.Add(buyButton);
 
-            icon.RegisterCallback<PointerEnterEvent>(_ =>
-                _itemStatsTooltip?.ShowTooltip(tooltipId, icon)
-            );
-            icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip?.HideTooltip());
+            if (_itemStatsTooltip != null)
+            {
+                icon.RegisterCallback<PointerEnterEvent>(_ =>
+                    _itemStatsTooltip.ShowTooltip(tooltipId, icon)
+                );
+                icon.RegisterCallback<PointerLeaveEvent>(_ => _itemStatsTooltip.HideTooltip());
+            }
 
             return row;
         }

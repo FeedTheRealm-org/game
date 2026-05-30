@@ -12,6 +12,7 @@ public enum MenuType
     Quest,
     Chat,
     Portal,
+    WorldInfo,
     Quests,
     Confirmation,
 }
@@ -31,6 +32,7 @@ public class MenuManager : IDisposable
         { MenuType.Quest, false },
         { MenuType.Chat, false },
         { MenuType.Portal, false },
+        { MenuType.WorldInfo, false },
         { MenuType.Quests, false },
         { MenuType.Confirmation, false },
     };
@@ -95,6 +97,8 @@ public class MenuManager : IDisposable
             case MenuType.Chat:
                 return openMenuCount == 0;
             case MenuType.Portal:
+                return openMenuCount == 0;
+            case MenuType.WorldInfo:
                 return openMenuCount == 0;
             case MenuType.Quests:
                 return openMenuCount == 0;

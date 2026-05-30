@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/Inventory/Themes/Inventory.uss?fileID=7433441132597879392&amp;guid=e1f477f809821c4f886803912d7f395c&amp;type=3#Inventory"/>
     <ui:VisualElement name="Inventory"
-        style="flex-grow: 1; display: flex; position: absolute; width: 100%; height: 100%; background-color: rgba(0,0,0,0); overflow: visible;">
+        style="flex-grow: 1; display: none; position: absolute; width: 100%; height: 100%; background-color: rgba(0,0,0,0); overflow: visible;">
         <ui:VisualElement name="Panel" class="inv-panel">
 
             <!-- Title -->
@@ -57,18 +57,18 @@
                 <ui:VisualElement class="inv-divider-line"/>
             </ui:VisualElement>
 
-            <!-- 5 fast-equip slots -->
-            <ui:VisualElement name="FastEquipContainer" class="fast-equip-container">
-                <ui:VisualElement name="FastEquipSlot1" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot2" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot3" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot4" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-                <ui:VisualElement name="FastEquipSlot5" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
-            </ui:VisualElement>
-
-            <!-- Drop button (image only) -->
-            <ui:VisualElement name="DropRow" class="inv-drop-row">
-                <ui:VisualElement name="Drop" class="inventory-drop"/>
+            <!-- 5 fast-equip slots and drop button aligned beneath them -->
+            <ui:VisualElement name="FastEquipBlock" class="fast-equip-block">
+                <ui:VisualElement name="FastEquipContainer" class="fast-equip-container">
+                    <ui:VisualElement name="FastEquipSlot1" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot2" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot3" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot4" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                    <ui:VisualElement name="FastEquipSlot5" class="fast-equip-slot"><ui:VisualElement name="FastEquipIcon" class="slot-icon"/></ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="DropRow" class="inv-drop-row">
+                    <ui:VisualElement name="Drop" class="inventory-drop"/>
+                </ui:VisualElement>
             </ui:VisualElement>
 
         </ui:VisualElement>

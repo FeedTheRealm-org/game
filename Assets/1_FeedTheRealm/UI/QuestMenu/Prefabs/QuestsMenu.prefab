@@ -84,5 +84,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b8bbfd1afc9ae44dbd78a47cf074d26, type: 3}
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.Hud.QuestPanel.QuestPanelToggleBridge
-  inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
-  toggleEvent: {fileID: 11400000, guid: cb7a4f144bbe1fdb7ae2d5eff8e2a39b, type: 2}
