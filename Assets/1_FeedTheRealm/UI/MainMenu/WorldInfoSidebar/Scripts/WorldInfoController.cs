@@ -525,12 +525,6 @@ public class WorldInfoController : MonoBehaviour
         }
     }
 
-    private static DateTimeOffset ParseModelUpdatedAt(string updatedAt)
-    {
-        if (DateTimeOffset.TryParse(updatedAt, out var parsed))
-            return parsed;
-        return DateTimeOffset.MinValue;
-    }
 
     private string makeHumanReadableCreatedAt(string createdAt)
     {
