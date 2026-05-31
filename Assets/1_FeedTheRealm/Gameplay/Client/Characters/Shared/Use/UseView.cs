@@ -1,9 +1,11 @@
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
+using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
@@ -21,7 +23,10 @@ public class UseView : MonoBehaviour
     private LateTickEvent lateTickEvent;
 
     [Inject]
-    private API.ItemAssetsService itemsAssetsService;
+    private CacheManager cacheManager;
+
+    [Inject]
+    private WorldSelector worldSelector;
 
     [Inject]
     private ISoundPlayer soundPlayer;
@@ -141,12 +146,19 @@ public class UseView : MonoBehaviour
         }
 
         var itemData = ClientItemsRegistry.GetItemById(itemId);
-        string spriteId =
+        string spriteReference =
             itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
                 ? itemData.spriteFilePath
                 : itemId;
 
-        var texture = await itemsAssetsService.DownloadItemSpriteAsync(spriteId);
+        string worldId = worldSelector?.GetSelectedWorldId();
+        string fileName = System.IO.Path.GetFileName(spriteReference);
+        spriteReference = $"/worlds/{worldId}/items/{fileName}";
+
+        var texture = await cacheManager.GetSprite(
+            spriteReference,
+            worldSelector.GetSelectedWorldUpdatedAt()
+        );
         if (sequenceAtCall != equipmentChangeSequence)
             return; // Used to prevent race conditions when fast switching items
 

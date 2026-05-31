@@ -1,0 +1,371 @@
+
+:root {
+	--sidebar-bg: rgba(8, 18, 30, 0.95);
+	--overlay-bg: rgba(0, 0, 0, 0.52);
+	--accent-gold: rgba(255, 210, 80, 0.9);
+	--accent-cyan: rgba(110, 255, 251, 0.65);
+	--accent-cyan-strong: rgb(110, 255, 251);
+	--accent-red: rgba(255, 120, 120, 0.75);
+	--text-primary: rgb(255, 255, 255);
+	--text-dim: rgba(255, 255, 255, 0.6);
+	--text-muted: rgba(255, 255, 255, 0.82);
+	--pill-online: rgb(220, 255, 220);
+	--pill-dot: rgb(50, 210, 80);
+	--progress-fill: rgb(80, 200, 220);
+}
+
+#Background {
+	flex-grow: 1;
+	position: relative;
+	background-color: var(--overlay-bg);
+}
+
+#SideBar {
+	width: 28%;
+	min-width: 260px;
+	max-width: 360px;
+	height: 100%;
+	background-color: var(--sidebar-bg);
+	border-right-width: 2px;
+	border-right-color: var(--accent-gold);
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	padding-top: 18px;
+	padding-right: 16px;
+	padding-bottom: 14px;
+	padding-left: 16px;
+	flex-direction: column;
+}
+
+#CloseButton {
+	position: absolute;
+	right: 12px;
+	top: 12px;
+	width: 30px;
+	height: 30px;
+	border-top-left-radius: 15px;
+	border-top-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+	border-bottom-left-radius: 15px;
+	border-width: 1px;
+	border-color: rgba(255, 255, 255, 0.3);
+	background-color: rgba(80, 80, 80, 0);
+	color: rgb(220, 220, 220);
+	-unity-font-style: bold;
+	-unity-text-align: middle-center;
+	font-size: 13px;
+	border-left-color: rgba(255, 255, 255, 0);
+	border-right-color: rgba(255, 255, 255, 0);
+	border-top-color: rgba(255, 255, 255, 0);
+	border-bottom-color: rgba(255, 255, 255, 0);
+	transition-duration: 0.12s;
+	transition-property: background-color, border-color, color, scale;
+}
+
+#CloseButton:hover {
+	background-color: rgba(0, 0, 0, 0);
+	color: rgb(255, 255, 255);
+	scale: 1.12 1.12;
+}
+
+#Title {
+	color: var(--text-primary);
+	font-size: 24px;
+	-unity-font-style: bold;
+	-unity-text-align: upper-left;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-bottom: 10px;
+	margin-right: 36px;
+}
+
+#StatusRow {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+#StatusStaticLabel {
+	color: var(--text-dim);
+	font-size: 12px;
+}
+
+#OnlineStatusPill {
+	flex-direction: row;
+	align-items: center;
+	background-color: rgba(0, 0, 0, 0);
+	border-top-left-radius: 20px;
+	border-top-right-radius: 20px;
+	border-bottom-right-radius: 20px;
+	border-bottom-left-radius: 20px;
+	padding-top: 4px;
+	padding-right: 10px;
+	padding-bottom: 4px;
+	padding-left: 10px;
+}
+
+#OnlineDot {
+	width: 8px;
+	height: 8px;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	background-color: var(--pill-dot);
+	margin-right: 6px;
+}
+
+#OnlineStatusLabel {
+	color: var(--pill-online);
+	font-size: 11px;
+	-unity-font-style: bold;
+}
+
+#DescriptionBox {
+	background-color: rgba(0, 0, 0, 0.45);
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+	border-width: 1px;
+	border-color: rgba(255, 210, 80, 0.85);
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	margin-bottom: 14px;
+	flex-grow: 1;
+	flex-shrink: 1;
+	min-height: 120px;
+	max-height: 45%;
+	overflow: auto;
+}
+
+#Description {
+	color: var(--text-muted);
+	font-size: 12px;
+	white-space: normal;
+	-unity-text-align: upper-left;
+}
+
+#CreatedAtRow,
+#CreatedByRow,
+#OnlinePlayersRow {
+	flex-direction: row;
+	align-items: center;
+}
+
+#CreatedAtRow,
+#CreatedByRow {
+	margin-bottom: 6px;
+}
+
+#CreatedAtStaticLabel,
+#CreatedByStaticLabel,
+#OnlinePlayersStaticLabel {
+	color: var(--text-dim);
+	font-size: 13px;
+}
+
+#CreatedAt,
+#OnlinePlayers {
+	color: var(--text-primary);
+	font-size: 13px;
+}
+
+#CreatedBy {
+	color: rgb(80, 220, 200);
+	font-size: 13px;
+	-unity-font-style: bold;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#Spacer {
+	flex-grow: 1;
+}
+
+#OnlinePlayersRow {
+	margin-bottom: 20px;
+}
+
+#OnlinePlayers {
+	-unity-font-style: bold;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#JoinRow {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 10px;
+	flex-wrap: nowrap;
+}
+
+#JoinButton {
+	flex-grow: 1;
+	height: 40px;
+	background-color: rgba(0, 0, 0, 0);
+	border-top-left-radius: 20px;
+	border-top-right-radius: 20px;
+	border-bottom-right-radius: 20px;
+	border-bottom-left-radius: 20px;
+	border-width: 2px;
+	border-color: var(--accent-cyan);
+	color: rgb(200, 245, 245);
+	font-size: 13px;
+	-unity-font-style: bold;
+	-unity-text-align: middle-center;
+	margin-right: 8px;
+}
+
+#JoinButton:hover {
+	background-color: rgba(110, 255, 251, 0.16);
+	border-color: var(--accent-cyan-strong);
+	color: rgb(230, 255, 255);
+}
+
+#DownloadButton,
+#DeleteButton {
+	width: 38px;
+	height: 38px;
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+	border-bottom-right-radius: 12px;
+	border-bottom-left-radius: 12px;
+	border-width: 2px;
+	-unity-text-align: middle-center;
+	-unity-background-image-tint-color: var(--accent-gold);
+	scale: 1 1;
+	transition-duration: 0.12s;
+	transition-property: background-color, border-color, color, scale;
+}
+
+#DownloadButton {
+	border-color: var(--accent-gold);
+	background-color: rgba(110, 255, 251, 0);
+	font-size: 16px;
+	background-image: url("project://database/Assets/1_FeedTheRealm/Icons/Download.svg?fileID=7388822144124034973&guid=1bf889e4d78b91e4ba6e44d825a4c591&type=3#Download");
+	padding-top: 12px;
+	padding-right: 12px;
+	padding-bottom: 12px;
+	padding-left: 12px;
+	background-size: 70% 70%;
+	border-left-color: rgba(110, 255, 251, 0);
+	border-right-color: rgba(110, 255, 251, 0);
+	border-top-color: rgba(110, 255, 251, 0);
+	border-bottom-color: rgba(110, 255, 251, 0);
+}
+
+#DownloadButton:hover {
+	background-color: rgba(0, 0, 0, 0);
+	border-width: 0;
+	-unity-background-image-tint-color: var(--accent-gold);
+	scale: 1.12 1.12;
+}
+
+#DeleteButton {
+	border-color: var(--accent-gold);
+	background-color: rgba(255, 120, 120, 0);
+	font-size: 11px;
+	-unity-font-style: bold;
+	margin-left: 6px;
+	background-image: url("project://database/Assets/1_FeedTheRealm/Icons/Trash.svg?fileID=7388822144124034973&guid=a582c268884386749b56da5d1984b5cc&type=3#Trash");
+	background-size: 60% 60%;
+	border-left-color: rgba(255, 120, 120, 0);
+	border-right-color: rgba(255, 120, 120, 0);
+	border-top-color: rgba(255, 120, 120, 0);
+	border-bottom-color: rgba(255, 120, 120, 0);
+}
+
+#DeleteButton:hover {
+	background-color: rgba(0, 0, 0, 0);
+	border-width: 0;
+	-unity-background-image-tint-color: var(--accent-gold);
+	scale: 1.12 1.12;
+}
+
+#ProgressBarContainer {
+	margin-top: 4px;
+}
+
+#DownloadingLabel {
+	color: rgba(255, 255, 255, 0.55);
+	font-size: 10px;
+	margin-bottom: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#CacheStatusLabel {
+	color: rgba(255, 255, 255, 0.6);
+	font-size: 10px;
+	margin-top: 6px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: none;
+}
+
+#ProgressBarBg {
+	height: 3px;
+	background-color: rgba(255, 255, 255, 0.12);
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+#ProgressBarFill {
+	width: 40%;
+	height: 100%;
+	background-color: var(--progress-fill);
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+@media (max-width: 900px) {
+	#SideBar {
+		width: 44%;
+		max-width: 420px;
+	}
+
+	#Title {
+		font-size: 22px;
+	}
+}
+
+@media (max-width: 640px) {
+	#SideBar {
+		width: 92%;
+		max-width: none;
+		min-width: 0;
+		border-right-width: 0;
+		border-top-right-radius: 10px;
+		border-bottom-right-radius: 10px;
+		margin-left: 4%;
+	}
+
+	#JoinRow {
+		flex-wrap: wrap;
+	}
+
+	#JoinButton {
+		flex-grow: 1;
+		min-width: 100%;
+		margin-right: 0;
+		margin-bottom: 8px;
+	}
+
+	#DownloadButton,
+	#DeleteButton {
+		width: 44px;
+		height: 44px;
+	}
+}

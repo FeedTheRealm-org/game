@@ -16,6 +16,8 @@ namespace FTR.Core.Client.Settings
         public RefreshRate RefreshRate { get; set; }
         public bool IsFullscreen { get; set; } = true;
 
+        public bool IsCachingEnabled { get; set; } = true;
+
         private SettingsRepository _repository;
 
         private void OnEnable() => _repository = new SettingsRepository();
@@ -34,6 +36,7 @@ namespace FTR.Core.Client.Settings
                 ResolutionHeight = Screen.currentResolution.height;
                 RefreshRate = Screen.currentResolution.refreshRateRatio;
                 IsFullscreen = Screen.fullScreen;
+                IsCachingEnabled = true;
                 return;
             }
 
@@ -45,6 +48,7 @@ namespace FTR.Core.Client.Settings
             ResolutionHeight = data.resolutionHeight;
             RefreshRate = data.refreshRate.ToRefreshRate();
             IsFullscreen = data.isFullscreen;
+            IsCachingEnabled = data.enableCaching;
         }
 
         public void SaveSettings()
@@ -60,6 +64,7 @@ namespace FTR.Core.Client.Settings
                     resolutionHeight = ResolutionHeight,
                     refreshRate = RefreshRateData.FromRefreshRate(RefreshRate),
                     isFullscreen = IsFullscreen,
+                    enableCaching = IsCachingEnabled,
                 }
             );
 

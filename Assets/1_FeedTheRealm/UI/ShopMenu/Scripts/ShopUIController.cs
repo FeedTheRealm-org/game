@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Enums;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Input;
@@ -16,6 +18,7 @@ using FTR.Gameplay.Client.Registry;
 using FTR.UI;
 using FTR.UI.Hud.Main;
 using FTR.UI.Inventory;
+using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,9 +31,6 @@ namespace FTR.UI.Shop
     {
         [SerializeField]
         private Logging.Logger logger;
-
-        [SerializeField]
-        private API.ItemAssetsService itemAssetsService;
 
         [SerializeField]
         private API.AssetsService assetsService;
@@ -64,6 +64,9 @@ namespace FTR.UI.Shop
         private InventoryErrorEvent inventoryErrorEvent;
 
         [Inject]
+        private WorldSelector worldSelector;
+
+        [Inject]
         private MenuManager menuManager;
 
         [Inject]
@@ -74,6 +77,9 @@ namespace FTR.UI.Shop
 
         [Inject]
         private ConfirmPopupHandle confirmPopupHandle;
+
+        [Inject]
+        private CacheManager cacheManager;
 
         private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
@@ -481,7 +487,7 @@ namespace FTR.UI.Shop
 
             var icon = new VisualElement();
             icon.AddToClassList("shop-item-icon");
-            SlotItemLoader.LoadItem(icon, product.productId, itemAssetsService);
+            SlotItemLoader.LoadItem(icon, product.productId, cacheManager, worldSelector);
 
             var nameLabel = new Label(product.productId);
             nameLabel.AddToClassList("shop-item-name");
@@ -656,7 +662,13 @@ namespace FTR.UI.Shop
             string categoryName
         )
         {
-            var task = assetsService.DownloadTexture2D(cosmeticId);
+            var spriteUrlTask = assetsService.GetSpriteByIdAsync(cosmeticId);
+            yield return new WaitUntil(() => spriteUrlTask.IsCompleted);
+
+            var task = cacheManager.GetSprite(
+                spriteUrlTask.Result.sprite_url,
+                DateTimeHelper.ParseDateTimeOffset(spriteUrlTask.Result.updated_at)
+            );
             yield return new WaitUntil(() => task.IsCompleted);
 
             if (task.Result == null)
