@@ -156,7 +156,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void HandleMovementWithRaycasts(Vector3 delta)
         {
             Vector3 deltaNormalized = delta.normalized;
-            rayLength = delta.magnitude + capsuleRadius;
+            rayLength = delta.magnitude;
 
             LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
 
@@ -171,6 +171,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             float closest = float.MaxValue;
             bool anyHit = false;
+            Vector3 hitNormal = Vector3.zero;
 
             (Vector3 origin, Vector3 dir)[] rays =
             {
@@ -186,18 +187,64 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     if (h.distance < closest)
                     {
                         closest = h.distance;
+                        hitNormal = h.normal;
                         anyHit = true;
                     }
                 }
             }
 
-            if (anyHit)
+            // Calculate target position: if hit obstacle, move up to contact point; otherwise move by full delta
+            Vector3 targetPosition = anyHit
+                ? rb.position
+                    + deltaNormalized * Mathf.Max(0f, closest - Physics.defaultContactOffset)
+                : rb.position + delta;
+
+            // Depenetration pass — resolve any overlap at the destination
+            targetPosition = ResolveOverlap(targetPosition);
+
+            rb.MovePosition(targetPosition);
+        }
+
+        // ResolveOverlap performs a depenetration pass at the target position to
+        // ensure we don't end up stuck inside geometry due to tunneling or missed raycasts
+        private Vector3 ResolveOverlap(Vector3 targetPosition)
+        {
+            var capsuleCollider = rb.GetComponent<CapsuleCollider>();
+            if (capsuleCollider == null)
+                return targetPosition;
+
+            // Find everything overlapping at the destination
+            Collider[] overlaps = Physics.OverlapSphere(
+                targetPosition,
+                capsuleRadius,
+                config.CubeColliderLayerMask | config.SlopeColliderLayerMask
+            );
+
+            // For each overlapping collider, calculates exactly how far (pushDist)
+            // and in what direction (pushDir) to push the player out of it.
+            foreach (Collider other in overlaps)
             {
-                float safeDistance = Mathf.Max(0f, closest - Physics.defaultContactOffset);
-                rb.MovePosition(rb.position + deltaNormalized * safeDistance);
-                return;
+                if (other.attachedRigidbody == rb)
+                    continue;
+
+                if (
+                    Physics.ComputePenetration(
+                        capsuleCollider,
+                        targetPosition,
+                        rb.rotation,
+                        other,
+                        other.transform.position,
+                        other.transform.rotation,
+                        out Vector3 pushDir,
+                        out float pushDist
+                    )
+                )
+                {
+                    targetPosition += pushDir * (pushDist + Physics.defaultContactOffset);
+                }
             }
-            rb.MovePosition(rb.position + delta);
+
+            return targetPosition;
         }
 
         private void HandleDeath()

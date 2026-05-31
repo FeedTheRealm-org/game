@@ -132,43 +132,40 @@ public class MovementView : MonoBehaviour
 
     private void HandleMovementWithRaycasts(Vector3 delta, float currentSpeed)
     {
-        if (currentSpeed >= config.TunnelingRiskSpeed)
+        Vector3 deltaNormalized = delta.normalized;
+        Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+
+        Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+        Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+
+        LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
+
+        bool hitLeft = Physics.Raycast(
+            leftOrigin,
+            deltaNormalized,
+            out RaycastHit leftHit,
+            delta.magnitude,
+            blockingLayers
+        );
+        bool hitRight = Physics.Raycast(
+            rightOrigin,
+            deltaNormalized,
+            out RaycastHit rightHit,
+            delta.magnitude,
+            blockingLayers
+        );
+
+        if (hitLeft || hitRight)
         {
-            Vector3 deltaNormalized = delta.normalized;
-            Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+            float stopDistance =
+                hitLeft && hitRight ? Mathf.Min(leftHit.distance, rightHit.distance)
+                : hitLeft ? leftHit.distance
+                : rightHit.distance;
 
-            Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
-            Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
-
-            LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
-
-            bool hitLeft = Physics.Raycast(
-                leftOrigin,
-                deltaNormalized,
-                out RaycastHit leftHit,
-                delta.magnitude,
-                blockingLayers
+            rb.MovePosition(
+                rb.position + deltaNormalized * (stopDistance - Physics.defaultContactOffset)
             );
-            bool hitRight = Physics.Raycast(
-                rightOrigin,
-                deltaNormalized,
-                out RaycastHit rightHit,
-                delta.magnitude,
-                blockingLayers
-            );
-
-            if (hitLeft || hitRight)
-            {
-                float stopDistance =
-                    hitLeft && hitRight ? Mathf.Min(leftHit.distance, rightHit.distance)
-                    : hitLeft ? leftHit.distance
-                    : rightHit.distance;
-
-                rb.MovePosition(
-                    rb.position + deltaNormalized * (stopDistance - Physics.defaultContactOffset)
-                );
-                return;
-            }
+            return;
         }
 
         rb.MovePosition(rb.position + delta);
