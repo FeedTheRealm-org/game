@@ -135,6 +135,43 @@
     width:            100%;
 }
 
+.hpset-cache-text {
+    color: var(--white-muted);
+    font-size: 14px;
+    line-height: 18px;
+    margin-bottom: 8px;
+}
+
+.hpset-cache-feedback {
+    color: var(--teal);
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-top: 6px;
+}
+
+.hpset-action-button {
+    height: 40px;
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: var(--teal);
+    background-color: rgba(110, 255, 251, 0.08);
+    border-width: 1px;
+    border-color: var(--teal-strong);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.hpset-action-button:hover {
+    background-color: var(--teal-hover);
+    border-color: var(--teal);
+    color: var(--white);
+}
+
 /* ── Logout button ───────────────────────────────────────────── */
 
 .nav-button--logout {

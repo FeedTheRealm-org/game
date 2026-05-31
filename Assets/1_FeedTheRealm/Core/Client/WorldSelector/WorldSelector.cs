@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace FTR.Core.Client.EntryPoints
@@ -12,6 +13,9 @@ namespace FTR.Core.Client.EntryPoints
         private string SelectedWorldId = "";
 
         [SerializeField]
+        private string SelectedWorldUpdatedAt = "";
+
+        [SerializeField]
         private int SelectedZoneId = 1;
 
         [SerializeField]
@@ -19,9 +23,24 @@ namespace FTR.Core.Client.EntryPoints
 
         public string GetSelectedWorldId() => SelectedWorldId;
 
+        public DateTimeOffset GetSelectedWorldUpdatedAt()
+        {
+            try
+            {
+                return DateTimeHelper.ParseDateTimeOffset(SelectedWorldUpdatedAt);
+            }
+            catch (FormatException)
+            {
+                return DateTimeOffset.MinValue;
+            }
+        }
+
         public string GetSelectedWorldJoinToken() => SelectedWorldJoinToken;
 
         public void SetSelectedWorldId(string worldId) => SelectedWorldId = worldId;
+
+        public void SetSelectedWorldUpdatedAt(string updatedAt) =>
+            SelectedWorldUpdatedAt = updatedAt;
 
         public void SetSelectedWorldJoinToken(string tokenId) => SelectedWorldJoinToken = tokenId;
 

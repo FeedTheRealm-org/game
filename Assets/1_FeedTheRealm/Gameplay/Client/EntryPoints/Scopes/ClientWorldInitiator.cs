@@ -13,6 +13,8 @@ using FTR.Gameplay.Client.Loaders;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
+using FTRShared.Runtime.Core.Cache;
+using FTRShared.Runtime.Core.Interfaces;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -73,9 +75,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private AssetsService assetsService;
 
         [SerializeField]
-        private ItemAssetsService itemAssetsService;
-
-        [SerializeField]
         private MaterialService materialService;
 
         [SerializeField]
@@ -114,10 +113,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(clientQuestRegistry);
             builder.RegisterInstance(modelService);
-            builder.RegisterInstance(gltfLoaderService);
+            builder.RegisterInstance(gltfLoaderService).As<IGltfLoader>().AsSelf();
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
-            builder.RegisterInstance(itemAssetsService);
             builder.RegisterInstance(materialService);
             builder.RegisterInstance(colliderRegistry);
             builder.RegisterInstance(soundFXRegistry);
@@ -130,6 +128,8 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<CursorManager>(Lifetime.Singleton);
             builder.Register<CameraManager>(Lifetime.Singleton);
             builder.Register<MenuManager>(Lifetime.Singleton);
+            builder.Register<CacheManager>(Lifetime.Singleton);
+            builder.Register<DiskService>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
@@ -155,7 +155,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(settingsManager, "SettingsManager");
             ValidateField(modelService, "ModelService");
             ValidateField(gltfLoaderService, "GLTFLoaderService");
-            ValidateField(itemAssetsService, "ItemAssetsService");
             ValidateField(assetsService, "AssetsService");
             ValidateField(zoneService, "ZoneService");
             ValidateField(npcDialogRegistry, "NpcDialogRegistry");

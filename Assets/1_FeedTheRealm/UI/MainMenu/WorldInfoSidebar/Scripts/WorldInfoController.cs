@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using API;
 using FTR.Core.Client.Managers;
+using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Models;
 using FTRShared.UI.ZoneStatusBadge;
 using UnityEngine;
@@ -25,10 +26,13 @@ public class WorldInfoController : MonoBehaviour
     private WorldService worldService;
 
     [Inject]
+    private MenuManager menuManager;
+
+    [Inject]
     private ModelService modelService;
 
     [Inject]
-    private MenuManager menuManager;
+    private CacheManager cacheManager;
 
     private ZoneStatusBadgeController zoneStatusBadge;
 
@@ -47,6 +51,7 @@ public class WorldInfoController : MonoBehaviour
     private Label DownloadingLabel;
     private VisualElement ProgressBarContainer;
     private VisualElement ProgressBarFill;
+    private Label CacheStatusLabel;
     private string downloadButtonText;
     private Coroutine sidebarAnimationCoroutine;
     private Coroutine uiInitCoroutine;
@@ -194,6 +199,7 @@ public class WorldInfoController : MonoBehaviour
         DownloadingLabel = ui.Q<Label>("DownloadingLabel");
         ProgressBarContainer = ui.Q<VisualElement>("ProgressBarContainer");
         ProgressBarFill = ui.Q<VisualElement>("ProgressBarFill");
+        CacheStatusLabel = ui.Q<Label>("CacheStatusLabel");
 
         if (WorldNameLabel == null)
         {
@@ -235,6 +241,8 @@ public class WorldInfoController : MonoBehaviour
             logger.Log("ProgressBarContainer not found in UI.", this, Logging.LogType.Warning);
         if (ProgressBarFill == null)
             logger.Log("ProgressBarFill not found in UI.", this, Logging.LogType.Warning);
+        if (CacheStatusLabel == null)
+            logger.Log("CacheStatusLabel not found in UI.", this, Logging.LogType.Warning);
 
         if (JoinButton != null)
         {
@@ -329,6 +337,12 @@ public class WorldInfoController : MonoBehaviour
             DownloadingLabel.style.display = DisplayStyle.None;
         }
 
+        if (CacheStatusLabel != null)
+        {
+            CacheStatusLabel.text = "";
+            CacheStatusLabel.style.display = DisplayStyle.None;
+        }
+
         if (ProgressBarContainer != null)
             ProgressBarContainer.style.display = DisplayStyle.None;
 
@@ -360,10 +374,10 @@ public class WorldInfoController : MonoBehaviour
         if (currentWorld?.worldData == null)
             return;
 
-        if (modelService == null)
+        if (cacheManager == null)
         {
             logger.Log(
-                "ModelService is not assigned in WorldInfoController.",
+                "CacheManager is not assigned in WorldInfoController.",
                 this,
                 Logging.LogType.Warning
             );
@@ -415,8 +429,31 @@ public class WorldInfoController : MonoBehaviour
                     ? model.model_id
                     : Path.GetFileName(model.url);
 
-                await modelService.DownloadModel(model);
+                if (string.IsNullOrWhiteSpace(model.url))
+                {
+                    completed++;
+                    if (DownloadingLabel != null)
+                        DownloadingLabel.text =
+                            $"downloading content... {completed}/{total} {modelName}";
+                    continue;
+                }
+
+                try
+                {
+                    var updatedAt = DateTimeHelper.ParseDateTimeOffset(model.updated_at);
+                    var modelGameobject = await cacheManager.GetModel(model.url, updatedAt);
+                    Destroy(modelGameobject);
+                }
+                catch (Exception ex)
+                {
+                    logger.Log(
+                        $"Failed to download model '{modelName}' from URL '{model.url}': {ex.Message}",
+                        this,
+                        Logging.LogType.Warning
+                    );
+                }
                 completed++;
+
                 if (DownloadingLabel != null)
                     DownloadingLabel.text =
                         $"downloading content... {completed}/{total} {modelName}";
@@ -458,7 +495,34 @@ public class WorldInfoController : MonoBehaviour
 
     private void OnDeleteButtonClicked()
     {
-        // TODO: Add delete world logic.
+        if (currentWorld?.worldData == null)
+            return;
+
+        if (cacheManager == null)
+        {
+            logger.Log(
+                "CacheManager is not assigned in WorldInfoController.",
+                this,
+                Logging.LogType.Warning
+            );
+            return;
+        }
+
+        string worldId = currentWorld.worldData.worldId;
+        if (string.IsNullOrWhiteSpace(worldId))
+            return;
+
+        string uriPrefix = $"/worlds/{worldId}/";
+        int deletedCount = cacheManager.ClearCacheForUriPrefix(uriPrefix);
+
+        if (CacheStatusLabel != null)
+        {
+            CacheStatusLabel.text =
+                deletedCount > 0
+                    ? $"Cleared cache: {deletedCount} files removed."
+                    : "Cache already empty for this world.";
+            CacheStatusLabel.style.display = DisplayStyle.Flex;
+        }
     }
 
     private string makeHumanReadableCreatedAt(string createdAt)

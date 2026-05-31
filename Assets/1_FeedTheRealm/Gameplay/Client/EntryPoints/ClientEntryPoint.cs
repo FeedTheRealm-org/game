@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
+using FTRShared.Runtime.Core.Cache;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -35,6 +36,7 @@ namespace FTR.Gameplay.Client.EntryPoints
 
         private readonly GameObject confirmPopupPrefab;
         private readonly ConfirmPopupHandle confirmPopupHandle;
+        private readonly CacheManager cacheManager;
         private MenuManager menuManager;
         private readonly WorldInfoMenuHandle worldInfoMenuHandle;
         private readonly IObjectResolver resolver;
@@ -61,6 +63,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             MenuManager menuManager,
             ConfirmPopupHandle confirmPopupHandle,
             GameObject confirmPopupPrefab,
+            CacheManager cacheManager,
             WorldInfoMenuHandle worldInfoMenuHandle,
             IObjectResolver resolver
         )
@@ -82,6 +85,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.menuManager = menuManager;
             this.confirmPopupHandle = confirmPopupHandle;
             this.confirmPopupPrefab = confirmPopupPrefab;
+            this.cacheManager = cacheManager;
             this.worldInfoMenuHandle = worldInfoMenuHandle;
             this.resolver = resolver;
 
@@ -143,6 +147,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             settingsManager.LoadSettings();
             settingsManager.ApplyDisplay();
             settingsManager.ApplyAudioListener();
+            cacheManager.SetCachingEnabled(settingsManager.IsCachingEnabled);
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
             Application.runInBackground = true;

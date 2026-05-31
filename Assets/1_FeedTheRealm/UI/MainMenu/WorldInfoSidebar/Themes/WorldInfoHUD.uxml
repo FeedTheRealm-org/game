@@ -1,42 +1,44 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="Background" style="flex-grow: 1; position: relative; background-color: rgba(0, 0, 0, 0.52);">
-        <ui:VisualElement name="SideBar" style="width: 28%; min-width: 260px; max-width: 360px; height: 100%; background-color: rgba(8, 18, 30, 0.95); border-right-width: 2px; border-right-color: rgba(255, 210, 80, 0.9); border-top-right-radius: 0; border-bottom-right-radius: 0; padding-top: 18px; padding-right: 16px; padding-bottom: 14px; padding-left: 16px; flex-direction: column;">
-            <ui:Button text="✕" name="CloseButton" style="position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-width: 1px; border-color: rgba(255, 255, 255, 0.3); background-color: rgba(80, 80, 80, 0.6); color: rgb(220, 220, 220); -unity-font-style: bold; -unity-text-align: middle-center; font-size: 13px;"/>
-            <ui:Label text="World Name" name="Title" style="color: rgb(255, 255, 255); font-size: 24px; -unity-font-style: bold; -unity-text-align: upper-left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; margin-right: 36px;"/>
-            <ui:VisualElement name="StatusRow" style="flex-direction: row; align-items: center; margin-bottom: 10px;">
-                <ui:Label text="status: " name="StatusStaticLabel" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"/>
-                <ui:VisualElement name="OnlineStatusPill" style="flex-direction: row; align-items: center; background-color: rgba(0, 0, 0, 0); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; padding-top: 4px; padding-right: 10px; padding-bottom: 4px; padding-left: 10px;">
-                    <ui:VisualElement name="OnlineDot" style="width: 8px; height: 8px; border-top-left-radius: 4px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-bottom-left-radius: 4px; background-color: rgb(50, 210, 80); margin-right: 6px;"/>
-                    <ui:Label text="online" name="OnlineStatusLabel" style="color: rgb(220, 255, 220); font-size: 11px; -unity-font-style: bold;"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/WorldInfoSidebar/Themes/WorldInfoHUD.uss?fileID=7433441132597879392&amp;guid=1e15479d56375a230912ff34c04545a2&amp;type=3#WorldInfoHUD"/>
+    <ui:VisualElement name="Background">
+        <ui:VisualElement name="SideBar">
+            <ui:Button text="✕" name="CloseButton"/>
+            <ui:Label text="World Name" name="Title"/>
+            <ui:VisualElement name="StatusRow">
+                <ui:Label text="status: " name="StatusStaticLabel"/>
+                <ui:VisualElement name="OnlineStatusPill">
+                    <ui:VisualElement name="OnlineDot"/>
+                    <ui:Label text="online" name="OnlineStatusLabel"/>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="DescriptionBox" style="background-color: rgba(0, 0, 0, 0.45); border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; border-width: 1px; border-color: rgba(255, 210, 80, 0.85); padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; margin-bottom: 14px; flex-grow: 1; flex-shrink: 1; min-height: 120px; max-height: 45%; overflow: auto;">
-                <ui:Label text="No description provided." name="Description" style="color: rgba(255, 255, 255, 0.82); font-size: 12px; white-space: normal; -unity-text-align: upper-left;"/>
+            <ui:VisualElement name="DescriptionBox">
+                <ui:Label text="No description provided." name="Description"/>
             </ui:VisualElement>
-            <ui:VisualElement name="CreatedAtRow" style="flex-direction: row; align-items: center; margin-bottom: 6px;">
-                <ui:Label text="created: " name="CreatedAtStaticLabel" style="color: rgba(255, 255, 255, 0.6); font-size: 13px;"/>
-                <ui:Label text="Created unknown date" name="CreatedAt" style="color: rgb(255, 255, 255); font-size: 13px;"/>
+            <ui:VisualElement name="CreatedAtRow">
+                <ui:Label text="created: " name="CreatedAtStaticLabel"/>
+                <ui:Label text="Created unknown date" name="CreatedAt"/>
             </ui:VisualElement>
-            <ui:VisualElement name="CreatedByRow" style="flex-direction: row; align-items: center; margin-bottom: 6px;">
-                <ui:Label text="created by: " name="CreatedByStaticLabel" style="color: rgba(255, 255, 255, 0.6); font-size: 13px;"/>
-                <ui:Label text="Created By Unknown User" name="CreatedBy" style="color: rgb(80, 220, 200); font-size: 13px; -unity-font-style: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"/>
-                <ui:VisualElement name="Spacer" style="flex-grow: 1;"/>
+            <ui:VisualElement name="CreatedByRow">
+                <ui:Label text="created by: " name="CreatedByStaticLabel"/>
+                <ui:Label text="Created By Unknown User" name="CreatedBy"/>
+                <ui:VisualElement name="Spacer"/>
             </ui:VisualElement>
-            <ui:VisualElement name="OnlinePlayersRow" style="flex-direction: row; align-items: center; margin-bottom: 20px;">
-                <ui:Label text="online players: " name="OnlinePlayersStaticLabel" style="color: rgba(255, 255, 255, 0.6); font-size: 13px;"/>
-                <ui:Label text="0" name="OnlinePlayers" style="color: rgb(255, 255, 255); font-size: 13px; -unity-font-style: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"/>
+            <ui:VisualElement name="OnlinePlayersRow">
+                <ui:Label text="online players: " name="OnlinePlayersStaticLabel"/>
+                <ui:Label text="0" name="OnlinePlayers"/>
             </ui:VisualElement>
-            <ui:VisualElement name="JoinRow" style="flex-direction: row; align-items: center; margin-bottom: 10px; flex-wrap: nowrap;">
-                <ui:Button text="Join World!" name="JoinButton" style="flex-grow: 1; height: 40px; background-color: rgba(0, 0, 0, 0); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-width: 2px; border-color: rgba(110, 255, 251, 0.65); color: rgb(200, 245, 245); font-size: 13px; -unity-font-style: bold; -unity-text-align: middle-center; margin-right: 8px;"/>
-                <ui:Button text="" name="DownloadButton" style="width: 38px; height: 38px; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-bottom-left-radius: 12px; border-width: 2px; border-color: rgba(110, 255, 251, 0.65); background-color: rgba(110, 255, 251, 0.06); color: rgb(110, 255, 251); font-size: 16px; -unity-text-align: middle-center; background-image: url(&quot;project://database/Assets/1_FeedTheRealm/Icons/Download.svg?fileID=7388822144124034973&amp;guid=1bf889e4d78b91e4ba6e44d825a4c591&amp;type=3#Download&quot;); padding-top: 12px; padding-right: 12px; padding-bottom: 12px; padding-left: 12px; background-size: 70% 70%;"/>
-                <ui:Button text="" name="DeleteButton" style="width: 38px; height: 38px; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-bottom-left-radius: 12px; border-width: 2px; border-color: rgba(255, 120, 120, 0.75); background-color: rgba(255, 120, 120, 0.08); color: rgb(255, 200, 200); font-size: 11px; -unity-font-style: bold; -unity-text-align: middle-center; margin-left: 6px; background-image: url(&quot;project://database/Assets/1_FeedTheRealm/Icons/Trash.svg?fileID=7388822144124034973&amp;guid=a582c268884386749b56da5d1984b5cc&amp;type=3#Trash&quot;); background-size: 60% 60%;"/>
+            <ui:VisualElement name="JoinRow">
+                <ui:Button text="Join World!" name="JoinButton"/>
+                <ui:Button text="" name="DownloadButton"/>
+                <ui:Button text="" name="DeleteButton"/>
             </ui:VisualElement>
             <ui:VisualElement name="ProgressBarContainer">
-                <ui:Label text="downloading content..." name="DownloadingLabel" style="color: rgba(255, 255, 255, 0.55); font-size: 10px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"/>
-                <ui:VisualElement name="ProgressBarBg" style="height: 3px; background-color: rgba(255, 255, 255, 0.12); border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px;">
-                    <ui:VisualElement name="ProgressBarFill" style="width: 40%; height: 100%; background-color: rgb(80, 200, 220); border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px;"/>
+                <ui:Label text="downloading content..." name="DownloadingLabel"/>
+                <ui:VisualElement name="ProgressBarBg">
+                    <ui:VisualElement name="ProgressBarFill"/>
                 </ui:VisualElement>
             </ui:VisualElement>
+            <ui:Label text="" name="CacheStatusLabel"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
