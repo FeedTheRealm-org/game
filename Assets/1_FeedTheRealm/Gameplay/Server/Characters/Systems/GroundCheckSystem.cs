@@ -114,7 +114,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 groundCheckSphereOrigin + stateStorage.GroundNormal * 2f
             );
 
-            Gizmos.color = Color.red;
+            Gizmos.color = stateStorage.IsGrounded ? Color.green : Color.red;
             Gizmos.DrawWireSphere(
                 groundCheckSphereOrigin + Vector3.down * groundCheckDistance,
                 config.GroundCheckSphereRadius

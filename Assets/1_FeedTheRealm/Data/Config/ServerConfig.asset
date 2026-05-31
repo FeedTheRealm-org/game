@@ -36,7 +36,7 @@ MonoBehaviour:
   SlopeLayer:
     serializedVersion: 2
     m_Bits: 16384
-  playerSpeed: 100
+  playerSpeed: 5
   MovementRaycastAngle: 30
   itemDespawnTime: 60
   maxInitialForce: 6

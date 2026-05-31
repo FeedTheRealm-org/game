@@ -171,7 +171,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             float closest = float.MaxValue;
             bool anyHit = false;
-            Vector3 hitNormal = Vector3.zero;
 
             (Vector3 origin, Vector3 dir)[] rays =
             {
@@ -187,20 +186,18 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     if (h.distance < closest)
                     {
                         closest = h.distance;
-                        hitNormal = h.normal;
                         anyHit = true;
                     }
                 }
             }
 
-            // Calculate target position: if hit obstacle, move up to contact point; otherwise move by full delta
             Vector3 targetPosition = anyHit
                 ? rb.position
                     + deltaNormalized * Mathf.Max(0f, closest - Physics.defaultContactOffset)
                 : rb.position + delta;
 
-            // Depenetration pass — resolve any overlap at the destination
-            targetPosition = ResolveOverlap(targetPosition);
+            if (anyHit)
+                targetPosition = ResolveOverlap(targetPosition);
 
             rb.MovePosition(targetPosition);
         }
