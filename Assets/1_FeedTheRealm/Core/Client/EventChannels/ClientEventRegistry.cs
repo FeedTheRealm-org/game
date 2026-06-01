@@ -22,6 +22,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
     {
         [Header("Setup Events")]
         public LoadingEvent loadingEvent;
+        public LoadingProgressEvent loadingProgressEvent;
 
         [Header("Shop Events")]
         public ShopToggleEvent shopToggleEvent;
@@ -123,6 +124,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(portalToggleEvent);
             builder.RegisterInstance(openPortalUIEvent);
             builder.RegisterInstance(loadingEvent);
+            builder.RegisterInstance(loadingProgressEvent);
             builder.RegisterInstance(onExitEvent);
             builder.RegisterInstance(onProfileCreatedEvent);
             builder.RegisterInstance(backEvent);
@@ -165,6 +167,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(portalToggleEvent, nameof(portalToggleEvent));
             ValidateField(openPortalUIEvent, nameof(openPortalUIEvent));
             ValidateField(loadingEvent, nameof(loadingEvent));
+            ValidateField(loadingProgressEvent, nameof(loadingProgressEvent));
             ValidateField(onExitEvent, nameof(onExitEvent));
             ValidateField(onProfileCreatedEvent, nameof(onProfileCreatedEvent));
             ValidateField(backEvent, nameof(backEvent));

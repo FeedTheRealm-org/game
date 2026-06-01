@@ -132,11 +132,6 @@ namespace FTR.Gameplay.Client.EntryPoints
             await flowService.DestroyMusicPlayerAsync(fadeOut: true);
 
             await LoadMainScene();
-
-            if (loadingScreenInstance != null)
-            {
-                Object.Destroy(loadingScreenInstance);
-            }
         }
 
         void ConfigureUnityForClient()
