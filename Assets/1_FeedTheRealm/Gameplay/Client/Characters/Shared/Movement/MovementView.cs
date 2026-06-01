@@ -126,8 +126,12 @@ public class MovementView : MonoBehaviour
         if (currentDirection == Vector3.zero)
             return;
 
-        float currentSpeed = currentDirection.magnitude;
-        HandleMovementWithRaycasts(currentDirection * Time.fixedDeltaTime, currentSpeed);
+        Vector3 horizontalDirection = new Vector3(currentDirection.x, 0f, currentDirection.z);
+        if (horizontalDirection == Vector3.zero)
+            return;
+
+        float currentSpeed = horizontalDirection.magnitude;
+        HandleMovementWithRaycasts(horizontalDirection * Time.fixedDeltaTime, currentSpeed);
     }
 
     private void HandleMovementWithRaycasts(Vector3 delta, float currentSpeed)
