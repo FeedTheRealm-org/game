@@ -64,15 +64,19 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 return false;
             }
 
-            // Reject surfaces that are too vertical to stand on.
-            // A dot product of the hit normal against Vector3.up gives the cosine of the angle:
-            // 1.0 = flat ground, 0.0 = vertical wall, negative = ceiling.
-            float normalAlignment = Vector3.Dot(groundHit.normal, Vector3.up);
-            if (normalAlignment < config.MinGroundNormalAlignment)
+            // Only reject vertical surfaces for GroundLayer hits —
+            // slopes on SlopeLayer can be steep and should never be rejected here
+            bool hitIsGroundLayer =
+                (config.GroundLayer & (1 << groundHit.collider.gameObject.layer)) != 0;
+            if (hitIsGroundLayer)
             {
-                stateStorage.IsOnSlope = false;
-                stateStorage.GroundNormal = Vector3.up;
-                return false;
+                float normalAlignment = Vector3.Dot(groundHit.normal, Vector3.up);
+                if (normalAlignment < config.MinGroundNormalAlignment)
+                {
+                    stateStorage.IsOnSlope = false;
+                    stateStorage.GroundNormal = Vector3.up;
+                    return false;
+                }
             }
 
             if (
