@@ -243,6 +243,11 @@ public class MovementView : MonoBehaviour
 
     private void OnPositionCorrected(Vector3 targetPosition)
     {
+        if (correctingPosition)
+        {
+            rb.position = positionCorrectionTarget;
+            rb.linearVelocity = Vector3.zero;
+        }
         correctingPosition = true;
         positionCorrectionTarget = targetPosition;
     }
