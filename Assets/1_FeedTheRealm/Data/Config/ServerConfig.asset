@@ -15,7 +15,7 @@ MonoBehaviour:
   EnvFilePath: .env
   LoadFromEnvFile: 1
   LoadEnvVars: 1
-  WorldId: fea74bc1-90f5-43c9-adab-7649b5a7d7c0
+  WorldId: ffc430a0-4ade-4a29-9f32-d2166bb15368
   ZoneId: 1
   IsTestWorld: 1
   SendPlayerCountIntervalSeconds: 120
@@ -53,6 +53,7 @@ MonoBehaviour:
   groundCheckDistance: 1
   minGroundNormalAlignment: 0.5
   groundCheckSphereRadius: 0.4
+  teleportVertialOffset: 2
   reapIntervalSeconds: 60
   fastSlotSize: 5
   inventorySize: 35

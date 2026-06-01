@@ -9,5 +9,8 @@ namespace FTR.Core.Client.Config
         [Header("Health View")]
         public float HealthUpdateDelay = 0.3f;
         public float MaxHealth = 100f;
+
+        [Header("Movement Correction")]
+        public float MovementCorrectionTolerance = 3f;
     }
 }
