@@ -1,5 +1,7 @@
+using FTR.Core.Client.Config;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
+using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
@@ -16,10 +18,17 @@ public class MovementView : MonoBehaviour
     [Inject]
     private ISoundPlayer soundPlayer;
 
+    [Inject]
+    private Config config;
+
+    [Inject]
+    private ClientConfig clientConfig;
+
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
     private bool isInitialized = false;
+    private float capsuleRadius;
 
     // TODO: moves these to a proper config or constants class later
     private const float errorMargin = 0.001f;
@@ -46,6 +55,10 @@ public class MovementView : MonoBehaviour
         this.rb = rb;
         this.stateStorage = stateStorage;
 
+        var capsuleCollider = rb.GetComponent<CapsuleCollider>();
+        capsuleRadius =
+            capsuleCollider != null ? capsuleCollider.radius * rb.transform.lossyScale.x : 0.5f;
+
         this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
         this.stateStorage.OnDeath += HandleDeath;
@@ -70,8 +83,6 @@ public class MovementView : MonoBehaviour
         soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Spawn, transform.position);
     }
 
-    // TODO: review if we need to unsubscribe from events on disable/destroy,
-    // or if the lifetime of this component is guaranteed to be the same as the character's lifetime
     private void OnDestroy()
     {
         fixedTickEvent.OnRaised -= FixedTick;
@@ -108,17 +119,92 @@ public class MovementView : MonoBehaviour
         }
         else
         {
-            Vector3 newPosition = rb.position + currentDirection * Time.fixedDeltaTime;
-            rb.MovePosition(newPosition);
+            HandleClientMovement();
         }
 
         UpdateFootsteps();
     }
 
-    /// <summary>
-    /// OnVelocityChanged receives the authoritative velocity from the server.
-    /// This is what actually moves the character.
-    /// </summary>
+    private void HandleClientMovement()
+    {
+        if (currentDirection == Vector3.zero)
+            return;
+
+        Vector3 horizontalDirection = new Vector3(currentDirection.x, 0f, currentDirection.z);
+        if (horizontalDirection == Vector3.zero)
+            return;
+
+        float currentSpeed = horizontalDirection.magnitude;
+        HandleMovementWithRaycasts(horizontalDirection * Time.fixedDeltaTime, currentSpeed);
+    }
+
+    private void HandleMovementWithRaycasts(Vector3 delta, float currentSpeed)
+    {
+        Vector3 deltaNormalized = delta.normalized;
+        Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+
+        Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+        Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+
+        LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
+
+        bool hitLeft = Physics.Raycast(
+            leftOrigin,
+            deltaNormalized,
+            out RaycastHit leftHit,
+            delta.magnitude,
+            blockingLayers
+        );
+        bool hitRight = Physics.Raycast(
+            rightOrigin,
+            deltaNormalized,
+            out RaycastHit rightHit,
+            delta.magnitude,
+            blockingLayers
+        );
+
+        if (hitLeft || hitRight)
+        {
+            float stopDistance =
+                hitLeft && hitRight ? Mathf.Min(leftHit.distance, rightHit.distance)
+                : hitLeft ? leftHit.distance
+                : rightHit.distance;
+
+            rb.MovePosition(
+                rb.position + deltaNormalized * (stopDistance - Physics.defaultContactOffset)
+            );
+            return;
+        }
+
+        rb.MovePosition(rb.position + delta);
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (rb == null || !isInitialized)
+            return;
+
+        Vector3 deltaNormalized = currentDirection.normalized;
+        if (deltaNormalized == Vector3.zero)
+            return;
+
+        Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+        Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+        Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+        float rayLength = 2f;
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(leftOrigin, leftOrigin + deltaNormalized * rayLength);
+        Gizmos.DrawWireSphere(leftOrigin, 0.05f);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(rightOrigin, rightOrigin + deltaNormalized * rayLength);
+        Gizmos.DrawWireSphere(rightOrigin, 0.05f);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(leftOrigin, rightOrigin);
+    }
+
     private void UpdateFootsteps()
     {
         if (!isMoving)
@@ -159,18 +245,23 @@ public class MovementView : MonoBehaviour
         currentDirection = direction;
     }
 
-    /// <summary>
-    /// OnPositionCorrected is used for reconciliation and error correction, periodically.
-    /// </summary>
     private void OnPositionCorrected(Vector3 targetPosition)
     {
+        float distance = Vector3.Distance(rb.position, targetPosition);
+
+        // large correction (teleport) — snap instantly
+        if (distance > clientConfig.MovementCorrectionTolerance)
+        {
+            rb.position = targetPosition;
+            rb.linearVelocity = Vector3.zero;
+            correctingPosition = false;
+            return;
+        }
+
         correctingPosition = true;
         positionCorrectionTarget = targetPosition;
     }
 
-    /// <summary>
-    /// Updates the facing direction based on the movement direction and camera orientation.
-    /// </summary>
     public void UpdateFacingDirection(Vector3 direction)
     {
         if (!isInitialized)
@@ -191,9 +282,6 @@ public class MovementView : MonoBehaviour
         animator.SetFacing(facing);
     }
 
-    /// <summary>
-    /// Determines the facing direction based on the movement direction and camera orientation.
-    /// </summary>
     private FacingDirection GetFacingDirection(Vector3 direction)
     {
         if (!VectorTransformations.IsMovementMagnitude(direction))

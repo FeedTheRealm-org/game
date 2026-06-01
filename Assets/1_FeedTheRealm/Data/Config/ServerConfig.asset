@@ -15,9 +15,9 @@ MonoBehaviour:
   EnvFilePath: .env
   LoadFromEnvFile: 1
   LoadEnvVars: 1
-  WorldId: d7ac68df-1ad0-42ff-8905-36b94e068d7d
+  WorldId: ffc430a0-4ade-4a29-9f32-d2166bb15368
   ZoneId: 1
-  IsTestWorld: 0
+  IsTestWorld: 1
   SendPlayerCountIntervalSeconds: 120
   PersistToDatabase: 0
   AutoSaveIntervalSeconds: 30
@@ -37,6 +37,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 16384
   playerSpeed: 5
+  MovementRaycastAngle: 30
   itemDespawnTime: 60
   maxInitialForce: 6
   groundCheckDelay: 0.5
@@ -50,7 +51,9 @@ MonoBehaviour:
   unequippedDamage: 10
   unequippedRange: 1.5
   groundCheckDistance: 1
+  minGroundNormalAlignment: 0.5
   groundCheckSphereRadius: 0.4
+  teleportVertialOffset: 2
   reapIntervalSeconds: 60
   fastSlotSize: 5
   inventorySize: 35

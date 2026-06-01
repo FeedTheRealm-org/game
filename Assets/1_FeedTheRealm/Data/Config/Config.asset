@@ -24,7 +24,7 @@ MonoBehaviour:
   CurrentServerPort: 7777
   DEBUG_IsDebugWorld: 0
   DEBUG_DoNotLoadWorld: 0
-  DEBUG_WorldId: e3edfd43-b190-44dc-9961-98440b7274f5
+  DEBUG_WorldId: ffc430a0-4ade-4a29-9f32-d2166bb15368
   DEBUG_ZoneId: 1
   DEBUG_EnableColliderView: 0
   CubeColliderLayerMask:

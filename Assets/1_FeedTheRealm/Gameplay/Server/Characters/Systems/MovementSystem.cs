@@ -1,3 +1,4 @@
+using FTR.Core.Common.Config;
 using FTR.Core.Common.Utils;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
@@ -15,7 +16,10 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private uint netId;
 
         [SerializeField]
-        private ServerConfig config;
+        private ServerConfig serverConfig;
+
+        [SerializeField]
+        private Config config;
         private bool isInitialized = false;
         private Rigidbody rb;
         private CharacterStateStorage stateStorage;
@@ -29,8 +33,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private float speedBuffTimer = 0f;
 
         private bool isDead = false;
-
         private bool wasGroundedLastTick = false;
+        private float capsuleRadius;
+        private float rayLength;
 
         public Vector3 GetCurrentPosition() => rb.position;
 
@@ -55,21 +60,21 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.stateStorage.OnDeath += HandleDeath;
             this.stateStorage.OnRespawn += HandleRespawn;
 
-            moveSpeed = config.PlayerSpeed > 0 ? config.PlayerSpeed : moveSpeed;
+            var capsuleCollider = rb.GetComponent<CapsuleCollider>();
+            capsuleRadius =
+                capsuleCollider != null ? capsuleCollider.radius * rb.transform.lossyScale.x : 0.5f;
+
+            moveSpeed = serverConfig.PlayerSpeed > 0 ? serverConfig.PlayerSpeed : moveSpeed;
             gameTickEvent.OnRaised += GameTick;
 
             isInitialized = true;
         }
 
-        private void HandleDeath()
+        public void LoadPosition(Vector3 position)
         {
-            isDead = true;
-            direction = Vector3.zero;
-        }
-
-        private void HandleRespawn()
-        {
-            isDead = false;
+            rb.position = position;
+            stateStorage.CorrectPosition(rb.position);
+            Debug.Log($"Loaded position for player {stateStorage.CharacterId}: {position}");
         }
 
         public void OnMove(Vector3 direction)
@@ -90,8 +95,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void GameTick(float dt)
         {
-            // TODO(optimization): evaluate optimization for NPCs or maybe all characters?
-            // early return if no velocity/direction, etc
             if (!isInitialized || stateStorage.IsMovementBlocked || isDead)
                 return;
 
@@ -118,12 +121,17 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 }
                 else if (direction != Vector3.zero)
                 {
-                    Vector3 moveDirection = stateStorage.IsOnSlope
-                        ? Vector3.ProjectOnPlane(direction, stateStorage.GroundNormal).normalized
-                        : direction;
-
-                    Vector3 nextPosition = rb.position + dt * currentSpeed * moveDirection;
-                    rb.MovePosition(nextPosition);
+                    if (stateStorage.IsOnSlope)
+                    {
+                        Vector3 moveDirection = Vector3
+                            .ProjectOnPlane(direction, stateStorage.GroundNormal)
+                            .normalized;
+                        HandleMovementWithRaycasts(moveDirection * (currentSpeed * dt));
+                    }
+                    else
+                    {
+                        HandleMovementWithRaycasts(direction * (currentSpeed * dt)); // same
+                    }
                 }
                 else
                 {
@@ -133,12 +141,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             }
             else
             {
-                // allow movement in air but don't auto-move — apply direction only if actively set
                 if (direction != Vector3.zero)
-                {
-                    Vector3 nextPosition = rb.position + dt * currentSpeed * direction;
-                    rb.MovePosition(nextPosition);
-                }
+                    HandleMovementWithRaycasts(direction * (currentSpeed * dt));
             }
 
             wasGroundedLastTick = isGrounded;
@@ -149,11 +153,147 @@ namespace FTR.Gameplay.Server.Characters.Systems
             gameTickCounter++;
         }
 
-        public void LoadPosition(Vector3 position)
+        private void HandleMovementWithRaycasts(Vector3 delta)
         {
-            rb.position = position;
-            stateStorage.CorrectPosition(rb.position);
-            Debug.Log($"Loaded position for player {stateStorage.CharacterId}: {position}");
+            Vector3 deltaNormalized = delta.normalized;
+            rayLength = delta.magnitude;
+
+            LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
+
+            Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+            Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+            Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+            Vector3 centerOrigin = rb.position;
+
+            float angle = serverConfig.MovementRaycastAngle;
+            Vector3 leftDir = Quaternion.Euler(0, angle, 0) * deltaNormalized;
+            Vector3 rightDir = Quaternion.Euler(0, -angle, 0) * deltaNormalized;
+
+            float closest = float.MaxValue;
+            bool anyHit = false;
+
+            (Vector3 origin, Vector3 dir)[] rays =
+            {
+                (leftOrigin, leftDir),
+                (centerOrigin, deltaNormalized),
+                (rightOrigin, rightDir),
+            };
+
+            foreach (var (origin, dir) in rays)
+            {
+                if (Physics.Raycast(origin, dir, out RaycastHit h, rayLength, blockingLayers))
+                {
+                    if (h.distance < closest)
+                    {
+                        closest = h.distance;
+                        anyHit = true;
+                    }
+                }
+            }
+
+            Vector3 targetPosition = anyHit
+                ? rb.position
+                    + deltaNormalized * Mathf.Max(0f, closest - Physics.defaultContactOffset)
+                : rb.position + delta;
+
+            if (anyHit)
+                targetPosition = ResolveOverlap(targetPosition);
+
+            rb.MovePosition(targetPosition);
+        }
+
+        // ResolveOverlap performs a depenetration pass at the target position to
+        // ensure we don't end up stuck inside geometry due to tunneling or missed raycasts
+        private Vector3 ResolveOverlap(Vector3 targetPosition)
+        {
+            var capsuleCollider = rb.GetComponent<CapsuleCollider>();
+            if (capsuleCollider == null)
+                return targetPosition;
+
+            // Find everything overlapping at the destination
+            Collider[] overlaps = Physics.OverlapSphere(
+                targetPosition,
+                capsuleRadius,
+                config.CubeColliderLayerMask | config.SlopeColliderLayerMask
+            );
+
+            // For each overlapping collider, calculates exactly how far (pushDist)
+            // and in what direction (pushDir) to push the player out of it.
+            foreach (Collider other in overlaps)
+            {
+                if (other.attachedRigidbody == rb)
+                    continue;
+
+                if (
+                    Physics.ComputePenetration(
+                        capsuleCollider,
+                        targetPosition,
+                        rb.rotation,
+                        other,
+                        other.transform.position,
+                        other.transform.rotation,
+                        out Vector3 pushDir,
+                        out float pushDist
+                    )
+                )
+                {
+                    targetPosition += pushDir * (pushDist + Physics.defaultContactOffset);
+                }
+            }
+
+            return targetPosition;
+        }
+
+        private void HandleDeath()
+        {
+            isDead = true;
+            direction = Vector3.zero;
+        }
+
+        private void HandleRespawn()
+        {
+            isDead = false;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (rb == null || !isInitialized)
+                return;
+
+            Vector3 deltaNormalized = direction.normalized;
+            if (deltaNormalized == Vector3.zero)
+                return;
+
+            Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+            Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+            Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+            Vector3 centerOrigin = rb.position;
+
+            float angle = serverConfig != null ? serverConfig.MovementRaycastAngle : 30f;
+            Vector3 leftDir = Quaternion.Euler(0, angle, 0) * deltaNormalized;
+            Vector3 rightDir = Quaternion.Euler(0, -angle, 0) * deltaNormalized;
+
+            // Left ray (angled)
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(leftOrigin, leftOrigin + leftDir * rayLength);
+            Gizmos.DrawWireSphere(leftOrigin, 0.05f);
+
+            // Center ray
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(centerOrigin, centerOrigin + deltaNormalized * rayLength);
+            Gizmos.DrawWireSphere(centerOrigin, 0.05f);
+
+            // Right ray (angled)
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(rightOrigin, rightOrigin + rightDir * rayLength);
+            Gizmos.DrawWireSphere(rightOrigin, 0.05f);
+
+            // Capsule width indicator
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(
+                rb.position - perpendicular * capsuleRadius,
+                rb.position + perpendicular * capsuleRadius
+            );
         }
     }
 }

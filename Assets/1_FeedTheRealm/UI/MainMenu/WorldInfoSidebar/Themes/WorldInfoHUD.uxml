@@ -32,6 +32,7 @@
                 <ui:Button text="" name="DownloadButton"/>
                 <ui:Button text="" name="DeleteButton"/>
             </ui:VisualElement>
+            <ui:Button text="Clear cache" name="DeleteButton" style="width: 94px; height: 28px; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-width: 2px; border-color: rgba(255, 120, 120, 0.75); background-color: rgba(255, 120, 120, 0); color: rgb(255, 200, 200); font-size: 11px; -unity-font-style: bold; -unity-text-align: middle-center; margin-left: 6px; background-image: none; background-size: 60% 60%; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;"/>
             <ui:VisualElement name="ProgressBarContainer">
                 <ui:Label text="downloading content..." name="DownloadingLabel"/>
                 <ui:VisualElement name="ProgressBarBg">
