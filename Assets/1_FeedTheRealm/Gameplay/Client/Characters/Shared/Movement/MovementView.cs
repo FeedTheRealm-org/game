@@ -1,3 +1,4 @@
+using FTR.Core.Client.Config;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Utils;
 using FTR.Core.Common.Config;
@@ -19,6 +20,9 @@ public class MovementView : MonoBehaviour
 
     [Inject]
     private Config config;
+
+    [Inject]
+    private ClientConfig clientConfig;
 
     // Injected at Initialize
     private Rigidbody rb;
@@ -243,11 +247,17 @@ public class MovementView : MonoBehaviour
 
     private void OnPositionCorrected(Vector3 targetPosition)
     {
-        if (correctingPosition)
+        float distance = Vector3.Distance(rb.position, targetPosition);
+
+        // large correction (teleport) — snap instantly
+        if (distance > clientConfig.MovementCorrectionTolerance)
         {
-            rb.position = positionCorrectionTarget;
+            rb.position = targetPosition;
             rb.linearVelocity = Vector3.zero;
+            correctingPosition = false;
+            return;
         }
+
         correctingPosition = true;
         positionCorrectionTarget = targetPosition;
     }
