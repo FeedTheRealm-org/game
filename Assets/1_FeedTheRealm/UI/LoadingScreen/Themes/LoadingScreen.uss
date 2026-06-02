@@ -15,3 +15,33 @@
     align-items: center;
     -unity-background-scale-mode: stretch-to-fill;
 }
+
+#loading-progress {
+    width: 50%;
+    max-width: 600px;
+    height: 40px;
+    position: absolute;
+    bottom: 50px;
+}
+
+#loading-progress .unity-progress-bar__background {
+    background-color: rgba(0, 0, 0, 0.62);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.22);
+    border-radius: 12px;
+}
+
+#loading-progress .unity-progress-bar__progress {
+    background-color: rgba(110, 255, 251, 0.4);
+    border-width: 0;
+    border-radius: 10px;
+    margin: 2px;
+}
+
+#loading-progress .unity-progress-bar__title {
+    color: rgb(110, 255, 251);
+    -unity-font-style: bold;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.88);
+}

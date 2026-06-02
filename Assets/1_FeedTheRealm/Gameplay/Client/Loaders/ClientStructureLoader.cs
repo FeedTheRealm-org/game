@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
+using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client;
-using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Structures;
@@ -16,6 +15,9 @@ namespace FTR.Gameplay.Client.Loaders
 {
     public class ClientStructureLoader : ILoader
     {
+        [Inject]
+        private LoadingProgressEvent loadingProgressEvent;
+
         private readonly ModelService modelService;
         private readonly CacheManager cacheManager;
         private readonly GameObject structurePrefab;
@@ -44,6 +46,9 @@ namespace FTR.Gameplay.Client.Loaders
 
             ClientShopRegistry.RegisterWorldData(creatablesData);
 
+            int totalStructures = zoneData.objectPlacementData.Count;
+            int structuresProcessed = 0;
+
             var structures = zoneData.objectPlacementData;
             var shopStructures = new List<StructureData>();
             foreach (StructureData structureData in structures)
@@ -65,6 +70,14 @@ namespace FTR.Gameplay.Client.Loaders
                 );
                 controller.Initialize(structureData, collider, colliderLayer);
                 controller.SetupMesh(visual);
+
+                structuresProcessed++;
+                if (structuresProcessed % Mathf.Max(1, totalStructures / 10) == 0)
+                {
+                    loadingProgressEvent?.Raise(
+                        (float)structuresProcessed / totalStructures * 0.8f
+                    );
+                }
             }
 
             foreach (StructureData shopData in shopStructures)
@@ -79,7 +92,17 @@ namespace FTR.Gameplay.Client.Loaders
                 var (collider, colliderLayer) = colliderRegistry.GetCollider(shopData.colliderType);
                 controller.Initialize(shopData, collider, colliderLayer);
                 controller.SetupMesh(visual);
+
+                structuresProcessed++;
+                if (structuresProcessed % Mathf.Max(1, totalStructures / 10) == 0)
+                {
+                    loadingProgressEvent?.Raise(
+                        (float)structuresProcessed / totalStructures * 0.8f
+                    );
+                }
             }
+
+            loadingProgressEvent?.Raise(0.8f);
 
             modelCache.Clear();
             modelsInfo.Clear();

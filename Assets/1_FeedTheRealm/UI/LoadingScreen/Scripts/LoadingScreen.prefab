@@ -69,3 +69,4 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LoadingScreenController
   loadingEvent: {fileID: 11400000, guid: 1cec1a897e68dcf23a55c68b44607013, type: 2}
+  loadingProgressEvent: {fileID: 11400000, guid: ecc32bc861c5b93a2a5919e60ea2a2d5, type: 2}

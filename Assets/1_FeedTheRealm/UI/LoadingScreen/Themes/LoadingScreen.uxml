@@ -1,4 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/LoadingScreen/Themes/LoadingScreen.uss?fileID=7433441132597879392&amp;guid=4c6647936f50c82e59b98e7933903a09&amp;type=3#LoadingScreen" />
-    <ui:VisualElement name="loading-container" style="background-image: url(&quot;project://database/Assets/1_FeedTheRealm/VisualAssets/loadingImage.jpg?fileID=2800000&amp;guid=0dcdd4e7b251cf34b9789bef5faa5d21&amp;type=3#loadingImage&quot;);" />
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/LoadingScreen/Themes/LoadingScreen.uss?fileID=7433441132597879392&amp;guid=4c6647936f50c82e59b98e7933903a09&amp;type=3#LoadingScreen"/>
+    <ui:VisualElement name="loading-container" style="background-image: url(&quot;project://database/Assets/1_FeedTheRealm/Images/loading_image.png?fileID=2800000&amp;guid=651c6c28cf9125dbbad1598d7bf278be&amp;type=3#loading_image&quot;);">
+        <ui:ProgressBar name="loading-progress" low-value="0" high-value="1" value="0" title="Loading..."/>
+    </ui:VisualElement>
 </ui:UXML>
