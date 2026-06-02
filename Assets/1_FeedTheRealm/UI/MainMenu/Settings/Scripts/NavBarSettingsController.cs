@@ -30,6 +30,7 @@ namespace FTR.UI.Homepage.Settings
         [Inject]
         private CacheManager cacheManager;
 
+        [Inject]
         private ConfirmPopupHandle confirmPopupHandle;
 
         private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
@@ -318,9 +319,7 @@ namespace FTR.UI.Homepage.Settings
 
         private void OnExitClicked()
         {
-            var confirmPopup = Instantiate(prefabProvider.ConfirmPopup);
-            var dialogController = confirmPopup.GetComponent<IConfirmPopup>();
-            dialogController.Show(
+            ConfirmPopup.Show(
                 question: "Are you sure you want to exit the game?",
                 title: "Exit Game",
                 onConfirm: () =>
@@ -341,7 +340,18 @@ namespace FTR.UI.Homepage.Settings
                 );
                 return;
             }
+            ConfirmPopup.Show(
+                question: "You are about to clear cached files. You will have to download them again.",
+                title: "Clear Cache",
+                onConfirm: () =>
+                {
+                    ClearCache();
+                }
+            );
+        }
 
+        private void ClearCache()
+        {
             int deletedCount = cacheManager.ClearAllCache();
             if (_cacheStatusLabel != null)
             {
