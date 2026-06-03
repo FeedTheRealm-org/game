@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: -327856696300841290}
   - component: {fileID: 8315828081462158499}
   - component: {fileID: 8834872518309662460}
-  m_Layer: 10
+  m_Layer: 6
   m_Name: Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -174,11 +174,13 @@ MonoBehaviour:
     chestCooldownMinutes: 1
     opendedChestModelData:
       modelId:
+      isDefault: 0
       relativePosition: {x: 0, y: 0, z: 0}
       relativeRotation: {x: 0, y: 0, z: 0}
       relativeSize: {x: 1, y: 1, z: 1}
     closedChestModelData:
       modelId:
+      isDefault: 0
       relativePosition: {x: 0, y: 0, z: 0}
       relativeRotation: {x: 0, y: 0, z: 0}
       relativeSize: {x: 1, y: 1, z: 1}
