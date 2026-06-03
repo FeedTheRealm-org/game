@@ -41,6 +41,7 @@ namespace FTR.Core.Server.Config
         public LayerMask GroundLayer;
         public LayerMask ObstacleLayer;
         public LayerMask SlopeLayer;
+        public LayerMask InteractableLayer;
 
         [Header("Movement")]
         [SerializeField]

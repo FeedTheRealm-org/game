@@ -38,7 +38,12 @@ public class ServerChestLinker : ChestLinker
             prefabProvider.ChestComponent,
             gameObject.transform
         );
-        serverComponents.layer = gameObject.layer;
+
+        var chestData = chestStateStorage.ChestData;
+        serverComponents.transform.position = chestData.position;
+        serverComponents.transform.rotation = Quaternion.Euler(chestData.rotation);
+        serverComponents.transform.localScale = chestData.size;
+
         resolver.InjectGameObject(serverComponents);
 
         serverComponents.GetComponent<ChestInteractSystem>().Initialize(chestStateStorage, world);
