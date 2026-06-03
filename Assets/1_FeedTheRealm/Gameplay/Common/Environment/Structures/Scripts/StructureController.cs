@@ -21,6 +21,8 @@ namespace FTR.Gameplay.Common.Environment.Structures
 
         public void Initialize(StructureData structureData)
         {
+            this.structureData = structureData;
+
             transform.position = structureData.position;
             transform.rotation = Quaternion.Euler(structureData.rotation);
             transform.localScale = structureData.size;

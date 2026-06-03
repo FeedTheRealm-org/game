@@ -1,5 +1,7 @@
 using FTR.Core.Server;
+using FTR.Core.Server.Config;
 using FTR.Core.Server.Entities;
+using FTR.Gameplay.Common.Environment.Structures;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Characters;
 using FTR.Gameplay.Server.Characters.Systems;
@@ -15,15 +17,18 @@ public class ServerShopLinker : ShopLinker
     private readonly WorldMonitor world;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
+    private readonly ServerConfig config;
 
     public ServerShopLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
+        ServerConfig config,
         IObjectResolver resolver
     )
     {
         this.world = world;
         this.prefabProvider = prefabProvider;
+        this.config = config;
         this.resolver = resolver;
     }
 
@@ -33,6 +38,8 @@ public class ServerShopLinker : ShopLinker
             "[ShopLinker] Linking shop with netId: "
                 + gameObject.GetComponent<NetworkIdentity>().netId
         );
+
+        var structureController = gameObject.GetComponent<StructureController>();
 
         var networkAdapter = gameObject.GetComponent<NetworkAdapter>();
         var netId = gameObject.GetComponent<NetworkIdentity>().netId;
@@ -45,7 +52,11 @@ public class ServerShopLinker : ShopLinker
             prefabProvider.ServerShopComponent,
             gameObject.transform
         );
-        serverComponents.layer = gameObject.layer;
+        serverComponents.layer = config.InteractableLayer;
+
+        var boxCollider = serverComponents.AddComponent<BoxCollider>();
+        boxCollider.size = structureController.Data.colliderSize;
+        boxCollider.center = structureController.Data.colliderCenter;
 
         resolver.InjectGameObject(serverComponents);
 
