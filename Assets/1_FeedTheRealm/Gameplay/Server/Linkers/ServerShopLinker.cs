@@ -17,18 +17,15 @@ public class ServerShopLinker : ShopLinker
     private readonly WorldMonitor world;
     private readonly ServerPrefabProvider prefabProvider;
     private readonly IObjectResolver resolver;
-    private readonly ServerConfig config;
 
     public ServerShopLinker(
         WorldMonitor world,
         ServerPrefabProvider prefabProvider,
-        ServerConfig config,
         IObjectResolver resolver
     )
     {
         this.world = world;
         this.prefabProvider = prefabProvider;
-        this.config = config;
         this.resolver = resolver;
     }
 
@@ -52,7 +49,6 @@ public class ServerShopLinker : ShopLinker
             prefabProvider.ServerShopComponent,
             gameObject.transform
         );
-        serverComponents.layer = config.InteractableLayer;
 
         var boxCollider = serverComponents.AddComponent<BoxCollider>();
         boxCollider.size = structureController.Data.colliderSize;
