@@ -77,7 +77,11 @@ namespace FTR.Gameplay.Server.Characters
             System.Action<bool> onComplete
         ) { }
 
-        public override void OnSetUserId(IEventCollectable ec, string tokenId) { }
+        public override void OnSetUserId(
+            IEventCollectable ec,
+            string tokenId,
+            bool isTeleporting
+        ) { }
 
         public override void OnSendMessage(IEventCollectable ec, string message) { }
 

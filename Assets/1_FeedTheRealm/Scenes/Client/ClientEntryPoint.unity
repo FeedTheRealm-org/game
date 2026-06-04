@@ -309,10 +309,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
-      propertyPath: modelService
-      value: 
-      objectReference: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
-    - target: {fileID: 752432458107436141, guid: 17d85cfe66a4ab408899b8217109aa9f, type: 3}
       propertyPath: mainMenuPrefab
       value: 
       objectReference: {fileID: 7463538350467974155, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}

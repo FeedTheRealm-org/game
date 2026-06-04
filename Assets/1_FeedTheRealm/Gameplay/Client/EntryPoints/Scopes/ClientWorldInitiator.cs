@@ -11,6 +11,7 @@ using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
 using FTR.Gameplay.Client.Registry;
+using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTRShared.Runtime.Core.Cache;
@@ -89,6 +90,13 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         [SerializeField]
         private ClientMusicRegistry musicRegistry;
 
+        // TODO(portal): this is a temporary solution, we need to refactor
+        // how we handle teleportation data on the client and remove
+        // this dependency from the ClientInitiator
+        [Header("Teleportation (TO REFACTOR LATER)")]
+        [SerializeField]
+        private TeleportDataPersistence teleportDataPersistence;
+
         private readonly SetupServices setupServices = new();
 
         protected override void Configure(IContainerBuilder builder)
@@ -120,6 +128,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(colliderRegistry);
             builder.RegisterInstance(soundFXRegistry);
             builder.RegisterInstance(musicRegistry);
+            builder.RegisterInstance(teleportDataPersistence);
             builder.RegisterComponent(audioManager).As<IAudioManager>();
             builder.Register<SoundPlayer>(Lifetime.Singleton).As<ISoundPlayer>();
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);

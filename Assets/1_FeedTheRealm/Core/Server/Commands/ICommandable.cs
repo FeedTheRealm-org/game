@@ -26,6 +26,6 @@ public interface ICommandable
         StorageType targetType,
         int targetSlot
     );
-    void OnSetUserId(IEventCollectable ec, string userId);
+    void OnSetUserId(IEventCollectable ec, string tokenId, bool isTeleporting);
     void OnSendMessage(IEventCollectable ec, string message);
 }
