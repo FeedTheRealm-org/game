@@ -47,19 +47,8 @@ public class LoadingScreenController : MonoBehaviour
     private void ToggleLoadingScreen(bool show)
     {
         Debug.Log($"[LoadingScreenController] Toggle Loading Screen: {show}");
-        if (show)
-        {
-            if (progressBar != null)
-            {
-                progressBar.value = 0f;
-                progressBar.title = "Loading... 0%";
-            }
-            rootElement.style.display = DisplayStyle.Flex;
-        }
-        else
-        {
-            rootElement.style.display = DisplayStyle.None;
-            Destroy(gameObject);
-        }
+        progressBar.value = 0f;
+        progressBar.title = "Loading... 0%";
+        rootElement.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }

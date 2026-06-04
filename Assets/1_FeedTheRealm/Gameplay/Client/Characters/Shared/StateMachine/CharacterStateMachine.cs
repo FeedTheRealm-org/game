@@ -159,29 +159,17 @@ namespace FTR.Gameplay.Client.Characters.Shared.StateMachine
 
         public void OnMove(Vector2 direction)
         {
-            if (isMovementBlocked)
-                return;
             lastDirection = direction;
             CurrentMovementState.SetDirection(direction);
         }
 
         public void OnDash()
         {
-            if (isMovementBlocked)
-                return;
             SetMovementState(movementStates[typeof(CharacterDashingState)]);
         }
 
         public void OnUse()
         {
-            if (isActionBlocked)
-                return;
-            if (
-                CurrentActionState is CharacterInteractingState
-                || CurrentActionState is CharacterQuestState
-            )
-                return;
-
             SetActionState(actionStates[typeof(CharacterUsingState)]);
         }
 
