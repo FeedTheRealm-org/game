@@ -29,8 +29,10 @@ up-db: down # Build and start mongo db
 	docker compose -f $(COMPOSE) --profile db-only up --build
 .PHONY: up-db
 
-dev: # Starts DEBUG built server via entrypoint [DEVELOPMENT]
-	docker compose -f $(COMPOSE) --profile db-only up --build --wait -d
+dev: # Starts DEBUG built server via entrypoint [DEVELOPMENT], use SERVER_ONLY=true for no DB
+	@if [ "$$SERVER_ONLY" != "true" ]; then \
+		docker compose -f $(COMPOSE) --profile db-only up --build --wait -d; \
+	fi
 	. ./.env && $(EXEC_APP) ./Build/Dev/server.x86_64 \
 		-batchmode \
 		-nographics \
@@ -39,7 +41,9 @@ dev: # Starts DEBUG built server via entrypoint [DEVELOPMENT]
 		--is-test-world=$$IS_TEST_WORLD \
 		--port=$$PORT \
 		--hport=$$HPORT
-	docker compose -f $(COMPOSE) --profile db-only down
+	@if [ "$$SERVER_ONLY" != "true" ]; then \
+		docker compose -f $(COMPOSE) --profile db-only down; \
+	fi
 .PHONY: dev
 
 clean: # Remove all containers, images and volumes
