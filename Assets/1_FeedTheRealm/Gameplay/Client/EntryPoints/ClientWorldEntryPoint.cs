@@ -29,6 +29,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly CacheManager cacheManager;
         private CursorManager cursorManager;
         private bool isInitialized = false;
+        private Logging.Logger logger;
 
         [Inject]
         public ClientWorldEntryPoint(
@@ -44,7 +45,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             ClientMusicRegistry musicRegistry,
             CursorManager cursorManager,
             SettingsManager settingsManager,
-            CacheManager cacheManager
+            CacheManager cacheManager,
+            Logging.Logger logger
         )
         {
             this.tickEvent = tickEvent;
@@ -60,10 +62,12 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.settingsManager = settingsManager;
             this.cacheManager = cacheManager;
             isInitialized = true;
+            this.logger = logger;
         }
 
         public async void Start()
         {
+            logger.Log("[ClientWorldEntryPoint] Starting client world entry point.");
             settingsManager.LoadSettings();
             settingsManager.ApplyDisplay();
             settingsManager.ApplyAudioListener();
@@ -88,6 +92,7 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             worldSetup.ExecuteSetup();
             WorldLoadBootstrap.MarkClientReady();
+            await System.Threading.Tasks.Task.Delay(2000);
             loadingEvent.Raise(false);
         }
 
