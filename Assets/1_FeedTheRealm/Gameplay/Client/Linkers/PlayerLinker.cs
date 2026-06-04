@@ -12,6 +12,7 @@ using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using FTR.Gameplay.Common.NetworkEntities.Gold;
 using FTR.Gameplay.Common.NetworkEntities.LootItem;
+using Google.Protobuf;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -27,6 +28,7 @@ public class ClientPlayerLinker : PlayerLinker
     private readonly Session.Session session;
     private readonly WorldSelector worldSelector;
     private readonly PlayerInfoRepository playerInfoRepository;
+    private readonly TeleportDataPersistence teleportDataPersistence;
 
     public ClientPlayerLinker(
         ClientPrefabProvider prefabProvider,
@@ -34,7 +36,8 @@ public class ClientPlayerLinker : PlayerLinker
         NpcDialogRegistry npcDialogRegistry,
         Session.Session session,
         WorldSelector worldSelector,
-        PlayerInfoRepository playerInfoRepository
+        PlayerInfoRepository playerInfoRepository,
+        TeleportDataPersistence teleportDataPersistence
     )
     {
         this.characterLinker = new ClientCharacterLinker(prefabProvider, resolver);
@@ -44,6 +47,7 @@ public class ClientPlayerLinker : PlayerLinker
         this.session = session;
         this.worldSelector = worldSelector;
         this.playerInfoRepository = playerInfoRepository;
+        this.teleportDataPersistence = teleportDataPersistence;
     }
 
     public override void Link(GameObject gameObject)
@@ -94,11 +98,16 @@ public class ClientPlayerLinker : PlayerLinker
         if (networkAdapter.IsLocalPlayer)
         {
             var joinToken = worldSelector?.GetSelectedWorldJoinToken();
+            var joinZoneMetadata = new JoinZoneMetaContent
+            {
+                IsTeleporting = teleportDataPersistence.PortalId != null,
+            };
+
             var setUserIdTransaction = new TransactionCommandDTO
             {
                 Type = TransactionType.SetUserId,
                 Id = joinToken,
-                content = null,
+                content = joinZoneMetadata.ToByteArray(),
             };
             networkAdapter.DispatchTransaction(setUserIdTransaction);
 

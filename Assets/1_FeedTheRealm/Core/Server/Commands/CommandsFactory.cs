@@ -33,7 +33,10 @@ public static class CommandsFactory
         switch (dto.Type)
         {
             case TransactionType.SetUserId:
-                return new SetUserIdCommand(dto.NetId, dto.Id);
+            {
+                JoinZoneMetaContent content = JoinZoneMetaContent.Parser.ParseFrom(dto.content);
+                return new SetUserIdCommand(dto.NetId, dto.Id, content.IsTeleporting);
+            }
             case TransactionType.EquipItem:
                 try
                 {

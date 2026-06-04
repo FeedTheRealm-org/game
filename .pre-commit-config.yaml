@@ -4,14 +4,14 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity|svg.meta)$
       - id: end-of-file-fixer
-        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity|svg.meta)$
       - id: check-merge-conflict
       - id: check-added-large-files
         args: ["--maxkb=5120"]
       - id: check-yaml
-        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity)$
+        exclude: ^(ProjectSettings|Assets)/.*\.(asset|unity|svg.meta)$
       - id: check-json
 
   - repo: https://github.com/adrienverge/yamllint
@@ -19,7 +19,7 @@ repos:
     hooks:
       - id: yamllint
         files: \.(yml|yaml)$
-        exclude: ^(ProjectSettings|Assets|\.github)/.*\.(asset|unity|yml)$
+        exclude: ^(ProjectSettings|Assets|\.github)/.*\.(asset|unity|svg.meta|yml)$
         args: [--format, parsable]
 
   - repo: https://github.com/gitleaks/gitleaks

@@ -46,6 +46,11 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public Vector3 GroundNormal { get; set; }
         public bool IsGroundCheckEnabled { get; set; } = true;
 
+        // TODO(portal): this is a temporary solution,
+        // In the future this will be replaced by a more robust system that handles teleportation state
+        // strictly on the server and syncs it to the client when necessary
+        public bool IsTeleporting { get; set; }
+
         /* --- Events --- */
 
         public event Action<Vector3> OnPositionCorrected;
