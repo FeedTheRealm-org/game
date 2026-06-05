@@ -30,11 +30,9 @@ public class MovementView : MonoBehaviour
     private bool isInitialized = false;
     private float capsuleRadius;
 
-    // TODO: moves these to a proper config or constants class later
-    private const float errorMargin = 0.001f;
-    private const float correctionSpeed = 10f;
-    private bool correctingPosition = false;
-    private Vector3 positionCorrectionTarget;
+    // Outstanding discrepancy with the server, bled off over several ticks while
+    // prediction keeps running — instead of halting prediction or snapping.
+    private Vector3 positionError = Vector3.zero;
 
     private Vector3 currentDirection = Vector3.zero;
     private bool isDead = false;
@@ -55,6 +53,9 @@ public class MovementView : MonoBehaviour
         this.rb = rb;
         this.stateStorage = stateStorage;
 
+        // Interpolation smooths the render position between physics steps.
+        this.rb.interpolation = RigidbodyInterpolation.Interpolate;
+
         var capsuleCollider = rb.GetComponent<CapsuleCollider>();
         capsuleRadius =
             capsuleCollider != null ? capsuleCollider.radius * rb.transform.lossyScale.x : 0.5f;
@@ -72,6 +73,7 @@ public class MovementView : MonoBehaviour
     {
         isDead = true;
         currentDirection = Vector3.zero;
+        positionError = Vector3.zero;
         isMoving = false;
         animator.SetMoving(false);
         animator.SetDashing(false);
@@ -99,47 +101,52 @@ public class MovementView : MonoBehaviour
 
         if (stateStorage.IsMovementBlocked)
         {
-            correctingPosition = false;
+            positionError = Vector3.zero;
             return;
         }
 
-        if (correctingPosition)
-        {
-            rb.position = Vector3.Lerp(
-                rb.position,
-                positionCorrectionTarget,
-                correctionSpeed * Time.fixedDeltaTime
-            );
+        Vector3 predictedDelta = GetPredictedDelta();
 
-            if (Vector3.Distance(rb.position, positionCorrectionTarget) < errorMargin)
-            {
-                rb.position = positionCorrectionTarget;
-                correctingPosition = false;
-            }
+        // Bleed off the discrepancy instead of snapping or halting prediction.
+        Vector3 correctionStep = Vector3.zero;
+        if (positionError.sqrMagnitude > clientConfig.ErrorMargin * clientConfig.ErrorMargin)
+        {
+            float t = Mathf.Clamp01(clientConfig.CorrectionSpeed * Time.fixedDeltaTime);
+            correctionStep = positionError * t;
+            positionError -= correctionStep;
         }
         else
         {
-            HandleClientMovement();
+            positionError = Vector3.zero;
         }
+
+        // Clamp the COMBINED move so neither prediction nor correction can shove
+        // the body into geometry at dash speed.
+        Vector3 safeDelta = ClampDeltaToWalls(predictedDelta + correctionStep);
+        rb.MovePosition(rb.position + safeDelta);
 
         UpdateFootsteps();
     }
 
-    private void HandleClientMovement()
+    // Predicted motion from the server-synced velocity. Returns the desired
+    // delta; the caller is responsible for the wall clamp and the actual move.
+    private Vector3 GetPredictedDelta()
     {
         if (currentDirection == Vector3.zero)
-            return;
+            return Vector3.zero;
 
         Vector3 horizontalDirection = new Vector3(currentDirection.x, 0f, currentDirection.z);
         if (horizontalDirection == Vector3.zero)
-            return;
+            return Vector3.zero;
 
-        float currentSpeed = horizontalDirection.magnitude;
-        HandleMovementWithRaycasts(horizontalDirection * Time.fixedDeltaTime, currentSpeed);
+        return horizontalDirection * Time.fixedDeltaTime;
     }
 
-    private void HandleMovementWithRaycasts(Vector3 delta, float currentSpeed)
+    private Vector3 ClampDeltaToWalls(Vector3 delta)
     {
+        if (delta == Vector3.zero)
+            return Vector3.zero;
+
         Vector3 deltaNormalized = delta.normalized;
         Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
 
@@ -170,13 +177,10 @@ public class MovementView : MonoBehaviour
                 : hitLeft ? leftHit.distance
                 : rightHit.distance;
 
-            rb.MovePosition(
-                rb.position + deltaNormalized * (stopDistance - Physics.defaultContactOffset)
-            );
-            return;
+            return deltaNormalized * Mathf.Max(0f, stopDistance - Physics.defaultContactOffset);
         }
 
-        rb.MovePosition(rb.position + delta);
+        return delta;
     }
 
     private void OnDrawGizmos()
@@ -249,17 +253,20 @@ public class MovementView : MonoBehaviour
     {
         float distance = Vector3.Distance(rb.position, targetPosition);
 
-        // large correction (teleport) — snap instantly
+        // Only a genuine teleport snaps. MovementCorrectionTolerance must sit
+        // ABOVE the largest gap a dash can open in one sync (~dashSpeed / sync),
+        // otherwise dash corrections get misclassified as teleports and snap.
         if (distance > clientConfig.MovementCorrectionTolerance)
         {
             rb.position = targetPosition;
             rb.linearVelocity = Vector3.zero;
-            correctingPosition = false;
+            positionError = Vector3.zero;
             return;
         }
 
-        correctingPosition = true;
-        positionCorrectionTarget = targetPosition;
+        // Small/continuous gap (walking, dashing, buffs) — store it and let
+        // FixedTick absorb it gradually while prediction keeps running.
+        positionError = targetPosition - rb.position;
     }
 
     public void UpdateFacingDirection(Vector3 direction)
