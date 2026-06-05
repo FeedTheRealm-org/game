@@ -30,8 +30,6 @@ public class MovementView : MonoBehaviour
     private bool isInitialized = false;
     private float capsuleRadius;
 
-    // Outstanding discrepancy with the server, bled off over several ticks while
-    // prediction keeps running — instead of halting prediction or snapping.
     private Vector3 positionError = Vector3.zero;
 
     private Vector3 currentDirection = Vector3.zero;
@@ -107,7 +105,6 @@ public class MovementView : MonoBehaviour
 
         Vector3 predictedDelta = GetPredictedDelta();
 
-        // Bleed off the discrepancy instead of snapping or halting prediction.
         Vector3 correctionStep = Vector3.zero;
         if (positionError.sqrMagnitude > clientConfig.ErrorMargin * clientConfig.ErrorMargin)
         {
@@ -120,16 +117,12 @@ public class MovementView : MonoBehaviour
             positionError = Vector3.zero;
         }
 
-        // Clamp the COMBINED move so neither prediction nor correction can shove
-        // the body into geometry at dash speed.
         Vector3 safeDelta = ClampDeltaToWalls(predictedDelta + correctionStep);
         rb.MovePosition(rb.position + safeDelta);
 
         UpdateFootsteps();
     }
 
-    // Predicted motion from the server-synced velocity. Returns the desired
-    // delta; the caller is responsible for the wall clamp and the actual move.
     private Vector3 GetPredictedDelta()
     {
         if (currentDirection == Vector3.zero)
@@ -253,9 +246,6 @@ public class MovementView : MonoBehaviour
     {
         float distance = Vector3.Distance(rb.position, targetPosition);
 
-        // Only a genuine teleport snaps. MovementCorrectionTolerance must sit
-        // ABOVE the largest gap a dash can open in one sync (~dashSpeed / sync),
-        // otherwise dash corrections get misclassified as teleports and snap.
         if (distance > clientConfig.MovementCorrectionTolerance)
         {
             rb.position = targetPosition;
@@ -264,8 +254,6 @@ public class MovementView : MonoBehaviour
             return;
         }
 
-        // Small/continuous gap (walking, dashing, buffs) — store it and let
-        // FixedTick absorb it gradually while prediction keeps running.
         positionError = targetPosition - rb.position;
     }
 
