@@ -98,10 +98,10 @@ MonoBehaviour:
     delay: 0
     volume: 1
   - id: punch
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 22883693f12adc868a5e93ed17d0870f, type: 3}
     delay: 0
     volume: 1
   - id: consume
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 990f2e3907e204d3593878e7d7e6a979, type: 3}
     delay: 0
     volume: 1
