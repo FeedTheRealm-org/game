@@ -34,7 +34,7 @@ MonoBehaviour:
     delay: 0
     volume: 0.2
   - id: quest_complete
-    clip: {fileID: 8300000, guid: e588fb5fa6d87ff2aaa4b2054b0c633b, type: 3}
+    clip: {fileID: 8300000, guid: 814e7ba527e1105df9a75a5c162087f7, type: 3}
     delay: 0
     volume: 0.25
   - id: quest_accept
@@ -89,3 +89,19 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 37e0205c5a9b673b898e6237d89df309, type: 3}
     delay: 0
     volume: 0.2
+  - id: arrow_shot
+    clip: {fileID: 8300000, guid: e93f19c7b422708529b03ad8137c6194, type: 3}
+    delay: 0
+    volume: 1
+  - id: handgun_shot
+    clip: {fileID: 8300000, guid: e80c8eab2e8bc9bd893c2fe48baa221b, type: 3}
+    delay: 0
+    volume: 1
+  - id: punch
+    clip: {fileID: 0}
+    delay: 0
+    volume: 1
+  - id: consume
+    clip: {fileID: 0}
+    delay: 0
+    volume: 1

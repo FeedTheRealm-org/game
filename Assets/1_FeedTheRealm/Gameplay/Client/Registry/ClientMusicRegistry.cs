@@ -21,13 +21,13 @@ public class MusicEntry
     private string id;
 
     [SerializeField]
-    private AudioClip clip;
+    private AudioClip[] clips;
 
     [SerializeField]
     [Range(0f, 1f)]
     private float volume = 0.4f;
 
     public string Id => id;
-    public AudioClip Clip => clip;
+    public AudioClip[] Clips => clips;
     public float Volume => volume;
 }
