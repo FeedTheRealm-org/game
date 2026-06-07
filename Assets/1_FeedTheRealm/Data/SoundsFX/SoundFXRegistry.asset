@@ -96,7 +96,7 @@ MonoBehaviour:
   - id: handgun_shot
     clip: {fileID: 8300000, guid: e80c8eab2e8bc9bd893c2fe48baa221b, type: 3}
     delay: 0
-    volume: 1
+    volume: 0.5
   - id: punch
     clip: {fileID: 8300000, guid: 22883693f12adc868a5e93ed17d0870f, type: 3}
     delay: 0
