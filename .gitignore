@@ -121,6 +121,7 @@ feed-the-realm-client.slnx
 # Assets
 Resources.meta
 ScriptTemplates.meta
+Polygon_Arsenal.meta
 
 Assets/Mirror/
 Assets/ScriptTemplates/

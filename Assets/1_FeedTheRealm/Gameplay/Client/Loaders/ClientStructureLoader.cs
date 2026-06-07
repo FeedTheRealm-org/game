@@ -9,19 +9,17 @@ using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Models;
 using UnityEngine;
-using VContainer;
 
 namespace FTR.Gameplay.Client.Loaders
 {
     public class ClientStructureLoader : ILoader
     {
-        [Inject]
         private LoadingProgressEvent loadingProgressEvent;
-
         private readonly ModelService modelService;
         private readonly CacheManager cacheManager;
         private readonly GameObject structurePrefab;
         private readonly GameObject shopPrefab;
+        private readonly GameObject goldCoinPrefab;
         private readonly ColliderRegistry colliderRegistry;
 
         public ClientStructureLoader(
@@ -36,6 +34,7 @@ namespace FTR.Gameplay.Client.Loaders
             this.colliderRegistry = colliderRegistry;
             structurePrefab = prefabProvider.StructurePrefab;
             shopPrefab = prefabProvider.ShopPrefab;
+            goldCoinPrefab = prefabProvider.GoldCoinPrefab;
         }
 
         private Dictionary<string, GameObject> modelCache = new();
@@ -93,6 +92,11 @@ namespace FTR.Gameplay.Client.Loaders
                 controller.Initialize(shopData, collider, colliderLayer);
                 controller.SetupMesh(visual);
 
+                var goldCoin = Object.Instantiate(goldCoinPrefab, instance.transform);
+                goldCoin.SetActive(true);
+
+                setUpVFX(instance, goldCoin.transform);
+
                 structuresProcessed++;
                 if (structuresProcessed % Mathf.Max(1, totalStructures / 10) == 0)
                 {
@@ -127,6 +131,35 @@ namespace FTR.Gameplay.Client.Loaders
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return visual;
+        }
+
+        private static void setUpVFX(GameObject root, Transform vfx)
+        {
+            var controller = root.GetComponent<StructureController>();
+            if (controller == null)
+            {
+                Debug.LogWarning("[ClientStructureLoader] StructureController not found.");
+                return;
+            }
+
+            if (controller.Data == null)
+            {
+                Debug.LogWarning("[ClientStructureLoader] StructureData is null.");
+                return;
+            }
+
+            var data = controller.Data;
+            float topY =
+                root.transform.position.y + data.colliderCenter.y + (data.colliderSize.y * 0.5f);
+
+            float yOffset = 0.5f;
+            vfx.position = new Vector3(
+                root.transform.position.x + data.colliderCenter.x,
+                topY + yOffset,
+                root.transform.position.z + data.colliderCenter.z
+            );
+
+            vfx.transform.localScale = new Vector3(2, 2, 2);
         }
     }
 }
