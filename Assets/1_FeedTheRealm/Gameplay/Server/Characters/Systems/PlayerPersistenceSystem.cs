@@ -181,6 +181,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
             goldSystem.LoadGold(player.Gold);
             questSystem.LoadQuests(player.ActiveQuests, player.CompletedQuests);
             var zoneKey = zoneId.ToString();
+
+            // TODO(portal): this is a temporary solution, in the future this will
+            // be replaced by a more robust system that handles teleportation state
+            if (characterStateStorage.IsTeleporting)
+                return;
+
             movementSystem.LoadPosition(
                 player.ZonePositions != null
                 && player.ZonePositions.TryGetValue(zoneKey, out var zonePosition)
@@ -211,7 +217,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             inventorySystem.LoadInventory(inventory, fastAccess);
             goldSystem.LoadGold(gold);
             questSystem.LoadQuests(activeQuests, completedQuests);
-            movementSystem.LoadPosition(position);
 
             var newPlayer = new PlayerModel
             {
@@ -224,6 +229,13 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 CompletedQuests = completedQuests,
             };
             playersRepository.SavePlayerAsync(newPlayer).AsUniTask().Forget();
+
+            // TODO(portal): this is a temporary solution,
+            // in the future this will be replaced by a more robust system
+            // that handles teleportation state strictly on the server and syncs it to the client when necessary
+            if (characterStateStorage.IsTeleporting)
+                return;
+            movementSystem.LoadPosition(position);
         }
 
         private IEnumerator PeriodicSaveCoroutine()

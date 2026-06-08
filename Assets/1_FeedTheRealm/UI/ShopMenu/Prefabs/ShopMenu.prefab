@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 885491490836323888}
   - component: {fileID: -3109305816766459349}
   - component: {fileID: 1889849729252080100}
+  - component: {fileID: 8143825753662147829}
   m_Layer: 0
   m_Name: ShopMenu
   m_TagString: Untagged
@@ -73,4 +74,19 @@ MonoBehaviour:
   assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
   paymentService: {fileID: 11400000, guid: 7f720fc83b6b8b3468a9f54d9c933e7f, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  itemStatsTooltipPrefab: {fileID: 1836286906917634539, guid: 884c864a0f56c38d48515a721d19f854, type: 3}
+  tooltipUXML: {fileID: 9197481963319205126, guid: 71119e7ec5f7a94fc828307142ad2b17, type: 3}
+  tooltipStyleSheet: {fileID: 7433441132597879392, guid: 20c950f299056434cb603a4a8a71f13c, type: 3}
+--- !u!114 &8143825753662147829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6588888558913600653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8e7d6c5b4a394857269f1e2d3c4b5a6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::ItemStatsTooltip
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+  descriptionMaxLineLength: 100

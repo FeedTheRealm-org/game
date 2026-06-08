@@ -164,7 +164,7 @@ namespace FTR.Gameplay.Server.Characters
             onComplete(false);
         }
 
-        public override void OnSetUserId(IEventCollectable ec, string tokenId)
+        public override void OnSetUserId(IEventCollectable ec, string tokenId, bool isTeleporting)
         {
             if (isResolvingCharacterId || !string.IsNullOrEmpty(stateStorage.CharacterId))
                 return;
@@ -178,6 +178,12 @@ namespace FTR.Gameplay.Server.Characters
                 this.networkAdapter.DisconnectClient();
                 return;
             }
+
+            // TODO(portal): this is a temporary solution,
+            // in the future this will be replaced by a more robust system
+            // that handles teleportation state strictly on the server and syncs it to the client when necessary
+            stateStorage.IsTeleporting = isTeleporting;
+
             _ = ResolveAndSetUserIdFromTokenAsync(tokenId);
         }
 

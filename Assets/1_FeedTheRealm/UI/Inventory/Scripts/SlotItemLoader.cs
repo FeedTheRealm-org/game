@@ -1,5 +1,7 @@
 using System;
+using FTR.Core.Client.EntryPoints;
 using FTR.Gameplay.Client.Registry;
+using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,7 +22,8 @@ namespace FTR.UI.Inventory
         public static async void LoadItem(
             VisualElement icon,
             string itemId,
-            API.ItemAssetsService itemAssetsService,
+            CacheManager cacheManager,
+            WorldSelector worldSelector = null,
             int quantity = 1
         )
         {
@@ -48,16 +51,22 @@ namespace FTR.UI.Inventory
 
             InventoryItemVisualController.SetStackCount(itemElement, quantity);
 
-            if (itemAssetsService == null)
+            if (cacheManager == null)
                 return;
 
             var itemData = ClientItemsRegistry.GetItemById(itemId);
-            string spriteId =
+            string spriteReference =
                 itemData != null && !string.IsNullOrEmpty(itemData.spriteFilePath)
                     ? itemData.spriteFilePath
                     : itemId;
 
-            var texture = await itemAssetsService.DownloadItemSpriteAsync(spriteId);
+            string fileName = System.IO.Path.GetFileName(spriteReference);
+            spriteReference = $"/worlds/{worldSelector.GetSelectedWorldId()}/items/{fileName}";
+
+            var texture = await cacheManager.GetSprite(
+                spriteReference,
+                worldSelector.GetSelectedWorldUpdatedAt()
+            );
 
             string currentMarker = icon.userData as string;
             Debug.Log(

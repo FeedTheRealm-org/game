@@ -48,7 +48,7 @@ namespace FTR.Gameplay.Server.Loaders
                     continue;
                 }
                 GameObject instance = Object.Instantiate(structurePrefab);
-                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
+                var (colliderPrefab, colliderLayer) = colliderRegistry.GetCollider(
                     structureData.colliderType
                 );
                 instance.name = structureData.structureName;

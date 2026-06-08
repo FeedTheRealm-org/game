@@ -26,9 +26,6 @@ namespace FTR.UI.WorldSpace
         [Inject]
         private MenuManager menuManager;
 
-        [Inject]
-        private BackEvent backEvent;
-
         private VisualElement _root;
         private VisualElement _inputPanel;
         private TextField _inputField;
@@ -40,6 +37,7 @@ namespace FTR.UI.WorldSpace
             _root = GetComponent<UIDocument>().rootVisualElement;
             _inputPanel = _root.Q<VisualElement>("ChatInputPanel");
             _inputField = _root.Q<TextField>("ChatInputField");
+            _inputField.maxLength = 100;
 
             if (_inputPanel == null || _inputField == null)
             {
@@ -59,14 +57,13 @@ namespace FTR.UI.WorldSpace
         {
             if (inputReader != null)
                 inputReader.ChatToggleEvent += OnChatToggle;
-            backEvent.OnRaised += CloseInput;
+            menuManager.RegisterMenuCallbacks(MenuType.Chat, onOpen: null, onClose: CloseInput);
         }
 
         private void OnDisable()
         {
             if (inputReader != null)
                 inputReader.ChatToggleEvent -= OnChatToggle;
-            backEvent.OnRaised -= CloseInput;
         }
 
         private void OnChatToggle()
@@ -86,7 +83,7 @@ namespace FTR.UI.WorldSpace
             _isOpen = true;
             _inputPanel.style.display = DisplayStyle.Flex;
             _inputField.value = string.Empty;
-            _inputField.Focus();
+            _root.schedule.Execute(() => _inputField.Focus()).StartingIn(100);
 
             menuManager.ToggleMenu(MenuType.Chat, true);
         }

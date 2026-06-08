@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
-using FTR.Core.Client.EventChannels.Input;
+using FeedTheRealm.Gameplay.Client.SceneSetup;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Inventory;
+using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
-using FTR.UI.Inventory;
+using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -16,8 +18,15 @@ namespace FTR.UI.Inventory
     [RequireComponent(typeof(AnimationInventoryUIController))]
     public class InventoryUIController : MonoBehaviour
     {
-        private const int InventorySlotCount = 12;
+        private const int InventorySlotCount = 35;
         private const int FastSlotCount = 5;
+        private const int InventoryColumns = 5;
+        private const float SlotSize = 70f;
+        private const float SlotGap = 6f;
+        private const string InvSlotClass = "inventory-slot";
+        private const string InvSlotSelectedClass = "inventory-slot--selected";
+        private const string FastSlotClass = "fast-equip-slot";
+        private const string FastSlotSelectedClass = "fast-equip-slot--selected";
 
         [Inject]
         private LastAddedEvent lastAddedEvent;
@@ -38,32 +47,36 @@ namespace FTR.UI.Inventory
         private InventoryToggleEvent inventoryToggleEvent;
 
         [Inject]
+        private WorldSelector worldSelector;
+
+        [Inject]
         private ISoundPlayer soundPlayer;
 
         [Inject]
         private MenuManager menuManager;
 
         [Inject]
-        private BackEvent backEvent;
+        private ConfirmPopupHandle confirmPopupHandle;
+
+        private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
         [SerializeField]
         private PlayerInputReader inputReader;
 
+        [Inject]
+        private CacheManager cacheManager;
+
+        [Header("Tooltip")]
         [SerializeField]
-        private Sprite defaultSlotSprite;
+        private VisualTreeAsset tooltipUXML;
 
         [SerializeField]
-        private Sprite selectedSlotSprite;
-
-        [SerializeField]
-        private API.ItemAssetsService itemAssetsService;
-
-        [SerializeField]
-        private ItemStatsTooltip itemStatsTooltipPrefab;
+        StyleSheet tooltipStyleSheet;
 
         private UIDocument uiDocument;
         private AnimationInventoryUIController animationController;
         private ItemStatsTooltip itemStatsTooltip;
+        private VisualElement tooltipContainer;
 
         private readonly List<VisualElement> inventorySlots = new(InventorySlotCount);
         private readonly List<VisualElement> fastSlots = new(FastSlotCount);
@@ -79,12 +92,35 @@ namespace FTR.UI.Inventory
             uiDocument = GetComponent<UIDocument>();
             animationController = GetComponent<AnimationInventoryUIController>();
 
-            if (itemStatsTooltip == null && itemStatsTooltipPrefab != null)
-                itemStatsTooltip = Instantiate(itemStatsTooltipPrefab);
+            itemStatsTooltip = GetComponent<ItemStatsTooltip>();
 
             var root = uiDocument.rootVisualElement;
             if (root == null)
                 return;
+
+            if (tooltipUXML != null)
+            {
+                var tooltipTree = tooltipUXML.Instantiate();
+                tooltipContainer = tooltipTree.Q("TooltipContainer") ?? tooltipTree;
+                tooltipContainer.style.position = Position.Absolute;
+                tooltipContainer.style.display = DisplayStyle.None;
+                tooltipContainer.style.left = 0;
+                tooltipContainer.style.top = 0;
+
+                if (tooltipStyleSheet != null && !root.styleSheets.Contains(tooltipStyleSheet))
+                    root.styleSheets.Add(tooltipStyleSheet);
+
+                root.Add(tooltipContainer);
+
+                if (itemStatsTooltip != null)
+                {
+                    itemStatsTooltip.Initialize(tooltipContainer);
+                }
+                else
+                {
+                    Debug.LogWarning("ItemStatsTooltip component is missing on this GameObject!");
+                }
+            }
 
             animationController.Initialize(root);
 
@@ -96,6 +132,7 @@ namespace FTR.UI.Inventory
                 OnInventorySlotClicked,
                 StorageType.Inventory
             );
+
             RegisterSlots(
                 root,
                 fastSlots,
@@ -104,22 +141,29 @@ namespace FTR.UI.Inventory
                 OnFastSlotClicked,
                 StorageType.FastSlot
             );
+
             root.Q("Drop")?.RegisterCallback<ClickEvent>(_ => OnDropClicked());
 
             inputReader.InventoryEvent += OnToggleInventory;
-            backEvent.OnRaised += CloseInventory;
             lastAddedEvent.OnRaised += OnLastAdded;
             lastSwappedEvent.OnRaised += OnLastSwapped;
             lastRemovedEvent.OnRaised += OnLastRemoved;
+            menuManager.RegisterMenuCallbacks(
+                MenuType.Inventory,
+                onOpen: null,
+                onClose: CloseInventory
+            );
         }
 
         private void OnDisable()
         {
             inputReader.InventoryEvent -= OnToggleInventory;
-            backEvent.OnRaised -= CloseInventory;
             lastAddedEvent.OnRaised -= OnLastAdded;
             lastSwappedEvent.OnRaised -= OnLastSwapped;
             lastRemovedEvent.OnRaised -= OnLastRemoved;
+
+            if (tooltipContainer != null && tooltipContainer.parent != null)
+                tooltipContainer.RemoveFromHierarchy();
         }
 
         private void RegisterSlots(
@@ -144,7 +188,6 @@ namespace FTR.UI.Inventory
                 slot.RegisterCallback<PointerEnterEvent>(_ =>
                 {
                     ghost.OnHoverEnter(selectedStorage, selectedSlotIndex, storage, idx, Icon);
-
                     if (slotItemIds.TryGetValue(slot, out var itemId))
                         itemStatsTooltip?.ShowTooltip(itemId, slot);
                 });
@@ -162,16 +205,16 @@ namespace FTR.UI.Inventory
         private void OnToggleInventory()
         {
             bool show = !animationController.IsVisible;
-
             if (show && !menuManager.CanOpenMenu(MenuType.Inventory))
                 return;
 
             animationController.Toggle();
             inventoryToggleEvent?.Raise(show);
-            if (show)
-                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.OpenUI);
-            else
-                soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
+            soundPlayer.PlayUI(
+                show
+                    ? ClientSoundFXRegistry.SoundFXIds.OpenUI
+                    : ClientSoundFXRegistry.SoundFXIds.CloseUI
+            );
 
             menuManager.ToggleMenu(MenuType.Inventory, show);
         }
@@ -183,7 +226,6 @@ namespace FTR.UI.Inventory
             animationController.Toggle();
             soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.CloseUI);
             inventoryToggleEvent?.Raise(false);
-
             menuManager.ToggleMenu(MenuType.Inventory, false);
         }
 
@@ -213,6 +255,16 @@ namespace FTR.UI.Inventory
         {
             if (selectedStorage == StorageType.Null)
                 return;
+            ConfirmPopup?.Show(
+                title: "Drop Item",
+                question: "Are you sure you want to drop this item?",
+                onConfirm: Drop,
+                onCancel: null
+            );
+        }
+
+        private void Drop()
+        {
             dropRequestEvent?.Raise((selectedStorage, selectedSlotIndex));
             ClearSelection();
         }
@@ -221,36 +273,64 @@ namespace FTR.UI.Inventory
         {
             selectedStorage = storage;
             selectedSlotIndex = index;
-            SetSlotSprite(Slots(storage), index, selectedSlotSprite);
+            SwapToSelected(Slots(storage), index, storage);
         }
 
         private void ClearSelection()
         {
             if (selectedStorage != StorageType.Null)
-                SetSlotSprite(Slots(selectedStorage), selectedSlotIndex, defaultSlotSprite);
+                SwapToDefault(Slots(selectedStorage), selectedSlotIndex, selectedStorage);
 
             selectedStorage = StorageType.Null;
             selectedSlotIndex = -1;
             ghost.OnHoverLeave();
         }
 
-        private void SetSlotSprite(List<VisualElement> slots, int index, Sprite sprite)
+        private void SwapToSelected(List<VisualElement> slots, int index, StorageType storage)
         {
-            if (sprite != null && index >= 0 && index < slots.Count)
-                slots[index].style.backgroundImage = new StyleBackground(sprite);
+            if (index < 0 || index >= slots.Count)
+                return;
+            var slot = slots[index];
+            if (storage == StorageType.FastSlot)
+            {
+                slot.AddToClassList(FastSlotSelectedClass);
+            }
+            else
+            {
+                slot.AddToClassList(InvSlotSelectedClass);
+            }
+        }
+
+        private void SwapToDefault(List<VisualElement> slots, int index, StorageType storage)
+        {
+            if (index < 0 || index >= slots.Count)
+                return;
+            var slot = slots[index];
+            if (storage == StorageType.FastSlot)
+            {
+                slot.RemoveFromClassList(FastSlotSelectedClass);
+            }
+            else
+            {
+                slot.RemoveFromClassList(InvSlotSelectedClass);
+            }
         }
 
         private void OnLastAdded((StorageType t, string id, int pos, int qty) data)
         {
-            var icon = Icon(data.t, data.pos);
-            SlotItemLoader.LoadItem(icon, data.id, itemAssetsService, data.qty);
+            SlotItemLoader.LoadItem(
+                Icon(data.t, data.pos),
+                data.id,
+                cacheManager,
+                worldSelector,
+                data.qty
+            );
             TrackSlotItem(Slots(data.t), data.pos, data.id);
         }
 
         private void OnLastRemoved((StorageType t, string id, int pos) data)
         {
-            var icon = Icon(data.t, data.pos);
-            SlotItemLoader.LoadItem(icon, null, itemAssetsService);
+            SlotItemLoader.LoadItem(Icon(data.t, data.pos), null, cacheManager);
             TrackSlotItem(Slots(data.t), data.pos, null);
         }
 
@@ -270,22 +350,22 @@ namespace FTR.UI.Inventory
             SlotItemLoader.LoadItem(
                 Icon(data.srcT, data.srcI),
                 data.tgtId,
-                itemAssetsService,
+                cacheManager,
+                worldSelector,
                 data.tgtQty
             );
             SlotItemLoader.LoadItem(
                 Icon(data.tgtT, data.tgtI),
                 data.srcId,
-                itemAssetsService,
+                cacheManager,
+                worldSelector,
                 data.srcQty
             );
             TrackSlotItem(Slots(data.srcT), data.srcI, data.tgtId);
             TrackSlotItem(Slots(data.tgtT), data.tgtI, data.srcId);
 
             if (!string.IsNullOrEmpty(data.srcId) || !string.IsNullOrEmpty(data.tgtId))
-            {
                 soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.ChangeItem);
-            }
         }
 
         private void TrackSlotItem(List<VisualElement> slots, int index, string itemId)

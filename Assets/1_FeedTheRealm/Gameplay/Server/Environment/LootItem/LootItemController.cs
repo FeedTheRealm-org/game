@@ -1,8 +1,8 @@
-using System.Collections;
+using System;
 using FTR.Core.Server.Commands;
 using FTR.Core.Server.Config;
-using FTR.Core.Server.EventChannels;
-using FTR.Core.Server.Events;
+using FTR.Core.Server.Reaper;
+using FTR.Gameplay.Server.Reaper;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -13,7 +13,7 @@ namespace FTR.Gameplay.Server.Environment.LootItem
     /// LootItem represents an item in the game world that can be interacted with by players.
     /// It is responsible for sending pickup commands to the server when a player interacts with it.
     /// </summary>
-    public class LootItemController : MonoBehaviour
+    public class LootItemController : MonoBehaviour, IReapable
     {
         [SerializeField]
         Logging.Logger logger;
@@ -23,7 +23,6 @@ namespace FTR.Gameplay.Server.Environment.LootItem
 
         [Inject]
         private WorldMonitor worldMonitor;
-        private uint despawnTime = 10; // default despawn time in seconds
         private string itemId;
         private int goldAmount;
         private bool isPickedUp = false;
@@ -34,12 +33,10 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             itemId = $"LootItem-{netId}";
             this.itemId = actualItemId;
             this.goldAmount = goldAmount;
-            despawnTime = config.ItemDespawnTime > 0 ? config.ItemDespawnTime : despawnTime;
             logger.Log(
                 $"Initialized LootItemController with ID: {itemId}, ItemID: {itemId}, GoldAmount: {goldAmount}",
                 this
             );
-            StartCoroutine(DespawnAfterTimeout());
         }
 
         private void OnTriggerEnter(Collider other)
@@ -51,7 +48,6 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             );
             if (isPickedUp)
             {
-                logger.Log("AAAAAAAAAAAAA");
                 return;
             }
 
@@ -93,13 +89,6 @@ namespace FTR.Gameplay.Server.Environment.LootItem
                 Despawn();
         }
 
-        private IEnumerator DespawnAfterTimeout()
-        {
-            yield return new WaitForSeconds(despawnTime);
-            if (!isPickedUp)
-                Despawn();
-        }
-
         private void Despawn()
         {
             logger.Log(
@@ -107,6 +96,18 @@ namespace FTR.Gameplay.Server.Environment.LootItem
             );
             NetworkServer.Destroy(transform.parent.gameObject);
         }
+
+        // ----- IReapable Implementation -----
+
+        public bool CanReap()
+        {
+            return true;
+        }
+
+        public DateTime SpawnTime { get; set; }
+        public float MinimumLifetimeSeconds => config.ItemDespawnTime;
+
+        // ----- Debugging -----
 
         private void OnDrawGizmos()
         {

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
+using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client;
-using FTR.Core.Common.Config;
 using FTR.Core.Common.Loaders;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.Environment.Structures;
+using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Models;
 using UnityEngine;
 using VContainer;
@@ -14,8 +15,11 @@ namespace FTR.Gameplay.Client.Loaders
 {
     public class ClientStructureLoader : ILoader
     {
+        [Inject]
+        private LoadingProgressEvent loadingProgressEvent;
+
         private readonly ModelService modelService;
-        private readonly GltLoaderService gltfLoaderService;
+        private readonly CacheManager cacheManager;
         private readonly GameObject structurePrefab;
         private readonly GameObject shopPrefab;
         private readonly ColliderRegistry colliderRegistry;
@@ -24,11 +28,11 @@ namespace FTR.Gameplay.Client.Loaders
             ClientPrefabProvider prefabProvider,
             ColliderRegistry colliderRegistry,
             ModelService modelService,
-            GltLoaderService gltfLoaderService
+            CacheManager cacheManager
         )
         {
             this.modelService = modelService;
-            this.gltfLoaderService = gltfLoaderService;
+            this.cacheManager = cacheManager;
             this.colliderRegistry = colliderRegistry;
             structurePrefab = prefabProvider.StructurePrefab;
             shopPrefab = prefabProvider.ShopPrefab;
@@ -42,6 +46,9 @@ namespace FTR.Gameplay.Client.Loaders
 
             ClientShopRegistry.RegisterWorldData(creatablesData);
 
+            int totalStructures = zoneData.objectPlacementData.Count;
+            int structuresProcessed = 0;
+
             var structures = zoneData.objectPlacementData;
             var shopStructures = new List<StructureData>();
             foreach (StructureData structureData in structures)
@@ -52,43 +59,71 @@ namespace FTR.Gameplay.Client.Loaders
                     continue;
                 }
                 string modelUrl = modelsInfo[structureData.id].url;
-                GameObject visual = await GetModel(modelUrl);
+                string updatedAt = modelsInfo[structureData.id].updated_at;
+                GameObject visual = await GetModel(modelUrl, updatedAt);
 
-                GameObject instance = Object.Instantiate(structurePrefab);
+                GameObject instance = UnityEngine.Object.Instantiate(structurePrefab);
                 instance.name = structureData.structureName;
                 var controller = instance.GetComponent<StructureController>();
-                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
+                var (collider, colliderLayer) = colliderRegistry.GetCollider(
                     structureData.colliderType
                 );
-                controller.Initialize(structureData, colliderPrefab, colliderLayer);
+                controller.Initialize(structureData, collider, colliderLayer);
                 controller.SetupMesh(visual);
+
+                structuresProcessed++;
+                if (structuresProcessed % Mathf.Max(1, totalStructures / 10) == 0)
+                {
+                    loadingProgressEvent?.Raise(
+                        (float)structuresProcessed / totalStructures * 0.8f
+                    );
+                }
             }
 
             foreach (StructureData shopData in shopStructures)
             {
                 string modelUrl = modelsInfo[shopData.id].url;
-                GameObject visual = await GetModel(modelUrl);
+                string updatedAt = modelsInfo[shopData.id].updated_at;
+                GameObject visual = await GetModel(modelUrl, updatedAt);
 
-                GameObject instance = Object.Instantiate(shopPrefab);
+                GameObject instance = UnityEngine.Object.Instantiate(shopPrefab);
                 instance.name = shopData.structureName;
                 var controller = instance.GetComponent<StructureController>();
-                var (colliderPrefab, colliderLayer) = colliderRegistry.GetColliderPrefab(
-                    shopData.colliderType
-                );
-                controller.Initialize(shopData, colliderPrefab, colliderLayer);
+                var (collider, colliderLayer) = colliderRegistry.GetCollider(shopData.colliderType);
+                controller.Initialize(shopData, collider, colliderLayer);
                 controller.SetupMesh(visual);
+
+                structuresProcessed++;
+                if (structuresProcessed % Mathf.Max(1, totalStructures / 10) == 0)
+                {
+                    loadingProgressEvent?.Raise(
+                        (float)structuresProcessed / totalStructures * 0.8f
+                    );
+                }
             }
+
+            loadingProgressEvent?.Raise(0.8f);
 
             modelCache.Clear();
             modelsInfo.Clear();
         }
 
-        private async UniTask<GameObject> GetModel(string modelUrl)
+        private async UniTask<GameObject> GetModel(string modelUrl, string updatedAt)
         {
             if (modelCache.ContainsKey(modelUrl))
                 return modelCache[modelUrl];
 
-            GameObject visual = await gltfLoaderService.DownloadModel(modelUrl);
+            GameObject visual = null;
+            try
+            {
+                var timeStamp = DateTimeHelper.ParseDateTimeOffset(updatedAt);
+                visual = await cacheManager.GetModel(modelUrl, timeStamp);
+            }
+            catch
+            {
+                Debug.LogError($"Failed to load model: {modelUrl}.");
+            }
+
             visual.SetActive(false);
             modelCache[modelUrl] = visual;
             return visual;

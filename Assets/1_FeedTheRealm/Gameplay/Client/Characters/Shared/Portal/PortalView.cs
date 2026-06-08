@@ -82,7 +82,7 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
         {
             try
             {
-                // TODO: CURRENT TELEPORT REFACTOR
+                // TODO(portal): CURRENT TELEPORT REFACTOR
                 // for now, if teleporing between zones, we will have the client be in charge of doing so,
                 // but this is unsafe and can lead to exploits regarding tp destination. This will be refactored in the future
                 // but for now we will implement this way to progress with portal development and have a working version of it in the game.

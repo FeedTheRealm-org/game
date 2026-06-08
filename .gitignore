@@ -59,9 +59,13 @@ ExportedObj/
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta
+*.lscache
 
 # Unity3D generated file on crash reports
 sysinfo.txt
+
+# Unity Cache files
+*.lscache
 
 # Mono auto generated files
 mono_crash.*
@@ -137,3 +141,5 @@ Assets/Audio
 Assets/Audio.meta
 Assets/DefaultMaterials.meta
 Assets/DefaultMaterials/
+Assets/Hovl Studio/
+Assets/Hovl Studio.meta

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5682836507698401086}
   - component: {fileID: 752432458107436141}
+  - component: {fileID: -9095741424702504824}
   m_Layer: 0
   m_Name: ClientInitiator
   m_TagString: Untagged
@@ -53,18 +54,40 @@ MonoBehaviour:
     sceneAsset: {fileID: 102900000, guid: 701c4046fa42a621791231367c88fbc5, type: 3}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
+  worldSelector: {fileID: 11400000, guid: faed404c8f2d5282c8f1b73ca17c2f00, type: 2}
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
-  loginPrefab: {fileID: 5469282581521250782, guid: d9b2052c8826857dd93b0476accb713f, type: 3}
-  signUpPrefab: {fileID: 7671274207003174485, guid: 8ab8f64f05ce5d9449d04f0b58f000a4, type: 3}
-  verifyCodePrefab: {fileID: 4283777905451521364, guid: 1f632b38b28885e44b7a24a90ab8e8cd, type: 3}
+  settingsManager: {fileID: 11400000, guid: c196a637095a95474b1f2a64882174e6, type: 2}
+  authFlowManager: {fileID: 7798777532646108241, guid: bee3944f6aaa8f0f39979e4395c8ffc8, type: 3}
+  authBackgroundPrefab: {fileID: 5556295372408462094, guid: 0c5e5389679ba55ea8d517bd7a5f081d, type: 3}
   worldFeedMenuPrefab: {fileID: 7463538350467974155, guid: 0d700b474850e1a45b6f86d2891697fd, type: 3}
+  worldInfoMenuPrefab: {fileID: 3695908179079165444, guid: b61ff541e582f36479b50b9803b3f900, type: 3}
   navBarPrefab: {fileID: 6415553132047525761, guid: 54eafcd9d5c78a0d28074c00ce5f3bd4, type: 3}
   profileMenuPrefab: {fileID: 6054908064068988140, guid: 53da93c7cd95e66a59cd92bd9351ad22, type: 3}
   gemStorePrefab: {fileID: 1348964074043700, guid: 442b277acc9586448ba5baa9f54327d5, type: 3}
-  session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
-  authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
-  config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+  navBarSettingsPrefab: {fileID: 6415553132047525761, guid: 136934d931ab2bc9594aaf4b9e91adc2, type: 3}
+  confirmPopupPrefab: {fileID: 3626892518001848298, guid: 74472030c54ba0fc48c42cff773742af, type: 3}
   loadingScreenPrefab: {fileID: 2117748138234522152, guid: f22507bcddabcdcb3b33671656222084, type: 3}
+  authService: {fileID: 11400000, guid: 23a98ba50e85b414cab8abf6d9a81eaa, type: 2}
   musicPlayerPrefab: {fileID: 5549379460917750396, guid: c84173a92ddb78749910eced1dc609c6, type: 3}
   musicRegistry: {fileID: 11400000, guid: 68d9e5b0caf1a652db2ac3d15acec7fc, type: 2}
+  soundFXRegistry: {fileID: 11400000, guid: 053a99b72500d8ec5997d9c940b0e60d, type: 2}
+  audioManager: {fileID: 0}
+  playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+  assetsService: {fileID: 11400000, guid: cd0887d2ef13cf0deb9953395f896994, type: 2}
+  modelService: {fileID: 11400000, guid: c73d670b82bf09acf996028bec1d8373, type: 2}
+  gltfLoaderService: {fileID: 11400000, guid: 021be9f008c872d43b5753a0c733ad99, type: 2}
+  eventRegistry: {fileID: 11400000, guid: 7b0314ec47ec120ae9b419a5265297fe, type: 2}
+--- !u!114 &-9095741424702504824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5549379460917750396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b5ba201f55492759d83cd77b7ddb48, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::AudioManager
+  poolSize: 32
+  maxAudibleDistance: 50

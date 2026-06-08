@@ -1,4 +1,5 @@
 using System.Collections;
+using FTR.Core.Client.Settings;
 using UnityEngine;
 
 public enum MusicType
@@ -16,6 +17,9 @@ public class MusicPlayer : MonoBehaviour
     [SerializeField]
     private float fadeDuration = 1.5f;
 
+    [SerializeField]
+    private SettingsManager settingsManager;
+
     private static MusicPlayer instance;
     public static MusicPlayer Instance => instance;
 
@@ -24,6 +28,10 @@ public class MusicPlayer : MonoBehaviour
 
     private float globalVolumeMultiplier = 1f;
     private float currentBaseVolume = 0.5f;
+
+    private AudioClip[] currentPlaylist;
+    private int currentClipIndex = 0;
+    private Coroutine playlistCoroutine;
 
     private void Awake()
     {
@@ -38,12 +46,15 @@ public class MusicPlayer : MonoBehaviour
         if (musicSource == null)
             musicSource = GetComponent<AudioSource>();
 
-        musicSource.loop = true;
+        musicSource.loop = false;
         musicSource.playOnAwake = false;
         musicSource.spatialBlend = 0f;
         musicSource.volume = 0f;
 
-        globalVolumeMultiplier = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        globalVolumeMultiplier =
+            settingsManager != null
+                ? (settingsManager.IsMuted ? 0f : settingsManager.MusicVolume)
+                : 1f;
 
         isInitialized = true;
     }
@@ -65,8 +76,40 @@ public class MusicPlayer : MonoBehaviour
 
         MusicEntry entry = type == MusicType.Menu ? registry.MenuMusic : registry.WorldMusic;
 
-        if (entry?.Clip != null)
-            Play(entry.Clip, entry.Volume);
+        if (entry != null && entry.Clips != null && entry.Clips.Length > 0)
+        {
+            PlayPlaylist(entry.Clips, entry.Volume);
+        }
+    }
+
+    public void PlayPlaylist(AudioClip[] playlist, float volume = 0.5f)
+    {
+        if (!isInitialized || playlist == null || playlist.Length == 0)
+            return;
+
+        if (playlistCoroutine != null)
+            StopCoroutine(playlistCoroutine);
+
+        currentPlaylist = playlist;
+        currentClipIndex = 0;
+
+        playlistCoroutine = StartCoroutine(PlaylistRoutine(volume));
+    }
+
+    private IEnumerator PlaylistRoutine(float volume)
+    {
+        while (true)
+        {
+            AudioClip currentClip = currentPlaylist[currentClipIndex];
+
+            Play(currentClip, volume, true);
+
+            yield return new WaitForSecondsRealtime(fadeDuration + 0.1f);
+
+            yield return new WaitUntil(() => !musicSource.isPlaying);
+
+            currentClipIndex = (currentClipIndex + 1) % currentPlaylist.Length;
+        }
     }
 
     public void Play(AudioClip clip, float volume = 0.5f, bool fadeIn = true)
@@ -82,9 +125,7 @@ public class MusicPlayer : MonoBehaviour
         if (musicSource.isPlaying && musicSource.clip == clip)
         {
             if (!fadeIn)
-            {
                 musicSource.volume = currentBaseVolume * globalVolumeMultiplier;
-            }
             return;
         }
 
@@ -105,6 +146,9 @@ public class MusicPlayer : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        if (playlistCoroutine != null)
+            StopCoroutine(playlistCoroutine);
 
         if (fadeOut && musicSource.isPlaying)
         {

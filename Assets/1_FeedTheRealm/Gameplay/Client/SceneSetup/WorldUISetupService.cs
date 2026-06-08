@@ -3,6 +3,7 @@ using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Interfaces;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -13,14 +14,18 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
     public class WorldUISetupService : ISetup
     {
         private readonly GameObject settingsMenu;
+        private readonly GameObject questMenu;
+        private readonly GameObject confirmPopupPrefab;
         private readonly IObjectResolver objectResolver;
+        private readonly ConfirmPopupHandle confirmPopupHandle;
 
         private OnWorldLeaveEvent onExitEvent;
 
         public WorldUISetupService(
             ClientPrefabProvider clientPrefabProvider,
             OnWorldLeaveEvent onExitEvent,
-            IObjectResolver objectResolver
+            IObjectResolver objectResolver,
+            ConfirmPopupHandle confirmPopupHandle
         )
         {
             if (clientPrefabProvider == null)
@@ -31,7 +36,10 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
             this.onExitEvent = onExitEvent;
             this.onExitEvent.OnRaised += DisconnectPlayer;
             settingsMenu = clientPrefabProvider.SettingMenuComponent;
+            questMenu = clientPrefabProvider.QuestsMenuPrefab;
+            confirmPopupPrefab = clientPrefabProvider.ConfirmPopup;
             this.objectResolver = objectResolver;
+            this.confirmPopupHandle = confirmPopupHandle;
         }
 
         public void Dispose()
@@ -45,9 +53,31 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
                 throw new System.Exception(
                     "SettingsMenu GameObject not set in WorldUIObjectProvider!"
                 );
+            if (questMenu == null)
+                throw new System.Exception(
+                    "QuestMenu GameObject not set in WorldUIObjectProvider!"
+                );
+            if (confirmPopupPrefab == null)
+                throw new System.Exception("ConfirmPopup prefab not set in ClientPrefabProvider!");
+
+            if (objectResolver == null)
+                throw new System.Exception("IObjectResolver not provided to WorldUISetupService!");
+
+            if (confirmPopupHandle == null)
+                throw new System.Exception(
+                    "ConfirmPopupHandle not provided to WorldUISetupService!"
+                );
 
             var instantiatedMenu = objectResolver.Instantiate(settingsMenu);
             instantiatedMenu.name = "SettingsMenu";
+
+            var instantiatedQuestMenu = objectResolver.Instantiate(questMenu);
+            instantiatedQuestMenu.name = "QuestMenu";
+
+            var instantiatedPopup = objectResolver.Instantiate(confirmPopupPrefab);
+            instantiatedPopup.name = "ConfirmPopup";
+
+            confirmPopupHandle.Controller = instantiatedPopup.GetComponent<IConfirmPopup>();
         }
 
         private void DisconnectPlayer()

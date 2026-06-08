@@ -5,11 +5,13 @@ using FTR.Core.Server;
 using FTR.Core.Server.Config;
 using FTR.Core.Server.EventChannels;
 using FTR.Core.Server.Healthcheck;
+using FTR.Core.Server.Metrics;
 using FTR.Core.Server.Persistence;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
 using FTR.Gameplay.Server.Environment.Quest;
 using FTR.Gameplay.Server.Linkers;
+using FTR.Gameplay.Server.Reaper;
 using FTR.Gameplay.Server.Registry;
 using FTR.Gameplay.Server.Scopes;
 using UnityEngine;
@@ -56,6 +58,9 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
         [SerializeField]
         private ZoneService zoneService;
 
+        [SerializeField]
+        private OrchestratorService orchestratorService;
+
         protected override void Configure(IContainerBuilder builder)
         {
             if (config.RuntimeRole != RuntimeRole.Server)
@@ -75,6 +80,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.RegisterInstance(serverQuestRegistry);
             builder.RegisterInstance(colliderRegistry);
             builder.RegisterInstance(session);
+            builder.RegisterInstance(orchestratorService);
 
             builder.Register<ServerSecretsConfig>(Lifetime.Singleton);
             builder.Register<Database>(Lifetime.Singleton);
@@ -91,6 +97,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<ServerShopLinker>(Lifetime.Singleton).As<ShopLinker>();
             builder.Register<ServerPortalLinker>(Lifetime.Singleton).As<PortalLinker>();
             builder.Register<ServerChestLinker>(Lifetime.Singleton).As<ChestLinker>();
+            builder.Register<PlayerStatsSender>(Lifetime.Singleton);
 
             builder.Register<PortalRegistry>(Lifetime.Singleton);
 
@@ -98,6 +105,11 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             builder.Register<NetworkService>(Lifetime.Singleton);
             builder.Register<ServerTickDriver>(Lifetime.Singleton);
             builder.Register<NetworkTickDriver>(Lifetime.Singleton);
+
+            builder.RegisterComponentOnNewGameObject<EntityReaper>(
+                Lifetime.Singleton,
+                "EntityReaper"
+            );
 
             builder.RegisterEntryPoint<ServerWorldEntryPoint>(Lifetime.Singleton);
         }
@@ -114,6 +126,7 @@ namespace FTR.Gameplay.Server.EntryPoints.Scopes
             ValidateField(serverQuestRegistry, nameof(serverQuestRegistry));
             ValidateField(colliderRegistry, nameof(colliderRegistry));
             ValidateField(session, nameof(session));
+            ValidateField(orchestratorService, nameof(orchestratorService));
         }
 
         private void ValidateField(Object field, string fieldName)

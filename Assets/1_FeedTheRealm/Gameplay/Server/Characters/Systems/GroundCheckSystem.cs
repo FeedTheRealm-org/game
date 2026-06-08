@@ -48,22 +48,44 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private bool IsCollidedWithGround()
         {
-            // TODO(optimization): why spherecast + raycast?
-            bool result = Physics.SphereCast(
+            bool isGrounded = Physics.SphereCast(
                 groundCheckSphereOrigin,
                 config.GroundCheckSphereRadius,
                 Vector3.down,
-                out RaycastHit _,
+                out RaycastHit groundHit,
                 groundCheckDistance,
                 config.GroundLayer | config.SlopeLayer
             );
 
+            if (!isGrounded)
+            {
+                stateStorage.IsOnSlope = false;
+                stateStorage.GroundNormal = Vector3.up;
+                return false;
+            }
+
+            // Only reject vertical surfaces for GroundLayer hits —
+            // slopes on SlopeLayer can be steep and should never be rejected here
+            bool hitIsGroundLayer =
+                (config.GroundLayer & (1 << groundHit.collider.gameObject.layer)) != 0;
+            if (hitIsGroundLayer)
+            {
+                float normalAlignment = Vector3.Dot(groundHit.normal, Vector3.up);
+                if (normalAlignment < config.MinGroundNormalAlignment)
+                {
+                    stateStorage.IsOnSlope = false;
+                    stateStorage.GroundNormal = Vector3.up;
+                    return false;
+                }
+            }
+
             if (
-                Physics.Raycast(
+                Physics.SphereCast(
                     groundCheckSphereOrigin,
+                    config.GroundCheckSphereRadius,
                     Vector3.down,
                     out RaycastHit slopeHit,
-                    groundCheckDistance + config.GroundCheckSphereRadius,
+                    groundCheckDistance,
                     config.SlopeLayer
                 )
             )
@@ -77,7 +99,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.GroundNormal = Vector3.up;
             }
 
-            return result;
+            return true;
         }
 
         private void OnDrawGizmos()
@@ -94,6 +116,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
             Gizmos.DrawLine(
                 groundCheckSphereOrigin,
                 groundCheckSphereOrigin + stateStorage.GroundNormal * 2f
+            );
+
+            Gizmos.color = stateStorage.IsGrounded ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(
+                groundCheckSphereOrigin + Vector3.down * groundCheckDistance,
+                config.GroundCheckSphereRadius
             );
         }
     }

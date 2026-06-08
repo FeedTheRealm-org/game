@@ -8,8 +8,7 @@ public class LootItemView : MonoBehaviour
     private Rigidbody rb;
     private NetworkEventRouter eventRouter;
     private LootItemStateStorage stateStorage;
-
-    private bool readyToFreeze;
+    private bool isGrounded = false;
 
     public void Initialize(
         Rigidbody rb,
@@ -22,17 +21,14 @@ public class LootItemView : MonoBehaviour
         this.stateStorage = stateStorage;
         this.eventRouter.OnLootItemSpawnEvent += OnInitialForceCorrection;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
+        this.stateStorage.OnGrounded += OnGrounded;
     }
 
     private void OnPositionCorrected(Vector3 targetPosition)
     {
-        Debug.Log($"[LootItemView] Position corrected to {targetPosition}", this);
         rb.position = targetPosition;
-
-        if (readyToFreeze)
-            rb.constraints = RigidbodyConstraints.FreezePosition;
-        else
-            readyToFreeze = true;
+        if (isGrounded)
+            rb.constraints = RigidbodyConstraints.FreezeAll;
     }
 
     private void OnDisable()
@@ -61,5 +57,10 @@ public class LootItemView : MonoBehaviour
         );
         rb.MovePosition(initialPosition);
         rb.AddForce(force, ForceMode.VelocityChange);
+    }
+
+    private void OnGrounded()
+    {
+        isGrounded = true;
     }
 }

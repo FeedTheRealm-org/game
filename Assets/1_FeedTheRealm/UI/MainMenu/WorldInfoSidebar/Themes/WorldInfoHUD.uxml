@@ -1,0 +1,44 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/WorldInfoSidebar/Themes/WorldInfoHUD.uss?fileID=7433441132597879392&amp;guid=1e15479d56375a230912ff34c04545a2&amp;type=3#WorldInfoHUD"/>
+    <ui:VisualElement name="Background">
+        <ui:VisualElement name="SideBar">
+            <ui:Button text="✕" name="CloseButton"/>
+            <ui:Label text="World Name" name="Title"/>
+            <ui:VisualElement name="StatusRow">
+                <ui:Label text="status: " name="StatusStaticLabel"/>
+                <ui:VisualElement name="OnlineStatusPill">
+                    <ui:VisualElement name="OnlineDot"/>
+                    <ui:Label text="online" name="OnlineStatusLabel"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="DescriptionBox">
+                <ui:Label text="No description provided." name="Description"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="CreatedAtRow">
+                <ui:Label text="created: " name="CreatedAtStaticLabel"/>
+                <ui:Label text="Created unknown date" name="CreatedAt"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="CreatedByRow">
+                <ui:Label text="created by: " name="CreatedByStaticLabel"/>
+                <ui:Label text="Created By Unknown User" name="CreatedBy"/>
+                <ui:VisualElement name="Spacer"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="OnlinePlayersRow">
+                <ui:Label text="online players: " name="OnlinePlayersStaticLabel"/>
+                <ui:Label text="0" name="OnlinePlayers"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="JoinRow">
+                <ui:Button text="Join World!" name="JoinButton"/>
+                <ui:Button text="" name="DownloadButton"/>
+            </ui:VisualElement>
+            <ui:Button text="Clear cache" name="DeleteButton" style="width: 94px; height: 28px; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-width: 2px; border-color: rgba(255, 120, 120, 0.75); background-color: rgba(255, 120, 120, 0); color: rgb(255, 200, 200); font-size: 11px; -unity-font-style: bold; -unity-text-align: middle-center; margin-left: 6px; background-image: none; background-size: 60% 60%; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;"/>
+            <ui:VisualElement name="ProgressBarContainer">
+                <ui:Label text="downloading content..." name="DownloadingLabel"/>
+                <ui:VisualElement name="ProgressBarBg">
+                    <ui:VisualElement name="ProgressBarFill"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label text="" name="CacheStatusLabel"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

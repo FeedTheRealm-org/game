@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.UI.Inventory;
+using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -12,6 +14,9 @@ namespace FTR.UI.Hud.Main
     public class FastSlotUIController : MonoBehaviour
     {
         private const int FastSlotCount = 5;
+
+        [Inject]
+        private WorldSelector worldSelector;
 
         [Inject]
         private LastAddedEvent lastAddedEvent;
@@ -34,17 +39,11 @@ namespace FTR.UI.Hud.Main
         [SerializeField]
         private PlayerInputReader inputReader;
 
-        [SerializeField]
-        private Sprite defaultSlotSprite;
+        [Inject]
+        private CacheManager cacheManager;
 
-        [SerializeField]
-        private Sprite selectedSlotSprite;
-
-        [SerializeField]
-        private Sprite hiddenHUDSlotSprite;
-
-        [SerializeField]
-        private API.ItemAssetsService itemAssetsService;
+        private const string FastSlotSelectedClass = "fast-equip-slot--selected";
+        private const string FastSlotHiddenClass = "fast-equip-slot--hidden";
 
         private UIDocument uiDocument;
         private readonly List<VisualElement> slots = new(FastSlotCount);
@@ -107,7 +106,8 @@ namespace FTR.UI.Hud.Main
             SlotItemLoader.LoadItem(
                 Icon(data.position),
                 data.itemId,
-                itemAssetsService,
+                cacheManager,
+                worldSelector,
                 data.quantity
             );
         }
@@ -116,7 +116,7 @@ namespace FTR.UI.Hud.Main
         {
             if (data.storageType != StorageType.FastSlot)
                 return;
-            SlotItemLoader.LoadItem(Icon(data.position), null, itemAssetsService);
+            SlotItemLoader.LoadItem(Icon(data.position), null, cacheManager);
         }
 
         private void OnLastSwapped(
@@ -136,14 +136,16 @@ namespace FTR.UI.Hud.Main
                 SlotItemLoader.LoadItem(
                     Icon(data.targetSlot),
                     data.sourceItemId,
-                    itemAssetsService,
+                    cacheManager,
+                    worldSelector,
                     data.sourceQuantity
                 );
             if (data.sourceType == StorageType.FastSlot)
                 SlotItemLoader.LoadItem(
                     Icon(data.sourceSlot),
                     data.targetItemId,
-                    itemAssetsService,
+                    cacheManager,
+                    worldSelector,
                     data.targetQuantity
                 );
         }
@@ -155,30 +157,30 @@ namespace FTR.UI.Hud.Main
         private void OnInventoryToggled(bool status)
         {
             isInventoryOpen = status;
-            for (int i = 0; i < slots.Count; i++)
-            {
-                Sprite sprite =
-                    status ? hiddenHUDSlotSprite
-                    : i == activeSlot ? selectedSlotSprite
-                    : defaultSlotSprite;
-                SetSlotBackground(i, sprite);
-            }
+            UpdateAllSlots();
         }
 
         private void SetActiveSlot(int slotIndex)
         {
-            SetSlotBackground(activeSlot, defaultSlotSprite);
             activeSlot = slotIndex;
-            SetSlotBackground(activeSlot, selectedSlotSprite);
+            UpdateAllSlots();
         }
 
         // ────────────────────────── Helpers ──────────────────────────────────────
 
-        private void SetSlotBackground(int index, Sprite sprite)
+        private void UpdateAllSlots()
         {
-            if (index < 0 || index >= slots.Count || sprite == null)
-                return;
-            slots[index].style.backgroundImage = new StyleBackground(sprite);
+            for (int i = 0; i < slots.Count; i++)
+            {
+                var slot = slots[i];
+                slot.RemoveFromClassList(FastSlotSelectedClass);
+                slot.RemoveFromClassList(FastSlotHiddenClass);
+
+                if (isInventoryOpen)
+                    slot.AddToClassList(FastSlotHiddenClass);
+                else if (i == activeSlot)
+                    slot.AddToClassList(FastSlotSelectedClass);
+            }
         }
 
         private VisualElement Icon(int index)

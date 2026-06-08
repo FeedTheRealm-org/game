@@ -5,13 +5,17 @@ using FTR.Core.Client;
 using FTR.Core.Client.Config;
 using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.Managers;
+using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Client.Linkers;
 using FTR.Gameplay.Client.Loaders;
 using FTR.Gameplay.Client.Registry;
+using FTR.Gameplay.Common.Characters.Shared.Portal;
 using FTR.Gameplay.Common.Environment.Dialogs;
 using FTR.Gameplay.Common.Linkers;
+using FTRShared.Runtime.Core.Cache;
+using FTRShared.Runtime.Core.Interfaces;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -45,6 +49,9 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private Session.Session session;
 
         [SerializeField]
+        private SettingsManager settingsManager;
+
+        [SerializeField]
         private WorldSelector worldSelector;
 
         [SerializeField]
@@ -69,9 +76,6 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
         private AssetsService assetsService;
 
         [SerializeField]
-        private ItemAssetsService itemAssetsService;
-
-        [SerializeField]
         private MaterialService materialService;
 
         [SerializeField]
@@ -85,6 +89,13 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
 
         [SerializeField]
         private ClientMusicRegistry musicRegistry;
+
+        // TODO(portal): this is a temporary solution, we need to refactor
+        // how we handle teleportation data on the client and remove
+        // this dependency from the ClientInitiator
+        [Header("Teleportation (TO REFACTOR LATER)")]
+        [SerializeField]
+        private TeleportDataPersistence teleportDataPersistence;
 
         private readonly SetupServices setupServices = new();
 
@@ -106,17 +117,18 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.RegisterInstance(zoneService);
             builder.RegisterInstance(config);
             builder.RegisterInstance(session);
+            builder.RegisterInstance(settingsManager);
             builder.RegisterInstance(npcDialogRegistry);
             builder.RegisterInstance(clientQuestRegistry);
             builder.RegisterInstance(modelService);
-            builder.RegisterInstance(gltfLoaderService);
+            builder.RegisterInstance(gltfLoaderService).As<IGltfLoader>().AsSelf();
             builder.RegisterInstance(playerService);
             builder.RegisterInstance(assetsService);
-            builder.RegisterInstance(itemAssetsService);
             builder.RegisterInstance(materialService);
             builder.RegisterInstance(colliderRegistry);
             builder.RegisterInstance(soundFXRegistry);
             builder.RegisterInstance(musicRegistry);
+            builder.RegisterInstance(teleportDataPersistence);
             builder.RegisterComponent(audioManager).As<IAudioManager>();
             builder.Register<SoundPlayer>(Lifetime.Singleton).As<ISoundPlayer>();
             builder.Register<PlayerInfoRepository>(Lifetime.Singleton);
@@ -125,6 +137,8 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<CursorManager>(Lifetime.Singleton);
             builder.Register<CameraManager>(Lifetime.Singleton);
             builder.Register<MenuManager>(Lifetime.Singleton);
+            builder.Register<CacheManager>(Lifetime.Singleton);
+            builder.Register<DiskService>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();
@@ -146,11 +160,10 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             ValidateField(logger, "Logger");
             ValidateField(worldSelector, "WorldSelector");
             ValidateField(worldService, "WorldService");
-            ValidateField(config, "Config");
             ValidateField(session, "Session");
+            ValidateField(settingsManager, "SettingsManager");
             ValidateField(modelService, "ModelService");
             ValidateField(gltfLoaderService, "GLTFLoaderService");
-            ValidateField(itemAssetsService, "ItemAssetsService");
             ValidateField(assetsService, "AssetsService");
             ValidateField(zoneService, "ZoneService");
             ValidateField(npcDialogRegistry, "NpcDialogRegistry");

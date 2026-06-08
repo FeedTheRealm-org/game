@@ -14,7 +14,7 @@ public class ColliderRegistry : ScriptableObject
     [SerializeField]
     private GameObject slopeColliderPrefab;
 
-    public (GameObject, int) GetColliderPrefab(ColliderType colliderType)
+    public (GameObject, int) GetCollider(ColliderType colliderType)
     {
         GameObject prefab;
         int layer;
@@ -36,7 +36,7 @@ public class ColliderRegistry : ScriptableObject
                 break;
         }
 
-        var instance = Object.Instantiate(prefab);
+        var instance = Instantiate(prefab);
         instance.SetActive(true);
         foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
             renderer.enabled = config.DEBUG_EnableColliderView;

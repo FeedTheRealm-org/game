@@ -28,6 +28,8 @@ namespace FTR.Core.Server.Config
         [HideInInspector]
         public bool IsTestWorld;
 
+        public int SendPlayerCountIntervalSeconds = 120;
+
         [Header("Database Settings")]
         // PersistToDatabase: Save variables into the database (e.g. Prod: true, Dev: false).
         public bool PersistToDatabase = true;
@@ -39,20 +41,26 @@ namespace FTR.Core.Server.Config
         public LayerMask GroundLayer;
         public LayerMask ObstacleLayer;
         public LayerMask SlopeLayer;
+        public LayerMask InteractableLayer;
 
         [Header("Movement")]
         [SerializeField]
         private float playerSpeed = 5f;
         public float PlayerSpeed => playerSpeed;
+        public float MovementRaycastAngle = 30f;
 
         [Header("Items")]
         [SerializeField]
-        private uint itemDespawnTime = 120; // this is in seconds
+        private float itemDespawnTime = 120f; // 2 minutes
 
         [SerializeField]
         private ushort maxInitialForce = 5; // default max force applied to the item when spawned
-        public uint ItemDespawnTime => itemDespawnTime;
+
+        [SerializeField]
+        private float groundCheckDelay = 0.5f;
+        public float ItemDespawnTime => itemDespawnTime;
         public ushort MaxInitialForce => maxInitialForce;
+        public float GroundCheckDelay => groundCheckDelay;
 
         [Header("Dash")]
         [SerializeField]
@@ -96,11 +104,20 @@ namespace FTR.Core.Server.Config
         [Header("Ground Check")]
         [SerializeField]
         private float groundCheckDistance = 1f;
+
+        [SerializeField]
+        private float minGroundNormalAlignment = 0.5f;
         public float GroundCheckDistance => groundCheckDistance;
+        public float MinGroundNormalAlignment => minGroundNormalAlignment;
 
         [SerializeField]
         private float groundCheckSphereRadius = 0.4f;
         public float GroundCheckSphereRadius => groundCheckSphereRadius;
+
+        [Header("Entity Reaper")]
+        [SerializeField]
+        private float reapIntervalSeconds = 60f; // 1 minute
+        public float ReapIntervalSeconds => reapIntervalSeconds;
 
         [Header("Inventory")]
         [SerializeField]
@@ -131,9 +148,6 @@ namespace FTR.Core.Server.Config
         public float AutoAttackDelay = 0.3f;
         public float RangedWeaponRaySpacing = 1f;
         public float MaxNavigationTime = 10f;
-
-        [Header("Loot Item")]
-        public float GroundCheckDelay = 0.5f;
 
         [Header("Chest")]
         public float ChestItemSpawnRateSeconds = 0.5f;

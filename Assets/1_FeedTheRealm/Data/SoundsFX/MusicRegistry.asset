@@ -14,9 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: FTR.Gameplay.Client::ClientMusicRegistry
   menuMusic:
     id: menu_music
-    clip: {fileID: 8300000, guid: 29d13f59dd0dc12df81467fafd39ef66, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 756c74ce2e1989cb79b9450c1dc71ad4, type: 3}
     volume: 0.304
   worldMusic:
     id: game_music
-    clip: {fileID: 8300000, guid: 89dab937a49b5aad58ce0348b932ef56, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 89dab937a49b5aad58ce0348b932ef56, type: 3}
+    - {fileID: 8300000, guid: a855065ef4568cc5996dc51a5253cc91, type: 3}
+    - {fileID: 8300000, guid: 39ff7eefd1f1a11e9b7f7b6a71b9aaed, type: 3}
     volume: 0.299

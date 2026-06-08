@@ -1,0 +1,65 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:ftr="FeedTheRealm.UI.Common" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/CharacterEdit/Themes/CharacterEdit.uss?fileID=7433441132597879392&amp;guid=ff7172fb9c1b50aa99fa604f2f3dae62&amp;type=3#CharacterEdit"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Components/Scrollbar/scrollbar.uss?fileID=7433441132597879392&amp;guid=f210ad3c09d09c548bca6bf90c47a04b&amp;type=3#scrollbar"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/CharacterEdit/Themes/CharacterEditSliders.uss?fileID=7433441132597879392&amp;guid=26e48a623751f11809190316e3e5854e&amp;type=3#CharacterEditSliders"/>
+    <ui:VisualElement name="Body" class="body body-background" style="background-image: url(&quot;project://database/Packages/com.feed_the_realm.shared/Runtime/UI/VisualAssets/bg_feed.jpg?fileID=2800000&amp;guid=8d8f8fd241019e57b9aee8d2035bd722&amp;type=3#bg_feed&quot;);">
+        <ui:VisualElement name="CharacterEditContainer" tabindex="0" class="character-edit-container" style="top: 1px; left: 1px;">
+            <ui:VisualElement name="Character" class="character-panel">
+                <ui:Label text="Character" class="panel-title"/>
+                <ui:TextField placeholder-text="Enter character name (*)" hide-placeholder-on-focus="false" name="NameInput" class="menu-text-input text-input-full-width"/>
+                <ui:VisualElement name="CharacterPreview" class="character-preview character-preview-background" style="background-image: none;"/>
+                <ui:TextField placeholder-text="Enter character bio" hide-placeholder-on-focus="false" name="BioInput" multiline="true" class="menu-text-input bio-input"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="Cosmetics" class="cosmetics-panel">
+                <ui:Label text="Cosmetics" class="panel-title panel-title-cosmetics"/>
+                <ui:Label name="ErrorMessage" class="error-message"/>
+                <ui:VisualElement name="Buttons" class="button-container">
+                    <ui:Button text="Cancel" name="Cancel" class="menu-button action-button cancel-button"/>
+                    <ui:Button text="Save" name="Save" class="menu-button action-button"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="Hbar" class="hbar"/>
+                <ui:ScrollView name="Categories" class="content-container content-categories">
+                    <ui:Button name="ArmorHelmet" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Helmet.png?fileID=2800000&amp;guid=1569e2730ecd0a545991ae60698f83c2&amp;type=3#Helmet" class="category_button"/>
+                    <ui:Button name="ArmorBody" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Armor.png?fileID=2800000&amp;guid=b6a21285d376d01458d6d14806add091&amp;type=3#Armor" class="category_button"/>
+                    <ui:Button name="ArmorLegR" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Boots.png?fileID=2800000&amp;guid=117e42b3d6ce3a24788ef73ad04429be&amp;type=3#Boots" class="category_button"/>
+                    <ui:Button name="Hair" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Hair.png?fileID=2800000&amp;guid=b7abbbf38d914bc47a93592edf08c6d1&amp;type=3#Hair" class="category_button"/>
+                    <ui:Button name="Beard" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Beard.png?fileID=2800000&amp;guid=a0b11f78cbdd6e847b07f4f8a41d612d&amp;type=3#Beard" class="category_button"/>
+                    <ui:Button name="EyeBrows" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Eyebrows.png?fileID=2800000&amp;guid=a57cbccf4df29194995a66c0444653e1&amp;type=3#Eyebrows" class="category_button"/>
+                    <ui:Button name="Eyes" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Eye.png?fileID=2800000&amp;guid=ba07226d5abba334990691587e1b2c16&amp;type=3#Eye" class="category_button"/>
+                    <ui:Button name="Mouth" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Mouth.png?fileID=2800000&amp;guid=a10937f0638a1494798b43c666948d84&amp;type=3#Mouth" class="category_button"/>
+                    <ui:Button name="EarringR" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Earrings.png?fileID=2800000&amp;guid=9a57c7fa5549fb94c88515bade724129&amp;type=3#Earrings" class="category_button"/>
+                    <ui:Button name="Back" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Back.png?fileID=2800000&amp;guid=f9868ff9676fe664ebec7ef31e08ee08&amp;type=3#Back" class="category_button"/>
+                    <ui:Button name="Mask" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Mask.png?fileID=2800000&amp;guid=58cdde48dae3ab3479f1addad19122ce&amp;type=3#Mask" class="category_button"/>
+                    <ui:Button name="Color" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Makeup.png?fileID=2800000&amp;guid=1c340032d72adb740a795f5852b17ab9&amp;type=3#Makeup" class="category_button"/>
+                </ui:ScrollView>
+                <ui:VisualElement name="Hbar" class="hbar"/>
+                <ui:ScrollView name="Items" class="content-container content-items">
+                    <ui:Button name="Empty" icon-image="project://database/Assets/HeroEditor4D/InventorySystem/Images/ItemTypes/Empty.png?fileID=2800000&amp;guid=28f83d71ea6c28b499085210ea78cb72&amp;type=3#Empty" class="item_button"/>
+                </ui:ScrollView>
+                <ui:VisualElement name="ColorControls" class="content-container color-controls">
+                    <ui:VisualElement class="color-control-row">
+                        <ftr:CustomDropdown label="Target" name="ColorTargetDropdown" class="custom-dropdown"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="color-control-row">
+                        <ui:Label text="H" class="color-control-label"/>
+                        <ui:Slider name="HueSlider" low-value="0" high-value="360" value="0" show-input-field="true" class="color-slider"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="color-control-row">
+                        <ui:Label text="S" class="color-control-label"/>
+                        <ui:Slider name="SaturationSlider" low-value="0" high-value="100" value="0" show-input-field="true" class="color-slider"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="color-control-row">
+                        <ui:Label text="V" class="color-control-label"/>
+                        <ui:Slider name="ValueSlider" low-value="0" high-value="100" value="100" show-input-field="true" class="color-slider"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Pagination" class="pagination-container">
+                    <ui:Button text="Prev" name="PrevPage" class="menu-button action-button pagination-button"/>
+                    <ui:Label text="Page 1" name="PageInfo" class="pagination-info"/>
+                    <ui:Button text="Next" name="NextPage" class="menu-button action-button pagination-button"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

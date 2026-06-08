@@ -57,7 +57,11 @@ namespace FTR.Gameplay.Server.Characters
             System.Action<bool> onComplete
         ) { }
 
-        public virtual void OnSetUserId(IEventCollectable ec, string tokenId) { }
+        public virtual void OnSetUserId(
+            IEventCollectable ec,
+            string tokenId,
+            bool isTeleporting
+        ) { }
 
         public virtual void OnTeleportAccepted(IEventCollectable ec, string portalId) { }
 

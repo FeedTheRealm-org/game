@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
+using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client;
 using FTR.Core.Common.Loaders;
-using FTR.Gameplay.Client.Environment.Quest;
 using FTR.Gameplay.Common.Linkers;
 using FTRShared.Runtime.Models;
 using UnityEngine;
@@ -15,6 +15,9 @@ namespace FTR.Gameplay.Client.Loaders
     /// </summary>
     public class ClientPortalLoader : ILoader
     {
+        [Inject]
+        private LoadingProgressEvent loadingProgressEvent;
+
         private readonly GameObject portalPrefab;
         private readonly IObjectResolver resolver;
 
@@ -41,6 +44,7 @@ namespace FTR.Gameplay.Client.Loaders
                     placement.radius
                 );
             }
+            loadingProgressEvent?.Raise(1.0f);
             await UniTask.CompletedTask;
         }
     }

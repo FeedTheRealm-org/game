@@ -1,0 +1,138 @@
+/* NAVBAR USS */
+
+:root {
+    --teal: rgb(110, 255, 251);
+    --teal-dim: rgba(110, 255, 251, 0.18);
+    --teal-strong: rgba(110, 255, 251, 0.32);
+    --gold: rgb(255, 210, 80);
+    --gold-dim: rgba(255, 210, 80, 0.15);
+    --white: rgb(255, 255, 255);
+    --dark: rgba(0, 0, 0, 0.72);
+
+    /* Navbar button colors */
+    --home-color: rgba(110, 200, 255, 0.45);
+    --home-color-hover: rgba(110, 200, 255, 0.15);
+    --profile-color: rgba(255, 100, 100, 0.45);
+    --profile-color-hover: rgba(255, 100, 100, 0.15);
+    --gem-color: rgba(100, 255, 150, 0.45);
+    --gem-color-hover: rgba(100, 255, 150, 0.15);
+    --settings-color: rgba(180, 180, 180, 0.45);
+    --settings-color-hover: rgba(180, 180, 180, 0.15);
+}
+
+.navbar {
+    flex-grow: 1;
+    width: 100%;
+    min-height: 58px;
+    max-height: 58px;
+    background-color: var(--dark);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(110, 255, 251, 0.25);
+    padding-left: 18px;
+    padding-right: 18px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-actions {
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.navbar-button {
+    height: 100%;
+    width: 50px;
+    margin: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0);
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Individual button hover states with color-matched backgrounds */
+.navbar-button:hover {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Home button specific hover (light blue) */
+#HomeButton:hover {
+    background-color: var(--home-color-hover);
+    border-color: rgba(110, 200, 255, 0.3);
+}
+
+/* Profile button specific hover (red) */
+#ProfileButton:hover {
+    background-color: var(--profile-color-hover);
+    border-color: rgba(255, 100, 100, 0.3);
+}
+
+/* Gem Store button specific hover (green) */
+#GemStoreButton:hover {
+    background-color: var(--gem-color-hover);
+    border-color: rgba(100, 255, 150, 0.3);
+}
+
+/* Settings button specific hover (gray) */
+#SettingsButton:hover {
+    background-color: var(--settings-color-hover);
+    border-color: rgba(180, 180, 180, 0.3);
+}
+
+/* Selected state for Home button (light blue) */
+.navbar-button-home-selected {
+    background-color: var(--home-color);
+    border-color: rgba(110, 200, 255, 0.7);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.navbar-button-home-selected:hover {
+    background-color: rgba(110, 200, 255, 0.6);
+}
+
+/* Selected state for Profile button (red) */
+.navbar-button-profile-selected {
+    background-color: var(--profile-color);
+    border-color: rgba(255, 100, 100, 0.7);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.navbar-button-profile-selected:hover {
+    background-color: rgba(255, 100, 100, 0.6);
+}
+
+/* Selected state for Gem Store button (green) */
+.navbar-button-gem-selected {
+    background-color: var(--gem-color);
+    border-color: rgba(100, 255, 150, 0.7);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.navbar-button-gem-selected:hover {
+    background-color: rgba(100, 255, 150, 0.6);
+}
+
+/* Selected state for Settings button (gray) */
+.navbar-button-settings-selected {
+    background-color: var(--settings-color);
+    border-color: rgba(180, 180, 180, 0.7);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.navbar-button-disabled {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.2);
+    cursor: initial;
+}
+
+.navbar-button-disabled:hover {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(110, 255, 251, 0);
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.2);
+}
