@@ -36,6 +36,10 @@ namespace FTR.Gameplay.Client.Registry
             public const string Spawn = "spawn";
             public const string SwitchTab = "switch_tab";
             public const string ChangeItem = "change_item";
+            public const string ArrowShot = "arrow_shot";
+            public const string HandgunShot = "handgun_shot";
+            public const string Punch = "punch";
+            public const string Consume = "consume";
         }
 
         [SerializeField]
