@@ -6,6 +6,7 @@ using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.EntryPoints;
+using FTR.Gameplay.Client.Registry;
 using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Core.Interfaces;
 using FTRShared.UI.AuthMenu;
@@ -76,6 +77,9 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private ClientMusicRegistry musicRegistry;
 
+    [SerializeField]
+    private ClientSoundFXRegistry soundFXRegistry;
+
     [Header("Player")]
     [SerializeField]
     private API.PlayerService playerService;
@@ -110,11 +114,14 @@ public class ClientInitiator : LifetimeScope
         builder.RegisterInstance(playerService);
         builder.RegisterInstance(assetsService);
         builder.RegisterInstance(modelService);
+        builder.RegisterInstance(soundFXRegistry);
         builder.RegisterInstance(gltfLoaderService).As<IGltfLoader>().AsSelf();
         builder.RegisterInstance(logger);
         builder.Register<WorldInfoMenuHandle>(Lifetime.Singleton);
         eventRegistry.RegisterAll(builder);
         builder.Register<PlayerInfoRepository>(Lifetime.Singleton).As<CharacterInfoRepository>();
+        builder.Register<SoundPlayer>(Lifetime.Singleton).As<ISoundPlayer>();
+        builder.RegisterComponent(GetComponent<AudioManager>()).As<IAudioManager>();
         builder
             .RegisterEntryPoint<ClientEntryPoint>()
             .WithParameter("mainScene", mainScene)
@@ -131,6 +138,7 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("settingsManager", settingsManager)
             .WithParameter("playerService", playerService)
             .WithParameter("assetsService", assetsService)
+            .WithParameter("soundFXRegistry", soundFXRegistry)
             .WithParameter("onProfileCreatedEvent", eventRegistry.onProfileCreatedEvent)
             .WithParameter("onLogoutRequestedEvent", eventRegistry.onLogoutRequestedEvent)
             .WithParameter("confirmPopupPrefab", confirmPopupPrefab);
@@ -156,6 +164,19 @@ public class ClientInitiator : LifetimeScope
         ValidateField(assetsService, "AssetsService");
         ValidateField(modelService, "ModelService");
         ValidateField(gltfLoaderService, "GLTFLoaderService");
+        ValidateField(soundFXRegistry, "SoundFXRegistry");
+        ValidateField(authFlowManager, "AuthFlowManager");
+        ValidateField(authBackgroundPrefab, "AuthBackgroundPrefab");
+        ValidateField(worldFeedMenuPrefab, "WorldFeedMenuPrefab");
+        ValidateField(worldInfoMenuPrefab, "WorldInfoMenuPrefab");
+        ValidateField(navBarPrefab, "NavBarPrefab");
+        ValidateField(profileMenuPrefab, "ProfileMenuPrefab");
+        ValidateField(gemStorePrefab, "GemStorePrefab");
+        ValidateField(navBarSettingsPrefab, "NavBarSettingsPrefab");
+        ValidateField(confirmPopupPrefab, "ConfirmPopupPrefab");
+        ValidateField(loadingScreenPrefab, "LoadingScreenPrefab");
+        ValidateField(musicPlayerPrefab, "MusicPlayerPrefab");
+        ValidateField(playerService, "PlayerService");
     }
 
     private void ValidateField(object field, string fieldName)

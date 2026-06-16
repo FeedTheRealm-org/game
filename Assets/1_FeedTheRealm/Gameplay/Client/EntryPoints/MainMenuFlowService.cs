@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Gameplay.Client.Registry;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
 using VContainer;
@@ -17,6 +18,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject gemStorePrefab;
         readonly GameObject musicPlayerPrefab;
         readonly ClientMusicRegistry musicRegistry;
+        private readonly ClientSoundFXRegistry soundFXRegistry;
+        private readonly ISoundPlayer soundPlayer;
         readonly GameObject navBarSettingsPrefab;
         private readonly AuthFlowManager authFlowManager;
         private readonly API.PlayerService playerService;
@@ -37,6 +40,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
+            ClientSoundFXRegistry soundFXRegistry,
+            ISoundPlayer soundPlayer,
             GameObject navBarSettingsPrefab,
             AuthFlowManager authFlowManager,
             API.PlayerService playerService,
@@ -53,6 +58,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
+            this.soundFXRegistry = soundFXRegistry;
+            this.soundPlayer = soundPlayer;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authFlowManager = authFlowManager;
             this.playerService = playerService;

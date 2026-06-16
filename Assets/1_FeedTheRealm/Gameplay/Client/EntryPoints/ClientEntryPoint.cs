@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
+using FTR.Gameplay.Client.Registry;
 using FTRShared.Runtime.Core.Cache;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
@@ -28,6 +29,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject gemStorePrefab;
         private readonly GameObject musicPlayerPrefab;
         private readonly ClientMusicRegistry musicRegistry;
+        private readonly ClientSoundFXRegistry soundFXRegistry;
+        private readonly ISoundPlayer soundPlayer;
         private readonly GameObject loadingScreenPrefab;
         private readonly MainMenuFlowService flowService;
         private readonly SettingsManager settingsManager;
@@ -52,6 +55,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
             ClientMusicRegistry musicRegistry,
+            ClientSoundFXRegistry soundFXRegistry,
+            ISoundPlayer soundPlayer,
             GameObject loadingScreenPrefab,
             SettingsManager settingsManager,
             GameObject navBarSettingsPrefab,
@@ -78,6 +83,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
             this.musicRegistry = musicRegistry;
+            this.soundFXRegistry = soundFXRegistry;
+            this.soundPlayer = soundPlayer;
             this.loadingScreenPrefab = loadingScreenPrefab;
             this.settingsManager = settingsManager;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
@@ -97,6 +104,8 @@ namespace FTR.Gameplay.Client.EntryPoints
                 gemStorePrefab,
                 musicPlayerPrefab,
                 musicRegistry,
+                soundFXRegistry,
+                soundPlayer,
                 navBarSettingsPrefab,
                 authFlowManager,
                 playerService,
