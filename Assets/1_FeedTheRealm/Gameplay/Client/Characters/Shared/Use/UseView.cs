@@ -40,6 +40,7 @@ public class UseView : MonoBehaviour
     private MaterialPropertyBlock propertyBlock;
     private Transform cameraPivot;
     private WeaponItemData weaponData;
+    private string equippedItemId;
     private Vector3 direction;
     private int equipmentChangeSequence = 0;
 
@@ -98,7 +99,32 @@ public class UseView : MonoBehaviour
         animator.SetAction(true);
         animator.PlayUse();
 
-        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Attack, transform.position);
+        string soundFxId = ClientSoundFXRegistry.SoundFXIds.Attack;
+
+        if (weaponData != null)
+        {
+            switch (weaponData.weaponType)
+            {
+                case WeaponType.Melee:
+                    soundFxId = ClientSoundFXRegistry.SoundFXIds.Attack;
+                    break;
+                case WeaponType.Ranged:
+                    if (weaponData.subWeaponType == SubWeaponType.Bow)
+                        soundFxId = ClientSoundFXRegistry.SoundFXIds.ArrowShot;
+                    else
+                        soundFxId = ClientSoundFXRegistry.SoundFXIds.HandgunShot;
+                    break;
+            }
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(equippedItemId))
+            {
+                soundFxId = ClientSoundFXRegistry.SoundFXIds.Consume;
+            }
+        }
+
+        soundPlayer.Play(soundFxId, transform.position);
     }
 
     private void LateTick()
@@ -140,6 +166,8 @@ public class UseView : MonoBehaviour
 
         if (string.IsNullOrEmpty(itemId))
         {
+            this.equippedItemId = null;
+            this.weaponData = null;
             spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, null);
             animator.UnSetWeaponType();
             return;
@@ -162,6 +190,8 @@ public class UseView : MonoBehaviour
         if (sequenceAtCall != equipmentChangeSequence)
             return; // Used to prevent race conditions when fast switching items
 
+        this.equippedItemId = itemId;
+
         if (this == null || spriteManager == null)
         {
             return;
@@ -177,7 +207,7 @@ public class UseView : MonoBehaviour
         }
 
         switch (weaponData.weaponType)
-        {
+        { //TODO:
             case WeaponType.Melee:
                 spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
                 break;

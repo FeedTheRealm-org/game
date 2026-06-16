@@ -1,6 +1,8 @@
 using FTR.Gameplay.Client.EntryPoints;
+using FTR.Gameplay.Client.Registry;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 namespace FTR.UI.Homepage.Navbar
 {
@@ -14,6 +16,9 @@ namespace FTR.UI.Homepage.Navbar
 
         [SerializeField]
         private API.PlayerService playerService;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         private GameObject homeMenuInstance;
         private GameObject profileMenuInstance;
@@ -235,6 +240,8 @@ namespace FTR.UI.Homepage.Navbar
             profileMenuInstance?.SetActive(false);
             homeMenuInstance.SetActive(true);
 
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
+
             SetSelectedButton(homeButton, HomeSelectedClass);
         }
 
@@ -251,6 +258,7 @@ namespace FTR.UI.Homepage.Navbar
             gemStoreInstance?.SetActive(false);
             profileMenuInstance.SetActive(true);
 
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
             SetSelectedButton(playerProfileButton, ProfileSelectedClass);
         }
 
@@ -277,6 +285,7 @@ namespace FTR.UI.Homepage.Navbar
             profileMenuInstance?.SetActive(false);
             gemStoreInstance.SetActive(true);
 
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
             SetSelectedButton(gemStoreButton, GemSelectedClass);
         }
 
@@ -303,6 +312,7 @@ namespace FTR.UI.Homepage.Navbar
             gemStoreInstance?.SetActive(false);
             navBarSettingsInstance.SetActive(true);
 
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
             SetSelectedButton(settingsButton, SettingsSelectedClass);
         }
     }

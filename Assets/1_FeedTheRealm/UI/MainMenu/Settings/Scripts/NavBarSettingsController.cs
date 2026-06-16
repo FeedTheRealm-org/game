@@ -6,6 +6,7 @@ using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Settings;
+using FTR.Gameplay.Client.Registry;
 using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,6 +33,9 @@ namespace FTR.UI.Homepage.Settings
 
         [Inject]
         private ConfirmPopupHandle confirmPopupHandle;
+
+        [Inject]
+        private ISoundPlayer soundPlayer;
 
         private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
@@ -70,8 +74,6 @@ namespace FTR.UI.Homepage.Settings
         }
 
         private Section _activeSection = Section.Display;
-
-        // ── Lifecycle ──────────────────────────────────────────────────────────
 
         private void OnEnable()
         {
@@ -289,11 +291,23 @@ namespace FTR.UI.Homepage.Settings
             }
         }
 
-        private void OnDisplayNav() => ShowSection(Section.Display);
+        private void OnDisplayNav()
+        {
+            ShowSection(Section.Display);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
+        }
 
-        private void OnSoundNav() => ShowSection(Section.Sound);
+        private void OnSoundNav()
+        {
+            ShowSection(Section.Sound);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
+        }
 
-        private void OnCacheNav() => ShowSection(Section.Cache);
+        private void OnCacheNav()
+        {
+            ShowSection(Section.Cache);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
+        }
 
         private void OnLogoutClicked()
         {
@@ -306,6 +320,7 @@ namespace FTR.UI.Homepage.Settings
                 );
                 return;
             }
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
 
             ConfirmPopup.Show(
                 question: "Are you sure you want to log out?",
@@ -319,6 +334,7 @@ namespace FTR.UI.Homepage.Settings
 
         private void OnExitClicked()
         {
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
             ConfirmPopup.Show(
                 question: "Are you sure you want to exit the game?",
                 title: "Exit Game",
@@ -331,6 +347,7 @@ namespace FTR.UI.Homepage.Settings
 
         private void OnClearCacheClicked()
         {
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
             if (cacheManager == null)
             {
                 logger.Log(
@@ -378,6 +395,7 @@ namespace FTR.UI.Homepage.Settings
                     ? "Caching enabled."
                     : "Caching disabled. Files will not be stored.";
             }
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
         }
 
         // ── Audio callbacks ────────────────────────────────────────────────────
@@ -403,6 +421,7 @@ namespace FTR.UI.Homepage.Settings
 
         private void OnMuteChanged(ChangeEvent<bool> evt)
         {
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
             settingsManager.IsMuted = evt.newValue;
             settingsManager.SaveSettings();
             float musicVol = evt.newValue ? 0f : settingsManager.MusicVolume;
@@ -415,7 +434,7 @@ namespace FTR.UI.Homepage.Settings
         {
             settingsManager.IsFullscreen = evt.newValue;
             settingsManager.SaveSettings();
-            logger.Log($"[NavBarSettingsController] Fullscreen: {evt.newValue}", this);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
         }
 
         private void OnResolutionChanged(int selectedIndex)
@@ -428,11 +447,6 @@ namespace FTR.UI.Homepage.Settings
             settingsManager.ResolutionHeight = target.height;
             settingsManager.RefreshRate = target.refreshRateRatio;
             settingsManager.SaveSettings();
-
-            logger.Log(
-                $"[NavBarSettingsController] Resolution: {target.width}x{target.height} @ {target.refreshRateRatio.value}Hz",
-                this
-            );
         }
     }
 }
