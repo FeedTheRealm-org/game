@@ -117,8 +117,8 @@ public class MovementView : MonoBehaviour
             positionError = Vector3.zero;
         }
 
-        Vector3 safeDelta = ClampDeltaToWalls(predictedDelta + correctionStep);
-        rb.MovePosition(rb.position + safeDelta);
+        Vector3 safePrediction = ClampDeltaToWalls(predictedDelta);
+        rb.MovePosition(rb.position + safePrediction + correctionStep);
 
         UpdateFootsteps();
     }
@@ -244,17 +244,21 @@ public class MovementView : MonoBehaviour
 
     private void OnPositionCorrected(Vector3 targetPosition)
     {
-        float distance = Vector3.Distance(rb.position, targetPosition);
+        Vector3 error = targetPosition - rb.position;
+        bool snap =
+            stateStorage.IsTeleporting
+            || error.sqrMagnitude
+                > clientConfig.MovementCorrectionTolerance
+                    * clientConfig.MovementCorrectionTolerance;
 
-        if (distance > clientConfig.MovementCorrectionTolerance)
+        if (snap)
         {
             rb.position = targetPosition;
             rb.linearVelocity = Vector3.zero;
             positionError = Vector3.zero;
             return;
         }
-
-        positionError = targetPosition - rb.position;
+        positionError = error;
     }
 
     public void UpdateFacingDirection(Vector3 direction)
