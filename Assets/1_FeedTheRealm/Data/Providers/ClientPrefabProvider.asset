@@ -36,4 +36,6 @@ MonoBehaviour:
   MusicPlayerPrefab: {fileID: 5549379460917750396, guid: be38d26ea906230719bfa7ad77e98112, type: 3}
   ConfirmPopup: {fileID: 3626892518001848298, guid: 74472030c54ba0fc48c42cff773742af, type: 3}
   QuestsMenuPrefab: {fileID: 6209252735088991528, guid: a55bd2636b39c1e6092842fb20eb3011, type: 3}
-  GoldCoinPrefab: {fileID: 8547170938511414599, guid: 7f2974ad7692b9abab1d155c0f0ca715, type: 3}
+  GoldCoinPrefab: {fileID: 8547170938511414599, guid: e1dfd307db4d0d74c857a71192dbe79f, type: 3}
+  QuestSignPrefab: {fileID: 1126493862438144, guid: dfa88b163ebe1dc41b2d41ef939de73d, type: 3}
+  QuestHaloPrefab: {fileID: 1890275634725560, guid: c127f32ea2a3adb4cb172d3703f4af8e, type: 3}

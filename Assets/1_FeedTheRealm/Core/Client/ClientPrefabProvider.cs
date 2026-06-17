@@ -47,5 +47,7 @@ namespace FTR.Core.Client
 
         [Header("VFX")]
         public GameObject GoldCoinPrefab;
+        public GameObject QuestSignPrefab;
+        public GameObject QuestHaloPrefab;
     }
 }
