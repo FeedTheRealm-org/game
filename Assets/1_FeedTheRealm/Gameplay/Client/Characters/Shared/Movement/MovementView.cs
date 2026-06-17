@@ -24,16 +24,23 @@ public class MovementView : MonoBehaviour
     [Inject]
     private ClientConfig clientConfig;
 
+    // Must match ServerConfig.MovementRaycastAngle so prediction casts the same rays as the server.
+    [SerializeField]
+    private float movementRaycastAngle = 30f;
+
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
     private bool isInitialized = false;
     private float capsuleRadius;
+    private CapsuleCollider capsuleCollider;
 
     private Vector3 positionError = Vector3.zero;
 
     private Vector3 currentDirection = Vector3.zero;
     private bool isDead = false;
+    private bool wasGroundedLastTick = false;
+    private float rayLength;
 
     [Header("Footstep Settings")]
     [SerializeField]
@@ -54,7 +61,7 @@ public class MovementView : MonoBehaviour
         // Interpolation smooths the render position between physics steps.
         this.rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-        var capsuleCollider = rb.GetComponent<CapsuleCollider>();
+        capsuleCollider = rb.GetComponent<CapsuleCollider>();
         capsuleRadius =
             capsuleCollider != null ? capsuleCollider.radius * rb.transform.lossyScale.x : 0.5f;
 
@@ -103,12 +110,61 @@ public class MovementView : MonoBehaviour
             return;
         }
 
-        Vector3 predictedDelta = GetPredictedDelta();
+        float dt = Time.fixedDeltaTime;
+
+        // The synced direction has speed baked in (server SetDirection(dir.normalized * speed)).
+        // The server's grounded-idle branch syncs raw velocity, so strip the vertical component to
+        // recover the horizontal movement input exactly as the server's `direction` field holds it.
+        Vector3 inputDirection = new Vector3(currentDirection.x, 0f, currentDirection.z);
+        float currentSpeed = inputDirection.magnitude;
+
+        bool isGrounded = stateStorage.IsGrounded;
+        bool justLanded = isGrounded && !wasGroundedLastTick;
+
+        rb.useGravity = !(isGrounded && stateStorage.IsOnSlope);
+
+        Vector3 targetPosition = rb.position;
+
+        if (isGrounded)
+        {
+            if (justLanded)
+            {
+                currentDirection = Vector3.zero;
+                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            }
+            else if (inputDirection != Vector3.zero)
+            {
+                if (stateStorage.IsOnSlope)
+                {
+                    Vector3 moveDirection = Vector3
+                        .ProjectOnPlane(inputDirection.normalized, stateStorage.GroundNormal)
+                        .normalized;
+                    targetPosition = HandleMovementWithRaycasts(
+                        moveDirection * (currentSpeed * dt)
+                    );
+                }
+                else
+                {
+                    targetPosition = HandleMovementWithRaycasts(inputDirection * dt);
+                }
+            }
+            else
+            {
+                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            }
+        }
+        else
+        {
+            if (inputDirection != Vector3.zero)
+                targetPosition = HandleMovementWithRaycasts(inputDirection * dt);
+        }
+
+        wasGroundedLastTick = isGrounded;
 
         Vector3 correctionStep = Vector3.zero;
         if (positionError.sqrMagnitude > clientConfig.ErrorMargin * clientConfig.ErrorMargin)
         {
-            float t = Mathf.Clamp01(clientConfig.CorrectionSpeed * Time.fixedDeltaTime);
+            float t = Mathf.Clamp01(clientConfig.CorrectionSpeed * dt);
             correctionStep = positionError * t;
             positionError -= correctionStep;
         }
@@ -117,63 +173,97 @@ public class MovementView : MonoBehaviour
             positionError = Vector3.zero;
         }
 
-        Vector3 safePrediction = ClampDeltaToWalls(predictedDelta);
-        rb.MovePosition(rb.position + safePrediction + correctionStep);
+        Vector3 finalPosition = targetPosition + correctionStep;
+        if (finalPosition != rb.position)
+            rb.MovePosition(finalPosition);
 
         UpdateFootsteps();
     }
 
-    private Vector3 GetPredictedDelta()
+    private Vector3 HandleMovementWithRaycasts(Vector3 delta)
     {
-        if (currentDirection == Vector3.zero)
-            return Vector3.zero;
-
-        Vector3 horizontalDirection = new Vector3(currentDirection.x, 0f, currentDirection.z);
-        if (horizontalDirection == Vector3.zero)
-            return Vector3.zero;
-
-        return horizontalDirection * Time.fixedDeltaTime;
-    }
-
-    private Vector3 ClampDeltaToWalls(Vector3 delta)
-    {
-        if (delta == Vector3.zero)
-            return Vector3.zero;
-
         Vector3 deltaNormalized = delta.normalized;
-        Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
-
-        Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
-        Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+        rayLength = delta.magnitude;
 
         LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
 
-        bool hitLeft = Physics.Raycast(
-            leftOrigin,
-            deltaNormalized,
-            out RaycastHit leftHit,
-            delta.magnitude,
-            blockingLayers
-        );
-        bool hitRight = Physics.Raycast(
-            rightOrigin,
-            deltaNormalized,
-            out RaycastHit rightHit,
-            delta.magnitude,
-            blockingLayers
-        );
+        Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
+        Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
+        Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
+        Vector3 centerOrigin = rb.position;
 
-        if (hitLeft || hitRight)
+        float angle = movementRaycastAngle;
+        Vector3 leftDir = Quaternion.Euler(0, angle, 0) * deltaNormalized;
+        Vector3 rightDir = Quaternion.Euler(0, -angle, 0) * deltaNormalized;
+
+        float closest = float.MaxValue;
+        bool anyHit = false;
+
+        (Vector3 origin, Vector3 dir)[] rays =
         {
-            float stopDistance =
-                hitLeft && hitRight ? Mathf.Min(leftHit.distance, rightHit.distance)
-                : hitLeft ? leftHit.distance
-                : rightHit.distance;
+            (leftOrigin, leftDir),
+            (centerOrigin, deltaNormalized),
+            (rightOrigin, rightDir),
+        };
 
-            return deltaNormalized * Mathf.Max(0f, stopDistance - Physics.defaultContactOffset);
+        foreach (var (origin, dir) in rays)
+        {
+            if (Physics.Raycast(origin, dir, out RaycastHit h, rayLength, blockingLayers))
+            {
+                if (h.distance < closest)
+                {
+                    closest = h.distance;
+                    anyHit = true;
+                }
+            }
         }
 
-        return delta;
+        Vector3 targetPosition = anyHit
+            ? rb.position + deltaNormalized * Mathf.Max(0f, closest - Physics.defaultContactOffset)
+            : rb.position + delta;
+
+        if (anyHit)
+            targetPosition = ResolveOverlap(targetPosition);
+
+        return targetPosition;
+    }
+
+    // ResolveOverlap performs a depenetration pass at the target position to
+    // ensure we don't end up stuck inside geometry due to tunneling or missed raycasts
+    private Vector3 ResolveOverlap(Vector3 targetPosition)
+    {
+        if (capsuleCollider == null)
+            return targetPosition;
+
+        Collider[] overlaps = Physics.OverlapSphere(
+            targetPosition,
+            capsuleRadius,
+            config.CubeColliderLayerMask | config.SlopeColliderLayerMask
+        );
+
+        foreach (Collider other in overlaps)
+        {
+            if (other.attachedRigidbody == rb)
+                continue;
+
+            if (
+                Physics.ComputePenetration(
+                    capsuleCollider,
+                    targetPosition,
+                    rb.rotation,
+                    other,
+                    other.transform.position,
+                    other.transform.rotation,
+                    out Vector3 pushDir,
+                    out float pushDist
+                )
+            )
+            {
+                targetPosition += pushDir * (pushDist + Physics.defaultContactOffset);
+            }
+        }
+
+        return targetPosition;
     }
 
     private void OnDrawGizmos()
@@ -181,23 +271,38 @@ public class MovementView : MonoBehaviour
         if (rb == null || !isInitialized)
             return;
 
-        Vector3 deltaNormalized = currentDirection.normalized;
+        Vector3 deltaNormalized = new Vector3(
+            currentDirection.x,
+            0f,
+            currentDirection.z
+        ).normalized;
         if (deltaNormalized == Vector3.zero)
             return;
 
         Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
         Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
         Vector3 rightOrigin = rb.position + perpendicular * capsuleRadius;
-        float rayLength = 2f;
+        Vector3 centerOrigin = rb.position;
 
+        Vector3 leftDir = Quaternion.Euler(0, movementRaycastAngle, 0) * deltaNormalized;
+        Vector3 rightDir = Quaternion.Euler(0, -movementRaycastAngle, 0) * deltaNormalized;
+
+        // Left ray (angled)
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(leftOrigin, leftOrigin + deltaNormalized * rayLength);
+        Gizmos.DrawLine(leftOrigin, leftOrigin + leftDir * rayLength);
         Gizmos.DrawWireSphere(leftOrigin, 0.05f);
 
+        // Center ray
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(centerOrigin, centerOrigin + deltaNormalized * rayLength);
+        Gizmos.DrawWireSphere(centerOrigin, 0.05f);
+
+        // Right ray (angled)
         Gizmos.color = Color.magenta;
-        Gizmos.DrawLine(rightOrigin, rightOrigin + deltaNormalized * rayLength);
+        Gizmos.DrawLine(rightOrigin, rightOrigin + rightDir * rayLength);
         Gizmos.DrawWireSphere(rightOrigin, 0.05f);
 
+        // Capsule width indicator
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(leftOrigin, rightOrigin);
     }
