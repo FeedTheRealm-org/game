@@ -28,12 +28,27 @@ public class MovementView : MonoBehaviour
     [SerializeField]
     private float movementRaycastAngle = 30f;
 
+    [Header("Ground Check (must mirror the server's ground check)")]
+    // Surfaces tilted more than this count as a slope -> movement projected onto the plane.
+    [SerializeField]
+    private float slopeAngleThreshold = 1f;
+
+    // Walkable ceiling. Match the value the server uses to classify a slope.
+    [SerializeField]
+    private float maxSlopeAngle = 50f;
+
+    // Extra downward reach while already grounded. Stops the center down-ray from
+    // momentarily overshooting the surface on a slope and flipping grounded/onSlope off.
+    [SerializeField]
+    private float groundStickDistance = 0.3f;
+
     // Injected at Initialize
     private Rigidbody rb;
     private CharacterStateStorage stateStorage;
     private bool isInitialized = false;
     private float capsuleRadius;
     private CapsuleCollider capsuleCollider;
+    private LayerMask groundAndBlockingLayers;
 
     private Vector3 positionError = Vector3.zero;
 
@@ -41,6 +56,12 @@ public class MovementView : MonoBehaviour
     private bool isDead = false;
     private bool wasGroundedLastTick = false;
     private float rayLength;
+
+    // Ground state computed locally each tick (these are NOT synced from the server,
+    // they are plain properties on CharacterStateStorage, so the client must derive them itself).
+    private bool isGrounded = false;
+    private bool isOnSlope = false;
+    private Vector3 groundNormal = Vector3.up;
 
     [Header("Footstep Settings")]
     [SerializeField]
@@ -61,9 +82,16 @@ public class MovementView : MonoBehaviour
         // Interpolation smooths the render position between physics steps.
         this.rb.interpolation = RigidbodyInterpolation.Interpolate;
 
+        // Gravity is owned by the server. The client never applies it: all vertical motion
+        // comes from slope projection (climbing) or from the position SyncVar (falling).
+        // This removes the single-tick gravity spikes that bumped the body on slopes.
+        this.rb.useGravity = false;
+
         capsuleCollider = rb.GetComponent<CapsuleCollider>();
         capsuleRadius =
             capsuleCollider != null ? capsuleCollider.radius * rb.transform.lossyScale.x : 0.5f;
+
+        groundAndBlockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
 
         this.stateStorage.OnDirectionChanged += OnDirectionChanged;
         this.stateStorage.OnPositionCorrected += OnPositionCorrected;
@@ -112,16 +140,17 @@ public class MovementView : MonoBehaviour
 
         float dt = Time.fixedDeltaTime;
 
+        // Derive ground state locally; the server does the same with its own ground check
+        // and never syncs the result (IsGrounded / IsOnSlope / GroundNormal are not SyncVars).
+        UpdateGroundState();
+
         // The synced direction has speed baked in (server SetDirection(dir.normalized * speed)).
         // The server's grounded-idle branch syncs raw velocity, so strip the vertical component to
         // recover the horizontal movement input exactly as the server's `direction` field holds it.
         Vector3 inputDirection = new Vector3(currentDirection.x, 0f, currentDirection.z);
         float currentSpeed = inputDirection.magnitude;
 
-        bool isGrounded = stateStorage.IsGrounded;
         bool justLanded = isGrounded && !wasGroundedLastTick;
-
-        rb.useGravity = !(isGrounded && stateStorage.IsOnSlope);
 
         Vector3 targetPosition = rb.position;
 
@@ -130,14 +159,18 @@ public class MovementView : MonoBehaviour
             if (justLanded)
             {
                 currentDirection = Vector3.zero;
-                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+                rb.linearVelocity = Vector3.zero;
             }
             else if (inputDirection != Vector3.zero)
             {
-                if (stateStorage.IsOnSlope)
+                if (isOnSlope)
                 {
+                    // Movement is fully positional with gravity off; clear any residual velocity
+                    // so nothing tugs the body off the slope plane mid-climb.
+                    rb.linearVelocity = Vector3.zero;
+
                     Vector3 moveDirection = Vector3
-                        .ProjectOnPlane(inputDirection.normalized, stateStorage.GroundNormal)
+                        .ProjectOnPlane(inputDirection.normalized, groundNormal)
                         .normalized;
                     targetPosition = HandleMovementWithRaycasts(
                         moveDirection * (currentSpeed * dt)
@@ -150,11 +183,13 @@ public class MovementView : MonoBehaviour
             }
             else
             {
-                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+                rb.linearVelocity = Vector3.zero;
             }
         }
         else
         {
+            // Airborne: no gravity on the client, so Y is held here and the server's fall
+            // arrives through the position SyncVar / correction path.
             if (inputDirection != Vector3.zero)
                 targetPosition = HandleMovementWithRaycasts(inputDirection * dt);
         }
@@ -180,12 +215,52 @@ public class MovementView : MonoBehaviour
         UpdateFootsteps();
     }
 
+    // Mirrors the server's ground check so prediction classifies flat/slope/airborne the same way.
+    // Cast shape and thresholds must match whatever the server uses; the cast distance is shared
+    // via CharacterStateStorage.GetGroundCheckDistance().
+    private void UpdateGroundState()
+    {
+        if (!stateStorage.IsGroundCheckEnabled)
+        {
+            isGrounded = false;
+            isOnSlope = false;
+            groundNormal = Vector3.up;
+            return;
+        }
+
+        // wasGroundedLastTick still holds last tick's value here (it's reassigned at the end of FixedTick).
+        // While grounded we extend the cast so a momentary overshoot on a slope can't drop grounding.
+        float distance =
+            stateStorage.GetGroundCheckDistance()
+            + (wasGroundedLastTick ? groundStickDistance : 0f);
+
+        if (
+            Physics.Raycast(
+                rb.position,
+                Vector3.down,
+                out RaycastHit hit,
+                distance,
+                groundAndBlockingLayers
+            )
+        )
+        {
+            isGrounded = true;
+            groundNormal = hit.normal;
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+            isOnSlope = angle > slopeAngleThreshold && angle <= maxSlopeAngle;
+        }
+        else
+        {
+            isGrounded = false;
+            isOnSlope = false;
+            groundNormal = Vector3.up;
+        }
+    }
+
     private Vector3 HandleMovementWithRaycasts(Vector3 delta)
     {
         Vector3 deltaNormalized = delta.normalized;
         rayLength = delta.magnitude;
-
-        LayerMask blockingLayers = config.CubeColliderLayerMask | config.SlopeColliderLayerMask;
 
         Vector3 perpendicular = Vector3.Cross(deltaNormalized, Vector3.up).normalized;
         Vector3 leftOrigin = rb.position - perpendicular * capsuleRadius;
@@ -208,7 +283,7 @@ public class MovementView : MonoBehaviour
 
         foreach (var (origin, dir) in rays)
         {
-            if (Physics.Raycast(origin, dir, out RaycastHit h, rayLength, blockingLayers))
+            if (Physics.Raycast(origin, dir, out RaycastHit h, rayLength, groundAndBlockingLayers))
             {
                 if (h.distance < closest)
                 {
@@ -238,7 +313,7 @@ public class MovementView : MonoBehaviour
         Collider[] overlaps = Physics.OverlapSphere(
             targetPosition,
             capsuleRadius,
-            config.CubeColliderLayerMask | config.SlopeColliderLayerMask
+            groundAndBlockingLayers
         );
 
         foreach (Collider other in overlaps)
@@ -270,6 +345,15 @@ public class MovementView : MonoBehaviour
     {
         if (rb == null || !isInitialized)
             return;
+
+        // Ground check ray
+        Gizmos.color = isOnSlope ? Color.red : (isGrounded ? Color.green : Color.gray);
+        Gizmos.DrawLine(
+            rb.position,
+            rb.position + Vector3.down * stateStorage.GetGroundCheckDistance()
+        );
+        if (isGrounded)
+            Gizmos.DrawLine(rb.position, rb.position + groundNormal);
 
         Vector3 deltaNormalized = new Vector3(
             currentDirection.x,
