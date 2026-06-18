@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 165549881835962931}
   - component: {fileID: 4760017420091117616}
   - component: {fileID: -3679336093027539435}
+  - component: {fileID: 2037070799481181606}
   m_Layer: 0
   m_Name: ServerPlayerComponents
   m_TagString: Untagged
@@ -92,10 +93,10 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::PlayerInteractSystem
   config: {fileID: 11400000, guid: fbedb78c88a09f27b94bca4468980a41, type: 2}
+  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 1024
-  logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
 --- !u!114 &1850319690480553907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,3 +159,15 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.ChatSystem
   logger: {fileID: 11400000, guid: e982b7aca37827bb2860d63b6041225c, type: 2}
+--- !u!114 &2037070799481181606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056940003155735034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e323e84a0cf7e218baf38ce72cbb8b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Server::FTR.Gameplay.Server.Characters.Systems.StaminaSystem

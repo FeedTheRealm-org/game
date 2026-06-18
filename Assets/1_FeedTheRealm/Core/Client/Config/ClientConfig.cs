@@ -12,5 +12,8 @@ namespace FTR.Core.Client.Config
 
         [Header("Movement Correction")]
         public float MovementCorrectionTolerance = 3f;
+        public float FollowSpeed = 10f;
+        public float ErrorMargin = 0.001f;
+        public float CorrectionSpeed = 10f;
     }
 }

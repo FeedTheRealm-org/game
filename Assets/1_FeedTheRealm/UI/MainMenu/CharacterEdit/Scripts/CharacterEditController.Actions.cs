@@ -832,7 +832,6 @@ public partial class CharacterEditController
         }
 
         logger?.Log("Failed to save character info", this, Logging.LogType.Error);
-        ShowToastError("Failed to update character info.");
     }
 
     private void applyPersistenceData(API.CharacterInfoResponse data)

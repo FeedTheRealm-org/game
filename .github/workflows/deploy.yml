@@ -1,4 +1,5 @@
 name: Deploy
+
 on:
   workflow_call:
     secrets:
@@ -10,44 +11,82 @@ on:
         required: true
       ECR_REPOSITORY:
         required: true
-      INSTANCE_IDS:
+      WEBHOOK_AUDIENCE:
         required: true
-    inputs:
+      WEBHOOK_BASE_URL:
+        required: true
+    outputs:
       image_tag:
-        required: true
-        type: string
+        value: ${{ jobs.build.outputs.image_tag }}
+
+permissions:
+  contents: read
+  packages: read
+  id-token: write # OIDC required
+
+env:
+  IMAGE_NAME: ftr-server
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
-    permissions:
-      id-token: write
-      contents: read
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
 
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare image variables
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          GHCR_IMAGE="ghcr.io/${OWNER}/${{ env.IMAGE_NAME }}:latest"
+
+          echo "OWNER=$OWNER" >> $GITHUB_ENV
+          echo "GHCR_IMAGE=$GHCR_IMAGE" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        run: |
+          GHCR_USER="${{ github.actor }}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+      - name: Pull image from GHCR
+        run: |
+          docker pull "$GHCR_IMAGE"
+
+      - name: Set Image Tag for ECR
+        id: tag
+        run: echo "image_tag=latest" >> $GITHUB_OUTPUT
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy ftr-server via SSM # TODO: change when adding nomad
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Tag & Push to ECR
         run: |
-          aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --instance-ids ${{ secrets.INSTANCE_IDS }} \
-            --comment "Deploy ftr-server" \
-            --parameters '{"commands": [
-              "set -e",
-              "SERVICE=ftr-server",
-              "IMAGE=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}",
-              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-              "docker stop $SERVICE || true",
-              "docker rm $SERVICE || true",
-              "docker image prune -af || true",
-              "docker pull $IMAGE",
-              "aws ssm get-parameters-by-path --path \"/ftr-server/\" --with-decryption --region ${{ secrets.AWS_REGION }} --query \"Parameters[*].[Name,Value]\" --output text | sed \"s#/ftr-server/##g; s#\\t#=#g\" > /tmp/ftr_server_env",
-              "docker run -d --restart always --name $SERVICE -p 10000:7777/udp --env-file /tmp/ftr_server_env $IMAGE",
-              "rm /tmp/ftr_server_env"
-            ]}'
+          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.tag.outputs.image_tag }}
+
+          docker tag "$GHCR_IMAGE" "$IMAGE_URI"
+          docker push "$IMAGE_URI"
+
+      - name: Call updated-server webhook
+        run: |
+          set -euo pipefail
+
+          TOKEN=$(curl --fail-with-body -sS \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ secrets.WEBHOOK_AUDIENCE }}" \
+            | jq -r '.value')
+
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "Failed to fetch OIDC token" >&2
+            exit 1
+          fi
+
+          curl --fail-with-body -sS -X POST "${{ secrets.WEBHOOK_BASE_URL }}/world/orchestrator/webhook/servers/update" \
+            -H "Authorization: Bearer $TOKEN"

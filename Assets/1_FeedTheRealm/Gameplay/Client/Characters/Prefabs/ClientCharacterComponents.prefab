@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 6878487654893383278}
   - component: {fileID: 1049393094490162525}
   - component: {fileID: 8113882516953622363}
-  - component: {fileID: 5535709811406022713}
   - component: {fileID: -4974415550214178087}
   - component: {fileID: 2992336374001346032}
   m_Layer: 7
@@ -98,6 +97,8 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementView
   animator: {fileID: 1507848899257751022}
+  footstepInterval: 0.35
+  repeatFootsteps: 1
 --- !u!114 &6878487654893383278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,8 +126,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::AttackView
   animator: {fileID: 1507848899257751022}
-  attackSoundDelay: 0.3
-  attackSoundVolume: 1
 --- !u!114 &8113882516953622363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,18 +139,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::DashView
   animator: {fileID: 1507848899257751022}
---- !u!114 &5535709811406022713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418397613159891299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3be4ebc74e54412489fb9b7483149de2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: FTR.Gameplay.Client::StaminaView
 --- !u!114 &-4974415550214178087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,8 +152,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.Gameplay.Client::HealthView
   animator: {fileID: 1507848899257751022}
-  hitSoundDelay: 0.25
-  hitSoundVolume: 1
   isMaxHealthInitialized: 0
 --- !u!114 &2992336374001346032
 MonoBehaviour:
