@@ -1,3 +1,4 @@
+using FTR.Core.Common.EventChannels;
 using FTRShared.Runtime.Models.Settings;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace FTR.Core.Client.Settings
         public float GlobalVolume { get; set; } = 1f;
         public float MusicVolume { get; set; } = 1f;
         public float SFXVolume { get; set; } = 1f;
+        public bool ShowPerformanceStats { get; set; } = false;
         public bool IsMuted { get; set; } = false;
 
         public int ResolutionWidth { get; set; }
@@ -19,6 +21,9 @@ namespace FTR.Core.Client.Settings
         public bool IsCachingEnabled { get; set; } = true;
 
         private SettingsRepository _repository;
+
+        [SerializeField]
+        private PerformanceStatsToggleEvent performanceStatsToggleEvent;
 
         private void OnEnable() => _repository = new SettingsRepository();
 
@@ -37,6 +42,8 @@ namespace FTR.Core.Client.Settings
                 RefreshRate = Screen.currentResolution.refreshRateRatio;
                 IsFullscreen = Screen.fullScreen;
                 IsCachingEnabled = true;
+                ShowPerformanceStats = false;
+                performanceStatsToggleEvent.Raise(ShowPerformanceStats);
                 return;
             }
 
@@ -49,6 +56,9 @@ namespace FTR.Core.Client.Settings
             RefreshRate = data.refreshRate.ToRefreshRate();
             IsFullscreen = data.isFullscreen;
             IsCachingEnabled = data.enableCaching;
+            ShowPerformanceStats = data.showPerformanceStats;
+
+            performanceStatsToggleEvent.Raise(ShowPerformanceStats);
         }
 
         public void SaveSettings()
@@ -65,6 +75,7 @@ namespace FTR.Core.Client.Settings
                     refreshRate = RefreshRateData.FromRefreshRate(RefreshRate),
                     isFullscreen = IsFullscreen,
                     enableCaching = IsCachingEnabled,
+                    showPerformanceStats = ShowPerformanceStats,
                 }
             );
 
@@ -87,6 +98,7 @@ namespace FTR.Core.Client.Settings
             {
                 Screen.fullScreen = IsFullscreen;
             }
+            performanceStatsToggleEvent.Raise(ShowPerformanceStats);
         }
 
         public void ApplyAudioListener()

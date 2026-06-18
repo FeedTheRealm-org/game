@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa8a950eb4af930999f4af3d59e1b9f7, type: 3}
   m_Name: SettingsManager
   m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.Settings.SettingsManager
+  performanceStatsToggleEvent: {fileID: 11400000, guid: 7b095c7af6080a2b19b96abc17485188, type: 2}
