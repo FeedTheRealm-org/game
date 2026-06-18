@@ -173,6 +173,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (!currentStrategy.CanExecute(ctx, cooldowns, out float strategyRemaining))
                 return;
 
+            stateStorage.RaiseStaminaRecoveryStop();
             currentStrategy.RecordCooldown(ctx, cooldowns, activeSlot);
             currentStrategy.Execute(ctx);
         }

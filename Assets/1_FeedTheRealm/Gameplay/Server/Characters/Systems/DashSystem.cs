@@ -11,7 +11,7 @@ using VContainer;
 
 namespace FTR.Gameplay.Server.Characters.Systems
 {
-    public class DashSystem : MonoBehaviour, IGameTickable
+    public class DashSystem : MonoBehaviour
     {
         [SerializeField]
         private GameTickEvent gameTickEvent;
@@ -29,12 +29,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private bool isDead = false;
         private CharacterStateStorage stateStorage;
 
-        private float staminaRecoveryTimer = 0f;
-
         private void OnDisable()
         {
-            if (gameTickEvent != null)
-                gameTickEvent.OnRaised -= GameTick;
             if (stateStorage != null)
             {
                 stateStorage.OnDeath -= HandleDeath;
@@ -49,7 +45,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             this.stateStorage = stateStorage;
             stateStorage.SetStamina(config.MaxStamina);
             isInitialized = true;
-            gameTickEvent.OnRaised += GameTick;
             stateStorage.OnDeath += HandleDeath;
             stateStorage.OnRespawn += HandleRespawn;
         }
@@ -85,7 +80,8 @@ namespace FTR.Gameplay.Server.Characters.Systems
             if (force == Vector3.zero)
                 return;
 
-            stateStorage.SetStamina(stateStorage.Stamina - config.DashStaminaCost);
+            stateStorage.RaiseStaminaRecoveryStop();
+            stateStorage.RaiseStaminaConsume(config.DashStaminaCost);
             stateStorage.IsMovementBlocked = true;
             StartCoroutine(DashRoutine(force));
 
@@ -125,27 +121,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
             ApplyDashing(force); // apply instant burst
             yield return new WaitForSeconds(config.DashDuration);
             StopDash(); // stop dash instantly for "snappy" feel
-        }
-
-        public void GameTick(float dt)
-        {
-            // TODO(optimization): can we avoid checking this every tick? -> Coroutine
-            if (!isInitialized || isDashing)
-                return;
-
-            if (stateStorage.Stamina >= config.MaxStamina)
-                return;
-
-            staminaRecoveryTimer += dt;
-            if (staminaRecoveryTimer >= config.StaminaRecoveryRate)
-            {
-                staminaRecoveryTimer = 0f;
-                float newStamina = Mathf.Min(
-                    stateStorage.Stamina + config.StaminaRecoveryAmount,
-                    config.MaxStamina
-                );
-                stateStorage.SetStamina(newStamina);
-            }
         }
     }
 }

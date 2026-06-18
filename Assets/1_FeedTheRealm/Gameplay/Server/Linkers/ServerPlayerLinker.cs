@@ -77,6 +77,7 @@ public class ServerPlayerLinker : PlayerLinker
         var questSystem = playerComponents.GetComponent<QuestSystem>();
         var teleportSystem = playerComponents.GetComponent<TeleportSystem>();
         var chatSystem = playerComponents.GetComponent<ChatSystem>();
+        var staminaSystem = playerComponents.GetComponent<StaminaSystem>();
 
         interactSystem.Initialize(netId, world, networkAdapter.netId);
         questSystem.Initialize(netId, world, networkAdapter.netId);
@@ -97,6 +98,7 @@ public class ServerPlayerLinker : PlayerLinker
             questSystem
         );
         chatSystem.Initialize(netId, world);
+        staminaSystem.Initialize(stateStorage);
 
         teleportSystem.Initialize(sharedSystems.Movement, portalRegistry, world, netId);
 

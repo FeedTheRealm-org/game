@@ -56,6 +56,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         public event Action<Vector3> OnPositionCorrected;
         public event Action<Vector3> OnDirectionChanged;
         public event Action<float> OnStaminaChanged;
+        public event Action<float> OnStaminaConsume;
+        public event Action OnStaminaRecoveryStop;
         public event Action<float> OnHealthChanged;
         public event Action<string> OnCharacterIdChanged;
         public event Action<string> OnEquippedItemChanged;
@@ -102,6 +104,18 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         {
             equippedItemId = newEquippedItemId;
             OnEquippedItemChanged?.Invoke(newEquippedItemId);
+        }
+
+        [Server]
+        public void RaiseStaminaConsume(float consumeAmount)
+        {
+            OnStaminaConsume?.Invoke(consumeAmount);
+        }
+
+        [Server]
+        public void RaiseStaminaRecoveryStop()
+        {
+            OnStaminaRecoveryStop?.Invoke();
         }
 
         /* --- SyncVar hooks --- */
