@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client;
 using FTR.Core.Client.EntryPoints;
-using FTR.Core.Client.EventChannels.Chest;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTRShared.Runtime.Core.Cache;
@@ -31,12 +31,13 @@ namespace FTR.Gameplay.Environment.Chest
         private CacheManager cacheManager;
 
         [Inject]
-        private ChestOpenedEvent chestOpenedEvent;
+        private ClientPrefabProvider prefabProvider;
 
         private static readonly Dictionary<string, GameObject> modelCache = new();
 
         private GameObject openChestVisual;
         private GameObject closedChestVisual;
+        private GameObject chestEffectInstance;
         private ChestStateStorage chestStateStorage;
 
         public async UniTask Initialize(ChestStateStorage chestStateStorage)
@@ -67,6 +68,8 @@ namespace FTR.Gameplay.Environment.Chest
 
             modelsInfo.Clear();
             ClearModelCache();
+
+            initializeVfx();
         }
 
         private void ToggleChestState(bool isOpen)
@@ -77,7 +80,8 @@ namespace FTR.Gameplay.Environment.Chest
             closedChestVisual.SetActive(!isOpen);
             if (isOpen)
             {
-                chestOpenedEvent?.Raise();
+                //chestOpenedEvent?.Raise();
+                PlayEffectChestOpened();
                 soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.ChestOpen, transform.position);
             }
             else
@@ -143,6 +147,20 @@ namespace FTR.Gameplay.Environment.Chest
         {
             if (chestStateStorage != null)
                 chestStateStorage.OnChestStateChanged -= ToggleChestState;
+        }
+
+        void initializeVfx()
+        {
+            chestEffectInstance = Instantiate(prefabProvider.ChestOpenEffectPrefab, transform);
+            chestEffectInstance.transform.localPosition = new Vector3(0, 1.5f, 0);
+            chestEffectInstance.transform.localScale = new Vector3(3f, 3f, 3f);
+            chestEffectInstance.SetActive(false);
+        }
+
+        private void PlayEffectChestOpened()
+        {
+            chestEffectInstance.SetActive(true);
+            chestEffectInstance.GetComponent<ParticleSystem>().Play();
         }
     }
 }

@@ -50,5 +50,6 @@ namespace FTR.Core.Client
         public GameObject QuestSignPrefab;
         public GameObject QuestHaloPrefab;
         public GameObject ChestOpenEffectPrefab;
+        public GameObject DashEffectPrefab;
     }
 }

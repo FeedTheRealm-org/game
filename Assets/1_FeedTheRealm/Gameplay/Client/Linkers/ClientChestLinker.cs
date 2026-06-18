@@ -33,6 +33,5 @@ public class ClientChestLinker : ChestLinker
         resolver.InjectGameObject(clientChestComponents);
         chestController.Initialize(chestStateStorage);
         _ = chestView.Initialize(chestStateStorage);
-        _ = chestEffectView.Initialize();
     }
 }
