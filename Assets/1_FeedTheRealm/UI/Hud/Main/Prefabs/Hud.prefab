@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5042418126011354294}
   - component: {fileID: -726580152348399193}
+  - component: {fileID: 9095529959548396104}
   - component: {fileID: 4687081578167197889}
   - component: {fileID: 5715744494289441919}
   - component: {fileID: -4012475295093347594}
@@ -61,6 +62,19 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &9095529959548396104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8198765365136042446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3cb416d82c0b835eb6c901d1d98c3ed, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.Hud.Main.PerformanceStatsController
+  logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
 --- !u!114 &4687081578167197889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,10 +114,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: FTR.UI.Client::FastSlotUIController
   inputReader: {fileID: 11400000, guid: a798eec622f5a88f0bdeb1b503acab8f, type: 2}
-  defaultSlotSprite: {fileID: 21300000, guid: 4b3d2095baccc2041b973b66b786b9d0, type: 3}
-  selectedSlotSprite: {fileID: 21300000, guid: 6b8728d20b5d4c540b335c3789517218, type: 3}
-  hiddenHUDSlotSprite: {fileID: 21300000, guid: 711fb7a2b8e1ff54da609e52c3e729b8, type: 3}
-  itemAssetsService: {fileID: 11400000, guid: 16d0e1de7dfc30f35ba7c3a139f2ea79, type: 2}
 --- !u!114 &-2726370582319225133
 MonoBehaviour:
   m_ObjectHideFlags: 0
