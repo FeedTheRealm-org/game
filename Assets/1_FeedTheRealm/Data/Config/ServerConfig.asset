@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: ServerConfig
   m_EditorClassIdentifier: FTR.Core.Server::FTR.Core.Server.Config.ServerConfig
   EnvFilePath: .env
-  LoadFromEnvFile: 1
+  LoadFromEnvFile: 0
   LoadEnvVars: 1
   WorldId: d7ac68df-1ad0-42ff-8905-36b94e068d7d
   ZoneId: 1
   IsTestWorld: 0
   SendPlayerCountIntervalSeconds: 120
-  PersistToDatabase: 0
+  PersistToDatabase: 1
   AutoSaveIntervalSeconds: 30
   PlayerLayer:
     serializedVersion: 2
