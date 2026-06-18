@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using API;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EntryPoints;
+using FTR.Core.Client.EventChannels.Chest;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Chest;
 using FTRShared.Runtime.Core.Cache;
@@ -28,6 +29,9 @@ namespace FTR.Gameplay.Environment.Chest
 
         [Inject]
         private CacheManager cacheManager;
+
+        [Inject]
+        private ChestOpenedEvent chestOpenedEvent;
 
         private static readonly Dictionary<string, GameObject> modelCache = new();
 
@@ -72,7 +76,10 @@ namespace FTR.Gameplay.Environment.Chest
             openChestVisual.SetActive(isOpen);
             closedChestVisual.SetActive(!isOpen);
             if (isOpen)
+            {
+                chestOpenedEvent?.Raise();
                 soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.ChestOpen, transform.position);
+            }
             else
                 soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.ChestClose, transform.position);
         }

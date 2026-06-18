@@ -22,15 +22,17 @@ public class ClientChestLinker : ChestLinker
 
     public override void Link(GameObject gameObject)
     {
-        var clientPortalComponents = Object.Instantiate(
+        var clientChestComponents = Object.Instantiate(
             prefabProvider.chestLinkComponents,
             gameObject.transform
         );
-        var chestView = clientPortalComponents.GetComponent<ChestView>();
+        var chestView = clientChestComponents.GetComponent<ChestView>();
         var chestController = gameObject.GetComponent<ChestController>();
+        var chestEffectView = clientChestComponents.GetComponent<ChestEffectView>();
         var chestStateStorage = gameObject.GetComponent<ChestStateStorage>();
-        resolver.InjectGameObject(clientPortalComponents);
+        resolver.InjectGameObject(clientChestComponents);
         chestController.Initialize(chestStateStorage);
         _ = chestView.Initialize(chestStateStorage);
+        _ = chestEffectView.Initialize();
     }
 }

@@ -49,5 +49,6 @@ namespace FTR.Core.Client
         public GameObject GoldCoinPrefab;
         public GameObject QuestSignPrefab;
         public GameObject QuestHaloPrefab;
+        public GameObject ChestOpenEffectPrefab;
     }
 }
