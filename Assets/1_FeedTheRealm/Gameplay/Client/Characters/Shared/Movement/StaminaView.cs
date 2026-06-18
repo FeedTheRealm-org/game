@@ -29,7 +29,7 @@ public class StaminaView : MonoBehaviour
 
     private void OnStaminaChanged(float value)
     {
-        if (!stateStorage.isLocalPlayer)
+        if (!stateStorage.IsLocalPlayer)
             return;
         staminaChangedEvent.Raise(value);
     }
