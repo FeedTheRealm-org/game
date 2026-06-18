@@ -178,6 +178,7 @@ public class ClientPlayerLinker : PlayerLinker
             var inventoryController = playerComponents.AddComponent<InventoryController>();
             var inventoryView = playerComponents.AddComponent<InventoryView>();
             var useView = playerComponents.GetComponent<UseView>();
+            var staminaView = playerComponents.AddComponent<StaminaView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
@@ -195,6 +196,7 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(questView);
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);
+            resolver.Inject(staminaView);
 
             resolver.Inject(goldView);
             resolver.Inject(goldController);
@@ -202,6 +204,7 @@ public class ClientPlayerLinker : PlayerLinker
 
             resolver.Inject(chatController);
 
+            staminaView.Initialize(stateStorage);
             inventoryController.Initialize(networkAdapter);
             inventoryView?.Initialize(inventoryState, networkEventRouter);
             goldView?.Initialize(goldState, networkEventRouter);

@@ -38,10 +38,8 @@ namespace FTR.Gameplay.Client.Linkers
             var movementView = characterComponents.GetComponent<MovementView>();
             var useView = characterComponents.GetComponent<UseView>();
             var dashView = characterComponents.GetComponent<DashView>();
-            var staminaView = characterComponents.GetComponent<StaminaView>();
             var healthView = characterComponents.GetComponent<HealthView>();
             var spriteManager = characterComponents.GetComponentInChildren<SpriteManager>();
-
             var movementController = characterComponents.GetComponent<MovementController>();
             var useController = characterComponents.GetComponent<UseController>();
 
@@ -49,7 +47,6 @@ namespace FTR.Gameplay.Client.Linkers
             movementView.Initialize(rb, stateStorage);
             useView.Initialize(networkEventRouter, stateStorage, spriteManager);
             dashView.Initialize(rb, stateStorage, networkEventRouter);
-            staminaView.Initialize(stateStorage);
             healthView?.Initialize(stateStorage);
 
             movementController.Initialize(networkAdapter);

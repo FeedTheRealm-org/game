@@ -81,7 +81,11 @@ namespace FTR.Core.Server.Config
         public float DashStaminaCost => dashStaminaCost;
 
         [SerializeField]
-        private float staminaRecoveryRate = 1f;
+        private float staminaRecoveryDelay = 4f;
+        public float StaminaRecoveryDelay => staminaRecoveryDelay;
+
+        [SerializeField]
+        private float staminaRecoveryRate = 0.2f;
         public float StaminaRecoveryRate => staminaRecoveryRate;
 
         [SerializeField]
