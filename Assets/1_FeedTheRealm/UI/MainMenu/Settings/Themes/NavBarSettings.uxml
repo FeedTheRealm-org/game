@@ -1,62 +1,91 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:ftr="FeedTheRealm.UI.Common" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/Settings/Themes/NavBarSettings.uss?fileID=7433441132597879392&amp;guid=c46cb9dbd20098837a51475be4f20d0d&amp;type=3#NavBarSettings"/>
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=7be628a0b2142aa54b5c8f517b8ae6b3&amp;type=3#SettingsMenu"/>
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements"
+    xmlns:ftr="FeedTheRealm.UI.Common"
+    noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+    editor-extension-mode="False">
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/Settings/Themes/NavBarSettings.uss?fileID=7433441132597879392&amp;guid=c46cb9dbd20098837a51475be4f20d0d&amp;type=3#NavBarSettings" />
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown" />
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=7be628a0b2142aa54b5c8f517b8ae6b3&amp;type=3#SettingsMenu" />
     <ui:VisualElement name="NavBarSettings" class="hpset-overlay">
-        <ui:Label text="" name="NavbarSpace"/>
+        <ui:Label text="" name="NavbarSpace" />
         <ui:VisualElement name="HPSettings_Modal" class="hpset-modal">
             <ui:VisualElement name="HPSettings_Sidebar" class="hpset-sidebar">
-                <ui:Label text="SETTINGS" class="hpset-title"/>
-                <ui:VisualElement class="hpset-divider"/>
-                <ui:Button text="Display" name="HPSettings_DisplayButton" class="nav-button nav-button--selected"/>
-                <ui:Button text="Sound" name="HPSettings_SoundButton" class="nav-button"/>
-                <ui:Button text="Cache" name="HPSettings_CacheButton" class="nav-button"/>
-                <ui:VisualElement class="hpset-spacer"/>
-                <ui:VisualElement class="hpset-divider"/>
-                <ui:Button text="Log Out" name="HPSettings_LogoutButton" class="nav-button nav-button--logout"/>
-                <ui:Button text="Exit Game" name="HPSettings_ExitButton" class="nav-button nav-button--danger"/>
+                <ui:Label text="SETTINGS" class="hpset-title" />
+                <ui:VisualElement class="hpset-divider" />
+                <ui:Button text="Display" name="HPSettings_DisplayButton"
+                    class="nav-button nav-button--selected" />
+                <ui:Button text="Sound" name="HPSettings_SoundButton" class="nav-button" />
+                <ui:Button text="System" name="HPSettings_SystemButton" class="nav-button" />
+                <ui:VisualElement class="hpset-spacer" />
+                <ui:VisualElement class="hpset-divider" />
+                <ui:Button text="Log Out" name="HPSettings_LogoutButton"
+                    class="nav-button nav-button--logout" />
+                <ui:Button text="Exit Game" name="HPSettings_ExitButton"
+                    class="nav-button nav-button--danger" />
             </ui:VisualElement>
             <ui:VisualElement name="HPSettings_ContentPanel" class="hpset-content-panel">
                 <ui:ScrollView name="HPSettings_DisplayContent" class="hpset-section">
-                    <ui:Label text="Display" class="hpset-section-title"/>
-                    <ui:VisualElement class="hpset-section-divider"/>
+                    <ui:Label text="Display" class="hpset-section-title" />
+                    <ui:VisualElement class="hpset-section-divider" />
                     <ui:VisualElement class="setting-row">
-                        <ftr:CustomDropdown name="HPSettings_ResolutionSelect" label="Resolution" class="custom-dropdown setting-dropdown"/>
+                        <ftr:CustomDropdown name="HPSettings_ResolutionSelect" label="Resolution"
+                            class="custom-dropdown setting-dropdown" />
                     </ui:VisualElement>
                     <ui:VisualElement class="setting-row">
-                        <ui:Toggle label="Fullscreen" toggle-on-label-click="true" value="true" name="HPSettings_FullscreenToggle" class="setting-toggle"/>
-                    </ui:VisualElement>
-                </ui:ScrollView>
-                <ui:ScrollView name="HPSettings_SoundContent" class="hpset-section hpset-section--hidden">
-                    <ui:Label text="Sound" class="hpset-section-title"/>
-                    <ui:VisualElement class="hpset-section-divider"/>
-                    <ui:VisualElement class="setting-row">
-                        <GoldSlider label="Global Volume" name="HPSettings_VolumeSlider" low-value="0" high-value="1" value="1" class="setting-slider"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="setting-row">
-                        <GoldSlider label="Music Volume" name="HPSettings_MusicVolumeSlider" low-value="0" high-value="1" value="1" class="setting-slider"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="setting-row">
-                        <GoldSlider label="SFX Volume" name="HPSettings_SFXVolumeSlider" low-value="0" high-value="1" value="1" class="setting-slider"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="setting-row">
-                        <ui:Toggle label="Mute Sound" name="HPSettings_MuteToggle" value="false" class="setting-toggle"/>
+                        <ui:Toggle label="Fullscreen" toggle-on-label-click="true" value="true"
+                            name="HPSettings_FullscreenToggle" class="setting-toggle" />
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:ScrollView name="HPSettings_CacheContent" class="hpset-section hpset-section--hidden">
-                    <ui:Label text="Cache" class="hpset-section-title"/>
-                    <ui:VisualElement class="hpset-section-divider"/>
+                <ui:ScrollView name="HPSettings_SoundContent"
+                    class="hpset-section hpset-section--hidden">
+                    <ui:Label text="Sound" class="hpset-section-title" />
+                    <ui:VisualElement class="hpset-section-divider" />
                     <ui:VisualElement class="setting-row">
-                        <ui:Toggle label="Enable Caching" name="HPSettings_CacheEnabledToggle" value="true" class="setting-toggle"/>
+                        <GoldSlider label="Global Volume" name="HPSettings_VolumeSlider"
+                            low-value="0" high-value="1" value="1" class="setting-slider" />
                     </ui:VisualElement>
                     <ui:VisualElement class="setting-row">
-                        <ui:Label text="Clear cached models and images to free storage." class="hpset-cache-text"/>
+                        <GoldSlider label="Music Volume" name="HPSettings_MusicVolumeSlider"
+                            low-value="0" high-value="1" value="1" class="setting-slider" />
                     </ui:VisualElement>
                     <ui:VisualElement class="setting-row">
-                        <ui:Button text="Clear Cache" name="HPSettings_ClearCacheButton" class="hpset-action-button"/>
+                        <GoldSlider label="SFX Volume" name="HPSettings_SFXVolumeSlider"
+                            low-value="0" high-value="1" value="1" class="setting-slider" />
                     </ui:VisualElement>
                     <ui:VisualElement class="setting-row">
-                        <ui:Label text="" name="HPSettings_CacheStatus" class="hpset-cache-feedback"/>
+                        <ui:Toggle label="Mute Sound" name="HPSettings_MuteToggle" value="false"
+                            class="setting-toggle" />
+                    </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:ScrollView name="HPSettings_SystemContent"
+                    class="hpset-section hpset-section--hidden">
+                    <ui:Label text="System" class="hpset-section-title" />
+                    <ui:VisualElement class="hpset-section-divider" />
+
+                    <ui:VisualElement class="setting-row">
+                        <ui:Toggle label="Enable Caching" name="HPSettings_CacheEnabledToggle"
+                            value="true" class="setting-toggle" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="Clear cached models and images to free storage."
+                            class="hpset-cache-text" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Button text="Clear Cache" name="HPSettings_ClearCacheButton"
+                            class="hpset-action-button" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="" name="HPSettings_CacheStatus" class="hpset-cache-feedback" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="hpset-section-divider hpset-section-divider--minor" />
+
+                    <ui:VisualElement class="setting-row hpset-version-row">
+                        <ui:Label text="Game Version" class="hpset-version-label" />
+                        <ui:Label text="" name="HPSettings_GameVersionLabel"
+                            class="hpset-version-value" />
                     </ui:VisualElement>
                 </ui:ScrollView>
             </ui:VisualElement>

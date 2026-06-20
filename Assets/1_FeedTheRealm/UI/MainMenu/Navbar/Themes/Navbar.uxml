@@ -1,11 +1,29 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/Navbar/Themes/Navbar.uss?fileID=7433441132597879392&amp;guid=99a249eefb52fd4ebaeea9e5c2481a72&amp;type=3#Navbar"/>
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+    editor-extension-mode="False">
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/MainMenu/Navbar/Themes/Navbar.uss?fileID=7433441132597879392&amp;guid=99a249eefb52fd4ebaeea9e5c2481a72&amp;type=3#Navbar" />
     <ui:VisualElement name="Body" class="navbar">
         <ui:VisualElement name="Actions" class="navbar-actions">
-            <ui:Button text="" name="HomeButton" class="navbar-button" style="background-image: url(&quot;project://database/Assets/1_FeedTheRealm/Icons/Home.png?fileID=2800000&amp;guid=d2e015435276d56eeb1d6826518a9356&amp;type=3#Home&quot;); background-size: 43px 43px;"/>
-            <ui:Button text="" name="ProfileButton" class="navbar-button" style="background-image: url(&quot;project://database/Assets/HeroEditor4D/HeroEditor4D/Common/Images/Icons/SimpleSignIn.png?fileID=2800000&amp;guid=20bd088f75634584ab4129268b2e8938&amp;type=3#SimpleSignIn&quot;); background-size: 35px 35px;"/>
-            <ui:Button text="" name="GemStoreButton" class="navbar-button" style="background-image: url(&quot;project://database/Assets/1_FeedTheRealm/Icons/Gem.png?fileID=2800000&amp;guid=b428aace339279b65add2b2163d715c8&amp;type=3#Gem&quot;); background-size: 40px 40px;"/>
-            <ui:Button text="" name="SettingsButton" class="navbar-button" style="background-image: url(&quot;project://database/Assets/HeroEditor4D/HeroEditor4D/Common/Images/Icons/Settings.png?fileID=2800000&amp;guid=e1b266934c534d88ac177f0963fa3001&amp;type=3#Settings&quot;); background-size: 35px 35px;"/>
+            <ui:Button text="" name="HomeButton" class="navbar-button"
+                style="background-image: url(&quot;project://database/Assets/1_FeedTheRealm/Icons/Home.png?fileID=2800000&amp;guid=d2e015435276d56eeb1d6826518a9356&amp;type=3#Home&quot;); background-size: 43px 43px;" />
+            <ui:Button text="" name="ProfileButton" class="navbar-button"
+                style="background-image: url(&quot;project://database/Assets/HeroEditor4D/HeroEditor4D/Common/Images/Icons/SimpleSignIn.png?fileID=2800000&amp;guid=20bd088f75634584ab4129268b2e8938&amp;type=3#SimpleSignIn&quot;); background-size: 35px 35px;" />
+            <ui:Button text="" name="GemStoreButton" class="navbar-button"
+                style="background-image: url(&quot;project://database/Assets/1_FeedTheRealm/Icons/Gem.png?fileID=2800000&amp;guid=b428aace339279b65add2b2163d715c8&amp;type=3#Gem&quot;); background-size: 40px 40px;" />
+            <ui:Button text="" name="SettingsButton" class="navbar-button"
+                style="background-image: url(&quot;project://database/Assets/HeroEditor4D/HeroEditor4D/Common/Images/Icons/Settings.png?fileID=2800000&amp;guid=e1b266934c534d88ac177f0963fa3001&amp;type=3#Settings&quot;); background-size: 35px 35px;" />
         </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="UpdateNotice" class="update-notice update-notice--hidden">
+        <ui:VisualElement name="UpdateNoticeIcon" class="update-notice-icon" />
+        <ui:VisualElement class="update-notice-content">
+            <ui:Label text="A new version is available." name="UpdateNoticeText"
+                class="update-notice-text" />
+            <ui:Button text="Download the latest version" name="UpdateNoticeLink"
+                class="update-notice-link" />
+        </ui:VisualElement>
+        <ui:Button text="✕" name="UpdateNoticeCloseButton" class="update-notice-close" />
     </ui:VisualElement>
 </ui:UXML>
