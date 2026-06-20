@@ -58,8 +58,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private Coroutine _autoAttackCoroutine;
         private Vector3 autoAttackTargetDirection = Vector3.zero;
 
-        // ── Initialization ────────────────────────────────────────────────────
-
         public void Initialize(
             uint netId,
             Rigidbody rb,
@@ -99,6 +97,23 @@ namespace FTR.Gameplay.Server.Characters.Systems
             stateStorage.OnRespawn += HandleRespawn;
         }
 
+        private void OnDestroy()
+        {
+            OnAttackRangeChanged -= UpdateAttackTriggerArea;
+
+            if (_attackTriggerArea != null)
+            {
+                _attackTriggerArea.OnPlayerEnter -= StartAutoAttacking;
+                _attackTriggerArea.OnPlayerExit -= PlayerLeftAutoAttackRange;
+            }
+
+            if (stateStorage != null)
+            {
+                stateStorage.OnDeath -= HandleDeath;
+                stateStorage.OnRespawn -= HandleRespawn;
+            }
+        }
+
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
         {
             _attackTriggerArea = attackTriggerArea;
@@ -126,6 +141,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private void HandleDeath()
         {
             isDead = true;
+            _playersInRange.Clear();
             if (_autoAttackCoroutine != null)
             {
                 StopCoroutine(_autoAttackCoroutine);
@@ -134,23 +150,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         }
 
         private void HandleRespawn() => isDead = false;
-
-        private void OnDestroy()
-        {
-            OnAttackRangeChanged -= UpdateAttackTriggerArea;
-
-            if (_attackTriggerArea != null)
-            {
-                _attackTriggerArea.OnPlayerEnter -= StartAutoAttacking;
-                _attackTriggerArea.OnPlayerExit -= PlayerLeftAutoAttackRange;
-            }
-
-            if (stateStorage != null)
-            {
-                stateStorage.OnDeath -= HandleDeath;
-                stateStorage.OnRespawn -= HandleRespawn;
-            }
-        }
 
         public void GameTick(float dt) { }
 
@@ -180,6 +179,9 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         public void StartAutoAttacking(Collider playerCollider)
         {
+            if (isDead)
+                return;
+
             if (playerCollider != null)
                 _playersInRange.Add(playerCollider);
 
@@ -201,7 +203,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
         private IEnumerator KeepAutoAttacking()
         {
-            while (_playersInRange.Count > 0)
+            while (!isDead && _playersInRange.Count > 0)
             {
                 _playersInRange.RemoveWhere(c => c == null || !c.gameObject.activeInHierarchy);
 
