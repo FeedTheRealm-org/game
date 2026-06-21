@@ -108,6 +108,9 @@ MonoBehaviour:
   initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
   logger: {fileID: 11400000, guid: 34662b9c76202ce968666f433ebcd891, type: 2}
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
+  homeScene:
+    sceneName: ClientEntryPoint
+    sceneAsset: {fileID: 102900000, guid: 6dcd719ab4493af08a3280356e946168, type: 3}
 --- !u!114 &304146126141291582
 MonoBehaviour:
   m_ObjectHideFlags: 0

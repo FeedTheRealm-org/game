@@ -17,10 +17,6 @@ using VContainer;
 
 public class SettingsMenuController : MonoBehaviour
 {
-    [Header("General settings")]
-    [SerializeField]
-    private SceneReference homeScene;
-
     [SerializeField]
     private Logging.Logger logger;
 
@@ -303,11 +299,7 @@ public class SettingsMenuController : MonoBehaviour
         ConfirmPopup?.Show(
             question: "Are you sure you want to go to the home screen?",
             title: "Return to Home",
-            onConfirm: () =>
-            {
-                onWorldLeaveEvent.Raise();
-                SceneManager.LoadScene(homeScene.SceneName);
-            }
+            onConfirm: () => onWorldLeaveEvent.Raise()
         );
     }
 

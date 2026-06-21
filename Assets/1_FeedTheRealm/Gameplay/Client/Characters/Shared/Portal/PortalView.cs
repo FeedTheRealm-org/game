@@ -7,6 +7,7 @@ using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Portal;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Enums;
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Client.Registry;
@@ -92,6 +93,7 @@ namespace FTR.Gameplay.Common.Characters.Shared.Portal
                     Debug.Log(
                         $"[PortalView] Teleporting to {content.PortalId} in zone {destinationZone}. Loading new scene."
                     );
+                    config.DisconnectionEvent = DisconnectionEvents.Teleport;
                     NetworkManager.singleton.StopClient();
                     worldSelector.SetSelectedZoneId(destinationZone);
                     teleportDataPersistence.PortalId = content.PortalId;
