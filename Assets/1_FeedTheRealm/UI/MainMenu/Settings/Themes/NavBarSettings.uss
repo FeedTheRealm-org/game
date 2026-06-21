@@ -12,18 +12,18 @@
 /* If SettingsMenu.uss is already loaded these vars are already defined;
    repeating them here is harmless and makes this file self-contained.  */
 .hpset-overlay {
-    --teal:          rgb(110, 255, 251);
-    --teal-dim:      rgba(110, 255, 251, 0.18);
-    --teal-strong:   rgba(110, 255, 251, 0.32);
-    --teal-hover:    rgba(110, 255, 251, 0.22);
-    --gold:          rgb(255, 210, 80);
-    --gold-dim:      rgba(255, 210, 80, 0.15);
-    --white:         rgb(255, 255, 255);
-    --white-soft:    rgba(255, 255, 255, 0.80);
-    --white-muted:   rgba(255, 255, 255, 0.45);
-    --darker:        rgba(0, 0, 0, 0.84);
-    --sidebar-bg:    rgba(0, 0, 0, 0.60);
-    --content-bg:    rgba(0, 0, 0, 0.38);
+    --teal: rgb(110, 255, 251);
+    --teal-dim: rgba(110, 255, 251, 0.18);
+    --teal-strong: rgba(110, 255, 251, 0.32);
+    --teal-hover: rgba(110, 255, 251, 0.22);
+    --gold: rgb(255, 210, 80);
+    --gold-dim: rgba(255, 210, 80, 0.15);
+    --white: rgb(255, 255, 255);
+    --white-soft: rgba(255, 255, 255, 0.80);
+    --white-muted: rgba(255, 255, 255, 0.45);
+    --darker: rgba(0, 0, 0, 0.84);
+    --sidebar-bg: rgba(0, 0, 0, 0.60);
+    --content-bg: rgba(0, 0, 0, 0.38);
 }
 
 /* ── Background: covers the full content area of the navbar ─────────────── */
@@ -43,44 +43,44 @@
 
 /* ── Two-column modal ─────────────────────────────────────────────────── */
 .hpset-modal {
-    flex-direction:   row;
-    flex-grow:        1;
+    flex-direction: row;
+    flex-grow: 1;
     background-color: var(--dark);
 }
 
 /* ── Left sidebar ─────────────────────────────────────────────────────── */
 .hpset-sidebar {
-    width:            240px;
-    min-width:        240px;
+    width: 240px;
+    min-width: 240px;
     background-color: var(--sidebar-bg);
-    flex-direction:   column;
-    align-items:      stretch;
-    padding-top:      32px;
-    padding-bottom:   24px;
-    padding-left:     0;
-    padding-right:    0;
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: 32px;
+    padding-bottom: 24px;
+    padding-left: 0;
+    padding-right: 0;
     border-right-width: 1px;
     border-right-color: var(--teal-dim);
 }
 
 .hpset-title {
-    font-size:           20px;
-    -unity-font-style:   bold;
-    color:               var(--teal);
-    -unity-text-align:   middle-center;
-    letter-spacing:      3px;
-    margin-bottom:       16px;
-    padding-left:        16px;
-    padding-right:       16px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: var(--teal);
+    -unity-text-align: middle-center;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .hpset-divider {
-    height:           1px;
+    height: 1px;
     background-color: var(--teal-dim);
-    margin-top:       4px;
-    margin-bottom:    12px;
-    margin-left:      16px;
-    margin-right:     16px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    margin-left: 16px;
+    margin-right: 16px;
 }
 
 .hpset-spacer {
@@ -89,50 +89,75 @@
 
 /* ── Right content panel ─────────────────────────────────────────────── */
 .hpset-content-panel {
-    flex-grow:        1;
+    flex-grow: 1;
     background-color: var(--content-bg);
 }
 
 /* ── Individual section (ScrollView) ─────────────────────────────────── */
 .hpset-section {
-    flex-grow:      1;
-    width:          100%;
-    height:         100%;
-    padding-top:    40px;
-    padding-right:  48px;
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    padding-top: 40px;
+    padding-right: 48px;
     padding-bottom: 40px;
-    padding-left:   48px;
+    padding-left: 48px;
 }
 
 .hpset-section--hidden {
     display: none;
 }
 
-.hpset-section > #unity-content-and-vertical-scroll-container {
-    width:  100%;
+.hpset-section>#unity-content-and-vertical-scroll-container {
+    width: 100%;
     height: 100%;
 }
-.hpset-section > #unity-content-and-vertical-scroll-container
-    > #unity-content-viewport {
+
+.hpset-section>#unity-content-and-vertical-scroll-container>#unity-content-viewport {
     width: 100%;
 }
-.hpset-section > #unity-content-and-vertical-scroll-container
-    > #unity-content-viewport > #unity-content-container {
+
+.hpset-section>#unity-content-and-vertical-scroll-container>#unity-content-viewport>#unity-content-container {
     width: 100%;
 }
 
 .hpset-section-title {
-    font-size:         28px;
+    font-size: 28px;
     -unity-font-style: bold;
-    color:             var(--teal);
-    margin-bottom:     8px;
+    color: var(--teal);
+    margin-bottom: 8px;
 }
 
 .hpset-section-divider {
-    height:           1px;
+    height: 1px;
     background-color: var(--teal-dim);
-    margin-bottom:    28px;
-    width:            100%;
+    margin-bottom: 28px;
+    width: 100%;
+}
+
+.hpset-section-divider--minor {
+    height: 1px;
+    background-color: var(--teal-dim);
+    margin-bottom: 20px;
+    width: 100%;
+    opacity: 0.5;
+}
+
+.hpset-version-row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.hpset-version-label {
+    color: var(--white-soft);
+    font-size: 14px;
+}
+
+.hpset-version-value {
+    color: var(--teal);
+    font-size: 14px;
+    -unity-font-style: bold;
 }
 
 .hpset-cache-text {
