@@ -1,4 +1,7 @@
+using System.Linq;
+using Assets.HeroEditor4D.Common.Scripts.CharacterScripts;
 using Cysharp.Threading.Tasks;
+using FTR.Core.Client;
 using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Common.Enums;
@@ -31,18 +34,25 @@ public class UseView : MonoBehaviour
     [Inject]
     private ISoundPlayer soundPlayer;
 
+    private ClientPrefabProvider prefabProvider;
     private NetworkEventRouter eventRouter;
     private CharacterStateStorage stateStorage;
     private SpriteManager spriteManager;
-
+    private GameObject gunEffectInstance;
+    private GameObject healEffectInstance;
+    private GameObject speedUpEffectInstance;
+    private GameObject damageEffectInstance;
     private GameObject rangedTargetIndicator;
     private SpriteRenderer rangedTargetIndicatorRenderer;
     private MaterialPropertyBlock propertyBlock;
     private Transform cameraPivot;
     private WeaponItemData weaponData;
+    private ConsumableItemData consumableData;
     private string equippedItemId;
     private Vector3 direction;
     private int equipmentChangeSequence = 0;
+    private Character characterComponent;
+    private Transform fireMuzzleTransform;
 
     private bool isInitialized = false;
 
@@ -112,7 +122,10 @@ public class UseView : MonoBehaviour
                     if (weaponData.subWeaponType == SubWeaponType.Bow)
                         soundFxId = ClientSoundFXRegistry.SoundFXIds.ArrowShot;
                     else
+                    {
                         soundFxId = ClientSoundFXRegistry.SoundFXIds.HandgunShot;
+                        PlayGunEffect();
+                    }
                     break;
             }
         }
@@ -120,6 +133,7 @@ public class UseView : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(equippedItemId))
             {
+                PlayConsumableEffect(consumableData);
                 soundFxId = ClientSoundFXRegistry.SoundFXIds.Consume;
             }
         }
@@ -201,6 +215,7 @@ public class UseView : MonoBehaviour
         this.weaponData = weaponData;
         if (weaponData == null)
         {
+            this.consumableData = ClientItemsRegistry.GetConsumableById(itemId);
             spriteManager.ChangeSprite(CharacterPartCategory.Consumable, texture);
             animator.SetEquipment(default, default);
             return;
@@ -250,6 +265,102 @@ public class UseView : MonoBehaviour
         Debug.Log(
             $"Updated ranged indicator for range {range} with meshWorldWidth {meshWorldWidth} and shaderArrowLength {shaderArrowLength}"
         );
+    }
+
+    public void SetUpUseViewVFX()
+    {
+        if (prefabProvider == null)
+            prefabProvider = resolver.Resolve<ClientPrefabProvider>();
+
+        characterComponent = transform.root.GetComponentInChildren<Character>(true);
+
+        if (characterComponent != null)
+        {
+            fireMuzzleTransform = characterComponent.AnchorFireMuzzle;
+            Debug.Log($"[UseView] FireMuzzle found: {fireMuzzleTransform != null}");
+        }
+        else
+        {
+            Debug.LogWarning("[UseView] FireMuzzle not found.");
+        }
+
+        if (prefabProvider.GunEffectPrefab != null)
+        {
+            this.gunEffectInstance = resolver.Instantiate(
+                prefabProvider.GunEffectPrefab,
+                transform
+            );
+        }
+
+        this.healEffectInstance = resolver.Instantiate(prefabProvider.HealEffectPrefab, transform);
+        this.healEffectInstance.transform.localScale = new Vector3(2, 2, 2);
+        this.healEffectInstance.transform.localPosition = new Vector3(0, -0.5f, 0);
+
+        this.speedUpEffectInstance = resolver.Instantiate(
+            prefabProvider.SpeedUpEffectPrefab,
+            transform
+        );
+        this.speedUpEffectInstance.transform.localScale = new Vector3(2, 2, 2);
+        this.speedUpEffectInstance.transform.localPosition = new Vector3(0, -0.5f, 0);
+        this.speedUpEffectInstance.SetActive(false);
+
+        this.damageEffectInstance = resolver.Instantiate(prefabProvider.GunEffectPrefab, transform);
+        this.damageEffectInstance.transform.localScale = new Vector3(2, 2, 2);
+        this.damageEffectInstance.transform.localPosition = new Vector3(0, -0.5f, 0);
+        this.damageEffectInstance.SetActive(false);
+    }
+
+    private void PlayGunEffect()
+    {
+        if (fireMuzzleTransform != null)
+        {
+            this.gunEffectInstance.transform.position =
+                fireMuzzleTransform.position + new Vector3(0, 1.5f, 0);
+        }
+
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            Vector3 dir = animator.CurrentFacing switch
+            {
+                FacingDirection.Left => -cam.transform.right,
+                FacingDirection.Right => cam.transform.right,
+                FacingDirection.Back => cam.transform.forward,
+                FacingDirection.Front => -cam.transform.forward,
+                _ => cam.transform.forward,
+            };
+            dir.y = 0f;
+            dir.Normalize();
+            if (dir != Vector3.zero)
+                this.gunEffectInstance.transform.rotation = Quaternion.LookRotation(dir);
+        }
+
+        var ps = this.gunEffectInstance.GetComponent<ParticleSystem>();
+        ps?.Play();
+    }
+
+    private void PlayConsumableEffect(ConsumableItemData consumableData)
+    {
+        if (consumableData == null)
+            return;
+
+        if (consumableData.effectType == EffectType.Heal)
+        {
+            var ps = this.healEffectInstance.GetComponent<ParticleSystem>();
+            ps?.Play();
+        }
+        else if (consumableData.effectType == EffectType.Speed)
+        {
+            this.speedUpEffectInstance.SetActive(true);
+            var ps = this.speedUpEffectInstance.GetComponent<ParticleSystem>();
+            ps?.Play();
+        }
+        else if (consumableData.effectType == EffectType.Damage)
+        {
+            this.damageEffectInstance.SetActive(true);
+            var ps = this.damageEffectInstance.GetComponent<ParticleSystem>();
+            ps?.Play();
+        }
     }
 
     private void OnDrawGizmos()

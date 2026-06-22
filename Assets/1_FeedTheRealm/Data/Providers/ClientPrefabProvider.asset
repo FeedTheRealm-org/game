@@ -39,3 +39,8 @@ MonoBehaviour:
   GoldCoinPrefab: {fileID: 8547170938511414599, guid: e1dfd307db4d0d74c857a71192dbe79f, type: 3}
   QuestSignPrefab: {fileID: 1126493862438144, guid: dfa88b163ebe1dc41b2d41ef939de73d, type: 3}
   QuestHaloPrefab: {fileID: 1890275634725560, guid: c127f32ea2a3adb4cb172d3703f4af8e, type: 3}
+  ChestOpenEffectPrefab: {fileID: 4415562107347274185, guid: 90e3b6f8616f7604f8ee74b3d55fc11b, type: 3}
+  DashEffectPrefab: {fileID: 5062299888877387790, guid: 86a522c6fc590e5419e5d157fc6bd1e2, type: 3}
+  GunEffectPrefab: {fileID: 1277314995582460547, guid: a1af3095c408ed84c8e5fb46dde0af6d, type: 3}
+  HealEffectPrefab: {fileID: 1041383898900682, guid: 6415f946f87d42f408f61c846221beb6, type: 3}
+  SpeedUpEffectPrefab: {fileID: 242248617604943412, guid: e97d31033934c9a419628a9d03aac03a, type: 3}

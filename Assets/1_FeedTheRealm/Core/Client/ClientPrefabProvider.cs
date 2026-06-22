@@ -51,5 +51,8 @@ namespace FTR.Core.Client
         public GameObject QuestHaloPrefab;
         public GameObject ChestOpenEffectPrefab;
         public GameObject DashEffectPrefab;
+        public GameObject GunEffectPrefab;
+        public GameObject HealEffectPrefab;
+        public GameObject SpeedUpEffectPrefab;
     }
 }

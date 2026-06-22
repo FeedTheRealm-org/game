@@ -41,6 +41,7 @@ MonoBehaviour:
   tickEvent: {fileID: 11400000, guid: 31d7e850ecc8a3a2492ec5e36a2bbe00, type: 2}
   fixedTickEvent: {fileID: 11400000, guid: 01be1421f54e5e254b8c715b7f633fd5, type: 2}
   lateTickEvent: {fileID: 11400000, guid: 53658f587ccad343095edc15a476c3c1, type: 2}
+  chestOpenedEvent: {fileID: 11400000, guid: 670b6a8da37b0b8949b53377df7ef4dd, type: 2}
   goldChangedEvent: {fileID: 11400000, guid: 75f3afe00bdb988408562d7f115a97b5, type: 2}
   gemBalanceChangedEvent: {fileID: 11400000, guid: 6e19a2bcef1b209928c5b29966d33e05, type: 2}
   chatMessageRequestEvent: {fileID: 11400000, guid: 76494190adc81ca44a60cfc847cac771, type: 2}
