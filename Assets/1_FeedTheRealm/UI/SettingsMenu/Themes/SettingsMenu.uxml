@@ -2,36 +2,20 @@
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=7be628a0b2142aa54b5c8f517b8ae6b3&amp;type=3#SettingsMenu"/>
     <ui:VisualElement name="Body" class="settings-overlay">
-
-        <!-- Main window: left sidebar + right content -->
         <ui:VisualElement name="Modal" class="settings-modal">
-
-            <!-- LEFT SIDEBAR -->
             <ui:VisualElement name="Sidebar" class="settings-sidebar">
-
-                <!-- Title -->
                 <ui:Label text="SETTINGS" name="SettingsLabel" class="settings-title"/>
                 <ui:VisualElement name="TitleDivider" class="sidebar-divider"/>
-
-                <!-- Navigation buttons -->
                 <ui:Button text="Display" name="DisplayButton" class="nav-button nav-button--selected"/>
                 <ui:Button text="Sound" name="SoundButton" class="nav-button"/>
-
-                <!-- Spacer pushes bottom buttons down -->
                 <ui:VisualElement name="Spacer" class="sidebar-spacer"/>
                 <ui:VisualElement name="BottomDivider" class="sidebar-divider"/>
                 <ui:Button text="Return Home" name="HomeButton" class="nav-button nav-button--danger"/>
                 <ui:Button text="Exit Game" name="ExitButton" class="nav-button nav-button--danger"/>
-
-                <!-- Close button at very bottom -->
                 <ui:VisualElement name="CloseDivider" class="sidebar-divider"/>
                 <ui:Button text="Close" name="CloseButton" class="nav-button nav-button--close"/>
             </ui:VisualElement>
-
-            <!-- RIGHT CONTENT PANEL -->
             <ui:VisualElement name="ContentPanel" class="settings-content-panel">
-
-                <!-- DISPLAY CONTENT -->
                 <ui:ScrollView name="DisplayContent" class="content-section">
                     <ui:Label text="Display" class="section-title"/>
                     <ui:VisualElement class="section-divider"/>
@@ -41,9 +25,10 @@
                     <ui:VisualElement class="setting-row">
                         <ui:Toggle label="Fullscreen" toggle-on-label-click="true" value="true" name="FullscreenToggle" class="setting-toggle"/>
                     </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Toggle label="Performance stats for nerds" toggle-on-label-click="true" value="true" name="PerformanceStats" class="setting-toggle"/>
+                    </ui:VisualElement>
                 </ui:ScrollView>
-
-                <!-- SOUND CONTENT (hidden by default) -->
                 <ui:ScrollView name="SoundContent" class="content-section content-section--hidden">
                     <ui:Label text="Sound" class="section-title"/>
                     <ui:VisualElement class="section-divider"/>

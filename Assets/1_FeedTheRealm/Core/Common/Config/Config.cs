@@ -1,3 +1,4 @@
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.Utils;
 using UnityEngine;
 
@@ -45,6 +46,7 @@ namespace FTR.Core.Common.Config
         [Header("Client Connection Settings")] // TODO: move to client & bot config
         public string CurrentServerAddress = "";
         public ushort CurrentServerPort = 10000;
+        public DisconnectionEvents DisconnectionEvent = DisconnectionEvents.None;
 
 #if DEBUG
         [Header("Debug Settings")]

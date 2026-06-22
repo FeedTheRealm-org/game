@@ -43,4 +43,14 @@
         </ui:VisualElement>
     </ui:ScrollView>
     <ui:Label text="Enter" name="ChatBox" class="chat-box"/>
+    <ui:VisualElement name="PerformanceStats" enabled="true" style="flex-grow: 1; flex-direction: row; align-items: flex-start; justify-content: space-around; align-self: flex-start; height: 79px; width: 300px; max-height: 78px; margin-top: 10px; margin-left: 0; visibility: visible; overflow: visible;">
+        <ui:VisualElement name="PING" class="performance-elements">
+            <ui:Label text="Ping" class="performance-labels"/>
+            <ui:Label text="x" name="PingValue" class="performance-labels" style="width: 26px;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="FPS" class="performance-elements">
+            <ui:Label text="FPS" class="performance-labels" style="width: 40px;"/>
+            <ui:Label text="y" name="FPSValue" class="performance-labels"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

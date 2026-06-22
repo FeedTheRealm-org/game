@@ -21,10 +21,10 @@ MonoBehaviour:
   EnableActionLogging: 0
   ApiConfig: {fileID: 11400000, guid: 14669f095c2d5c830993f253ff8bbfab, type: 2}
   CurrentServerAddress: 18.191.56.216
-  CurrentServerPort: 10089
+  CurrentServerPort: 10096
   DEBUG_IsDebugWorld: 0
   DEBUG_DoNotLoadWorld: 0
-  DEBUG_WorldId: 338735c7-183f-4358-a79c-65d448db6ccc
+  DEBUG_WorldId: fea74bc1-90f5-43c9-adab-7649b5a7d7c0
   DEBUG_ZoneId: 1
   DEBUG_EnableColliderView: 0
   CubeColliderLayerMask:

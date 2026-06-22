@@ -139,6 +139,7 @@ namespace FTR.Gameplay.Client.EntryPoints.Scopes
             builder.Register<MenuManager>(Lifetime.Singleton);
             builder.Register<CacheManager>(Lifetime.Singleton);
             builder.Register<DiskService>(Lifetime.Singleton);
+            builder.Register<INetworkStats, MirrorNetworkStats>(Lifetime.Singleton);
             builder.Register<ClientPlayerLinker>(Lifetime.Singleton).As<PlayerLinker>();
             builder.Register<ClientAggresiveNpcLinker>(Lifetime.Singleton).As<AggresiveNpcLinker>();
             builder.Register<ClientPassiveNpcLinker>(Lifetime.Singleton).As<PassiveNpcLinker>();

@@ -20,6 +20,11 @@ namespace FTR.UI.Homepage.Navbar
         [Inject]
         private ISoundPlayer soundPlayer;
 
+        [Inject]
+        private API.ExportsService exportService;
+
+        private const string UpdateDownloadUrl = "https://www.feedtherealm.world/";
+
         private GameObject homeMenuInstance;
         private GameObject profileMenuInstance;
         private GameObject gemStoreInstance;
@@ -30,6 +35,11 @@ namespace FTR.UI.Homepage.Navbar
         private Button playerProfileButton;
         private Button gemStoreButton;
         private Button settingsButton;
+
+        private VisualElement _updateNotice;
+        private Label _updateNoticeText;
+        private Button _updateNoticeLink;
+        private Button _updateNoticeCloseButton;
 
         private bool _profileLocked = false;
 
@@ -42,6 +52,7 @@ namespace FTR.UI.Homepage.Navbar
         private const string SettingsSelectedClass = "navbar-button-settings-selected";
 
         private const string DisabledClass = "navbar-button-disabled";
+        private const string UpdateNoticeHiddenClass = "update-notice--hidden";
 
         private void OnEnable()
         {
@@ -109,6 +120,16 @@ namespace FTR.UI.Homepage.Navbar
             if (settingsButton != null)
                 settingsButton.clicked += OnSettingsButtonClicked;
 
+            _updateNotice = _root.Q<VisualElement>("UpdateNotice");
+            _updateNoticeText = _root.Q<Label>("UpdateNoticeText");
+            _updateNoticeLink = _root.Q<Button>("UpdateNoticeLink");
+            _updateNoticeCloseButton = _root.Q<Button>("UpdateNoticeCloseButton");
+
+            if (_updateNoticeLink != null)
+                _updateNoticeLink.clicked += OnUpdateNoticeLinkClicked;
+            if (_updateNoticeCloseButton != null)
+                _updateNoticeCloseButton.clicked += OnUpdateNoticeCloseClicked;
+
             ApplyLockVisuals();
 
             if (_profileLocked)
@@ -118,6 +139,8 @@ namespace FTR.UI.Homepage.Navbar
             }
             else
                 SetSelectedButton(homeButton, HomeSelectedClass);
+
+            CheckForUpdates();
         }
 
         private void OnDisable()
@@ -130,6 +153,77 @@ namespace FTR.UI.Homepage.Navbar
                 gemStoreButton.clicked -= OnGemStoreButtonClicked;
             if (settingsButton != null)
                 settingsButton.clicked -= OnSettingsButtonClicked;
+            if (_updateNoticeLink != null)
+                _updateNoticeLink.clicked -= OnUpdateNoticeLinkClicked;
+            if (_updateNoticeCloseButton != null)
+                _updateNoticeCloseButton.clicked -= OnUpdateNoticeCloseClicked;
+        }
+
+        // ── Update notice ──────────────────────────────────────────────────────
+
+        private async void CheckForUpdates()
+        {
+            if (exportService == null)
+            {
+                logger.Log(
+                    "[NavbarController] ExportService is not assigned.",
+                    this,
+                    Logging.LogType.Warning
+                );
+                return;
+            }
+
+            var (latestVersion, error) = await exportService.GetLatestVersion();
+
+            // Guard against the component being disabled/destroyed while awaiting.
+            if (this == null || _updateNotice == null)
+                return;
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                logger.Log(
+                    $"[NavbarController] Failed to check latest version: {error}",
+                    this,
+                    Logging.LogType.Warning
+                );
+                ShowUpdateNotice("Version could not be validated.");
+                return;
+            }
+
+            string current = NormalizeVersion(Application.version);
+            string latest = NormalizeVersion(latestVersion);
+
+            if (current != latest)
+                ShowUpdateNotice("A new version is available.");
+        }
+
+        private static string NormalizeVersion(string version)
+        {
+            if (string.IsNullOrEmpty(version))
+                return string.Empty;
+
+            version = version.Trim();
+            return version.StartsWith("v", System.StringComparison.OrdinalIgnoreCase)
+                ? version.Substring(1)
+                : version;
+        }
+
+        private void ShowUpdateNotice(string message)
+        {
+            if (_updateNoticeText != null)
+                _updateNoticeText.text = message;
+
+            _updateNotice?.RemoveFromClassList(UpdateNoticeHiddenClass);
+        }
+
+        private void OnUpdateNoticeLinkClicked()
+        {
+            Application.OpenURL(UpdateDownloadUrl);
+        }
+
+        private void OnUpdateNoticeCloseClicked()
+        {
+            _updateNotice?.AddToClassList(UpdateNoticeHiddenClass);
         }
 
         // ── INavbarController — setters ────────────────────────────────────────

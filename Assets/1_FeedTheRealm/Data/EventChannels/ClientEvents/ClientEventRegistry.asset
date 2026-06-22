@@ -52,4 +52,5 @@ MonoBehaviour:
   onProfileCreatedEvent: {fileID: 11400000, guid: 3ceb2b7c8878d0abc9282e08f48b309a, type: 2}
   onLogoutRequestedEvent: {fileID: 11400000, guid: b24eefb74fe820ae3bb69ec823248065, type: 2}
   questToggleEvent: {fileID: 11400000, guid: cb7a4f144bbe1fdb7ae2d5eff8e2a39b, type: 2}
+  performanceStatsToggleEvent: {fileID: 11400000, guid: 7b095c7af6080a2b19b96abc17485188, type: 2}
   backEvent: {fileID: 11400000, guid: 84e65d4304044a4fd802bcb81b05a1ed, type: 2}

@@ -81,10 +81,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             currentHealth -= damage;
             stateStorage.SetHealth(Mathf.Max(0f, currentHealth));
-            /*logger.Log(
-                $"Took {damage} damage from netId={attackerNetId}, health: {currentHealth}",
-                this
-            );*/
 
             var isDead = currentHealth <= 0;
             if (isDead)
@@ -97,7 +93,6 @@ namespace FTR.Gameplay.Server.Characters.Systems
         {
             currentHealth = MaxHealth;
             stateStorage.SetHealth(MaxHealth);
-            //logger.Log($"Health reset to {MaxHealth}", this);
         }
 
         private void Die(uint killerNetId)

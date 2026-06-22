@@ -2,11 +2,11 @@ name: CI/CD
 on:
   push:
     tags:
-      - "v*"
+      - "v*-server"
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
+  deploy:
+    uses: ./.github/workflows/deploy.yml
     secrets:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
@@ -14,15 +14,3 @@ jobs:
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       WEBHOOK_AUDIENCE: ${{ secrets.WEBHOOK_AUDIENCE }}
       WEBHOOK_BASE_URL: ${{ secrets.WEBHOOK_BASE_URL }}
-
-  # deploy:
-  #   needs: build
-  #   uses: ./.github/workflows/deploy.yml
-  #   secrets:
-  #     AWS_REGION: ${{ secrets.AWS_REGION }}
-  #     AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-  #     ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-  #     ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-  #     INSTANCE_IDS: ${{ secrets.INSTANCE_IDS }}
-  #   with:
-  #     image_tag: ${{ needs.build.outputs.image_tag }}
