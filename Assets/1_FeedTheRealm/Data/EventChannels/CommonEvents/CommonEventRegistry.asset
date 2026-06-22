@@ -15,8 +15,6 @@ MonoBehaviour:
   initiatePlayerEvent: {fileID: 11400000, guid: 8b65d8a70ac909f2f958a8b21a8a9f03, type: 2}
   npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}
   npcDialogClosedEvent: {fileID: 11400000, guid: e7146b22aa5022befbf1d4ab8487c9a8, type: 2}
-  npcDialogMessageEvent: {fileID: 11400000, guid: 78c7f398e8522348e96046e1ccdd6fea, type: 2}
-  npcDialogToggledEvent: {fileID: 11400000, guid: 8646a39aa1b457ca4bfa48271899c16d, type: 2}
   enemySlayedEvent: {fileID: 11400000, guid: bc1931e5725e587d5b31e691f308799c, type: 2}
   showQuestPromptEvent: {fileID: 11400000, guid: b3c6340d8966c25a0a62a27dc4469725, type: 2}
   questProgressEvent: {fileID: 11400000, guid: 97500dbc39981e47795353313f9d5277, type: 2}

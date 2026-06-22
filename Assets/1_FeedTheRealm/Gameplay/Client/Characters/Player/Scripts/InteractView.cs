@@ -1,3 +1,4 @@
+using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client.EventChannels.Interaction;
 using FTR.Core.Client.EventChannels.Quest;
 using FTR.Core.Common.EventChannels;
@@ -13,12 +14,6 @@ public class InteractView : MonoBehaviour
     private NpcDialogClosedEvent npcDialogClosedEvent;
 
     [Inject]
-    private NpcDialogMessageEvent npcDialogMessageEvent;
-
-    [Inject]
-    private NpcDialogToggledEvent npcDialogToggledEvent;
-
-    [Inject]
     private NpcQuestOfferedEvent npcQuestOfferedEvent;
 
     [Inject]
@@ -30,11 +25,17 @@ public class InteractView : MonoBehaviour
     private NetworkEventRouter eventRouter;
     private NpcDialogRegistry dialogRegistry;
     private string _activeNpcId;
+    private IDialogBox dialogBox;
 
-    public void Initialize(NetworkEventRouter eventRouter, NpcDialogRegistry dialogRegistry)
+    public void Initialize(
+        NetworkEventRouter eventRouter,
+        NpcDialogRegistry dialogRegistry,
+        IDialogBox dialogBox = null
+    )
     {
         this.eventRouter = eventRouter;
         this.dialogRegistry = dialogRegistry;
+        this.dialogBox = dialogBox;
 
         eventRouter.OnDialogEvent += HandleDialogEvent;
         eventRouter.OnInteractFailedEvent += HandleInteractFailed;
@@ -69,6 +70,8 @@ public class InteractView : MonoBehaviour
 
     private void HandleDialogEvent(DialogEventContent content)
     {
+        if (dialogBox == null)
+            return;
         Debug.Log(
             $"[InteractView] HandleDialogEvent. NpcId={content.NpcId}, State={content.DialogState}, DialogId={content.DialogId}, Index={content.DialogIndex}, QuestId={content.QuestId}"
         );
@@ -77,10 +80,10 @@ public class InteractView : MonoBehaviour
         {
             case DialogStateType.DialogTypeStarted:
                 if (!string.IsNullOrEmpty(_activeNpcId) && _activeNpcId != content.NpcId)
-                    npcDialogToggledEvent.Raise((false, _activeNpcId));
+                    dialogBox.ToggleDialog(false);
 
                 _activeNpcId = content.NpcId;
-                npcDialogToggledEvent.Raise((true, _activeNpcId));
+                dialogBox.ToggleDialog(true);
                 ShowDialogLine(content.NpcId, content.DialogId, content.DialogIndex);
 
                 if (!string.IsNullOrEmpty(content.QuestId))
@@ -91,9 +94,9 @@ public class InteractView : MonoBehaviour
                 if (_activeNpcId != content.NpcId)
                 {
                     if (!string.IsNullOrEmpty(_activeNpcId))
-                        npcDialogToggledEvent.Raise((false, _activeNpcId));
+                        dialogBox.ToggleDialog(false);
                     _activeNpcId = content.NpcId;
-                    npcDialogToggledEvent.Raise((true, _activeNpcId));
+                    dialogBox.ToggleDialog(true);
                 }
 
                 ShowDialogLine(content.NpcId, content.DialogId, content.DialogIndex);
@@ -105,7 +108,7 @@ public class InteractView : MonoBehaviour
             case DialogStateType.DialogTypeClosed:
                 if (!string.IsNullOrEmpty(_activeNpcId))
                 {
-                    npcDialogToggledEvent.Raise((false, _activeNpcId));
+                    dialogBox.ToggleDialog(false);
                     npcDialogClosedEvent.Raise();
                     _activeNpcId = null;
                 }
@@ -118,12 +121,15 @@ public class InteractView : MonoBehaviour
     /// </summary>
     private void ShowDialogLine(string npcId, string dialogId, int index)
     {
+        if (dialogBox == null)
+            return;
+
         if (TryGetMessage(npcId, dialogId, index, out var message))
         {
             Debug.Log(
                 $"[InteractView] ShowDialogLine -> NpcId={npcId}, DialogId={dialogId}, Index={index}, Sender={message.sender}"
             );
-            npcDialogMessageEvent.Raise((npcId, message));
+            dialogBox.ShowDialogMessage(message);
         }
     }
 
