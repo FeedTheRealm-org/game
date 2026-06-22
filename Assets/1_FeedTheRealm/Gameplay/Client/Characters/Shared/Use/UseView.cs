@@ -1,4 +1,3 @@
-using System.Linq;
 using Assets.HeroEditor4D.Common.Scripts.CharacterScripts;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client;
@@ -20,11 +19,9 @@ public class UseView : MonoBehaviour
     private CharacterAnimator animator;
 
     [Header("Gun VFX Alignment")]
-    [SerializeField]
     private float gunForwardOffset = 0.7f;
 
-    [SerializeField]
-    private float gunUpOffset = 1.5f;
+    private float gunUpOffset = 0.15f;
 
     [Inject]
     IObjectResolver resolver;
@@ -58,9 +55,6 @@ public class UseView : MonoBehaviour
     private string equippedItemId;
     private Vector3 direction;
     private int equipmentChangeSequence = 0;
-    private Character characterComponent;
-    private Transform fireMuzzleTransform;
-
     private bool isInitialized = false;
 
     public void Initialize(
@@ -282,13 +276,6 @@ public class UseView : MonoBehaviour
         if (prefabProvider == null)
             prefabProvider = resolver.Resolve<ClientPrefabProvider>();
 
-        characterComponent = transform.root.GetComponentInChildren<Character>(true);
-
-        if (characterComponent != null)
-        {
-            fireMuzzleTransform = characterComponent.AnchorFireMuzzle;
-        }
-
         FindCameraPivot();
         Transform spawnParent = cameraPivot != null ? cameraPivot : transform;
 
@@ -329,11 +316,16 @@ public class UseView : MonoBehaviour
         if (gunEffectInstance == null)
             return;
 
-        if (fireMuzzleTransform != null)
+        var weaponApex = System.Array.Find(
+            transform.root.GetComponentsInChildren<Transform>(),
+            t => t.name == "AnchorWeaponApex"
+        );
+
+        if (weaponApex != null)
         {
-            Vector3 dynamicOffset = (direction * gunForwardOffset) + (Vector3.up * gunUpOffset);
-            this.gunEffectInstance.transform.position =
-                fireMuzzleTransform.position + dynamicOffset;
+            Vector3 pos = weaponApex.position;
+            pos.y += gunUpOffset;
+            this.gunEffectInstance.transform.position = pos;
         }
         else if (cameraPivot != null)
         {
