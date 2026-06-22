@@ -58,6 +58,8 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
                 ctx.HitPoint + perpendicular * halfSpacing,
             };
 
+            LayerMask shootMask = ctx.TargetLayer | ctx.Config.GroundLayer | ctx.Config.SlopeLayer;
+
             Collider hitTarget = null;
             RaycastHit firstHit = new RaycastHit();
             float closestDistance = float.MaxValue;
@@ -70,10 +72,14 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
                         ctx.Direction,
                         out RaycastHit raycastHit,
                         range,
-                        ctx.TargetLayer
+                        shootMask
                     )
                 )
                 {
+                    // First thing hit is a wall/ground/slope → this ray is blocked.
+                    if (!IsOnLayer(raycastHit.collider.gameObject, ctx.TargetLayer))
+                        continue;
+
                     if (raycastHit.distance < closestDistance)
                     {
                         closestDistance = raycastHit.distance;
@@ -107,6 +113,11 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
             ctx.World?.Events.Enqueue(
                 new AttackEvent(ctx.NetId, new AttackEventContent { AttackType = 1 })
             );
+        }
+
+        private static bool IsOnLayer(GameObject go, LayerMask mask)
+        {
+            return (mask.value & (1 << go.layer)) != 0;
         }
     }
 }

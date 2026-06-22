@@ -86,6 +86,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public OnProfileCreatedEvent onProfileCreatedEvent;
         public OnLogoutRequestedEvent onLogoutRequestedEvent;
         public QuestMenuToggleEvent questToggleEvent;
+        public PerformanceStatsToggleEvent performanceStatsToggleEvent;
 
         [Header("Input Related Events")]
         public BackEvent backEvent;
@@ -94,6 +95,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         {
             Validate();
 
+            builder.RegisterInstance(performanceStatsToggleEvent);
             builder.RegisterInstance(shopToggleEvent);
             builder.RegisterInstance(shopInteractedEvent);
             builder.RegisterInstance(healthChangedEvent);
@@ -139,6 +141,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
 
         private void Validate()
         {
+            ValidateField(performanceStatsToggleEvent, nameof(performanceStatsToggleEvent));
             ValidateField(shopToggleEvent, nameof(shopToggleEvent));
             ValidateField(shopInteractedEvent, nameof(shopInteractedEvent));
             ValidateField(healthChangedEvent, nameof(healthChangedEvent));

@@ -4,6 +4,8 @@ using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -18,6 +20,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
         private readonly GameObject confirmPopupPrefab;
         private readonly IObjectResolver objectResolver;
         private readonly ConfirmPopupHandle confirmPopupHandle;
+        private readonly Config config;
 
         private OnWorldLeaveEvent onExitEvent;
 
@@ -25,6 +28,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
             ClientPrefabProvider clientPrefabProvider,
             OnWorldLeaveEvent onExitEvent,
             IObjectResolver objectResolver,
+            Config config,
             ConfirmPopupHandle confirmPopupHandle
         )
         {
@@ -40,6 +44,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
             confirmPopupPrefab = clientPrefabProvider.ConfirmPopup;
             this.objectResolver = objectResolver;
             this.confirmPopupHandle = confirmPopupHandle;
+            this.config = config;
         }
 
         public void Dispose()
@@ -83,6 +88,7 @@ namespace FeedTheRealm.Gameplay.Client.SceneSetup
         private void DisconnectPlayer()
         {
             Debug.Log("Disconnecting player from server...");
+            config.DisconnectionEvent = DisconnectionEvents.ReturnHome;
             NetworkManager.singleton.StopClient();
         }
     }

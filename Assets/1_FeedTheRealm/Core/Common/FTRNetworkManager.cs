@@ -2,16 +2,15 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.EventChannels;
-// using Core.Systems.Worlds;
 using FTR.Core.Common.Interfaces;
 using FTR.Core.Common.Loaders;
 using FTR.Core.Common.Scopes;
-// using FTRShared.Runtime.Models;
 using kcp2k;
 using Mirror;
-// using FTRShared.Runtime.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
@@ -41,6 +40,9 @@ public class FTRNetworkManager : NetworkManager
 
     [SerializeField]
     private Config config;
+
+    [SerializeField]
+    private SceneReference homeScene;
 
     private CancellationTokenSource worldLoadGateCts;
 
@@ -133,6 +135,12 @@ public class FTRNetworkManager : NetworkManager
                     this
                 );
                 StartClient();
+
+                if (!NetworkClient.active)
+                {
+                    OnClientDisconnect();
+                    return;
+                }
             }
         }
         catch (OperationCanceledException)
@@ -438,13 +446,21 @@ public class FTRNetworkManager : NetworkManager
     public override void OnClientDisconnect()
     {
         logger.Log(
-            $"[NetworkManager] Client disconnected from server. NetworkAddress={networkAddress}",
+            $"[NetworkManager] Client disconnected from server with event {config.DisconnectionEvent}. NetworkAddress={networkAddress}",
             this,
             Logging.LogType.Warning
         );
         if (config.RuntimeRole == RuntimeRole.Bot)
         {
             Application.Quit();
+        }
+
+        if (
+            config.RuntimeRole == RuntimeRole.Client
+            && config.DisconnectionEvent != DisconnectionEvents.Teleport
+        )
+        {
+            SceneManager.LoadScene(homeScene.SceneName);
         }
     }
 

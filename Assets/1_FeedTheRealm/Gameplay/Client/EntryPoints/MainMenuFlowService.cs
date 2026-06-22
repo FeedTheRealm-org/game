@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Gameplay.Client.Registry;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
@@ -26,6 +28,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly OnProfileCreatedEvent onProfileCreatedEvent;
         private readonly OnLogoutRequestedEvent onLogoutRequestedEvent;
         private readonly WorldInfoMenuHandle worldInfoMenuHandle;
+        private readonly Config config;
         private readonly IObjectResolver resolver;
         private API.AuthService authService;
         private Session.Session session;
@@ -48,6 +51,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             OnProfileCreatedEvent onProfileCreatedEvent,
             OnLogoutRequestedEvent onLogoutRequestedEvent,
             WorldInfoMenuHandle worldInfoMenuHandle,
+            Config config,
             IObjectResolver resolver
         )
         {
@@ -66,6 +70,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.onProfileCreatedEvent = onProfileCreatedEvent;
             this.onLogoutRequestedEvent = onLogoutRequestedEvent;
             this.worldInfoMenuHandle = worldInfoMenuHandle;
+            this.config = config;
             this.resolver = resolver;
         }
 
@@ -178,6 +183,14 @@ namespace FTR.Gameplay.Client.EntryPoints
                 navBarController.SetGemStoreInstance(gemStoreObj);
                 navBarController.SetNavBarSettingsInstance(navBarSettingsObj);
             }
+
+            if (config.DisconnectionEvent == DisconnectionEvents.Unexpected)
+                ToastNotification.Show(
+                    "There was an error connecting to the server",
+                    "error",
+                    Color.red
+                );
+            config.DisconnectionEvent = DisconnectionEvents.None;
 
             await RedirectIfProfileRequired(worldFeedMenuObj, profileMenuObj, navBarController);
 

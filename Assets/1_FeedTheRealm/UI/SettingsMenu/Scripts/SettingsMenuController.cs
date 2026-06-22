@@ -7,6 +7,7 @@ using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
+using FTR.Core.Common.EventChannels;
 using FTR.Gameplay.Client.Registry;
 using FTR.UI;
 using UnityEngine;
@@ -16,15 +17,14 @@ using VContainer;
 
 public class SettingsMenuController : MonoBehaviour
 {
-    [Header("General settings")]
-    [SerializeField]
-    private SceneReference homeScene;
-
     [SerializeField]
     private Logging.Logger logger;
 
     [SerializeField]
     private OnWorldLeaveEvent onWorldLeaveEvent;
+
+    [Inject]
+    private PerformanceStatsToggleEvent performanceStatsToggleEvent;
 
     [Inject]
     private ISoundPlayer soundPlayer;
@@ -56,6 +56,7 @@ public class SettingsMenuController : MonoBehaviour
     /* Display */
     private CustomDropdown _resolutionSelect;
     private Toggle _fullscreenToggle;
+    private Toggle _performanceStatsToggle;
 
     /* Audio */
     private Slider _volumeSlider;
@@ -123,7 +124,12 @@ public class SettingsMenuController : MonoBehaviour
         /* Display settings */
         _resolutionSelect = root.Q<CustomDropdown>("ResolutionSelect");
         _fullscreenToggle = root.Q<Toggle>("FullscreenToggle");
-        if (_resolutionSelect == null || _fullscreenToggle == null)
+        _performanceStatsToggle = root.Q<Toggle>("PerformanceStats");
+        if (
+            _resolutionSelect == null
+            || _fullscreenToggle == null
+            || _performanceStatsToggle == null
+        )
         {
             logger.Log(
                 "One or more display settings UI elements not found.",
@@ -169,6 +175,7 @@ public class SettingsMenuController : MonoBehaviour
         _sfxVolumeSlider?.SetValueWithoutNotify(settingsManager.SFXVolume);
         _muteToggle?.SetValueWithoutNotify(settingsManager.IsMuted);
         _fullscreenToggle?.SetValueWithoutNotify(settingsManager.IsFullscreen);
+        _performanceStatsToggle?.SetValueWithoutNotify(settingsManager.ShowPerformanceStats);
     }
 
     private void InitializeDisplayChoices()
@@ -239,6 +246,7 @@ public class SettingsMenuController : MonoBehaviour
             _displayNavButton.clicked -= OnDisplayNavClicked;
             _soundNavButton.clicked -= OnSoundNavClicked;
             _fullscreenToggle.UnregisterValueChangedCallback(OnFullscreenChanged);
+            _performanceStatsToggle?.UnregisterValueChangedCallback(OnPerformanceStatsChanged);
             if (_resolutionSelect != null)
                 _resolutionSelect.OnValueChanged -= OnResolutionChangedIndex;
             _volumeSlider?.UnregisterValueChangedCallback(OnVolumeChanged);
@@ -254,6 +262,7 @@ public class SettingsMenuController : MonoBehaviour
         _displayNavButton.clicked += OnDisplayNavClicked;
         _soundNavButton.clicked += OnSoundNavClicked;
         _fullscreenToggle.RegisterValueChangedCallback(OnFullscreenChanged);
+        _performanceStatsToggle?.RegisterValueChangedCallback(OnPerformanceStatsChanged);
         if (_resolutionSelect != null)
             _resolutionSelect.OnValueChanged += OnResolutionChangedIndex;
         _volumeSlider?.RegisterValueChangedCallback(OnVolumeChanged);
@@ -290,11 +299,7 @@ public class SettingsMenuController : MonoBehaviour
         ConfirmPopup?.Show(
             question: "Are you sure you want to go to the home screen?",
             title: "Return to Home",
-            onConfirm: () =>
-            {
-                onWorldLeaveEvent.Raise();
-                SceneManager.LoadScene(homeScene.SceneName);
-            }
+            onConfirm: () => onWorldLeaveEvent.Raise()
         );
     }
 
@@ -355,6 +360,14 @@ public class SettingsMenuController : MonoBehaviour
         settingsManager.IsFullscreen = evt.newValue;
         settingsManager.SaveSettings();
         logger.Log("Fullscreen: " + evt.newValue, this, Logging.LogType.Info);
+    }
+
+    private void OnPerformanceStatsChanged(ChangeEvent<bool> evt)
+    {
+        settingsManager.ShowPerformanceStats = evt.newValue;
+        settingsManager.SaveSettings();
+        performanceStatsToggleEvent.Raise(evt.newValue);
+        logger.Log("Performance stats: " + evt.newValue, this, Logging.LogType.Info);
     }
 
     private void OnResolutionChangedIndex(int selectedIndex)

@@ -4,6 +4,8 @@ using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.Loaders;
 using FTRShared.Runtime.Core.Cache;
@@ -27,6 +29,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly ClientMusicRegistry musicRegistry;
         private readonly SettingsManager settingsManager;
         private readonly CacheManager cacheManager;
+        private readonly Config config;
         private CursorManager cursorManager;
         private bool isInitialized = false;
         private Logging.Logger logger;
@@ -46,6 +49,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             CursorManager cursorManager,
             SettingsManager settingsManager,
             CacheManager cacheManager,
+            Config config,
             Logging.Logger logger
         )
         {
@@ -61,6 +65,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.cursorManager = cursorManager;
             this.settingsManager = settingsManager;
             this.cacheManager = cacheManager;
+            this.config = config;
             isInitialized = true;
             this.logger = logger;
         }
@@ -68,6 +73,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         public async void Start()
         {
             logger.Log("[ClientWorldEntryPoint] Starting client world entry point.");
+            config.DisconnectionEvent = DisconnectionEvents.Unexpected;
             settingsManager.LoadSettings();
             settingsManager.ApplyDisplay();
             settingsManager.ApplyAudioListener();
