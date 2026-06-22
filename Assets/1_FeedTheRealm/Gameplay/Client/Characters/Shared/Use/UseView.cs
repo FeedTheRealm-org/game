@@ -19,6 +19,13 @@ public class UseView : MonoBehaviour
     [SerializeField]
     private CharacterAnimator animator;
 
+    [Header("Gun VFX Alignment")]
+    [SerializeField]
+    private float gunForwardOffset = 0.7f;
+
+    [SerializeField]
+    private float gunUpOffset = 1.5f;
+
     [Inject]
     IObjectResolver resolver;
 
@@ -69,17 +76,27 @@ public class UseView : MonoBehaviour
         stateStorage.OnEquippedItemChanged += OnEquippedItemChanged;
         lateTickEvent.OnRaised += LateTick;
 
+        FindCameraPivot();
+
         this.propertyBlock = new MaterialPropertyBlock();
 
         isInitialized = true;
     }
 
+    private void FindCameraPivot()
+    {
+        if (cameraPivot == null)
+        {
+            cameraPivot = transform
+                .Find("CharacterBody")
+                ?.transform.Find("CenterMarker")
+                ?.transform;
+        }
+    }
+
     public void SetRangedTargetIndicator(GameObject rangedTargetIndicatorPrefab)
     {
-        this.cameraPivot = transform
-            .Find("CharacterBody")
-            ?.transform.Find("CenterMarker")
-            ?.transform;
+        FindCameraPivot();
         this.rangedTargetIndicator = resolver.Instantiate(rangedTargetIndicatorPrefab, cameraPivot);
         this.rangedTargetIndicator.SetActive(false);
         this.rangedTargetIndicatorRenderer =
@@ -143,11 +160,7 @@ public class UseView : MonoBehaviour
 
     private void LateTick()
     {
-        if (
-            rangedTargetIndicator == null
-            || !rangedTargetIndicator.activeSelf
-            || cameraPivot == null
-        )
+        if (cameraPivot == null)
             return;
 
         var cam = Camera.main;
@@ -165,13 +178,16 @@ public class UseView : MonoBehaviour
         dir.y = 0f;
         dir.Normalize();
 
-        Vector3 pivot = cameraPivot.position;
-        pivot.y = rangedTargetIndicator.transform.position.y;
-
-        rangedTargetIndicator.transform.position = pivot;
-        rangedTargetIndicator.transform.rotation = Quaternion.LookRotation(dir);
-
         direction = dir;
+
+        if (rangedTargetIndicator != null && rangedTargetIndicator.activeSelf)
+        {
+            Vector3 pivot = cameraPivot.position;
+            pivot.y = rangedTargetIndicator.transform.position.y;
+
+            rangedTargetIndicator.transform.position = pivot;
+            rangedTargetIndicator.transform.rotation = Quaternion.LookRotation(dir);
+        }
     }
 
     private async UniTask ApplyEquippedItemAsync(string itemId, int sequenceAtCall)
@@ -222,7 +238,7 @@ public class UseView : MonoBehaviour
         }
 
         switch (weaponData.weaponType)
-        { //TODO:
+        {
             case WeaponType.Melee:
                 spriteManager.ChangeSprite(CharacterPartCategory.EquipmentR, texture);
                 break;
@@ -256,15 +272,9 @@ public class UseView : MonoBehaviour
         float meshWorldWidth = Mathf.Max(meshWidthX, meshWidthZ);
 
         float shaderArrowLength = (range / meshWorldWidth) * 10;
-
         rangedTargetIndicatorRenderer.GetPropertyBlock(propertyBlock);
-
         propertyBlock.SetFloat("_ArrowLength", shaderArrowLength);
-
         rangedTargetIndicatorRenderer.SetPropertyBlock(propertyBlock);
-        Debug.Log(
-            $"Updated ranged indicator for range {range} with meshWorldWidth {meshWorldWidth} and shaderArrowLength {shaderArrowLength}"
-        );
     }
 
     public void SetUpUseViewVFX()
@@ -277,63 +287,61 @@ public class UseView : MonoBehaviour
         if (characterComponent != null)
         {
             fireMuzzleTransform = characterComponent.AnchorFireMuzzle;
-            Debug.Log($"[UseView] FireMuzzle found: {fireMuzzleTransform != null}");
         }
-        else
-        {
-            Debug.LogWarning("[UseView] FireMuzzle not found.");
-        }
+
+        FindCameraPivot();
+        Transform spawnParent = cameraPivot != null ? cameraPivot : transform;
 
         if (prefabProvider.GunEffectPrefab != null)
         {
             this.gunEffectInstance = resolver.Instantiate(
                 prefabProvider.GunEffectPrefab,
-                transform
+                spawnParent
             );
         }
 
-        this.healEffectInstance = resolver.Instantiate(prefabProvider.HealEffectPrefab, transform);
+        this.healEffectInstance = resolver.Instantiate(
+            prefabProvider.HealEffectPrefab,
+            spawnParent
+        );
         this.healEffectInstance.transform.localScale = new Vector3(2, 2, 2);
-        this.healEffectInstance.transform.localPosition = new Vector3(0, -0.5f, 0);
+        this.healEffectInstance.transform.localPosition = Vector3.zero;
 
         this.speedUpEffectInstance = resolver.Instantiate(
             prefabProvider.SpeedUpEffectPrefab,
-            transform
+            spawnParent
         );
         this.speedUpEffectInstance.transform.localScale = new Vector3(2, 2, 2);
-        this.speedUpEffectInstance.transform.localPosition = new Vector3(0, -0.5f, 0);
+        this.speedUpEffectInstance.transform.localPosition = Vector3.zero;
         this.speedUpEffectInstance.SetActive(false);
 
-        this.damageEffectInstance = resolver.Instantiate(prefabProvider.GunEffectPrefab, transform);
+        this.damageEffectInstance = resolver.Instantiate(
+            prefabProvider.GunEffectPrefab,
+            spawnParent
+        );
         this.damageEffectInstance.transform.localScale = new Vector3(2, 2, 2);
-        this.damageEffectInstance.transform.localPosition = new Vector3(0, -0.5f, 0);
+        this.damageEffectInstance.transform.localPosition = Vector3.zero;
         this.damageEffectInstance.SetActive(false);
     }
 
     private void PlayGunEffect()
     {
+        if (gunEffectInstance == null)
+            return;
+
         if (fireMuzzleTransform != null)
         {
+            Vector3 dynamicOffset = (direction * gunForwardOffset) + (Vector3.up * gunUpOffset);
             this.gunEffectInstance.transform.position =
-                fireMuzzleTransform.position + new Vector3(0, 1.5f, 0);
+                fireMuzzleTransform.position + dynamicOffset;
+        }
+        else if (cameraPivot != null)
+        {
+            this.gunEffectInstance.transform.localPosition = Vector3.zero;
         }
 
-        var cam = Camera.main;
-        if (cam != null)
-        {
-            Vector3 dir = animator.CurrentFacing switch
-            {
-                FacingDirection.Left => -cam.transform.right,
-                FacingDirection.Right => cam.transform.right,
-                FacingDirection.Back => cam.transform.forward,
-                FacingDirection.Front => -cam.transform.forward,
-                _ => cam.transform.forward,
-            };
-            dir.y = 0f;
-            dir.Normalize();
-            if (dir != Vector3.zero)
-                this.gunEffectInstance.transform.rotation = Quaternion.LookRotation(dir);
-        }
+        if (direction != Vector3.zero)
+            this.gunEffectInstance.transform.rotation = Quaternion.LookRotation(direction);
 
         var ps = this.gunEffectInstance.GetComponent<ParticleSystem>();
         ps?.Play();
@@ -344,21 +352,42 @@ public class UseView : MonoBehaviour
         if (consumableData == null)
             return;
 
+        GameObject activeEffect = null;
+        bool shouldFaceUp = false;
+
         if (consumableData.effectType == EffectType.Heal)
         {
-            var ps = this.healEffectInstance.GetComponent<ParticleSystem>();
-            ps?.Play();
+            activeEffect = this.healEffectInstance;
+            shouldFaceUp = true;
         }
         else if (consumableData.effectType == EffectType.Speed)
         {
-            this.speedUpEffectInstance.SetActive(true);
-            var ps = this.speedUpEffectInstance.GetComponent<ParticleSystem>();
-            ps?.Play();
+            activeEffect = this.speedUpEffectInstance;
+            shouldFaceUp = true;
         }
         else if (consumableData.effectType == EffectType.Damage)
         {
-            this.damageEffectInstance.SetActive(true);
-            var ps = this.damageEffectInstance.GetComponent<ParticleSystem>();
+            activeEffect = this.damageEffectInstance;
+        }
+
+        if (activeEffect != null)
+        {
+            activeEffect.SetActive(true);
+            activeEffect.transform.localPosition = Vector3.zero;
+
+            if (shouldFaceUp)
+            {
+                activeEffect.transform.rotation = Quaternion.LookRotation(Vector3.up);
+            }
+            else
+            {
+                if (direction != Vector3.zero)
+                {
+                    activeEffect.transform.rotation = Quaternion.LookRotation(direction);
+                }
+            }
+
+            var ps = activeEffect.GetComponent<ParticleSystem>();
             ps?.Play();
         }
     }
