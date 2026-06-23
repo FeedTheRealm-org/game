@@ -1,3 +1,4 @@
+using System;
 using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
@@ -17,7 +18,12 @@ namespace FTR.Gameplay.Client.EntryPoints
     /// <summary>
     /// Entry point for the client application, responsible for initializing the application flow, including authentication and main menu navigation.
     /// </summary>
-    public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
+    public class ClientWorldEntryPoint
+        : IStartable,
+            ITickable,
+            IFixedTickable,
+            ILateTickable,
+            IDisposable
     {
         private readonly TickEvent tickEvent;
         private readonly FixedTickEvent fixedTickEvent;
@@ -121,6 +127,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             if (!isInitialized)
                 return;
             lateTickEvent.Raise();
+        }
+
+        public void Dispose()
+        {
+            config.DisconnectionEvent = DisconnectionEvents.None;
         }
     }
 }
