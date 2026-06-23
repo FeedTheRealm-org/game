@@ -53,6 +53,8 @@ namespace FTR.UI.WorldSpace
                 return;
             }
 
+            _root.style.display = DisplayStyle.None;
+
             _healthView = GetComponentInParent<HealthView>();
             if (_healthView == null)
                 _healthView = GetComponent<HealthView>();
@@ -79,8 +81,6 @@ namespace FTR.UI.WorldSpace
             }
 
             _healthSource.OnHealthChanged += OnHealthChanged;
-
-            _root.style.display = DisplayStyle.None;
         }
 
         private void OnDestroy()
