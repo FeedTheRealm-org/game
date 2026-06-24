@@ -31,6 +31,8 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         [SyncVar(hook = nameof(OnEquippedItemSync))]
         private string equippedItemId = "";
 
+        public readonly SyncList<string> ActiveEffectIds = new();
+
         /* --- Getters --- */
 
         public Vector3 Position => position;
@@ -104,6 +106,25 @@ namespace FTR.Gameplay.Common.NetworkEntities.Characters
         {
             equippedItemId = newEquippedItemId;
             OnEquippedItemChanged?.Invoke(newEquippedItemId);
+        }
+
+        [Server]
+        public void AddActiveEffect(string itemId)
+        {
+            if (!ActiveEffectIds.Contains(itemId))
+                ActiveEffectIds.Add(itemId);
+        }
+
+        [Server]
+        public void RemoveActiveEffect(string itemId)
+        {
+            ActiveEffectIds.Remove(itemId);
+        }
+
+        [Server]
+        public void ClearActiveEffects()
+        {
+            ActiveEffectIds.Clear();
         }
 
         [Server]

@@ -280,7 +280,6 @@ public class SettingsMenuController : MonoBehaviour
 
     public void CloseSettings()
     {
-        logger.Log("Closing settings menu", this, Logging.LogType.Info);
         root.style.display = DisplayStyle.None;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
         menuManager.ToggleMenu(MenuType.Settings, false);
@@ -288,7 +287,6 @@ public class SettingsMenuController : MonoBehaviour
 
     public void OpenSettings()
     {
-        logger.Log("Opening settings menu", this, Logging.LogType.Info);
         root.style.display = DisplayStyle.Flex;
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SettingsOpen);
         menuManager.ToggleMenu(MenuType.Settings, true);
@@ -318,7 +316,6 @@ public class SettingsMenuController : MonoBehaviour
 
     private void OnCloseClicked()
     {
-        logger.Log("Close settings clicked", this, Logging.LogType.Info);
         CloseSettings();
     }
 

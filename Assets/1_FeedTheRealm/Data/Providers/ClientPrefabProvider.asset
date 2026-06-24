@@ -43,4 +43,5 @@ MonoBehaviour:
   DashEffectPrefab: {fileID: 5062299888877387790, guid: 86a522c6fc590e5419e5d157fc6bd1e2, type: 3}
   GunEffectPrefab: {fileID: 1277314995582460547, guid: a1af3095c408ed84c8e5fb46dde0af6d, type: 3}
   HealEffectPrefab: {fileID: 1041383898900682, guid: 6415f946f87d42f408f61c846221beb6, type: 3}
-  SpeedUpEffectPrefab: {fileID: 242248617604943412, guid: e97d31033934c9a419628a9d03aac03a, type: 3}
+  SpeedUpEffectPrefab: {fileID: 4735854018667895495, guid: 973b98386326b1a5c82569a872803f80, type: 3}
+  DamageEffectPrefab: {fileID: 4735854018667895495, guid: c25cba9fccb56344ba86e01368b5a4dc, type: 3}

@@ -56,6 +56,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
         private HashSet<Collider> _playersInRange = new HashSet<Collider>();
         private PlayerTriggerArea _attackTriggerArea;
         private Coroutine _autoAttackCoroutine;
+        private Dictionary<string, Coroutine> _activeEffectCoroutines = new();
         private Vector3 autoAttackTargetDirection = Vector3.zero;
 
         public void Initialize(
@@ -112,6 +113,11 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 stateStorage.OnDeath -= HandleDeath;
                 stateStorage.OnRespawn -= HandleRespawn;
             }
+
+            foreach (var c in _activeEffectCoroutines.Values)
+                if (c != null)
+                    StopCoroutine(c);
+            _activeEffectCoroutines.Clear();
         }
 
         public void SetAttackTriggerArea(PlayerTriggerArea attackTriggerArea)
@@ -147,9 +153,38 @@ namespace FTR.Gameplay.Server.Characters.Systems
                 StopCoroutine(_autoAttackCoroutine);
                 _autoAttackCoroutine = null;
             }
+            ClearActiveEffect();
         }
 
-        private void HandleRespawn() => isDead = false;
+        private void HandleRespawn()
+        {
+            isDead = false;
+            ClearActiveEffect();
+        }
+
+        private void StartActiveEffect(string itemId, float duration)
+        {
+            if (_activeEffectCoroutines.TryGetValue(itemId, out var existing) && existing != null)
+                StopCoroutine(existing);
+            stateStorage.AddActiveEffect(itemId);
+            _activeEffectCoroutines[itemId] = StartCoroutine(ActiveEffectExpiry(itemId, duration));
+        }
+
+        private void ClearActiveEffect()
+        {
+            foreach (var c in _activeEffectCoroutines.Values)
+                if (c != null)
+                    StopCoroutine(c);
+            _activeEffectCoroutines.Clear();
+            stateStorage.ClearActiveEffects();
+        }
+
+        private IEnumerator ActiveEffectExpiry(string itemId, float duration)
+        {
+            yield return new WaitForSeconds(duration);
+            stateStorage.RemoveActiveEffect(itemId);
+            _activeEffectCoroutines.Remove(itemId);
+        }
 
         public void GameTick(float dt) { }
 
@@ -174,7 +209,12 @@ namespace FTR.Gameplay.Server.Characters.Systems
 
             stateStorage.RaiseStaminaRecoveryStop();
             currentStrategy.RecordCooldown(ctx, cooldowns, activeSlot);
+
+            var equippedBeforeUse = currentEquipped;
             currentStrategy.Execute(ctx);
+
+            if (equippedBeforeUse is ConsumableEquipped consumable && consumable.Data.duration > 0)
+                StartActiveEffect(consumable.Data.id, consumable.Data.duration);
         }
 
         public void StartAutoAttacking(Collider playerCollider)

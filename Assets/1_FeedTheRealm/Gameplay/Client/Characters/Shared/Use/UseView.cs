@@ -1,9 +1,7 @@
-using Assets.HeroEditor4D.Common.Scripts.CharacterScripts;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client;
 using FTR.Core.Client.EntryPoints;
 using FTR.Core.Client.EventChannels.Ticks;
-using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
@@ -18,13 +16,10 @@ public class UseView : MonoBehaviour
     [SerializeField]
     private CharacterAnimator animator;
 
-    [Header("Gun VFX Alignment")]
-    private float gunForwardOffset = 0.7f;
-
     private float gunUpOffset = 0.15f;
 
     [Inject]
-    IObjectResolver resolver;
+    private IObjectResolver resolver;
 
     [Inject]
     private LateTickEvent lateTickEvent;
@@ -44,8 +39,8 @@ public class UseView : MonoBehaviour
     private SpriteManager spriteManager;
     private GameObject gunEffectInstance;
     private GameObject healEffectInstance;
-    private GameObject speedUpEffectInstance;
-    private GameObject damageEffectInstance;
+    private ParticleSystem healParticleSystem;
+    private ParticleSystem gunParticleSystem;
     private GameObject rangedTargetIndicator;
     private SpriteRenderer rangedTargetIndicatorRenderer;
     private MaterialPropertyBlock propertyBlock;
@@ -140,13 +135,10 @@ public class UseView : MonoBehaviour
                     break;
             }
         }
-        else
+        else if (!string.IsNullOrEmpty(equippedItemId))
         {
-            if (!string.IsNullOrEmpty(equippedItemId))
-            {
-                PlayConsumableEffect(consumableData);
-                soundFxId = ClientSoundFXRegistry.SoundFXIds.Consume;
-            }
+            PlayHealEffect();
+            soundFxId = ClientSoundFXRegistry.SoundFXIds.Consume;
         }
 
         soundPlayer.Play(soundFxId, transform.position);
@@ -217,9 +209,7 @@ public class UseView : MonoBehaviour
         this.equippedItemId = itemId;
 
         if (this == null || spriteManager == null)
-        {
             return;
-        }
 
         var weaponData = ClientItemsRegistry.GetWeaponById(itemId);
         this.weaponData = weaponData;
@@ -285,6 +275,7 @@ public class UseView : MonoBehaviour
                 prefabProvider.GunEffectPrefab,
                 spawnParent
             );
+            this.gunParticleSystem = this.gunEffectInstance.GetComponent<ParticleSystem>();
         }
 
         this.healEffectInstance = resolver.Instantiate(
@@ -293,22 +284,7 @@ public class UseView : MonoBehaviour
         );
         this.healEffectInstance.transform.localScale = new Vector3(2, 2, 2);
         this.healEffectInstance.transform.localPosition = Vector3.zero;
-
-        this.speedUpEffectInstance = resolver.Instantiate(
-            prefabProvider.SpeedUpEffectPrefab,
-            spawnParent
-        );
-        this.speedUpEffectInstance.transform.localScale = new Vector3(2, 2, 2);
-        this.speedUpEffectInstance.transform.localPosition = Vector3.zero;
-        this.speedUpEffectInstance.SetActive(false);
-
-        this.damageEffectInstance = resolver.Instantiate(
-            prefabProvider.GunEffectPrefab,
-            spawnParent
-        );
-        this.damageEffectInstance.transform.localScale = new Vector3(2, 2, 2);
-        this.damageEffectInstance.transform.localPosition = Vector3.zero;
-        this.damageEffectInstance.SetActive(false);
+        this.healParticleSystem = this.healEffectInstance.GetComponent<ParticleSystem>();
     }
 
     private void PlayGunEffect()
@@ -335,53 +311,25 @@ public class UseView : MonoBehaviour
         if (direction != Vector3.zero)
             this.gunEffectInstance.transform.rotation = Quaternion.LookRotation(direction);
 
-        var ps = this.gunEffectInstance.GetComponent<ParticleSystem>();
-        ps?.Play();
+        if (gunParticleSystem != null)
+            gunParticleSystem.Play();
     }
 
-    private void PlayConsumableEffect(ConsumableItemData consumableData)
+    private void PlayHealEffect()
     {
-        if (consumableData == null)
+        Debug.Log($"PlayHealEffect called for itemId: {equippedItemId}");
+        if (
+            healEffectInstance == null
+            || consumableData == null
+            || consumableData.effectType != EffectType.Heal
+        )
             return;
 
-        GameObject activeEffect = null;
-        bool shouldFaceUp = false;
-
-        if (consumableData.effectType == EffectType.Heal)
-        {
-            activeEffect = this.healEffectInstance;
-            shouldFaceUp = true;
-        }
-        else if (consumableData.effectType == EffectType.Speed)
-        {
-            activeEffect = this.speedUpEffectInstance;
-            shouldFaceUp = true;
-        }
-        else if (consumableData.effectType == EffectType.Damage)
-        {
-            activeEffect = this.damageEffectInstance;
-        }
-
-        if (activeEffect != null)
-        {
-            activeEffect.SetActive(true);
-            activeEffect.transform.localPosition = Vector3.zero;
-
-            if (shouldFaceUp)
-            {
-                activeEffect.transform.rotation = Quaternion.LookRotation(Vector3.up);
-            }
-            else
-            {
-                if (direction != Vector3.zero)
-                {
-                    activeEffect.transform.rotation = Quaternion.LookRotation(direction);
-                }
-            }
-
-            var ps = activeEffect.GetComponent<ParticleSystem>();
-            ps?.Play();
-        }
+        healEffectInstance.SetActive(true);
+        healEffectInstance.transform.localPosition = Vector3.zero;
+        healEffectInstance.transform.rotation = Quaternion.LookRotation(Vector3.up);
+        if (healParticleSystem != null)
+            healParticleSystem.Play();
     }
 
     private void OnDrawGizmos()

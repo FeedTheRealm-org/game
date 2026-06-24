@@ -17,9 +17,6 @@ public class QuestSignView : MonoBehaviour
     private ClientPrefabProvider prefabProvider;
 
     [Inject]
-    private NpcDialogMessageEvent npcDialogMessageEvent;
-
-    [Inject]
     private NpcDialogClosedEvent npcDialogClosedEvent;
 
     private GameObject signInstance;
@@ -53,7 +50,6 @@ public class QuestSignView : MonoBehaviour
 
         questDecisionEvent.OnRaised += HandleQuestDecision;
         questCompletedEvent.OnRaised += HandleQuestCompleted;
-        npcDialogMessageEvent.OnRaised += HandleNpcDialogMessage;
         npcDialogClosedEvent.OnRaised += HandleNpcDialogClosed;
     }
 
