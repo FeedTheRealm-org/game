@@ -81,10 +81,10 @@ public class ConsumableEffectView : MonoBehaviour
         switch (consumable.effectType)
         {
             case EffectType.Speed:
-                PlayEffect(speedUpEffectInstance, faceUp: true);
+                PlayEffect(speedUpEffectInstance);
                 break;
             case EffectType.Damage:
-                PlayEffect(damageEffectInstance, faceUp: false);
+                PlayEffect(damageEffectInstance);
                 break;
         }
     }
@@ -106,13 +106,11 @@ public class ConsumableEffectView : MonoBehaviour
         }
     }
 
-    private void PlayEffect(GameObject effect, bool faceUp)
+    private void PlayEffect(GameObject effect)
     {
         if (effect == null)
             return;
-        effect.transform.rotation = faceUp
-            ? Quaternion.LookRotation(Vector3.up)
-            : Quaternion.identity;
+        effect.transform.localRotation = Quaternion.identity;
         effect.SetActive(true);
         effect.transform.localPosition = Vector3.zero;
         effect.GetComponent<ParticleSystem>()?.Play();
