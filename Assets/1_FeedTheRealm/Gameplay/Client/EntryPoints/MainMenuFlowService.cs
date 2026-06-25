@@ -19,6 +19,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject profileMenuPrefab;
         readonly GameObject gemStorePrefab;
         readonly GameObject musicPlayerPrefab;
+        readonly GameObject downloadContentPopupPrefab;
         readonly ClientMusicRegistry musicRegistry;
         private readonly ClientSoundFXRegistry soundFXRegistry;
         private readonly ISoundPlayer soundPlayer;
@@ -42,6 +43,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
+            GameObject downloadContentPopupPrefab,
             ClientMusicRegistry musicRegistry,
             ClientSoundFXRegistry soundFXRegistry,
             ISoundPlayer soundPlayer,
@@ -61,6 +63,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
+            this.downloadContentPopupPrefab = downloadContentPopupPrefab;
             this.musicRegistry = musicRegistry;
             this.soundFXRegistry = soundFXRegistry;
             this.soundPlayer = soundPlayer;
@@ -193,6 +196,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             config.DisconnectionEvent = DisconnectionEvents.None;
 
             await RedirectIfProfileRequired(worldFeedMenuObj, profileMenuObj, navBarController);
+
+            resolver.Instantiate(downloadContentPopupPrefab);
 
             var navigateSource = new UniTaskCompletionSource();
             var logoutSource = new UniTaskCompletionSource();

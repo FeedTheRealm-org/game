@@ -63,6 +63,9 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject confirmPopupPrefab;
 
+    [SerializeField]
+    private GameObject downloadContentPopupPrefab;
+
     [Header("Loading Screen")]
     [SerializeField]
     private GameObject loadingScreenPrefab;
@@ -145,7 +148,8 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("soundFXRegistry", soundFXRegistry)
             .WithParameter("onProfileCreatedEvent", eventRegistry.onProfileCreatedEvent)
             .WithParameter("onLogoutRequestedEvent", eventRegistry.onLogoutRequestedEvent)
-            .WithParameter("confirmPopupPrefab", confirmPopupPrefab);
+            .WithParameter("confirmPopupPrefab", confirmPopupPrefab)
+            .WithParameter("downloadContentPopupPrefab", downloadContentPopupPrefab);
 
         builder.RegisterComponentInNewPrefab(authFlowManager, Lifetime.Singleton);
         builder.Register<MenuManager>(Lifetime.Singleton);

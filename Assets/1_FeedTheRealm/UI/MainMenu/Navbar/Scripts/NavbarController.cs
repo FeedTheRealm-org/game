@@ -159,8 +159,6 @@ namespace FTR.UI.Homepage.Navbar
                 _updateNoticeCloseButton.clicked -= OnUpdateNoticeCloseClicked;
         }
 
-        // ── Update notice ──────────────────────────────────────────────────────
-
         private async void CheckForUpdates()
         {
             if (exportService == null)
@@ -226,8 +224,6 @@ namespace FTR.UI.Homepage.Navbar
             _updateNotice?.AddToClassList(UpdateNoticeHiddenClass);
         }
 
-        // ── INavbarController — setters ────────────────────────────────────────
-
         public void SetHomeMenuInstance(GameObject instance)
         {
             homeMenuInstance = instance;
@@ -261,7 +257,6 @@ namespace FTR.UI.Homepage.Navbar
             navBarSettingsInstance = instance;
         }
 
-        /// <inheritdoc/>
         public void SetProfileLocked(bool locked)
         {
             _profileLocked = locked;
@@ -277,8 +272,6 @@ namespace FTR.UI.Homepage.Navbar
                 this
             );
         }
-
-        // ── Lock helpers ───────────────────────────────────────────────────────
 
         private void ApplyLockVisuals()
         {
@@ -298,8 +291,6 @@ namespace FTR.UI.Homepage.Navbar
                 button.RemoveFromClassList(DisabledClass);
         }
 
-        // ── Selection helper ───────────────────────────────────────────────────
-
         private void SetSelectedButton(Button button, string selectedClass)
         {
             homeButton?.RemoveFromClassList(HomeSelectedClass);
@@ -308,8 +299,6 @@ namespace FTR.UI.Homepage.Navbar
             settingsButton?.RemoveFromClassList(SettingsSelectedClass);
             button?.AddToClassList(selectedClass);
         }
-
-        // ── Button handlers ────────────────────────────────────────────────────
 
         private void OnHomeButtonClicked()
         {
