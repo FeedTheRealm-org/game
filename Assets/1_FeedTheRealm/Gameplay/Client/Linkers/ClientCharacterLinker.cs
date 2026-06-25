@@ -52,6 +52,8 @@ namespace FTR.Gameplay.Client.Linkers
             var consumableEffectView = characterComponents.GetComponent<ConsumableEffectView>();
             consumableEffectView?.SetUp(stateStorage);
 
+            useView.SetUpWeaponVFX();
+
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 

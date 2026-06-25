@@ -132,6 +132,10 @@ public class ConsumableEffectView : MonoBehaviour
 
     private Transform FindSpawnParent()
     {
-        return transform.Find("CharacterBody")?.Find("CenterMarker") ?? transform;
+        var found = System.Array.Find(
+            transform.GetComponentsInChildren<Transform>(true),
+            t => t.name == "CenterMarker"
+        );
+        return found != null ? found : transform;
     }
 }

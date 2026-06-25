@@ -55,5 +55,7 @@ namespace FTR.Core.Client
         public GameObject HealEffectPrefab;
         public GameObject SpeedUpEffectPrefab;
         public GameObject DamageEffectPrefab;
+        public GameObject BowEffectPrefab;
+        public GameObject MeleeEffectPrefab;
     }
 }

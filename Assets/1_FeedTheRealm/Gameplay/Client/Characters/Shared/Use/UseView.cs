@@ -37,10 +37,17 @@ public class UseView : MonoBehaviour
     private NetworkEventRouter eventRouter;
     private CharacterStateStorage stateStorage;
     private SpriteManager spriteManager;
+
     private GameObject gunEffectInstance;
+    private GameObject bowEffectInstance;
+    private GameObject meleeEffectInstance;
     private GameObject healEffectInstance;
-    private ParticleSystem healParticleSystem;
+
     private ParticleSystem gunParticleSystem;
+    private ParticleSystem bowParticleSystem;
+    private ParticleSystem meleeParticleSystem;
+    private ParticleSystem healParticleSystem;
+
     private GameObject rangedTargetIndicator;
     private SpriteRenderer rangedTargetIndicatorRenderer;
     private MaterialPropertyBlock propertyBlock;
@@ -102,6 +109,58 @@ public class UseView : MonoBehaviour
             lateTickEvent.OnRaised -= LateTick;
     }
 
+    // Called for ALL characters (player + enemy) from ClientCharacterLinker
+    public void SetUpWeaponVFX()
+    {
+        if (prefabProvider == null)
+            prefabProvider = resolver.Resolve<ClientPrefabProvider>();
+
+        FindCameraPivot();
+        Transform spawnParent = cameraPivot != null ? cameraPivot : transform;
+
+        if (prefabProvider.GunEffectPrefab != null)
+        {
+            gunEffectInstance = resolver.Instantiate(prefabProvider.GunEffectPrefab, spawnParent);
+            gunParticleSystem = gunEffectInstance.GetComponent<ParticleSystem>();
+            gunParticleSystem?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        if (prefabProvider.BowEffectPrefab != null)
+        {
+            bowEffectInstance = resolver.Instantiate(prefabProvider.BowEffectPrefab, spawnParent);
+            bowParticleSystem = bowEffectInstance.GetComponent<ParticleSystem>();
+            bowParticleSystem?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        if (prefabProvider.MeleeEffectPrefab != null)
+        {
+            meleeEffectInstance = resolver.Instantiate(
+                prefabProvider.MeleeEffectPrefab,
+                spawnParent
+            );
+            meleeParticleSystem = meleeEffectInstance.GetComponent<ParticleSystem>();
+            meleeParticleSystem?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+
+    // Called only for local player from ClientPlayerLinker
+    public void SetUpConsumableVFX()
+    {
+        if (prefabProvider == null)
+            prefabProvider = resolver.Resolve<ClientPrefabProvider>();
+
+        FindCameraPivot();
+        Transform spawnParent = cameraPivot != null ? cameraPivot : transform;
+
+        if (prefabProvider.HealEffectPrefab != null)
+        {
+            healEffectInstance = resolver.Instantiate(prefabProvider.HealEffectPrefab, spawnParent);
+            healEffectInstance.transform.localScale = new Vector3(2, 2, 2);
+            healEffectInstance.transform.localPosition = Vector3.zero;
+            healParticleSystem = healEffectInstance.GetComponent<ParticleSystem>();
+        }
+    }
+
     private void OnEquippedItemChanged(string newItemId)
     {
         if (!isInitialized)
@@ -119,21 +178,15 @@ public class UseView : MonoBehaviour
 
         if (weaponData != null)
         {
-            switch (weaponData.weaponType)
+            soundFxId = (weaponData.weaponType, weaponData.subWeaponType) switch
             {
-                case WeaponType.Melee:
-                    soundFxId = ClientSoundFXRegistry.SoundFXIds.Attack;
-                    break;
-                case WeaponType.Ranged:
-                    if (weaponData.subWeaponType == SubWeaponType.Bow)
-                        soundFxId = ClientSoundFXRegistry.SoundFXIds.ArrowShot;
-                    else
-                    {
-                        soundFxId = ClientSoundFXRegistry.SoundFXIds.HandgunShot;
-                        PlayGunEffect();
-                    }
-                    break;
-            }
+                (WeaponType.Ranged, SubWeaponType.Bow) => ClientSoundFXRegistry
+                    .SoundFXIds
+                    .ArrowShot,
+                (WeaponType.Ranged, _) => ClientSoundFXRegistry.SoundFXIds.HandgunShot,
+                _ => ClientSoundFXRegistry.SoundFXIds.Attack,
+            };
+            PlayWeaponEffect();
         }
         else if (!string.IsNullOrEmpty(equippedItemId))
         {
@@ -261,37 +314,51 @@ public class UseView : MonoBehaviour
         rangedTargetIndicatorRenderer.SetPropertyBlock(propertyBlock);
     }
 
-    public void SetUpUseViewVFX()
+    private void PlayWeaponEffect()
     {
-        if (prefabProvider == null)
-            prefabProvider = resolver.Resolve<ClientPrefabProvider>();
+        Debug.Log(
+            $"[UseView] PlayWeaponEffect: weaponType={weaponData.weaponType} subType={weaponData.subWeaponType} | gun={gunEffectInstance != null} bow={bowEffectInstance != null} melee={meleeEffectInstance != null}"
+        );
 
-        FindCameraPivot();
-        Transform spawnParent = cameraPivot != null ? cameraPivot : transform;
-
-        if (prefabProvider.GunEffectPrefab != null)
+        var (effectInstance, particleSystem) = (
+            weaponData.weaponType,
+            weaponData.subWeaponType
+        ) switch
         {
-            this.gunEffectInstance = resolver.Instantiate(
-                prefabProvider.GunEffectPrefab,
-                spawnParent
+            (WeaponType.Ranged, SubWeaponType.Bow) => (bowEffectInstance, bowParticleSystem),
+            (WeaponType.Ranged, _) => (gunEffectInstance, gunParticleSystem),
+            (WeaponType.Melee, _) => (meleeEffectInstance, meleeParticleSystem),
+            _ => (null, null),
+        };
+
+        if (effectInstance == null)
+        {
+            Debug.LogWarning(
+                $"[UseView] PlayWeaponEffect: effectInstance is null for weaponType={weaponData.weaponType}"
             );
-            this.gunParticleSystem = this.gunEffectInstance.GetComponent<ParticleSystem>();
+            return;
         }
 
-        this.healEffectInstance = resolver.Instantiate(
-            prefabProvider.HealEffectPrefab,
-            spawnParent
-        );
-        this.healEffectInstance.transform.localScale = new Vector3(2, 2, 2);
-        this.healEffectInstance.transform.localPosition = Vector3.zero;
-        this.healParticleSystem = this.healEffectInstance.GetComponent<ParticleSystem>();
+        PositionEffectAtWeaponApex(effectInstance);
+
+        if (direction != Vector3.zero && !IsMeleeWeapon(weaponData))
+            effectInstance.transform.rotation = Quaternion.LookRotation(direction);
+
+        if (IsBowType(weaponData))
+            PlayDelayed(particleSystem, 0.2f).Forget();
+        else
+            particleSystem?.Play();
     }
 
-    private void PlayGunEffect()
+    private async UniTaskVoid PlayDelayed(ParticleSystem ps, float delay)
     {
-        if (gunEffectInstance == null)
-            return;
+        await UniTask.Delay(System.TimeSpan.FromSeconds(delay));
+        if (ps != null)
+            ps.Play();
+    }
 
+    private void PositionEffectAtWeaponApex(GameObject effect)
+    {
         var weaponApex = System.Array.Find(
             transform.root.GetComponentsInChildren<Transform>(),
             t => t.name == "AnchorWeaponApex"
@@ -300,24 +367,29 @@ public class UseView : MonoBehaviour
         if (weaponApex != null)
         {
             Vector3 pos = weaponApex.position;
-            pos.y += gunUpOffset;
-            this.gunEffectInstance.transform.position = pos;
+            if (IsHandGunType(weaponData))
+            {
+                pos = FixGunPosition(pos);
+                effect.transform.position = pos;
+            }
+            else if (IsMeleeWeapon(weaponData))
+            {
+                Quaternion meleeRotation =
+                    direction != Vector3.zero
+                        ? Quaternion.LookRotation(Vector3.up, direction)
+                            * Quaternion.Euler(0, 0, -90)
+                        : Quaternion.identity;
+                effect.transform.SetPositionAndRotation(pos, meleeRotation);
+            }
         }
         else if (cameraPivot != null)
         {
-            this.gunEffectInstance.transform.localPosition = Vector3.zero;
+            effect.transform.localPosition = Vector3.zero;
         }
-
-        if (direction != Vector3.zero)
-            this.gunEffectInstance.transform.rotation = Quaternion.LookRotation(direction);
-
-        if (gunParticleSystem != null)
-            gunParticleSystem.Play();
     }
 
     private void PlayHealEffect()
     {
-        Debug.Log($"PlayHealEffect called for itemId: {equippedItemId}");
         if (
             healEffectInstance == null
             || consumableData == null
@@ -346,10 +418,44 @@ public class UseView : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, weaponData.range);
         }
-        else if (weaponData.weaponType == WeaponType.Ranged)
+        else if (IsRangedWeapon(weaponData))
         {
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, direction.normalized * weaponData.range);
         }
+    }
+
+    private Vector3 FixGunPosition(Vector3 pos)
+    {
+        pos.y += gunUpOffset;
+        if (animator.CurrentFacing == FacingDirection.Back)
+            pos.y += gunUpOffset * 2;
+        else if (animator.CurrentFacing == FacingDirection.Front)
+            pos.y -= gunUpOffset * 1.5f;
+        else if (animator.CurrentFacing == FacingDirection.Right)
+            pos += direction * (-gunUpOffset * 1.75f);
+        else if (animator.CurrentFacing == FacingDirection.Left)
+            pos += direction * (-gunUpOffset);
+        return pos;
+    }
+
+    private bool IsRangedWeapon(WeaponItemData weaponData)
+    {
+        return weaponData.weaponType == WeaponType.Ranged;
+    }
+
+    private bool IsBowType(WeaponItemData weaponData)
+    {
+        return IsRangedWeapon(weaponData) && weaponData.subWeaponType == SubWeaponType.Bow;
+    }
+
+    private bool IsMeleeWeapon(WeaponItemData weaponData)
+    {
+        return weaponData.weaponType == WeaponType.Melee;
+    }
+
+    private bool IsHandGunType(WeaponItemData weaponData)
+    {
+        return IsRangedWeapon(weaponData) && weaponData.subWeaponType == SubWeaponType.HandHeld;
     }
 }

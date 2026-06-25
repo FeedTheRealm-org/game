@@ -220,7 +220,7 @@ public class ClientPlayerLinker : PlayerLinker
             chatController.Initialize(networkAdapter);
 
             useView.SetRangedTargetIndicator(prefabProvider.RangedTargetIndicator);
-            useView.SetUpUseViewVFX();
+            useView.SetUpConsumableVFX();
         }
     }
 }
