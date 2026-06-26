@@ -48,8 +48,8 @@ public class UseView : MonoBehaviour
     private ParticleSystem bowParticleSystem;
     private ParticleSystem meleeParticleSystem;
     private ParticleSystem healParticleSystem;
-    private GameObject healScreenEffectGO;
-    private ParticleSystem healScreenEffectPS;
+    private GameObject healScreenInstance;
+    private ParticleSystem healScreenParticleSystem;
 
     private GameObject rangedTargetIndicator;
     private SpriteRenderer rangedTargetIndicatorRenderer;
@@ -162,7 +162,7 @@ public class UseView : MonoBehaviour
         }
 
         if (prefabProvider.HealScreenEffectPrefab != null)
-            (healScreenEffectGO, healScreenEffectPS) = ScreenEffectSetup.Instantiate(
+            (healScreenInstance, healScreenParticleSystem) = ScreenEffectSetup.Instantiate(
                 resolver,
                 prefabProvider.HealScreenEffectPrefab,
                 ScreenEffectSetup.FindRenderCamera()
@@ -415,7 +415,14 @@ public class UseView : MonoBehaviour
         if (healParticleSystem != null)
             healParticleSystem.Play();
 
-        ScreenEffectSetup.Play(healScreenEffectGO, healScreenEffectPS);
+        ScreenEffectSetup.Play(healScreenInstance, healScreenParticleSystem);
+        StopHealScreenEffectDelayed(1.5f).Forget();
+    }
+
+    private async UniTaskVoid StopHealScreenEffectDelayed(float delay)
+    {
+        await UniTask.Delay(System.TimeSpan.FromSeconds(delay));
+        ScreenEffectSetup.Stop(healScreenInstance, healScreenParticleSystem);
     }
 
     private void OnDrawGizmos()
