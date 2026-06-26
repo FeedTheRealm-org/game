@@ -566,14 +566,14 @@ public partial class CharacterEditController
             return;
         }
 
+        UpdatePaginationControls(response.sprites_list.Length, _currentCosmeticsTotalCount);
+
         await populateItems(response.sprites_list, requestVersion, categoryId);
 
         if (!IsSpritesRequestCurrent(requestVersion, categoryId))
         {
             return;
         }
-
-        UpdatePaginationControls(response.sprites_list.Length, _currentCosmeticsTotalCount);
     }
 
     /// <summary>
