@@ -17,6 +17,7 @@ public class UseView : MonoBehaviour
     private CharacterAnimator animator;
 
     private float gunUpOffset = 0.15f;
+    private float bowUpOffset = 0.5f;
 
     [Inject]
     private IObjectResolver resolver;
@@ -372,14 +373,14 @@ public class UseView : MonoBehaviour
                 pos = FixGunPosition(pos);
                 effect.transform.position = pos;
             }
+            if (IsBowType(weaponData))
+            {
+                pos = FixBowPosition(pos);
+                effect.transform.position = pos;
+            }
             else if (IsMeleeWeapon(weaponData))
             {
-                Quaternion meleeRotation =
-                    direction != Vector3.zero
-                        ? Quaternion.LookRotation(Vector3.up, direction)
-                            * Quaternion.Euler(0, 0, -90)
-                        : Quaternion.identity;
-                effect.transform.SetPositionAndRotation(pos, meleeRotation);
+                FixMeleePosition(effect, pos);
             }
         }
         else if (cameraPivot != null)
@@ -437,6 +438,25 @@ public class UseView : MonoBehaviour
         else if (animator.CurrentFacing == FacingDirection.Left)
             pos += direction * (-gunUpOffset);
         return pos;
+    }
+
+    private Vector3 FixBowPosition(Vector3 pos)
+    {
+        pos.y += bowUpOffset;
+        if (animator.CurrentFacing == FacingDirection.Front)
+            pos.y -= bowUpOffset * 0.5f;
+        else if (animator.CurrentFacing == FacingDirection.Back)
+            pos.y += bowUpOffset * 2.5f;
+        return pos;
+    }
+
+    private void FixMeleePosition(GameObject effect, Vector3 pos)
+    {
+        Quaternion meleeRotation =
+            direction != Vector3.zero
+                ? Quaternion.LookRotation(Vector3.up, direction) * Quaternion.Euler(0, 0, -90)
+                : Quaternion.identity;
+        effect.transform.SetPositionAndRotation(pos, meleeRotation);
     }
 
     private bool IsRangedWeapon(WeaponItemData weaponData)

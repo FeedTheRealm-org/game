@@ -45,5 +45,6 @@ MonoBehaviour:
   HealEffectPrefab: {fileID: 1041383898900682, guid: 6415f946f87d42f408f61c846221beb6, type: 3}
   SpeedUpEffectPrefab: {fileID: 4735854018667895495, guid: 973b98386326b1a5c82569a872803f80, type: 3}
   DamageEffectPrefab: {fileID: 4735854018667895495, guid: c25cba9fccb56344ba86e01368b5a4dc, type: 3}
-  BowEffectPrefab: {fileID: 6130567110401474471, guid: 2346e2e78b606f24198dc68919370a40, type: 3}
+  BowEffectPrefab: {fileID: 1655457316006132, guid: 9463b9293ddf41143acddfb524bdc43e, type: 3}
   MeleeEffectPrefab: {fileID: 2642749838293771946, guid: 1e4a7160d9d435b458b32b9b02ca82dd, type: 3}
+  HitEffectPrefab: {fileID: 6130567110401474471, guid: 2346e2e78b606f24198dc68919370a40, type: 3}
