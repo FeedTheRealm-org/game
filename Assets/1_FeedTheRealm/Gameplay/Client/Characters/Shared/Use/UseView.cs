@@ -48,6 +48,8 @@ public class UseView : MonoBehaviour
     private ParticleSystem bowParticleSystem;
     private ParticleSystem meleeParticleSystem;
     private ParticleSystem healParticleSystem;
+    private GameObject healScreenEffectGO;
+    private ParticleSystem healScreenEffectPS;
 
     private GameObject rangedTargetIndicator;
     private SpriteRenderer rangedTargetIndicatorRenderer;
@@ -110,7 +112,6 @@ public class UseView : MonoBehaviour
             lateTickEvent.OnRaised -= LateTick;
     }
 
-    // Called for ALL characters (player + enemy) from ClientCharacterLinker
     public void SetUpWeaponVFX()
     {
         if (prefabProvider == null)
@@ -144,7 +145,6 @@ public class UseView : MonoBehaviour
         }
     }
 
-    // Called only for local player from ClientPlayerLinker
     public void SetUpConsumableVFX()
     {
         if (prefabProvider == null)
@@ -160,6 +160,17 @@ public class UseView : MonoBehaviour
             healEffectInstance.transform.localPosition = Vector3.zero;
             healParticleSystem = healEffectInstance.GetComponent<ParticleSystem>();
         }
+
+        if (prefabProvider.HealScreenEffectPrefab != null)
+            (healScreenEffectGO, healScreenEffectPS) = ScreenEffectSetup.Instantiate(
+                resolver,
+                prefabProvider.HealScreenEffectPrefab,
+                ScreenEffectSetup.FindRenderCamera()
+            );
+        else
+            Debug.LogWarning(
+                "[UseView] HealScreenEffectPrefab is not assigned in ClientPrefabProvider."
+            );
     }
 
     private void OnEquippedItemChanged(string newItemId)
@@ -403,6 +414,8 @@ public class UseView : MonoBehaviour
         healEffectInstance.transform.rotation = Quaternion.LookRotation(Vector3.up);
         if (healParticleSystem != null)
             healParticleSystem.Play();
+
+        ScreenEffectSetup.Play(healScreenEffectGO, healScreenEffectPS);
     }
 
     private void OnDrawGizmos()

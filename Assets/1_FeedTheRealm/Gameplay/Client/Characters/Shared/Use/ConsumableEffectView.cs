@@ -20,6 +20,11 @@ public class ConsumableEffectView : MonoBehaviour
     private GameObject damageEffectInstance;
     private CharacterStateStorage stateStorage;
 
+    private GameObject speedScreenEffectInstance;
+    private ParticleSystem speedScreenEffectParticles;
+    private GameObject damageScreenEffectInstance;
+    private ParticleSystem damageScreenEffectParticles;
+
     public void SetUp(CharacterStateStorage stateStorage)
     {
         this.stateStorage = stateStorage;
@@ -40,9 +45,39 @@ public class ConsumableEffectView : MonoBehaviour
         damageEffectInstance.transform.localPosition = Vector3.zero;
         damageEffectInstance.SetActive(false);
 
-        // Sync current state for late-joining clients
         foreach (var id in stateStorage.ActiveEffectIds)
             PlayEffectForId(id);
+    }
+
+    public void SetUpScreenEffects()
+    {
+        var renderCam = ScreenEffectSetup.FindRenderCamera();
+
+        if (prefabProvider.SpeedUpScreenEffectPrefab != null)
+            (speedScreenEffectInstance, speedScreenEffectParticles) = ScreenEffectSetup.Instantiate(
+                resolver,
+                prefabProvider.SpeedUpScreenEffectPrefab,
+                renderCam
+            );
+        else
+            Debug.LogWarning(
+                "[ConsumableEffectView] SpeedUpScreenEffectPrefab is not assigned in ClientPrefabProvider."
+            );
+
+        if (prefabProvider.DamageScreenEffectPrefab != null)
+            (damageScreenEffectInstance, damageScreenEffectParticles) =
+                ScreenEffectSetup.Instantiate(
+                    resolver,
+                    prefabProvider.DamageScreenEffectPrefab,
+                    renderCam
+                );
+        else
+            Debug.LogWarning(
+                "[ConsumableEffectView] DamageScreenEffectPrefab is not assigned in ClientPrefabProvider."
+            );
+
+        foreach (var id in stateStorage.ActiveEffectIds)
+            PlayScreenEffectForId(id);
     }
 
     private void OnDestroy()
@@ -82,9 +117,11 @@ public class ConsumableEffectView : MonoBehaviour
         {
             case EffectType.Speed:
                 PlayEffect(speedUpEffectInstance);
+                ScreenEffectSetup.Play(speedScreenEffectInstance, speedScreenEffectParticles);
                 break;
             case EffectType.Damage:
                 PlayEffect(damageEffectInstance);
+                ScreenEffectSetup.Play(damageScreenEffectInstance, damageScreenEffectParticles);
                 break;
         }
     }
@@ -99,9 +136,28 @@ public class ConsumableEffectView : MonoBehaviour
         {
             case EffectType.Speed:
                 StopEffect(speedUpEffectInstance);
+                ScreenEffectSetup.Stop(speedScreenEffectInstance, speedScreenEffectParticles);
                 break;
             case EffectType.Damage:
                 StopEffect(damageEffectInstance);
+                ScreenEffectSetup.Stop(damageScreenEffectInstance, damageScreenEffectParticles);
+                break;
+        }
+    }
+
+    private void PlayScreenEffectForId(string itemId)
+    {
+        var consumable = ClientItemsRegistry.GetConsumableById(itemId);
+        if (consumable == null)
+            return;
+
+        switch (consumable.effectType)
+        {
+            case EffectType.Speed:
+                ScreenEffectSetup.Play(speedScreenEffectInstance, speedScreenEffectParticles);
+                break;
+            case EffectType.Damage:
+                ScreenEffectSetup.Play(damageScreenEffectInstance, damageScreenEffectParticles);
                 break;
         }
     }
@@ -120,6 +176,8 @@ public class ConsumableEffectView : MonoBehaviour
     {
         StopEffect(speedUpEffectInstance);
         StopEffect(damageEffectInstance);
+        ScreenEffectSetup.Stop(speedScreenEffectInstance, speedScreenEffectParticles);
+        ScreenEffectSetup.Stop(damageScreenEffectInstance, damageScreenEffectParticles);
     }
 
     private void StopEffect(GameObject effect)

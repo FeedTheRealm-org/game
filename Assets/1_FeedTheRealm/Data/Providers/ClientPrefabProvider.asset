@@ -48,3 +48,6 @@ MonoBehaviour:
   BowEffectPrefab: {fileID: 1655457316006132, guid: 9463b9293ddf41143acddfb524bdc43e, type: 3}
   MeleeEffectPrefab: {fileID: 2642749838293771946, guid: 1e4a7160d9d435b458b32b9b02ca82dd, type: 3}
   HitEffectPrefab: {fileID: 6130567110401474471, guid: 2346e2e78b606f24198dc68919370a40, type: 3}
+  HealScreenEffectPrefab: {fileID: 3942825033974895155, guid: ebe327400de958040a5082d7a1a2270f, type: 3}
+  DamageScreenEffectPrefab: {fileID: 3942825033974895155, guid: 0e97b30b5b3ef2d4fa745810940a4e80, type: 3}
+  SpeedUpScreenEffectPrefab: {fileID: 3942825033974895155, guid: 7297fe0a5e06fb644a731296af23d579, type: 3}

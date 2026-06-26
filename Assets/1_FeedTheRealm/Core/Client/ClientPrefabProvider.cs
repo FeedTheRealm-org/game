@@ -58,5 +58,8 @@ namespace FTR.Core.Client
         public GameObject BowEffectPrefab;
         public GameObject MeleeEffectPrefab;
         public GameObject HitEffectPrefab;
+        public GameObject HealScreenEffectPrefab;
+        public GameObject DamageScreenEffectPrefab;
+        public GameObject SpeedUpScreenEffectPrefab;
     }
 }

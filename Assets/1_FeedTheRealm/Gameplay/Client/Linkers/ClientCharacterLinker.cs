@@ -49,9 +49,6 @@ namespace FTR.Gameplay.Client.Linkers
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             healthView?.Initialize(stateStorage);
 
-            var consumableEffectView = characterComponents.GetComponent<ConsumableEffectView>();
-            consumableEffectView?.SetUp(stateStorage);
-
             useView.SetUpWeaponVFX();
 
             movementController.Initialize(networkAdapter);

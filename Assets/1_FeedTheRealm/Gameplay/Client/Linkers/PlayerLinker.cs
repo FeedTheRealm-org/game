@@ -183,6 +183,7 @@ public class ClientPlayerLinker : PlayerLinker
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
             var questProgressView = hudComponent.AddComponent<QuestProgressView>();
+            var consumableEffectView = playerComponents.AddComponent<ConsumableEffectView>();
 
             var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
@@ -197,6 +198,7 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);
             resolver.Inject(staminaView);
+            resolver.Inject(consumableEffectView);
 
             resolver.Inject(goldView);
             resolver.Inject(goldController);
@@ -220,7 +222,9 @@ public class ClientPlayerLinker : PlayerLinker
             chatController.Initialize(networkAdapter);
 
             useView.SetRangedTargetIndicator(prefabProvider.RangedTargetIndicator);
-            useView.SetUpConsumableVFX();
+            consumableEffectView?.SetUp(stateStorage);
+            useView?.SetUpConsumableVFX();
+            consumableEffectView?.SetUpScreenEffects();
         }
     }
 }
