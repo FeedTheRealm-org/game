@@ -11,6 +11,7 @@ using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
+using VContainer.Unity;
 
 namespace FTR.UI.Homepage.Settings
 {
@@ -28,6 +29,9 @@ namespace FTR.UI.Homepage.Settings
         [SerializeField]
         private OnLogoutRequestedEvent logoutRequestedEvent;
 
+        [SerializeField]
+        private GameObject downloadContentPopupPrefab;
+
         [Inject]
         private CacheManager cacheManager;
 
@@ -36,6 +40,9 @@ namespace FTR.UI.Homepage.Settings
 
         [Inject]
         private ISoundPlayer soundPlayer;
+
+        [Inject]
+        private IObjectResolver resolver;
 
         private IConfirmPopup ConfirmPopup => confirmPopupHandle.Controller;
 
@@ -62,6 +69,7 @@ namespace FTR.UI.Homepage.Settings
 
         private Label _gameVersionLabel;
         private Button _clearCacheButton;
+        private Button _downloadContentButton;
         private Toggle _cacheEnabledToggle;
         private Label _cacheStatusLabel;
 
@@ -110,6 +118,7 @@ namespace FTR.UI.Homepage.Settings
 
             _gameVersionLabel = _panel.Q<Label>("HPSettings_GameVersionLabel");
             _clearCacheButton = _panel.Q<Button>("HPSettings_ClearCacheButton");
+            _downloadContentButton = _panel.Q<Button>("HPSettings_DownloadContentButton");
             _cacheEnabledToggle = _panel.Q<Toggle>("HPSettings_CacheEnabledToggle");
             _cacheStatusLabel = _panel.Q<Label>("HPSettings_CacheStatus");
 
@@ -160,6 +169,7 @@ namespace FTR.UI.Homepage.Settings
             Check(_muteToggle, "HPSettings_MuteToggle");
             Check(_gameVersionLabel, "HPSettings_GameVersionLabel");
             Check(_clearCacheButton, "HPSettings_ClearCacheButton");
+            Check(_downloadContentButton, "HPSettings_DownloadContentButton");
             Check(_cacheEnabledToggle, "HPSettings_CacheEnabledToggle");
             Check(_cacheStatusLabel, "HPSettings_CacheStatus");
 
@@ -256,6 +266,7 @@ namespace FTR.UI.Homepage.Settings
                 _logoutButton.clicked += OnLogoutClicked;
                 _exitButton.clicked += OnExitClicked;
                 _clearCacheButton.clicked += OnClearCacheClicked;
+                _downloadContentButton.clicked += OnDownloadContentClicked;
                 _cacheEnabledToggle?.RegisterValueChangedCallback(OnCacheEnabledChanged);
 
                 _fullscreenToggle?.RegisterValueChangedCallback(OnFullscreenChanged);
@@ -280,6 +291,8 @@ namespace FTR.UI.Homepage.Settings
                     _exitButton.clicked -= OnExitClicked;
                 if (_clearCacheButton != null)
                     _clearCacheButton.clicked -= OnClearCacheClicked;
+                if (_downloadContentButton != null)
+                    _downloadContentButton.clicked -= OnDownloadContentClicked;
                 _cacheEnabledToggle?.UnregisterValueChangedCallback(OnCacheEnabledChanged);
 
                 _fullscreenToggle?.UnregisterValueChangedCallback(OnFullscreenChanged);
@@ -367,6 +380,11 @@ namespace FTR.UI.Homepage.Settings
                     ClearCache();
                 }
             );
+        }
+
+        private void OnDownloadContentClicked()
+        {
+            resolver.Instantiate(downloadContentPopupPrefab);
         }
 
         private void ClearCache()

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Settings;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Enums;
 using FTR.Gameplay.Client.Registry;
@@ -30,6 +31,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly OnLogoutRequestedEvent onLogoutRequestedEvent;
         private readonly WorldInfoMenuHandle worldInfoMenuHandle;
         private readonly Config config;
+        private readonly SettingsManager settingsManager;
         private readonly IObjectResolver resolver;
         private API.AuthService authService;
         private Session.Session session;
@@ -54,6 +56,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             OnLogoutRequestedEvent onLogoutRequestedEvent,
             WorldInfoMenuHandle worldInfoMenuHandle,
             Config config,
+            SettingsManager settingsManager,
             IObjectResolver resolver
         )
         {
@@ -74,6 +77,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.onLogoutRequestedEvent = onLogoutRequestedEvent;
             this.worldInfoMenuHandle = worldInfoMenuHandle;
             this.config = config;
+            this.settingsManager = settingsManager;
             this.resolver = resolver;
         }
 
@@ -197,7 +201,8 @@ namespace FTR.Gameplay.Client.EntryPoints
 
             await RedirectIfProfileRequired(worldFeedMenuObj, profileMenuObj, navBarController);
 
-            resolver.Instantiate(downloadContentPopupPrefab);
+            if (settingsManager.ShowDownloadContentPopupOnStart)
+                resolver.Instantiate(downloadContentPopupPrefab);
 
             var navigateSource = new UniTaskCompletionSource();
             var logoutSource = new UniTaskCompletionSource();

@@ -5,6 +5,7 @@ using API;
 using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
+using FTR.Core.Client.Settings;
 using FTRShared.Runtime.Core.Cache;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -26,6 +27,9 @@ namespace FTR.UI
 
         [Inject]
         private AssetsService assetsService;
+
+        [Inject]
+        private SettingsManager settingsManager;
 
         private VisualElement _overlay;
         private Label _titleLabel;
@@ -89,6 +93,8 @@ namespace FTR.UI
 
         public void Hide()
         {
+            settingsManager.ShowDownloadContentPopupOnStart = false;
+            settingsManager.SaveSettings();
             Destroy(gameObject);
         }
 
@@ -149,10 +155,11 @@ namespace FTR.UI
             {
                 try
                 {
-                    _ = await cacheManager.GetSprite(
+                    var sprite = await cacheManager.GetSprite(
                         cosmetic.sprite_url,
                         DateTimeHelper.ParseDateTimeOffset(cosmetic.updated_at)
                     );
+                    Destroy(sprite);
                 }
                 finally
                 {
@@ -168,6 +175,8 @@ namespace FTR.UI
                         new Length(percent, LengthUnit.Percent)
                     );
                 }
+
+                await Awaitable.NextFrameAsync();
             }
 
             if (_downloadingLabel != null)

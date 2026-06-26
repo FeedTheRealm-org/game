@@ -124,6 +124,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 onLogoutRequestedEvent,
                 worldInfoMenuHandle,
                 config,
+                settingsManager,
                 resolver
             );
         }

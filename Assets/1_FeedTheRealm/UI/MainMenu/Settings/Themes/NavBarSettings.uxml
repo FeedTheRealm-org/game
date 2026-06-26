@@ -82,6 +82,18 @@
 
                     <ui:VisualElement class="hpset-section-divider hpset-section-divider--minor" />
 
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label
+                            text="Pre-Download playable content to reduce latency when loading new files."
+                            class="hpset-cache-text" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Button text="Download Content" name="HPSettings_DownloadContentButton"
+                            class="hpset-action-button" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="hpset-section-divider hpset-section-divider--minor" />
+
                     <ui:VisualElement class="setting-row hpset-version-row">
                         <ui:Label text="Game Version" class="hpset-version-label" />
                         <ui:Label text="" name="HPSettings_GameVersionLabel"
