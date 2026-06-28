@@ -566,14 +566,14 @@ public partial class CharacterEditController
             return;
         }
 
+        UpdatePaginationControls(response.sprites_list.Length, _currentCosmeticsTotalCount);
+
         await populateItems(response.sprites_list, requestVersion, categoryId);
 
         if (!IsSpritesRequestCurrent(requestVersion, categoryId))
         {
             return;
         }
-
-        UpdatePaginationControls(response.sprites_list.Length, _currentCosmeticsTotalCount);
     }
 
     /// <summary>
@@ -602,6 +602,12 @@ public partial class CharacterEditController
             var btn = new Button();
             btn.AddToClassList("item_button");
             btn.name = sprite.sprite_id;
+            btn.text = "";
+
+            var spinner = CreateSpinner();
+            btn.Add(spinner);
+            _itemsList.contentContainer.Add(btn);
+
             Texture2D texture = null;
             var hasCachedTexture = textureCache.TryGetValue(sprite.sprite_id, out texture);
             if (!hasCachedTexture)
@@ -623,6 +629,10 @@ public partial class CharacterEditController
                     textureCache[sprite.sprite_id] = texture;
                 }
             }
+
+            StopSpinner(spinner);
+            spinner.RemoveFromHierarchy();
+
             if (texture != null)
             {
                 _currentPageTextureKeys.Add(sprite.sprite_id);
@@ -656,8 +666,6 @@ public partial class CharacterEditController
                     Logging.LogType.Warning
                 );
             }
-
-            _itemsList.contentContainer.Add(btn);
         }
     }
 
@@ -701,6 +709,85 @@ public partial class CharacterEditController
         {
             _itemsList.contentContainer.RemoveAt(1);
         }
+    }
+
+    private void StartSpinner(VisualElement spinner)
+    {
+        float angle = 0f;
+        var scheduled = spinner
+            .schedule.Execute(() =>
+            {
+                angle = (angle + 12f) % 360f;
+                spinner.style.rotate = new StyleRotate(
+                    new Rotate(new Angle(angle, AngleUnit.Degree))
+                );
+            })
+            .Every(16);
+
+        spinner.userData = scheduled;
+    }
+
+    private void StopSpinner(VisualElement spinner)
+    {
+        if (spinner.userData is IVisualElementScheduledItem scheduled)
+            scheduled.Pause();
+    }
+
+    private VisualElement CreateSpinner()
+    {
+        var spinner = new VisualElement();
+        spinner.AddToClassList("item-spinner");
+
+        spinner.style.position = Position.Absolute;
+        spinner.style.width = 24;
+        spinner.style.height = 24;
+        spinner.style.left = new StyleLength(new Length(50, LengthUnit.Percent));
+        spinner.style.top = new StyleLength(new Length(50, LengthUnit.Percent));
+        spinner.style.marginLeft = -12;
+        spinner.style.marginTop = -12;
+
+        spinner.style.borderTopLeftRadius = 12;
+        spinner.style.borderTopRightRadius = 12;
+        spinner.style.borderBottomLeftRadius = 12;
+        spinner.style.borderBottomRightRadius = 12;
+        spinner.style.borderTopWidth = 3;
+        spinner.style.borderRightWidth = 3;
+        spinner.style.borderBottomWidth = 3;
+        spinner.style.borderLeftWidth = 3;
+        spinner.style.borderTopColor = new Color(1f, 1f, 1f, 0.9f);
+        spinner.style.borderRightColor = new Color(1f, 1f, 1f, 0.25f);
+        spinner.style.borderBottomColor = new Color(1f, 1f, 1f, 0.25f);
+        spinner.style.borderLeftColor = new Color(1f, 1f, 1f, 0.25f);
+
+        var spinnerColor = new Color(80f / 255f, 200f / 255f, 220f / 255f);
+
+        spinner.style.borderTopColor = new Color(
+            spinnerColor.r,
+            spinnerColor.g,
+            spinnerColor.b,
+            0.9f
+        );
+        spinner.style.borderRightColor = new Color(
+            spinnerColor.r,
+            spinnerColor.g,
+            spinnerColor.b,
+            0.25f
+        );
+        spinner.style.borderBottomColor = new Color(
+            spinnerColor.r,
+            spinnerColor.g,
+            spinnerColor.b,
+            0.25f
+        );
+        spinner.style.borderLeftColor = new Color(
+            spinnerColor.r,
+            spinnerColor.g,
+            spinnerColor.b,
+            0.25f
+        );
+
+        StartSpinner(spinner);
+        return spinner;
     }
 
     private void UpdateCategorySelectionVisual()

@@ -40,6 +40,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject authBackgroundPrefab;
 
         private readonly GameObject confirmPopupPrefab;
+        private readonly GameObject downloadContentPopupPrefab;
         private readonly ConfirmPopupHandle confirmPopupHandle;
         private readonly CacheManager cacheManager;
         private MenuManager menuManager;
@@ -72,6 +73,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             MenuManager menuManager,
             ConfirmPopupHandle confirmPopupHandle,
             GameObject confirmPopupPrefab,
+            GameObject downloadContentPopupPrefab,
             CacheManager cacheManager,
             WorldInfoMenuHandle worldInfoMenuHandle,
             Config config,
@@ -98,6 +100,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.menuManager = menuManager;
             this.confirmPopupHandle = confirmPopupHandle;
             this.confirmPopupPrefab = confirmPopupPrefab;
+            this.downloadContentPopupPrefab = downloadContentPopupPrefab;
             this.cacheManager = cacheManager;
             this.worldInfoMenuHandle = worldInfoMenuHandle;
             this.config = config;
@@ -110,6 +113,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 profileMenuPrefab,
                 gemStorePrefab,
                 musicPlayerPrefab,
+                downloadContentPopupPrefab,
                 musicRegistry,
                 soundFXRegistry,
                 soundPlayer,
@@ -120,6 +124,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 onLogoutRequestedEvent,
                 worldInfoMenuHandle,
                 config,
+                settingsManager,
                 resolver
             );
         }

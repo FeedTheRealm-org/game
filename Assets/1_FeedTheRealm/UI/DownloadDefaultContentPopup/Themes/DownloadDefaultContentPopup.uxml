@@ -1,0 +1,30 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+    editor-extension-mode="False">
+    <Style
+        src="project://database/Assets/1_FeedTheRealm/UI/DownloadDefaultContentPopup/Themes/DownloadDefaultContentPopupStyle.uss?fileID=7433441132597879392&amp;guid=d8910eb8020c037928182f6943d2dbdc&amp;type=3#DownloadDefaultContentPopupStyle" />
+    <ui:VisualElement name="Overlay" class="dialog-overlay">
+        <ui:VisualElement name="DialogCard" class="dialog-card">
+            <ui:VisualElement name="Header" class="dialog-header">
+                <ui:Label name="DialogTitle" text="Download Content" class="dialog-title" />
+            </ui:VisualElement>
+            <ui:VisualElement name="Body" class="dialog-body">
+                <ui:Label name="QuestionLabel"
+                    text="It's recommended to pre-download the playable content for the best experience. Do you wish to proceed?"
+                    class="dialog-question" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ProgressBarContainer">
+                <ui:Label text="downloading content..." name="DownloadingLabel" />
+                <ui:VisualElement name="ProgressBarBg">
+                    <ui:VisualElement name="ProgressBarFill" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="Footer" class="dialog-footer">
+                <ui:Button name="CancelButton" text="Cancel" class="dialog-btn dialog-btn--cancel" />
+                <ui:Button name="ConfirmButton" text="Download"
+                    class="dialog-btn dialog-btn--confirm" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
