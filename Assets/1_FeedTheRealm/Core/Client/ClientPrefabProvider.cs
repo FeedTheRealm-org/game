@@ -44,5 +44,22 @@ namespace FTR.Core.Client
 
         [Header("Quests")]
         public GameObject QuestsMenuPrefab;
+
+        [Header("VFX")]
+        public GameObject GoldCoinPrefab;
+        public GameObject QuestSignPrefab;
+        public GameObject QuestHaloPrefab;
+        public GameObject ChestOpenEffectPrefab;
+        public GameObject DashEffectPrefab;
+        public GameObject GunEffectPrefab;
+        public GameObject HealEffectPrefab;
+        public GameObject SpeedUpEffectPrefab;
+        public GameObject DamageEffectPrefab;
+        public GameObject BowEffectPrefab;
+        public GameObject MeleeEffectPrefab;
+        public GameObject HitEffectPrefab;
+        public GameObject HealScreenEffectPrefab;
+        public GameObject DamageScreenEffectPrefab;
+        public GameObject SpeedUpScreenEffectPrefab;
     }
 }

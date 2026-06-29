@@ -32,9 +32,6 @@ namespace FTR.UI.Inventory
 
             string callMarker = System.Guid.NewGuid().ToString();
             string short_ = callMarker.Substring(0, 6);
-            Debug.Log(
-                $"[SlotItemLoader] START icon={icon.name} itemId={itemId ?? "NULL"} marker={short_}"
-            );
 
             icon.userData = callMarker;
             icon.Clear();
@@ -69,11 +66,6 @@ namespace FTR.UI.Inventory
             );
 
             string currentMarker = icon.userData as string;
-            Debug.Log(
-                $"[SlotItemLoader] POST-AWAIT icon={icon.name} itemId={itemId} marker={short_} "
-                    + $"currentMarker={currentMarker?.Substring(0, Math.Min(6, currentMarker?.Length ?? 0)) ?? "NULL"} "
-                    + $"match={currentMarker == callMarker} contains={icon.Contains(itemElement)}"
-            );
 
             if (currentMarker != callMarker)
                 return;
@@ -85,7 +77,6 @@ namespace FTR.UI.Inventory
             itemElement.style.backgroundImage = new StyleBackground(texture);
             itemElement.userData = new InventoryItemUIData(itemId, texture);
             InventoryItemVisualController.SetStackCount(itemElement, quantity);
-            Debug.Log($"[SlotItemLoader] SUCCESS icon={icon.name} itemId={itemId}");
         }
     }
 }

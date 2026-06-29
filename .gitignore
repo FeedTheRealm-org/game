@@ -121,6 +121,8 @@ feed-the-realm-client.slnx
 # Assets
 Resources.meta
 ScriptTemplates.meta
+Polygon_Arsenal.meta
+Vefects.meta
 
 Assets/Mirror/
 Assets/ScriptTemplates/
@@ -143,3 +145,4 @@ Assets/DefaultMaterials.meta
 Assets/DefaultMaterials/
 Assets/Hovl Studio/
 Assets/Hovl Studio.meta
+Assets/Vefects/

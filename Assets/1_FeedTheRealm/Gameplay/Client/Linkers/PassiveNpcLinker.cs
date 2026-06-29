@@ -54,6 +54,10 @@ public class ClientPassiveNpcLinker : PassiveNpcLinker
         dialogBoxComponent.SetActive(true);
         var dialogBox = dialogBoxComponent.GetComponent<IDialogBox>();
 
+        var questSignView = characterComponent.AddComponent<QuestSignView>();
+        resolver.Inject(questSignView);
+        questSignView.Initialize(stateStorage.CharacterId, npcDialogRegistry, characterBody);
+
         resolver.Inject(interactView);
         interactView.Initialize(networkEventRouter, npcDialogRegistry, dialogBox);
     }

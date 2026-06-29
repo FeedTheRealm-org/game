@@ -1,6 +1,7 @@
 using FeedTheRealm.Core.EventChannels.Setup;
 using FTR.Core.Client.EventChannels;
 using FTR.Core.Client.EventChannels.Chat;
+using FTR.Core.Client.EventChannels.Chest;
 using FTR.Core.Client.EventChannels.Gold;
 using FTR.Core.Client.EventChannels.Input;
 using FTR.Core.Client.EventChannels.Interaction;
@@ -64,6 +65,9 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public TickEvent tickEvent;
         public FixedTickEvent fixedTickEvent;
         public LateTickEvent lateTickEvent;
+
+        [Header("Chest Events")]
+        public ChestOpenedEvent chestOpenedEvent;
 
         [Header("Gold Events")]
         public GoldChangedEvent goldChangedEvent;
@@ -132,6 +136,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(backEvent);
             builder.RegisterInstance(onLogoutRequestedEvent);
             builder.RegisterInstance(questToggleEvent);
+            builder.RegisterInstance(chestOpenedEvent);
         }
 
         private void Validate()
@@ -176,6 +181,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(backEvent, nameof(backEvent));
             ValidateField(onLogoutRequestedEvent, nameof(onLogoutRequestedEvent));
             ValidateField(questToggleEvent, nameof(questToggleEvent));
+            ValidateField(chestOpenedEvent, nameof(chestOpenedEvent));
         }
 
         private void ValidateField(Object field, string fieldName)
