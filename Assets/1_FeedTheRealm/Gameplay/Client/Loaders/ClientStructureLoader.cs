@@ -9,12 +9,15 @@ using FTR.Gameplay.Common.Environment.Structures;
 using FTRShared.Runtime.Core.Cache;
 using FTRShared.Runtime.Models;
 using UnityEngine;
+using VContainer;
 
 namespace FTR.Gameplay.Client.Loaders
 {
     public class ClientStructureLoader : ILoader
     {
+        [Inject]
         private LoadingProgressEvent loadingProgressEvent;
+
         private readonly ModelService modelService;
         private readonly CacheManager cacheManager;
         private readonly GameObject structurePrefab;
