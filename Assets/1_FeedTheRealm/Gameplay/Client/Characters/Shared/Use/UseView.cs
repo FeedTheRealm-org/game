@@ -62,6 +62,9 @@ public class UseView : MonoBehaviour
         this.propertyBlock = new MaterialPropertyBlock();
 
         isInitialized = true;
+
+        if (!string.IsNullOrEmpty(stateStorage.EquippedItemId))
+            OnEquippedItemChanged(stateStorage.EquippedItemId);
     }
 
     public void SetRangedTargetIndicator(GameObject rangedTargetIndicatorPrefab)
