@@ -63,6 +63,9 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GameObject confirmPopupPrefab;
 
+    [SerializeField]
+    private GameObject downloadContentPopupPrefab;
+
     [Header("Loading Screen")]
     [SerializeField]
     private GameObject loadingScreenPrefab;
@@ -94,6 +97,9 @@ public class ClientInitiator : LifetimeScope
     [SerializeField]
     private GltLoaderService gltfLoaderService;
 
+    [SerializeField]
+    private API.ExportsService exportService;
+
     [Header("Events")]
     [SerializeField]
     private ClientEventRegistry eventRegistry;
@@ -116,6 +122,7 @@ public class ClientInitiator : LifetimeScope
         builder.RegisterInstance(modelService);
         builder.RegisterInstance(soundFXRegistry);
         builder.RegisterInstance(gltfLoaderService).As<IGltfLoader>().AsSelf();
+        builder.RegisterInstance(exportService);
         builder.RegisterInstance(logger);
         builder.Register<WorldInfoMenuHandle>(Lifetime.Singleton);
         eventRegistry.RegisterAll(builder);
@@ -141,7 +148,8 @@ public class ClientInitiator : LifetimeScope
             .WithParameter("soundFXRegistry", soundFXRegistry)
             .WithParameter("onProfileCreatedEvent", eventRegistry.onProfileCreatedEvent)
             .WithParameter("onLogoutRequestedEvent", eventRegistry.onLogoutRequestedEvent)
-            .WithParameter("confirmPopupPrefab", confirmPopupPrefab);
+            .WithParameter("confirmPopupPrefab", confirmPopupPrefab)
+            .WithParameter("downloadContentPopupPrefab", downloadContentPopupPrefab);
 
         builder.RegisterComponentInNewPrefab(authFlowManager, Lifetime.Singleton);
         builder.Register<MenuManager>(Lifetime.Singleton);
@@ -164,6 +172,7 @@ public class ClientInitiator : LifetimeScope
         ValidateField(assetsService, "AssetsService");
         ValidateField(modelService, "ModelService");
         ValidateField(gltfLoaderService, "GLTFLoaderService");
+        ValidateField(exportService, "ExportService");
         ValidateField(soundFXRegistry, "SoundFXRegistry");
         ValidateField(authFlowManager, "AuthFlowManager");
         ValidateField(authBackgroundPrefab, "AuthBackgroundPrefab");

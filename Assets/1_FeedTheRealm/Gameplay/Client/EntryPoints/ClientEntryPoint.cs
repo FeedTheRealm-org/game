@@ -4,6 +4,7 @@ using FTR.Core.Client.EventChannels.UI;
 using FTR.Core.Client.Interfaces;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
+using FTR.Core.Common.Config;
 using FTR.Gameplay.Client.Registry;
 using FTRShared.Runtime.Core.Cache;
 using FTRShared.UI.AuthMenu;
@@ -34,14 +35,17 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly GameObject loadingScreenPrefab;
         private readonly MainMenuFlowService flowService;
         private readonly SettingsManager settingsManager;
+        private readonly CursorManager cursorManager;
         private readonly GameObject navBarSettingsPrefab;
         private readonly GameObject authBackgroundPrefab;
 
         private readonly GameObject confirmPopupPrefab;
+        private readonly GameObject downloadContentPopupPrefab;
         private readonly ConfirmPopupHandle confirmPopupHandle;
         private readonly CacheManager cacheManager;
         private MenuManager menuManager;
         private readonly WorldInfoMenuHandle worldInfoMenuHandle;
+        private readonly Config config;
         private readonly IObjectResolver resolver;
 
         public ClientEntryPoint(
@@ -59,6 +63,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             ISoundPlayer soundPlayer,
             GameObject loadingScreenPrefab,
             SettingsManager settingsManager,
+            CursorManager cursorManager,
             GameObject navBarSettingsPrefab,
             AuthFlowManager authFlowManager,
             GameObject authBackgroundPrefab,
@@ -68,8 +73,10 @@ namespace FTR.Gameplay.Client.EntryPoints
             MenuManager menuManager,
             ConfirmPopupHandle confirmPopupHandle,
             GameObject confirmPopupPrefab,
+            GameObject downloadContentPopupPrefab,
             CacheManager cacheManager,
             WorldInfoMenuHandle worldInfoMenuHandle,
+            Config config,
             IObjectResolver resolver
         )
         {
@@ -87,13 +94,16 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.soundPlayer = soundPlayer;
             this.loadingScreenPrefab = loadingScreenPrefab;
             this.settingsManager = settingsManager;
+            this.cursorManager = cursorManager;
             this.navBarSettingsPrefab = navBarSettingsPrefab;
             this.authBackgroundPrefab = authBackgroundPrefab;
             this.menuManager = menuManager;
             this.confirmPopupHandle = confirmPopupHandle;
             this.confirmPopupPrefab = confirmPopupPrefab;
+            this.downloadContentPopupPrefab = downloadContentPopupPrefab;
             this.cacheManager = cacheManager;
             this.worldInfoMenuHandle = worldInfoMenuHandle;
+            this.config = config;
             this.resolver = resolver;
 
             flowService = new MainMenuFlowService(
@@ -103,6 +113,7 @@ namespace FTR.Gameplay.Client.EntryPoints
                 profileMenuPrefab,
                 gemStorePrefab,
                 musicPlayerPrefab,
+                downloadContentPopupPrefab,
                 musicRegistry,
                 soundFXRegistry,
                 soundPlayer,
@@ -112,6 +123,8 @@ namespace FTR.Gameplay.Client.EntryPoints
                 onProfileCreatedEvent,
                 onLogoutRequestedEvent,
                 worldInfoMenuHandle,
+                config,
+                settingsManager,
                 resolver
             );
         }
@@ -121,6 +134,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             ConfigureUnityForClient();
 
             menuManager.SetIsMainMenu(true);
+            cursorManager.ToggleCursorBlock(false);
 
             var confirmPopupObj = resolver.Instantiate(confirmPopupPrefab);
             SetupConfirmPopup(confirmPopupObj);

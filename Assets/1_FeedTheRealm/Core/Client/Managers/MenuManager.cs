@@ -145,14 +145,12 @@ public class MenuManager : IDisposable
 
         if (menuStatus[MenuType.Settings] && CanCloseMenu(MenuType.Settings))
         {
-            logger.Log("[MenuManager] BackEvent: Closing Settings menu.");
             menuActionCallbacks.TryGetValue(MenuType.Settings, out var cb);
             if (cb.Item2 != null)
                 cb.Item2?.Invoke();
         }
         else if (!menuStatus[MenuType.Settings] && CanOpenMenu(MenuType.Settings) && !isMainMenu)
         {
-            logger.Log("[MenuManager] BackEvent: Opening Settings menu.");
             menuActionCallbacks.TryGetValue(MenuType.Settings, out var cb);
             if (cb.Item1 != null)
                 cb.Item1?.Invoke();
@@ -160,7 +158,6 @@ public class MenuManager : IDisposable
 
         foreach (var menu in menuStatus)
         {
-            logger.Log($"[MenuManager] BackEvent: Checking menu status {menu.Key}: {menu.Value}");
             if (menu.Value && CanCloseMenu(menu.Key) && menu.Key != MenuType.Settings)
             {
                 menuActionCallbacks.TryGetValue(menu.Key, out var cb);

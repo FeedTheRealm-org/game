@@ -1,12 +1,15 @@
 using System;
 using System.Collections;
+using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Status;
 using FTR.Core.Common.Config;
 using FTR.Core.Common.Systems.Status;
 using FTR.Gameplay.Client.Registry;
 using FTR.Gameplay.Common.NetworkEntities.Characters;
 using UnityEngine;
+using UnityEngine.Rendering;
 using VContainer;
+using VContainer.Unity;
 
 /// <summary>
 /// Propagates health changes from CharacterStateStorage to the HealthChangedEvent
@@ -29,11 +32,25 @@ public class HealthView : MonoBehaviour
     [Inject]
     private ISoundPlayer soundPlayer;
 
+    [Inject]
+    private IObjectResolver resolver;
+
+    [Inject]
+    private ClientPrefabProvider prefabProvider;
+
     public event Action<float> OnMaxHealthInitialized;
     public bool IsMaxHealthInitialized => isMaxHealthInitialized;
 
     private float maxHealth;
     public bool isMaxHealthInitialized = false;
+
+    private float previousHealth = -1f;
+    private GameObject hitEffectInstance;
+    private ParticleSystem hitParticleSystem;
+    private Renderer hitParticleRenderer;
+    private const float HitCameraOffset = 0.18f;
+    private const float HitHeightOffset = 0.5f;
+    private const int HitDepthSortingPrecision = 100;
 
     public float MaxHealth
     {
@@ -74,6 +91,20 @@ public class HealthView : MonoBehaviour
 
             stateStorage.OnHealthChanged += OnHealthChanged;
         }
+
+        if (prefabProvider != null && prefabProvider.HitEffectPrefab != null)
+        {
+            var spawnParent = FindCenterMarker();
+            hitEffectInstance = resolver.Instantiate(prefabProvider.HitEffectPrefab, spawnParent);
+            hitEffectInstance.transform.localPosition = Vector3.zero;
+            hitEffectInstance.SetActive(false);
+            hitParticleSystem = hitEffectInstance.GetComponent<ParticleSystem>();
+            hitParticleRenderer = hitEffectInstance.GetComponent<Renderer>();
+
+            var sortingGroup = transform.GetComponentInChildren<SortingGroup>(true);
+            if (hitParticleRenderer != null && sortingGroup != null)
+                hitParticleRenderer.sortingLayerID = sortingGroup.sortingLayerID;
+        }
     }
 
     private void DeferredInit(float health)
@@ -101,16 +132,78 @@ public class HealthView : MonoBehaviour
 
     private void OnHealthChanged(float value)
     {
-        StartCoroutine(UpdateHealthAfterDelay(value));
+        bool tookDamage = previousHealth >= 0 && value < previousHealth;
+        previousHealth = value;
+        StartCoroutine(UpdateHealthAfterDelay(value, tookDamage));
     }
 
-    private IEnumerator UpdateHealthAfterDelay(float value)
+    private IEnumerator UpdateHealthAfterDelay(float value, bool tookDamage)
     {
         if (value < MaxHealth)
             yield return new WaitForSeconds(config.HealthUpdateDelay);
 
+        if (tookDamage)
+            PlayHitEffect();
+
         RaiseHudEvent(value);
         UpdateAnimation(value);
+    }
+
+    private void PlayHitEffect()
+    {
+        if (hitEffectInstance == null || hitParticleSystem == null)
+        {
+            Debug.LogWarning(
+                $"[HealthView] PlayHitEffect skipped: instance={hitEffectInstance != null} ps={hitParticleSystem != null}"
+            );
+            return;
+        }
+
+        hitEffectInstance.transform.localPosition = Vector3.zero;
+        Vector3 parentWorld = hitEffectInstance.transform.position;
+        Vector3 worldPos = parentWorld;
+        worldPos.y += HitHeightOffset;
+
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            Vector3 toCam = cam.transform.position - worldPos;
+            toCam.y = 0f;
+            if (toCam.sqrMagnitude > 0f)
+                worldPos += toCam.normalized * HitCameraOffset;
+        }
+
+        hitEffectInstance.transform.position = worldPos;
+        Debug.Log(
+            $"[HealthView] PlayHitEffect: parentWorld={parentWorld} finalWorld={worldPos} localPos={hitEffectInstance.transform.localPosition}"
+        );
+
+        hitEffectInstance.SetActive(true);
+        hitParticleSystem.Play();
+    }
+
+    private void LateUpdate()
+    {
+        if (
+            hitParticleRenderer == null
+            || hitEffectInstance == null
+            || !hitEffectInstance.activeSelf
+        )
+            return;
+        var cam = Camera.main;
+        if (cam == null)
+            return;
+        float depth = Vector3.Dot(hitEffectInstance.transform.position, cam.transform.forward);
+        hitParticleRenderer.sortingOrder = Mathf.RoundToInt(-depth * HitDepthSortingPrecision);
+    }
+
+    private Transform FindCenterMarker()
+    {
+        var found = Array.Find(
+            transform.GetComponentsInChildren<Transform>(true),
+            t => t.name == "CenterMarker"
+        );
+        return found != null ? found : transform;
     }
 
     private void RaiseHudEvent(float currentHealth)

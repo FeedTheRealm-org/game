@@ -71,7 +71,10 @@ public class MovementView : MonoBehaviour
     private bool repeatFootsteps = true;
 
     private float footstepTimer = 0f;
+
+    private bool wasMoving = false;
     private bool isMoving = false;
+
     private bool hasPlayedSingleFootstep = false;
 
     public void Initialize(Rigidbody rb, CharacterStateStorage stateStorage)
@@ -341,6 +344,122 @@ public class MovementView : MonoBehaviour
         return targetPosition;
     }
 
+    private void UpdateFootsteps()
+    {
+        if (!isMoving)
+        {
+            footstepTimer = 0f;
+            hasPlayedSingleFootstep = false;
+            return;
+        }
+
+        if (!repeatFootsteps)
+        {
+            if (!hasPlayedSingleFootstep)
+            {
+                PlayFootstepSound();
+                hasPlayedSingleFootstep = true;
+            }
+            return;
+        }
+
+        footstepTimer += Time.fixedDeltaTime;
+
+        if (footstepTimer >= footstepInterval)
+        {
+            PlayFootstepSound();
+            footstepTimer = 0f;
+        }
+    }
+
+    private void PlayFootstepSound()
+    {
+        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Walking, transform.position);
+    }
+
+    private void OnDirectionChanged(Vector3 direction)
+    {
+        currentDirection = direction;
+        wasMoving = isMoving;
+        isMoving = VectorTransformations.IsMovementMagnitude(direction);
+        UpdateFacingDirection(direction);
+        AnimateMovement(direction);
+    }
+
+    private void OnPositionCorrected(Vector3 targetPosition)
+    {
+        Vector3 error = targetPosition - rb.position;
+        bool snap =
+            stateStorage.IsTeleporting
+            || error.sqrMagnitude
+                > clientConfig.MovementCorrectionTolerance
+                    * clientConfig.MovementCorrectionTolerance;
+
+        if (snap)
+        {
+            rb.position = targetPosition;
+            rb.linearVelocity = Vector3.zero;
+            positionError = Vector3.zero;
+            return;
+        }
+        positionError = error;
+    }
+
+    public void UpdateFacingDirection(Vector3 direction)
+    {
+        if (!isInitialized)
+            throw new MissingComponentException(
+                "MovementView must be initialized before calling UpdateFacingDirection."
+            );
+
+        FacingDirection facing = GetFacingDirection(direction);
+        if (facing == FacingDirection.None)
+            return;
+
+        animator.SetFacing(facing);
+    }
+
+    private FacingDirection GetFacingDirection(Vector3 direction)
+    {
+        if (!VectorTransformations.IsMovementMagnitude(direction))
+            return FacingDirection.None;
+
+        var cameraTransform = Camera.main.transform;
+
+        Vector3 camForward = new Vector3(
+            cameraTransform.forward.x,
+            0f,
+            cameraTransform.forward.z
+        ).normalized;
+        Vector3 camRight = new Vector3(
+            cameraTransform.right.x,
+            0f,
+            cameraTransform.right.z
+        ).normalized;
+
+        float forwardAmount = Vector3.Dot(direction, camForward);
+        float rightAmount = Vector3.Dot(direction, camRight);
+
+        if (Mathf.Abs(forwardAmount) > Mathf.Abs(rightAmount))
+            return forwardAmount > 0 ? FacingDirection.Back : FacingDirection.Front;
+        else
+            return rightAmount > 0 ? FacingDirection.Right : FacingDirection.Left;
+    }
+
+    private void AnimateMovement(Vector3 direction)
+    {
+        if (isMoving && !wasMoving)
+        {
+            animator.SetMoving(true);
+            animator.SetDashing(false);
+        }
+        else if (wasMoving && !isMoving)
+        {
+            animator.SetMoving(false);
+            animator.SetDashing(false);
+        }
+    }
+
     private void OnDrawGizmos()
     {
         if (rb == null || !isInitialized)
@@ -389,134 +508,5 @@ public class MovementView : MonoBehaviour
         // Capsule width indicator
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(leftOrigin, rightOrigin);
-    }
-
-    private void UpdateFootsteps()
-    {
-        if (!isMoving)
-        {
-            footstepTimer = 0f;
-            hasPlayedSingleFootstep = false;
-            return;
-        }
-
-        if (!repeatFootsteps)
-        {
-            if (!hasPlayedSingleFootstep)
-            {
-                PlayFootstepSound();
-                hasPlayedSingleFootstep = true;
-            }
-            return;
-        }
-
-        footstepTimer += Time.fixedDeltaTime;
-
-        if (footstepTimer >= footstepInterval)
-        {
-            PlayFootstepSound();
-            footstepTimer = 0f;
-        }
-    }
-
-    private void PlayFootstepSound()
-    {
-        soundPlayer.Play(ClientSoundFXRegistry.SoundFXIds.Walking, transform.position);
-    }
-
-    private void OnDirectionChanged(Vector3 direction)
-    {
-        UpdateFacingDirection(direction);
-        AnimateMovement(direction);
-        currentDirection = direction;
-    }
-
-    private void OnPositionCorrected(Vector3 targetPosition)
-    {
-        Vector3 error = targetPosition - rb.position;
-        bool snap =
-            stateStorage.IsTeleporting
-            || error.sqrMagnitude
-                > clientConfig.MovementCorrectionTolerance
-                    * clientConfig.MovementCorrectionTolerance;
-
-        if (snap)
-        {
-            rb.position = targetPosition;
-            rb.linearVelocity = Vector3.zero;
-            positionError = Vector3.zero;
-            return;
-        }
-        positionError = error;
-    }
-
-    public void UpdateFacingDirection(Vector3 direction)
-    {
-        if (!isInitialized)
-            throw new MissingComponentException(
-                "MovementView must be initialized before calling UpdateFacingDirection."
-            );
-
-        if (direction == Vector3.zero)
-        {
-            animator.SetMoving(false);
-            animator.SetDashing(false);
-        }
-
-        FacingDirection facing = GetFacingDirection(direction);
-        if (facing == FacingDirection.None)
-            return;
-
-        animator.SetFacing(facing);
-    }
-
-    private FacingDirection GetFacingDirection(Vector3 direction)
-    {
-        if (!VectorTransformations.IsMovementMagnitude(direction))
-            return FacingDirection.None;
-
-        var cameraTransform = Camera.main.transform;
-
-        Vector3 camForward = new Vector3(
-            cameraTransform.forward.x,
-            0f,
-            cameraTransform.forward.z
-        ).normalized;
-        Vector3 camRight = new Vector3(
-            cameraTransform.right.x,
-            0f,
-            cameraTransform.right.z
-        ).normalized;
-
-        float forwardAmount = Vector3.Dot(direction, camForward);
-        float rightAmount = Vector3.Dot(direction, camRight);
-
-        if (Mathf.Abs(forwardAmount) > Mathf.Abs(rightAmount))
-            return forwardAmount > 0 ? FacingDirection.Back : FacingDirection.Front;
-        else
-            return rightAmount > 0 ? FacingDirection.Right : FacingDirection.Left;
-    }
-
-    private void AnimateMovement(Vector3 velocity)
-    {
-        bool wasMoving = isMoving;
-        isMoving = velocity.sqrMagnitude > Vector3.zero.sqrMagnitude;
-
-        if (isMoving)
-        {
-            if (!wasMoving)
-            {
-                animator.SetMoving(true);
-                animator.SetDashing(false);
-            }
-        }
-        else
-        {
-            if (wasMoving)
-            {
-                animator.SetMoving(false);
-                animator.SetDashing(false);
-            }
-        }
     }
 }

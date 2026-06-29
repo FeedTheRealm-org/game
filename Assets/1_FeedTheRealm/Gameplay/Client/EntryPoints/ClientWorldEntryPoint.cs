@@ -1,9 +1,12 @@
+using System;
 using FeedTheRealm.Core.EventChannels.Setup;
 using FeedTheRealm.Gameplay.Client.SceneSetup;
 using FTR.Core.Client;
 using FTR.Core.Client.EventChannels.Ticks;
 using FTR.Core.Client.Managers;
 using FTR.Core.Client.Settings;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Core.Common.Scopes;
 using FTR.Gameplay.Client.Loaders;
 using FTRShared.Runtime.Core.Cache;
@@ -15,7 +18,12 @@ namespace FTR.Gameplay.Client.EntryPoints
     /// <summary>
     /// Entry point for the client application, responsible for initializing the application flow, including authentication and main menu navigation.
     /// </summary>
-    public class ClientWorldEntryPoint : IStartable, ITickable, IFixedTickable, ILateTickable
+    public class ClientWorldEntryPoint
+        : IStartable,
+            ITickable,
+            IFixedTickable,
+            ILateTickable,
+            IDisposable
     {
         private readonly TickEvent tickEvent;
         private readonly FixedTickEvent fixedTickEvent;
@@ -27,6 +35,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly ClientMusicRegistry musicRegistry;
         private readonly SettingsManager settingsManager;
         private readonly CacheManager cacheManager;
+        private readonly Config config;
         private CursorManager cursorManager;
         private bool isInitialized = false;
         private Logging.Logger logger;
@@ -46,6 +55,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             CursorManager cursorManager,
             SettingsManager settingsManager,
             CacheManager cacheManager,
+            Config config,
             Logging.Logger logger
         )
         {
@@ -61,6 +71,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.cursorManager = cursorManager;
             this.settingsManager = settingsManager;
             this.cacheManager = cacheManager;
+            this.config = config;
             isInitialized = true;
             this.logger = logger;
         }
@@ -68,6 +79,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         public async void Start()
         {
             logger.Log("[ClientWorldEntryPoint] Starting client world entry point.");
+            config.DisconnectionEvent = DisconnectionEvents.Unexpected;
             settingsManager.LoadSettings();
             settingsManager.ApplyDisplay();
             settingsManager.ApplyAudioListener();
@@ -115,6 +127,11 @@ namespace FTR.Gameplay.Client.EntryPoints
             if (!isInitialized)
                 return;
             lateTickEvent.Raise();
+        }
+
+        public void Dispose()
+        {
+            config.DisconnectionEvent = DisconnectionEvents.None;
         }
     }
 }

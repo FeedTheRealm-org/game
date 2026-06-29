@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c7da3a900f0ee798dc1e89b2287951, type: 3}
-  m_Name: NpcDialogMessageEvent
-  m_EditorClassIdentifier: FTR.Core.Common::FTR.Core.Common.EventChannels.NpcDialogMessageEvent
+  m_Script: {fileID: 11500000, guid: 83816760fce2c67faab097b2fc5a901a, type: 3}
+  m_Name: ChestOpenedEvent
+  m_EditorClassIdentifier: FTR.Core.Client::FTR.Core.Client.EventChannels.Chest.ChestOpenedEvent

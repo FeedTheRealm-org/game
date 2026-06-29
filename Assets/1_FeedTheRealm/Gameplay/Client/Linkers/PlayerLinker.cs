@@ -80,6 +80,9 @@ public class ClientPlayerLinker : PlayerLinker
             networkAdapter.IsLocalPlayer
         );
 
+        var useView = playerComponents.GetComponent<UseView>();
+        useView.Initialize(networkEventRouter, stateStorage, spriteManager);
+
         // Initialize chat box
         prefabProvider.ChatBox.SetActive(false);
         var chatBoxComponent = Object.Instantiate(prefabProvider.ChatBox, attachParent);
@@ -177,12 +180,12 @@ public class ClientPlayerLinker : PlayerLinker
             var goldState = gameObject.GetComponent<GoldStateStorage>();
             var inventoryController = playerComponents.AddComponent<InventoryController>();
             var inventoryView = playerComponents.AddComponent<InventoryView>();
-            var useView = playerComponents.GetComponent<UseView>();
             var staminaView = playerComponents.AddComponent<StaminaView>();
             var interactController = playerComponents.AddComponent<InteractController>();
             var interactView = hudComponent.AddComponent<InteractView>();
             var questView = hudComponent.AddComponent<QuestView>();
             var questProgressView = hudComponent.AddComponent<QuestProgressView>();
+            var consumableEffectView = playerComponents.AddComponent<ConsumableEffectView>();
 
             var goldController = playerComponents.AddComponent<GoldController>();
             var goldView = playerComponents.AddComponent<GoldView>();
@@ -197,6 +200,7 @@ public class ClientPlayerLinker : PlayerLinker
             resolver.Inject(inventoryController);
             resolver.Inject(inventoryView);
             resolver.Inject(staminaView);
+            resolver.Inject(consumableEffectView);
 
             resolver.Inject(goldView);
             resolver.Inject(goldController);
@@ -220,6 +224,9 @@ public class ClientPlayerLinker : PlayerLinker
             chatController.Initialize(networkAdapter);
 
             useView.SetRangedTargetIndicator(prefabProvider.RangedTargetIndicator);
+            consumableEffectView?.SetUp(stateStorage);
+            useView?.SetUpConsumableVFX();
+            consumableEffectView?.SetUpScreenEffects();
         }
     }
 }

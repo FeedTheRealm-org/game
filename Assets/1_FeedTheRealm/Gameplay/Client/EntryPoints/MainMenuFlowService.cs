@@ -1,6 +1,9 @@
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using FTR.Core.Client.EventChannels.UI;
+using FTR.Core.Client.Settings;
+using FTR.Core.Common.Config;
+using FTR.Core.Common.Enums;
 using FTR.Gameplay.Client.Registry;
 using FTRShared.UI.AuthMenu;
 using UnityEngine;
@@ -17,6 +20,7 @@ namespace FTR.Gameplay.Client.EntryPoints
         readonly GameObject profileMenuPrefab;
         readonly GameObject gemStorePrefab;
         readonly GameObject musicPlayerPrefab;
+        readonly GameObject downloadContentPopupPrefab;
         readonly ClientMusicRegistry musicRegistry;
         private readonly ClientSoundFXRegistry soundFXRegistry;
         private readonly ISoundPlayer soundPlayer;
@@ -26,6 +30,8 @@ namespace FTR.Gameplay.Client.EntryPoints
         private readonly OnProfileCreatedEvent onProfileCreatedEvent;
         private readonly OnLogoutRequestedEvent onLogoutRequestedEvent;
         private readonly WorldInfoMenuHandle worldInfoMenuHandle;
+        private readonly Config config;
+        private readonly SettingsManager settingsManager;
         private readonly IObjectResolver resolver;
         private API.AuthService authService;
         private Session.Session session;
@@ -39,6 +45,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             GameObject profileMenuPrefab,
             GameObject gemStorePrefab,
             GameObject musicPlayerPrefab,
+            GameObject downloadContentPopupPrefab,
             ClientMusicRegistry musicRegistry,
             ClientSoundFXRegistry soundFXRegistry,
             ISoundPlayer soundPlayer,
@@ -48,6 +55,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             OnProfileCreatedEvent onProfileCreatedEvent,
             OnLogoutRequestedEvent onLogoutRequestedEvent,
             WorldInfoMenuHandle worldInfoMenuHandle,
+            Config config,
+            SettingsManager settingsManager,
             IObjectResolver resolver
         )
         {
@@ -57,6 +66,7 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.profileMenuPrefab = profileMenuPrefab;
             this.gemStorePrefab = gemStorePrefab;
             this.musicPlayerPrefab = musicPlayerPrefab;
+            this.downloadContentPopupPrefab = downloadContentPopupPrefab;
             this.musicRegistry = musicRegistry;
             this.soundFXRegistry = soundFXRegistry;
             this.soundPlayer = soundPlayer;
@@ -66,6 +76,8 @@ namespace FTR.Gameplay.Client.EntryPoints
             this.onProfileCreatedEvent = onProfileCreatedEvent;
             this.onLogoutRequestedEvent = onLogoutRequestedEvent;
             this.worldInfoMenuHandle = worldInfoMenuHandle;
+            this.config = config;
+            this.settingsManager = settingsManager;
             this.resolver = resolver;
         }
 
@@ -179,7 +191,18 @@ namespace FTR.Gameplay.Client.EntryPoints
                 navBarController.SetNavBarSettingsInstance(navBarSettingsObj);
             }
 
+            if (config.DisconnectionEvent == DisconnectionEvents.Unexpected)
+                ToastNotification.Show(
+                    "There was an error connecting to the server",
+                    "error",
+                    Color.red
+                );
+            config.DisconnectionEvent = DisconnectionEvents.None;
+
             await RedirectIfProfileRequired(worldFeedMenuObj, profileMenuObj, navBarController);
+
+            if (settingsManager.ShowDownloadContentPopupOnStart)
+                resolver.Instantiate(downloadContentPopupPrefab);
 
             var navigateSource = new UniTaskCompletionSource();
             var logoutSource = new UniTaskCompletionSource();

@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 8113882516953622363}
   - component: {fileID: -4974415550214178087}
   - component: {fileID: 2992336374001346032}
+  - component: {fileID: 3208471022098848010}
   m_Layer: 7
   m_Name: ClientCharacterComponents
   m_TagString: Player
@@ -97,6 +98,10 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MovementView
   animator: {fileID: 1507848899257751022}
+  movementRaycastAngle: 30
+  slopeAngleThreshold: 1
+  maxSlopeAngle: 50
+  groundStickDistance: 0.3
   footstepInterval: 0.35
   repeatFootsteps: 1
 --- !u!114 &6878487654893383278
@@ -174,6 +179,18 @@ MonoBehaviour:
   worldService: {fileID: 11400000, guid: 1a6f175c58da9ac47bb317c885d038a8, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
   config: {fileID: 11400000, guid: 3140de5b15e1f091f8b247610ca3559d, type: 2}
+--- !u!114 &3208471022098848010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418397613159891299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc4c8f38d0ed346aab00f8b33140a9c9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::ConsumableEffectView
 --- !u!1001 &5564542974961173821
 PrefabInstance:
   m_ObjectHideFlags: 0

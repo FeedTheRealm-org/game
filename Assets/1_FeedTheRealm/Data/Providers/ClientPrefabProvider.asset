@@ -36,3 +36,18 @@ MonoBehaviour:
   MusicPlayerPrefab: {fileID: 5549379460917750396, guid: be38d26ea906230719bfa7ad77e98112, type: 3}
   ConfirmPopup: {fileID: 3626892518001848298, guid: 74472030c54ba0fc48c42cff773742af, type: 3}
   QuestsMenuPrefab: {fileID: 6209252735088991528, guid: a55bd2636b39c1e6092842fb20eb3011, type: 3}
+  GoldCoinPrefab: {fileID: 8547170938511414599, guid: e1dfd307db4d0d74c857a71192dbe79f, type: 3}
+  QuestSignPrefab: {fileID: 1126493862438144, guid: dfa88b163ebe1dc41b2d41ef939de73d, type: 3}
+  QuestHaloPrefab: {fileID: 1890275634725560, guid: c127f32ea2a3adb4cb172d3703f4af8e, type: 3}
+  ChestOpenEffectPrefab: {fileID: 4415562107347274185, guid: 90e3b6f8616f7604f8ee74b3d55fc11b, type: 3}
+  DashEffectPrefab: {fileID: 5062299888877387790, guid: 86a522c6fc590e5419e5d157fc6bd1e2, type: 3}
+  GunEffectPrefab: {fileID: 1277314995582460547, guid: a1af3095c408ed84c8e5fb46dde0af6d, type: 3}
+  HealEffectPrefab: {fileID: 1041383898900682, guid: 6415f946f87d42f408f61c846221beb6, type: 3}
+  SpeedUpEffectPrefab: {fileID: 4735854018667895495, guid: 973b98386326b1a5c82569a872803f80, type: 3}
+  DamageEffectPrefab: {fileID: 4735854018667895495, guid: c25cba9fccb56344ba86e01368b5a4dc, type: 3}
+  BowEffectPrefab: {fileID: 1655457316006132, guid: 9463b9293ddf41143acddfb524bdc43e, type: 3}
+  MeleeEffectPrefab: {fileID: 2642749838293771946, guid: 1e4a7160d9d435b458b32b9b02ca82dd, type: 3}
+  HitEffectPrefab: {fileID: 6130567110401474471, guid: 2346e2e78b606f24198dc68919370a40, type: 3}
+  HealScreenEffectPrefab: {fileID: 3942825033974895155, guid: ebe327400de958040a5082d7a1a2270f, type: 3}
+  DamageScreenEffectPrefab: {fileID: 3942825033974895155, guid: 0e97b30b5b3ef2d4fa745810940a4e80, type: 3}
+  SpeedUpScreenEffectPrefab: {fileID: 3942825033974895155, guid: 7297fe0a5e06fb644a731296af23d579, type: 3}

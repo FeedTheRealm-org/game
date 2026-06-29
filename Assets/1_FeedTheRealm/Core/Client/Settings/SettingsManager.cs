@@ -20,6 +20,8 @@ namespace FTR.Core.Client.Settings
 
         public bool IsCachingEnabled { get; set; } = true;
 
+        public bool ShowDownloadContentPopupOnStart { get; set; } = true;
+
         private SettingsRepository _repository;
 
         [SerializeField]
@@ -43,6 +45,7 @@ namespace FTR.Core.Client.Settings
                 IsFullscreen = Screen.fullScreen;
                 IsCachingEnabled = true;
                 ShowPerformanceStats = false;
+                ShowDownloadContentPopupOnStart = true;
                 performanceStatsToggleEvent.Raise(ShowPerformanceStats);
                 return;
             }
@@ -57,6 +60,7 @@ namespace FTR.Core.Client.Settings
             IsFullscreen = data.isFullscreen;
             IsCachingEnabled = data.enableCaching;
             ShowPerformanceStats = data.showPerformanceStats;
+            ShowDownloadContentPopupOnStart = data.showDownloadContentPopupOnStart;
 
             performanceStatsToggleEvent.Raise(ShowPerformanceStats);
         }
@@ -76,6 +80,7 @@ namespace FTR.Core.Client.Settings
                     isFullscreen = IsFullscreen,
                     enableCaching = IsCachingEnabled,
                     showPerformanceStats = ShowPerformanceStats,
+                    showDownloadContentPopupOnStart = ShowDownloadContentPopupOnStart,
                 }
             );
 

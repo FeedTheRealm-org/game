@@ -46,12 +46,12 @@ public class NetworkEventRouter : MonoBehaviour
                     serverEvent.content
                 );
                 OnAttackEvent?.Invoke(attackEvent);
-                logger.Log($"Routed AttackEvent", this);
+                //logger.Log($"Routed AttackEvent", this);
                 break;
             case ServerEventType.DashEvent:
                 DashEventContent dashEvent = DashEventContent.Parser.ParseFrom(serverEvent.content);
                 OnDashEvent?.Invoke(dashEvent);
-                logger.Log($"Routed DashEvent", this);
+                //logger.Log($"Routed DashEvent", this);
                 break;
             case ServerEventType.InitialForceEvent:
                 InitialForceEventContent lootItemSpawnEvent =

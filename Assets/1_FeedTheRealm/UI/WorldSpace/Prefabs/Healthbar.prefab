@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7208925596118356869}
   - component: {fileID: 8399197686760333867}
   - component: {fileID: 925298929608913867}
+  - component: {fileID: 7486948761114629707}
   m_Layer: 5
   m_Name: Healthbar
   m_TagString: Untagged
@@ -69,3 +70,19 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::UIHealthbar
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
+--- !u!114 &7486948761114629707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8544674612818321002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbdd03ccd0b4c30a8bf3c94fdfee36c9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.Gameplay.Client::WorldSpaceUIDepthSorter
+  CharacterSortingLayer: Characters
+  DepthSortingPrecision: 100
+  DepthSortingOffset: 0
+  DepthSortingCamera: {fileID: 0}

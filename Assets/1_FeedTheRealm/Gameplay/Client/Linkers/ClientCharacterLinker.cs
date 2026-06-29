@@ -49,6 +49,8 @@ namespace FTR.Gameplay.Client.Linkers
             dashView.Initialize(rb, stateStorage, networkEventRouter);
             healthView?.Initialize(stateStorage);
 
+            useView.SetUpWeaponVFX();
+
             movementController.Initialize(networkAdapter);
             useController.Initialize(networkAdapter);
 
