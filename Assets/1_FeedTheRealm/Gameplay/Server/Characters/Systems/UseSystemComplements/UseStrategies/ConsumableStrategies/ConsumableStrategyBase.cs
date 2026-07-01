@@ -12,7 +12,8 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
 
         protected ConsumableStrategyBase(ConsumableItemData data) => _data = data;
 
-        public virtual float GetCooldown(UseContext ctx) => _data.cooldown;
+        public virtual float GetCooldown(UseContext ctx, SlotCooldownTracker cooldowns) =>
+            _data.cooldown;
 
         public virtual bool CanExecute(
             UseContext ctx,
