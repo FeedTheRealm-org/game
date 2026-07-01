@@ -7,18 +7,18 @@
             <ui:VisualElement name="ShopHeader" style="width: 100%; flex-direction: row; justify-content: space-between; align-items: center; padding-left: 20px; padding-right: 20px; padding-top: 16px; padding-bottom: 8px;">
                 <ui:Label name="ShopTitle" text="Shop" style="color: rgb(255, 220, 100); -unity-font-style: bold; font-size: 32px; -unity-text-align: middle-left;"/>
                 <ui:VisualElement name="GemBalanceContainer" style="flex-direction: row; align-items: center; flex-grow: 1; justify-content: flex-end; margin-right: 14px; display: none;">
-                    <ui:Label text="💎" style="font-size: 18px; margin-right: 4px;"/>
+                    <ui:VisualElement class="gem-balance-icon" style="margin-right: 4px;"/>
                     <ui:Label name="GemBalanceLabel" text="—" style="color: rgb(200, 180, 255); -unity-font-style: bold; font-size: 17px; -unity-text-align: middle-center;"/>
                 </ui:VisualElement>
                 <ui:Button name="CloseButton" text="✕" class="dialog-btn dialog-btn--cancel shop-close-button" style="width: 36px; height: 36px; justify-content: center; align-items: center; padding: 0 8px;"/>
             </ui:VisualElement>
             <ui:VisualElement name="TabBar" style="width: 100%; flex-direction: row; padding-left: 20px; padding-right: 20px; margin-bottom: 12px;">
                 <ui:VisualElement name="TabGold" class="shop-tab shop-tab--active" style="flex: 1; height: 40px; justify-content: center; align-items: center; flex-direction: row;">
-                    <ui:Label name="TabGoldIcon" text="🪙" style="font-size: 16px; margin-right: 6px;"/>
+                    <ui:VisualElement name="TabGoldIcon" class="tab-gold-icon" style="margin-right: 6px;"/>
                     <ui:Label name="TabGoldLabel" text="Gold Items" style="color: rgb(255, 220, 100); -unity-font-style: bold; font-size: 20px; -unity-text-align: middle-center;"/>
                 </ui:VisualElement>
                 <ui:VisualElement name="TabCosmetic" class="shop-tab" style="flex: 1; height: 40px; justify-content: center; align-items: center; flex-direction: row;">
-                    <ui:Label name="TabCosmeticIcon" text="💎" style="font-size: 16px; margin-right: 6px;"/>
+                    <ui:VisualElement name="TabCosmeticIcon" class="tab-cosmetic-icon" style="margin-right: 6px;"/>
                     <ui:Label name="TabCosmeticLabel" text="Cosmetics" style="color: rgb(180, 180, 180); -unity-font-style: bold; font-size: 20px; -unity-text-align: middle-center;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
