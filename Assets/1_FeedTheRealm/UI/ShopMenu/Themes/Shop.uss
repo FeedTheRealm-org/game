@@ -63,6 +63,27 @@
     border-bottom-color: rgb(255, 200, 80);
 }
 
+.gem-balance-icon {
+    width: 30px;
+    height: 30px;
+    background-image: url("project://database/Assets/HeroEditor4D/FantasyHeroes/Icons/Equipment/Supplies/Basic/Currency/PurpleGemstone.png?fileID=2800000&guid=019e5202401d6284e987d29f586966e7&type=3#PurpleGemstone");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.tab-gold-icon {
+    width: 30px;
+    height: 30px;
+    background-image: url("project://database/Assets/HeroEditor4D/FantasyHeroes/Icons/Equipment/Supplies/Basic/Currency/GoldenToken.png?fileID=21300000&guid=305e6960beda22b49abf3ad25d848acb&type=3#GoldenToken");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.tab-cosmetic-icon {
+    width: 30px;
+    height: 30px;
+    background-image: url("project://database/Assets/HeroEditor4D/FantasyHeroes/Icons/Equipment/Supplies/Basic/Currency/PurpleGemstone.png?fileID=2800000&guid=019e5202401d6284e987d29f586966e7&type=3#PurpleGemstone");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .shop-items-container {
     width: 100%;
     flex-direction: column;
@@ -125,11 +146,32 @@
 }
 
 .shop-item-price {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin-right: 12px;
+    min-width: 84px;
+}
+
+.shop-item-price-icon {
+    width: 35px;
+    height: 35px;
+    margin-right: 6px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.shop-item-price-icon--gold {
+    background-image: url("project://database/Assets/HeroEditor4D/FantasyHeroes/Icons/Equipment/Supplies/Basic/Currency/GoldenToken.png?fileID=21300000&guid=305e6960beda22b49abf3ad25d848acb&type=3#GoldenToken");
+}
+
+.shop-item-price-icon--gem {
+    background-image: url("project://database/Assets/HeroEditor4D/FantasyHeroes/Icons/Equipment/Supplies/Basic/Currency/PurpleGemstone.png?fileID=2800000&guid=019e5202401d6284e987d29f586966e7&type=3#PurpleGemstone");
+}
+
+.shop-item-price-amount {
     color: rgb(255, 210, 80);
     -unity-font-style: bold;
     font-size: 19px;
-    margin-right: 12px;
-    min-width: 84px;
     -unity-text-align: middle-right;
 }
 

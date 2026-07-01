@@ -9,7 +9,8 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
     /// </summary>
     public sealed class BareHandsStrategy : IUseStrategy
     {
-        public float GetCooldown(UseContext ctx) => ctx.Config.AttackCooldown;
+        public float GetCooldown(UseContext ctx, SlotCooldownTracker cooldowns) =>
+            ctx.Config.AttackCooldown;
 
         public void RecordCooldown(UseContext ctx, SlotCooldownTracker cooldowns, int activeSlot) =>
             cooldowns.RecordSlotUsed(activeSlot, ctx.Config.AttackCooldown);

@@ -1,9 +1,11 @@
 using FeedTheRealm.Core.Interfaces;
 using FTR.Core.Client;
 using FTR.Core.Client.EntryPoints;
+using FTR.Core.Client.EventChannels.Inventory;
 using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Client.Characters.Player;
+using FTR.Gameplay.Client.Characters.Shared.Cooldown;
 using FTR.Gameplay.Client.Characters.Shared.StateMachine;
 using FTR.Gameplay.Client.EntryPoints;
 using FTR.Gameplay.Common.Characters.Shared.Portal;
@@ -227,6 +229,13 @@ public class ClientPlayerLinker : PlayerLinker
             consumableEffectView?.SetUp(stateStorage);
             useView?.SetUpConsumableVFX();
             consumableEffectView?.SetUpScreenEffects();
+
+            var itemCooldownTracker = playerComponents.AddComponent<ItemCooldownTracker>();
+            itemCooldownTracker.Initialize(
+                networkEventRouter,
+                stateStorage,
+                resolver.Resolve<CooldownStartedEvent>()
+            );
         }
     }
 }

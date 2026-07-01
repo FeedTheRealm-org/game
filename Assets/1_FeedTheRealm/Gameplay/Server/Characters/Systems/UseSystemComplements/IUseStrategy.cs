@@ -17,7 +17,7 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements
         /// Cooldown in seconds applied after execution.
         /// UseSystem applies it to the appropriate tracker (slot or consumable-specific).
         /// </summary>
-        float GetCooldown(UseContext ctx);
+        float GetCooldown(UseContext ctx, SlotCooldownTracker cooldowns);
 
         /// <summary>
         /// Per-strategy cooldown guard called by UseSystem before Execute.
