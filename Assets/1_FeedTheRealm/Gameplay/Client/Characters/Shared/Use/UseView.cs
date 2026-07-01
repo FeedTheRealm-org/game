@@ -358,6 +358,8 @@ public class UseView : MonoBehaviour
 
         if (IsBowType(weaponData))
             PlayDelayed(particleSystem, 0.2f).Forget();
+        else if (IsMeleeWeapon(weaponData))
+            PlayDelayed(particleSystem, 0.2f).Forget();
         else
             particleSystem?.Play();
     }
