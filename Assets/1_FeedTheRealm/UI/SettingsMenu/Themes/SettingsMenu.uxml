@@ -1,6 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:ftr="FeedTheRealm.UI.Common" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=7be628a0b2142aa54b5c8f517b8ae6b3&amp;type=3#SettingsMenu"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Components/Scrollbar/scrollbar.uss?fileID=7433441132597879392&amp;guid=f210ad3c09d09c548bca6bf90c47a04b&amp;type=3#scrollbar"/>
     <ui:VisualElement name="Body" class="settings-overlay">
         <ui:VisualElement name="Modal" class="settings-modal">
             <ui:VisualElement name="Sidebar" class="settings-sidebar">
@@ -8,6 +9,7 @@
                 <ui:VisualElement name="TitleDivider" class="sidebar-divider"/>
                 <ui:Button text="Display" name="DisplayButton" class="nav-button nav-button--selected"/>
                 <ui:Button text="Sound" name="SoundButton" class="nav-button"/>
+                <ui:Button text="Controls" name="ControlsButton" class="nav-button"/>
                 <ui:VisualElement name="Spacer" class="sidebar-spacer"/>
                 <ui:VisualElement name="BottomDivider" class="sidebar-divider"/>
                 <ui:Button text="Return Home" name="HomeButton" class="nav-button nav-button--danger"/>
@@ -15,8 +17,8 @@
                 <ui:VisualElement name="CloseDivider" class="sidebar-divider"/>
                 <ui:Button text="Close" name="CloseButton" class="nav-button nav-button--close"/>
             </ui:VisualElement>
-            <ui:VisualElement name="ContentPanel" class="settings-content-panel">
-                <ui:ScrollView name="DisplayContent" class="content-section">
+            <ui:VisualElement name="ContentPanel" tabindex="0" class="settings-content-panel">
+                <ui:ScrollView name="DisplayContent" enabled="true" class="content-section content-section--hidden">
                     <ui:Label text="Display" class="section-title"/>
                     <ui:VisualElement class="section-divider"/>
                     <ui:VisualElement class="setting-row">
@@ -29,7 +31,7 @@
                         <ui:Toggle label="Performance stats for nerds" toggle-on-label-click="true" value="true" name="PerformanceStats" class="setting-toggle"/>
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:ScrollView name="SoundContent" class="content-section content-section--hidden">
+                <ui:ScrollView name="SoundContent" enabled="true" class="content-section content-section--hidden">
                     <ui:Label text="Sound" class="section-title"/>
                     <ui:VisualElement class="section-divider"/>
                     <ui:VisualElement class="setting-row">
@@ -44,6 +46,20 @@
                     <ui:VisualElement class="setting-row">
                         <ui:Toggle label="Mute Sound" name="MuteToggle" value="false" class="setting-toggle"/>
                     </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:ScrollView name="ControlsContent" class="content-section" style="align-self: stretch; align-items: center; justify-content: center; align-content: flex-start;">
+                    <ui:Label text="Controls" name="Label" class="section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px;"/>
+                    <ui:ScrollView>
+                        <ui:Label text="Movement" name="Label" class="section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px; margin-top: 50px; font-size: 25px;"/>
+                        <ui:Image source="project://database/Assets/1_FeedTheRealm/UI/Assets/Movement.png?fileID=2800000&amp;guid=3aafc0a58c0df7c569ab8049e342694f&amp;type=3#Movement" scale-mode="StretchToFill" style="width: 390px; align-self: center; height: 272px; margin-top: 30px;"/>
+                        <ui:Label text="Actions" name="Label" class="section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px; margin-top: 25px; font-size: 25px;"/>
+                        <ui:VisualElement enabled="true" style="flex-grow: 1; flex-direction: row; justify-content: space-between; align-items: center; align-self: stretch; padding-left: 25px; padding-right: 25px; visibility: visible; display: flex;">
+                            <ui:Label text="left-click: attack / consume&#10;inventory: drag &amp; drop items&#10;numbers 1-5: equip to hand" style="font-size: 22px; color: rgb(110, 255, 251);"/>
+                            <ui:Image name="Image" source="project://database/Assets/1_FeedTheRealm/UI/Assets/Actions.png?fileID=2800000&amp;guid=e1bd937f7319239e289c1881e6bf847f&amp;type=3#Actions" style="width: 469px;"/>
+                        </ui:VisualElement>
+                        <ui:Label text="Miscellaneous" name="Label" class="section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px; margin-top: 25px; font-size: 25px;"/>
+                        <ui:Image source="project://database/Assets/1_FeedTheRealm/UI/Assets/Misc.png?fileID=2800000&amp;guid=2bf209ece74a653bf86ad85ab1aaea51&amp;type=3#Misc" scale-mode="StretchToFill" style="width: 390px; align-self: center; height: 160px; margin-top: 30px;"/>
+                    </ui:ScrollView>
                 </ui:ScrollView>
             </ui:VisualElement>
         </ui:VisualElement>

@@ -51,12 +51,14 @@ namespace FTR.UI.Homepage.Settings
 
         private Button _displayNavButton;
         private Button _soundNavButton;
+        private Button _controlsNavButton;
         private Button _systemNavButton;
         private Button _logoutButton;
         private Button _exitButton;
 
         private ScrollView _displayContent;
         private ScrollView _soundContent;
+        private ScrollView _controlsContent;
         private ScrollView _systemContent;
 
         private CustomDropdown _resolutionSelect;
@@ -79,6 +81,7 @@ namespace FTR.UI.Homepage.Settings
         {
             Display,
             Sound,
+            Controls,
             System,
         }
 
@@ -100,12 +103,14 @@ namespace FTR.UI.Homepage.Settings
 
             _displayNavButton = _panel.Q<Button>("HPSettings_DisplayButton");
             _soundNavButton = _panel.Q<Button>("HPSettings_SoundButton");
+            _controlsNavButton = _panel.Q<Button>("HPSettings_ControlsButton");
             _systemNavButton = _panel.Q<Button>("HPSettings_SystemButton");
             _logoutButton = _panel.Q<Button>("HPSettings_LogoutButton");
             _exitButton = _panel.Q<Button>("HPSettings_ExitButton");
 
             _displayContent = _panel.Q<ScrollView>("HPSettings_DisplayContent");
             _soundContent = _panel.Q<ScrollView>("HPSettings_SoundContent");
+            _controlsContent = _panel.Q<ScrollView>("HPSettings_ControlsContent");
             _systemContent = _panel.Q<ScrollView>("HPSettings_SystemContent");
 
             _resolutionSelect = _panel.Q<CustomDropdown>("HPSettings_ResolutionSelect");
@@ -155,11 +160,13 @@ namespace FTR.UI.Homepage.Settings
 
             Check(_displayNavButton, "HPSettings_DisplayButton");
             Check(_soundNavButton, "HPSettings_SoundButton");
+            Check(_controlsNavButton, "HPSettings_ControlsButton");
             Check(_systemNavButton, "HPSettings_SystemButton");
             Check(_logoutButton, "HPSettings_LogoutButton");
             Check(_exitButton, "HPSettings_ExitButton");
             Check(_displayContent, "HPSettings_DisplayContent");
             Check(_soundContent, "HPSettings_SoundContent");
+            Check(_controlsContent, "HPSettings_ControlsContent");
             Check(_systemContent, "HPSettings_SystemContent");
             Check(_resolutionSelect, "HPSettings_ResolutionSelect");
             Check(_fullscreenToggle, "HPSettings_FullscreenToggle");
@@ -238,11 +245,14 @@ namespace FTR.UI.Homepage.Settings
                 section == Section.Display ? DisplayStyle.Flex : DisplayStyle.None;
             _soundContent.style.display =
                 section == Section.Sound ? DisplayStyle.Flex : DisplayStyle.None;
+            _controlsContent.style.display =
+                section == Section.Controls ? DisplayStyle.Flex : DisplayStyle.None;
             _systemContent.style.display =
                 section == Section.System ? DisplayStyle.Flex : DisplayStyle.None;
 
             SetNavSelected(_displayNavButton, section == Section.Display);
             SetNavSelected(_soundNavButton, section == Section.Sound);
+            SetNavSelected(_controlsNavButton, section == Section.Controls);
             SetNavSelected(_systemNavButton, section == Section.System);
         }
 
@@ -262,6 +272,7 @@ namespace FTR.UI.Homepage.Settings
             {
                 _displayNavButton.clicked += OnDisplayNav;
                 _soundNavButton.clicked += OnSoundNav;
+                _controlsNavButton.clicked += OnControlsNav;
                 _systemNavButton.clicked += OnSystemNav;
                 _logoutButton.clicked += OnLogoutClicked;
                 _exitButton.clicked += OnExitClicked;
@@ -283,6 +294,8 @@ namespace FTR.UI.Homepage.Settings
                     _displayNavButton.clicked -= OnDisplayNav;
                 if (_soundNavButton != null)
                     _soundNavButton.clicked -= OnSoundNav;
+                if (_controlsNavButton != null)
+                    _controlsNavButton.clicked -= OnControlsNav;
                 if (_systemNavButton != null)
                     _systemNavButton.clicked -= OnSystemNav;
                 if (_logoutButton != null)
@@ -315,6 +328,12 @@ namespace FTR.UI.Homepage.Settings
         private void OnSoundNav()
         {
             ShowSection(Section.Sound);
+            soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
+        }
+
+        private void OnControlsNav()
+        {
+            ShowSection(Section.Controls);
             soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
         }
 
