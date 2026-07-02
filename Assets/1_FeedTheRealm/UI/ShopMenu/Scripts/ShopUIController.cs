@@ -495,8 +495,15 @@ namespace FTR.UI.Shop
             if (itemData != null)
                 nameLabel.text = itemData.name;
 
-            var priceLabel = new Label($"{product.price} 🪙");
+            var priceLabel = new VisualElement();
             priceLabel.AddToClassList("shop-item-price");
+            var priceIcon = new VisualElement();
+            priceIcon.AddToClassList("shop-item-price-icon");
+            priceIcon.AddToClassList("shop-item-price-icon--gold");
+            var priceAmountLabel = new Label(product.price.ToString());
+            priceAmountLabel.AddToClassList("shop-item-price-amount");
+            priceLabel.Add(priceIcon);
+            priceLabel.Add(priceAmountLabel);
 
             var amountField = new IntegerField();
             amountField.AddToClassList("shop-item-amount");
@@ -516,7 +523,7 @@ namespace FTR.UI.Shop
             {
                 ConfirmPopup?.Show(
                     title: "Confirm Purchase",
-                    question: $"Are you sure you want to buy {nameLabel.text} x{amountField.value} for {product.price * amountField.value} 🪙?",
+                    question: $"Are you sure you want to buy {nameLabel.text} x{amountField.value} for {product.price * amountField.value} gold?",
                     onConfirm: () => Purchase(amountField, capturedId, capturedShopId),
                     onCancel: null
                 );
@@ -574,8 +581,15 @@ namespace FTR.UI.Shop
             if (!string.IsNullOrEmpty(product.categoryName))
                 namesColumn.Add(categoryLabel);
 
-            var priceLabel = new Label($"{product.price} 💎");
+            var priceLabel = new VisualElement();
             priceLabel.AddToClassList("shop-item-price");
+            var priceIcon = new VisualElement();
+            priceIcon.AddToClassList("shop-item-price-icon");
+            priceIcon.AddToClassList("shop-item-price-icon--gem");
+            var priceAmountLabel = new Label(product.price.ToString());
+            priceAmountLabel.AddToClassList("shop-item-price-amount");
+            priceLabel.Add(priceIcon);
+            priceLabel.Add(priceAmountLabel);
 
             var buyButton = new Button { text = "Buy" };
             buyButton.AddToClassList("shop-buy-button");
@@ -586,7 +600,7 @@ namespace FTR.UI.Shop
             {
                 ConfirmPopup?.Show(
                     title: "Confirm Purchase",
-                    question: $"Are you sure you want to buy {product.displayName} for {product.price} 💎?",
+                    question: $"Are you sure you want to buy {product.displayName} for {product.price} gems?",
                     onConfirm: () =>
                     {
                         StartCoroutine(ProcessGemPurchase(purchaseId, product.displayName));

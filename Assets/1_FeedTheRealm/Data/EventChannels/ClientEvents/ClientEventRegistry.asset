@@ -29,6 +29,7 @@ MonoBehaviour:
   slotDropRequestEvent: {fileID: 11400000, guid: 84a2eb51e3076e8409032523460beef8, type: 2}
   inventoryToggleEvent: {fileID: 11400000, guid: 71845091c26c22049b862e665acb63b0, type: 2}
   inventoryErrorEvent: {fileID: 11400000, guid: a1ddeb37ec3ccc7afa910d2b76b0be56, type: 2}
+  cooldownStartedEvent: {fileID: 11400000, guid: cdb8cd12cc6bb12a0a183e99dcda5bdf, type: 2}
   interactFailedEvent: {fileID: 11400000, guid: 69b0b6370ac9f95ada13d3eca2316503, type: 2}
   interactCompletedEvent: {fileID: 11400000, guid: 121282a40ca38b6e59108c8a6bd53795, type: 2}
   npcInteractedEvent: {fileID: 11400000, guid: 1cea9c106a295fd5886bcfb49607666e, type: 2}

@@ -9,7 +9,7 @@
         <ui:VisualElement name="Header" class="header">
             <ui:Label text="✦ Gem Store ✦" name="Title" class="title" />
             <ui:VisualElement name="BalanceBadge" class="balance-badge">
-                <ui:Label text="💎" name="GemIcon" class="gem-icon" />
+                <ui:VisualElement name="GemIcon" class="gem-icon" />
                 <ui:Label text="0" name="GemBalanceLabel" class="balance-label" />
             </ui:VisualElement>
         </ui:VisualElement>

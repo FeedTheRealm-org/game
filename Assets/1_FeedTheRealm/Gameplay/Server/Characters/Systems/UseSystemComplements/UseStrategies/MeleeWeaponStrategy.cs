@@ -15,10 +15,17 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
 
         public MeleeWeaponStrategy(WeaponItemData data) => _data = data;
 
-        public float GetCooldown(UseContext ctx) => _data.attackSpeed;
+        public float GetCooldown(UseContext ctx, SlotCooldownTracker cooldowns) =>
+            _data.attackSpeed;
+
+        public bool CanExecute(
+            UseContext ctx,
+            SlotCooldownTracker cooldowns,
+            out float remaining
+        ) => !cooldowns.IsWeaponCoolingDown(_data.id, out remaining);
 
         public void RecordCooldown(UseContext ctx, SlotCooldownTracker cooldowns, int activeSlot) =>
-            cooldowns.RecordSlotUsed(activeSlot, _data.attackSpeed);
+            cooldowns.RecordWeaponUsed(_data.id, _data.attackSpeed);
 
         public void Execute(UseContext ctx)
         {

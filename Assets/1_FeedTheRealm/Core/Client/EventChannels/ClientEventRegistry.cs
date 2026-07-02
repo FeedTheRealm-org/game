@@ -45,6 +45,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
         public SlotDropRequestEvent slotDropRequestEvent;
         public InventoryToggleEvent inventoryToggleEvent;
         public InventoryErrorEvent inventoryErrorEvent;
+        public CooldownStartedEvent cooldownStartedEvent;
 
         [Header("Interact Events")]
         public InteractFailedEvent interactFailedEvent;
@@ -125,6 +126,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             builder.RegisterInstance(interactFailedEvent);
             builder.RegisterInstance(interactCompletedEvent);
             builder.RegisterInstance(inventoryErrorEvent);
+            builder.RegisterInstance(cooldownStartedEvent);
             builder.RegisterInstance(chatMessageRequestEvent);
             builder.RegisterInstance(chatToggleEvent);
             builder.RegisterInstance(portalToggleEvent);
@@ -170,6 +172,7 @@ namespace FeedTheRealm.Core.Client.EventChannels
             ValidateField(interactFailedEvent, nameof(interactFailedEvent));
             ValidateField(interactCompletedEvent, nameof(interactCompletedEvent));
             ValidateField(inventoryErrorEvent, nameof(inventoryErrorEvent));
+            ValidateField(cooldownStartedEvent, nameof(cooldownStartedEvent));
             ValidateField(chatMessageRequestEvent, nameof(chatMessageRequestEvent));
             ValidateField(chatToggleEvent, nameof(chatToggleEvent));
             ValidateField(portalToggleEvent, nameof(portalToggleEvent));
