@@ -183,6 +183,59 @@
     width: 100%;
 }
 
+/* Scrollbar — mirrors Assets/1_FeedTheRealm/UI/Components/Scrollbar/scrollbar.uss,
+   scoped under .content-section .unity-scroller so it wins over the default theme
+   without touching the gold sliders (which are not inside a .unity-scroller). */
+.content-section .unity-scroll-view__vertical-scroller {
+    width: 8px;
+    margin-left: 4px;
+}
+
+.content-section .unity-scroller--vertical > .unity-scroller__slider {
+    width: 8px;
+    margin: 0;
+}
+
+.content-section .unity-scroller__low-button,
+.content-section .unity-scroller__high-button {
+    display: none;
+}
+
+.content-section .unity-scroller .unity-base-slider__tracker {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-color: rgba(110, 255, 251, 0.15);
+    border-radius: 6px;
+    margin: 2px;
+}
+
+.content-section .unity-scroller .unity-base-slider__dragger {
+    background-color: rgba(110, 255, 251, 0.3);
+    border-width: 1px;
+    border-color: rgba(110, 255, 251, 0.5);
+    border-radius: 5px;
+    width: 10px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.content-section .unity-scroller .unity-base-slider__dragger:hover {
+    background-color: rgba(110, 255, 251, 0.45);
+    border-color: rgba(110, 255, 251, 0.7);
+}
+
+.content-section .unity-scroller .unity-base-slider__dragger:active {
+    background-color: rgba(110, 255, 251, 0.6);
+    border-color: var(--teal);
+}
+
+.controls-image {
+    width: 100%;
+    height: auto;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .section-title {
     font-size: 28px;
     -unity-font-style: bold;

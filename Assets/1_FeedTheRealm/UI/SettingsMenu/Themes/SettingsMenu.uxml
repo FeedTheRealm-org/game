@@ -1,6 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:ftr="FeedTheRealm.UI.Common" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/CustomDropdown.uss?fileID=7433441132597879392&amp;guid=8c8842165cbd80a8c848a17137a10c59&amp;type=3#CustomDropdown"/>
     <Style src="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=7be628a0b2142aa54b5c8f517b8ae6b3&amp;type=3#SettingsMenu"/>
+    <Style src="project://database/Assets/1_FeedTheRealm/UI/Components/Scrollbar/scrollbar.uss?fileID=7433441132597879392&amp;guid=f210ad3c09d09c548bca6bf90c47a04b&amp;type=3#scrollbar"/>
     <ui:VisualElement name="Body" class="settings-overlay">
         <ui:VisualElement name="Modal" class="settings-modal">
             <ui:VisualElement name="Sidebar" class="settings-sidebar">
@@ -8,6 +9,7 @@
                 <ui:VisualElement name="TitleDivider" class="sidebar-divider"/>
                 <ui:Button text="Display" name="DisplayButton" class="nav-button nav-button--selected"/>
                 <ui:Button text="Sound" name="SoundButton" class="nav-button"/>
+                <ui:Button text="Controls" name="ControlsButton" class="nav-button"/>
                 <ui:VisualElement name="Spacer" class="sidebar-spacer"/>
                 <ui:VisualElement name="BottomDivider" class="sidebar-divider"/>
                 <ui:Button text="Return Home" name="HomeButton" class="nav-button nav-button--danger"/>
@@ -15,8 +17,8 @@
                 <ui:VisualElement name="CloseDivider" class="sidebar-divider"/>
                 <ui:Button text="Close" name="CloseButton" class="nav-button nav-button--close"/>
             </ui:VisualElement>
-            <ui:VisualElement name="ContentPanel" class="settings-content-panel">
-                <ui:ScrollView name="DisplayContent" class="content-section">
+            <ui:VisualElement name="ContentPanel" tabindex="0" class="settings-content-panel">
+                <ui:ScrollView name="DisplayContent" enabled="true" class="content-section content-section--hidden">
                     <ui:Label text="Display" class="section-title"/>
                     <ui:VisualElement class="section-divider"/>
                     <ui:VisualElement class="setting-row">
@@ -29,7 +31,7 @@
                         <ui:Toggle label="Performance stats for nerds" toggle-on-label-click="true" value="true" name="PerformanceStats" class="setting-toggle"/>
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:ScrollView name="SoundContent" class="content-section content-section--hidden">
+                <ui:ScrollView name="SoundContent" enabled="true" class="content-section content-section--hidden">
                     <ui:Label text="Sound" class="section-title"/>
                     <ui:VisualElement class="section-divider"/>
                     <ui:VisualElement class="setting-row">
@@ -44,6 +46,10 @@
                     <ui:VisualElement class="setting-row">
                         <ui:Toggle label="Mute Sound" name="MuteToggle" value="false" class="setting-toggle"/>
                     </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:ScrollView name="ControlsContent" class="content-section" style="align-self: stretch; align-items: center; justify-content: center; align-content: flex-start;">
+                    <ui:Label text="Controls" class="section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px;"/>
+                    <ui:Image name="ControlsImage" source="project://database/Assets/1_FeedTheRealm/UI/SettingsMenu/Themes/controls.png?fileID=2800000&amp;guid=bf1e1c1d9c8c4e4f856b8597acefd012&amp;type=3#controls" scale-mode="ScaleToFit" class="controls-image" style="justify-content: center; height: 50%; width: 92%; flex-direction: row-reverse; align-self: center;"/>
                 </ui:ScrollView>
             </ui:VisualElement>
         </ui:VisualElement>
