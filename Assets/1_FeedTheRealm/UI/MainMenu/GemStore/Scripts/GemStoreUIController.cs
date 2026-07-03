@@ -77,7 +77,6 @@ public class GemStoreController : MonoBehaviour
         TemplateContainer card = packCardTemplate.Instantiate();
         VisualElement root = card.Q<VisualElement>("PackCard");
 
-        root.Q<Label>("PackGemIcon").text = "💎";
         root.Q<Label>("PackGemAmount").text = pack.gems.ToString();
         root.Q<Label>("PackPrice").text = $"${pack.price:0.00}";
 

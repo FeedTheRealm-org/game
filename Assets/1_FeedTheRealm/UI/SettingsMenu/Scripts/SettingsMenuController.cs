@@ -50,8 +50,10 @@ public class SettingsMenuController : MonoBehaviour
     private Button _closeSettingsButton;
     private Button _displayNavButton;
     private Button _soundNavButton;
+    private Button _controlsNavButton;
     private ScrollView _displayContent;
     private ScrollView _soundContent;
+    private ScrollView _controlsContent;
 
     /* Display */
     private CustomDropdown _resolutionSelect;
@@ -73,6 +75,7 @@ public class SettingsMenuController : MonoBehaviour
     {
         Display,
         Sound,
+        Controls,
     }
 
     private SettingsSection _activeSection = SettingsSection.Display;
@@ -98,10 +101,12 @@ public class SettingsMenuController : MonoBehaviour
         _closeSettingsButton = root.Q<Button>("CloseButton");
         _displayNavButton = root.Q<Button>("DisplayButton");
         _soundNavButton = root.Q<Button>("SoundButton");
+        _controlsNavButton = root.Q<Button>("ControlsButton");
 
         /* Content sections */
         _displayContent = root.Q<ScrollView>("DisplayContent");
         _soundContent = root.Q<ScrollView>("SoundContent");
+        _controlsContent = root.Q<ScrollView>("ControlsContent");
 
         if (
             _homeButton == null
@@ -109,8 +114,10 @@ public class SettingsMenuController : MonoBehaviour
             || _closeSettingsButton == null
             || _displayNavButton == null
             || _soundNavButton == null
+            || _controlsNavButton == null
             || _displayContent == null
             || _soundContent == null
+            || _controlsContent == null
         )
         {
             logger.Log(
@@ -223,8 +230,11 @@ public class SettingsMenuController : MonoBehaviour
             section == SettingsSection.Display ? DisplayStyle.Flex : DisplayStyle.None;
         _soundContent.style.display =
             section == SettingsSection.Sound ? DisplayStyle.Flex : DisplayStyle.None;
+        _controlsContent.style.display =
+            section == SettingsSection.Controls ? DisplayStyle.Flex : DisplayStyle.None;
         UpdateNavButtonSelection(_displayNavButton, section == SettingsSection.Display);
         UpdateNavButtonSelection(_soundNavButton, section == SettingsSection.Sound);
+        UpdateNavButtonSelection(_controlsNavButton, section == SettingsSection.Controls);
         soundPlayer.PlayUI(ClientSoundFXRegistry.SoundFXIds.SwitchTab);
     }
 
@@ -245,6 +255,7 @@ public class SettingsMenuController : MonoBehaviour
             _closeSettingsButton.clicked -= OnCloseClicked;
             _displayNavButton.clicked -= OnDisplayNavClicked;
             _soundNavButton.clicked -= OnSoundNavClicked;
+            _controlsNavButton.clicked -= OnControlsNavClicked;
             _fullscreenToggle.UnregisterValueChangedCallback(OnFullscreenChanged);
             _performanceStatsToggle?.UnregisterValueChangedCallback(OnPerformanceStatsChanged);
             if (_resolutionSelect != null)
@@ -261,6 +272,7 @@ public class SettingsMenuController : MonoBehaviour
         _closeSettingsButton.clicked += OnCloseClicked;
         _displayNavButton.clicked += OnDisplayNavClicked;
         _soundNavButton.clicked += OnSoundNavClicked;
+        _controlsNavButton.clicked += OnControlsNavClicked;
         _fullscreenToggle.RegisterValueChangedCallback(OnFullscreenChanged);
         _performanceStatsToggle?.RegisterValueChangedCallback(OnPerformanceStatsChanged);
         if (_resolutionSelect != null)
@@ -274,6 +286,8 @@ public class SettingsMenuController : MonoBehaviour
     private void OnDisplayNavClicked() => ShowSection(SettingsSection.Display);
 
     private void OnSoundNavClicked() => ShowSection(SettingsSection.Sound);
+
+    private void OnControlsNavClicked() => ShowSection(SettingsSection.Controls);
 
     public bool IsOpen() =>
         GetComponent<UIDocument>().rootVisualElement.style.display == DisplayStyle.Flex;

@@ -12,31 +12,37 @@ namespace FTR.Gameplay.Server.Characters.Systems.UseSystemComplements.UseStrateg
     public sealed class RangedWeaponStrategy : IUseStrategy
     {
         private readonly WeaponItemData _data;
-        private int _currentAmmo;
 
         public RangedWeaponStrategy(WeaponItemData data)
         {
             _data = data;
-            _currentAmmo = data.ammo;
         }
 
-        public float GetCooldown(UseContext ctx)
+        public float GetCooldown(UseContext ctx, SlotCooldownTracker cooldowns)
         {
-            return _currentAmmo > 0 ? _data.attackSpeed : _data.reloadSpeed;
+            int currentAmmo = cooldowns.GetWeaponAmmo(_data.id, _data.ammo);
+            return currentAmmo > 0 ? _data.attackSpeed : _data.reloadSpeed;
         }
+
+        public bool CanExecute(
+            UseContext ctx,
+            SlotCooldownTracker cooldowns,
+            out float remaining
+        ) => !cooldowns.IsWeaponCoolingDown(_data.id, out remaining);
 
         public void RecordCooldown(UseContext ctx, SlotCooldownTracker cooldowns, int activeSlot)
         {
-            _currentAmmo--;
+            int currentAmmo = cooldowns.GetWeaponAmmo(_data.id, _data.ammo) - 1;
 
-            if (_currentAmmo > 0)
+            if (currentAmmo > 0)
             {
-                cooldowns.RecordSlotUsed(activeSlot, _data.attackSpeed);
+                cooldowns.SetWeaponAmmo(_data.id, currentAmmo);
+                cooldowns.RecordWeaponUsed(_data.id, _data.attackSpeed);
             }
             else
             {
-                cooldowns.RecordSlotUsed(activeSlot, _data.reloadSpeed);
-                _currentAmmo = _data.ammo; // Reload
+                cooldowns.RecordWeaponUsed(_data.id, _data.reloadSpeed);
+                cooldowns.SetWeaponAmmo(_data.id, _data.ammo); // Reload
             }
         }
 

@@ -275,7 +275,7 @@ namespace FTR.Gameplay.Server.Characters.Systems
                     }
                 }
 
-                yield return new WaitForSeconds(currentStrategy.GetCooldown(ctx));
+                yield return new WaitForSeconds(currentStrategy.GetCooldown(ctx, cooldowns));
             }
 
             _autoAttackCoroutine = null;

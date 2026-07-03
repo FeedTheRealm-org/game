@@ -3,18 +3,33 @@
     <ui:VisualElement name="FastUseSlotsContainer" enabled="false" class="fast-use-container">
         <ui:VisualElement name="FastEquipSlot1" class="fast-equip-slot">
             <ui:VisualElement name="FastEquipIcon"/>
+            <ui:VisualElement name="CooldownOverlay" class="cooldown-overlay">
+                <ui:VisualElement name="CooldownBar" class="cooldown-bar"/>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="FastEquipSlot2" class="fast-equip-slot">
             <ui:VisualElement name="FastEquipIcon"/>
+            <ui:VisualElement name="CooldownOverlay" class="cooldown-overlay">
+                <ui:VisualElement name="CooldownBar" class="cooldown-bar"/>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="FastEquipSlot3" class="fast-equip-slot">
             <ui:VisualElement name="FastEquipIcon"/>
+            <ui:VisualElement name="CooldownOverlay" class="cooldown-overlay">
+                <ui:VisualElement name="CooldownBar" class="cooldown-bar"/>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="FastEquipSlot4" class="fast-equip-slot">
             <ui:VisualElement name="FastEquipIcon"/>
+            <ui:VisualElement name="CooldownOverlay" class="cooldown-overlay">
+                <ui:VisualElement name="CooldownBar" class="cooldown-bar"/>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="FastEquipSlot5" class="fast-equip-slot">
             <ui:VisualElement name="FastEquipIcon"/>
+            <ui:VisualElement name="CooldownOverlay" class="cooldown-overlay">
+                <ui:VisualElement name="CooldownBar" class="cooldown-bar"/>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:VisualElement name="CharacterData" class="character-data">

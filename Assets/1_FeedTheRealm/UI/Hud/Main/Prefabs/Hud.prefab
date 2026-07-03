@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -2726370582319225133}
   - component: {fileID: 3792253667818637069}
   - component: {fileID: 137168850807359979}
+  - component: {fileID: -6760133158987843666}
   m_Layer: 0
   m_Name: Hud
   m_TagString: Untagged
@@ -158,3 +159,15 @@ MonoBehaviour:
   logger: {fileID: 11400000, guid: 544ea290701b4455595d55f3c34b4fc5, type: 2}
   session: {fileID: 11400000, guid: 1249a41a5d0e4f74aaae0d52d4e22d43, type: 2}
   playerService: {fileID: 11400000, guid: c32e41c719d74440b9719caf3db30295, type: 2}
+--- !u!114 &-6760133158987843666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8198765365136042446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29d2daa8fed82f369817ba032464c770, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: FTR.UI.Client::FTR.UI.Hud.Main.FastSlotCooldownView

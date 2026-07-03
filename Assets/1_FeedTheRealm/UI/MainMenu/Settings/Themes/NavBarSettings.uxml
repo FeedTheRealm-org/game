@@ -11,6 +11,7 @@
                 <ui:VisualElement class="hpset-divider"/>
                 <ui:Button text="Display" name="HPSettings_DisplayButton" class="nav-button nav-button--selected"/>
                 <ui:Button text="Sound" name="HPSettings_SoundButton" class="nav-button"/>
+                <ui:Button text="Controls" name="HPSettings_ControlsButton" class="nav-button"/>
                 <ui:Button text="System" name="HPSettings_SystemButton" class="nav-button"/>
                 <ui:VisualElement class="hpset-spacer"/>
                 <ui:VisualElement class="hpset-divider"/>
@@ -43,6 +44,20 @@
                     <ui:VisualElement class="setting-row">
                         <ui:Toggle label="Mute Sound" name="HPSettings_MuteToggle" value="false" class="setting-toggle"/>
                     </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:ScrollView name="HPSettings_ControlsContent" class="hpset-section hpset-section--hidden" style="align-self: stretch; align-items: center; justify-content: center; align-content: flex-start;">
+                    <ui:Label text="Controls" class="hpset-section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px;"/>
+                    <ui:ScrollView>
+                        <ui:Label text="Movement" class="hpset-section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px; margin-top: 50px; font-size: 25px;"/>
+                        <ui:Image source="project://database/Assets/1_FeedTheRealm/UI/Assets/Movement.png?fileID=2800000&amp;guid=3aafc0a58c0df7c569ab8049e342694f&amp;type=3#Movement" scale-mode="StretchToFill" style="width: 390px; align-self: center; height: 272px; margin-top: 30px;"/>
+                        <ui:Label text="Actions" class="hpset-section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px; margin-top: 25px; font-size: 25px;"/>
+                        <ui:VisualElement enabled="true" style="flex-grow: 1; flex-direction: row; justify-content: space-between; align-items: center; align-self: stretch; padding-left: 25px; padding-right: 25px; visibility: visible; display: flex;">
+                            <ui:Label text="left-click: attack / consume&#10;inventory: drag &amp; drop items&#10;numbers 1-5: equip to hand" style="font-size: 22px; color: rgb(110, 255, 251);"/>
+                            <ui:Image name="Image" source="project://database/Assets/1_FeedTheRealm/UI/Assets/Actions.png?fileID=2800000&amp;guid=e1bd937f7319239e289c1881e6bf847f&amp;type=3#Actions" style="width: 469px;"/>
+                        </ui:VisualElement>
+                        <ui:Label text="Miscellaneous" class="hpset-section-title" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); padding-bottom: 10px; margin-top: 25px; font-size: 25px;"/>
+                        <ui:Image source="project://database/Assets/1_FeedTheRealm/UI/Assets/Misc.png?fileID=2800000&amp;guid=2bf209ece74a653bf86ad85ab1aaea51&amp;type=3#Misc" scale-mode="StretchToFill" style="width: 390px; align-self: center; height: 160px; margin-top: 30px;"/>
+                    </ui:ScrollView>
                 </ui:ScrollView>
                 <ui:ScrollView name="HPSettings_SystemContent" class="hpset-section hpset-section--hidden">
                     <ui:Label text="System" class="hpset-section-title"/>
