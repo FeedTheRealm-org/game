@@ -4,6 +4,7 @@ using FTR.Core.Common.Enums;
 using FTR.Core.Common.Protocol.RpcMessages;
 using FTR.Gameplay.Bot.Characters.Player;
 using FTR.Gameplay.Common.Linkers;
+using Google.Protobuf;
 using UnityEngine;
 using VContainer;
 
@@ -51,7 +52,7 @@ namespace FTR.Gameplay.Bot.Linkers
                     Type = TransactionType.SetUserId,
                     NetId = networkAdapter.netId,
                     Id = $"{config.BotJoinToken}_{session.UserID}",
-                    content = null,
+                    content = new JoinZoneMetaContent { IsTeleporting = false }.ToByteArray(),
                 }
             );
 
